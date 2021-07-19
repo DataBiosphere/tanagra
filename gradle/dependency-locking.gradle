@@ -1,0 +1,19 @@
+// see https://docs.gradle.org/current/userguide/dependency_locking.html
+dependencyLocking {
+    lockMode = LockMode.STRICT
+}
+
+configurations {
+    compileClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+    runtimeClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+    testCompileClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+    testRuntimeClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+}

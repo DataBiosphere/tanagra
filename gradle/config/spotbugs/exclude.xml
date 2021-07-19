@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- http://spotbugs.readthedocs.io/en/latest/filter.html -->
+<FindBugsFilter>
+
+    <!-- Do not check groovy -->
+    <Match>
+        <Source name="~.*\.groovy"/>
+    </Match>
+    <!-- Do not match on protobuf generated packages. Spotbugs only allows class name searches. -->
+    <Match>
+        <Package name="bio.terra.tanagra.proto.*"/>
+    </Match>
+
+    <!-- Disable check -->
+    <Match>
+        <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION" />
+    </Match>
+    <Match>
+        <!-- Disabled as confusing check (very misleading description) and also not so useful -->
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
+
+    <!-- Do not check class -->
+    <!--<Match>-->
+        <!--<Class name="com.foobar.ClassNotToBeAnalyzed" />-->
+    <!--</Match>-->
+</FindBugsFilter>

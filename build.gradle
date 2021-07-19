@@ -1,0 +1,92 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.15"
+    }
+}
+plugins {
+    id "idea"
+    id "java"
+    id "jacoco"
+
+    id "com.diffplug.spotless" version "5.10.2"
+    id "com.github.spotbugs" version "4.5.1"
+    id "com.google.protobuf" version "0.8.15"
+    id "de.undercouch.download" version "4.1.1"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+    id "org.hidetake.swagger.generator" version "2.18.2"
+    id "org.springframework.boot" version "2.5.1"
+    id "org.barfuin.gradle.taskinfo" version "1.1.1"
+    id "ru.vyarus.quality" version "4.5.0"
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+group = "bio.terra"
+
+ext {
+    artifactGroup = "${group}.tanagra"
+    openapiOutputDir = "${buildDir}/openapi"
+    resourceDir = "${projectDir}/src/main/resources"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+    }
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+    dependencies {
+        dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
+        dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
+    }
+}
+
+dependencies {
+    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.48-SNAPSHOT"
+    implementation group: "com.google.auto.value", name: "auto-value-annotations", version: "1.8.1"
+    annotationProcessor group: "com.google.auto.value", name: "auto-value", version: "1.8.1"
+    // Use compileClasspath to allow generated protobuf code to compile with this dependency.
+    compileClasspath group: "com.google.protobuf", name: "protobuf-java", version: "3.15.8"
+    implementation group: "com.google.guava", name: "guava", version: "30.1.1-jre"
+    implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+    annotationProcessor group: "org.springframework.boot", name: "spring-boot-configuration-processor"
+
+    // Dependencies whose versions are controlled by Spring
+    implementation group: "javax.validation", name: "validation-api"
+    implementation group: "org.springframework.boot", name: "spring-boot-starter-web"
+
+    // OpenApi(Swagger) dependencies
+    implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: "2.11.2"
+    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-jaxb-annotations", version: "2.11.2"
+    implementation group: "io.swagger.core.v3", name: "swagger-annotations"
+    implementation group: "io.swagger", name: "swagger-annotations", version: "1.6.2"
+    implementation group: "org.webjars", name: "webjars-locator-core", version: "0.46"
+    runtimeOnly group: "org.webjars.npm", name: "swagger-ui-dist", version: "3.36.2"
+    swaggerCodegen group: "io.swagger.codegen.v3", name: "swagger-codegen-cli"
+
+    // Test dependencies
+    // Jupiter version is managed by the Spring Boot plugin
+    testImplementation group: "org.junit.jupiter", name: "junit-jupiter"
+    testImplementation group: "org.junit.jupiter", name: "junit-jupiter-api"
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+    }
+}
+
+apply from: "$rootDir/gradle/dependency-locking.gradle"
+apply from: "$rootDir/gradle/javadoc.gradle"
+apply from: "$rootDir/gradle/open-api.gradle"
+apply from: "$rootDir/gradle/protobuf.gradle"
+apply from: "$rootDir/gradle/spotless.gradle"
+apply from: "$rootDir/gradle/test.gradle"

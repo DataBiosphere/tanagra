@@ -1,0 +1,15 @@
+server:
+  compression:
+    enabled: true
+    mime-types: text/css,application/javascript
+  port: 8080
+
+spring:
+  application:
+    name: tanagra
+  resources:
+    cache.cachecontrol:
+      max-age: 0
+      must-revalidate: true
+    # Allow serving the swagger-ui resource files.
+    static-locations: classpath:/api/

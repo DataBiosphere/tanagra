@@ -1,0 +1,36 @@
+openapi: 3.0.3
+info:
+  title: Tanagra Service API
+  description: TODO
+  version: 0.0.1
+
+servers:
+  - url: /
+
+paths:
+  '/status':
+    get:
+      security: []
+      summary: Returns the operational status of the service
+      operationId: serviceStatus
+      tags: [Unauthenticated]
+      responses:
+        200:
+          description: Service can process requests
+        500:
+          description: Service is broken
+
+components:
+  schemas:
+    ErrorReport:
+      type: object
+      required: [message, statusCode, causes]
+      properties:
+        message:
+          type: string
+        statusCode:
+          type: integer
+        causes:
+          type: array
+          items:
+            type: string

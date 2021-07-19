@@ -1,0 +1,25 @@
+/**
+ * Configs for the Gradle quality plugin.
+ *
+ * See docs at http://xvik.github.io/gradle-quality-plugin/4.5.0/
+ *
+ * For override files, see gradle/config/{toolName}/*.xml.
+ *
+ * To suppress a violation in code, use `@SuppressWarning("ViolationName")`.
+ */
+quality {
+    strict = true
+
+    pmd = true
+    pmdIncremental = false
+    pmdVersion = '6.31.0'
+
+    configDir = "/gradle/config/"
+
+    sourceSets = [
+        project.sourceSets.main,
+        project.sourceSets.test
+    ]
+
+    excludeSources = fileTree('build/generated')
+}

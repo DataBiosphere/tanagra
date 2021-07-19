@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+  <!-- Suppress all checks on generated files -->
+  <suppress files="build/*" checks="[a-zA-Z0-9]*"/>
+
+  <suppress checks="ClassFanOutComplexity"/>
+  <suppress checks="CyclomaticComplexity"/>
+  <suppress checks="DeclarationOrderCheck"/>
+  <suppress checks="ExecutableStatementCount"/>
+  <suppress checks="FinalClass"/>
+  <suppress checks="FinalLocalVariable"/>
+  <suppress checks="Indentation"/>
+  <suppress checks="InnerTypeLast"/>
+  <suppress checks="JavadocStyle"/>
+  <suppress checks="JavadocType"/>
+  <suppress checks="JavaNCSS"/>
+  <!-- Spotless is canonical for line length. -->
+  <suppress checks="LineLength"/>
+  <suppress checks="MultipleStringLiterals"/>
+  <!-- Spotless is canonical for line length. -->
+  <suppress checks="OperatorWrap"/>
+  <suppress checks="ReturnCount"/>
+  <!-- Spotless is canonical for whitespace. -->
+  <suppress checks="WhitespaceAround"/>
+
+</suppressions>
