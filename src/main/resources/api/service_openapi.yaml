@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Tanagra Service API
-  description: TODO
-  version: 0.0.1
+  description: github.com/DataBiosphere/tanagra
+  version: 0.0.0
 
 servers:
   - url: /
