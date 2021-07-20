@@ -1,0 +1,45 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Run API Service Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ '**' ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up AdoptOpenJDK 11
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: 11
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+      - name: Grant execute permission for gradlew
+        run: chmod +x api/gradlew
+      - name: Build API
+        run: ./api/gradlew build
+      - name: Run API tests
+        run: ./api/gradlew test
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test Reports
+          path: api/build/reports
+      - name: Upload Jacoco Reports
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Test Reports
+          path: api/build/jacoco
