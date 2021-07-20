@@ -1,8 +1,5 @@
-HELP.md
 .gradle
 build/
-local-dev/terra-helm/
-local-dev/terra-helmfile/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**
@@ -38,10 +35,6 @@ out/
 
 ### Mac directory metadata
 .DS_Store
-
-### OpenAPI CodeGen detritus
-.openapi-generator/
-pom.xml
 
 # Package Files #
 *.war
