@@ -1,0 +1,16 @@
+spotless {
+    groovyGradle {
+        target '**/*.gradle'
+        greclipse()
+        indentWithSpaces()
+    }
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        targetExclude "${project.buildDir}/**"
+    }
+}
+
+compileJava.dependsOn spotlessApply
+// Spotless shouldn't apply the swagger code, but this resolves an implicit dependency
+spotlessJava.dependsOn generateSwaggerCodeServer
