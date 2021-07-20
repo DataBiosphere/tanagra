@@ -28,12 +28,10 @@ jobs:
       - name: Grant execute permission for gradlew
         working-directory: api
         run: chmod +x gradlew
-      - name: Build API
+      - name: Gradle Build API
         working-directory: api
+        # the build task includes the test and quality static analysis tasks.
         run: ./gradlew build
-      - name: Run API tests
-        working-directory: api
-        run: ./gradlew test
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
