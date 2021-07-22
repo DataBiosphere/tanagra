@@ -3,7 +3,6 @@ package bio.terra.tanagra.service.search;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import bio.terra.tanagra.service.search.Filter.BinaryFunction.Operator;
 import bio.terra.tanagra.service.search.testing.SimpleUnderlaySqlResolver;
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Tag;
@@ -25,7 +24,7 @@ public class SqlVisitorTest {
     Filter.BinaryFunction lessThanFilter =
         Filter.BinaryFunction.create(
             Expression.AttributeExpression.create(HEIGHT),
-            Operator.LESS_THAN,
+            Filter.BinaryFunction.Operator.LESS_THAN,
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
         "person.height < 62", lessThanFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
@@ -33,7 +32,7 @@ public class SqlVisitorTest {
     Filter.BinaryFunction equalsFilter =
         Filter.BinaryFunction.create(
             Expression.AttributeExpression.create(HEIGHT),
-            Operator.EQUALS,
+            Filter.BinaryFunction.Operator.EQUALS,
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
         "person.height = 62", equalsFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
@@ -45,7 +44,7 @@ public class SqlVisitorTest {
         ImmutableList.of(
             Filter.BinaryFunction.create(
                 Expression.AttributeExpression.create(HEIGHT),
-                Operator.LESS_THAN,
+                Filter.BinaryFunction.Operator.LESS_THAN,
                 Expression.Literal.create(DataType.INT64, "62")),
             Filter.BinaryFunction.create(
                 Expression.AttributeExpression.create(FIRST_NAME),
