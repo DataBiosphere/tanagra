@@ -3,8 +3,10 @@ package bio.terra.tanagra.service.search;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.tanagra.service.search.SqlVisitor.SelectionVisitor;
 import bio.terra.tanagra.service.search.testing.SimpleUnderlaySqlResolver;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +20,48 @@ public class SqlVisitorTest {
       Attribute.builder().name("height").dataType(DataType.INT64).entity(PERSON).build();
   private static final Attribute FIRST_NAME =
       Attribute.builder().name("first_name").dataType(DataType.STRING).entity(PERSON).build();
+
+  @Test
+  void query() {
+    Query query =
+        Query.create(
+            ImmutableList.of(
+                Selection.SelectExpression.create(Expression.AttributeExpression.create(HEIGHT)),
+                Selection.SelectExpression.create(
+                    Expression.AttributeExpression.create(FIRST_NAME))),
+            PERSON,
+            Optional.of(
+                Filter.BinaryFunction.create(
+                    Expression.AttributeExpression.create(HEIGHT),
+                    Filter.BinaryFunction.Operator.EQUALS,
+                    Expression.Literal.create(DataType.INT64, "62"))));
+    assertEquals(
+        "SELECT person.height, person.first_name FROM foo.person WHERE person.height = 62",
+        new SqlVisitor(SIMPLE_CONTEXT).createSql(query));
+  }
+
+  @Test
+  void selectionExpression() {
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    assertEquals(
+        "person.height AS h",
+        Selection.SelectExpression.create(
+                Expression.AttributeExpression.create(HEIGHT), Optional.of("h"))
+            .accept(visitor));
+    assertEquals(
+        "person.height",
+        Selection.SelectExpression.create(
+                Expression.AttributeExpression.create(HEIGHT), Optional.empty())
+            .accept(visitor));
+  }
+
+  @Test
+  void selectionCount() {
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    assertEquals(
+        "COUNT(person) AS c", Selection.Count.create(PERSON, Optional.of("c")).accept(visitor));
+    assertEquals("COUNT(person)", Selection.Count.create(PERSON, Optional.empty()).accept(visitor));
+  }
 
   @Test
   void filterBinaryFunction() {
