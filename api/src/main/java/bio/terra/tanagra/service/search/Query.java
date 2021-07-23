@@ -10,7 +10,7 @@ import java.util.Optional;
 @AutoValue
 public abstract class Query {
   /** What to select for the query. */
-  // TODO consider selections with a different entty than the primary entity.
+  // TODO consider selections with a different entity than the primary entity.
   public abstract ImmutableList<Selection> selections();
 
   /** The primary entity being queried. */
