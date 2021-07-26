@@ -11,6 +11,7 @@ import org.apache.commons.text.StringSubstitutor;
 
 /** Visitors for walking query constructs to create SQL. */
 // TODO consider how this may need to be split for different SQL backends.
+// TODO consider the jOOQ DSL.
 public class SqlVisitor {
   private final SearchContext searchContext;
 
@@ -123,11 +124,16 @@ public class SqlVisitor {
 
     @Override
     public String visitLiteral(Expression.Literal literal) {
-      // TODO consider parameterizing output to avoid injection.
-      if (DataType.STRING.equals(literal.dataType())) {
-        return String.format("'%s'", literal.value());
+      // TODO parameterize output to avoid injection.
+      switch (literal.dataType()) {
+        case STRING:
+          return String.format("'%s'", literal.value());
+        case INT64:
+          return literal.value();
+        default:
+          throw new UnsupportedOperationException(
+              String.format("Unsupported DataType %s", literal.dataType()));
       }
-      return literal.value();
     }
 
     @Override
