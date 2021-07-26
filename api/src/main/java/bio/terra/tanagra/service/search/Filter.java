@@ -21,6 +21,8 @@ public interface Filter {
     R visitArrayFunction(ArrayFunction arrayFunction);
 
     R visitBinaryComparision(BinaryFunction binaryFunction);
+
+    R visitThereExists(ThereExists thereExists);
   }
 
   /** Accept the {@link Visitor} pattern. */
@@ -74,5 +76,60 @@ public interface Filter {
     }
   }
 
-  // TODO implement a relationship filter tht allows chaining to another entity.
+  // DO NOT SUBMIT comment me.
+  // There exists var X with relationship X -> Y and Filter F
+  @AutoValue
+  abstract class ThereExists implements Filter {
+
+    /** A new {@link EntityVariable} introduced by this filter. */
+    public abstract EntityVariable bound();
+
+    /** An already existing {@link EntityVariable} that the new variable is related to. */
+    public abstract EntityVariable relatedTo();
+
+    /** The relationship between the new bound variable and the existing variable. */
+    public abstract Relationship relationship();
+
+    /** The filter to apply to the bound variable. */
+    public abstract Filter filter();
+
+    public Attribute boundAttribute() {
+      return
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitThereExists(this);
+    }
+
+    public static Builder builder() {
+      return new AutoValue_Filter_ThereExists.Builder();
+    }
+
+    /** A builder for {@link ThereExists}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder bound(EntityVariable bound);
+      public abstract  EntityVariable bound();
+
+      public abstract Builder relatedTo(EntityVariable relatedTo);
+      public abstract EntityVariable relatedTo();
+
+      public abstract Builder relationship(Relationship relationship);
+      public abstract Relationship relationship();
+
+      public abstract Builder filter(Filter filter);
+      public abstract Filter filter();
+
+      public ThereExists build() {
+        boolean boundToRole1 = bound().entity().equals(relationship().role1().entity()) && relatedTo().entity().equals(relationship().role2().entity());
+        boolean boundToRole2 = bound().entity().equals(relationship().role2().entity()) && relatedTo().entity().equals(relationship().role1().entity())
+        Preconditions.checkArgument(
+        boundToRole1 ^ boundToRole2, "The relationship entity roles must match the bound and relatedTo variables.\nrelationship %s\nbound %s\nrelatedTo %s", relationship(),
+            bound(), relatedTo());
+        return autoBuild();
+      }
+      abstract ThereExists autoBuild();
+    }
+  }
 }

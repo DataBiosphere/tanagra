@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
+import java.util.Optional;
 
 /** A construct in a query syntax tree that evaluates to a value. */
 public interface Expression {
@@ -40,8 +41,15 @@ public interface Expression {
   abstract class AttributeExpression implements Expression {
     public abstract Attribute attribute();
 
+    // DO NOT SUBMIT - ref entity variable? Full Variable class?
+    public abstract Optional<String> variableName();
+
+    public static AttributeExpression create(Attribute attribute, Optional<String> variableName) {
+      return new AutoValue_Expression_AttributeExpression(attribute, variableName);
+    }
+
     public static AttributeExpression create(Attribute attribute) {
-      return new AutoValue_Expression_AttributeExpression(attribute);
+      return create(attribute, Optional.empty());
     }
 
     @Override

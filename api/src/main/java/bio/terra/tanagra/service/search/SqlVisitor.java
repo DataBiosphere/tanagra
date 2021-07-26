@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.search;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
+import bio.terra.tanagra.service.search.Filter.ThereExists;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
@@ -111,6 +112,22 @@ public class SqlVisitor {
               String.format("Unsupported BinaryFunction.Operator %s", binaryFunction.operator()));
       }
     }
+
+    @Override
+    public String visitThereExists(ThereExists thereExists) {
+
+      String subSql = thereExists.filter().accept(this);
+      String template = "${attribute} IN (SELECT ${beta} FROM ${table} WHERE ${sub_sql})";
+      ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+      Map<String, String> params =
+          ImmutableMap.<String, String>builder()
+              .put("attribute", expressionVisitor.visitAttribute())
+              .put("beta", expressionVisitor.visitAttribute(predicate.beta()))
+              .put("table", toSql(predicate.beta().attribute().table()))
+              .put("sub_sql", subSql)
+              .build();
+      return StringSubstitutor.replace(template, params);
+    }
   }
 
   /** A {@link Expression.Visitor} for creating SQL for expressions. */
@@ -133,7 +150,7 @@ public class SqlVisitor {
     @Override
     public String visitAttribute(AttributeExpression attributeExpression) {
       // TODO consider aliasing entities.
-      return searchContext.underlaySqlResolver().resolve(attributeExpression.attribute());
+      return searchContext.underlaySqlResolver().resolve(attributeExpression);
     }
   }
 }
