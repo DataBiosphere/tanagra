@@ -14,4 +14,4 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 /** Base class for Spring unit tests. */
-public class BaseUnitTest {}
+public class BaseSpringUnitTest {}
