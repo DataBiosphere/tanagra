@@ -46,6 +46,7 @@ public interface Selection {
   }
 
   /** A {@link Selection} for counting entities. */
+  // TODO consider Count as an expression.
   @AutoValue
   abstract class Count implements Selection {
     /** The entity to count. */
