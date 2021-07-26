@@ -9,8 +9,10 @@ import com.google.auto.value.AutoValue;
  */
 @AutoValue
 public abstract class Entity {
+  /** The name of the entity. */
   public abstract String name();
 
+  /** The name of the dataset underlay that this entity is a part of. */
   public abstract String underlay();
 
   public static Builder builder() {
