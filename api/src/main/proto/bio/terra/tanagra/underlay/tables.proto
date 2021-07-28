@@ -1,0 +1,42 @@
+// The physical tables that make up a data underlay.
+
+syntax = "proto3";
+
+package bio.terra.tanagra.underlay;
+option java_package = "bio.terra.tanagra.proto.underlay";
+option java_multiple_files = true;
+
+import "bio/terra/tanagra/underlay/shared.proto";
+
+message Dataset {
+  // The name of this dataset.
+  string name = 1;
+
+  message BigQueryDataset {
+    // The id of the Google project containing the dataset.
+    string project_id = 1;
+    // The id of the BigQuery dataset.
+    string dataset_id = 2;
+  }
+  oneof dataset {
+    BigQueryDataset big_query_dataset = 2;
+  }
+
+  repeated Table tables = 3;
+}
+
+message Table {
+  // The name of the table.
+  string name = 1;
+  // The string used to access a dataset.
+  // TODO consider how to support multiple datasets, e.g. postgres & BigQuery
+  string dataset = 2;
+
+  repeated Column columns = 3;
+}
+
+// A description of a table's column.
+message Column {
+  optional string name = 1;
+  optional DataType data_type = 2;
+}
