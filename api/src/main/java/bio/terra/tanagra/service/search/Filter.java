@@ -22,7 +22,7 @@ public interface Filter {
 
     R visitBinaryComparision(BinaryFunction binaryFunction);
 
-    R visitThereExists(ThereExists thereExists);
+    R visitRelationship(RelationshipFilter relationshipFilter);
   }
 
   /** Accept the {@link Visitor} pattern. */
@@ -76,60 +76,66 @@ public interface Filter {
     }
   }
 
-  // DO NOT SUBMIT comment me.
-  // There exists var X with relationship X -> Y and Filter F
+  /**
+   * A {@link Filter} that introduces a constraint that there must be a relationship to another
+   * entity.
+   *
+   * <p>This quantifiers introduces a new {@link Variable} and implicitly binds it to an entity in
+   * {@link #boundAttribute()}.
+   *
+   * <p>This is equivalent to the pseudo-SQL ":outerAttribute IN (SELECT :boundAttribute FROM
+   * :boundAttribute.entity AS :boundAttribute.variable WHERE :filter".
+   *
+   * <p>Or in words "there exists {@link #boundVariable} that's a member of {@link
+   * #boundAttribute}'s Entity where {@link #boundAttribute()} equals {@link #outerAttribute()} and
+   * {@link #filter}": ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter).
+   */
   @AutoValue
-  abstract class ThereExists implements Filter {
+  abstract class RelationshipFilter implements Filter {
 
-    /** A new {@link EntityVariable} introduced by this filter. */
-    public abstract EntityVariable bound();
+    /**
+     * The attribute of the newly introduced variable's entity that is equal to {@link
+     * #outerAttribute}.
+     */
+    public abstract AttributeVariable boundAttribute();
 
-    /** An already existing {@link EntityVariable} that the new variable is related to. */
-    public abstract EntityVariable relatedTo();
-
-    /** The relationship between the new bound variable and the existing variable. */
-    public abstract Relationship relationship();
+    /** The attribute of an outer variable that's equal to {@link #boundAttribute}. */
+    public abstract AttributeVariable outerAttribute();
 
     /** The filter to apply to the bound variable. */
     public abstract Filter filter();
 
-    public Attribute boundAttribute() {
-      return
-    }
-
     @Override
     public <R> R accept(Visitor<R> visitor) {
-      return visitor.visitThereExists(this);
+      return visitor.visitRelationship(this);
     }
 
     public static Builder builder() {
-      return new AutoValue_Filter_ThereExists.Builder();
+      return new AutoValue_Filter_RelationshipFilter.Builder();
     }
 
-    /** A builder for {@link ThereExists}. */
+    /** Builder for {@link RelationshipFilter}. */
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder bound(EntityVariable bound);
-      public abstract  EntityVariable bound();
 
-      public abstract Builder relatedTo(EntityVariable relatedTo);
-      public abstract EntityVariable relatedTo();
+      public abstract Builder boundAttribute(AttributeVariable boundAttribute);
 
-      public abstract Builder relationship(Relationship relationship);
-      public abstract Relationship relationship();
+      public abstract AttributeVariable boundAttribute();
+
+      public abstract Builder outerAttribute(AttributeVariable outerAttribute);
+
+      public abstract AttributeVariable outerAttribute();
 
       public abstract Builder filter(Filter filter);
-      public abstract Filter filter();
 
-      public ThereExists build() {
-        boolean boundToRole1 = bound().entity().equals(relationship().role1().entity()) && relatedTo().entity().equals(relationship().role2().entity());
-        boolean boundToRole2 = bound().entity().equals(relationship().role2().entity()) && relatedTo().entity().equals(relationship().role1().entity())
+      public RelationshipFilter build() {
         Preconditions.checkArgument(
-        boundToRole1 ^ boundToRole2, "The relationship entity roles must match the bound and relatedTo variables.\nrelationship %s\nbound %s\nrelatedTo %s", relationship(),
-            bound(), relatedTo());
+            !boundAttribute().variable().equals(outerAttribute().variable()),
+            "Cannot bind a new variable to the outer attribute's variable. ");
         return autoBuild();
       }
-      abstract ThereExists autoBuild();
+
+      abstract RelationshipFilter autoBuild();
     }
   }
 }

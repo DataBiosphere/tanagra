@@ -46,17 +46,17 @@ public interface Selection {
   }
 
   /** A {@link Selection} for counting entities. */
-  // TODO consider Count as an expression.
+  // TODO consider Count as an expression or aggregated entity.
   @AutoValue
   abstract class Count implements Selection {
     /** The entity to count. */
-    public abstract Entity entity();
+    public abstract EntityVariable entityVariable();
 
     /** An alias to name this selection. */
     abstract Optional<String> alias();
 
-    public static Count create(Entity entity, Optional<String> alias) {
-      return new AutoValue_Selection_Count(entity, alias);
+    public static Count create(EntityVariable entityVariable, Optional<String> alias) {
+      return new AutoValue_Selection_Count(entityVariable, alias);
     }
 
     @Override
