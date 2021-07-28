@@ -2,7 +2,8 @@ package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
 
-// DO NOT SUBMIT comment me
+/** An {@link Attribute} for a bound {@link Variable}.
+ * <p> e.g. x.attribute in "SELECT x.attribute FROM entity as x". */
 @AutoValue
 public abstract class AttributeVariable {
   public abstract Attribute attribute();

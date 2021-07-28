@@ -86,9 +86,9 @@ public interface Filter {
    * <p>This is equivalent to the pseudo-SQL ":outerAttribute IN (SELECT :boundAttribute FROM
    * :boundAttribute.entity AS :boundAttribute.variable WHERE :filter".
    *
-   * <p>Or in words "there exists {@link #boundVariable} that's a member of {@link
-   * #boundAttribute}'s Entity where {@link #boundAttribute()} equals {@link #outerAttribute()} and
-   * {@link #filter}": ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter).
+   * <p>Or in words ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter): there exists {@link #boundAttribute()} that's a member of {@link
+   * #boundAttribute()}'s Entity where {@link #boundAttribute()} equals {@link #outerAttribute()} and
+   * {@link #filter}.
    */
   @AutoValue
   abstract class RelationshipFilter implements Filter {
@@ -102,7 +102,7 @@ public interface Filter {
     /** The attribute of an outer variable that's equal to {@link #boundAttribute}. */
     public abstract AttributeVariable outerAttribute();
 
-    /** The filter to apply to the bound variable. */
+    /** The filter to apply to the bound variable. This may refer to outer variables. */
     public abstract Filter filter();
 
     @Override

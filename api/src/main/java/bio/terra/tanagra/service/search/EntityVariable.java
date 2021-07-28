@@ -2,13 +2,14 @@ package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
 
-/** A variable binding for an entity. */
-// DO NOT SUBMIT better comment.
+/** A {@link Entity} bound to a variable.
+ * <p> e.g. "entity as x" in "SELECT x.* FROM entity as x". */
 @AutoValue
 public abstract class EntityVariable {
   /* The entity of this variable's type.  */
   public abstract Entity entity();
 
+  /* The variable bound to the entity. */
   public abstract Variable variable();
 
   public static EntityVariable create(Entity entity, Variable variable) {
