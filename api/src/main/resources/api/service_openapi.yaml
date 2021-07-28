@@ -20,8 +20,149 @@ paths:
         500:
           description: Service is broken
 
+  # TODO implement "real" export endpoints
+  '/entityFilter/sqlQuery':
+    post:
+      # TODO authorization
+      security: []
+      summary: Returns an SQL query for listing all of a Entity's primary keys.
+      operationId: entitySqlQuery
+      tags: [Entity]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityFilter'
+      responses:
+        200:
+          $ref: '#/components/responses/SqlQueryResponse'
+
 components:
+  responses:
+    SqlQueryResponse:
+      description: A raw SQL query.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SqlQuery'
+
   schemas:
+    AttributeVariable:
+      description: An attribute of a variable for an entity.
+      type: object
+      required: [name, variable]
+      properties:
+        name:
+          description: The name of the attribute
+          type: string
+        variable:
+          description: The variable value
+          type: string
+
+    AttributeValue:
+      type: object
+      description: A possible value of an attribute. Exactly one field must be specified.
+      properties:
+        int64Val:
+          type: integer
+          format: int64
+        stringVal:
+          type: string
+        boolVal:
+          type: boolean
+
+    EntityFilter:
+      description: A filter to apply to the given entity.
+      type: object
+      properties:
+        entity:
+          description: The name of the entity
+          type: string
+        underlay:
+          description: The name of the underlay containing this entity.
+          type: string
+        entityVariable:
+          description: The variable to use for the top level entity in the filter.
+          type: string
+        filter:
+          $ref: '#/components/schemas/Filter'
+
+    SqlQuery:
+      type: object
+      description: A raw SQL query.
+      properties:
+        query:
+          type: string
+
+    # Filters
+    Filter:
+      type: object
+      description: |
+        Base Filter type that contains one-of any Filter subtype.
+        OpenApi inheritance and one-of code generation support are not great, so we roll our own.
+      properties:
+        arrayFilter:
+          $ref: '#/components/schemas/ArrayFilter'
+        binaryFilter:
+          $ref: '#/components/schemas/BinaryFilter'
+        relationshipFilter:
+          $ref: '#/components/schemas/RelationshipFilter'
+        # TODO allow aggregations in filters.
+
+    ArrayFilter:
+      type: object
+      description: A filter function for operating on N operands.
+      properties:
+        operands:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        operator:
+          $ref: '#/components/schemas/ArrayFilterOperator'
+
+    ArrayFilterOperator:
+      description: Enum for array function operators
+      type: string
+      enum: ['AND', 'OR']
+
+    BinaryFilter:
+      type: object
+      description: |
+        A binary filter function. Function ordered as `attribute operator attributeValue`
+      # TODO allow comparing two AttributeVariables
+      properties:
+        attributeVariable:
+          $ref: '#/components/schemas/AttributeVariable'
+        operator:
+          $ref: '#/components/schemas/BinaryFilterOperator'
+        attributeValue:
+          $ref: '#/components/schemas/AttributeValue'
+
+    BinaryFilterOperator:
+      description: Enum for binary function operators
+      type: string
+      enum: ['EQUALS', 'LESS_THAN']
+
+    RelationshipFilter:
+      type: object
+      description: |
+        A filter that requires a relationship between an entity variable and another entity.
+      properties:
+        outerVariable:
+          description: |
+            A variable that already exists that must have the relationship described by this filter.
+          type: string
+        newVariable:
+          description: The name of the new variable that must be related to the outerVariable.
+          type: string
+        newEntity:
+          description: The name of the type of entity the newVariable is.
+          type: string
+        filter:
+          $ref: '#/components/schemas/Filter'
+
+
     ErrorReport:
       type: object
       required: [message, statusCode, causes]
