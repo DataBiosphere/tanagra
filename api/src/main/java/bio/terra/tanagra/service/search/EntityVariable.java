@@ -2,8 +2,11 @@ package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
 
-/** A {@link Entity} bound to a variable.
- * <p> e.g. "entity as x" in "SELECT x.* FROM entity as x". */
+/**
+ * A {@link Entity} bound to a variable.
+ *
+ * <p>e.g. "entity as x" in "SELECT x.* FROM entity as x".
+ */
 @AutoValue
 public abstract class EntityVariable {
   /* The entity of this variable's type.  */
