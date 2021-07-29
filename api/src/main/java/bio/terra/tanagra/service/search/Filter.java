@@ -21,6 +21,8 @@ public interface Filter {
     R visitArrayFunction(ArrayFunction arrayFunction);
 
     R visitBinaryComparision(BinaryFunction binaryFunction);
+
+    R visitRelationship(RelationshipFilter relationshipFilter);
   }
 
   /** Accept the {@link Visitor} pattern. */
@@ -74,5 +76,66 @@ public interface Filter {
     }
   }
 
-  // TODO implement a relationship filter tht allows chaining to another entity.
+  /**
+   * A {@link Filter} that introduces a constraint that there must be a relationship to another
+   * entity.
+   *
+   * <p>This quantifiers introduces a new {@link Variable} and implicitly binds it to an entity in
+   * {@link #boundAttribute()}.
+   *
+   * <p>This is equivalent to the pseudo-SQL ":outerAttribute IN (SELECT :boundAttribute FROM
+   * :boundAttribute.entity AS :boundAttribute.variable WHERE :filter".
+   *
+   * <p>Or in words ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter): there exists {@link
+   * #boundAttribute()} that's a member of {@link #boundAttribute()}'s Entity where {@link
+   * #boundAttribute()} equals {@link #outerAttribute()} and {@link #filter}.
+   */
+  @AutoValue
+  abstract class RelationshipFilter implements Filter {
+
+    /**
+     * The attribute of the newly introduced variable's entity that is equal to {@link
+     * #outerAttribute}.
+     */
+    public abstract AttributeVariable boundAttribute();
+
+    /** The attribute of an outer variable that's equal to {@link #boundAttribute}. */
+    public abstract AttributeVariable outerAttribute();
+
+    /** The filter to apply to the bound variable. This may refer to outer variables. */
+    public abstract Filter filter();
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitRelationship(this);
+    }
+
+    public static Builder builder() {
+      return new AutoValue_Filter_RelationshipFilter.Builder();
+    }
+
+    /** Builder for {@link RelationshipFilter}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      public abstract Builder boundAttribute(AttributeVariable boundAttribute);
+
+      public abstract AttributeVariable boundAttribute();
+
+      public abstract Builder outerAttribute(AttributeVariable outerAttribute);
+
+      public abstract AttributeVariable outerAttribute();
+
+      public abstract Builder filter(Filter filter);
+
+      public RelationshipFilter build() {
+        Preconditions.checkArgument(
+            !boundAttribute().variable().equals(outerAttribute().variable()),
+            "Cannot bind a new variable to the outer attribute's variable. ");
+        return autoBuild();
+      }
+
+      abstract RelationshipFilter autoBuild();
+    }
+  }
 }

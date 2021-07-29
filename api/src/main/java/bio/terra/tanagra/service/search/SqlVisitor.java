@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.search;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
+import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
@@ -54,8 +55,8 @@ public class SqlVisitor {
 
     @Override
     public String count(Selection.Count count) {
-      // TODO consider aliasing entities.
-      return String.format("COUNT(%s)%s", count.entity().name(), aliasSuffix(count.alias()));
+      return String.format(
+          "COUNT(%s)%s", count.entityVariable().variable().name(), aliasSuffix(count.alias()));
     }
 
     /** Returns " AS alias" or else "" if the alias is not present. */
@@ -112,6 +113,32 @@ public class SqlVisitor {
               String.format("Unsupported BinaryFunction.Operator %s", binaryFunction.operator()));
       }
     }
+
+    @Override
+    public String visitRelationship(RelationshipFilter relationshipFilter) {
+      String subFilterSql = relationshipFilter.filter().accept(this);
+      String template =
+          "${outerAttribute} IN (SELECT ${boundAttribute} FROM ${bound_var} WHERE ${sub_filter})";
+      ExpressionVisitor expressionVisitor = new ExpressionVisitor(searchContext);
+      Map<String, String> params =
+          ImmutableMap.<String, String>builder()
+              .put(
+                  "outerAttribute",
+                  expressionVisitor.visitAttribute(
+                      AttributeExpression.create(relationshipFilter.outerAttribute())))
+              .put(
+                  "boundAttribute",
+                  expressionVisitor.visitAttribute(
+                      AttributeExpression.create(relationshipFilter.boundAttribute())))
+              .put(
+                  "bound_var",
+                  searchContext
+                      .underlaySqlResolver()
+                      .resolveTable(relationshipFilter.boundAttribute().entityVariable()))
+              .put("sub_filter", subFilterSql)
+              .build();
+      return StringSubstitutor.replace(template, params);
+    }
   }
 
   /** A {@link Expression.Visitor} for creating SQL for expressions. */
@@ -138,8 +165,7 @@ public class SqlVisitor {
 
     @Override
     public String visitAttribute(AttributeExpression attributeExpression) {
-      // TODO consider aliasing entities.
-      return searchContext.underlaySqlResolver().resolve(attributeExpression.attribute());
+      return searchContext.underlaySqlResolver().resolve(attributeExpression.attributeVariable());
     }
   }
 }
