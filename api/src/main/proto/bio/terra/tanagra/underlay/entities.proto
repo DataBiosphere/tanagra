@@ -13,7 +13,6 @@ import "bio/terra/tanagra/underlay/shared.proto";
 message Entity {
   // The name of the entity.
   string name = 1;
-
   // The attributes in an entity.
   repeated Attribute attributes = 2;
 }
@@ -22,7 +21,7 @@ message Entity {
 message Attribute {
   // The name of the attribute.
   string name = 1;
-
+  // The type of data for the attribute.
   DataType data_type = 2;
 }
 
@@ -30,6 +29,8 @@ message Attribute {
 message Relationship {
   // The name of the relationship.
   string name = 1;
+  // The name of the first entity.
   string entity1 = 2;
+  // The name of the second entity.
   string entity2 = 3;
 }
