@@ -21,6 +21,7 @@
   <!-- Spotless is canonical for line length. -->
   <suppress checks="LineLength"/>
   <suppress checks="MultipleStringLiterals"/>
+  <suppress checks="NPathComplexity"/>
   <!-- Spotless is canonical for line length. -->
   <suppress checks="OperatorWrap"/>
   <suppress checks="ReturnCount"/>

@@ -9,18 +9,6 @@ option java_multiple_files = true;
 import "bio/terra/tanagra/underlay/entities.proto";
 import "bio/terra/tanagra/underlay/tables.proto";
 
-// How to map an underlay.
-message UnderlayMapping {
-  // The name of the underlay being mapped.
-  string underlay = 1;
-
-  // Every attribute in an underlay must have a mapping.
-  repeated AttributeMapping attribute_mappings = 2;
-
-  // Every relationship in an underlay must have a mapping.
-  repeated RelationshipMapping relationship_mappings = 3;
-}
-
 // An id to uniquely idnetify a column of a table within an underlay.
 message ColumnId {
   // The name of the dataset.
@@ -39,12 +27,23 @@ message AttributeId {
   string attribute = 2;
 }
 
+// How to map an entity.
+message EntityMapping {
+  // The name of the entity being mapped.
+  string entity = 1;
+
+  // The primary key for the entity. This is used to uniquely identify an entity
+  // and the corresponding table is treated as the entity's primary table.
+  ColumnId primaryKey = 2;
+}
+
 // How to map an attribute.
 message AttributeMapping {
   // The attribute being mapped.
   AttributeId attribute = 1;
 
-  // A mapping where an attribute refers directly to a column.
+  // A mapping where an attribute refers directly to a column on the primary
+  // table.
   message SimpleColumn {
     ColumnId column_id = 1;
   }

@@ -23,8 +23,10 @@ message Underlay {
   // The datasets that make up the physical construction of the underlay.
   repeated Dataset datasets = 4;
 
+  // Every entity in an underlay must have a mapping.
+  repeated EntityMapping entity_mappings = 5;
   // Every attribute in an underlay must have a mapping.
-  repeated AttributeMapping attribute_mappings = 5;
+  repeated AttributeMapping attribute_mappings = 6;
   // Every relationship in an underlay must have a mapping.
-  repeated RelationshipMapping relationship_mappings = 6;
+  repeated RelationshipMapping relationship_mappings = 7;
 }

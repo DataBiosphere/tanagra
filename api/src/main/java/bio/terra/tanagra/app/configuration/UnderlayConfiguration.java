@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "tanagra.underlay")
 public class UnderlayConfiguration {
   /** Paths to {@link Underlay} prototext files to load. */
-  private List<String> underlayFiles;
+  private List<String> underlayFiles = new ArrayList<>();
 
   public List<String> getUnderlayFiles() {
     return underlayFiles;

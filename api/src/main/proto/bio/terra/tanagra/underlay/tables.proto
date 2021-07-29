@@ -28,9 +28,8 @@ message Dataset {
 message Table {
   // The name of the table.
   string name = 1;
-  // The string used to access a dataset.
-  // TODO consider how to support multiple datasets, e.g. postgres & BigQuery
-  string dataset = 2;
+  // The Dataset containing the table.
+  Dataset dataset = 2;
 
   repeated Column columns = 3;
 }
