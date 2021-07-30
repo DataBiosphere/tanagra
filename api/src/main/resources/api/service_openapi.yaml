@@ -21,7 +21,10 @@ paths:
           description: Service is broken
 
   # TODO implement "real" export endpoints
-  '/entities/filters:generateSqlQuery':
+  '/underlays/{underlay}/entities/{entity}/filters:generateSqlQuery':
+    parameters:
+      - $ref: '#/components/parameters/Underlay'
+      - $ref: '#/components/parameters/Entity'
     post:
       # TODO authorization
       security: []
@@ -39,6 +42,23 @@ paths:
           $ref: '#/components/responses/SqlQueryResponse'
 
 components:
+  parameters:
+    Underlay:
+      name: underlayName
+      in: path
+      description: The name of the dataset underlay.
+      required: true
+      schema:
+        type: string
+
+    Entity:
+      name: entityName
+      in: path
+      description: The name of an entity.
+      required: true
+      schema:
+        type: string
+
   responses:
     SqlQueryResponse:
       description: A raw SQL query.
@@ -76,12 +96,6 @@ components:
       description: A filter to apply to the given entity.
       type: object
       properties:
-        entity:
-          description: The name of the entity
-          type: string
-        underlay:
-          description: The name of the underlay containing this entity.
-          type: string
         entityVariable:
           description: The variable to use for the top level entity in the filter.
           type: string
