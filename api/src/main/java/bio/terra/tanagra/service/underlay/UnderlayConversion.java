@@ -6,7 +6,6 @@ import bio.terra.tanagra.proto.underlay.EntityMapping;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashBasedTable;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,14 +110,12 @@ final class UnderlayConversion {
         .build();
   }
 
-  @VisibleForTesting
   static Entity convert(
       bio.terra.tanagra.proto.underlay.Entity entityProto,
       bio.terra.tanagra.proto.underlay.Underlay underlayProto) {
     return Entity.builder().underlay(underlayProto.getName()).name(entityProto.getName()).build();
   }
 
-  @VisibleForTesting
   static Attribute convert(
       bio.terra.tanagra.proto.underlay.Attribute attributeProto, Entity entity) {
     return Attribute.builder()
@@ -128,7 +125,6 @@ final class UnderlayConversion {
         .build();
   }
 
-  @VisibleForTesting
   static DataType convert(bio.terra.tanagra.proto.underlay.DataType dataType) {
     switch (dataType) {
       case INT64:
@@ -142,21 +138,19 @@ final class UnderlayConversion {
   }
 
   // TODO support more dataset types.
-  @VisibleForTesting
   static BigQueryDataset convert(Dataset datasetProto) {
     return BigQueryDataset.builder()
+        .name(datasetProto.getName())
         .projectId(datasetProto.getBigQueryDataset().getProjectId())
         .datasetId(datasetProto.getBigQueryDataset().getDatasetId())
         .build();
   }
 
-  @VisibleForTesting
   static Table convert(
       bio.terra.tanagra.proto.underlay.Table tableProto, BigQueryDataset bigQueryDataset) {
     return Table.create(tableProto.getName(), bigQueryDataset);
   }
 
-  @VisibleForTesting
   static Column convert(bio.terra.tanagra.proto.underlay.Column columnProto, Table table) {
     return Column.builder()
         .name(columnProto.getName())
@@ -165,7 +159,6 @@ final class UnderlayConversion {
         .build();
   }
 
-  @VisibleForTesting
   static ColumnId convert(bio.terra.tanagra.proto.underlay.ColumnId columnIdProto) {
     return ColumnId.builder()
         .dataset(columnIdProto.getDataset())
