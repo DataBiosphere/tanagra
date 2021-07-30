@@ -73,6 +73,7 @@
         <exclude name="LoosePackageCoupling"/>
         <exclude name="ModifiedCyclomaticComplexity"/>
         <exclude name="NcssCount"/>
+        <exclude name="NPathComplexity"/>
         <exclude name="SignatureDeclareThrowsException"/>
         <exclude name="StdCyclomaticComplexity"/>
     </rule>

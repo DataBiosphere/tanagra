@@ -3,7 +3,7 @@ package bio.terra.tanagra.service.underlay;
 import bio.terra.tanagra.service.search.DataType;
 import com.google.auto.value.AutoValue;
 
-/** A column within a table in an underlay. */
+/** A SQL column within a table in an underlay. */
 @AutoValue
 public abstract class Column {
   /** The name of the column. */

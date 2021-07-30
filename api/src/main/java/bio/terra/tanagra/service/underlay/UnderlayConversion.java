@@ -153,13 +153,11 @@ final class UnderlayConversion {
   @VisibleForTesting
   static Table convert(
       bio.terra.tanagra.proto.underlay.Table tableProto, BigQueryDataset bigQueryDataset) {
-    return bio.terra.tanagra.service.underlay.Table.create(tableProto.getName(), bigQueryDataset);
+    return Table.create(tableProto.getName(), bigQueryDataset);
   }
 
   @VisibleForTesting
-  static Column convert(
-      bio.terra.tanagra.proto.underlay.Column columnProto,
-      bio.terra.tanagra.service.underlay.Table table) {
+  static Column convert(bio.terra.tanagra.proto.underlay.Column columnProto, Table table) {
     return Column.builder()
         .name(columnProto.getName())
         .table(table)

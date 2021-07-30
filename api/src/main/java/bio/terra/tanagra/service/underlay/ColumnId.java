@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.underlay;
 
 import com.google.auto.value.AutoValue;
 
-/** An identifier for a column in an {@link Underlay}. */
+/** An identifier for a {@link Column} in an {@link Underlay}. */
 @AutoValue
 public abstract class ColumnId {
   /** The name of the {@link BigQueryDataset} for this column. */

@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.underlay;
 
 import com.google.auto.value.AutoValue;
 
-/** A table within a {@link Underlay}. */
+/** A SQL table within a {@link Underlay}. */
 @AutoValue
 public abstract class Table {
   /** The name of the table. */
