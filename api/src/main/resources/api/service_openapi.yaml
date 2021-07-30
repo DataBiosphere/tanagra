@@ -21,13 +21,13 @@ paths:
           description: Service is broken
 
   # TODO implement "real" export endpoints
-  '/entityFilter/sqlQuery':
+  '/entities/filters:generateSqlQuery':
     post:
       # TODO authorization
       security: []
       summary: Returns an SQL query for listing all of a Entity's primary keys.
-      operationId: entitySqlQuery
-      tags: [Entity]
+      operationId: generateSqlQuery
+      tags: [EntitiesFilters]
       requestBody:
         required: true
         content:
@@ -92,6 +92,9 @@ components:
       type: object
       description: A raw SQL query.
       properties:
+        # TODO consider deleting this object.
+        # TODO consider parameterizing the query
+        # TODO consider indicating the database this is generated for.
         query:
           type: string
 
