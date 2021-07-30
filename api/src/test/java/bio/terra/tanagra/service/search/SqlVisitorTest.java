@@ -116,12 +116,12 @@ public class SqlVisitorTest {
 
     Filter andFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.AND);
     assertEquals(
-        "(p.height < 62) AND (p.first_name = 'John')",
+        "p.height < 62 AND p.first_name = 'John'",
         andFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
 
     Filter orFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.OR);
     assertEquals(
-        "(p.height < 62) OR (p.first_name = 'John')",
+        "p.height < 62 OR p.first_name = 'John'",
         orFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }
 
@@ -144,6 +144,37 @@ public class SqlVisitorTest {
                     Expression.AttributeExpression.create(A_ZIP_CODE),
                     Filter.BinaryFunction.Operator.EQUALS,
                     Expression.Literal.create(DataType.INT64, "12345")))
+            .build()
+            .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+  }
+
+  @Test
+  void filterRelationshipNested() {
+    Variable a2 = Variable.create("a2");
+    assertEquals(
+        "p.id IN (SELECT a.person_id FROM foo.address AS a WHERE a.zip_code = 12345 AND "
+            + "p.id IN (SELECT a2.person_id FROM foo.address AS a2 WHERE a2.zip_code = 67890))",
+        Filter.RelationshipFilter.builder()
+            .outerAttribute(P_ID)
+            .boundAttribute(A_PERSON_ID)
+            .filter(
+                Filter.ArrayFunction.create(
+                    ImmutableList.of(
+                        Filter.BinaryFunction.create(
+                            Expression.AttributeExpression.create(A_ZIP_CODE),
+                            Filter.BinaryFunction.Operator.EQUALS,
+                            Expression.Literal.create(DataType.INT64, "12345")),
+                        Filter.RelationshipFilter.builder()
+                            .outerAttribute(P_ID)
+                            .boundAttribute(AttributeVariable.create(PERSON_ID_FK, a2))
+                            .filter(
+                                Filter.BinaryFunction.create(
+                                    Expression.AttributeExpression.create(
+                                        AttributeVariable.create(ZIP_CODE, a2)),
+                                    Filter.BinaryFunction.Operator.EQUALS,
+                                    Expression.Literal.create(DataType.INT64, "67890")))
+                            .build()),
+                    Filter.ArrayFunction.Operator.AND))
             .build()
             .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }

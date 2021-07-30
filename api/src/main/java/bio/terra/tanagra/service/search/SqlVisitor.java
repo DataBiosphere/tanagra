@@ -77,12 +77,11 @@ public class SqlVisitor {
     public String visitArrayFunction(ArrayFunction arrayFunction) {
       String operatorDelimiter = String.format(" %s ", convert(arrayFunction.operator()));
       // e.g. (operand0) OR (operand1)
-      return String.join(
-          operatorDelimiter,
-          arrayFunction.operands().stream()
-              // Recursively evaluate each operand, wrapping it in parens.
-              .map(f -> String.format("(%s)", f.accept(this)))
-              .collect(Collectors.toList()));
+      return arrayFunction.operands().stream()
+          // Recursively evaluate each operand.
+          .map(f -> f.accept(this))
+          // Join with the operator delimiter.
+          .collect(Collectors.joining(operatorDelimiter));
     }
 
     private static String convert(ArrayFunction.Operator operator) {
