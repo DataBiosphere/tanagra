@@ -1,0 +1,74 @@
+// Messages mapping logical entities to physical tables
+
+syntax = "proto3";
+
+package bio.terra.tanagra.underlay;
+option java_package = "bio.terra.tanagra.proto.underlay";
+option java_multiple_files = true;
+
+import "bio/terra/tanagra/underlay/entities.proto";
+import "bio/terra/tanagra/underlay/tables.proto";
+
+// An id to uniquely idnetify a column of a table within an underlay.
+message ColumnId {
+  // The name of the dataset.
+  string dataset = 1;
+  // The name of the table.
+  string table = 2;
+  // The name of the column.
+  string column = 3;
+}
+
+// An id to uniquely identify an attribute of an entity within an underlay.
+message AttributeId {
+  // The name of the entity.
+  string entity = 1;
+  // The name of the attribute.
+  string attribute = 2;
+}
+
+// How to map an entity.
+message EntityMapping {
+  // The name of the entity being mapped.
+  string entity = 1;
+
+  // The primary key for the entity. This is used to uniquely identify an entity
+  // and the corresponding table is treated as the entity's primary table.
+  ColumnId primaryKey = 2;
+}
+
+// How to map an attribute.
+message AttributeMapping {
+  // The attribute being mapped.
+  AttributeId attribute = 1;
+
+  // A mapping where an attribute refers directly to a column on the primary
+  // table.
+  message SimpleColumn {
+    ColumnId column_id = 1;
+  }
+
+  // The mapping for this attribute.
+  oneof mapping {
+    SimpleColumn simple_column = 2;
+  }
+}
+
+// How to map a relationship between entities.
+message RelationshipMapping {
+  // The name of the relationship being mapped.
+  string name = 1;
+
+  // A mapping where a relationship is navigated by a foreign key in a table.
+  message ForeignKey {
+    // The column id of the primary key.
+    ColumnId primary_key = 1;
+    // The column id of the foreign key referencing the primary key.
+    ColumnId foreign_key = 2;
+  }
+
+  // The mapping for this relationship.
+  oneof mapping {
+    ForeignKey foreign_key = 2;
+  }
+}
