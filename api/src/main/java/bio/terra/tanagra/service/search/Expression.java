@@ -35,13 +35,13 @@ public interface Expression {
     }
   }
 
-  /** An {@link Expression} that's an {@link bio.terra.tanagra.service.search.Attribute} */
+  /** An {@link Expression} that's an {@link AttributeVariable}. */
   @AutoValue
   abstract class AttributeExpression implements Expression {
-    public abstract Attribute attribute();
+    public abstract AttributeVariable attributeVariable();
 
-    public static AttributeExpression create(Attribute attribute) {
-      return new AutoValue_Expression_AttributeExpression(attribute);
+    public static AttributeExpression create(AttributeVariable attributeVariable) {
+      return new AutoValue_Expression_AttributeExpression(attributeVariable);
     }
 
     @Override

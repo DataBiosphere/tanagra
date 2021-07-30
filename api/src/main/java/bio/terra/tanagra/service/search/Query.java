@@ -14,13 +14,13 @@ public abstract class Query {
   public abstract ImmutableList<Selection> selections();
 
   /** The primary entity being queried. */
-  public abstract Entity primaryEntity();
+  public abstract EntityVariable primaryEntity();
 
   /** The filter to apply to the primary entity, if there is a filter. */
   public abstract Optional<Filter> filter();
 
   public static Query create(
-      List<Selection> selections, Entity primaryEntity, Optional<Filter> predicate) {
+      List<Selection> selections, EntityVariable primaryEntity, Optional<Filter> predicate) {
     Preconditions.checkArgument(!selections.isEmpty(), "A Query must have non-zero selections");
     return new AutoValue_Query(ImmutableList.copyOf(selections), primaryEntity, predicate);
   }
