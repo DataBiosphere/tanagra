@@ -88,8 +88,8 @@ public interface Filter {
    * :boundAttribute.entity AS :boundAttribute.variable WHERE :filter)".
    *
    * <p>Or in words ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter): there exists an
-   * instance 'x' of {@link #boundAttribute()}'s Entity where x's {@link #boundAttribute()} equals
-   * {@link #outerAttribute()} and {@link #filter}.
+   * instance 'x' of {@link #boundAttribute()}'s Entity where (x's {@link #boundAttribute()} equals
+   * {@link #outerAttribute()}) and ({@link #filter} is true for x).
    */
   @AutoValue
   abstract class RelationshipFilter implements Filter {
@@ -132,7 +132,9 @@ public interface Filter {
       public RelationshipFilter build() {
         Preconditions.checkArgument(
             !boundAttribute().variable().equals(outerAttribute().variable()),
-            "Cannot bind a new variable to the outer attribute's variable. ");
+            "Cannot bind a new variable with the same names as the outer attribute's variable "
+                + "in a RelationshipFilter: %s. Pick a new name for the newly bound variable.",
+            boundAttribute().variable().name());
         return autoBuild();
       }
 
