@@ -54,10 +54,10 @@ components:
       required: [name, variable]
       properties:
         name:
-          description: The name of the attribute
+          description: The name of the attribute.
           type: string
         variable:
-          description: The variable value
+          description: The name of the variable.
           type: string
 
     AttributeValue:
