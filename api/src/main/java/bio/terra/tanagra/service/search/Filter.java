@@ -80,15 +80,16 @@ public interface Filter {
    * A {@link Filter} that introduces a constraint that there must be a relationship to another
    * entity.
    *
-   * <p>This quantifiers introduces a new {@link Variable} and implicitly binds it to an entity in
-   * {@link #boundAttribute()}.
+   * <p>This introduces a new {@link Variable} and implicitly binds it to an entity in {@link
+   * #boundAttribute()}. The bound and related entities should have a relationship across the bound
+   * attributes. The outer variable may be any variable introduced higher in the outer filter scope.
    *
    * <p>This is equivalent to the pseudo-SQL ":outerAttribute IN (SELECT :boundAttribute FROM
-   * :boundAttribute.entity AS :boundAttribute.variable WHERE :filter".
+   * :boundAttribute.entity AS :boundAttribute.variable WHERE :filter)".
    *
-   * <p>Or in words ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter): there exists {@link
-   * #boundAttribute()} that's a member of {@link #boundAttribute()}'s Entity where {@link
-   * #boundAttribute()} equals {@link #outerAttribute()} and {@link #filter}.
+   * <p>Or in words ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter): there exists an
+   * instance 'x' of {@link #boundAttribute()}'s Entity where x's {@link #boundAttribute()} equals
+   * {@link #outerAttribute()} and {@link #filter}.
    */
   @AutoValue
   abstract class RelationshipFilter implements Filter {

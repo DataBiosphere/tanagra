@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
 
-/** A variable to alias an entity to allow referring to multiple aliases of the same entity. */
+/** A variable to bound to an entity to allow referring to multiple instances of the same entity. */
 @AutoValue
 public abstract class Variable {
   public abstract String name();

@@ -3,7 +3,8 @@ package bio.terra.tanagra.service.search;
 import com.google.auto.value.AutoValue;
 
 /**
- * An {@link Attribute} for a bound {@link Variable}.
+ * An {@link Attribute} for a bound {@link Variable}. The entity bound by the variable should match
+ * the attribute's entity.
  *
  * <p>e.g. "x.attribute" in "SELECT x.attribute FROM entity as x".
  */
