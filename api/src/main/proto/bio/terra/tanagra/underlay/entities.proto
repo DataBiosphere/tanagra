@@ -1,0 +1,39 @@
+// Protobuf definitions for an underlay's logical entities and their
+// relationships.
+// Entities/relationships define an abstract data model using Tanagra's generic
+// schema.
+
+syntax = "proto3";
+
+package bio.terra.tanagra.underlay;
+option java_package = "bio.terra.tanagra.proto.underlay";
+option java_multiple_files = true;
+
+import "bio/terra/tanagra/underlay/shared.proto";
+
+
+// A logical entity within an underlay.
+message Entity {
+  // The name of the entity.
+  string name = 1;
+  // The attributes in an entity.
+  repeated Attribute attributes = 2;
+}
+
+// An attribute within an entity.
+message Attribute {
+  // The name of the attribute.
+  string name = 1;
+  // The type of data for the attribute.
+  DataType data_type = 2;
+}
+
+// A relationship between 2 entities.
+message Relationship {
+  // The name of the relationship.
+  string name = 1;
+  // The name of the first entity.
+  string entity1 = 2;
+  // The name of the second entity.
+  string entity2 = 3;
+}

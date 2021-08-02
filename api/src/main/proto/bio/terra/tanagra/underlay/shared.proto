@@ -1,0 +1,15 @@
+// Utilities shared across underlay definitions.
+
+syntax = "proto3";
+
+package bio.terra.tanagra.underlay;
+option java_package = "bio.terra.tanagra.proto.underlay";
+option java_multiple_files = true;
+
+// Types of data.
+enum DataType {
+  UNKNOWN = 0;
+  FLOAT = 1;
+  INT64 = 2;
+  STRING = 3;
+}
