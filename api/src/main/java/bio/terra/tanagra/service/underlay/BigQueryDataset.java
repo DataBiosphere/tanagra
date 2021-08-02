@@ -13,11 +13,6 @@ public abstract class BigQueryDataset {
   /* The id of the BigQuery dataset. */
   public abstract String datasetId();
 
-  /** Returns the "projectId.datasetId" format frequently used by BigQuery. */
-  public String fullDatasetId() {
-    return String.format("%s.%s", projectId(), datasetId());
-  }
-
   public static Builder builder() {
     return new AutoValue_BigQueryDataset.Builder();
   }

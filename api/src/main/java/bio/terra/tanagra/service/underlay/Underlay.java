@@ -55,8 +55,9 @@ public abstract class Underlay {
       }
       // projectId.datasetId.table AS variableName
       return String.format(
-          "%s.%s AS %s",
-          primaryKey.table().dataset().fullDatasetId(),
+          "%s.%s.%s AS %s",
+          primaryKey.table().dataset().projectId(),
+          primaryKey.table().dataset().datasetId(),
           primaryKey.table().name(),
           entityVariable.variable().name());
     }

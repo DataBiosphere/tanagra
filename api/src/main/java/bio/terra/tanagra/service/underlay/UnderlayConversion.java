@@ -110,13 +110,13 @@ final class UnderlayConversion {
         .build();
   }
 
-  static Entity convert(
+  private static Entity convert(
       bio.terra.tanagra.proto.underlay.Entity entityProto,
       bio.terra.tanagra.proto.underlay.Underlay underlayProto) {
     return Entity.builder().underlay(underlayProto.getName()).name(entityProto.getName()).build();
   }
 
-  static Attribute convert(
+  private static Attribute convert(
       bio.terra.tanagra.proto.underlay.Attribute attributeProto, Entity entity) {
     return Attribute.builder()
         .name(attributeProto.getName())
@@ -125,7 +125,7 @@ final class UnderlayConversion {
         .build();
   }
 
-  static DataType convert(bio.terra.tanagra.proto.underlay.DataType dataType) {
+  private static DataType convert(bio.terra.tanagra.proto.underlay.DataType dataType) {
     switch (dataType) {
       case INT64:
         return DataType.INT64;
@@ -138,7 +138,7 @@ final class UnderlayConversion {
   }
 
   // TODO support more dataset types.
-  static BigQueryDataset convert(Dataset datasetProto) {
+  private static BigQueryDataset convert(Dataset datasetProto) {
     return BigQueryDataset.builder()
         .name(datasetProto.getName())
         .projectId(datasetProto.getBigQueryDataset().getProjectId())
@@ -146,12 +146,12 @@ final class UnderlayConversion {
         .build();
   }
 
-  static Table convert(
+  private static Table convert(
       bio.terra.tanagra.proto.underlay.Table tableProto, BigQueryDataset bigQueryDataset) {
     return Table.create(tableProto.getName(), bigQueryDataset);
   }
 
-  static Column convert(bio.terra.tanagra.proto.underlay.Column columnProto, Table table) {
+  private static Column convert(bio.terra.tanagra.proto.underlay.Column columnProto, Table table) {
     return Column.builder()
         .name(columnProto.getName())
         .table(table)
@@ -159,7 +159,7 @@ final class UnderlayConversion {
         .build();
   }
 
-  static ColumnId convert(bio.terra.tanagra.proto.underlay.ColumnId columnIdProto) {
+  private static ColumnId convert(bio.terra.tanagra.proto.underlay.ColumnId columnIdProto) {
     return ColumnId.builder()
         .dataset(columnIdProto.getDataset())
         .table(columnIdProto.getTable())

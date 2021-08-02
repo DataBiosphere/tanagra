@@ -1,0 +1,4 @@
+# A Spring application profile for testing with the test nautical underlay.
+tanagra:
+  underlay:
+    underlay-files: "underlays/nautical.pbtext"
