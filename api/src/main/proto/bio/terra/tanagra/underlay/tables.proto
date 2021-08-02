@@ -1,4 +1,5 @@
-// The physical tables that make up a data underlay.
+// The physical tables that make up a data underlay. These define the schema of
+// the source underlying dataset.
 
 syntax = "proto3";
 
@@ -28,10 +29,8 @@ message Dataset {
 message Table {
   // The name of the table.
   string name = 1;
-  // The Dataset containing the table.
-  Dataset dataset = 2;
-
-  repeated Column columns = 3;
+  // The columns that make up the table.
+  repeated Column columns = 2;
 }
 
 // A description of a table's column.
