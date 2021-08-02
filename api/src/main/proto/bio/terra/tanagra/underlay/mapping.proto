@@ -1,4 +1,7 @@
-// Messages mapping logical entities to physical tables
+// Messages mapping logical entities to physical SQL tables. This is meant to be
+// generic across different SQL databases.
+// Mappings define the translation layer between the source schema and Tanagra's
+// generic schema
 
 syntax = "proto3";
 
@@ -34,7 +37,7 @@ message EntityMapping {
 
   // The primary key for the entity. This is used to uniquely identify an entity
   // and the corresponding table is treated as the entity's primary table.
-  ColumnId primaryKey = 2;
+  ColumnId primary_key = 2;
 }
 
 // How to map an attribute.

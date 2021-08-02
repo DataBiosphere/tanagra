@@ -1,4 +1,7 @@
-// Protobuf definitions for an underlay's logical entities and their relationships.
+// Protobuf definitions for an underlay's logical entities and their
+// relationships.
+// Entities/relationships define an abstract data model using Tanagra's generic
+// schema.
 
 syntax = "proto3";
 

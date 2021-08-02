@@ -1,4 +1,5 @@
-// The physical tables that make up a data underlay.
+// The physical tables that make up a data underlay. These define the schema of
+// the source underlying dataset.
 
 syntax = "proto3";
 
