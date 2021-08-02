@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 public final class NauticalUnderlayUtils {
   private NauticalUnderlayUtils() {}
 
-  private static final String NAUTICAL_PB_TEXT_FILE = "underlays/sailors.pbtext";
+  private static final String NAUTICAL_PB_TEXT_FILE = "underlays/nautical.pbtext";
 
   public static Underlay loadNauticalUnderlay() throws IOException {
     return UnderlayConversion.convert(loadNauticalUnderlayProto());

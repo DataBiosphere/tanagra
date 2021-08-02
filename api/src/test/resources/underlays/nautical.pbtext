@@ -121,7 +121,7 @@ datasets: {
 }
 entity_mappings: {
   entity: "sailors"
-  primaryKey: {
+  primary_key: {
     dataset: "nautical"
     table: "sailors"
     column: "s_id"
@@ -129,7 +129,7 @@ entity_mappings: {
 }
 entity_mappings: {
   entity: "boats"
-  primaryKey: {
+  primary_key: {
     dataset: "nautical"
     table: "boats"
     column: "b_id"
@@ -137,7 +137,7 @@ entity_mappings: {
 }
 entity_mappings: {
   entity: "reservations"
-  primaryKey: {
+  primary_key: {
     dataset: "nautical"
     table: "reservations"
     column: "r_id"
