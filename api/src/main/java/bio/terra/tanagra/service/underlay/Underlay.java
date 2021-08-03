@@ -4,13 +4,17 @@ import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.AttributeVariable;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.EntityVariable;
+import bio.terra.tanagra.service.search.Filter;
+import bio.terra.tanagra.service.search.Relationship;
 import bio.terra.tanagra.service.search.UnderlaySqlResolver;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /** An underlay dataset used to power a Tanagra experience. */
 @AutoValue
@@ -20,6 +24,8 @@ public abstract class Underlay {
   abstract ImmutableMap<String, Entity> entities();
   /** Table of entity and attribute names to attributes. */
   abstract ImmutableTable<Entity, String, Attribute> attributes();
+  /** The relationships between entities. */
+  abstract ImmutableSet<Relationship> relationships();
 
   /** Map from entities to the columns for their primary keys. */
   abstract ImmutableMap<Entity, Column> primaryKeys();
@@ -74,6 +80,10 @@ public abstract class Underlay {
       // variableName.column
       return String.format("%s.%s", attributeVariable.variable().name(), column.name());
     }
+
+    public Filter.RelationshipFilter resolve(EntityVariable outerVariable, EntityVariable innerVariable, Filter innerFilter) {
+
+    }
   }
 
   /** A builder for {@link Underlay}. */
@@ -85,6 +95,8 @@ public abstract class Underlay {
     public abstract Builder entities(Map<String, Entity> entities);
 
     public abstract Builder attributes(Table<Entity, String, Attribute> attributes);
+
+    public abstract Builder relationships(Set<Relationship> value);
 
     public abstract Builder primaryKeys(Map<Entity, Column> primaryKeys);
 

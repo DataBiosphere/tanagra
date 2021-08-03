@@ -6,9 +6,13 @@ import bio.terra.tanagra.proto.underlay.EntityMapping;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
+import bio.terra.tanagra.service.search.Relationship;
 import com.google.common.collect.HashBasedTable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /** Utilities for converting protobuf representations to underlay classes. */
 final class UnderlayConversion {
@@ -32,6 +36,19 @@ final class UnderlayConversion {
               String.format("Duplicate attributes not allowed: %s", attribute.toString()));
         }
       }
+    }
+    Set<Relationship> relationships = new HashSet<>();
+    for (bio.terra.tanagra.proto.underlay.Relationship relationshipProto : underlayProto
+        .getRelationshipsList()) {
+      Entity entity1 = entities.get(relationshipProto.getEntity1());
+      if (entity1 == null) {
+        throw new IllegalArgumentException(String.format("Unknown entity1 in relationship: %s", relationshipProto.toString()));
+      }
+      Entity entity2 = entities.get(relationshipProto.getEntity2());
+      if (entity2 == null) {
+        throw new IllegalArgumentException(String.format("Unknown entity2 in relationship: %s", relationshipProto.toString()));
+      }
+      relationships.add(Relationship.builder().name(relationshipProto.getName()).entity1(entity1).entity2(entity2).build());
     }
 
     Map<ColumnId, Column> columns = new HashMap<>();
@@ -105,6 +122,7 @@ final class UnderlayConversion {
         .name(underlayProto.getName())
         .entities(entities)
         .attributes(attributes)
+        .relationships(relationships)
         .primaryKeys(primaryKeys)
         .simpleAttributesToColumns(simpleAttributesToColumns)
         .build();
