@@ -12,7 +12,17 @@ import com.google.common.collect.Table;
 import java.util.Map;
 import java.util.Optional;
 
-/** An underlay dataset used to power a Tanagra experience. */
+/**
+ * An underlay dataset used to power a Tanagra experience.
+ *
+ * <p>Each underlying dataset that a user wants to explore with Tanagra is represented by an
+ * "underlay." That underlay represents what logical entities are being modeled, what physical
+ * tables and columns are in the underlying dataset, and the mapping between Tanagra concepts like
+ * entities and searches and the physical datasets.
+ *
+ * <p>An Underlay instance is what powers a Tanagra search experience for an extenral backing
+ * dataset.
+ */
 @AutoValue
 public abstract class Underlay {
   public abstract String name();
