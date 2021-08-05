@@ -20,7 +20,7 @@ import java.util.Optional;
  * tables and columns are in the underlying dataset, and the mapping between Tanagra concepts like
  * entities and searches and the physical datasets.
  *
- * <p>An Underlay instance is what powers a Tanagra search experience for an extenral backing
+ * <p>An Underlay instance is what powers a Tanagra search experience for an external backing
  * dataset.
  */
 @AutoValue
