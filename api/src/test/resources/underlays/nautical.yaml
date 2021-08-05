@@ -1,0 +1,189 @@
+# An Underlay yaml file describing a fictional relational domain of sailors, boats and
+# reservations for testing.
+# This should be equivalent to nautical.pbtext.
+
+name: Nautical Underlay
+entities:
+  - name: sailors
+    attributes:
+      - name: id
+        dataType: INT64
+      - name: name
+        dataType: STRING
+      - name: rating
+        dataType: INT64
+  - name: boats
+    attributes:
+      - name: id
+        dataType: INT64
+      - name: name
+        dataType: STRING
+      - name: color
+        dataType: STRING
+  - name: reservations
+    attributes:
+      - name: id
+        dataType: INT64
+      - name: sailors_id
+        dataType: INT64
+      - name: boats_id
+        dataType: INT64
+      - name: day
+        dataType: STRING
+relationships:
+  - name: sailor_reservation
+    entity1: sailors
+    entity2: reservations
+  - name: boat_reservation
+    entity1: boats
+    entity2: reservations
+datasets:
+  - name: nautical
+    bigQueryDataset:
+      projectId: my-project-id
+      datasetId: nautical
+    tables:
+      - name: sailors
+        columns:
+          - name: s_id
+            dataType: INT64
+          - name: s_name
+            dataType: STRING
+          - name: rating
+            dataType: INT64
+      - name: boats
+        columns:
+          - name: b_id
+            dataType: INT64
+          - name: b_name
+            dataType: STRING
+          - name: color
+            dataType: STRING
+      - name: reservations
+        columns:
+          - name: r_id
+            dataType: INT64
+          - name: s_id
+            dataType: INT64
+          - name: b_id
+            dataType: INT64
+          - name: day
+            dataType: STRING
+entityMappings:
+  - entity: sailors
+    primaryKey:
+      dataset: nautical
+      table: sailors
+      column: s_id
+  - entity: boats
+    primaryKey:
+      dataset: nautical
+      table: boats
+      column: b_id
+  - entity: reservations
+    primaryKey:
+      dataset: nautical
+      table: reservations
+      column: r_id
+attributeMappings:
+  - attribute:
+      entity: sailors
+      attribute: id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: sailors
+        column: s_id
+  - attribute:
+      entity: sailors
+      attribute: name
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: sailors
+        column: s_name
+  - attribute:
+      entity: sailors
+      attribute: rating
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: sailors
+        column: rating
+  - attribute:
+      entity: boats
+      attribute: id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boats
+        column: b_id
+  - attribute:
+      entity: boats
+      attribute: name
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boats
+        column: b_name
+  - attribute:
+      entity: boats
+      attribute: color
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boats
+        column: color
+  - attribute:
+      entity: reservations
+      attribute: id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: reservations
+        column: r_id
+  - attribute:
+      entity: reservations
+      attribute: sailors_id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: reservations
+        column: s_id
+  - attribute:
+      entity: reservations
+      attribute: boats_id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: reservations
+        column: b_id
+  - attribute:
+      entity: reservations
+      attribute: day
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: reservations
+        column: day
+relationshipMappings:
+  - name: sailor_reservation
+    foreignKey:
+      primaryKey:
+        dataset: nautical
+        table: sailors
+        column: s_id
+      foreignKey:
+        dataset: nautical
+        table: reservations
+        column: s_id
+  - name: boat_reservation
+    foreignKey:
+      primaryKey:
+        dataset: nautical
+        table: boats
+        column: b_id
+      foreignKey:
+        dataset: nautical
+        table: boats
+        column: b_id

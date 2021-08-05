@@ -1,0 +1,306 @@
+# proto-file: proto/bio/terra/tanagra/underlay/underlay.proto
+# proto-message: Underlay
+# An Underlay prototext file describing a fictional relational domain of sailors, boats and
+# reservations for testing.
+# This should be euivalent to nautical.yaml
+
+name: "Nautical Underlay"
+entities: {
+  name: "sailors"
+  attributes: {
+    name: "id"
+    data_type: INT64
+  }
+  attributes: {
+    name: "name"
+    data_type: STRING
+  }
+  attributes: {
+    name: "rating"
+    data_type: INT64
+  }
+}
+entities: {
+  name: "boats"
+  attributes: {
+    name: "id"
+    data_type: INT64
+  }
+  attributes: {
+    name: "name"
+    data_type: STRING
+  }
+  attributes: {
+    name: "color"
+    data_type: STRING
+  }
+}
+entities: {
+  name: "reservations"
+  attributes: {
+    name: "id"
+    data_type: INT64
+  }
+  attributes: {
+    name: "sailors_id"
+    data_type: INT64
+  }
+  attributes: {
+    name: "boats_id"
+    data_type: INT64
+  }
+  attributes: {
+    name: "day"
+    data_type: STRING
+  }
+}
+relationships: {
+  name: "sailor_reservation"
+  entity1: "sailors"
+  entity2: "reservations"
+}
+relationships: {
+  name: "boat_reservation"
+  entity1: "boats"
+  entity2: "reservations"
+}
+datasets: {
+  name: "nautical"
+  big_query_dataset: {
+    project_id: "my-project-id"
+    dataset_id: "nautical"
+  }
+  tables: {
+    name: "sailors"
+    columns: {
+      name: "s_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "s_name"
+      data_type: STRING
+    }
+    columns: {
+      name: "rating"
+      data_type: INT64
+    }
+  }
+  tables: {
+    name: "boats"
+    columns: {
+      name: "b_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "b_name"
+      data_type: STRING
+    }
+    columns: {
+      name: "color"
+      data_type: STRING
+    }
+  }
+  tables: {
+    name: "reservations"
+    columns: {
+      name: "r_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "s_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "b_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "day"
+      data_type: STRING
+    }
+  }
+}
+entity_mappings: {
+  entity: "sailors"
+  primary_key: {
+    dataset: "nautical"
+    table: "sailors"
+    column: "s_id"
+  }
+}
+entity_mappings: {
+  entity: "boats"
+  primary_key: {
+    dataset: "nautical"
+    table: "boats"
+    column: "b_id"
+  }
+}
+entity_mappings: {
+  entity: "reservations"
+  primary_key: {
+    dataset: "nautical"
+    table: "reservations"
+    column: "r_id"
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "sailors"
+    attribute: "id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "sailors"
+      column: "s_id"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "sailors"
+    attribute: "name"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "sailors"
+      column: "s_name"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "sailors"
+    attribute: "rating"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "sailors"
+      column: "rating"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boats"
+    attribute: "id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boats"
+      column: "b_id"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boats"
+    attribute: "name"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boats"
+      column: "b_name"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boats"
+    attribute: "color"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boats"
+      column: "color"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "reservations"
+    attribute: "id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "reservations"
+      column: "r_id"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "reservations"
+    attribute: "sailors_id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "reservations"
+      column: "s_id"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "reservations"
+    attribute: "boats_id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "reservations"
+      column: "b_id"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "reservations"
+    attribute: "day"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "reservations"
+      column: "day"
+    }
+  }
+}
+relationship_mappings: {
+  name: "sailor_reservation"
+  foreign_key: {
+    primary_key: {
+      dataset: "nautical"
+      table: "sailors"
+      column: "s_id"
+    }
+    foreign_key: {
+      dataset: "nautical"
+      table: "reservations"
+      column: "s_id"
+    }
+  }
+}
+relationship_mappings: {
+  name: "boat_reservation"
+  foreign_key: {
+    primary_key: {
+      dataset: "nautical"
+      table: "boats"
+      column: "b_id"
+    }
+    foreign_key: {
+      dataset: "nautical"
+      table: "boats"
+      column: "b_id"
+    }
+  }
+}
