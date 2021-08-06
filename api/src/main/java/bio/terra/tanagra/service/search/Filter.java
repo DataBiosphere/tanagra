@@ -81,27 +81,19 @@ public interface Filter {
    * entity.
    *
    * <p>This introduces a new {@link Variable} and implicitly binds it to an entity in {@link
-   * #boundAttribute()}. The bound and related entities should have a relationship across the bound
-   * attributes. The outer variable may be any variable introduced higher in the outer filter scope.
+   * #newVariable()}. The newly bound and outer entities should have a relationship. The outer
+   * variable may be any variable introduced higher in the outer filter scope.
    *
-   * <p>This is equivalent to the pseudo-SQL ":outerAttribute IN (SELECT :boundAttribute FROM
-   * :boundAttribute.entity AS :boundAttribute.variable WHERE :filter)".
-   *
-   * <p>Or in words ∃x∈boundEntity( x.boundAttribute = outerAttribute ∧ filter): there exists an
-   * instance 'x' of {@link #boundAttribute()}'s Entity where (x's {@link #boundAttribute()} equals
-   * {@link #outerAttribute()}) and ({@link #filter} is true for x).
+   * <p>This is equivalent to the pseudo-SQL "outer.key IN (SELECT new.outer_key FROM new.entity AS
+   * new WHERE filter)".
    */
   @AutoValue
   abstract class RelationshipFilter implements Filter {
+    /** The newly introduced entity variable that is related to {@link #outerVariable}. */
+    public abstract EntityVariable newVariable();
 
-    /**
-     * The attribute of the newly introduced variable's entity that is equal to {@link
-     * #outerAttribute}.
-     */
-    public abstract AttributeVariable boundAttribute();
-
-    /** The attribute of an outer variable that's equal to {@link #boundAttribute}. */
-    public abstract AttributeVariable outerAttribute();
+    /** The attribute of an outer variable that is related to {@link #newVariable}. */
+    public abstract EntityVariable outerVariable();
 
     /** The filter to apply to the bound variable. This may refer to outer variables. */
     public abstract Filter filter();
@@ -119,22 +111,22 @@ public interface Filter {
     @AutoValue.Builder
     public abstract static class Builder {
 
-      public abstract Builder boundAttribute(AttributeVariable boundAttribute);
+      public abstract Builder newVariable(EntityVariable boundVariable);
 
-      public abstract AttributeVariable boundAttribute();
+      public abstract EntityVariable newVariable();
 
-      public abstract Builder outerAttribute(AttributeVariable outerAttribute);
+      public abstract Builder outerVariable(EntityVariable outerVariable);
 
-      public abstract AttributeVariable outerAttribute();
+      public abstract EntityVariable outerVariable();
 
       public abstract Builder filter(Filter filter);
 
       public RelationshipFilter build() {
         Preconditions.checkArgument(
-            !boundAttribute().variable().equals(outerAttribute().variable()),
+            !newVariable().variable().equals(outerVariable().variable()),
             "Cannot bind a new variable with the same names as the outer attribute's variable "
                 + "in a RelationshipFilter: %s. Pick a new name for the newly bound variable.",
-            boundAttribute().variable().name());
+            outerVariable().variable().name());
         return autoBuild();
       }
 

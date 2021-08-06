@@ -1,10 +1,10 @@
 package bio.terra.tanagra.service.search;
 
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.tanagra.service.search.SqlVisitor.SelectionVisitor;
-import bio.terra.tanagra.service.search.testing.SimpleUnderlaySqlResolver;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
@@ -13,49 +13,32 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class SqlVisitorTest {
   private static final SearchContext SIMPLE_CONTEXT =
-      SearchContext.builder().underlaySqlResolver(new SimpleUnderlaySqlResolver()).build();
+      SearchContext.builder().underlay(loadNauticalUnderlay()).build();
 
-  private static final Entity PERSON = Entity.builder().name("person").underlay("foo").build();
-  private static final Attribute ID =
-      Attribute.builder().name("id").dataType(DataType.INT64).entity(PERSON).build();
-  private static final Attribute HEIGHT =
-      Attribute.builder().name("height").dataType(DataType.INT64).entity(PERSON).build();
-  private static final Attribute FIRST_NAME =
-      Attribute.builder().name("first_name").dataType(DataType.STRING).entity(PERSON).build();
+  private static final Variable S_VAR = Variable.create("s");
+  private static final EntityVariable S_SAILOR = EntityVariable.create(SAILOR, S_VAR);
+  private static final AttributeVariable S_NAME = AttributeVariable.create(SAILOR_NAME, S_VAR);
+  private static final AttributeVariable S_RATING = AttributeVariable.create(SAILOR_RATING, S_VAR);
 
-  private static final Entity ADDRESS = Entity.builder().name("address").underlay("foo").build();
-  private static final Attribute PERSON_ID_FK =
-      Attribute.builder().name("person_id").dataType(DataType.INT64).entity(ADDRESS).build();
-  private static final Attribute ZIP_CODE =
-      Attribute.builder().name("zip_code").dataType(DataType.INT64).entity(ADDRESS).build();
-
-  private static final Variable P_VAR = Variable.create("p");
-  private static final EntityVariable P_PERSON = EntityVariable.create(PERSON, P_VAR);
-  private static final AttributeVariable P_ID = AttributeVariable.create(ID, P_VAR);
-  private static final AttributeVariable P_HEIGHT = AttributeVariable.create(HEIGHT, P_VAR);
-  private static final AttributeVariable P_FIRST_NAME = AttributeVariable.create(FIRST_NAME, P_VAR);
-
-  private static final Variable A_VAR = Variable.create("a");
-  private static final AttributeVariable A_PERSON_ID =
-      AttributeVariable.create(PERSON_ID_FK, A_VAR);
-  private static final AttributeVariable A_ZIP_CODE = AttributeVariable.create(ZIP_CODE, A_VAR);
+  private static final Variable R_VAR = Variable.create("r");
+  private static final EntityVariable R_RESERVATION = EntityVariable.create(RESERVATION, R_VAR);
+  private static final AttributeVariable R_DAY = AttributeVariable.create(RESERVATION_DAY, R_VAR);
 
   @Test
   void query() {
     Query query =
         Query.create(
             ImmutableList.of(
-                Selection.SelectExpression.create(Expression.AttributeExpression.create(P_HEIGHT)),
-                Selection.SelectExpression.create(
-                    Expression.AttributeExpression.create(P_FIRST_NAME))),
-            P_PERSON,
+                Selection.SelectExpression.create(Expression.AttributeExpression.create(S_RATING)),
+                Selection.SelectExpression.create(Expression.AttributeExpression.create(S_NAME))),
+            S_SAILOR,
             Optional.of(
                 Filter.BinaryFunction.create(
-                    Expression.AttributeExpression.create(P_HEIGHT),
+                    Expression.AttributeExpression.create(S_RATING),
                     Filter.BinaryFunction.Operator.EQUALS,
                     Expression.Literal.create(DataType.INT64, "62"))));
     assertEquals(
-        "SELECT p.height, p.first_name FROM foo.person AS p WHERE p.height = 62",
+        "SELECT s.rating, s.s_name FROM my-project-id.nautical.sailors AS s WHERE s.rating = 62",
         new SqlVisitor(SIMPLE_CONTEXT).createSql(query));
   }
 
@@ -63,14 +46,14 @@ public class SqlVisitorTest {
   void selectionExpression() {
     SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
     assertEquals(
-        "p.height AS h",
+        "s.rating AS rt",
         Selection.SelectExpression.create(
-                Expression.AttributeExpression.create(P_HEIGHT), Optional.of("h"))
+                Expression.AttributeExpression.create(S_RATING), Optional.of("rt"))
             .accept(visitor));
     assertEquals(
-        "p.height",
+        "s.rating",
         Selection.SelectExpression.create(
-                Expression.AttributeExpression.create(P_HEIGHT), Optional.empty())
+                Expression.AttributeExpression.create(S_RATING), Optional.empty())
             .accept(visitor));
   }
 
@@ -78,27 +61,27 @@ public class SqlVisitorTest {
   void selectionCount() {
     SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
     assertEquals(
-        "COUNT(p) AS c", Selection.Count.create(P_PERSON, Optional.of("c")).accept(visitor));
-    assertEquals("COUNT(p)", Selection.Count.create(P_PERSON, Optional.empty()).accept(visitor));
+        "COUNT(s) AS c", Selection.Count.create(S_SAILOR, Optional.of("c")).accept(visitor));
+    assertEquals("COUNT(s)", Selection.Count.create(S_SAILOR, Optional.empty()).accept(visitor));
   }
 
   @Test
   void filterBinaryFunction() {
     Filter.BinaryFunction lessThanFilter =
         Filter.BinaryFunction.create(
-            Expression.AttributeExpression.create(P_HEIGHT),
+            Expression.AttributeExpression.create(S_RATING),
             Filter.BinaryFunction.Operator.LESS_THAN,
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
-        "p.height < 62", lessThanFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        "s.rating < 62", lessThanFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
 
     Filter.BinaryFunction equalsFilter =
         Filter.BinaryFunction.create(
-            Expression.AttributeExpression.create(P_HEIGHT),
+            Expression.AttributeExpression.create(S_RATING),
             Filter.BinaryFunction.Operator.EQUALS,
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
-        "p.height = 62", equalsFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        "s.rating = 62", equalsFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }
 
   @Test
@@ -106,22 +89,22 @@ public class SqlVisitorTest {
     ImmutableList<Filter> operands =
         ImmutableList.of(
             Filter.BinaryFunction.create(
-                Expression.AttributeExpression.create(P_HEIGHT),
+                Expression.AttributeExpression.create(S_RATING),
                 Filter.BinaryFunction.Operator.LESS_THAN,
                 Expression.Literal.create(DataType.INT64, "62")),
             Filter.BinaryFunction.create(
-                Expression.AttributeExpression.create(P_FIRST_NAME),
+                Expression.AttributeExpression.create(S_NAME),
                 Filter.BinaryFunction.Operator.EQUALS,
                 Expression.Literal.create(DataType.STRING, "John")));
 
     Filter andFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.AND);
     assertEquals(
-        "p.height < 62 AND p.first_name = 'John'",
+        "s.rating < 62 AND s.s_name = 'John'",
         andFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
 
     Filter orFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.OR);
     assertEquals(
-        "p.height < 62 OR p.first_name = 'John'",
+        "s.rating < 62 OR s.s_name = 'John'",
         orFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }
 
@@ -135,44 +118,45 @@ public class SqlVisitorTest {
   @Test
   void filterRelationship() {
     assertEquals(
-        "p.id IN (SELECT a.person_id FROM foo.address AS a WHERE a.zip_code = 12345)",
+        "s.s_id IN (SELECT r.s_id FROM my-project-id.nautical.reservations AS r WHERE r.day = 'Tuesday')",
         Filter.RelationshipFilter.builder()
-            .outerAttribute(P_ID)
-            .boundAttribute(A_PERSON_ID)
+            .outerVariable(S_SAILOR)
+            .newVariable(R_RESERVATION)
             .filter(
                 Filter.BinaryFunction.create(
-                    Expression.AttributeExpression.create(A_ZIP_CODE),
+                    Expression.AttributeExpression.create(R_DAY),
                     Filter.BinaryFunction.Operator.EQUALS,
-                    Expression.Literal.create(DataType.INT64, "12345")))
+                    Expression.Literal.create(DataType.STRING, "Tuesday")))
             .build()
             .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }
 
   @Test
   void filterRelationshipNested() {
-    Variable a2 = Variable.create("a2");
+    Variable r2 = Variable.create("r2");
     assertEquals(
-        "p.id IN (SELECT a.person_id FROM foo.address AS a WHERE a.zip_code = 12345 AND "
-            + "p.id IN (SELECT a2.person_id FROM foo.address AS a2 WHERE a2.zip_code = 67890))",
+        "s.s_id IN (SELECT r.s_id FROM my-project-id.nautical.reservations AS r WHERE "
+            + "r.day = 'Tuesday' AND s.s_id IN (SELECT r2.s_id FROM "
+            + "my-project-id.nautical.reservations AS r2 WHERE r2.day = 'Wednesday'))",
         Filter.RelationshipFilter.builder()
-            .outerAttribute(P_ID)
-            .boundAttribute(A_PERSON_ID)
+            .outerVariable(S_SAILOR)
+            .newVariable(R_RESERVATION)
             .filter(
                 Filter.ArrayFunction.create(
                     ImmutableList.of(
                         Filter.BinaryFunction.create(
-                            Expression.AttributeExpression.create(A_ZIP_CODE),
+                            Expression.AttributeExpression.create(R_DAY),
                             Filter.BinaryFunction.Operator.EQUALS,
-                            Expression.Literal.create(DataType.INT64, "12345")),
+                            Expression.Literal.create(DataType.STRING, "Tuesday")),
                         Filter.RelationshipFilter.builder()
-                            .outerAttribute(P_ID)
-                            .boundAttribute(AttributeVariable.create(PERSON_ID_FK, a2))
+                            .outerVariable(S_SAILOR)
+                            .newVariable(EntityVariable.create(RESERVATION, r2))
                             .filter(
                                 Filter.BinaryFunction.create(
                                     Expression.AttributeExpression.create(
-                                        AttributeVariable.create(ZIP_CODE, a2)),
+                                        AttributeVariable.create(RESERVATION_DAY, r2)),
                                     Filter.BinaryFunction.Operator.EQUALS,
-                                    Expression.Literal.create(DataType.INT64, "67890")))
+                                    Expression.Literal.create(DataType.STRING, "Wednesday")))
                             .build()),
                     Filter.ArrayFunction.Operator.AND))
             .build()
@@ -193,6 +177,6 @@ public class SqlVisitorTest {
     SqlVisitor.ExpressionVisitor expressionVisitor =
         new SqlVisitor.ExpressionVisitor(SIMPLE_CONTEXT);
     assertEquals(
-        "p.height", Expression.AttributeExpression.create(P_HEIGHT).accept(expressionVisitor));
+        "s.rating", Expression.AttributeExpression.create(S_RATING).accept(expressionVisitor));
   }
 }

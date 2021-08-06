@@ -4,6 +4,10 @@ import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
+import bio.terra.tanagra.service.underlay.Column;
+import bio.terra.tanagra.service.underlay.ForeignKey;
+import bio.terra.tanagra.service.underlay.Table;
+import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,9 +19,11 @@ import org.apache.commons.text.StringSubstitutor;
 // TODO consider the jOOQ DSL.
 public class SqlVisitor {
   private final SearchContext searchContext;
+  private final UnderlayResolver underlayResolver;
 
   public SqlVisitor(SearchContext searchContext) {
     this.searchContext = searchContext;
+    this.underlayResolver = new UnderlayResolver(searchContext.underlay());
   }
 
   public String createSql(Query query) {
@@ -32,7 +38,7 @@ public class SqlVisitor {
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
             .put("selections", selections)
-            .put("table", searchContext.underlaySqlResolver().resolveTable(query.primaryEntity()))
+            .put("table", underlayResolver.resolveTable(query.primaryEntity()))
             .put("filter", filterSql.orElse("TRUE"))
             .build();
     return StringSubstitutor.replace(template, params);
@@ -68,9 +74,11 @@ public class SqlVisitor {
   /** A {@link Filter.Visitor} for creating SQL for filters. */
   static class FilterVisitor implements Filter.Visitor<String> {
     private final SearchContext searchContext;
+    private final UnderlayResolver underlayResolver;
 
     FilterVisitor(SearchContext searchContext) {
       this.searchContext = searchContext;
+      this.underlayResolver = new UnderlayResolver(searchContext.underlay());
     }
 
     @Override
@@ -115,37 +123,18 @@ public class SqlVisitor {
 
     @Override
     public String visitRelationship(RelationshipFilter relationshipFilter) {
-      String subFilterSql = relationshipFilter.filter().accept(this);
-      String template =
-          "${outerAttribute} IN (SELECT ${boundAttribute} FROM ${bound_var} WHERE ${sub_filter})";
-      ExpressionVisitor expressionVisitor = new ExpressionVisitor(searchContext);
-      Map<String, String> params =
-          ImmutableMap.<String, String>builder()
-              .put(
-                  "outerAttribute",
-                  expressionVisitor.visitAttribute(
-                      AttributeExpression.create(relationshipFilter.outerAttribute())))
-              .put(
-                  "boundAttribute",
-                  expressionVisitor.visitAttribute(
-                      AttributeExpression.create(relationshipFilter.boundAttribute())))
-              .put(
-                  "bound_var",
-                  searchContext
-                      .underlaySqlResolver()
-                      .resolveTable(relationshipFilter.boundAttribute().entityVariable()))
-              .put("sub_filter", subFilterSql)
-              .build();
-      return StringSubstitutor.replace(template, params);
+      String innerFilterSql = relationshipFilter.filter().accept(this);
+      return underlayResolver.resolveRelationship(
+          relationshipFilter.outerVariable(), relationshipFilter.newVariable(), innerFilterSql);
     }
   }
 
   /** A {@link Expression.Visitor} for creating SQL for expressions. */
   static class ExpressionVisitor implements Expression.Visitor<String> {
-    private final SearchContext searchContext;
+    private final UnderlayResolver underlayResolver;
 
     ExpressionVisitor(SearchContext searchContext) {
-      this.searchContext = searchContext;
+      this.underlayResolver = new UnderlayResolver(searchContext.underlay());
     }
 
     @Override
@@ -164,7 +153,101 @@ public class SqlVisitor {
 
     @Override
     public String visitAttribute(AttributeExpression attributeExpression) {
-      return searchContext.underlaySqlResolver().resolve(attributeExpression.attributeVariable());
+      return underlayResolver.resolveAttribute(attributeExpression.attributeVariable());
+    }
+  }
+
+  /** Resolves logical entity model expressions to backing SQL constructs for an underlay. */
+  private static class UnderlayResolver {
+
+    private final Underlay underlay;
+
+    UnderlayResolver(Underlay underlay) {
+      this.underlay = underlay;
+    }
+
+    /** Resolve an {@link EntityVariable} as an SQL table clause. */
+    public String resolveTable(EntityVariable entityVariable) {
+      Column primaryKey = underlay.primaryKeys().get(entityVariable.entity());
+      if (primaryKey == null) {
+        throw new IllegalArgumentException(
+            String.format("Unable to find primary key for entity %s", entityVariable.entity()));
+      }
+      // projectId.datasetId.table AS variableName
+      return String.format(
+          "%s.%s.%s AS %s",
+          primaryKey.table().dataset().projectId(),
+          primaryKey.table().dataset().datasetId(),
+          primaryKey.table().name(),
+          entityVariable.variable().name());
+    }
+
+    /** Resolve an {@link AttributeExpression} as an SQL expression. */
+    public String resolveAttribute(AttributeVariable attributeVariable) {
+      Column column = underlay.simpleAttributesToColumns().get(attributeVariable.attribute());
+      if (column == null) {
+        // TODO implement other kinds of attribute mappings.
+        throw new IllegalArgumentException(
+            String.format(
+                "Unable to find column mapping for attribute %s", attributeVariable.attribute()));
+      }
+      // variableName.column
+      return String.format("%s.%s", attributeVariable.variable().name(), column.name());
+    }
+
+    /**
+     * Create an SQL filter clause linking the outer variable with a newly bound entity variable,
+     * with the {@code innerFilterSql} included as a filter on the newly bound entity variable.
+     */
+    public String resolveRelationship(
+        EntityVariable outerVariable, EntityVariable innerVariable, String innerFilterSql) {
+      Optional<Relationship> relationship =
+          underlay.getRelationship(outerVariable.entity(), innerVariable.entity());
+      if (relationship.isEmpty()) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Unable to resolve RelationshipFilter for unknown relationship. Outer entity {%s}, inner entity {%s}",
+                outerVariable.entity(), innerVariable.entity()));
+      }
+      ForeignKey foreignKey = underlay.foreignKeys().get(relationship.get());
+      if (foreignKey == null) {
+        // TODO implement other kinds of relationship mappings.
+        throw new IllegalArgumentException(
+            String.format(
+                "Unable to find foreign key mapping for relationship %s", relationship.get()));
+      }
+      Table outerPrimaryTable = underlay.primaryKeys().get(outerVariable.entity()).table();
+      Table innerPrimaryTable = underlay.primaryKeys().get(innerVariable.entity()).table();
+
+      Column outerColumn = getKeyForTable(foreignKey, outerPrimaryTable);
+      Column innerColumn = getKeyForTable(foreignKey, innerPrimaryTable);
+
+      String template =
+          "${outer_var}.${outer_column} IN (SELECT ${inner_var}.${inner_column} FROM ${inner_table} WHERE ${inner_filter})";
+      Map<String, String> params =
+          ImmutableMap.<String, String>builder()
+              .put("outer_var", outerVariable.variable().name())
+              .put("outer_column", outerColumn.name())
+              .put("inner_var", innerVariable.variable().name())
+              .put("inner_column", innerColumn.name())
+              .put("inner_table", resolveTable(innerVariable))
+              .put("inner_filter", innerFilterSql)
+              .build();
+      return StringSubstitutor.replace(template, params);
+    }
+
+    /** Returns the primary key or the foreign key that matches the table, or else throw. */
+    private static Column getKeyForTable(ForeignKey foreignKey, Table table) {
+      if (foreignKey.primaryKey().table().equals(table)) {
+        return foreignKey.primaryKey();
+      } else if (foreignKey.foreignKey().table().equals(table)) {
+        return foreignKey.foreignKey();
+      } else {
+        throw new IllegalArgumentException(
+            String.format(
+                "Table {%s} matches neither the primary key {%s} nor the foreign key {%s}.",
+                table, foreignKey.primaryKey(), foreignKey.foreignKey()));
+      }
     }
   }
 }

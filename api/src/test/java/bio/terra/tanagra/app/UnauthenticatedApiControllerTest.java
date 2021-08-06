@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 public class UnauthenticatedApiControllerTest extends BaseSpringUnitTest {
-  @Autowired UnauthenticatedApiController controller;
+  @Autowired private UnauthenticatedApiController controller;
 
   @Test
   void systemStatusOk() {

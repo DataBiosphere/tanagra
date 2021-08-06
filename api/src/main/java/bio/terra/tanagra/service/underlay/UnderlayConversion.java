@@ -3,9 +3,12 @@ package bio.terra.tanagra.service.underlay;
 import bio.terra.tanagra.proto.underlay.AttributeMapping;
 import bio.terra.tanagra.proto.underlay.Dataset;
 import bio.terra.tanagra.proto.underlay.EntityMapping;
+import bio.terra.tanagra.proto.underlay.RelationshipMapping;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
+import bio.terra.tanagra.service.search.Relationship;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +25,39 @@ final class UnderlayConversion {
       Entity entity = convert(entityProto, underlayProto);
       if (entities.put(entity.name(), entity) != null) {
         throw new IllegalArgumentException(
-            String.format("Duplicate entity name not allowed: %s", entity.toString()));
+            String.format("Duplicate entity name not allowed: %s", entity));
       }
       for (bio.terra.tanagra.proto.underlay.Attribute attributeProto :
           entityProto.getAttributesList()) {
         Attribute attribute = convert(attributeProto, entity);
         if (attributes.put(attribute.entity(), attribute.name(), attribute) != null) {
           throw new IllegalArgumentException(
-              String.format("Duplicate attributes not allowed: %s", attribute.toString()));
+              String.format("Duplicate attributes not allowed: %s", attribute));
         }
+      }
+    }
+    Map<String, Relationship> relationships = new HashMap<>();
+    for (bio.terra.tanagra.proto.underlay.Relationship relationshipProto :
+        underlayProto.getRelationshipsList()) {
+      Entity entity1 = entities.get(relationshipProto.getEntity1());
+      if (entity1 == null) {
+        throw new IllegalArgumentException(
+            String.format("Unknown entity1 in relationship: %s", relationshipProto));
+      }
+      Entity entity2 = entities.get(relationshipProto.getEntity2());
+      if (entity2 == null) {
+        throw new IllegalArgumentException(
+            String.format("Unknown entity2 in relationship: %s", relationshipProto));
+      }
+      Relationship relationship =
+          Relationship.builder()
+              .name(relationshipProto.getName())
+              .entity1(entity1)
+              .entity2(entity2)
+              .build();
+      if (relationships.put(relationship.name(), relationship) != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate relationship name not allowed: %s", relationshipProto));
       }
     }
 
@@ -100,13 +127,52 @@ final class UnderlayConversion {
             String.format("Attribute mapped to column multiple times %s", attributeMapping));
       }
     }
+    Map<Relationship, ForeignKey> foreignKeys = new HashMap<>();
+    for (RelationshipMapping relationshipMapping : underlayProto.getRelationshipMappingsList()) {
+      // TODO support other relationship mappings.
+      ColumnId primaryKeyId = convert(relationshipMapping.getForeignKey().getPrimaryKey());
+      ColumnId foreignKeyId = convert(relationshipMapping.getForeignKey().getForeignKey());
+      Column primaryKey = columns.get(primaryKeyId);
+      if (primaryKey == null) {
+        throw new IllegalArgumentException(
+            String.format("Unknown primary key in RelationshipMapping %s", relationshipMapping));
+      }
+      Column foreignKey = columns.get(foreignKeyId);
+      if (foreignKey == null) {
+        throw new IllegalArgumentException(
+            String.format("Unknown foreign key in RelationshipMapping %s", relationshipMapping));
+      }
+      Relationship relationship = relationships.get(relationshipMapping.getName());
+      if (relationship == null) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Unknown relationship name in RelationshipMapping %s", relationshipMapping));
+      }
+      Preconditions.checkArgument(
+          primaryKeys.get(relationship.entity1()).table().equals(primaryKey.table()),
+          "The first entity's primary table does not match the primary key in the foreign key mapping. %s",
+          relationshipMapping);
+      Preconditions.checkArgument(
+          primaryKeys.get(relationship.entity2()).table().equals(foreignKey.table()),
+          "The second entity's primary table does not match the foreign key in the foreign key mapping. %s",
+          relationshipMapping);
+      if (foreignKeys.put(
+              relationship,
+              ForeignKey.builder().primaryKey(primaryKey).foreignKey(foreignKey).build())
+          != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate foreign key relationship mapping. %s", relationshipMapping));
+      }
+    }
 
     return Underlay.builder()
         .name(underlayProto.getName())
         .entities(entities)
         .attributes(attributes)
+        .relationships(relationships)
         .primaryKeys(primaryKeys)
         .simpleAttributesToColumns(simpleAttributesToColumns)
+        .foreignKeys(foreignKeys)
         .build();
   }
 

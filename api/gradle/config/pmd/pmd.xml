@@ -69,6 +69,7 @@
         <exclude name="DataClass"/>
         <exclude name="ExcessiveClassLength"/> <!-- replaced by NcssCount -->
         <exclude name="ExcessiveMethodLength"/> <!-- replaced by NcssCount -->
+        <exclude name="GodClass"/>
         <exclude name="LawOfDemeter"/>
         <exclude name="LoosePackageCoupling"/>
         <exclude name="ModifiedCyclomaticComplexity"/>

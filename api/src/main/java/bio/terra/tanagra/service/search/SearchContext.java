@@ -1,11 +1,12 @@
 package bio.terra.tanagra.service.search;
 
+import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.auto.value.AutoValue;
 
 /** Value class to hold all the context that's needed to evaluate a search. */
 @AutoValue
 public abstract class SearchContext {
-  public abstract UnderlaySqlResolver underlaySqlResolver();
+  public abstract Underlay underlay();
 
   public static Builder builder() {
     return new AutoValue_SearchContext.Builder();
@@ -14,7 +15,7 @@ public abstract class SearchContext {
   @AutoValue.Builder
   public abstract static class Builder {
 
-    public abstract Builder underlaySqlResolver(UnderlaySqlResolver underlaySqlResolver);
+    public abstract Builder underlay(Underlay underlay);
 
     public abstract SearchContext build();
   }
