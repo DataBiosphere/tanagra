@@ -27,8 +27,12 @@ jobs:
           restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
       - name: Gradle Build API
         working-directory: api
-        # the build task includes the test and quality static analysis tasks.
+        # The build task includes the test and some quality static analysis tasks.
         run: ./gradlew build
+      - name: Gradle Check
+        working-directory: api
+        # The check task runs static analysis on main & test sources.
+        run: ./gradlew check
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
