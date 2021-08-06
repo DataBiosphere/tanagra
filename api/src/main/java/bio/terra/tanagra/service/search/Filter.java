@@ -84,13 +84,11 @@ public interface Filter {
    * #newVariable()}. The newly bound and outer entities should have a relationship. The outer
    * variable may be any variable introduced higher in the outer filter scope.
    *
-   * <p>This is equivalent to the pseudo-SQL "outer.key IN (SELECT new.outer_key FROM
-   * new.entity AS new WHERE filter)".
+   * <p>This is equivalent to the pseudo-SQL "outer.key IN (SELECT new.outer_key FROM new.entity AS
+   * new WHERE filter)".
    */
   @AutoValue
   abstract class RelationshipFilter implements Filter {
-
-    // DO NOT SUBMIT bound/inner/new?
     /** The newly introduced entity variable that is related to {@link #outerVariable}. */
     public abstract EntityVariable newVariable();
 
