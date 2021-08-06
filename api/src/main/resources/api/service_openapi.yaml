@@ -146,7 +146,7 @@ components:
     BinaryFilter:
       type: object
       description: |
-        A binary filter function. Function ordered as `attributeVariable operator attributeValue`
+        A binary filter function. Function ordered as `attribute operator attributeValue`
       # TODO allow comparing two AttributeVariables
       properties:
         attributeVariable:
