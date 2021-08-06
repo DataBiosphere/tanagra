@@ -30,9 +30,9 @@ public class ExpressionConverter {
               "Unknown variable '%s' in AttributeVariable: %s",
               apiAttributeVariable.getVariable(), apiAttributeVariable));
     }
-    Optional<Attribute> attribute =
-        underlay.getAttribute(entityVariable.get().entity(), apiAttributeVariable.getName());
-    if (attribute.isEmpty()) {
+    Attribute attribute =
+        underlay.attributes().get(entityVariable.get().entity(), apiAttributeVariable.getName());
+    if (attribute == null) {
       throw new BadRequestException(
           String.format(
               "Unknown attribute '%s' in entity '%s' where AttributeVariable: %s",
@@ -41,7 +41,7 @@ public class ExpressionConverter {
               apiAttributeVariable));
     }
     return Expression.AttributeExpression.create(
-        AttributeVariable.create(attribute.get(), entityVariable.get().variable()));
+        AttributeVariable.create(attribute, entityVariable.get().variable()));
   }
 
   public Expression.Literal convert(ApiAttributeValue apiAttributeValue) {

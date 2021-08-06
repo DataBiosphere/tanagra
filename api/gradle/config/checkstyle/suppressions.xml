@@ -20,6 +20,7 @@
   <suppress checks="JavaNCSS"/>
   <!-- Spotless is canonical for line length. -->
   <suppress checks="LineLength"/>
+  <suppress checks="MethodLength"/>
   <suppress checks="MultipleStringLiterals"/>
   <suppress checks="NPathComplexity"/>
   <!-- Spotless is canonical for line length. -->

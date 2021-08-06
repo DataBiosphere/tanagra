@@ -16,11 +16,11 @@ class VariableScope {
   /** The variable names to {@link EntityVariable}s bound at this scope. */
   private final Map<String, EntityVariable> variables = new HashMap<>();
 
-  public VariableScope(VariableScope enclosing) {
+  VariableScope(VariableScope enclosing) {
     this.enclosing = enclosing;
   }
 
-  public VariableScope() {
+  VariableScope() {
     this(null);
   }
 

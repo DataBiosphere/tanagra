@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableTable;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-// DO NOT SUBMIT add relationship test.
 @Tag("unit")
 public class UnderlayConversionTest {
   @Test
@@ -16,6 +15,13 @@ public class UnderlayConversionTest {
     Underlay nautical = UnderlayConversion.convert(loadNauticalUnderlayProto());
 
     assertEquals("Nautical Underlay", nautical.name());
+    assertEquals(
+        ImmutableMap.builder()
+            .put(SAILOR.name(), SAILOR)
+            .put(BOAT.name(), BOAT)
+            .put(RESERVATION.name(), RESERVATION)
+            .build(),
+        nautical.entities());
     assertEquals(
         ImmutableTable.builder()
             .put(SAILOR, "id", SAILOR_ID)
@@ -30,6 +36,12 @@ public class UnderlayConversionTest {
             .put(RESERVATION, "day", RESERVATION_DAY)
             .build(),
         nautical.attributes());
+    assertEquals(
+        ImmutableMap.builder()
+            .put(SAILOR_RESERVATION_RELATIONSHIP.name(), SAILOR_RESERVATION_RELATIONSHIP)
+            .put(BOAT_RESERVATION_RELATIONSHIP.name(), BOAT_RESERVATION_RELATIONSHIP)
+            .build(),
+        nautical.relationships());
     assertEquals(
         ImmutableMap.builder()
             .put(SAILOR, SAILOR_ID_COL)
@@ -51,5 +63,21 @@ public class UnderlayConversionTest {
             .put(RESERVATION_DAY, RESERVATION_DAY_COL)
             .build(),
         nautical.simpleAttributesToColumns());
+    assertEquals(
+        ImmutableMap.builder()
+            .put(
+                SAILOR_RESERVATION_RELATIONSHIP,
+                ForeignKey.builder()
+                    .primaryKey(SAILOR_ID_COL)
+                    .foreignKey(RESERVATION_S_ID_COL)
+                    .build())
+            .put(
+                BOAT_RESERVATION_RELATIONSHIP,
+                ForeignKey.builder()
+                    .primaryKey(BOAT_ID_COL)
+                    .foreignKey(RESERVATION_B_ID_COL)
+                    .build())
+            .build(),
+        nautical.foreignKeys());
   }
 }

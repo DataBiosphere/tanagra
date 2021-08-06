@@ -299,7 +299,7 @@ relationship_mappings: {
     }
     foreign_key: {
       dataset: "nautical"
-      table: "boats"
+      table: "reservations"
       column: "b_id"
     }
   }

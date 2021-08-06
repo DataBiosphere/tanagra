@@ -14,7 +14,7 @@ public class UnderlayServiceTest extends BaseSpringUnitTest {
   @Autowired private UnderlayService underlayService;
 
   @Test
-  void underlay() throws Exception {
+  void underlay() {
     assertEquals(
         Optional.of(NauticalUnderlayUtils.loadNauticalUnderlay()),
         underlayService.getUnderlay(NAUTICAL_UNDERLAY_NAME));

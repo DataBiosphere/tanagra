@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.underlay;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
+import bio.terra.tanagra.service.search.Relationship;
 import com.google.common.io.Resources;
 import com.google.protobuf.TextFormat;
 import java.io.IOException;
@@ -14,8 +15,12 @@ public final class NauticalUnderlayUtils {
 
   private static final String NAUTICAL_PB_TEXT_FILE = "underlays/nautical.pbtext";
 
-  public static Underlay loadNauticalUnderlay() throws IOException {
-    return UnderlayConversion.convert(loadNauticalUnderlayProto());
+  public static Underlay loadNauticalUnderlay() {
+    try {
+      return UnderlayConversion.convert(loadNauticalUnderlayProto());
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to load nautical underlay.", e);
+    }
   }
 
   public static bio.terra.tanagra.proto.underlay.Underlay loadNauticalUnderlayProto()
@@ -58,6 +63,15 @@ public final class NauticalUnderlayUtils {
       Attribute.builder().name("boats_id").dataType(DataType.INT64).entity(RESERVATION).build();
   public static final Attribute RESERVATION_DAY =
       Attribute.builder().name("day").dataType(DataType.STRING).entity(RESERVATION).build();
+
+  public static final Relationship SAILOR_RESERVATION_RELATIONSHIP =
+      Relationship.builder()
+          .name("sailor_reservation")
+          .entity1(SAILOR)
+          .entity2(RESERVATION)
+          .build();
+  public static final Relationship BOAT_RESERVATION_RELATIONSHIP =
+      Relationship.builder().name("boat_reservation").entity1(BOAT).entity2(RESERVATION).build();
 
   public static final BigQueryDataset NAUTICAL_DATASET =
       BigQueryDataset.builder()

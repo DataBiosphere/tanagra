@@ -185,5 +185,5 @@ relationshipMappings:
         column: b_id
       foreignKey:
         dataset: nautical
-        table: boats
+        table: reservations
         column: b_id
