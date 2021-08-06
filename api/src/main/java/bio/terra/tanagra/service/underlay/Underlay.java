@@ -43,15 +43,6 @@ public abstract class Underlay {
    */
   public abstract ImmutableMap<Relationship, ForeignKey> foreignKeys();
 
-  // DO NOT SUBMIT delete me?
-  public Optional<Entity> getEntity(String entityName) {
-    return Optional.ofNullable(entities().get(entityName));
-  }
-
-  public Optional<Attribute> getAttribute(Entity entity, String attributeName) {
-    return Optional.ofNullable(attributes().get(entity, attributeName));
-  }
-
   /**
    * Find a relationship between 2 entities. The relationship's entity ordering may be reversed from
    * the arguments.

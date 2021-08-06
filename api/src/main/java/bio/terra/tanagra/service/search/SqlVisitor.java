@@ -123,9 +123,9 @@ public class SqlVisitor {
 
     @Override
     public String visitRelationship(RelationshipFilter relationshipFilter) {
-      String subFilterSql = relationshipFilter.filter().accept(this);
+      String innerFilterSql = relationshipFilter.filter().accept(this);
       return underlayResolver.resolveRelationship(
-          relationshipFilter.outerVariable(), relationshipFilter.newVariable(), subFilterSql);
+          relationshipFilter.outerVariable(), relationshipFilter.newVariable(), innerFilterSql);
     }
   }
 
