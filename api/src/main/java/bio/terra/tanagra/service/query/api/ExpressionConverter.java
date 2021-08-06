@@ -11,13 +11,11 @@ import bio.terra.tanagra.service.search.Expression;
 import bio.terra.tanagra.service.underlay.Underlay;
 import java.util.Optional;
 
-/**
- * Converts API expression to Tanagra search {@link bio.terra.tanagra.service.search.Expression}s.
- */
-public class ExpressionConverter {
+/** Converts API expression to Tanagra search {@link Expression}s. */
+class ExpressionConverter {
   private final Underlay underlay;
 
-  public ExpressionConverter(Underlay underlay) {
+  ExpressionConverter(Underlay underlay) {
     this.underlay = underlay;
   }
 

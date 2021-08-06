@@ -107,8 +107,7 @@ class FilterConverter {
   }
 
   @VisibleForTesting
-  public Filter.RelationshipFilter convert(
-      ApiRelationshipFilter apiRelationship, VariableScope scope) {
+  Filter.RelationshipFilter convert(ApiRelationshipFilter apiRelationship, VariableScope scope) {
     Optional<EntityVariable> outerEntityVariable = scope.get(apiRelationship.getOuterVariable());
     if (outerEntityVariable.isEmpty()) {
       throw new BadRequestException(
