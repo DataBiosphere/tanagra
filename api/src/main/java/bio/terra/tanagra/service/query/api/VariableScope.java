@@ -7,7 +7,13 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
-/** The scope of {@link EntityVariable} bindings at a given level of API filter parsing. */
+/**
+ * The scope of {@link EntityVariable} bindings at a given level of API filter parsing.
+ *
+ * <p>Variables need to be declared with what entity they're binding to before they can be used.
+ * VariableScope reflects that the variable naming does not have a global namespace, but that
+ * there's lexical scoping.
+ */
 class VariableScope {
 
   /** The VariableScope that encloses this, or null if there is none. */
@@ -24,15 +30,21 @@ class VariableScope {
     this(null);
   }
 
-  public void add(EntityVariable entityVariable) {
+  /** Adds the variable to this scope. Returns this. */
+  public VariableScope add(EntityVariable entityVariable) {
     if (variables.put(entityVariable.variable().name(), entityVariable) != null) {
       throw new BadRequestException(
           String.format(
               "Duplicate variable name %s in single scope. Second EntityVariable: %s",
               entityVariable.variable().name(), entityVariable));
     }
+    return this;
   }
 
+  /**
+   * Returns the {@link EntityVariable} matching the variable name, if this or recursively its
+   * enclosing scope has a variable of that name.
+   */
   public Optional<EntityVariable> get(String variableName) {
     EntityVariable result = variables.get(variableName);
     if (result != null) {

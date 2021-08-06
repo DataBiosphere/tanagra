@@ -12,7 +12,6 @@ import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Expression.Literal;
 import bio.terra.tanagra.service.search.Filter;
-import bio.terra.tanagra.service.search.Variable;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -49,6 +48,38 @@ class FilterConverter {
   }
 
   @VisibleForTesting
+  Filter.BinaryFunction convert(ApiBinaryFilter apiBinary, VariableScope scope) {
+    Preconditions.checkNotNull(
+        apiBinary.getAttributeVariable(),
+        "BinaryFilter.attributeVariable must not be null.\n%s",
+        apiBinary);
+    Preconditions.checkNotNull(
+        apiBinary.getOperator(), "BinaryFilter.operator must not be null.\n%s", apiBinary);
+    Preconditions.checkNotNull(
+        apiBinary.getAttributeValue(),
+        "BinaryFilter.attributeValue must not be null.\n%s",
+        apiBinary);
+
+    AttributeExpression attributeExpression =
+        expressionConverter.convert(apiBinary.getAttributeVariable(), scope);
+    Filter.BinaryFunction.Operator operator = convert(apiBinary.getOperator());
+    Literal literal = expressionConverter.convert(apiBinary.getAttributeValue());
+    return Filter.BinaryFunction.create(attributeExpression, operator, literal);
+  }
+
+  @VisibleForTesting
+  static Filter.BinaryFunction.Operator convert(ApiBinaryFilterOperator apiOperator) {
+    switch (apiOperator) {
+      case EQUALS:
+        return Filter.BinaryFunction.Operator.EQUALS;
+      case LESS_THAN:
+        return Filter.BinaryFunction.Operator.LESS_THAN;
+      default:
+        throw new BadRequestException("Unknown BinaryFilterOperator: " + apiOperator.toString());
+    }
+  }
+
+  @VisibleForTesting
   Filter.ArrayFunction convert(ApiArrayFilter apiArray, VariableScope scope) {
     if (apiArray.getOperands() == null || apiArray.getOperands().isEmpty()) {
       throw new BadRequestException("ArrayFilter must have at least one operand.");
@@ -76,36 +107,6 @@ class FilterConverter {
   }
 
   @VisibleForTesting
-  Filter.BinaryFunction convert(ApiBinaryFilter apiBinary, VariableScope scope) {
-    Preconditions.checkNotNull(
-        apiBinary.getAttributeVariable(),
-        "BinaryFilter.attributeVariable must not be null.\n%s",
-        apiBinary);
-    Preconditions.checkNotNull(
-        apiBinary.getOperator(), "BinaryFilter.operator must not be null.\n%s", apiBinary);
-    Preconditions.checkNotNull(
-        apiBinary.getAttributeValue(),
-        "BinaryFilter.attributeValue must not be null.\n%s",
-        apiBinary);
-
-    AttributeExpression attributeExpression =
-        expressionConverter.convert(apiBinary.getAttributeVariable(), scope);
-    Filter.BinaryFunction.Operator operator = convert(apiBinary.getOperator());
-    Literal literal = expressionConverter.convert(apiBinary.getAttributeValue());
-    return Filter.BinaryFunction.create(attributeExpression, operator, literal);
-  }
-
-  public Filter.BinaryFunction.Operator convert(ApiBinaryFilterOperator apiOperator) {
-    switch (apiOperator) {
-      case EQUALS:
-        return Filter.BinaryFunction.Operator.EQUALS;
-      case LESS_THAN:
-        return Filter.BinaryFunction.Operator.LESS_THAN;
-      default:
-        throw new BadRequestException("Unknown BinaryOperator: " + apiOperator.toString());
-    }
-  }
-
   public Filter.RelationshipFilter convert(
       ApiRelationshipFilter apiRelationship, VariableScope scope) {
     Optional<EntityVariable> outerEntityVariable = scope.get(apiRelationship.getOuterVariable());
@@ -123,10 +124,13 @@ class FilterConverter {
               apiRelationship.getNewEntity(), underlay.name()));
     }
     EntityVariable newEntityVariable =
-        EntityVariable.create(newEntity, Variable.create(apiRelationship.getNewVariable()));
+        EntityVariable.create(
+            newEntity, ConversionUtils.createVariable(apiRelationship.getNewVariable()));
+
     VariableScope innerScope = new VariableScope(scope);
     innerScope.add(newEntityVariable);
     Filter innerFilter = convert(apiRelationship.getFilter(), innerScope);
+
     return Filter.RelationshipFilter.builder()
         .outerVariable(outerEntityVariable.get())
         .newVariable(newEntityVariable)
