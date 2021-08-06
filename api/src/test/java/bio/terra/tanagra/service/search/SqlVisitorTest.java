@@ -66,6 +66,15 @@ public class SqlVisitorTest {
   }
 
   @Test
+  void selectionPrimaryKey() {
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    assertEquals(
+        "s.s_id AS primary_id",
+        Selection.PrimaryKey.create(S_SAILOR, Optional.of("primary_id")).accept(visitor));
+    assertEquals("s.s_id", Selection.PrimaryKey.create(S_SAILOR, Optional.empty()).accept(visitor));
+  }
+
+  @Test
   void filterBinaryFunction() {
     Filter.BinaryFunction lessThanFilter =
         Filter.BinaryFunction.create(

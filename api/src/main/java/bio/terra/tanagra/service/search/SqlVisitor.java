@@ -4,10 +4,12 @@ import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
+import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
 import bio.terra.tanagra.service.underlay.Table;
 import bio.terra.tanagra.service.underlay.Underlay;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +65,21 @@ public class SqlVisitor {
     public String count(Selection.Count count) {
       return String.format(
           "COUNT(%s)%s", count.entityVariable().variable().name(), aliasSuffix(count.alias()));
+    }
+
+    @Override
+    public String primaryKey(PrimaryKey primaryKey) {
+      Column primaryKeyColumn =
+          searchContext.underlay().primaryKeys().get(primaryKey.entityVariable().entity());
+      Preconditions.checkArgument(
+          primaryKeyColumn != null,
+          "Unable to find a primary key for entity '%s'",
+          primaryKey.entityVariable().entity());
+      return String.format(
+          "%s.%s%s",
+          primaryKey.entityVariable().variable().name(),
+          primaryKeyColumn.name(),
+          aliasSuffix(primaryKey.alias()));
     }
 
     /** Returns " AS alias" or else "" if the alias is not present. */

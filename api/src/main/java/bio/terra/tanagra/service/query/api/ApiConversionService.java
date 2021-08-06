@@ -2,16 +2,17 @@ package bio.terra.tanagra.service.query.api;
 
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.generated.model.ApiEntityFilter;
+import bio.terra.tanagra.service.query.EntityFilter;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Filter;
-import bio.terra.tanagra.service.search.Query;
 import bio.terra.tanagra.service.underlay.Underlay;
 import bio.terra.tanagra.service.underlay.UnderlayService;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** A service for converting API models to Tanagra queries. */
 @Component
 public class ApiConversionService {
 
@@ -22,7 +23,7 @@ public class ApiConversionService {
     this.underlayService = underlayService;
   }
 
-  public Query convertEntityFilter(
+  public EntityFilter convertEntityFilter(
       String underlayName, String entityName, ApiEntityFilter apiEntityFilter) {
     Optional<Underlay> underlay = underlayService.getUnderlay(underlayName);
     if (underlay.isEmpty()) {
@@ -38,10 +39,10 @@ public class ApiConversionService {
     EntityVariable primaryVariable =
         EntityVariable.create(
             primaryEntity, ConversionUtils.createVariable(apiEntityFilter.getEntityVariable()));
-    VariableScope scope = new VariableScope().add(primaryVariable);
 
+    VariableScope scope = new VariableScope().add(primaryVariable);
     Filter filter = new FilterConverter(underlay.get()).convert(apiEntityFilter.getFilter(), scope);
 
-    return null;
+    return EntityFilter.create(primaryVariable, filter);
   }
 }
