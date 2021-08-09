@@ -38,7 +38,8 @@ public class ApiConversionService {
     }
     EntityVariable primaryVariable =
         EntityVariable.create(
-            primaryEntity, ConversionUtils.createVariable(apiEntityFilter.getEntityVariable()));
+            primaryEntity,
+            ConversionUtils.createAndValidateVariable(apiEntityFilter.getEntityVariable()));
 
     VariableScope scope = new VariableScope().add(primaryVariable);
     Filter filter = new FilterConverter(underlay.get()).convert(apiEntityFilter.getFilter(), scope);

@@ -6,6 +6,7 @@ import bio.terra.tanagra.service.search.Selection;
 import bio.terra.tanagra.service.search.SqlVisitor;
 import bio.terra.tanagra.service.underlay.Underlay;
 import bio.terra.tanagra.service.underlay.UnderlayService;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +25,12 @@ public class QueryService {
 
   /** Generate an SQL query to select the primary ids for the entity of the entity filter. */
   public String generatePrimaryKeySql(EntityFilter entityFilter) {
-    Underlay underlay =
-        underlayService
-            .getUnderlay(entityFilter.primaryEntity().entity().underlay())
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        String.format(
-                            "Unable to find underlay '%s'",
-                            entityFilter.primaryEntity().entity().underlay())));
+    Optional<Underlay> underlay =
+        underlayService.getUnderlay(entityFilter.primaryEntity().entity().underlay());
+    Preconditions.checkArgument(
+        underlay.isPresent(),
+        "Unable to find underlay '%s'",
+        entityFilter.primaryEntity().entity().underlay());
 
     Query query =
         Query.create(
@@ -40,6 +38,7 @@ public class QueryService {
                 Selection.PrimaryKey.create(entityFilter.primaryEntity(), Optional.empty())),
             entityFilter.primaryEntity(),
             Optional.of(entityFilter.filter()));
-    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+    return new SqlVisitor(SearchContext.builder().underlay(underlay.get()).build())
+        .createSql(query);
   }
 }
