@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: tanagra-api:${{ github.event.inputs.version }}
+  IMAGE_NAME: ${{ env.REGISTRY }}/DataBiosphere/tanagra-api:${{ github.event.inputs.version }}
 
 jobs:
   build-and-push-image:
