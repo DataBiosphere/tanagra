@@ -22,7 +22,7 @@ class VariableScope {
   /** The variable names to {@link EntityVariable}s bound at this scope. */
   private final Map<String, EntityVariable> variables = new HashMap<>();
 
-  VariableScope(VariableScope enclosing) {
+  VariableScope(@Nullable VariableScope enclosing) {
     this.enclosing = enclosing;
   }
 

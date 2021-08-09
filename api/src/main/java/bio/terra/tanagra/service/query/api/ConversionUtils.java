@@ -14,10 +14,14 @@ public final class ConversionUtils {
     return Stream.of(objects).filter(Objects::nonNull).count() == 1;
   }
 
-  public static Variable createVariable(String name) {
-    if (name.isEmpty()) {
-      throw new BadRequestException("A variable must have a non-empty name.");
+  /**
+   * Creates a {@link Variable} or throws a {@link BadRequestException} if the name is not valid.
+   */
+  public static Variable createAndValidateVariable(String name) {
+    try {
+      return Variable.create(name);
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException("Invalid variable name.", e);
     }
-    return Variable.create(name);
   }
 }

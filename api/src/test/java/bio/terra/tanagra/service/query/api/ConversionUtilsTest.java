@@ -21,8 +21,8 @@ public class ConversionUtilsTest {
   }
 
   @Test
-  void createVariable() {
-    assertEquals(Variable.create("x"), ConversionUtils.createVariable("x"));
-    assertThrows(BadRequestException.class, () -> ConversionUtils.createVariable(""));
+  void createAndValidateVariable() {
+    assertEquals(Variable.create("x2"), ConversionUtils.createAndValidateVariable("x2"));
+    assertThrows(BadRequestException.class, () -> ConversionUtils.createAndValidateVariable("x;"));
   }
 }

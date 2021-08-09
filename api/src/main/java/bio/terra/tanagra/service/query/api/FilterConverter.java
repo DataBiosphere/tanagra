@@ -14,7 +14,6 @@ import bio.terra.tanagra.service.search.Expression.Literal;
 import bio.terra.tanagra.service.search.Filter;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,7 +34,7 @@ class FilterConverter {
         apiFilter.getBinaryFilter(),
         apiFilter.getRelationshipFilter())) {
       throw new BadRequestException(
-          "Filter must have exactly one non-null field.\n" + apiFilter.toString());
+          String.format("Filter must have exactly one non-null field.%n%s", apiFilter.toString()));
     }
     if (apiFilter.getArrayFilter() != null) {
       return convert(apiFilter.getArrayFilter(), scope);
@@ -49,16 +48,18 @@ class FilterConverter {
 
   @VisibleForTesting
   Filter.BinaryFunction convert(ApiBinaryFilter apiBinary, VariableScope scope) {
-    Preconditions.checkNotNull(
-        apiBinary.getAttributeVariable(),
-        "BinaryFilter.attributeVariable must not be null.\n%s",
-        apiBinary);
-    Preconditions.checkNotNull(
-        apiBinary.getOperator(), "BinaryFilter.operator must not be null.\n%s", apiBinary);
-    Preconditions.checkNotNull(
-        apiBinary.getAttributeValue(),
-        "BinaryFilter.attributeValue must not be null.\n%s",
-        apiBinary);
+    if (apiBinary.getAttributeVariable() == null) {
+      throw new BadRequestException(
+          String.format("BinaryFilter.attributeVariable must not be null.%n%s", apiBinary));
+    }
+    if (apiBinary.getOperator() == null) {
+      throw new BadRequestException(
+          String.format("BinaryFilter.operator must not be null.%n%s", apiBinary));
+    }
+    if (apiBinary.getAttributeValue() == null) {
+      throw new BadRequestException(
+          String.format("BinaryFilter.attributeValue must not be null.%n%s", apiBinary));
+    }
 
     AttributeExpression attributeExpression =
         expressionConverter.convert(apiBinary.getAttributeVariable(), scope);
@@ -124,7 +125,7 @@ class FilterConverter {
     }
     EntityVariable newEntityVariable =
         EntityVariable.create(
-            newEntity, ConversionUtils.createVariable(apiRelationship.getNewVariable()));
+            newEntity, ConversionUtils.createAndValidateVariable(apiRelationship.getNewVariable()));
 
     VariableScope innerScope = new VariableScope(scope);
     innerScope.add(newEntityVariable);
