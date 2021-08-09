@@ -1,0 +1,47 @@
+name: Create and publish an API Docker image
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to tag the image with, e.g. "1.2.3"'
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}-api:${{ github.event.inputs.version }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up AdoptOpenJDK 11
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: 11
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+    - name: Build image locally with jib
+      working-directory: api
+      run: "./gradlew jibDockerBuild --image=${IMAGE_NAME} -Djib.console=plain"
+    - name: Push image
+      working-directory: api
+      run: "docker push ${IMAGE_NAME}"

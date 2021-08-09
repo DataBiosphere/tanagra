@@ -1,0 +1,5 @@
+jib {
+    from {
+        image = "adoptopenjdk:11-jre-hotspot"
+    }
+}
