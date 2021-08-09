@@ -20,6 +20,57 @@ paths:
         500:
           description: Service is broken
 
+  '/underlays':
+    get:
+      # TODO authorization
+      security: []
+      summary: Lists the underlays.
+      operationId: listUnderlays
+      tags: [ Underlays ]
+      responses:
+        200:
+          $ref: '#/components/responses/ListUnderlaysResponse'
+
+  '/underlays/{underlay}':
+    parameters:
+      - $ref: '#/components/parameters/Underlay'
+    get:
+      # TODO authorization
+      security: []
+      summary: Get info on an underlay.
+      operationId: getUnderlay
+      tags: [ Underlays ]
+      responses:
+        200:
+          $ref: '#/components/responses/GetUnderlayResponse'
+
+  '/underlays/{underlay}/entities':
+    parameters:
+      - $ref: '#/components/parameters/Underlay'
+    get:
+      # TODO authorization
+      security: []
+      summary: Returns the entities in the underlay.
+      operationId: listEntities
+      tags: [Entities]
+      responses:
+        200:
+          $ref: '#/components/responses/ListEntitiesResponse'
+
+  '/underlays/{underlay}/entities/{entities}':
+    parameters:
+      - $ref: '#/components/parameters/Underlay'
+      - $ref: '#/components/parameters/Entity'
+    get:
+      # TODO authorization
+      security: []
+      summary: Get info on an entity in an underlay.
+      operationId: getEntity
+      tags: [Entities]
+      responses:
+        200:
+          $ref: '#/components/responses/GetEntityResponse'
+
   # TODO implement "real" export endpoints
   '/underlays/{underlay}/entities/{entity}/filters:generateSqlQuery':
     parameters:
@@ -60,6 +111,34 @@ components:
         type: string
 
   responses:
+    GetEntityResponse:
+      description: Response to get an entities.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Entity'
+
+    GetUnderlayResponse:
+      description: Response to get an underlay.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Underlay'
+
+    ListEntitiesResponse:
+      description: Response to list the entities.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EntitiesList'
+
+    ListUnderlaysResponse:
+      description: Response to list the underlays.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnderlaysList'
+
     SqlQueryResponse:
       description: A raw SQL query.
       content:
@@ -68,6 +147,16 @@ components:
             $ref: '#/components/schemas/SqlQuery'
 
   schemas:
+    Attribute:
+      description: An attribute of an entity.
+      type: object
+      properties:
+        name:
+          description: The name of the attribute
+          type: string
+        dataType:
+          $ref: '#/components/schemas/DataType'
+
     AttributeVariable:
       description: An attribute of a variable for an entity.
       type: object
@@ -92,6 +181,24 @@ components:
         boolVal:
           type: boolean
 
+    DataType:
+      description: Enum of data types
+      type: string
+      enum: ['INT64', 'STRING', 'BOOL']
+
+    Entity:
+      type: object
+      description: A relational logical entity supported by an Underlay.
+      properties:
+        name:
+          description: The name of the entity.
+          type: string
+        attributes:
+          description: The attributes that make up the entity.
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+
     EntityFilter:
       description: A filter to apply to the given entity.
       type: object
@@ -101,6 +208,15 @@ components:
           type: string
         filter:
           $ref: '#/components/schemas/Filter'
+
+    EntitiesList:
+      type: object
+      description: A list of Entities.
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
 
     SqlQuery:
       type: object
@@ -179,7 +295,6 @@ components:
         filter:
           $ref: '#/components/schemas/Filter'
 
-
     ErrorReport:
       type: object
       required: [message, statusCode, causes]
@@ -192,3 +307,25 @@ components:
           type: array
           items:
             type: string
+
+    Underlay:
+      type: object
+      description: An underlay dataset used to power a Tanagra experience.
+      properties:
+        name:
+          description: The name of the Underlay.
+          type: string
+        entityNames:
+          description: The names of the entities in the Underlay.
+          type: array
+          items:
+            type: string
+
+    UnderlaysList:
+      type: object
+      description: A list of Underlays.
+      properties:
+        underlays:
+          type: array
+          items:
+            $ref: '#/components/schemas/Underlay'
