@@ -36,7 +36,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EntityDataset'
+              $ref: '#/components/schemas/GenerateSqlQueryDatasetRequest'
         responses:
           200:
             $ref: '#/components/responses/SqlQueryResponse'
@@ -119,10 +119,10 @@ components:
       type: object
       properties:
         entityVariable:
-          description: The variable to use for the top level entity in the filter.
+          description: The variable to use for the primary entity in the filter.
           type: string
         attributes:
-          description: The name of the attributes to select for the dataset.
+          description: The name of the attributes of the primary entity to select for the dataset.
           type: array
           items:
             type: string
@@ -229,3 +229,9 @@ components:
           type: array
           items:
             type: string
+
+    GenerateSqlQueryDatasetRequest:
+      type: object
+      properties:
+        entityDataset:
+          $ref: '#/components/schemas/EntityDataset'
