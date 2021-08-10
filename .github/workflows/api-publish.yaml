@@ -26,7 +26,7 @@ jobs:
         with:
           version: '270.0.0'
           service_account_email: ${{ secrets.GCR_PUBLISH_EMAIL }}
-          service_account_key: ${{ secrets.GCR_PUBLISH_KEY }}
+          service_account_key: ${{ secrets.GCR_PUBLISH_KEY_B64 }}
       - name: Auth Docker for gcloud
         run: "gcloud auth configure-docker --quiet"
       - name: Set up AdoptOpenJDK 11
