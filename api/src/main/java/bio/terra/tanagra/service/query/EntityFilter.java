@@ -13,7 +13,18 @@ public abstract class EntityFilter {
   /** The filter to apply to the primary entity. */
   public abstract Filter filter();
 
-  public static EntityFilter create(EntityVariable primaryEntity, Filter filter) {
-    return new AutoValue_EntityFilter(primaryEntity, filter);
+  public static Builder builder() {
+    return new AutoValue_EntityFilter.Builder();
+  }
+
+  /** Builder for {@link EntityFilter}. */
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder primaryEntity(EntityVariable primaryEntity);
+
+    public abstract Builder filter(Filter filter);
+
+    public abstract EntityFilter build();
   }
 }

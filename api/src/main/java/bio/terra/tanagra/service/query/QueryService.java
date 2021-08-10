@@ -10,10 +10,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /** A service for executing queries. */
-@Component
+@Service
 public class QueryService {
 
   private final UnderlayService underlayService;
@@ -33,11 +33,13 @@ public class QueryService {
         entityFilter.primaryEntity().entity().underlay());
 
     Query query =
-        Query.create(
-            ImmutableList.of(
-                Selection.PrimaryKey.create(entityFilter.primaryEntity(), Optional.empty())),
-            entityFilter.primaryEntity(),
-            Optional.of(entityFilter.filter()));
+        Query.builder()
+            .selections(
+                ImmutableList.of(
+                    Selection.PrimaryKey.create(entityFilter.primaryEntity(), Optional.empty())))
+            .primaryEntity(entityFilter.primaryEntity())
+            .filter(entityFilter.filter())
+            .build();
     return new SqlVisitor(SearchContext.builder().underlay(underlay.get()).build())
         .createSql(query);
   }

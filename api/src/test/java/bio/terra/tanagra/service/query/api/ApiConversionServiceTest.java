@@ -5,7 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import bio.terra.common.exception.BadRequestException;
+import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
 import bio.terra.tanagra.generated.model.ApiAttributeVariable;
 import bio.terra.tanagra.generated.model.ApiBinaryFilter;
@@ -45,29 +45,31 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
 
     Variable sVar = Variable.create("s");
     assertEquals(
-        EntityFilter.create(
-            EntityVariable.create(SAILOR, Variable.create("s")),
-            Filter.BinaryFunction.create(
-                Expression.AttributeExpression.create(
-                    AttributeVariable.create(SAILOR_RATING, sVar)),
-                Filter.BinaryFunction.Operator.EQUALS,
-                Expression.Literal.create(DataType.INT64, "42"))),
+        EntityFilter.builder()
+            .primaryEntity(EntityVariable.create(SAILOR, Variable.create("s")))
+            .filter(
+                Filter.BinaryFunction.create(
+                    Expression.AttributeExpression.create(
+                        AttributeVariable.create(SAILOR_RATING, sVar)),
+                    Filter.BinaryFunction.Operator.EQUALS,
+                    Expression.Literal.create(DataType.INT64, "42")))
+            .build(),
         apiConversionService.convertEntityFilter(
             NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityFilter));
   }
 
   @Test
   void entityFilterUnknownNamesThrow() {
-    BadRequestException bogusUnderlay =
+    NotFoundException bogusUnderlay =
         assertThrows(
-            BadRequestException.class,
+            NotFoundException.class,
             () ->
                 apiConversionService.convertEntityFilter(
                     "bogus_underlay", "sailors", new ApiEntityFilter()));
     assertThat(bogusUnderlay.getMessage(), Matchers.containsString("No known underlay with name"));
-    BadRequestException bogusEntity =
+    NotFoundException bogusEntity =
         assertThrows(
-            BadRequestException.class,
+            NotFoundException.class,
             () ->
                 apiConversionService.convertEntityFilter(
                     NAUTICAL_UNDERLAY_NAME, "bogus_entity", new ApiEntityFilter()));

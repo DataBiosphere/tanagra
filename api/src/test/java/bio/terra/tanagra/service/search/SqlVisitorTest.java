@@ -27,16 +27,21 @@ public class SqlVisitorTest {
   @Test
   void query() {
     Query query =
-        Query.create(
-            ImmutableList.of(
-                Selection.SelectExpression.create(Expression.AttributeExpression.create(S_RATING)),
-                Selection.SelectExpression.create(Expression.AttributeExpression.create(S_NAME))),
-            S_SAILOR,
-            Optional.of(
-                Filter.BinaryFunction.create(
-                    Expression.AttributeExpression.create(S_RATING),
-                    Filter.BinaryFunction.Operator.EQUALS,
-                    Expression.Literal.create(DataType.INT64, "62"))));
+        Query.builder()
+            .selections(
+                ImmutableList.of(
+                    Selection.SelectExpression.create(
+                        Expression.AttributeExpression.create(S_RATING)),
+                    Selection.SelectExpression.create(
+                        Expression.AttributeExpression.create(S_NAME))))
+            .primaryEntity(S_SAILOR)
+            .filter(
+                Optional.of(
+                    Filter.BinaryFunction.create(
+                        Expression.AttributeExpression.create(S_RATING),
+                        Filter.BinaryFunction.Operator.EQUALS,
+                        Expression.Literal.create(DataType.INT64, "62"))))
+            .build();
     assertEquals(
         "SELECT s.rating, s.s_name FROM my-project-id.nautical.sailors AS s WHERE s.rating = 62",
         new SqlVisitor(SIMPLE_CONTEXT).createSql(query));

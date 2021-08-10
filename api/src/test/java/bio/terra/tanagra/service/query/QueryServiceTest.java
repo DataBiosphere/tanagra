@@ -24,12 +24,14 @@ public class QueryServiceTest extends BaseSpringUnitTest {
     assertEquals(
         "SELECT s.s_id FROM my-project-id.nautical.sailors AS s WHERE s.rating = 42",
         queryService.generatePrimaryKeySql(
-            EntityFilter.create(
-                EntityVariable.create(SAILOR, Variable.create("s")),
-                Filter.BinaryFunction.create(
-                    Expression.AttributeExpression.create(
-                        AttributeVariable.create(SAILOR_RATING, Variable.create("s"))),
-                    Filter.BinaryFunction.Operator.EQUALS,
-                    Expression.Literal.create(DataType.INT64, "42")))));
+            EntityFilter.builder()
+                .primaryEntity(EntityVariable.create(SAILOR, Variable.create("s")))
+                .filter(
+                    Filter.BinaryFunction.create(
+                        Expression.AttributeExpression.create(
+                            AttributeVariable.create(SAILOR_RATING, Variable.create("s"))),
+                        Filter.BinaryFunction.Operator.EQUALS,
+                        Expression.Literal.create(DataType.INT64, "42")))
+                .build()));
   }
 }
