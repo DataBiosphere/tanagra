@@ -22,6 +22,9 @@ paths:
 
   '/underlays':
     get:
+      parameters:
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       # TODO authorization
       security: []
       summary: Lists the underlays.
@@ -46,6 +49,8 @@ paths:
 
   '/underlays/{underlayName}/entities':
     parameters:
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageToken'
       - $ref: '#/components/parameters/Underlay'
     get:
       # TODO authorization
@@ -110,6 +115,24 @@ components:
       schema:
         type: string
 
+    PageSize:
+      name: pageSize
+      in: query
+      description: |
+        The maximum number of results to return in this page. The server may return less.
+        If 0 or unspecified, the server will decide the number of results.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    PageToken:
+      name: pageToken
+      in: query
+      description: An opaque pagination token to retrieve a specific page of results
+      schema:
+        type: string
+
   responses:
     GetEntityResponse:
       description: Response to get an entities.
@@ -130,14 +153,14 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/EntitiesList'
+            $ref: '#/components/schemas/ListEntitiesResponse'
 
     ListUnderlaysResponse:
       description: Response to list the underlays.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/UnderlaysList'
+            $ref: '#/components/schemas/ListUnderlaysResponse'
 
     SqlQueryResponse:
       description: A raw SQL query.
@@ -210,14 +233,16 @@ components:
         filter:
           $ref: '#/components/schemas/Filter'
 
-    EntitiesList:
+    ListEntitiesResponse:
       type: object
-      description: A list of Entities.
+      description: A response for a list of Entities.
       properties:
         entities:
           type: array
           items:
             $ref: '#/components/schemas/Entity'
+        next_page_token:
+          $ref: '#/components/schemas/NextPageToken'
 
     SqlQuery:
       type: object
@@ -309,6 +334,12 @@ components:
           items:
             type: string
 
+    NextPageToken:
+      type: string
+      description: |
+        The pagination token to retrieve the next page of results. If empty, there are no
+        further results. Set as the PageToken in the next request.
+
     Underlay:
       type: object
       description: An underlay dataset used to power a Tanagra experience.
@@ -322,7 +353,7 @@ components:
           items:
             type: string
 
-    UnderlaysList:
+    ListUnderlaysResponse:
       type: object
       description: A list of Underlays.
       properties:
@@ -330,3 +361,5 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Underlay'
+        next_page_token:
+          $ref: '#/components/schemas/NextPageToken'
