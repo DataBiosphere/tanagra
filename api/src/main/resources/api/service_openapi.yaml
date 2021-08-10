@@ -376,7 +376,6 @@ components:
         entityDataset:
           $ref: '#/components/schemas/EntityDataset'
 
-
     NextPageToken:
       type: string
       description: |
