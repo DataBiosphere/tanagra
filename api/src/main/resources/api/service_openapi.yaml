@@ -277,7 +277,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Entity'
-        next_page_token:
+        nextPageToken:
           $ref: '#/components/schemas/NextPageToken'
 
     SqlQuery:
@@ -403,5 +403,5 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Underlay'
-        next_page_token:
+        nextPageToken:
           $ref: '#/components/schemas/NextPageToken'
