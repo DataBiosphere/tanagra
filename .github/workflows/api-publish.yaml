@@ -47,7 +47,7 @@ jobs:
           echo ::set-output name=name::gcr.io/${GCR_PROJECT}/tanagra-api:${{ github.event.inputs.version }}
       - name: Build image locally with jib
         working-directory: api
-        run: "./gradlew jibDockerBuild --image=${IMAGE_NAME} -Djib.console=plain --stacktrace"
+        run: "./gradlew jibDockerBuild --image=${{ steps.image-name.outputs.name }} -Djib.console=plain --stacktrace"
       - name: Push image
         working-directory: api
         run: "echo ${{ steps.image-name.outputs.name }}"
