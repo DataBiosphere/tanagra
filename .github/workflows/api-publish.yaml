@@ -10,8 +10,7 @@ on:
         required: true
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ env.REGISTRY }}/DataBiosphere/tanagra-api:${{ github.event.inputs.version }}
+  GCR_PROJECT: broad-dsp-gcr-public
 
 jobs:
   build-and-push-image:
@@ -22,12 +21,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      - name: Auth with gcloud
+        uses: google-github-actions/setup-gcloud@master
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          version: '270.0.0'
+          service_account_email: ${{ secrets.GCR_PUBLISH_EMAIL }}
+          service_account_key: ${{ secrets.GCR_PUBLISH_KEY }}
+      - name: Auth Docker for gcloud
+        run: "gcloud auth configure-docker --quiet"
       - name: Set up AdoptOpenJDK 11
         uses: joschi/setup-jdk@v2
         with:
@@ -40,11 +41,13 @@ jobs:
             ~/.gradle/wrapper
           key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
           restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-      - name: Echo image name
-        run: "echo ${IMAGE_NAME}"
+      - name: Construct docker image name
+        id: image-name
+        run: |
+          echo ::set-output name=name::gcr.io/${GCR_PROJECT}/tanagra-api:${{ github.event.inputs.version }}
       - name: Build image locally with jib
         working-directory: api
         run: "./gradlew jibDockerBuild --image=${IMAGE_NAME} -Djib.console=plain --stacktrace"
       - name: Push image
         working-directory: api
-        run: "docker push ${REGISTRY}/DataBiosphere/${IMAGE_NAME}"
+        run: "echo ${{ steps.image-name.outputs.name }}"
