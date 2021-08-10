@@ -18,6 +18,8 @@ public interface Selection {
     R selectExpression(SelectExpression selectExpression);
 
     R count(Count count);
+
+    R primaryKey(PrimaryKey primaryKey);
   }
 
   /** Accept the {@link Visitor} pattern. */
@@ -62,6 +64,25 @@ public interface Selection {
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.count(this);
+    }
+  }
+
+  /** A {@link Selection} for selecting the primary keys of entities. */
+  @AutoValue
+  abstract class PrimaryKey implements Selection {
+    /** The entity to select the primary key of. */
+    public abstract EntityVariable entityVariable();
+
+    /** An alias to name this selection. */
+    abstract Optional<String> alias();
+
+    public static PrimaryKey create(EntityVariable entityVariable, Optional<String> alias) {
+      return new AutoValue_Selection_PrimaryKey(entityVariable, alias);
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.primaryKey(this);
     }
   }
 }

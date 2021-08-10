@@ -15,10 +15,6 @@ public abstract class Attribute {
 
   public abstract Entity entity();
 
-  public static Attribute create(String name, DataType dataType, Entity entity) {
-    return builder().name(name).dataType(dataType).entity(entity).build();
-  }
-
   public static Builder builder() {
     return new AutoValue_Attribute.Builder();
   }

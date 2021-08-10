@@ -1,7 +1,6 @@
 package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
@@ -19,9 +18,22 @@ public abstract class Query {
   /** The filter to apply to the primary entity, if there is a filter. */
   public abstract Optional<Filter> filter();
 
-  public static Query create(
-      List<Selection> selections, EntityVariable primaryEntity, Optional<Filter> predicate) {
-    Preconditions.checkArgument(!selections.isEmpty(), "A Query must have non-zero selections");
-    return new AutoValue_Query(ImmutableList.copyOf(selections), primaryEntity, predicate);
+  public static Builder builder() {
+    return new AutoValue_Query.Builder();
+  }
+
+  /** Builder for {@link Query}. */
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder selections(List<Selection> selections);
+
+    public abstract Builder primaryEntity(EntityVariable primaryEntity);
+
+    public abstract Builder filter(Optional<Filter> filter);
+
+    public abstract Builder filter(Filter filter);
+
+    public abstract Query build();
   }
 }
