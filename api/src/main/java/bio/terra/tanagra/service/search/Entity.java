@@ -27,6 +27,7 @@ public abstract class Entity {
 
     public abstract Builder underlay(String underlay);
 
+    // TODO validate entity/attribute names are non-empty.
     public abstract Entity build();
   }
 }
