@@ -31,7 +31,7 @@ paths:
         200:
           $ref: '#/components/responses/ListUnderlaysResponse'
 
-  '/underlays/{underlay}':
+  '/underlays/{underlayName}':
     parameters:
       - $ref: '#/components/parameters/Underlay'
     get:
@@ -44,7 +44,7 @@ paths:
         200:
           $ref: '#/components/responses/GetUnderlayResponse'
 
-  '/underlays/{underlay}/entities':
+  '/underlays/{underlayName}/entities':
     parameters:
       - $ref: '#/components/parameters/Underlay'
     get:
@@ -57,7 +57,7 @@ paths:
         200:
           $ref: '#/components/responses/ListEntitiesResponse'
 
-  '/underlays/{underlay}/entities/{entities}':
+  '/underlays/{underlayName}/entities/{entities}':
     parameters:
       - $ref: '#/components/parameters/Underlay'
       - $ref: '#/components/parameters/Entity'
@@ -72,7 +72,7 @@ paths:
           $ref: '#/components/responses/GetEntityResponse'
 
   # TODO implement "real" export endpoints
-  '/underlays/{underlay}/entities/{entity}/filters:generateSqlQuery':
+  '/underlays/{underlayName}/entities/{entityName}/filters:generateSqlQuery':
     parameters:
       - $ref: '#/components/parameters/Underlay'
       - $ref: '#/components/parameters/Entity'
@@ -191,6 +191,7 @@ components:
       description: A relational logical entity supported by an Underlay.
       properties:
         name:
+          # TODO consider a display name.
           description: The name of the entity.
           type: string
         attributes:
