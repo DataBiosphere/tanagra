@@ -1,4 +1,4 @@
-# This workflow builds a docker image with jib and pushes it to Github Container Repository.
+# This workflow builds a docker image with jib and pushes it to Google Container Repository.
 
 name: Build & Push API image
 
