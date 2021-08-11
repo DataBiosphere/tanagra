@@ -3,6 +3,7 @@
 name: Build & Push API image
 
 on:
+  # TODO consider automatic publishing.
   workflow_dispatch:
     inputs:
       version:
