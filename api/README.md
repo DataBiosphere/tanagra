@@ -1,6 +1,8 @@
 # Tanagra Service
 The API service backing the Tanagra application.
 
+Images hosted at [gcr.io/broad-dsp-gcr-public/tanagra-api](gcr.io/broad-dsp-gcr-public/tanagra-api).
+
 # Development
 To get started, run `./gradlew build` to build and test.
 

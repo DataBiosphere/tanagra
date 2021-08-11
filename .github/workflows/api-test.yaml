@@ -33,6 +33,10 @@ jobs:
         working-directory: api
         # The check task runs static analysis on main & test sources.
         run: ./gradlew check
+      - name: Jib build
+        working-directory: api
+        # Check that jib builds a docker container.
+        run: ./gradlew jibDockerBuild
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
