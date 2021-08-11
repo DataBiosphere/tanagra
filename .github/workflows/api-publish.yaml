@@ -28,7 +28,7 @@ jobs:
           service_account_email: ${{ secrets.GCR_PUBLISH_EMAIL }}
           service_account_key: ${{ secrets.GCR_PUBLISH_KEY_B64 }}
       - name: Auth Docker for gcloud
-        run: "gcloud auth configure-docker --quiet"
+        run: gcloud auth configure-docker --quiet
       - name: Set up AdoptOpenJDK 11
         uses: joschi/setup-jdk@v2
         with:
@@ -47,7 +47,7 @@ jobs:
           echo ::set-output name=name::gcr.io/${GCR_PROJECT}/tanagra-api:${{ github.event.inputs.version }}
       - name: Build image locally with jib
         working-directory: api
-        run: "./gradlew jibDockerBuild --image=${{ steps.image-name.outputs.name }} -Djib.console=plain --stacktrace"
+        run: ./gradlew jibDockerBuild --image=${{ steps.image-name.outputs.name }} -Djib.console=plain --stacktrace
       - name: Push image
         working-directory: api
-        run: "echo ${{ steps.image-name.outputs.name }}"
+        run: docker push ${{ steps.image-name.outputs.name }}
