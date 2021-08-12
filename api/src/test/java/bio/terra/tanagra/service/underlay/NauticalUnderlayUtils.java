@@ -33,7 +33,7 @@ public final class NauticalUnderlayUtils {
     return builder.build();
   }
 
-  public static final String NAUTICAL_UNDERLAY_NAME = "Nautical Underlay";
+  public static final String NAUTICAL_UNDERLAY_NAME = "nautical_underlay";
   public static final Entity SAILOR =
       Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("sailors").build();
   public static final Entity BOAT =
