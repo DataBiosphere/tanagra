@@ -118,6 +118,23 @@ paths:
         200:
           $ref: '#/components/responses/SqlQueryResponse'
 
+
+  '/underlays/{underlayName}/entities/{entities}/instances:search':
+    parameters:
+      - $ref: '#/components/parameters/Entity'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageToken'
+      - $ref: '#/components/parameters/Underlay'
+    post:
+      # TODO authorization
+      security: []
+      summary: Search for entity instances
+      operationId: searchEntityInstance
+      tags: [Entities]
+      responses:
+        200:
+          $ref: '#/components/responses/GetEntityResponse'
+
 components:
   parameters:
     Underlay:
