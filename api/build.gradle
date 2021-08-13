@@ -27,7 +27,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_11
 
 group = "bio.terra"
-version = "0.0.0"
+version = "0.0.0-SNAPSHOT"
 
 ext {
     artifactGroup = "${group}.tanagra"
