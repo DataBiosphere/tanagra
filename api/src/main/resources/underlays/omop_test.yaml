@@ -1,0 +1,437 @@
+# An initial OMOP underlay schema for development.
+
+name: omop_test
+entities:
+  - name: person
+    attributes:
+      - name: person_id
+        dataType: INT64
+      - name: gender_concept_id
+        dataType: INT64
+      - name: gender
+        dataType: STRING
+      - name: race_concept_id
+        dataType: INT64
+      - name: race
+        dataType: STRING
+      - name: ethnicity_concept_id
+        dataType: INT64
+      - name: ethnicity
+        dataType: STRING
+      - name: sex_at_birth_concept_id
+        dataType: INT64
+      - name: sex_at_birth
+        dataType: STRING
+  - name: condition_occurrence
+    attributes:
+      - name: condition_occurrence_id
+        dataType: INT64
+      - name: person_id
+        dataType: INT64
+      - name: condition_concept_id
+        dataType: INT64
+      - name: condition_name
+        dataType: STRING
+      - name: condition_standard
+        dataType: STRING
+      - name: condition_concept_code
+        dataType: INT64
+  - name: concept
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: domain_id
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: INT64
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: INT64
+relationships:
+  - name: person_condition_occurrence
+    entity1: person
+    entity2: condition_occurrence
+  - name: person_gender_concept_id
+    entity1: concept
+    entity2: person
+  - name: person_race_concept_id
+    entity1: concept
+    entity2: person
+  - name: person_ethnicity_concept_id
+    entity1: concept
+    entity2: person
+  - name: person_sex_at_birth_concept_id
+    entity1: concept
+    entity2: person
+  - name: condition_concept_id
+    entity1: concept
+    entity2: condition_occurrence
+datasets:
+  - name: omop_test
+    bigQueryDataset:
+      projectId: all-of-us-ehr-dev
+      datasetId: SR2019q4r4
+    tables:
+      - name: person
+        columns:
+          - name: person_id
+            dataType: INT64
+          - name: gender_concept_id
+            dataType: INT64
+          - name: race_concept_id
+            dataType: INT64
+          - name: ethnicity_concept_id
+            dataType: INT64
+          - name: sex_at_birth_concept_id
+            dataType: INT64
+      - name: condition_occurrence
+        columns:
+          - name: condition_occurrence_id
+            dataType: INT64
+          - name: person_id
+            dataType: INT64
+          - name: condition_concept_id
+            dataType: INT64
+      - name: concept
+        columns:
+          - name: concept_id
+            dataType: INT64
+          - name: concept_name
+            dataType: STRING
+          - name: domain_id
+            dataType: STRING
+          - name: standard_concept
+            dataType: STRING
+          - name: vocabulary_id
+            dataType: INT64
+          - name: concept_code
+            dataType: STRING
+      - name: vocabulary
+        columns:
+          - name: vocabulary_id
+            dataType: INT64
+          - name: vocabulary_name
+            dataType: STRING
+entityMappings:
+  - entity: person
+    primaryKey:
+      dataset: omop_test
+      table: person
+      column: person_id
+  - entity: condition_occurrence
+    primaryKey:
+      dataset: omop_test
+      table: condition_occurrence
+      column: condition_occurrence_id
+  - entity: concept
+    primaryKey:
+      dataset: omop_test
+      table: concept
+      column: concept_id
+attributeMappings:
+  - attribute:
+      entity: person
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: person
+        column: person_id
+  - attribute:
+      entity: person
+      attribute: gender_concept_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: person
+        column: gender_concept_id
+  - attribute:
+      entity: person
+      attribute: gender
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: person
+        column: gender_concept_id
+      factTableKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      factColumn:
+        dataset: omop_test
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: person
+      attribute: race_concept_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: person
+        column: race_concept_id
+  - attribute:
+      entity: person
+      attribute: race
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: person
+        column: race_concept_id
+      factTableKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      factColumn:
+        dataset: omop_test
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: person
+      attribute: ethnicity_concept_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: person
+        column: ethnicity_concept_id
+  - attribute:
+      entity: person
+      attribute: ethnicity
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: person
+        column: ethnicity_concept_id
+      factTableKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      factColumn:
+        dataset: omop_test
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: person
+      attribute: sex_at_birth_concept_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: person
+        column: sex_at_birth_concept_id
+  - attribute:
+      entity: person
+      attribute: sex_at_birth
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: person
+        column: sex_at_birth_concept_id
+      factTableKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      factColumn:
+        dataset: omop_test
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: condition_occurrence
+        column: condition_occurrence_id
+  - attribute:
+      entity: condition_occurrence
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: condition_occurrence
+        column: person_id
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_concept_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: condition_occurrence
+        column: condition_concept_id
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_name
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: condition_occurrence
+        column: condition_concept_id
+      factTableKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      factColumn:
+        dataset: omop_test
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_standard
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: condition_occurrence
+        column: condition_concept_id
+      factTableKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      factColumn:
+        dataset: omop_test
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_concept_code
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: condition_occurrence
+        column: condition_concept_id
+      factTableKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      factColumn:
+        dataset: omop_test
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: concept
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: concept
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: concept
+      attribute: domain_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: concept
+        column: domain_id
+  - attribute:
+      entity: concept
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: concept
+      attribute: vocabulary_name
+    normalizedColumn:
+      primaryTableKey:
+        dataset: omop_test
+        table: concept
+        column: vocabulary_id
+      factTableKey:
+        dataset: omop_test
+        table: vocabulary
+        column: vocabulary_id
+      factColumn:
+        dataset: omop_test
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: concept
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: concept
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: omop_test
+        table: concept
+        column: concept_code
+relationshipMappings:
+  - name: person_condition_occurrence
+    foreignKey:
+      primaryKey:
+        dataset: omop_test
+        table: person
+        column: person_id
+      foreignKey:
+        dataset: omop_test
+        table: condition_occurrence
+        column: person_id
+  - name: person_gender_concept_id
+    foreignKey:
+      primaryKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      foreignKey:
+        dataset: omop_test
+        table: person
+        column: gender_concept_id
+  - name: person_race_concept_id
+    foreignKey:
+      primaryKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      foreignKey:
+        dataset: omop_test
+        table: person
+        column: race_concept_id
+  - name: person_ethnicity_concept_id
+    foreignKey:
+      primaryKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      foreignKey:
+        dataset: omop_test
+        table: person
+        column: ethnicity_concept_id
+  - name: person_sex_at_birth_concept_id
+    foreignKey:
+      primaryKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      foreignKey:
+        dataset: omop_test
+        table: person
+        column: sex_at_birth_concept_id
+  - name: condition_concept_id
+    foreignKey:
+      primaryKey:
+        dataset: omop_test
+        table: concept
+        column: concept_id
+      foreignKey:
+        dataset: omop_test
+        table: condition_occurrence
+        column: condition_concept_id
