@@ -56,19 +56,19 @@ relationships:
   - name: person_condition_occurrence
     entity1: person
     entity2: condition_occurrence
-  - name: person_gender_concept_id
+  - name: concept_id_person_gender
     entity1: concept
     entity2: person
-  - name: person_race_concept_id
+  - name: concept_id_person_race
     entity1: concept
     entity2: person
-  - name: person_ethnicity_concept_id
+  - name: concept_id_person_ethnicity
     entity1: concept
     entity2: person
-  - name: person_sex_at_birth_concept_id
+  - name: concept_id_person_sex_at_birth
     entity1: concept
     entity2: person
-  - name: condition_concept_id
+  - name: concept_id_condition
     entity1: concept
     entity2: condition_occurrence
 datasets:
@@ -153,16 +153,16 @@ attributeMappings:
   - attribute:
       entity: person
       attribute: gender
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: person
         column: gender_concept_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: concept
         column: concept_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: concept
         column: concept_name
@@ -177,16 +177,16 @@ attributeMappings:
   - attribute:
       entity: person
       attribute: race
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: person
         column: race_concept_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: concept
         column: concept_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: concept
         column: concept_name
@@ -201,16 +201,16 @@ attributeMappings:
   - attribute:
       entity: person
       attribute: ethnicity
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: person
         column: ethnicity_concept_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: concept
         column: concept_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: concept
         column: concept_name
@@ -225,16 +225,16 @@ attributeMappings:
   - attribute:
       entity: person
       attribute: sex_at_birth
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: person
         column: sex_at_birth_concept_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: concept
         column: concept_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: concept
         column: concept_name
@@ -265,48 +265,48 @@ attributeMappings:
   - attribute:
       entity: condition_occurrence
       attribute: condition_name
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: condition_occurrence
         column: condition_concept_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: concept
         column: concept_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: concept
         column: concept_name
   - attribute:
       entity: condition_occurrence
       attribute: condition_standard
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: condition_occurrence
         column: condition_concept_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: concept
         column: concept_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: concept
         column: standard_concept
   - attribute:
       entity: condition_occurrence
       attribute: condition_concept_code
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: condition_occurrence
         column: condition_concept_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: concept
         column: concept_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: concept
         column: concept_code
@@ -345,16 +345,16 @@ attributeMappings:
   - attribute:
       entity: concept
       attribute: vocabulary_name
-    normalizedColumn:
-      primaryTableKey:
+    lookupColumn:
+      primaryTableLookupKey:
         dataset: omop_test
         table: concept
         column: vocabulary_id
-      factTableKey:
+      lookupTableKey:
         dataset: omop_test
         table: vocabulary
         column: vocabulary_id
-      factColumn:
+      lookupColumn:
         dataset: omop_test
         table: vocabulary
         column: vocabulary_name
@@ -385,7 +385,7 @@ relationshipMappings:
         dataset: omop_test
         table: condition_occurrence
         column: person_id
-  - name: person_gender_concept_id
+  - name: concept_id_person_gender
     foreignKey:
       primaryKey:
         dataset: omop_test
@@ -395,7 +395,7 @@ relationshipMappings:
         dataset: omop_test
         table: person
         column: gender_concept_id
-  - name: person_race_concept_id
+  - name: concept_id_person_race
     foreignKey:
       primaryKey:
         dataset: omop_test
@@ -405,7 +405,7 @@ relationshipMappings:
         dataset: omop_test
         table: person
         column: race_concept_id
-  - name: person_ethnicity_concept_id
+  - name: concept_id_person_ethnicity
     foreignKey:
       primaryKey:
         dataset: omop_test
@@ -415,7 +415,7 @@ relationshipMappings:
         dataset: omop_test
         table: person
         column: ethnicity_concept_id
-  - name: person_sex_at_birth_concept_id
+  - name: concept_id_person_sex_at_birth
     foreignKey:
       primaryKey:
         dataset: omop_test
@@ -425,7 +425,7 @@ relationshipMappings:
         dataset: omop_test
         table: person
         column: sex_at_birth_concept_id
-  - name: condition_concept_id
+  - name: concept_id_condition
     foreignKey:
       primaryKey:
         dataset: omop_test
