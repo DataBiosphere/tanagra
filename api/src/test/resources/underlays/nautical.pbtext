@@ -246,18 +246,18 @@ attribute_mappings: {
     entity: "boats"
     attribute: "type_name"
   }
-  normalized_column: {
-    primary_table_key: {
+  lookup_column: {
+    primary_table_lookup_key: {
       dataset: "nautical"
       table: "boats"
       column: "bt_id"
     }
-    fact_table_key: {
+    lookup_table_key: {
       dataset: "nautical"
       table: "boat_types"
       column: "bt_id"
     }
-    fact_column: {
+    lookup_column: {
       dataset: "nautical"
       table: "boat_types"
       column: "bt_name"

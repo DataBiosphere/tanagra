@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.underlay;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import org.junit.jupiter.api.Tag;
@@ -62,11 +63,11 @@ public class UnderlayConversionTest {
             .put(BOAT_COLOR, AttributeMapping.SimpleColumn.create(BOAT_COLOR, BOAT_COLOR_COL))
             .put(
                 BOAT_TYPE_NAME,
-                AttributeMapping.NormalizedColumn.builder()
+                LookupColumn.builder()
                     .attribute(BOAT_TYPE_NAME)
-                    .primaryTableKey(BOAT_BT_ID_COL)
-                    .factTableKey(BOAT_TYPE_ID_COL)
-                    .factColumn(BOAT_TYPE_NAME_COL)
+                    .primaryTableLookupKey(BOAT_BT_ID_COL)
+                    .lookupTableKey(BOAT_TYPE_ID_COL)
+                    .lookupColumn(BOAT_TYPE_NAME_COL)
                     .build())
             .put(
                 RESERVATION_ID,

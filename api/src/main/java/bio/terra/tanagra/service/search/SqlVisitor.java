@@ -6,7 +6,7 @@ import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
-import bio.terra.tanagra.service.underlay.AttributeMapping.NormalizedColumn;
+import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
@@ -234,17 +234,17 @@ public class SqlVisitor {
       }
 
       @Override
-      public String visitNormalizedColumn(NormalizedColumn normalizedColumn) {
+      public String visitLookupColumn(LookupColumn lookupColumn) {
         String template =
-            "(SELECT ${fact_table_name}.${fact_column} FROM ${fact_table} WHERE ${fact_table_name}.${fact_key} = ${var}.${primary_key})";
+            "(SELECT ${lookup_table_name}.${lookup_column} FROM ${lookup_table} WHERE ${lookup_table_name}.${lookup_key} = ${var}.${primary_key})";
         Map<String, String> params =
             ImmutableMap.<String, String>builder()
-                .put("fact_table_name", normalizedColumn.factColumn().table().name())
-                .put("fact_column", normalizedColumn.factColumn().name())
-                .put("fact_table", resolveTable(normalizedColumn.factColumn().table()))
-                .put("fact_key", normalizedColumn.factTableKey().name())
+                .put("lookup_table_name", lookupColumn.lookupColumn().table().name())
+                .put("lookup_column", lookupColumn.lookupColumn().name())
+                .put("lookup_table", resolveTable(lookupColumn.lookupColumn().table()))
+                .put("lookup_key", lookupColumn.lookupTableKey().name())
                 .put("var", attributeVariable.variable().name())
-                .put("primary_key", normalizedColumn.primaryTableKey().name())
+                .put("primary_key", lookupColumn.primaryTableLookupKey().name())
                 .build();
         return StringSubstitutor.replace(template, params);
       }

@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service.underlay;
 
-import bio.terra.tanagra.proto.underlay.AttributeMapping.NormalizedColumn;
 import bio.terra.tanagra.proto.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.proto.underlay.Dataset;
 import bio.terra.tanagra.proto.underlay.EntityMapping;
@@ -9,6 +8,7 @@ import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
+import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
@@ -128,28 +128,28 @@ final class UnderlayConversion {
               "Simple attribute mappings column must be on the same table as the Entity's primary table.");
           newMapping = AttributeMapping.SimpleColumn.create(attribute, column);
           break;
-        case NORMALIZED_COLUMN:
-          NormalizedColumn normalizedColumn = attributeMapping.getNormalizedColumn();
-          Column factColumn =
-              retrieve(normalizedColumn.getFactColumn(), columns, "fact column", normalizedColumn);
-          Column factTableKey =
-              retrieve(
-                  normalizedColumn.getFactTableKey(), columns, "fact table key", normalizedColumn);
+        case LOOKUP_COLUMN:
+          bio.terra.tanagra.proto.underlay.AttributeMapping.LookupColumn lookupColumn =
+              attributeMapping.getLookupColumn();
+          Column lookupAttribute =
+              retrieve(lookupColumn.getLookupColumn(), columns, "lookup column", lookupColumn);
+          Column lookupTableKey =
+              retrieve(lookupColumn.getLookupTableKey(), columns, "lookup table key", lookupColumn);
           Column primaryTableKey =
               retrieve(
-                  normalizedColumn.getPrimaryTableKey(),
+                  lookupColumn.getPrimaryTableLookupKey(),
                   columns,
-                  "primary table key",
-                  normalizedColumn);
+                  "primary table lookup key",
+                  lookupColumn);
           Preconditions.checkArgument(
               primaryKeys.get(attribute.entity()).table().equals(primaryTableKey.table()),
               "Normalized mapping primary table key column must be on the same table as the Entity's primary table.");
           newMapping =
-              AttributeMapping.NormalizedColumn.builder()
+              LookupColumn.builder()
                   .attribute(attribute)
-                  .factColumn(factColumn)
-                  .factTableKey(factTableKey)
-                  .primaryTableKey(primaryTableKey)
+                  .lookupColumn(lookupAttribute)
+                  .lookupTableKey(lookupTableKey)
+                  .primaryTableLookupKey(primaryTableKey)
                   .build();
           break;
         default:

@@ -16,7 +16,7 @@ public interface AttributeMapping {
   interface Visitor<R> {
     R visitSimpleColumn(SimpleColumn simpleColumn);
 
-    R visitNormalizedColumn(NormalizedColumn normalizedColumn);
+    R visitLookupColumn(LookupColumn lookupColumn);
   }
 
   /** Accept the {@link AttributeMapping.Visitor} pattern. */
@@ -43,42 +43,46 @@ public interface AttributeMapping {
     }
   }
 
+  /**
+   * An {@link AttributeMapping} where an attribute maps to a column on a lookup table referenced by
+   * a foreign key column on the primary table.
+   */
   @AutoValue
-  abstract class NormalizedColumn implements AttributeMapping {
+  abstract class LookupColumn implements AttributeMapping {
     @Override
     public abstract Attribute attribute();
 
-    /** The column on Entity's primary table that references {@link #factTableKey}. */
-    public abstract Column primaryTableKey();
+    /** The column on Entity's primary table that references {@link #lookupTableKey}. */
+    public abstract Column primaryTableLookupKey();
 
-    /** The column on the fact table that is referenced by {@link #primaryTableKey}. */
-    public abstract Column factTableKey();
+    /** The column on the lookup table that is referenced by {@link #primaryTableLookupKey}. */
+    public abstract Column lookupTableKey();
 
-    /** The column on the fact table that is represented by the {@link #attribute}. */
-    public abstract Column factColumn();
+    /** The column on the lookup table that is represented by the {@link #attribute}. */
+    public abstract Column lookupColumn();
 
     @Override
     public <R> R accept(Visitor<R> visitor) {
-      return visitor.visitNormalizedColumn(this);
+      return visitor.visitLookupColumn(this);
     }
 
     public static Builder builder() {
-      return new AutoValue_AttributeMapping_NormalizedColumn.Builder();
+      return new AutoValue_AttributeMapping_LookupColumn.Builder();
     }
 
-    /** Builder for {@link NormalizedColumn}. */
+    /** Builder for {@link LookupColumn}. */
     @AutoValue.Builder
     public abstract static class Builder {
 
       public abstract Builder attribute(Attribute attribute);
 
-      public abstract Builder primaryTableKey(Column primaryTableKey);
+      public abstract Builder primaryTableLookupKey(Column primaryTableKey);
 
-      public abstract Builder factTableKey(Column factTableKey);
+      public abstract Builder lookupTableKey(Column lookupTableKey);
 
-      public abstract Builder factColumn(Column factColumn);
+      public abstract Builder lookupColumn(Column lookupColumn);
 
-      public abstract NormalizedColumn build();
+      public abstract LookupColumn build();
     }
   }
 }
