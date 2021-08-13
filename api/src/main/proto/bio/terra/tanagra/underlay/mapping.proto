@@ -51,9 +51,23 @@ message AttributeMapping {
     ColumnId column_id = 1;
   }
 
+  // A mapping where an attribute refers to a normalized column in a fact table
+  // related to the primary table of the entity.
+  // i.e. in pseudo-SQL
+  // SELECT fact.column FROM fact_table WHERE primary_table.key = fact_table.key
+  message NormalizedColumn {
+    // The column on the primary table that references fact_table_key.
+    ColumnId primary_table_key = 1;
+    // The column on the fact table that is referenced by primary_table_key.
+    ColumnId fact_table_key = 2;
+    // The column on the fact table that is represented by the attribute.
+    ColumnId fact_column = 3;
+  }
+
   // The mapping for this attribute.
   oneof mapping {
     SimpleColumn simple_column = 2;
+    NormalizedColumn normalized_column = 3;
   }
 }
 

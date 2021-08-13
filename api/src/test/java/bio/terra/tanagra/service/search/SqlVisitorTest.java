@@ -24,6 +24,10 @@ public class SqlVisitorTest {
   private static final EntityVariable R_RESERVATION = EntityVariable.create(RESERVATION, R_VAR);
   private static final AttributeVariable R_DAY = AttributeVariable.create(RESERVATION_DAY, R_VAR);
 
+  private static final Variable B_VAR = Variable.create("b");
+  private static final AttributeVariable B_NAME = AttributeVariable.create(BOAT_NAME, B_VAR);
+  private static final AttributeVariable B_TYPE = AttributeVariable.create(BOAT_TYPE_NAME, B_VAR);
+
   @Test
   void query() {
     Query query =
@@ -190,7 +194,12 @@ public class SqlVisitorTest {
   void expressionAttribute() {
     SqlVisitor.ExpressionVisitor expressionVisitor =
         new SqlVisitor.ExpressionVisitor(SIMPLE_CONTEXT);
+    // SimpleColumn attribute mapping
     assertEquals(
-        "s.rating", Expression.AttributeExpression.create(S_RATING).accept(expressionVisitor));
+        "b.b_name", Expression.AttributeExpression.create(B_NAME).accept(expressionVisitor));
+    // NormalizedColumn attribute mapping
+    assertEquals(
+        "(SELECT boat_types.bt_name FROM my-project-id.nautical.boat_types WHERE boat_types.bt_id = b.bt_id)",
+        Expression.AttributeExpression.create(B_TYPE).accept(expressionVisitor));
   }
 }
