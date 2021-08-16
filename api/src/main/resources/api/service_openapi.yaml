@@ -401,12 +401,6 @@ components:
           items:
             type: string
 
-    GenerateSqlQueryDatasetRequest:
-      type: object
-      properties:
-        entityDataset:
-          $ref: '#/components/schemas/EntityDataset'
-
     NextPageToken:
       type: string
       description: |
