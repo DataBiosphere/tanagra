@@ -47,7 +47,9 @@ public class UnderlaysApiController implements UnderlaysApi {
             .sorted(Comparator.comparing(Underlay::name))
             .collect(Collectors.toList());
     int parsedPageSize = (pageSize == null || pageSize == 0) ? DEFAULT_PAGE_SIZE : pageSize;
-    Page<Underlay> page = Paginator.getPage(sortedUnderlays, parsedPageSize, pageToken);
+    // There are no parameters to hash for this paginated endpoint.
+    Paginator<Underlay> paginator = new Paginator<>(parsedPageSize, /* parameterHash =*/ "");
+    Page<Underlay> page = paginator.getPage(sortedUnderlays, pageToken);
     ApiListUnderlaysResponse response =
         new ApiListUnderlaysResponse()
             .underlays(

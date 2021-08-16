@@ -3,6 +3,7 @@ package bio.terra.tanagra.common;
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.proto.utils.pagination.PageSizeOffset;
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -12,53 +13,82 @@ import javax.annotation.Nullable;
 
 /** Implements simple pagination for sorted lists in memory. */
 public final class Paginator<T> {
-  private Paginator() {}
+  /** The maximum number of results to include per page. */
+  private final int pageSize;
+  /**
+   * Hash of non pageSize/pageToken parameters in the request to ensure that the query is consistent
+   * with the page token.
+   */
+  private final String parameterHash;
+
+  public Paginator(int pageSize, String parameterHash) {
+    Preconditions.checkArgument(pageSize > 0, "pageSize must be greater than 0 to paginate.");
+    this.pageSize = pageSize;
+    this.parameterHash = parameterHash;
+  }
 
   /**
    * Returns a {@link Page} for the results.
    *
    * @param allResults the sorted list of all results being paginated.
-   * @param pageSize the maximum number of results to have per page.
    * @param pageToken the token of the page to retrieve. If null or empty, the first page is
    *     retrieved.
+   * @throws BadRequestException if the parsed pageToken has a page size or parameters hash
+   *     different than what's expected.
    */
-  public static <T> Page<T> getPage(List<T> allResults, int pageSize, @Nullable String pageToken) {
-    Preconditions.checkArgument(pageSize > 0, "pageSize must be greater than 0 to paginate.");
+  public <T> Page<T> getPage(List<T> allResults, @Nullable String pageToken) {
     if (pageToken == null || pageToken.isEmpty()) {
       return getPageInternal(
-          allResults, PageSizeOffset.newBuilder().setOffest(0).setPageSize(pageSize).build());
+          allResults,
+          PageSizeOffset.newBuilder()
+              .setOffset(0)
+              .setPageSize(pageSize)
+              .setParameterHash(parameterHash)
+              .build());
     }
     PageSizeOffset pageSizeOffset = decode(pageToken);
+    validateToken(pageSizeOffset);
+    return getPageInternal(allResults, decode(pageToken));
+  }
+
+  private void validateToken(PageSizeOffset pageSizeOffset) {
     if (pageSizeOffset.getPageSize() != pageSize) {
       throw new BadRequestException(
           String.format(
-              "Token page size '%d' does not match input page size '%d'.",
+              "Toke page size '%d' does not match input page size '%d'. Only use page tokens "
+                  + "with the query parameters used to create the page token.",
               pageSizeOffset.getPageSize(), pageSize));
     }
-    return getPageInternal(allResults, decode(pageToken));
+    if (!pageSizeOffset.getParameterHash().equals(parameterHash)) {
+      throw new BadRequestException(
+          "Page token hash query parameters. Only use page tokens with the query parameters used "
+              + "to create the page token.");
+    }
   }
 
   public static <T> Page<T> getPageInternal(List<T> allResults, PageSizeOffset pageSizeOffset) {
     Preconditions.checkArgument(
-        pageSizeOffset.getOffest() < allResults.size() || pageSizeOffset.getOffest() == 0,
+        pageSizeOffset.getOffset() < allResults.size() || pageSizeOffset.getOffset() == 0,
         "page offset out of bounds.");
-    int offset = pageSizeOffset.getOffest();
-    int pageLimit = pageSizeOffset.getOffest() + pageSizeOffset.getPageSize();
+    int offset = pageSizeOffset.getOffset();
+    int pageLimit = pageSizeOffset.getOffset() + pageSizeOffset.getPageSize();
     if (pageLimit >= allResults.size()) {
       List<T> results = allResults.subList(offset, allResults.size());
       // This page includes the last of the results. Use an empty string for the next page token.
       return Page.create(results, "");
     }
-    PageSizeOffset nextPageSizeOffset = pageSizeOffset.toBuilder().setOffest(pageLimit).build();
+    PageSizeOffset nextPageSizeOffset = pageSizeOffset.toBuilder().setOffset(pageLimit).build();
     List<T> results = allResults.subList(offset, pageLimit);
     return Page.create(results, encode(nextPageSizeOffset));
   }
 
-  private static String encode(PageSizeOffset pageSizeOffset) {
+  @VisibleForTesting
+  static String encode(PageSizeOffset pageSizeOffset) {
     return Base64.getEncoder().encodeToString(pageSizeOffset.toByteArray());
   }
 
-  private static PageSizeOffset decode(String pageToken) {
+  @VisibleForTesting
+  static PageSizeOffset decode(String pageToken) {
     try {
       return PageSizeOffset.parseFrom(Base64.getDecoder().decode(pageToken));
     } catch (InvalidProtocolBufferException e) {
