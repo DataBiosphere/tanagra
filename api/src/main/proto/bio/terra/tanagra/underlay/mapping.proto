@@ -51,9 +51,25 @@ message AttributeMapping {
     ColumnId column_id = 1;
   }
 
+  // A mapping where an attribute refers to a normalized column in a lookup
+  // table related to the primary table of the entity. There should be a single
+  // row in the lookup table for each primary_table_key.
+  // i.e. in pseudo-SQL
+  // SELECT lookup.attribute FROM lookup_table
+  // WHERE primary_table.lookup_key = lookup_table.key
+  message LookupColumn {
+    // The column on the primary table that references lookup_table_key.
+    ColumnId primary_table_lookup_key = 1;
+    // The column on the lookup table that is referenced by primary_table_key.
+    ColumnId lookup_table_key = 2;
+    // The column on the lookup table that is represented by the attribute.
+    ColumnId lookup_column = 3;
+  }
+
   // The mapping for this attribute.
   oneof mapping {
     SimpleColumn simple_column = 2;
+    LookupColumn lookup_column = 3;
   }
 }
 

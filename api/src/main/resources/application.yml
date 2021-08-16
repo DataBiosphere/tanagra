@@ -13,3 +13,7 @@ spring:
       must-revalidate: true
     # Allow serving the swagger-ui resource files.
     static-locations: classpath:/api/
+
+tanagra:
+  underlay:
+    underlay-yaml-files: "underlays/omop_test.yaml"

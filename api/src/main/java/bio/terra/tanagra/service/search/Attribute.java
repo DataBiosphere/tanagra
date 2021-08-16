@@ -24,10 +24,17 @@ public abstract class Attribute {
   public abstract static class Builder {
     public abstract Builder name(String name);
 
+    public abstract String name();
+
     public abstract Builder dataType(DataType dataType);
 
     public abstract Builder entity(Entity entity);
 
-    public abstract Attribute build();
+    public Attribute build() {
+      NameUtils.checkName(name(), "Attribute name");
+      return autoBuild();
+    }
+
+    abstract Attribute autoBuild();
   }
 }

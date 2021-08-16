@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.underlay;
 
-import bio.terra.tanagra.proto.underlay.AttributeMapping;
+import bio.terra.tanagra.proto.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.proto.underlay.Dataset;
 import bio.terra.tanagra.proto.underlay.EntityMapping;
 import bio.terra.tanagra.proto.underlay.RelationshipMapping;
@@ -8,8 +8,10 @@ import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
+import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
+import com.google.protobuf.Message;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,8 +104,9 @@ final class UnderlayConversion {
       }
     }
 
-    Map<Attribute, Column> simpleAttributesToColumns = new HashMap<>();
-    for (AttributeMapping attributeMapping : underlayProto.getAttributeMappingsList()) {
+    Map<Attribute, AttributeMapping> attributeMappings = new HashMap<>();
+    for (bio.terra.tanagra.proto.underlay.AttributeMapping attributeMapping :
+        underlayProto.getAttributeMappingsList()) {
       Entity entity = entities.get(attributeMapping.getAttribute().getEntity());
       if (entity == null) {
         throw new IllegalArgumentException(
@@ -114,34 +117,65 @@ final class UnderlayConversion {
         throw new IllegalArgumentException(
             String.format("Unknown attribute in AttributeMapping %s", attributeMapping));
       }
-      // TODO support other attribute mappings.
-      ColumnId simpleColumnId = convert(attributeMapping.getSimpleColumn().getColumnId());
-      Column simpleColumn = columns.get(simpleColumnId);
-      if (simpleColumn == null) {
-        throw new IllegalArgumentException(
-            String.format("Unknown column in AttributeMapping %s", attributeMapping));
-      }
 
-      if (simpleAttributesToColumns.put(attribute, simpleColumn) != null) {
+      AttributeMapping newMapping;
+      switch (attributeMapping.getMappingCase()) {
+        case SIMPLE_COLUMN:
+          SimpleColumn simpleColumn = attributeMapping.getSimpleColumn();
+          Column column = retrieve(simpleColumn.getColumnId(), columns, "column id", simpleColumn);
+          Preconditions.checkArgument(
+              primaryKeys.get(attribute.entity()).table().equals(column.table()),
+              "Simple attribute mappings column must be on the same table as the Entity's primary table.");
+          newMapping = AttributeMapping.SimpleColumn.create(attribute, column);
+          break;
+        case LOOKUP_COLUMN:
+          bio.terra.tanagra.proto.underlay.AttributeMapping.LookupColumn lookupColumn =
+              attributeMapping.getLookupColumn();
+          Column lookupAttribute =
+              retrieve(lookupColumn.getLookupColumn(), columns, "lookup column", lookupColumn);
+          Column lookupTableKey =
+              retrieve(lookupColumn.getLookupTableKey(), columns, "lookup table key", lookupColumn);
+          Column primaryTableKey =
+              retrieve(
+                  lookupColumn.getPrimaryTableLookupKey(),
+                  columns,
+                  "primary table lookup key",
+                  lookupColumn);
+          Preconditions.checkArgument(
+              primaryKeys.get(attribute.entity()).table().equals(primaryTableKey.table()),
+              "Normalized mapping primary table key column must be on the same table as the Entity's primary table.");
+          newMapping =
+              LookupColumn.builder()
+                  .attribute(attribute)
+                  .lookupColumn(lookupAttribute)
+                  .lookupTableKey(lookupTableKey)
+                  .primaryTableLookupKey(primaryTableKey)
+                  .build();
+          break;
+        default:
+          throw new IllegalArgumentException(
+              String.format("Unknown attribute mapping type %s", attributeMapping));
+      }
+      if (attributeMappings.put(attribute, newMapping) != null) {
         throw new IllegalArgumentException(
-            String.format("Attribute mapped to column multiple times %s", attributeMapping));
+            String.format("Attribute mapped to multiple times %s", attributeMapping));
       }
     }
     Map<Relationship, ForeignKey> foreignKeys = new HashMap<>();
     for (RelationshipMapping relationshipMapping : underlayProto.getRelationshipMappingsList()) {
       // TODO support other relationship mappings.
-      ColumnId primaryKeyId = convert(relationshipMapping.getForeignKey().getPrimaryKey());
-      ColumnId foreignKeyId = convert(relationshipMapping.getForeignKey().getForeignKey());
-      Column primaryKey = columns.get(primaryKeyId);
-      if (primaryKey == null) {
-        throw new IllegalArgumentException(
-            String.format("Unknown primary key in RelationshipMapping %s", relationshipMapping));
-      }
-      Column foreignKey = columns.get(foreignKeyId);
-      if (foreignKey == null) {
-        throw new IllegalArgumentException(
-            String.format("Unknown foreign key in RelationshipMapping %s", relationshipMapping));
-      }
+      Column primaryKey =
+          retrieve(
+              relationshipMapping.getForeignKey().getPrimaryKey(),
+              columns,
+              "primary key",
+              relationshipMapping);
+      Column foreignKey =
+          retrieve(
+              relationshipMapping.getForeignKey().getForeignKey(),
+              columns,
+              "foreign key",
+              relationshipMapping);
       Relationship relationship = relationships.get(relationshipMapping.getName());
       if (relationship == null) {
         throw new IllegalArgumentException(
@@ -171,7 +205,7 @@ final class UnderlayConversion {
         .attributes(attributes)
         .relationships(relationships)
         .primaryKeys(primaryKeys)
-        .simpleAttributesToColumns(simpleAttributesToColumns)
+        .attributeMappings(attributeMappings)
         .foreignKeys(foreignKeys)
         .build();
   }
@@ -231,5 +265,23 @@ final class UnderlayConversion {
         .table(columnIdProto.getTable())
         .column(columnIdProto.getColumn())
         .build();
+  }
+
+  /**
+   * Converts a proto ColumnId to a service ColumnId and looks it up in {@code columns}. Throws if
+   * this fails.
+   */
+  private static Column retrieve(
+      bio.terra.tanagra.proto.underlay.ColumnId columnIdProto,
+      Map<ColumnId, Column> columns,
+      String columnIdField,
+      Message parentMessage) {
+    ColumnId columnId = convert(columnIdProto);
+    Column column = columns.get(columnId);
+    if (column == null) {
+      throw new IllegalArgumentException(
+          String.format("Unknown %s column: %s", columnIdField, parentMessage));
+    }
+    return column;
   }
 }

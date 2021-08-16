@@ -33,7 +33,7 @@ public final class NauticalUnderlayUtils {
     return builder.build();
   }
 
-  public static final String NAUTICAL_UNDERLAY_NAME = "Nautical Underlay";
+  public static final String NAUTICAL_UNDERLAY_NAME = "nautical_underlay";
   public static final Entity SAILOR =
       Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("sailors").build();
   public static final Entity BOAT =
@@ -54,6 +54,8 @@ public final class NauticalUnderlayUtils {
       Attribute.builder().name("name").dataType(DataType.STRING).entity(BOAT).build();
   public static final Attribute BOAT_COLOR =
       Attribute.builder().name("color").dataType(DataType.STRING).entity(BOAT).build();
+  public static final Attribute BOAT_TYPE_NAME =
+      Attribute.builder().name("type_name").dataType(DataType.STRING).entity(BOAT).build();
 
   public static final Attribute RESERVATION_ID =
       Attribute.builder().name("id").dataType(DataType.INT64).entity(RESERVATION).build();
@@ -82,6 +84,7 @@ public final class NauticalUnderlayUtils {
   public static final Table SAILOR_TABLE = Table.create("sailors", NAUTICAL_DATASET);
   public static final Table BOAT_TABLE = Table.create("boats", NAUTICAL_DATASET);
   public static final Table RESERVATION_TABLE = Table.create("reservations", NAUTICAL_DATASET);
+  public static final Table BOAT_TYPE_TABLE = Table.create("boat_types", NAUTICAL_DATASET);
 
   public static final Column SAILOR_ID_COL =
       Column.builder().name("s_id").dataType(DataType.INT64).table(SAILOR_TABLE).build();
@@ -95,6 +98,8 @@ public final class NauticalUnderlayUtils {
       Column.builder().name("b_name").dataType(DataType.STRING).table(BOAT_TABLE).build();
   public static final Column BOAT_COLOR_COL =
       Column.builder().name("color").dataType(DataType.STRING).table(BOAT_TABLE).build();
+  public static final Column BOAT_BT_ID_COL =
+      Column.builder().name("bt_id").dataType(DataType.INT64).table(BOAT_TABLE).build();
   public static final Column RESERVATION_ID_COL =
       Column.builder().name("r_id").dataType(DataType.INT64).table(RESERVATION_TABLE).build();
   public static final Column RESERVATION_S_ID_COL =
@@ -103,4 +108,8 @@ public final class NauticalUnderlayUtils {
       Column.builder().name("b_id").dataType(DataType.INT64).table(RESERVATION_TABLE).build();
   public static final Column RESERVATION_DAY_COL =
       Column.builder().name("day").dataType(DataType.STRING).table(RESERVATION_TABLE).build();
+  public static final Column BOAT_TYPE_ID_COL =
+      Column.builder().name("bt_id").dataType(DataType.INT64).table(BOAT_TYPE_TABLE).build();
+  public static final Column BOAT_TYPE_NAME_COL =
+      Column.builder().name("bt_name").dataType(DataType.STRING).table(BOAT_TYPE_TABLE).build();
 }

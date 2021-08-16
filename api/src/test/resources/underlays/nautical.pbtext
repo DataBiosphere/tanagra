@@ -4,7 +4,7 @@
 # reservations for testing.
 # This should be euivalent to nautical.yaml
 
-name: "Nautical Underlay"
+name: "nautical_underlay"
 entities: {
   name: "sailors"
   attributes: {
@@ -32,6 +32,10 @@ entities: {
   }
   attributes: {
     name: "color"
+    data_type: STRING
+  }
+  attributes: {
+    name: "type_name"
     data_type: STRING
   }
 }
@@ -99,6 +103,10 @@ datasets: {
       name: "color"
       data_type: STRING
     }
+    columns: {
+      name: "bt_id"
+      data_type: INT64
+    }
   }
   tables: {
     name: "reservations"
@@ -116,6 +124,17 @@ datasets: {
     }
     columns: {
       name: "day"
+      data_type: STRING
+    }
+  }
+  tables: {
+    name: "boat_types"
+    columns: {
+      name: "bt_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "bt_name"
       data_type: STRING
     }
   }
@@ -219,6 +238,29 @@ attribute_mappings: {
       dataset: "nautical"
       table: "boats"
       column: "color"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boats"
+    attribute: "type_name"
+  }
+  lookup_column: {
+    primary_table_lookup_key: {
+      dataset: "nautical"
+      table: "boats"
+      column: "bt_id"
+    }
+    lookup_table_key: {
+      dataset: "nautical"
+      table: "boat_types"
+      column: "bt_id"
+    }
+    lookup_column: {
+      dataset: "nautical"
+      table: "boat_types"
+      column: "bt_name"
     }
   }
 }
