@@ -125,6 +125,7 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/PageToken'
       - $ref: '#/components/parameters/Underlay'
+      - $ref: '#/components/parameters/EntityFilter'
     post:
       # TODO authorization
       security: []
@@ -133,7 +134,7 @@ paths:
       tags: [Entities]
       responses:
         200:
-          $ref: '#/components/responses/GetEntityResponse'
+          $ref: '#/components/responses/SearchEntityInstanceResponse'
 
 components:
   parameters:
@@ -152,6 +153,13 @@ components:
       required: true
       schema:
         type: string
+
+    EntityFilter:
+      name: entityFilter
+      in: query
+      description: A parameter for a filter to apply to an entity
+      schema:
+        $ref: '#/components/schemas/EntityFilter'
 
     PageSize:
       name: pageSize
@@ -200,6 +208,14 @@ components:
           schema:
             $ref: '#/components/schemas/ListUnderlaysResponse'
 
+    SearchEntityInstancesResponse:
+      description: Response to searching the entity instances.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SearchEntityInstancesResponse'
+
+
     SqlQueryResponse:
       description: A raw SQL query.
       content:
@@ -232,7 +248,10 @@ components:
 
     AttributeValue:
       type: object
-      description: A possible value of an attribute. Exactly one field must be specified.
+      description: |
+        A possible value of an attribute. Exactly one field must be specified, or else the object
+        must be null to represent NULL.
+      nullable: true
       properties:
         int64Val:
           type: integer
@@ -422,3 +441,23 @@ components:
             $ref: '#/components/schemas/Underlay'
         nextPageToken:
           $ref: '#/components/schemas/NextPageToken'
+
+    SearchEntityInstancesResponse:
+      type: object
+      description: A view of entity instances for a search request.
+      properties:
+        instances:
+          type: array
+          description: Repeated instances results of the search.
+          items:
+            $ref: '#/components/schemas/EntityInstanceStruct'
+        nextPageToken:
+          $ref: '#/components/schemas/NextPageToken'
+
+
+    EntityInstanceStruct:
+      type: object
+      description: A map of an entity instance attribute names to their value for this instance.
+      additionalProperties:
+        type: object
+        $ref: '#/components/schemas/AttributeValue'
