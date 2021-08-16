@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.common.Paginator;
 import bio.terra.tanagra.common.Paginator.Page;
+import bio.terra.tanagra.generated.controller.EntitiesApi;
 import bio.terra.tanagra.generated.controller.UnderlaysApi;
 import bio.terra.tanagra.generated.model.ApiListUnderlaysResponse;
 import bio.terra.tanagra.generated.model.ApiUnderlay;
@@ -14,15 +15,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
+/** An {@link UnderlaysApi} controller for getting metadata about underlays. */
 @Controller
 public class UnderlaysApiController implements UnderlaysApi {
   private static final int DEFAULT_PAGE_SIZE = 100;
 
   private final UnderlayService underlayService;
 
+  @Autowired
   public UnderlaysApiController(UnderlayService underlayService) {
     this.underlayService = underlayService;
   }
