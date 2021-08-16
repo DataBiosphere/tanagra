@@ -35,8 +35,8 @@ public abstract class Underlay {
 
   /** Map from entities to the columns for their primary keys. */
   public abstract ImmutableMap<Entity, Column> primaryKeys();
-  /** Map where an attribute maps simply to a column on the primary table. */
-  public abstract ImmutableMap<Attribute, Column> simpleAttributesToColumns();
+  /** Map from attributes to their {@link AttributeMapping}s. */
+  public abstract ImmutableMap<Attribute, AttributeMapping> attributeMappings();
   /**
    * Map from relationships to the foreign keys describing the relation between the tables. The
    * {@link Relationship#entity1()} should correspond to the {@link ForeignKey#primaryKey()}.
@@ -86,8 +86,7 @@ public abstract class Underlay {
 
     public abstract Builder primaryKeys(Map<Entity, Column> primaryKeys);
 
-    public abstract Builder simpleAttributesToColumns(
-        Map<Attribute, Column> simpleAttributesToColumns);
+    public abstract Builder attributeMappings(Map<Attribute, AttributeMapping> attributeMappings);
 
     public abstract Builder foreignKeys(Map<Relationship, ForeignKey> value);
 

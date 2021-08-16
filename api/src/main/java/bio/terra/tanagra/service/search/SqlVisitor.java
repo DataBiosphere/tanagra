@@ -5,6 +5,9 @@ import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
+import bio.terra.tanagra.service.underlay.AttributeMapping;
+import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
+import bio.terra.tanagra.service.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
 import bio.terra.tanagra.service.underlay.Table;
@@ -190,26 +193,61 @@ public class SqlVisitor {
         throw new IllegalArgumentException(
             String.format("Unable to find primary key for entity %s", entityVariable.entity()));
       }
-      // projectId.datasetId.table AS variableName
       return String.format(
-          "%s.%s.%s AS %s",
-          primaryKey.table().dataset().projectId(),
-          primaryKey.table().dataset().datasetId(),
-          primaryKey.table().name(),
-          entityVariable.variable().name());
+          "%s AS %s", resolveTable(primaryKey.table()), entityVariable.variable().name());
+    }
+
+    private String resolveTable(Table table) {
+      // projectId.datasetId.table
+      return String.format(
+          "%s.%s.%s", table.dataset().projectId(), table.dataset().datasetId(), table.name());
     }
 
     /** Resolve an {@link AttributeExpression} as an SQL expression. */
     public String resolveAttribute(AttributeVariable attributeVariable) {
-      Column column = underlay.simpleAttributesToColumns().get(attributeVariable.attribute());
-      if (column == null) {
-        // TODO implement other kinds of attribute mappings.
+      AttributeMapping mapping = underlay.attributeMappings().get(attributeVariable.attribute());
+      if (mapping == null) {
         throw new IllegalArgumentException(
             String.format(
-                "Unable to find column mapping for attribute %s", attributeVariable.attribute()));
+                "Unable to find attribute mapping for attribute %s",
+                attributeVariable.attribute()));
       }
-      // variableName.column
-      return String.format("%s.%s", attributeVariable.variable().name(), column.name());
+      return mapping.accept(new AttributeResolver(attributeVariable));
+    }
+
+    /**
+     * A {@link AttributeMapping.Visitor} for resolving an {@link AttributeVariable} as an SQL
+     * expression.
+     */
+    private class AttributeResolver implements AttributeMapping.Visitor<String> {
+      private final AttributeVariable attributeVariable;
+
+      private AttributeResolver(AttributeVariable attributeVariable) {
+        this.attributeVariable = attributeVariable;
+      }
+
+      @Override
+      public String visitSimpleColumn(SimpleColumn simpleColumn) {
+        // variableName.column
+        return String.format(
+            "%s.%s", attributeVariable.variable().name(), simpleColumn.column().name());
+      }
+
+      @Override
+      public String visitLookupColumn(LookupColumn lookupColumn) {
+        String template =
+            "(SELECT ${lookup_table_name}.${lookup_column} FROM ${lookup_table} WHERE ${lookup_table_name}.${lookup_key} = ${var}.${primary_key})";
+        Map<String, String> params =
+            ImmutableMap.<String, String>builder()
+                .put("lookup_table_name", lookupColumn.lookupColumn().table().name())
+                .put("lookup_column", lookupColumn.lookupColumn().name())
+                .put("lookup_table", resolveTable(lookupColumn.lookupColumn().table()))
+                .put("lookup_key", lookupColumn.lookupTableKey().name())
+                .put("var", attributeVariable.variable().name())
+                .put("primary_key", lookupColumn.primaryTableLookupKey().name())
+                .build();
+        return StringSubstitutor.replace(template, params);
+      }
     }
 
     /**

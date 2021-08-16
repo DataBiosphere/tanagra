@@ -20,6 +20,8 @@ entities:
         dataType: STRING
       - name: color
         dataType: STRING
+      - name: type_name
+        dataType: STRING
   - name: reservations
     attributes:
       - name: id
@@ -59,6 +61,8 @@ datasets:
             dataType: STRING
           - name: color
             dataType: STRING
+          - name: bt_id
+            dataType: INT64
       - name: reservations
         columns:
           - name: r_id
@@ -68,6 +72,12 @@ datasets:
           - name: b_id
             dataType: INT64
           - name: day
+            dataType: STRING
+      - name: boat_types
+        columns:
+          - name: bt_id
+            dataType: INT64
+          - name: bt_name
             dataType: STRING
 entityMappings:
   - entity: sailors
@@ -134,6 +144,22 @@ attributeMappings:
         dataset: nautical
         table: boats
         column: color
+  - attribute:
+      entity: boats
+      attribute: type_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: nautical
+        table: boats
+        column: bt_id
+      lookupTableKey:
+        dataset: nautical
+        table: boat_types
+        column: bt_id
+      lookupColumn:
+        dataset: nautical
+        table: boat_types
+        column: bt_name
   - attribute:
       entity: reservations
       attribute: id

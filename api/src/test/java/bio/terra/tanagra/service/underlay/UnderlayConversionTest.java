@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.underlay;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import org.junit.jupiter.api.Tag;
@@ -30,6 +31,7 @@ public class UnderlayConversionTest {
             .put(BOAT, "id", BOAT_ID)
             .put(BOAT, "name", BOAT_NAME)
             .put(BOAT, "color", BOAT_COLOR)
+            .put(BOAT, "type_name", BOAT_TYPE_NAME)
             .put(RESERVATION, "id", RESERVATION_ID)
             .put(RESERVATION, "boats_id", RESERVATION_B_ID)
             .put(RESERVATION, "sailors_id", RESERVATION_S_ID)
@@ -51,18 +53,36 @@ public class UnderlayConversionTest {
         nautical.primaryKeys());
     assertEquals(
         ImmutableMap.builder()
-            .put(SAILOR_ID, SAILOR_ID_COL)
-            .put(SAILOR_NAME, SAILOR_NAME_COL)
-            .put(SAILOR_RATING, SAILOR_RATING_COL)
-            .put(BOAT_ID, BOAT_ID_COL)
-            .put(BOAT_NAME, BOAT_NAME_COL)
-            .put(BOAT_COLOR, BOAT_COLOR_COL)
-            .put(RESERVATION_ID, RESERVATION_ID_COL)
-            .put(RESERVATION_S_ID, RESERVATION_S_ID_COL)
-            .put(RESERVATION_B_ID, RESERVATION_B_ID_COL)
-            .put(RESERVATION_DAY, RESERVATION_DAY_COL)
+            .put(SAILOR_ID, AttributeMapping.SimpleColumn.create(SAILOR_ID, SAILOR_ID_COL))
+            .put(SAILOR_NAME, AttributeMapping.SimpleColumn.create(SAILOR_NAME, SAILOR_NAME_COL))
+            .put(
+                SAILOR_RATING,
+                AttributeMapping.SimpleColumn.create(SAILOR_RATING, SAILOR_RATING_COL))
+            .put(BOAT_ID, AttributeMapping.SimpleColumn.create(BOAT_ID, BOAT_ID_COL))
+            .put(BOAT_NAME, AttributeMapping.SimpleColumn.create(BOAT_NAME, BOAT_NAME_COL))
+            .put(BOAT_COLOR, AttributeMapping.SimpleColumn.create(BOAT_COLOR, BOAT_COLOR_COL))
+            .put(
+                BOAT_TYPE_NAME,
+                LookupColumn.builder()
+                    .attribute(BOAT_TYPE_NAME)
+                    .primaryTableLookupKey(BOAT_BT_ID_COL)
+                    .lookupTableKey(BOAT_TYPE_ID_COL)
+                    .lookupColumn(BOAT_TYPE_NAME_COL)
+                    .build())
+            .put(
+                RESERVATION_ID,
+                AttributeMapping.SimpleColumn.create(RESERVATION_ID, RESERVATION_ID_COL))
+            .put(
+                RESERVATION_S_ID,
+                AttributeMapping.SimpleColumn.create(RESERVATION_S_ID, RESERVATION_S_ID_COL))
+            .put(
+                RESERVATION_B_ID,
+                AttributeMapping.SimpleColumn.create(RESERVATION_B_ID, RESERVATION_B_ID_COL))
+            .put(
+                RESERVATION_DAY,
+                AttributeMapping.SimpleColumn.create(RESERVATION_DAY, RESERVATION_DAY_COL))
             .build(),
-        nautical.simpleAttributesToColumns());
+        nautical.attributeMappings());
     assertEquals(
         ImmutableMap.builder()
             .put(
