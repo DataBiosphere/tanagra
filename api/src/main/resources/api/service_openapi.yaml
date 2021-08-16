@@ -103,13 +103,18 @@ paths:
     parameters:
       - $ref: '#/components/parameters/Underlay'
       - $ref: '#/components/parameters/Entity'
-      - $ref: '#/components/parameters/EntityDataset'
-    get:
+    post:
       # TODO authorization
       security: [ ]
       summary: Returns an SQL query for selecting a dataset of entity instances.
       operationId: generateDatasetSqlQuery
       tags: [EntityInstances]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDatasetSqlQueryRequest'
       responses:
         200:
           $ref: '#/components/responses/SqlQueryResponse'
@@ -120,13 +125,18 @@ paths:
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/PageToken'
       - $ref: '#/components/parameters/Underlay'
-      - $ref: '#/components/parameters/EntityDataset'
-    get:
+    post:
       # TODO authorization
       security: []
       summary: Search for entity instances
-      operationId: searchEntityInstance
+      operationId: searchEntityInstances
       tags: [EntityInstances]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchEntityInstancesRequest'
       responses:
         200:
           $ref: '#/components/responses/SearchEntityInstancesResponse'
@@ -148,13 +158,6 @@ components:
       required: true
       schema:
         type: string
-
-    EntityDataset:
-      name: entityDataset
-      in: query
-      description: A parameter for a dataset of instances to select for an entity
-      schema:
-        $ref: '#/components/schemas/EntityDataset'
 
     PageSize:
       name: pageSize
@@ -209,7 +212,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/SearchEntityInstancesResponse'
-
 
     SqlQueryResponse:
       description: A raw SQL query.
@@ -401,6 +403,12 @@ components:
           items:
             type: string
 
+    GenerateDatasetSqlQueryRequest:
+      type: object
+      properties:
+        entityDataset:
+          $ref: '#/components/schemas/EntityDataset'
+
     NextPageToken:
       type: string
       description: |
@@ -431,6 +439,13 @@ components:
         nextPageToken:
           $ref: '#/components/schemas/NextPageToken'
 
+    SearchEntityInstancesRequest:
+      type: object
+      description: A request for searching entity instances.
+      properties:
+        entityDataset:
+          $ref: '#/components/schemas/EntityDataset'
+
     SearchEntityInstancesResponse:
       type: object
       description: A view of entity instances for a search request.
@@ -442,7 +457,6 @@ components:
             $ref: '#/components/schemas/EntityInstanceStruct'
         nextPageToken:
           $ref: '#/components/schemas/NextPageToken'
-
 
     EntityInstanceStruct:
       type: object
