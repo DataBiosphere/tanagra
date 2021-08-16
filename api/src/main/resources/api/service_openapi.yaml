@@ -77,27 +77,6 @@ paths:
           $ref: '#/components/responses/GetEntityResponse'
 
   # TODO implement "real" export endpoints
-  '/underlays/{underlay}/entities/{entity}/dataset:generateSqlQuery':
-    parameters:
-      - $ref: '#/components/parameters/Underlay'
-      - $ref: '#/components/parameters/Entity'
-    post:
-      # TODO authorization
-      security: [ ]
-      summary: Returns an SQL query for selecting a dataset of an Entity's attributes.
-      operationId: generateSqlQuery
-      tags: [EntitiesDataset]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GenerateSqlQueryDatasetRequest'
-        responses:
-          200:
-            $ref: '#/components/responses/SqlQueryResponse'
-
-  # TODO implement "real" export endpoints
   '/underlays/{underlayName}/entities/{entityName}/filters:generateSqlQuery':
     parameters:
       - $ref: '#/components/parameters/Underlay'
@@ -119,22 +98,38 @@ paths:
           $ref: '#/components/responses/SqlQueryResponse'
 
 
+  # TODO implement "real" export endpoints
+  '/underlays/{underlay}/entities/{entity}/instances:generateSqlQuery':
+    parameters:
+      - $ref: '#/components/parameters/Underlay'
+      - $ref: '#/components/parameters/Entity'
+      - $ref: '#/components/parameters/EntityDataset'
+    get:
+      # TODO authorization
+      security: [ ]
+      summary: Returns an SQL query for selecting a dataset of entity instances.
+      operationId: generateDatasetSqlQuery
+      tags: [EntityInstances]
+      responses:
+        200:
+          $ref: '#/components/responses/SqlQueryResponse'
+
   '/underlays/{underlayName}/entities/{entities}/instances:search':
     parameters:
       - $ref: '#/components/parameters/Entity'
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/PageToken'
       - $ref: '#/components/parameters/Underlay'
-      - $ref: '#/components/parameters/EntityFilter'
-    post:
+      - $ref: '#/components/parameters/EntityDataset'
+    get:
       # TODO authorization
       security: []
       summary: Search for entity instances
       operationId: searchEntityInstance
-      tags: [Entities]
+      tags: [EntityInstances]
       responses:
         200:
-          $ref: '#/components/responses/SearchEntityInstanceResponse'
+          $ref: '#/components/responses/SearchEntityInstancesResponse'
 
 components:
   parameters:
@@ -154,12 +149,12 @@ components:
       schema:
         type: string
 
-    EntityFilter:
-      name: entityFilter
+    EntityDataset:
+      name: entityDataset
       in: query
-      description: A parameter for a filter to apply to an entity
+      description: A parameter for a dataset of instances to select for an entity
       schema:
-        $ref: '#/components/schemas/EntityFilter'
+        $ref: '#/components/schemas/EntityDataset'
 
     PageSize:
       name: pageSize
@@ -287,7 +282,7 @@ components:
         entityVariable:
           description: The variable to use for the primary entity in the filter.
           type: string
-        attributes:
+        selectedAttributes:
           description: The name of the attributes of the primary entity to select for the dataset.
           type: array
           items:
