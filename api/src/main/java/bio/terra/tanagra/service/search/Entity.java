@@ -25,9 +25,19 @@ public abstract class Entity {
 
     public abstract Builder name(String name);
 
+    public abstract String name();
+
     public abstract Builder underlay(String underlay);
 
+    public abstract String underlay();
+
     // TODO validate entity/attribute names are non-empty.
-    public abstract Entity build();
+    public Entity build() {
+      NameUtils.checkName(name(), "Entity name");
+      NameUtils.checkName(underlay(), "Entity underlay name");
+      return autoBuild();
+    }
+
+    abstract Entity autoBuild();
   }
 }

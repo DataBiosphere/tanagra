@@ -4,7 +4,7 @@
 # reservations for testing.
 # This should be euivalent to nautical.yaml
 
-name: "Nautical Underlay"
+name: "nautical_underlay"
 entities: {
   name: "sailors"
   attributes: {
