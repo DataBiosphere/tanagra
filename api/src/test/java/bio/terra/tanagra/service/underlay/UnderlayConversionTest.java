@@ -14,7 +14,7 @@ public class UnderlayConversionTest {
   void convertUnderlay() throws Exception {
     Underlay nautical = UnderlayConversion.convert(loadNauticalUnderlayProto());
 
-    assertEquals("Nautical Underlay", nautical.name());
+    assertEquals("nautical_underlay", nautical.name());
     assertEquals(
         ImmutableMap.builder()
             .put(SAILOR.name(), SAILOR)

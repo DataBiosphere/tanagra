@@ -2,7 +2,7 @@
 # reservations for testing.
 # This should be equivalent to nautical.pbtext.
 
-name: Nautical Underlay
+name: nautical_underlay
 entities:
   - name: sailors
     attributes:

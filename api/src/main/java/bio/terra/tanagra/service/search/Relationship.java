@@ -24,10 +24,17 @@ public abstract class Relationship {
 
     public abstract Builder name(String name);
 
+    public abstract String name();
+
     public abstract Builder entity1(Entity entity1);
 
     public abstract Builder entity2(Entity entity2);
 
-    public abstract Relationship build();
+    public Relationship build() {
+      NameUtils.checkName(name(), "Relationship name");
+      return autoBuild();
+    }
+
+    abstract Relationship autoBuild();
   }
 }
