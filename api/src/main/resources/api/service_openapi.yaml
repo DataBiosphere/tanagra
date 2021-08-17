@@ -75,6 +75,20 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/GetEntityResponse'
+  '/underlays/{underlayName}/entities/{entityName}/filters':
+    parameters:
+      - $ref: '#/components/parameters/Underlay'
+      - $ref: '#/components/parameters/Entity'
+    get:
+      # TODO authorization
+      security: []
+      summary: |
+        Returns what attributes can be used to create an entity filter and hints for their values.
+      operationId: getFilters
+      tags: [EntitiesFilters]
+      responses:
+        200:
+          $ref: '#/components/responses/GetEntityFiltersResponse'
 
   # TODO implement "real" export endpoints
   '/underlays/{underlayName}/entities/{entityName}/filters:generateSqlQuery':
@@ -178,6 +192,13 @@ components:
         type: string
 
   responses:
+    GetEntityFiltersResponse:
+      description: Response to get an entity's filters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EntityFiltersSchema'
+
     GetEntityResponse:
       description: Response to get an entities.
       content:
@@ -302,6 +323,19 @@ components:
         filter:
           $ref: '#/components/schemas/Filter'
 
+    EntityFiltersSchema:
+      description: The schema of how an entity filter can be constructed for a given entity.
+      type: object
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterableAttribute'
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterableRelationship'
+
     ListEntitiesResponse:
       type: object
       description: A response for a list of Entities.
@@ -389,6 +423,90 @@ components:
           type: string
         filter:
           $ref: '#/components/schemas/Filter'
+    # End Filters
+
+    FilterableAttribute:
+      type: object
+      description: |
+        An attribute on an entity that may be used for filtering with hints on how to find
+        interesting values.
+      properties:
+        attribute:
+          $ref: '#/components/schemas/Attribute'
+        entitySearchHint:
+          $ref: '#/components/schemas/EntitySearchHint'
+        enumHint:
+          $ref: '#/components/schemas/EnumHint'
+        integerBoundsHint:
+          $ref: '#/components/schemas/IntegerBoundsHint'
+
+    # Filterable Attribute Hints
+
+    # TODO revisit me once we have clearer entity search APIs.
+    EntitySearchHint:
+      type: object
+      description: |
+        A hint for a filterable attribute that the values are the primary id of an entity with
+        search support.
+      properties:
+        entityName:
+          description: The name of the entity.
+          type: string
+
+    EnumHint:
+      type: object
+      description: |
+        A hint for a filterable attribute that the values are enumerable.
+      properties:
+        enumHintValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnumHintValue'
+
+    EnumHintValue:
+      type: object
+      description: A possible enum value for an enum hint for a filterable attribute.
+      properties:
+        displayName:
+          type: string
+          description: The name to display for this enum value.
+        description:
+          type: string
+          description: The more detailed description of this enum value, if there is one.
+          nullable: true
+        attributeValue:
+          description: The value that the attribute takes.
+          $ref: '#/components/schemas/AttributeValue'
+
+    IntegerBoundsHint:
+      type: object
+      description:  A hint for a filterable attribute that the values are within certain bounds.
+      properties:
+        min:
+          type: integer
+          format: int64
+          nullable: true
+          description: The possible minimum value for this attribute, if there is one.
+        max:
+          type: integer
+          format: int64
+          nullable: true
+          description: The possible maximum value for this attribute, if there is one.
+    # End Filterable Attribute Hints
+
+    FilterableRelationship:
+      type: object
+      description: A relationship on the entity that may be used in filtering.
+      properties:
+        relationshipName:
+          type: string
+          description: The name of the relationship that may be used in filtering.
+        relatedEntity:
+          type: string
+          description: The name of the related entity in the relationship.
+        entityFiltersSchema:
+          description: The schema of the filters available on the related entity.
+          $ref: '#/components/schemas/EntityFiltersSchema'
 
     ErrorReport:
       type: object
