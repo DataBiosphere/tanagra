@@ -83,7 +83,8 @@ paths:
       # TODO authorization
       security: []
       summary: |
-        Returns what attributes can be used to create an entity filter and hints for their values.
+        Returns what attributes and relationships can be used to create an entity filter and hints
+        for their values.
       operationId: getFilters
       tags: [EntitiesFilters]
       responses:
