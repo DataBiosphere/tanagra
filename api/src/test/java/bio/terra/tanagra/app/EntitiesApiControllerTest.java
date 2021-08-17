@@ -80,7 +80,7 @@ public class EntitiesApiControllerTest extends BaseSpringUnitTest {
       assertThat(response.getBody().getEntities(), Matchers.not(Matchers.empty()));
       allEntities.addAll(response.getBody().getEntities());
     }
-    assertThat(response.getBody().getEntities(), Matchers.hasItem(SAILOR_API_ENTITY));
+    assertThat(allEntities, Matchers.hasItem(SAILOR_API_ENTITY));
   }
 
   @Test
