@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.underlay;
 
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.io.IOException;
@@ -30,5 +31,10 @@ public class UnderlayService {
   /** Returns the underlay with the given name, if there is one. */
   public Optional<Underlay> getUnderlay(String name) {
     return Optional.ofNullable(underlays.get(name));
+  }
+
+  /** Returns all of the {@link Underlay}s. */
+  public ImmutableList<Underlay> getUnderlays() {
+    return ImmutableList.copyOf(underlays.values());
   }
 }
