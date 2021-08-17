@@ -19,6 +19,7 @@ public interface Expression {
   <R> R accept(Visitor<R> visitor);
 
   /** An {@link Expression} that's a literal value. */
+  // TODO support null value.
   @AutoValue
   abstract class Literal implements Expression {
     public abstract DataType dataType();
