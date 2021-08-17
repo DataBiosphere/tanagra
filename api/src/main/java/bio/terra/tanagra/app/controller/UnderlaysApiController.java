@@ -3,7 +3,6 @@ package bio.terra.tanagra.app.controller;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.common.Paginator;
 import bio.terra.tanagra.common.Paginator.Page;
-import bio.terra.tanagra.generated.controller.EntitiesApi;
 import bio.terra.tanagra.generated.controller.UnderlaysApi;
 import bio.terra.tanagra.generated.model.ApiListUnderlaysResponse;
 import bio.terra.tanagra.generated.model.ApiUnderlay;

@@ -45,25 +45,35 @@ public class EntitiesApiController implements EntitiesApi {
   }
 
   @Override
-  public ResponseEntity<ApiListEntitiesResponse> listEntities(String underlayName,
-      @Min(0) @Valid Integer pageSize, @Valid String pageToken) {
+  public ResponseEntity<ApiListEntitiesResponse> listEntities(
+      String underlayName, @Min(0) @Valid Integer pageSize, @Valid String pageToken) {
     // TODO authorization.
     Underlay underlay = getUnderlay(underlayName);
-    List<Entity> sortedEntities = underlay.entities().values().stream().sorted(Comparator.comparing(Entity::name)).collect(
-        ImmutableList.toImmutableList());
+    List<Entity> sortedEntities =
+        underlay.entities().values().stream()
+            .sorted(Comparator.comparing(Entity::name))
+            .collect(ImmutableList.toImmutableList());
 
     int parsedPageSize = (pageSize == null || pageSize == 0) ? DEFAULT_PAGE_SIZE : pageSize;
-    Page<Entity> page = Paginator.getPage(sortedEntities, parsedPageSize, pageToken);
-    List<ApiEntity> apiEntities = page.results().stream().map(entity -> convert(entity, underlay)).collect(
-        Collectors.toList());
 
-    ApiListEntitiesResponse response = new ApiListEntitiesResponse().entities(apiEntities).nextPageToken(page.nextPageToken());
+    Page<Entity> page =
+        new Paginator<>(parsedPageSize, hashListEntitiesParameters(underlayName))
+            .getPage(sortedEntities, pageToken);
+    List<ApiEntity> apiEntities =
+        page.results().stream()
+            .map(entity -> convert(entity, underlay))
+            .collect(Collectors.toList());
+
+    ApiListEntitiesResponse response =
+        new ApiListEntitiesResponse().entities(apiEntities).nextPageToken(page.nextPageToken());
     return ResponseEntity.ok(response);
   }
 
   private Underlay getUnderlay(String underlayName) {
     Optional<Underlay> underlay = underlayService.getUnderlay(underlayName);
-    return underlay.orElseThrow( () -> new NotFoundException(String.format("No known underlay with name '%s'", underlayName)));
+    return underlay.orElseThrow(
+        () ->
+            new NotFoundException(String.format("No known underlay with name '%s'", underlayName)));
   }
 
   private static Entity getEntity(Underlay underlay, String entityName) {
@@ -76,10 +86,22 @@ public class EntitiesApiController implements EntitiesApi {
     return entity;
   }
 
+  /**
+   * Returns a consistent hash on the list entities parameters to use for pagination token parameter
+   * consistency checking.
+   *
+   * <p>The choice of has is unimportant, just that it is consistent across services.
+   */
+  private static String hashListEntitiesParameters(String underlayName) {
+    return String.valueOf(underlayName.hashCode());
+  }
+
   private static ApiEntity convert(Entity entity, Underlay underlay) {
     List<ApiAttribute> attributes =
-     underlay.attributes().row(entity).values().stream().sorted(Comparator.comparing(Attribute::name)).map(EntitiesApiController::convert).collect(
-        Collectors.toList());
+        underlay.attributes().row(entity).values().stream()
+            .sorted(Comparator.comparing(Attribute::name))
+            .map(EntitiesApiController::convert)
+            .collect(Collectors.toList());
     return new ApiEntity().name(entity.name()).attributes(attributes);
   }
 
@@ -94,7 +116,8 @@ public class EntitiesApiController implements EntitiesApi {
       case INT64:
         return ApiDataType.INT64;
       default:
-        throw new UnsupportedOperationException(String.format("Unable to convert DataType '%s'", dataType));
+        throw new UnsupportedOperationException(
+            String.format("Unable to convert DataType '%s'", dataType));
     }
   }
 }
