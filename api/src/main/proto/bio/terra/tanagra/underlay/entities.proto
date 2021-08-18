@@ -37,3 +37,11 @@ message Relationship {
   // The name of the second entity.
   string entity2 = 3;
 }
+
+// An id to uniquely identify an attribute of an entity within an underlay.
+message AttributeId {
+  // The name of the entity.
+  string entity = 1;
+  // The name of the attribute.
+  string attribute = 2;
+}

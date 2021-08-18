@@ -8,6 +8,7 @@ option java_multiple_files = true;
 
 import "bio/terra/tanagra/underlay/entities.proto";
 import "bio/terra/tanagra/underlay/mapping.proto";
+import "bio/terra/tanagra/underlay/search.proto";
 import "bio/terra/tanagra/underlay/tables.proto";
 
 // The description of an underlay.
@@ -29,4 +30,7 @@ message Underlay {
   repeated AttributeMapping attribute_mappings = 6;
   // Every relationship in an underlay must have a mapping.
   repeated RelationshipMapping relationship_mappings = 7;
+
+  // The entity filters available on this underlay.
+  repeated EntityFiltersSchema entity_filters_schema = 8;
 }
