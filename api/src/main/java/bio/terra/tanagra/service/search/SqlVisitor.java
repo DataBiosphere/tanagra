@@ -198,9 +198,9 @@ public class SqlVisitor {
     }
 
     private String resolveTable(Table table) {
-      // projectId.datasetId.table
+      // `projectId.datasetId.table`
       return String.format(
-          "%s.%s.%s", table.dataset().projectId(), table.dataset().datasetId(), table.name());
+          "`%s.%s.%s`", table.dataset().projectId(), table.dataset().datasetId(), table.name());
     }
 
     /** Resolve an {@link AttributeExpression} as an SQL expression. */
