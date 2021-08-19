@@ -25,13 +25,11 @@ message FilterableAttribute {
   // The attribute that can be used in the entity filter.
   AttributeId attribute = 1;
 
-  // Hints are usually but not necessarily exclusive.
-
-  optional EntitySearchHint entity_search_hint = 2;
-
-  optional EnumHint enum_hint = 3;
-
-  optional IntegerBoundsHint integer_bounds_hint = 4;
+  oneof hint {
+    EntitySearchHint entity_search_hint = 2;
+    EnumHint enum_hint = 3;
+    IntegerBoundsHint integer_bounds_hint = 4;
+  }
 }
 
 // A hint for a filterable attribute where the values are the primary id of an
@@ -74,8 +72,6 @@ message IntegerBoundsHint {
 message FilterableRelationship {
   // The name of the relationship.
   string relationship_name = 1;
-  // The name of the related entity in the relationship.
-  string related_entity = 2;
   // The schema of the filter available on the related entity.
-  EntityFiltersSchema entity_filters_schema = 3;
+  EntityFiltersSchema entity_filters_schema = 2;
 }
