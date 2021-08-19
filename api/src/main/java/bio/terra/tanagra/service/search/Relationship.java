@@ -14,6 +14,12 @@ public abstract class Relationship {
   /** The second entity in the relationship. */
   public abstract Entity entity2();
 
+  /** Returns whether the {@code x} and {@code y} entities are the two entities of the relationship, in any order. */
+  public boolean unorderedEntitiesAre(Entity x, Entity y) {
+    return (entity1().equals(x) && entity2().equals(y))
+        || (entity1().equals(y) && entity2().equals(x));
+  }
+
   public static Builder builder() {
     return new AutoValue_Relationship.Builder();
   }

@@ -22,8 +22,8 @@ message EntityFiltersSchema {
 // An attribute on an entity that may be used for filtering with hints on how to find
 // interesting values.
 message FilterableAttribute {
-  // The attribute that can be used in the entity filter.
-  AttributeId attribute = 1;
+  // The name of the attribute that can be used in the entity filter.
+  string attribute_name = 1;
 
   // Hints are usually but not necessarily exclusive.
 
@@ -74,8 +74,6 @@ message IntegerBoundsHint {
 message FilterableRelationship {
   // The name of the relationship.
   string relationship_name = 1;
-  // The name of the related entity in the relationship.
-  string related_entity = 2;
   // The schema of the filter available on the related entity.
   EntityFiltersSchema entity_filters_schema = 3;
 }

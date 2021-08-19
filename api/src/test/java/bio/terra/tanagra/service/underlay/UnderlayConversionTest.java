@@ -99,5 +99,12 @@ public class UnderlayConversionTest {
                     .build())
             .build(),
         nautical.foreignKeys());
+
+    assertEquals(
+        ImmutableMap.builder()
+        // DO NOT SUBMIT write test.
+        .build(),
+        nautical.entityFiltersSchemas()
+    );
   }
 }

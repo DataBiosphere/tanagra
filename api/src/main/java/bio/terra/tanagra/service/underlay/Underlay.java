@@ -43,6 +43,9 @@ public abstract class Underlay {
    */
   public abstract ImmutableMap<Relationship, ForeignKey> foreignKeys();
 
+  /** Map from entities to the filters schema that supports the entity. */
+  public abstract ImmutableMap<Entity, EntityFiltersSchema> entityFiltersSchemas();
+
   /**
    * Find a relationship between 2 entities. The relationship's entity ordering may be reversed from
    * the arguments.
@@ -52,8 +55,7 @@ public abstract class Underlay {
         relationships().values().stream()
             .filter(
                 relationship ->
-                    (relationship.entity1().equals(x) && relationship.entity2().equals(y))
-                        || (relationship.entity1().equals(y) && relationship.entity2().equals(x)))
+                   relationship.unorderedEntitiesAre(x, y))
             .collect(Collectors.toList());
     if (matching.isEmpty()) {
       return Optional.empty();
@@ -89,6 +91,8 @@ public abstract class Underlay {
     public abstract Builder attributeMappings(Map<Attribute, AttributeMapping> attributeMappings);
 
     public abstract Builder foreignKeys(Map<Relationship, ForeignKey> value);
+
+    public abstract Builder entityFiltersSchemas(Map<Entity, EntityFiltersSchema> value);
 
     abstract Underlay build();
   }

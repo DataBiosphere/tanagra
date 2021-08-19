@@ -213,3 +213,28 @@ relationshipMappings:
         dataset: nautical
         table: reservations
         column: b_id
+entityFiltersSchemas:
+  - entity: sailors
+    attributes:
+      - attributeName: rating
+        integerBoundsHint:
+          min: 0
+          max: 10
+      - attributeName: name
+    relationships:
+      - relationshipName: sailor_reservation
+        entityFiltersSchema:
+          entity: reservation
+          attributes:
+            - attributeName: day
+              enumHint:
+                enumHintValues:
+                  - displayName: "Monday"
+                    value:
+                      stringVal: "MONDAY"
+                  - displayName: "Tuesday"
+                    value:
+                      stringVal: "TUESDAY"
+                  - displayName: "Wednesday"
+                    value:
+                      stringVal: "WEDNESDAY"
