@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service.query;
 
+import bio.terra.tanagra.service.search.AttributeVariable;
+import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Query;
 import bio.terra.tanagra.service.search.SearchContext;
 import bio.terra.tanagra.service.search.Selection;
@@ -25,12 +27,7 @@ public class QueryService {
 
   /** Generate an SQL query to select the primary ids for the entity of the entity filter. */
   public String generatePrimaryKeySql(EntityFilter entityFilter) {
-    Optional<Underlay> underlay =
-        underlayService.getUnderlay(entityFilter.primaryEntity().entity().underlay());
-    Preconditions.checkArgument(
-        underlay.isPresent(),
-        "Unable to find underlay '%s'",
-        entityFilter.primaryEntity().entity().underlay());
+    Underlay underlay = getUnderlay(entityFilter.primaryEntity().entity().underlay());
 
     Query query =
         Query.builder()
@@ -40,7 +37,33 @@ public class QueryService {
             .primaryEntity(entityFilter.primaryEntity())
             .filter(entityFilter.filter())
             .build();
-    return new SqlVisitor(SearchContext.builder().underlay(underlay.get()).build())
-        .createSql(query);
+    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+  }
+
+  /** Generate an SQL query for the entity dataset. */
+  public String generateSql(EntityDataset entityDataset) {
+    Underlay underlay = getUnderlay(entityDataset.primaryEntity().entity().underlay());
+    ImmutableList<Selection> selections =
+        entityDataset.selectedAttributes().stream()
+            .map(
+                attribute ->
+                    Selection.SelectExpression.create(
+                        AttributeExpression.create(
+                            AttributeVariable.create(
+                                attribute, entityDataset.primaryEntity().variable()))))
+            .collect(ImmutableList.toImmutableList());
+    Query query =
+        Query.builder()
+            .selections(selections)
+            .primaryEntity(entityDataset.primaryEntity())
+            .filter(entityDataset.filter())
+            .build();
+    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+  }
+
+  private Underlay getUnderlay(String underlayName) {
+    Optional<Underlay> underlay = underlayService.getUnderlay(underlayName);
+    Preconditions.checkArgument(underlay.isPresent(), "Unable to find underlay '%s'", underlayName);
+    return underlay.get();
   }
 }

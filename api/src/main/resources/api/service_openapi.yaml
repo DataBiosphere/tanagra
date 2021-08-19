@@ -99,7 +99,7 @@ paths:
 
 
   # TODO implement "real" export endpoints
-  '/underlays/{underlay}/entities/{entity}/instances:generateSqlQuery':
+  '/underlays/{underlayName}/entities/{entityName}/instances:generateSqlQuery':
     parameters:
       - $ref: '#/components/parameters/Underlay'
       - $ref: '#/components/parameters/Entity'
@@ -119,7 +119,7 @@ paths:
         200:
           $ref: '#/components/responses/SqlQueryResponse'
 
-  '/underlays/{underlayName}/entities/{entities}/instances:search':
+  '/underlays/{underlayName}/entities/{entityName}/instances:search':
     parameters:
       - $ref: '#/components/parameters/Entity'
       - $ref: '#/components/parameters/PageSize'
