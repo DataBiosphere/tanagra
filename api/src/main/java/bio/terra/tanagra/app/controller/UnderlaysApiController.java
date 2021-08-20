@@ -14,15 +14,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
+/** An {@link UnderlaysApi} controller for getting metadata about underlays. */
 @Controller
 public class UnderlaysApiController implements UnderlaysApi {
   private static final int DEFAULT_PAGE_SIZE = 100;
 
   private final UnderlayService underlayService;
 
+  @Autowired
   public UnderlaysApiController(UnderlayService underlayService) {
     this.underlayService = underlayService;
   }
