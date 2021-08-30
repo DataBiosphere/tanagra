@@ -523,7 +523,8 @@ components:
           type: string
           description: The name of the relationship.
         relatedEntity:
-          $ref: '#/components/schemas/Entity'
+          type: string
+          description: The name of the related entity.
 
     SearchEntityInstancesRequest:
       type: object
