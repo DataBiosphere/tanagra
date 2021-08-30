@@ -6,10 +6,12 @@ import bio.terra.tanagra.service.search.Relationship;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -53,9 +55,7 @@ public abstract class Underlay {
   public Optional<Relationship> getRelationship(Entity x, Entity y) {
     List<Relationship> matching =
         relationships().values().stream()
-            .filter(
-                relationship ->
-                   relationship.unorderedEntitiesAre(x, y))
+            .filter(relationship -> relationship.unorderedEntitiesAre(x, y))
             .collect(Collectors.toList());
     if (matching.isEmpty()) {
       return Optional.empty();
@@ -67,6 +67,15 @@ public abstract class Underlay {
         "Unable to pick a relationship among multiple relationships between entities. %s",
         matching);
     return Optional.of(matching.get(0));
+  }
+
+  /** Returns all the relationships that the entity is a member of. */
+  public Set<Relationship> getRelationshipsOf(Entity entity) {
+    return relationships().values().stream()
+        .filter(
+            relationship ->
+                relationship.entity1().equals(entity) || relationship.entity2().equals(entity))
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   public static Builder builder() {

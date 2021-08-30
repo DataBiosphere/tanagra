@@ -47,7 +47,8 @@ final class UnderlayConversion {
         buildAttributeMapping(underlayProto, entities, attributes, columns, primaryKeys);
     Map<Relationship, ForeignKey> foreignKeys =
         buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
-    Map<Entity, EntityFiltersSchema> entityFiltersSchemas = buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
+    Map<Entity, EntityFiltersSchema> entityFiltersSchemas =
+        buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
 
     return Underlay.builder()
         .name(underlayProto.getName())
@@ -258,13 +259,14 @@ final class UnderlayConversion {
   }
 
   /** Build a map from entities to their {@link EntityFiltersSchema} for filters. */
-  private static Map<Entity, EntityFiltersSchema> buildEntityFiltersSchemas(bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+  private static Map<Entity, EntityFiltersSchema> buildEntityFiltersSchemas(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
       Map<String, Entity> entities,
       com.google.common.collect.Table<Entity, String, Attribute> attributes,
       Map<String, Relationship> relationships) {
     Map<Entity, EntityFiltersSchema> entityFiltersSchemas = new HashMap<>();
     for (bio.terra.tanagra.proto.underlay.EntityFiltersSchema filtersSchemaProto :
-        underlayProto.getEntityFiltersSchemaList()) {
+        underlayProto.getEntityFiltersSchemasList()) {
       EntityFiltersSchema entityFiltersSchema =
           buildEntityFiltersSchema(
               filtersSchemaProto, entities, attributes, relationships, entityFiltersSchemas);
@@ -326,8 +328,10 @@ final class UnderlayConversion {
               relationships,
               entityFiltersSchemas);
       if (!relationship.unorderedEntitiesAre(entity, relatedFilter.entity())) {
-        throw new IllegalArgumentException(String.format(
-            "Filterable relationship entity does not match the entities in the relationship '%s': %s", relationship, entityFiltersSchemas));
+        throw new IllegalArgumentException(
+            String.format(
+                "Filterable relationship entity does not match the entities in the relationship '%s': %s",
+                relationship, entityFiltersSchemas));
       }
       if (relatedFilters.put(relationship, relatedFilter) != null) {
         throw new IllegalArgumentException(
@@ -342,7 +346,6 @@ final class UnderlayConversion {
         .filterableRelationships(relatedFilters)
         .build();
   }
-
 
   private static Entity convert(
       bio.terra.tanagra.proto.underlay.Entity entityProto,

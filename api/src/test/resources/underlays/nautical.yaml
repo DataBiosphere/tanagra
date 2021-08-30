@@ -230,11 +230,8 @@ entityFiltersSchemas:
               enumHint:
                 enumHintValues:
                   - displayName: "Monday"
-                    value:
-                      stringVal: "MONDAY"
+                    stringVal: "MONDAY"
                   - displayName: "Tuesday"
-                    value:
-                      stringVal: "TUESDAY"
+                    stringVal: "TUESDAY"
                   - displayName: "Wednesday"
-                    value:
-                      stringVal: "WEDNESDAY"
+                    stringVal: "WEDNESDAY"

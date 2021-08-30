@@ -42,8 +42,7 @@ message EntitySearchHint {
 
 // A hint for a filterable attribute where the values are enumerable.
 message EnumHint {
-
-  repeated EnumHintValue enumHintValues = 1;
+  repeated EnumHintValue enum_hint_values = 1;
 }
 
 // A possible enum value for an enum hint for a filterable attribute.
