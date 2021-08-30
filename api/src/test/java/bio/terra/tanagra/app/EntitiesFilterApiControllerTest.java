@@ -41,7 +41,7 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
             NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityFilter);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(
-        "SELECT s.s_id FROM my-project-id.nautical.sailors AS s WHERE s.rating = 42",
+        "SELECT s.s_id FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42",
         response.getBody().getQuery());
   }
 }
