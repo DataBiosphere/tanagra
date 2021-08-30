@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.search;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,5 +45,14 @@ public class RelationshipTest {
     assertTrue(relationship.hasEntity(ENTITY1));
     assertTrue(relationship.hasEntity(ENTITY2));
     assertFalse(relationship.hasEntity(OTHER));
+  }
+
+  @Test
+  void other() {
+    Relationship relationship =
+        Relationship.builder().name("r").entity1(ENTITY1).entity2(ENTITY2).build();
+    assertEquals(ENTITY2, relationship.other(ENTITY1));
+    assertEquals(ENTITY1, relationship.other(ENTITY2));
+    assertThrows(IllegalArgumentException.class, () -> relationship.other(OTHER));
   }
 }
