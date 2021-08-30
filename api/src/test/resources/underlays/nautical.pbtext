@@ -360,24 +360,24 @@ entity_filters_schemas: {
   }
   relationships: {
     relationship_name: "sailor_reservation"
-    entity_filters_schema: {
-      entity: "reservations"
-      attributes: {
-        attribute_name: "day"
-        enum_hint: {
-          enum_hint_values: {
-            display_name: "Monday"
-            string_val: "MONDAY"
-          }
-          enum_hint_values: {
-            display_name: "Tuesday"
-            string_val: "TUESDAY"
-          }
-          enum_hint_values: {
-            display_name: "Wednesday"
-            string_val: "WEDNESDAY"
-          }
-        }
+  }
+}
+entity_filters_schemas: {
+  entity: "reservations"
+  attributes: {
+    attribute_name: "day"
+    enum_hint: {
+      enum_hint_values: {
+        display_name: "Monday"
+        string_val: "MONDAY"
+      }
+      enum_hint_values: {
+        display_name: "Tuesday"
+        string_val: "TUESDAY"
+      }
+      enum_hint_values: {
+        display_name: "Wednesday"
+        string_val: "WEDNESDAY"
       }
     }
   }

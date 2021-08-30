@@ -15,7 +15,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /** Utilities for converting protobuf representations to underlay classes. */
 final class UnderlayConversion {
@@ -309,7 +311,7 @@ final class UnderlayConversion {
                 filterableAttribute.getAttributeName(), filtersSchemaProto));
       }
     }
-    Map<Relationship, EntityFiltersSchema> relatedFilters = new HashMap<>();
+    Set<Relationship> filterableRelationships = new HashSet<>();
     for (FilterableRelationship filterableRelationship :
         filtersSchemaProto.getRelationshipsList()) {
       Relationship relationship = relationships.get(filterableRelationship.getRelationshipName());
@@ -319,21 +321,13 @@ final class UnderlayConversion {
                 "Unable to find relationship '%s' in entity filter schema: '%s'",
                 filterableRelationship.getRelationshipName(), filtersSchemaProto));
       }
-      // Recurse to build the related entity's filters schema.
-      EntityFiltersSchema relatedFilter =
-          buildEntityFiltersSchema(
-              filterableRelationship.getEntityFiltersSchema(),
-              entities,
-              attributes,
-              relationships,
-              entityFiltersSchemas);
-      if (!relationship.unorderedEntitiesAre(entity, relatedFilter.entity())) {
+      if (!relationship.hasEntity(entity)) {
         throw new IllegalArgumentException(
             String.format(
-                "Filterable relationship entity does not match the entities in the relationship '%s': %s",
+                "Filterable relationship entity does not match the relationship's entities '%s': %s",
                 relationship, entityFiltersSchemas));
       }
-      if (relatedFilters.put(relationship, relatedFilter) != null) {
+      if (!filterableRelationships.add(relationship)) {
         throw new IllegalArgumentException(
             String.format(
                 "Duplicate relationship '%s' in entity filter schema: '%s'",
@@ -343,7 +337,7 @@ final class UnderlayConversion {
     return EntityFiltersSchema.builder()
         .entity(entity)
         .filterableAttributes(filterableAttributes)
-        .filterableRelationships(relatedFilters)
+        .filterableRelationships(filterableRelationships)
         .build();
   }
 

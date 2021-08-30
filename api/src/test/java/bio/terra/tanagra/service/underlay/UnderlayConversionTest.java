@@ -10,6 +10,7 @@ import bio.terra.tanagra.proto.underlay.IntegerBoundsHint;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -104,56 +105,58 @@ public class UnderlayConversionTest {
                     .build())
             .build(),
         nautical.foreignKeys());
-
-    EntityFiltersSchema reservationSchema =
-        EntityFiltersSchema.builder()
-            .entity(RESERVATION)
-            .filterableAttributes(
-                ImmutableMap.<Attribute, FilterableAttribute>builder()
-                    .put(
-                        RESERVATION_DAY,
-                        FilterableAttribute.newBuilder()
-                            .setAttributeName(RESERVATION_DAY.name())
-                            .setEnumHint(
-                                EnumHint.newBuilder()
-                                    .addEnumHintValues(
-                                        EnumHintValue.newBuilder()
-                                            .setDisplayName("Monday")
-                                            .setStringVal("MONDAY"))
-                                    .addEnumHintValues(
-                                        EnumHintValue.newBuilder()
-                                            .setDisplayName("Tuesday")
-                                            .setStringVal("TUESDAY"))
-                                    .addEnumHintValues(
-                                        EnumHintValue.newBuilder()
-                                            .setDisplayName("Wednesday")
-                                            .setStringVal("WEDNESDAY")))
-                            .build())
-                    .build())
-            .filterableRelationships(ImmutableMap.of())
-            .build();
-    EntityFiltersSchema sailorSchema =
-        EntityFiltersSchema.builder()
-            .entity(SAILOR)
-            .filterableAttributes(
-                ImmutableMap.<Attribute, FilterableAttribute>builder()
-                    .put(
-                        SAILOR_NAME,
-                        FilterableAttribute.newBuilder()
-                            .setAttributeName(SAILOR_NAME.name())
-                            .build())
-                    .put(
-                        SAILOR_RATING,
-                        FilterableAttribute.newBuilder()
-                            .setAttributeName(SAILOR_RATING.name())
-                            .setIntegerBoundsHint(
-                                IntegerBoundsHint.newBuilder().setMin(0).setMax(10))
-                            .build())
-                    .build())
-            .filterableRelationships(
-                ImmutableMap.of(SAILOR_RESERVATION_RELATIONSHIP, reservationSchema))
-            .build();
     assertEquals(
-        ImmutableMap.builder().put(SAILOR, sailorSchema).build(), nautical.entityFiltersSchemas());
+        ImmutableMap.builder()
+            .put(
+                SAILOR,
+                EntityFiltersSchema.builder()
+                    .entity(SAILOR)
+                    .filterableAttributes(
+                        ImmutableMap.<Attribute, FilterableAttribute>builder()
+                            .put(
+                                SAILOR_NAME,
+                                FilterableAttribute.newBuilder()
+                                    .setAttributeName(SAILOR_NAME.name())
+                                    .build())
+                            .put(
+                                SAILOR_RATING,
+                                FilterableAttribute.newBuilder()
+                                    .setAttributeName(SAILOR_RATING.name())
+                                    .setIntegerBoundsHint(
+                                        IntegerBoundsHint.newBuilder().setMin(0).setMax(10))
+                                    .build())
+                            .build())
+                    .filterableRelationships(ImmutableSet.of(SAILOR_RESERVATION_RELATIONSHIP))
+                    .build())
+            .put(
+                RESERVATION,
+                EntityFiltersSchema.builder()
+                    .entity(RESERVATION)
+                    .filterableAttributes(
+                        ImmutableMap.<Attribute, FilterableAttribute>builder()
+                            .put(
+                                RESERVATION_DAY,
+                                FilterableAttribute.newBuilder()
+                                    .setAttributeName(RESERVATION_DAY.name())
+                                    .setEnumHint(
+                                        EnumHint.newBuilder()
+                                            .addEnumHintValues(
+                                                EnumHintValue.newBuilder()
+                                                    .setDisplayName("Monday")
+                                                    .setStringVal("MONDAY"))
+                                            .addEnumHintValues(
+                                                EnumHintValue.newBuilder()
+                                                    .setDisplayName("Tuesday")
+                                                    .setStringVal("TUESDAY"))
+                                            .addEnumHintValues(
+                                                EnumHintValue.newBuilder()
+                                                    .setDisplayName("Wednesday")
+                                                    .setStringVal("WEDNESDAY")))
+                                    .build())
+                            .build())
+                    .filterableRelationships(ImmutableSet.of())
+                    .build())
+            .build(),
+        nautical.entityFiltersSchemas());
   }
 }

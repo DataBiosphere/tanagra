@@ -223,15 +223,14 @@ entityFiltersSchemas:
       - attributeName: name
     relationships:
       - relationshipName: sailor_reservation
-        entityFiltersSchema:
-          entity: reservation
-          attributes:
-            - attributeName: day
-              enumHint:
-                enumHintValues:
-                  - displayName: "Monday"
-                    stringVal: "MONDAY"
-                  - displayName: "Tuesday"
-                    stringVal: "TUESDAY"
-                  - displayName: "Wednesday"
-                    stringVal: "WEDNESDAY"
+  - entity: reservations
+    attributes:
+      - attributeName: day
+        enumHint:
+          enumHintValues:
+            - displayName: "Monday"
+              stringVal: "MONDAY"
+            - displayName: "Tuesday"
+              stringVal: "TUESDAY"
+            - displayName: "Wednesday"
+              stringVal: "WEDNESDAY"

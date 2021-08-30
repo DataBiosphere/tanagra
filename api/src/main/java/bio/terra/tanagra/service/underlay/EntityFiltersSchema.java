@@ -6,7 +6,9 @@ import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Map;
+import java.util.Set;
 
 /** The schema of how an entity filter can be constructed for a given entity. */
 @AutoValue
@@ -17,8 +19,8 @@ public abstract class EntityFiltersSchema {
   /** Map from the entity's attributes to how they can be used in filters. */
   public abstract ImmutableMap<Attribute, FilterableAttribute> filterableAttributes();
 
-  /** Map from the entity's relationships to the entity filters on the related entity. */
-  public abstract ImmutableMap<Relationship, EntityFiltersSchema> filterableRelationships();
+  /** The relationships on the entity that may be used in filters. */
+  public abstract ImmutableSet<Relationship> filterableRelationships();
 
   public static Builder builder() {
     return new AutoValue_EntityFiltersSchema.Builder();
@@ -33,8 +35,7 @@ public abstract class EntityFiltersSchema {
     public abstract Builder filterableAttributes(
         Map<Attribute, FilterableAttribute> filterableAttributes);
 
-    public abstract Builder filterableRelationships(
-        Map<Relationship, EntityFiltersSchema> filterableRelationships);
+    public abstract Builder filterableRelationships(Set<Relationship> filterableRelationships);
 
     public abstract EntityFiltersSchema build();
   }

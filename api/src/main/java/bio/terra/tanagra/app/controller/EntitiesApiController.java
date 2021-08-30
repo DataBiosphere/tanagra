@@ -27,7 +27,9 @@ import bio.terra.tanagra.service.search.Relationship;
 import bio.terra.tanagra.service.underlay.EntityFiltersSchema;
 import bio.terra.tanagra.service.underlay.Underlay;
 import bio.terra.tanagra.service.underlay.UnderlayService;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -124,9 +126,11 @@ public class EntitiesApiController implements EntitiesApi {
             .map(attribute -> convert(attribute, filtersSchema))
             .collect(Collectors.toList());
 
+    ImmutableSet<Relationship> filterableRelationships =
+        filtersSchema.map(EntityFiltersSchema::filterableRelationships).orElse(ImmutableSet.of());
     List<ApiRelationship> relationships =
         underlay.getRelationshipsOf(entity).stream()
-            .map(relationship -> convert(relationship, entity, filtersSchema, underlay))
+            .map(relationship -> convert(relationship, entity, filterableRelationships))
             .collect(Collectors.toList());
 
     return new ApiEntity().name(entity.name()).attributes(attributes).relationships(relationships);
@@ -158,18 +162,17 @@ public class EntitiesApiController implements EntitiesApi {
     }
   }
 
-  private static ApiAttributeFilterHint convert(FilterableAttribute filterableAttribute) {
-    ApiAttributeFilterHint filterHint = new ApiAttributeFilterHint();
+  @VisibleForTesting
+  static ApiAttributeFilterHint convert(FilterableAttribute filterableAttribute) {
     switch (filterableAttribute.getHintCase()) {
       case ENTITY_SEARCH_HINT:
-        filterHint.setEntitySearchHint(convert(filterableAttribute.getEntitySearchHint()));
-        break;
+        return new ApiAttributeFilterHint()
+            .entitySearchHint(convert(filterableAttribute.getEntitySearchHint()));
       case ENUM_HINT:
-        filterHint.setEnumHint(convert(filterableAttribute.getEnumHint()));
-        break;
+        return new ApiAttributeFilterHint().enumHint(convert(filterableAttribute.getEnumHint()));
       case INTEGER_BOUNDS_HINT:
-        filterHint.setIntegerBoundsHint(convert(filterableAttribute.getIntegerBoundsHint()));
-        break;
+        return new ApiAttributeFilterHint()
+            .integerBoundsHint(convert(filterableAttribute.getIntegerBoundsHint()));
       case HINT_NOT_SET:
         // Don't set any hints if there are none.
         break;
@@ -179,7 +182,7 @@ public class EntitiesApiController implements EntitiesApi {
                 "Unable to convert filterable attribute case '%s'",
                 filterableAttribute.getHintCase().name()));
     }
-    return filterHint;
+    return null;
   }
 
   private static ApiEntitySearchHint convert(EntitySearchHint entitySearchHint) {
@@ -233,16 +236,12 @@ public class EntitiesApiController implements EntitiesApi {
 
   private static ApiRelationship convert(
       Relationship relationship,
-      Entity entity,
-      Optional<EntityFiltersSchema> filtersSchema,
-      Underlay underlay) {
-    Entity relatedEntity = relationship.other(entity);
-    // Use the nested filters schema instead of the schema at the top level of the underlay for the
-    // related entity.
-    Optional<EntityFiltersSchema> relatedFiltersSchema =
-        filtersSchema.map(schema -> schema.filterableRelationships().get(relationship));
-    ApiEntity apiRelatedEntity = convert(relatedEntity, relatedFiltersSchema, underlay);
-
-    return new ApiRelationship().name(relationship.name()).relatedEntity(apiRelatedEntity);
+      Entity containingEntity,
+      ImmutableSet<Relationship> filterableRelationship) {
+    Entity relatedEntity = relationship.other(containingEntity);
+    return new ApiRelationship()
+        .name(relationship.name())
+        .relatedEntity(relatedEntity.name())
+        .filterable(filterableRelationship.contains(relationship));
   }
 }
