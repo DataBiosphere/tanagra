@@ -47,7 +47,7 @@ public class SqlVisitorTest {
                         Expression.Literal.create(DataType.INT64, "62"))))
             .build();
     assertEquals(
-        "SELECT s.rating, s.s_name FROM my-project-id.nautical.sailors AS s WHERE s.rating = 62",
+        "SELECT s.rating, s.s_name FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 62",
         new SqlVisitor(SIMPLE_CONTEXT).createSql(query));
   }
 
@@ -136,7 +136,7 @@ public class SqlVisitorTest {
   @Test
   void filterRelationship() {
     assertEquals(
-        "s.s_id IN (SELECT r.s_id FROM my-project-id.nautical.reservations AS r WHERE r.day = 'Tuesday')",
+        "s.s_id IN (SELECT r.s_id FROM `my-project-id.nautical`.reservations AS r WHERE r.day = 'Tuesday')",
         Filter.RelationshipFilter.builder()
             .outerVariable(S_SAILOR)
             .newVariable(R_RESERVATION)
@@ -153,9 +153,9 @@ public class SqlVisitorTest {
   void filterRelationshipNested() {
     Variable r2 = Variable.create("r2");
     assertEquals(
-        "s.s_id IN (SELECT r.s_id FROM my-project-id.nautical.reservations AS r WHERE "
+        "s.s_id IN (SELECT r.s_id FROM `my-project-id.nautical`.reservations AS r WHERE "
             + "r.day = 'Tuesday' AND s.s_id IN (SELECT r2.s_id FROM "
-            + "my-project-id.nautical.reservations AS r2 WHERE r2.day = 'Wednesday'))",
+            + "`my-project-id.nautical`.reservations AS r2 WHERE r2.day = 'Wednesday'))",
         Filter.RelationshipFilter.builder()
             .outerVariable(S_SAILOR)
             .newVariable(R_RESERVATION)
@@ -199,7 +199,7 @@ public class SqlVisitorTest {
         "b.b_name", Expression.AttributeExpression.create(B_NAME).accept(expressionVisitor));
     // NormalizedColumn attribute mapping
     assertEquals(
-        "(SELECT boat_types.bt_name FROM my-project-id.nautical.boat_types WHERE boat_types.bt_id = b.bt_id)",
+        "(SELECT boat_types.bt_name FROM `my-project-id.nautical`.boat_types WHERE boat_types.bt_id = b.bt_id)",
         Expression.AttributeExpression.create(B_TYPE).accept(expressionVisitor));
   }
 }
