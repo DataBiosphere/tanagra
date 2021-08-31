@@ -45,7 +45,11 @@ public abstract class Underlay {
    */
   public abstract ImmutableMap<Relationship, ForeignKey> foreignKeys();
 
-  /** Map from entities to the filters schema that supports the entity. */
+  /**
+   * Map from entities to the filters schema that supports the entity, if any.
+   *
+   * <p>Entities may not be allowed to be filtered on.
+   */
   public abstract ImmutableMap<Entity, EntityFiltersSchema> entityFiltersSchemas();
 
   /**
@@ -55,7 +59,7 @@ public abstract class Underlay {
   public Optional<Relationship> getRelationship(Entity x, Entity y) {
     List<Relationship> matching =
         relationships().values().stream()
-            .filter(relationship -> relationship.unorderedEntitiesAre(x, y))
+            .filter(relationship -> relationship.hasEntitiesUnordered(x, y))
             .collect(Collectors.toList());
     if (matching.isEmpty()) {
       return Optional.empty();
@@ -72,9 +76,7 @@ public abstract class Underlay {
   /** Returns all the relationships that the entity is a member of. */
   public Set<Relationship> getRelationshipsOf(Entity entity) {
     return relationships().values().stream()
-        .filter(
-            relationship ->
-                relationship.entity1().equals(entity) || relationship.entity2().equals(entity))
+        .filter(relationship -> relationship.hasEntity(entity))
         .collect(ImmutableSet.toImmutableSet());
   }
 

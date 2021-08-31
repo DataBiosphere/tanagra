@@ -30,12 +30,12 @@ public class RelationshipTest {
   void unorderedEntitiesAre() {
     Relationship relationship =
         Relationship.builder().name("r").entity1(ENTITY1).entity2(ENTITY2).build();
-    assertTrue(relationship.unorderedEntitiesAre(ENTITY1, ENTITY2));
-    assertTrue(relationship.unorderedEntitiesAre(ENTITY2, ENTITY1));
-    assertFalse(relationship.unorderedEntitiesAre(ENTITY1, OTHER));
-    assertFalse(relationship.unorderedEntitiesAre(OTHER, ENTITY2));
-    assertFalse(relationship.unorderedEntitiesAre(ENTITY1, ENTITY1));
-    assertFalse(relationship.unorderedEntitiesAre(ENTITY2, ENTITY2));
+    assertTrue(relationship.hasEntitiesUnordered(ENTITY1, ENTITY2));
+    assertTrue(relationship.hasEntitiesUnordered(ENTITY2, ENTITY1));
+    assertFalse(relationship.hasEntitiesUnordered(ENTITY1, OTHER));
+    assertFalse(relationship.hasEntitiesUnordered(OTHER, ENTITY2));
+    assertFalse(relationship.hasEntitiesUnordered(ENTITY1, ENTITY1));
+    assertFalse(relationship.hasEntitiesUnordered(ENTITY2, ENTITY2));
   }
 
   @Test

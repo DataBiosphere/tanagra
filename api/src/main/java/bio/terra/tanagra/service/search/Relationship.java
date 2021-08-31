@@ -18,7 +18,7 @@ public abstract class Relationship {
    * Returns whether the {@code x} and {@code y} entities are the two entities of the relationship,
    * in any order.
    */
-  public boolean unorderedEntitiesAre(Entity x, Entity y) {
+  public boolean hasEntitiesUnordered(Entity x, Entity y) {
     return (entity1().equals(x) && entity2().equals(y))
         || (entity1().equals(y) && entity2().equals(x));
   }
