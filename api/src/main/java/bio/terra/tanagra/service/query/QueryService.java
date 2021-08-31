@@ -14,7 +14,12 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/** A service for executing queries. */
+/**
+ * A service for executing queries.
+ *
+ * <p>Tanagra logical query types, like {@link EntityFilter}, are used here to create {@link Query}s
+ * and execute them.
+ */
 @Service
 public class QueryService {
 
@@ -47,10 +52,13 @@ public class QueryService {
         entityDataset.selectedAttributes().stream()
             .map(
                 attribute ->
-                    Selection.SelectExpression.create(
-                        AttributeExpression.create(
-                            AttributeVariable.create(
-                                attribute, entityDataset.primaryEntity().variable()))))
+                    Selection.SelectExpression.builder()
+                        .expression(
+                            AttributeExpression.create(
+                                AttributeVariable.create(
+                                    attribute, entityDataset.primaryEntity().variable())))
+                        .alias(attribute.name())
+                        .build())
             .collect(ImmutableList.toImmutableList());
     Query query =
         Query.builder()

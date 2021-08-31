@@ -34,7 +34,7 @@ public interface Selection {
     abstract Optional<String> alias();
 
     public static SelectExpression create(Expression expression, Optional<String> alias) {
-      return new AutoValue_Selection_SelectExpression(expression, alias);
+      return builder().expression(expression).alias(alias).build();
     }
 
     public static SelectExpression create(Expression expression) {
@@ -44,6 +44,23 @@ public interface Selection {
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.selectExpression(this);
+    }
+
+    public static Builder builder() {
+      return new AutoValue_Selection_SelectExpression.Builder();
+    }
+
+    /** Builder for {@link SelectExpression}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      public abstract Builder expression(Expression expression);
+
+      public abstract Builder alias(Optional<String> alias);
+
+      public abstract Builder alias(String alias);
+
+      public abstract SelectExpression build();
     }
   }
 
