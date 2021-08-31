@@ -32,5 +32,5 @@ message Underlay {
   repeated RelationshipMapping relationship_mappings = 7;
 
   // The entity filters available on this underlay.
-  repeated EntityFiltersSchema entity_filters_schema = 8;
+  repeated EntityFiltersSchema entity_filters_schemas = 8;
 }

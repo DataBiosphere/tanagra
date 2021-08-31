@@ -68,6 +68,7 @@
         <exclude name="CyclomaticComplexity"/>
         <exclude name="DataClass"/>
         <exclude name="ExcessiveClassLength"/> <!-- replaced by NcssCount -->
+        <exclude name="ExcessiveImports"/>
         <exclude name="ExcessiveMethodLength"/> <!-- replaced by NcssCount -->
         <exclude name="GodClass"/>
         <exclude name="LawOfDemeter"/>
@@ -77,6 +78,7 @@
         <exclude name="NPathComplexity"/>
         <exclude name="SignatureDeclareThrowsException"/>
         <exclude name="StdCyclomaticComplexity"/>
+        <exclude name="TooManyMethods"/>
     </rule>
     <rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts">
         <properties>

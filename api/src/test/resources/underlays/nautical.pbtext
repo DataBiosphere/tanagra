@@ -346,3 +346,39 @@ relationship_mappings: {
     }
   }
 }
+entity_filters_schemas: {
+  entity: "sailors"
+  attributes: {
+    attribute_name: "rating"
+    integer_bounds_hint: {
+      min: 0
+      max: 10
+    }
+  }
+  attributes: {
+    attribute_name: "name"
+  }
+  relationships: {
+    relationship_name: "sailor_reservation"
+  }
+}
+entity_filters_schemas: {
+  entity: "reservations"
+  attributes: {
+    attribute_name: "day"
+    enum_hint: {
+      enum_hint_values: {
+        display_name: "Monday"
+        string_val: "MONDAY"
+      }
+      enum_hint_values: {
+        display_name: "Tuesday"
+        string_val: "TUESDAY"
+      }
+      enum_hint_values: {
+        display_name: "Wednesday"
+        string_val: "WEDNESDAY"
+      }
+    }
+  }
+}

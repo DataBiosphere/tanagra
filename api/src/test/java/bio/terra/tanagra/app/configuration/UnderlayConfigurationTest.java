@@ -12,6 +12,12 @@ import org.junit.jupiter.api.Test;
 
 @Tag("unit")
 public class UnderlayConfigurationTest {
+  /**
+   * Test that we can load configuration from both yaml & prototext.
+   *
+   * <p>The test files should be kept in sync so that we can do an equivalence assertion in this
+   * test.
+   */
   @Test
   void prototextAndYamlUnderlayEquivalence() throws Exception {
     UnderlayConfiguration config = new UnderlayConfiguration();

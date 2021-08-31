@@ -1,8 +1,7 @@
-package bio.terra.tanagra.app;
+package bio.terra.tanagra.app.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.tanagra.app.controller.EntitiesFiltersApiController;
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
 import bio.terra.tanagra.generated.model.ApiAttributeVariable;
 import bio.terra.tanagra.generated.model.ApiBinaryFilter;

@@ -6,10 +6,12 @@ import bio.terra.tanagra.service.search.Relationship;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -44,16 +46,20 @@ public abstract class Underlay {
   public abstract ImmutableMap<Relationship, ForeignKey> foreignKeys();
 
   /**
+   * Map from entities to the filters schema that supports the entity, if any.
+   *
+   * <p>Entities may not be allowed to be filtered on.
+   */
+  public abstract ImmutableMap<Entity, EntityFiltersSchema> entityFiltersSchemas();
+
+  /**
    * Find a relationship between 2 entities. The relationship's entity ordering may be reversed from
    * the arguments.
    */
   public Optional<Relationship> getRelationship(Entity x, Entity y) {
     List<Relationship> matching =
         relationships().values().stream()
-            .filter(
-                relationship ->
-                    (relationship.entity1().equals(x) && relationship.entity2().equals(y))
-                        || (relationship.entity1().equals(y) && relationship.entity2().equals(x)))
+            .filter(relationship -> relationship.hasEntitiesUnordered(x, y))
             .collect(Collectors.toList());
     if (matching.isEmpty()) {
       return Optional.empty();
@@ -65,6 +71,13 @@ public abstract class Underlay {
         "Unable to pick a relationship among multiple relationships between entities. %s",
         matching);
     return Optional.of(matching.get(0));
+  }
+
+  /** Returns all the relationships that the entity is a member of. */
+  public Set<Relationship> getRelationshipsOf(Entity entity) {
+    return relationships().values().stream()
+        .filter(relationship -> relationship.hasEntity(entity))
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   public static Builder builder() {
@@ -89,6 +102,8 @@ public abstract class Underlay {
     public abstract Builder attributeMappings(Map<Attribute, AttributeMapping> attributeMappings);
 
     public abstract Builder foreignKeys(Map<Relationship, ForeignKey> value);
+
+    public abstract Builder entityFiltersSchemas(Map<Entity, EntityFiltersSchema> value);
 
     abstract Underlay build();
   }

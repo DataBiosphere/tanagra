@@ -525,6 +525,12 @@ components:
         relatedEntity:
           type: string
           description: The name of the related entity.
+        filterable:
+          type: boolean
+          description: |
+            Whether this relationship should be used when creating filter expressions on the
+            entity referencing this relationship. If true, then further filters can be specified
+            on the relatedEntity.
 
     SearchEntityInstancesRequest:
       type: object
