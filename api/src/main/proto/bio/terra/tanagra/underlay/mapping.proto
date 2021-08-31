@@ -12,24 +12,6 @@ option java_multiple_files = true;
 import "bio/terra/tanagra/underlay/entities.proto";
 import "bio/terra/tanagra/underlay/tables.proto";
 
-// An id to uniquely idnetify a column of a table within an underlay.
-message ColumnId {
-  // The name of the dataset.
-  string dataset = 1;
-  // The name of the table.
-  string table = 2;
-  // The name of the column.
-  string column = 3;
-}
-
-// An id to uniquely identify an attribute of an entity within an underlay.
-message AttributeId {
-  // The name of the entity.
-  string entity = 1;
-  // The name of the attribute.
-  string attribute = 2;
-}
-
 // How to map an entity.
 message EntityMapping {
   // The name of the entity being mapped.

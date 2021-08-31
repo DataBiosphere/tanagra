@@ -230,6 +230,76 @@ components:
           type: string
         dataType:
           $ref: '#/components/schemas/DataType'
+        attributeFilterHint:
+          $ref: '#/components/schemas/AttributeFilterHint'
+          nullable: true
+
+    AttributeFilterHint:
+      type: object
+      description: |
+        How a filtering expression for an attribute can be constructed. If null, this attribute
+        should not be used in filter expressions.
+      properties:
+        entitySearchHint:
+          $ref: '#/components/schemas/EntitySearchHint'
+        enumHint:
+          $ref: '#/components/schemas/EnumHint'
+        integerBoundsHint:
+          $ref: '#/components/schemas/IntegerBoundsHint'
+
+    # Attribute Filter Hints
+
+    # TODO revisit me once we have clearer entity search APIs.
+    EntitySearchHint:
+      type: object
+      description: |
+        A hint for an attribute filter that the values are the primary id of an entity with
+        search support.
+      properties:
+        entityName:
+          description: The name of the entity.
+          type: string
+
+    EnumHint:
+      type: object
+      description: |
+        A hint for a attribute filter that the values are enumerable.
+      properties:
+        enumHintValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnumHintValue'
+
+    EnumHintValue:
+      type: object
+      description: A possible enum value for an enum hint for a attribute filter.
+      properties:
+        displayName:
+          type: string
+          description: The name to display for this enum value.
+        description:
+          type: string
+          description: The more detailed description of this enum value, if there is one.
+          nullable: true
+        attributeValue:
+          description: The value that the attribute takes.
+          $ref: '#/components/schemas/AttributeValue'
+
+    IntegerBoundsHint:
+      type: object
+      description:  A hint for a attribute filter that the values are within certain bounds.
+      properties:
+        min:
+          type: integer
+          format: int64
+          nullable: true
+          description: The possible minimum value for this attribute, if there is one.
+        max:
+          type: integer
+          format: int64
+          nullable: true
+          description: The possible maximum value for this attribute, if there is one.
+    # End Attribute Filter Hints
 
     AttributeVariable:
       description: An attribute of a variable for an entity.
@@ -276,6 +346,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Attribute'
+        relationships:
+          description: The relationships that the entity is a part of.
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
 
     EntityDataset:
       description: A selection of entity attributes and filters on them.
@@ -389,6 +464,7 @@ components:
           type: string
         filter:
           $ref: '#/components/schemas/Filter'
+    # End Filters
 
     ErrorReport:
       type: object
@@ -438,6 +514,23 @@ components:
             $ref: '#/components/schemas/Underlay'
         nextPageToken:
           $ref: '#/components/schemas/NextPageToken'
+
+    Relationship:
+      type: object
+      description: A relationship to another entity.
+      properties:
+        name:
+          type: string
+          description: The name of the relationship.
+        relatedEntity:
+          type: string
+          description: The name of the related entity.
+        filterable:
+          type: boolean
+          description: |
+            Whether this relationship should be used when creating filter expressions on the
+            entity referencing this relationship. If true, then further filters can be specified
+            on the relatedEntity.
 
     SearchEntityInstancesRequest:
       type: object

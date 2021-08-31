@@ -1,11 +1,10 @@
-package bio.terra.tanagra.app;
+package bio.terra.tanagra.app.controller;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.common.exception.NotFoundException;
-import bio.terra.tanagra.app.controller.UnderlaysApiController;
 import bio.terra.tanagra.generated.model.ApiListUnderlaysResponse;
 import bio.terra.tanagra.generated.model.ApiUnderlay;
 import bio.terra.tanagra.service.underlay.NauticalUnderlayUtils;

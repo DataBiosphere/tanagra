@@ -3,6 +3,8 @@ package bio.terra.tanagra.service.underlay;
 import bio.terra.tanagra.proto.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.proto.underlay.Dataset;
 import bio.terra.tanagra.proto.underlay.EntityMapping;
+import bio.terra.tanagra.proto.underlay.FilterableAttribute;
+import bio.terra.tanagra.proto.underlay.FilterableRelationship;
 import bio.terra.tanagra.proto.underlay.RelationshipMapping;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
@@ -13,7 +15,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /** Utilities for converting protobuf representations to underlay classes. */
 final class UnderlayConversion {
@@ -38,6 +42,31 @@ final class UnderlayConversion {
         }
       }
     }
+    Map<String, Relationship> relationships = buildRelationships(underlayProto, entities);
+    Map<ColumnId, Column> columns = buildColumns(underlayProto);
+    Map<Entity, Column> primaryKeys = buildPrimaryKeys(underlayProto, entities, columns);
+    Map<Attribute, AttributeMapping> attributeMappings =
+        buildAttributeMapping(underlayProto, entities, attributes, columns, primaryKeys);
+    Map<Relationship, ForeignKey> foreignKeys =
+        buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
+    Map<Entity, EntityFiltersSchema> entityFiltersSchemas =
+        buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
+
+    return Underlay.builder()
+        .name(underlayProto.getName())
+        .entities(entities)
+        .attributes(attributes)
+        .relationships(relationships)
+        .primaryKeys(primaryKeys)
+        .attributeMappings(attributeMappings)
+        .foreignKeys(foreignKeys)
+        .entityFiltersSchemas(entityFiltersSchemas)
+        .build();
+  }
+
+  /** Builds a map of Relationship names to Relationships. */
+  private static Map<String, Relationship> buildRelationships(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto, Map<String, Entity> entities) {
     Map<String, Relationship> relationships = new HashMap<>();
     for (bio.terra.tanagra.proto.underlay.Relationship relationshipProto :
         underlayProto.getRelationshipsList()) {
@@ -62,7 +91,12 @@ final class UnderlayConversion {
             String.format("Duplicate relationship name not allowed: %s", relationshipProto));
       }
     }
+    return relationships;
+  }
 
+  /** Builds a map of {@link ColumnId}s to their corresponding {@link Column}s. */
+  private static Map<ColumnId, Column> buildColumns(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto) {
     Map<ColumnId, Column> columns = new HashMap<>();
     for (Dataset datasetProto : underlayProto.getDatasetsList()) {
       BigQueryDataset dataset = convert(datasetProto);
@@ -83,7 +117,14 @@ final class UnderlayConversion {
         }
       }
     }
+    return columns;
+  }
 
+  /** Builds a map of entities to the primary key column on their primary table. */
+  private static Map<Entity, Column> buildPrimaryKeys(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      Map<ColumnId, Column> columns) {
     Map<Entity, Column> primaryKeys = new HashMap<>();
     for (EntityMapping entityMapping : underlayProto.getEntityMappingsList()) {
       Entity entity = entities.get(entityMapping.getEntity());
@@ -103,7 +144,16 @@ final class UnderlayConversion {
             String.format("Duplicate entity being mapped: %s", entityMapping));
       }
     }
+    return primaryKeys;
+  }
 
+  /** Builds a map from {@link Attribute}s to their corresponding {@link AttributeMapping}. */
+  private static Map<Attribute, AttributeMapping> buildAttributeMapping(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      com.google.common.collect.Table<Entity, String, Attribute> attributes,
+      Map<ColumnId, Column> columns,
+      Map<Entity, Column> primaryKeys) {
     Map<Attribute, AttributeMapping> attributeMappings = new HashMap<>();
     for (bio.terra.tanagra.proto.underlay.AttributeMapping attributeMapping :
         underlayProto.getAttributeMappingsList()) {
@@ -161,6 +211,15 @@ final class UnderlayConversion {
             String.format("Attribute mapped to multiple times %s", attributeMapping));
       }
     }
+    return attributeMappings;
+  }
+
+  /** Builds a map of {@link Relationship} to their corresponding relationship mapping. */
+  private static Map<Relationship, ForeignKey> buildRelationshipMapping(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Relationship> relationships,
+      Map<ColumnId, Column> columns,
+      Map<Entity, Column> primaryKeys) {
     Map<Relationship, ForeignKey> foreignKeys = new HashMap<>();
     for (RelationshipMapping relationshipMapping : underlayProto.getRelationshipMappingsList()) {
       // TODO support other relationship mappings.
@@ -198,15 +257,87 @@ final class UnderlayConversion {
             String.format("Duplicate foreign key relationship mapping. %s", relationshipMapping));
       }
     }
+    return foreignKeys;
+  }
 
-    return Underlay.builder()
-        .name(underlayProto.getName())
-        .entities(entities)
-        .attributes(attributes)
-        .relationships(relationships)
-        .primaryKeys(primaryKeys)
-        .attributeMappings(attributeMappings)
-        .foreignKeys(foreignKeys)
+  /** Build a map from entities to their {@link EntityFiltersSchema} for filters. */
+  private static Map<Entity, EntityFiltersSchema> buildEntityFiltersSchemas(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      com.google.common.collect.Table<Entity, String, Attribute> attributes,
+      Map<String, Relationship> relationships) {
+    Map<Entity, EntityFiltersSchema> entityFiltersSchemas = new HashMap<>();
+    for (bio.terra.tanagra.proto.underlay.EntityFiltersSchema filtersSchemaProto :
+        underlayProto.getEntityFiltersSchemasList()) {
+      EntityFiltersSchema entityFiltersSchema =
+          buildEntityFiltersSchema(
+              filtersSchemaProto, entities, attributes, relationships, entityFiltersSchemas);
+      if (entityFiltersSchemas.put(entityFiltersSchema.entity(), entityFiltersSchema) != null) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Duplicate entity '%s' in entity filter: %s",
+                entityFiltersSchema.entity().name(), filtersSchemaProto));
+      }
+    }
+    return entityFiltersSchemas;
+  }
+
+  /** Build an {@link EntityFiltersSchema} from a a proto entity filter schema. */
+  private static EntityFiltersSchema buildEntityFiltersSchema(
+      bio.terra.tanagra.proto.underlay.EntityFiltersSchema filtersSchemaProto,
+      Map<String, Entity> entities,
+      com.google.common.collect.Table<Entity, String, Attribute> attributes,
+      Map<String, Relationship> relationships,
+      Map<Entity, EntityFiltersSchema> entityFiltersSchemas) {
+    Entity entity = entities.get(filtersSchemaProto.getEntity());
+    if (entity == null) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Unknown entity in entity filter schema: %s", filtersSchemaProto.toString()));
+    }
+    Map<Attribute, FilterableAttribute> filterableAttributes = new HashMap<>();
+    for (FilterableAttribute filterableAttribute : filtersSchemaProto.getAttributesList()) {
+      Attribute attribute = attributes.get(entity, filterableAttribute.getAttributeName());
+      if (attribute == null) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Unknown attribute '%s' in entity filter schema: %s",
+                filterableAttribute.getAttributeName(), entityFiltersSchemas));
+      }
+      if (filterableAttributes.put(attribute, filterableAttribute) != null) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Duplicate filterable attribute '%s' in entity filter schema: %s'",
+                filterableAttribute.getAttributeName(), filtersSchemaProto));
+      }
+    }
+    Set<Relationship> filterableRelationships = new HashSet<>();
+    for (FilterableRelationship filterableRelationship :
+        filtersSchemaProto.getRelationshipsList()) {
+      Relationship relationship = relationships.get(filterableRelationship.getRelationshipName());
+      if (relationship == null) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Unable to find relationship '%s' in entity filter schema: '%s'",
+                filterableRelationship.getRelationshipName(), filtersSchemaProto));
+      }
+      if (!relationship.hasEntity(entity)) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Filterable relationship entity does not match the relationship's entities '%s': %s",
+                relationship, entityFiltersSchemas));
+      }
+      if (!filterableRelationships.add(relationship)) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Duplicate relationship '%s' in entity filter schema: '%s'",
+                filterableRelationship.getRelationshipName(), filtersSchemaProto));
+      }
+    }
+    return EntityFiltersSchema.builder()
+        .entity(entity)
+        .filterableAttributes(filterableAttributes)
+        .filterableRelationships(filterableRelationships)
         .build();
   }
 
