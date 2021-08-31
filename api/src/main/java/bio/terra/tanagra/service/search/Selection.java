@@ -31,6 +31,7 @@ public interface Selection {
     abstract Expression expression();
 
     /** An alias to name this selection. */
+    // TODO check alias for SQL stop words.
     abstract Optional<String> alias();
 
     public static SelectExpression create(Expression expression, Optional<String> alias) {
