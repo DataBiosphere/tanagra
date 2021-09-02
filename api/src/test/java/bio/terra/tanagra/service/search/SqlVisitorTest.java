@@ -63,13 +63,17 @@ public class SqlVisitorTest {
     SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
     assertEquals(
         "s.rating AS rt",
-        Selection.SelectExpression.create(
-                Expression.AttributeExpression.create(S_RATING), Optional.of("rt"))
+        Selection.SelectExpression.builder()
+            .expression(Expression.AttributeExpression.create(S_RATING))
+            .alias(Optional.of("rt"))
+            .build()
             .accept(visitor));
     assertEquals(
         "s.rating",
-        Selection.SelectExpression.create(
-                Expression.AttributeExpression.create(S_RATING), Optional.empty())
+        Selection.SelectExpression.builder()
+            .expression(Expression.AttributeExpression.create(S_RATING))
+            .alias(Optional.empty())
+            .build()
             .accept(visitor));
   }
 
