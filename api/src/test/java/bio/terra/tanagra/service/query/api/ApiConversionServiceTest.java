@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service.query.api;
 
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

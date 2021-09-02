@@ -1,6 +1,11 @@
 package bio.terra.tanagra.service.underlay;
 
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RESERVATION_RELATIONSHIP;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauticalUnderlay;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
