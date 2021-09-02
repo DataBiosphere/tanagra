@@ -1,6 +1,35 @@
 package bio.terra.tanagra.service.underlay;
 
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_BT_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_COLOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_COLOR_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_B_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_B_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_DAY;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_DAY_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_S_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_S_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RESERVATION_RELATIONSHIP;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauticalUnderlayProto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.proto.underlay.EnumHint;

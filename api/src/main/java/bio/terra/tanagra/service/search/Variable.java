@@ -15,6 +15,7 @@ public abstract class Variable {
   private static final String NAME_REGEX = "[a-z][a-z0-9_]*";
   private static final Pattern NAME_VALIDATOR = Pattern.compile(NAME_REGEX);
 
+  // TODO check name for SQL stop words.
   public abstract String name();
 
   public static Variable create(String name) {
