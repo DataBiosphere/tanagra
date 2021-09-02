@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service.query;
 
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.service.search.AttributeVariable;

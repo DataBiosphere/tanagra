@@ -8,7 +8,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-/** A query for a dataset of entity instances. */
+/**
+ * A query for a dataset of entity instances. Contains the selected attributes of an entity with a
+ * filter applied on it.
+ */
 @AutoValue
 public abstract class EntityDataset {
   /** The primary entity and variable that the dataset is being created from. */
