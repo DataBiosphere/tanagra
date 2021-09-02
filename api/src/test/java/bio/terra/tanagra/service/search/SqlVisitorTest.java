@@ -1,6 +1,13 @@
 package bio.terra.tanagra.service.search;
 
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.*;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_DAY;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauticalUnderlay;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -56,13 +63,17 @@ public class SqlVisitorTest {
     SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
     assertEquals(
         "s.rating AS rt",
-        Selection.SelectExpression.create(
-                Expression.AttributeExpression.create(S_RATING), Optional.of("rt"))
+        Selection.SelectExpression.builder()
+            .expression(Expression.AttributeExpression.create(S_RATING))
+            .alias(Optional.of("rt"))
+            .build()
             .accept(visitor));
     assertEquals(
         "s.rating",
-        Selection.SelectExpression.create(
-                Expression.AttributeExpression.create(S_RATING), Optional.empty())
+        Selection.SelectExpression.builder()
+            .expression(Expression.AttributeExpression.create(S_RATING))
+            .alias(Optional.empty())
+            .build()
             .accept(visitor));
   }
 
