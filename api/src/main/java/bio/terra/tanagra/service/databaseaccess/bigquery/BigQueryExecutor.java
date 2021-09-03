@@ -52,7 +52,7 @@ public class BigQueryExecutor implements QueryExecutor {
     try {
       return job.getQueryResults(QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
     } catch (InterruptedException e) {
-      throw new InternalServerErrorException("Timed out waiting for BigQuery results.");
+      throw new InternalServerErrorException("Timed out waiting for BigQuery results.", e);
     } catch (BigQueryException e) {
       if (e.getCode() == HttpServletResponse.SC_SERVICE_UNAVAILABLE) {
         throw new InternalServerErrorException(

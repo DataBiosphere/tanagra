@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
 
+// DO NOT SUBMIT comment & test me.
 public final class QueryResultConverter {
   private QueryResultConverter() {}
 
@@ -42,8 +43,9 @@ public final class QueryResultConverter {
         return new ApiAttributeValue().stringVal(cellValue.getString());
       case INT64:
         return new ApiAttributeValue().int64Val(cellValue.getLong());
+      default:
+        throw new UnsupportedOperationException(
+            String.format("Unable to convert CellValue DataType '%s'", cellValue.dataType()));
     }
-    throw new UnsupportedOperationException(
-        String.format("Unable to convert CellValue DataType '%s'", cellValue.dataType()));
   }
 }

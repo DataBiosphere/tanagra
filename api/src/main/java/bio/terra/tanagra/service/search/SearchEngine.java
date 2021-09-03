@@ -44,9 +44,8 @@ public class SearchEngine {
 
   private static ColumnSchema deriveSchema(Selection selection, Underlay underlay) {
     DataType dataType = selection.accept(new DataTypeVisitor.SelectionVisitor(underlay));
-
-    String name = null; // DO NOT SUBMIT. change select.
-    name = ((Selection.SelectExpression) selection).alias().get();
+    // DO NOT SUBMIT. change select.
+    String name = ((Selection.SelectExpression) selection).alias().get();
     return ColumnSchema.builder().name(name).dataType(dataType).build();
   }
 }
