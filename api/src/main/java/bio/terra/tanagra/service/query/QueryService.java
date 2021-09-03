@@ -1,9 +1,12 @@
 package bio.terra.tanagra.service.query;
 
+import bio.terra.tanagra.service.databaseaccess.QueryExecutor;
+import bio.terra.tanagra.service.databaseaccess.QueryResult;
 import bio.terra.tanagra.service.search.AttributeVariable;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Query;
 import bio.terra.tanagra.service.search.SearchContext;
+import bio.terra.tanagra.service.search.SearchEngine;
 import bio.terra.tanagra.service.search.Selection;
 import bio.terra.tanagra.service.search.SqlVisitor;
 import bio.terra.tanagra.service.underlay.Underlay;
@@ -22,12 +25,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class QueryService {
-
   private final UnderlayService underlayService;
+  private final QueryExecutor.Factory queryExecutorFactory;
 
   @Autowired
-  public QueryService(UnderlayService underlayService) {
+  public QueryService(UnderlayService underlayService, QueryExecutor.Factory queryExecutorFactory) {
     this.underlayService = underlayService;
+    this.queryExecutorFactory = queryExecutorFactory;
   }
 
   /** Generate an SQL query to select the primary ids for the entity of the entity filter. */
@@ -48,6 +52,18 @@ public class QueryService {
   /** Generate an SQL query for the entity dataset. */
   public String generateSql(EntityDataset entityDataset) {
     Underlay underlay = getUnderlay(entityDataset.primaryEntity().entity().underlay());
+    Query query = createQuery(entityDataset);
+    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+  }
+
+  public QueryResult retrieveResults(EntityDataset entityDataset) {
+    Underlay underlay = getUnderlay(entityDataset.primaryEntity().entity().underlay());
+    Query query = createQuery(entityDataset);
+    return new SearchEngine(queryExecutorFactory)
+        .execute(query, SearchContext.builder().underlay(underlay).build());
+  }
+
+  private Query createQuery(EntityDataset entityDataset) {
     ImmutableList<Selection> selections =
         entityDataset.selectedAttributes().stream()
             .map(
@@ -60,13 +76,11 @@ public class QueryService {
                         .alias(attribute.name())
                         .build())
             .collect(ImmutableList.toImmutableList());
-    Query query =
-        Query.builder()
-            .selections(selections)
-            .primaryEntity(entityDataset.primaryEntity())
-            .filter(entityDataset.filter())
-            .build();
-    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+    return Query.builder()
+        .selections(selections)
+        .primaryEntity(entityDataset.primaryEntity())
+        .filter(entityDataset.filter())
+        .build();
   }
 
   private Underlay getUnderlay(String underlayName) {
