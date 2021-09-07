@@ -61,13 +61,13 @@ public class SqlVisitor {
     public String selectExpression(Selection.SelectExpression selectExpression) {
       String expression =
           selectExpression.expression().accept(new ExpressionVisitor(searchContext));
-      return expression.concat(aliasSuffix(selectExpression.alias()));
+      return String.format("%s AS %s", expression, selectExpression.name());
     }
 
     @Override
     public String count(Selection.Count count) {
       return String.format(
-          "COUNT(%s)%s", count.entityVariable().variable().name(), aliasSuffix(count.alias()));
+          "COUNT(%s) AS %s", count.entityVariable().variable().name(), count.name());
     }
 
     @Override
@@ -79,15 +79,10 @@ public class SqlVisitor {
           "Unable to find a primary key for entity '%s'",
           primaryKey.entityVariable().entity());
       return String.format(
-          "%s.%s%s",
+          "%s.%s AS %s",
           primaryKey.entityVariable().variable().name(),
           primaryKeyColumn.name(),
-          aliasSuffix(primaryKey.alias()));
-    }
-
-    /** Returns " AS alias" or else "" if the alias is not present. */
-    private static String aliasSuffix(Optional<String> alias) {
-      return alias.map(" AS "::concat).orElse("");
+          primaryKey.name());
     }
   }
 

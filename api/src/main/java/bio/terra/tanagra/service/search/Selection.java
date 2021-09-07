@@ -1,7 +1,6 @@
 package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
-import java.util.Optional;
 
 /**
  * A construct in a query that represents a value to be selected.
@@ -9,6 +8,10 @@ import java.util.Optional;
  * <p>Represents a single column in a SELECT SQL clause.
  */
 public interface Selection {
+  /** The name for the value being selected. Selection names should be unique within a query. */
+  // TODO check names for SQL stop words.
+  String name();
+
   /**
    * A visitor pattern interface for a {@link Selection}.
    *
@@ -30,17 +33,8 @@ public interface Selection {
   abstract class SelectExpression implements Selection {
     abstract Expression expression();
 
-    /** An alias to name this selection. */
-    // TODO check alias for SQL stop words.
-    abstract Optional<String> alias();
-
-    public static SelectExpression create(Expression expression, Optional<String> alias) {
-      return builder().expression(expression).alias(alias).build();
-    }
-
-    public static SelectExpression create(Expression expression) {
-      return create(expression, Optional.empty());
-    }
+    @Override
+    public abstract String name();
 
     @Override
     public <R> R accept(Visitor<R> visitor) {
@@ -57,9 +51,7 @@ public interface Selection {
 
       public abstract Builder expression(Expression expression);
 
-      public abstract Builder alias(Optional<String> alias);
-
-      public abstract Builder alias(String alias);
+      public abstract Builder name(String name);
 
       public abstract SelectExpression build();
     }
@@ -72,16 +64,27 @@ public interface Selection {
     /** The entity to count. */
     public abstract EntityVariable entityVariable();
 
-    /** An alias to name this selection. */
-    abstract Optional<String> alias();
-
-    public static Count create(EntityVariable entityVariable, Optional<String> alias) {
-      return new AutoValue_Selection_Count(entityVariable, alias);
-    }
+    @Override
+    public abstract String name();
 
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.count(this);
+    }
+
+    public static Builder builder() {
+      return new AutoValue_Selection_Count.Builder();
+    }
+
+    /** Builder for {@link Count}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      public abstract Builder entityVariable(EntityVariable entityVariable);
+
+      public abstract Builder name(String name);
+
+      public abstract Count build();
     }
   }
 
@@ -91,16 +94,27 @@ public interface Selection {
     /** The entity to select the primary key of. */
     public abstract EntityVariable entityVariable();
 
-    /** An alias to name this selection. */
-    abstract Optional<String> alias();
-
-    public static PrimaryKey create(EntityVariable entityVariable, Optional<String> alias) {
-      return new AutoValue_Selection_PrimaryKey(entityVariable, alias);
-    }
+    @Override
+    public abstract String name();
 
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.primaryKey(this);
+    }
+
+    public static Builder builder() {
+      return new AutoValue_Selection_PrimaryKey.Builder();
+    }
+
+    /** Builder for {@link PrimaryKey}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      public abstract Builder entityVariable(EntityVariable entityVariable);
+
+      public abstract Builder name(String name);
+
+      public abstract PrimaryKey build();
     }
   }
 }
