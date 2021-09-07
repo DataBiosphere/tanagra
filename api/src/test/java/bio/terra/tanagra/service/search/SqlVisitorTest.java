@@ -41,10 +41,14 @@ public class SqlVisitorTest {
         Query.builder()
             .selections(
                 ImmutableList.of(
-                    Selection.SelectExpression.create(
-                        Expression.AttributeExpression.create(S_RATING)),
-                    Selection.SelectExpression.create(
-                        Expression.AttributeExpression.create(S_NAME))))
+                    Selection.SelectExpression.builder()
+                        .expression(Expression.AttributeExpression.create(S_RATING))
+                        .name("rating")
+                        .build(),
+                    Selection.SelectExpression.builder()
+                        .expression(Expression.AttributeExpression.create(S_NAME))
+                        .name("name")
+                        .build()))
             .primaryEntity(S_SAILOR)
             .filter(
                 Optional.of(
@@ -54,7 +58,7 @@ public class SqlVisitorTest {
                         Expression.Literal.create(DataType.INT64, "62"))))
             .build();
     assertEquals(
-        "SELECT s.rating, s.s_name FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 62",
+        "SELECT s.rating AS rating, s.s_name AS name FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 62",
         new SqlVisitor(SIMPLE_CONTEXT).createSql(query));
   }
 
@@ -65,14 +69,7 @@ public class SqlVisitorTest {
         "s.rating AS rt",
         Selection.SelectExpression.builder()
             .expression(Expression.AttributeExpression.create(S_RATING))
-            .alias(Optional.of("rt"))
-            .build()
-            .accept(visitor));
-    assertEquals(
-        "s.rating",
-        Selection.SelectExpression.builder()
-            .expression(Expression.AttributeExpression.create(S_RATING))
-            .alias(Optional.empty())
+            .name("rt")
             .build()
             .accept(visitor));
   }
@@ -81,8 +78,8 @@ public class SqlVisitorTest {
   void selectionCount() {
     SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
     assertEquals(
-        "COUNT(s) AS c", Selection.Count.create(S_SAILOR, Optional.of("c")).accept(visitor));
-    assertEquals("COUNT(s)", Selection.Count.create(S_SAILOR, Optional.empty()).accept(visitor));
+        "COUNT(s) AS c",
+        Selection.Count.builder().entityVariable(S_SAILOR).name("c").build().accept(visitor));
   }
 
   @Test
@@ -90,8 +87,11 @@ public class SqlVisitorTest {
     SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
     assertEquals(
         "s.s_id AS primary_id",
-        Selection.PrimaryKey.create(S_SAILOR, Optional.of("primary_id")).accept(visitor));
-    assertEquals("s.s_id", Selection.PrimaryKey.create(S_SAILOR, Optional.empty()).accept(visitor));
+        Selection.PrimaryKey.builder()
+            .entityVariable(S_SAILOR)
+            .name("primary_id")
+            .build()
+            .accept(visitor));
   }
 
   @Test
