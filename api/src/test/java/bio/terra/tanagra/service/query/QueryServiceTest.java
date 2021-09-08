@@ -24,7 +24,8 @@ public class QueryServiceTest extends BaseSpringUnitTest {
   @Test
   void generatePrimaryKeySql() {
     assertEquals(
-        "SELECT s.s_id FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42",
+        "SELECT s.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS s "
+            + "WHERE s.rating = 42",
         queryService.generatePrimaryKeySql(
             EntityFilter.builder()
                 .primaryEntity(EntityVariable.create(SAILOR, Variable.create("s")))

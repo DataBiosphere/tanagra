@@ -38,7 +38,10 @@ public class QueryService {
         Query.builder()
             .selections(
                 ImmutableList.of(
-                    Selection.PrimaryKey.create(entityFilter.primaryEntity(), Optional.empty())))
+                    Selection.PrimaryKey.builder()
+                        .entityVariable(entityFilter.primaryEntity())
+                        .name("primary_key")
+                        .build()))
             .primaryEntity(entityFilter.primaryEntity())
             .filter(entityFilter.filter())
             .build();
@@ -57,7 +60,7 @@ public class QueryService {
                             AttributeExpression.create(
                                 AttributeVariable.create(
                                     attribute, entityDataset.primaryEntity().variable())))
-                        .alias(attribute.name())
+                        .name(attribute.name())
                         .build())
             .collect(ImmutableList.toImmutableList());
     Query query =
