@@ -1,0 +1,7 @@
+
+// Required by spotless. https://github.com/diffplug/spotless/issues/747
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}

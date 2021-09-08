@@ -1,0 +1,14 @@
+spotless {
+    groovyGradle {
+        target '**/*.gradle'
+        greclipse()
+        indentWithSpaces()
+    }
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        targetExclude "${project.buildDir}/**"
+    }
+}
+
+compileJava.dependsOn spotlessApply
