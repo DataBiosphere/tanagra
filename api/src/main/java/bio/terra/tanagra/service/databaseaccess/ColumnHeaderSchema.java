@@ -26,6 +26,7 @@ public abstract class ColumnHeaderSchema {
     return new AutoValue_ColumnHeaderSchema.Builder();
   }
 
+  /** Builder for {@link ColumnHeaderSchema}. */
   @AutoValue.Builder
   public abstract static class Builder {
 
