@@ -13,7 +13,7 @@ dependencies {
     runtimeOnly "org.apache.beam:beam-runners-direct-java:${beam}"
 }
 
-// Dummy execute class.
+// Sample task to allow executing workflow from gradle.
 /*
  $ ./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.HelloWorld \
  -Dexec.args="--myArg0=foo --myArg1=bar" -Pdirect-runner
