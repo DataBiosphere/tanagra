@@ -6,11 +6,12 @@ import bio.terra.tanagra.service.databaseaccess.CellValue;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.QueryResult;
 import bio.terra.tanagra.service.databaseaccess.RowResult;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
 
-// DO NOT SUBMIT comment & test me.
+/** Utilities for converting query result classes to API classes. */
 public final class QueryResultConverter {
   private QueryResultConverter() {}
 
@@ -22,7 +23,7 @@ public final class QueryResultConverter {
     return structs.build();
   }
 
-  public static ApiEntityInstanceStruct convert(
+  static ApiEntityInstanceStruct convert(
       RowResult rowResult, ColumnHeaderSchema columnHeaderSchema) {
     ApiEntityInstanceStruct result = new ApiEntityInstanceStruct();
     for (int i = 0; i < rowResult.size(); ++i) {
@@ -33,8 +34,13 @@ public final class QueryResultConverter {
     return result;
   }
 
+  /**
+   * Converts a CellValue to an {@link ApiAttributeValue}. Returns null if the value of the cell is
+   * null.
+   */
+  @VisibleForTesting
   @Nullable
-  public static ApiAttributeValue convert(CellValue cellValue) {
+  static ApiAttributeValue convert(CellValue cellValue) {
     if (cellValue.isNull()) {
       return null;
     }

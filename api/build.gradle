@@ -100,6 +100,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
+    testImplementation group: "com.google.auto.value", name: "auto-value-annotations", version: auto_value
+    testAnnotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
 }
 
 // Apply Gradle Script Plugins for more modular gradle files.

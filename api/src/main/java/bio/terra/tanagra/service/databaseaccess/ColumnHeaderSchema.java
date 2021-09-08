@@ -5,10 +5,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-// DO NOT SUBMIT comment & rename me...
+/** The schema of the columns in {@link RowResult}s. */
 @AutoValue
 public abstract class ColumnHeaderSchema {
 
+  /** The list of column schemas. Must match the order of the corresponding {@link RowResult}. */
   public abstract ImmutableList<ColumnSchema> columnSchemas();
 
   public int getIndex(String columnName) {

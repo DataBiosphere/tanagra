@@ -6,6 +6,7 @@ import bio.terra.tanagra.service.search.DataType;
 import com.google.cloud.bigquery.FieldValue;
 
 /** A {@link CellValue} for BigQuery's {@link FieldValue}. */
+@SuppressWarnings("PMD.PreserveStackTrace")
 class BigQueryCellValue implements CellValue {
   private final FieldValue fieldValue;
   private final ColumnSchema columnSchema;
@@ -27,16 +28,19 @@ class BigQueryCellValue implements CellValue {
 
   @Override
   public long getLong() {
-    return fieldValue.getLongValue();
+    try {
+      return fieldValue.getLongValue();
+    } catch (NumberFormatException e) {
+      throw new ClassCastException("Unable to format as number");
+    }
   }
 
   @Override
   public String getString() {
+    // Don't allow the FieldValue to treat any primitive as a string value.
+    if (!dataType().equals(DataType.STRING)) {
+      throw new ClassCastException(String.format("DataType is %s, not a string.", dataType()));
+    }
     return fieldValue.getStringValue();
-  }
-
-  @Override
-  public boolean getBoolean() {
-    return fieldValue.getBooleanValue();
   }
 }

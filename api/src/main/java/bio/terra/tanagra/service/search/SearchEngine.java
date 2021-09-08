@@ -9,7 +9,7 @@ import bio.terra.tanagra.service.underlay.Table;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.collect.ImmutableList;
 
-// DO NOT SUBMIT comment me.
+/** Interprets {@link Query} instances to execute against the appropriate databases. */
 public class SearchEngine {
   private final QueryExecutor.Factory queryExecutorFactory;
 
@@ -17,6 +17,7 @@ public class SearchEngine {
     this.queryExecutorFactory = queryExecutorFactory;
   }
 
+  /** Retrieve the results of a query from some databases. */
   public QueryResult execute(Query query, SearchContext searchContext) {
     // TODO write business logic to use the appropriate indexes once we have indexes.
     // TODO add query parameterization support.
@@ -26,11 +27,10 @@ public class SearchEngine {
             .sql(sql)
             .columnHeaderSchema(createColumnHeaderSchema(query, searchContext.underlay()))
             .build();
-
     Table primaryTable =
         searchContext.underlay().primaryKeys().get(query.primaryEntity().entity()).table();
-
     QueryExecutor queryExecutor = queryExecutorFactory.get(primaryTable);
+
     return queryExecutor.execute(queryRequest);
   }
 
@@ -44,8 +44,6 @@ public class SearchEngine {
 
   private static ColumnSchema deriveSchema(Selection selection, Underlay underlay) {
     DataType dataType = selection.accept(new DataTypeVisitor.SelectionVisitor(underlay));
-    // DO NOT SUBMIT. change select.
-    String name = ((Selection.SelectExpression) selection).alias().get();
-    return ColumnSchema.builder().name(name).dataType(dataType).build();
+    return ColumnSchema.builder().name(selection.name()).dataType(dataType).build();
   }
 }
