@@ -28,9 +28,6 @@ jobs:
       - name: Gradle Check
         # The check task runs static analysis on main & test sources.
         run: ./gradlew workflow:check
-      - name: Jib build
-        # Check that jib builds a docker container.
-        run: ./gradlew workflow:jibDockerBuild
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
