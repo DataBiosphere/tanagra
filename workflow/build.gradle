@@ -1,0 +1,26 @@
+plugins {
+    // See /buildSrc/build.gradle
+    id 'tanagra.java-conventions'
+}
+repositories {
+    mavenCentral()
+}
+dependencies {
+    ext {
+        beam = "2.32.0"
+    }
+    implementation "org.apache.beam:beam-sdks-java-core:${beam}"
+    runtimeOnly "org.apache.beam:beam-runners-direct-java:${beam}"
+}
+
+// Sample task to allow executing workflow from gradle.
+/*
+ $ ./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.HelloWorld \
+ -Dexec.args="--myArg0=foo --myArg1=bar" -Pdirect-runner
+ */
+task execute (type:JavaExec) {
+    main = System.getProperty("mainClass")
+    classpath = sourceSets.main.runtimeClasspath
+    systemProperties System.getProperties()
+    args System.getProperty("exec.args", "").split()
+}

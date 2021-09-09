@@ -1,3 +1,7 @@
+plugins {
+    id "com.diffplug.gradle.spotless"
+}
+
 spotless {
     groovyGradle {
         target '**/*.gradle'
@@ -12,5 +16,3 @@ spotless {
 }
 
 compileJava.dependsOn spotlessApply
-// Spotless shouldn't apply the swagger code, but this resolves an implicit dependency
-spotlessJava.dependsOn generateSwaggerCodeServer

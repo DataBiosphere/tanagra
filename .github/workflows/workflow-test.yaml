@@ -1,7 +1,4 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
-
-name: Run API Service Tests
+name: Run Workflow Tests
 
 on:
   push:
@@ -25,24 +22,21 @@ jobs:
             ~/.gradle/wrapper
           key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
           restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-      - name: Gradle Build API
+      - name: Gradle Build Workflow
         # The build task includes the test and some quality static analysis tasks.
-        run: ./gradlew api:build
+        run: ./gradlew workflow:build
       - name: Gradle Check
         # The check task runs static analysis on main & test sources.
-        run: ./gradlew api:check
-      - name: Jib build
-        # Check that jib builds a docker container.
-        run: ./gradlew api:jibDockerBuild
+        run: ./gradlew workflow:check
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
         with:
           name: Test Reports
-          path: api/build/reports
+          path: workflow/build/reports
       - name: Upload Jacoco Reports
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: Test Reports
-          path: api/build/jacoco
+          path: workflow/build/jacoco
