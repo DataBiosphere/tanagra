@@ -10,6 +10,8 @@ import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValue.Attribute;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -31,10 +33,10 @@ public class BigQueryRowResultTest {
                 .build());
 
     assertEquals(2, row.size());
-    assertEquals("foo", row.get(0).getString());
-    assertEquals("foo", row.get("a").getString());
-    assertEquals(42L, row.get(1).getLong());
-    assertEquals(42L, row.get("b").getLong());
+    assertEquals(Optional.of("foo"), row.get(0).getString());
+    assertEquals(Optional.of("foo"), row.get("a").getString());
+    assertEquals(OptionalLong.of(42L), row.get(1).getLong());
+    assertEquals(OptionalLong.of(42L), row.get("b").getLong());
   }
 
   @Test

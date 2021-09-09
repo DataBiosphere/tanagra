@@ -3,7 +3,8 @@ package bio.terra.tanagra.service.databaseaccess.testing;
 import bio.terra.tanagra.service.databaseaccess.CellValue;
 import bio.terra.tanagra.service.search.DataType;
 import com.google.auto.value.AutoValue;
-import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.OptionalLong;
 
 /** A {@link CellValue} for use in tests. */
 @AutoValue
@@ -12,41 +13,31 @@ public abstract class TestCellValue implements CellValue {
   @Override
   public abstract DataType dataType();
 
-  @Nullable
-  abstract Long longVal();
+  abstract OptionalLong longVal();
 
-  @Nullable
-  abstract String stringVal();
+  abstract Optional<String> stringVal();
 
   @Override
-  public boolean isNull() {
-    switch (dataType()) {
-      case STRING:
-        return stringVal() == null;
-      case INT64:
-        return longVal() == null;
-      default:
-        throw new UnsupportedOperationException(String.format("Unknown DataType: %s", dataType()));
-    }
-  }
-
-  @Override
-  public long getLong() {
-    if (!dataType().equals(DataType.INT64)) {
-      throw new ClassCastException("Not long DataType: " + dataType());
-    }
+  public OptionalLong getLong() {
+    assertDataTypeIs(DataType.INT64);
     return longVal();
   }
 
   @Override
-  public String getString() {
-    if (!dataType().equals(DataType.STRING)) {
-      throw new ClassCastException("Not string DataType: " + dataType());
-    }
-    if (stringVal() == null) {
-      throw new NullPointerException();
-    }
+  public Optional<String> getString() {
+    assertDataTypeIs(DataType.STRING);
     return stringVal();
+  }
+
+  /**
+   * Checks that the {@link #dataType()} is what's expected, or else throws a {@link
+   * ClassCastException}.
+   */
+  private void assertDataTypeIs(DataType expected) {
+    if (!dataType().equals(expected)) {
+      throw new ClassCastException(
+          String.format("DataType is %s, not the expected %s", dataType(), expected));
+    }
   }
 
   public static TestCellValue of(String value) {

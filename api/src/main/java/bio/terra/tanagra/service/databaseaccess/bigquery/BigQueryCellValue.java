@@ -4,9 +4,10 @@ import bio.terra.tanagra.service.databaseaccess.CellValue;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
 import bio.terra.tanagra.service.search.DataType;
 import com.google.cloud.bigquery.FieldValue;
+import java.util.Optional;
+import java.util.OptionalLong;
 
 /** A {@link CellValue} for BigQuery's {@link FieldValue}. */
-@SuppressWarnings("PMD.PreserveStackTrace")
 class BigQueryCellValue implements CellValue {
   private final FieldValue fieldValue;
   private final ColumnSchema columnSchema;
@@ -22,25 +23,32 @@ class BigQueryCellValue implements CellValue {
   }
 
   @Override
-  public boolean isNull() {
-    return fieldValue.isNull();
-  }
-
-  @Override
-  public long getLong() {
+  @SuppressWarnings("PMD.PreserveStackTrace")
+  public OptionalLong getLong() {
+    assertDataTypeIs(DataType.INT64);
     try {
-      return fieldValue.getLongValue();
+      return fieldValue.isNull()
+          ? OptionalLong.empty()
+          : OptionalLong.of(fieldValue.getLongValue());
     } catch (NumberFormatException e) {
       throw new ClassCastException("Unable to format as number");
     }
   }
 
   @Override
-  public String getString() {
-    // Don't allow the FieldValue to treat any primitive as a string value.
-    if (!dataType().equals(DataType.STRING)) {
-      throw new ClassCastException(String.format("DataType is %s, not a string.", dataType()));
+  public Optional<String> getString() {
+    assertDataTypeIs(DataType.STRING);
+    return fieldValue.isNull() ? Optional.empty() : Optional.of(fieldValue.getStringValue());
+  }
+
+  /**
+   * Checks that the {@link #dataType()} is what's expected, or else throws a {@link
+   * ClassCastException}.
+   */
+  private void assertDataTypeIs(DataType expected) {
+    if (!dataType().equals(expected)) {
+      throw new ClassCastException(
+          String.format("DataType is %s, not the expected %s", dataType(), expected));
     }
-    return fieldValue.getStringValue();
   }
 }

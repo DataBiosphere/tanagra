@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service.databaseaccess;
 
 import bio.terra.tanagra.service.search.DataType;
+import java.util.Optional;
+import java.util.OptionalLong;
 
 /**
  * An interface for the value of a cell within a row within a result table.
@@ -13,22 +15,17 @@ public interface CellValue {
   /** The type of data in this cell. */
   DataType dataType();
 
-  /** Returns whether the cell's value is null. */
-  boolean isNull();
-
   /**
-   * Returns this field's value as a long.
+   * Returns this field's value as a long or empty if the value is null.
    *
    * @throws ClassCastException if the cell's value is not a long
-   * @throws NullPointerException if {@link #isNull()} returns {@code true}
    */
-  long getLong();
+  OptionalLong getLong();
 
   /**
-   * Returns this field's value as a string.
+   * Returns this field's value as a string or empty if the value is null.
    *
    * @throws ClassCastException if the cell's value is not a string
-   * @throws NullPointerException if {@link #isNull()} returns {@code true}
    */
-  String getString();
+  Optional<String> getString();
 }

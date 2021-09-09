@@ -41,14 +41,16 @@ public final class QueryResultConverter {
   @VisibleForTesting
   @Nullable
   static ApiAttributeValue convert(CellValue cellValue) {
-    if (cellValue.isNull()) {
-      return null;
-    }
     switch (cellValue.dataType()) {
       case STRING:
-        return new ApiAttributeValue().stringVal(cellValue.getString());
+        return cellValue
+            .getString()
+            .map(value -> new ApiAttributeValue().stringVal(value))
+            .orElse(null);
       case INT64:
-        return new ApiAttributeValue().int64Val(cellValue.getLong());
+        return (cellValue.getLong().isEmpty())
+            ? null
+            : new ApiAttributeValue().int64Val(cellValue.getLong().getAsLong());
       default:
         throw new UnsupportedOperationException(
             String.format("Unable to convert CellValue DataType '%s'", cellValue.dataType()));
