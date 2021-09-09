@@ -27,3 +27,5 @@ swaggerSources {
 
 compileJava.dependsOn swaggerSources.server.code
 sourceSets.main.java.srcDir "${openapiOutputDir}/src/main/java"
+// Spotless shouldn't apply the swagger code, but this resolves an implicit dependency
+spotlessJava.dependsOn generateSwaggerCodeServer

@@ -1,0 +1,58 @@
+// This defines a Convention Plugin that implements the common logic to use
+// for building all Java  projects in the tanagra project.
+//
+// For more info please see:
+//
+// https://docs.gradle.org/current/userguide/sharing_build_logic_between_subprojects.html
+// https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#sec:build_sources
+//
+
+plugins {
+    id "idea"
+    id "java"
+    id "jacoco"
+    id "maven-publish"
+    id "com.github.spotbugs"
+    id "ru.vyarus.quality"
+
+    // Other tanagra plugin conventions.
+    id "tanagra.protobuf-conventions"
+    id "tanagra.spotless-conventions"
+    id "tanagra.test-conventions"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+    }
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+// see https://docs.gradle.org/current/userguide/dependency_locking.html
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode = LockMode.STRICT
+}
+
+// Javadoc
+java {
+    // Builds Javadoc into the published package as part of the 'assemble' task.
+    withJavadocJar()
+}
+
+// Use the approach described in the link below to turn off console output
+// for warning-level Javadoc errors. We don't require warning-level fixes
+// to Javadoc and wish to suppress the noise.
+// https://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}

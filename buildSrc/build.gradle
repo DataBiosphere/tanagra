@@ -1,0 +1,24 @@
+// Gradle's recommended way of sharing build logic between subprojects is to use
+// "convention plugins" to capture shared build logic among different classes of
+// components.  This is prefered over the "discouraged" use of the
+// "subprojects{}" and "allprojects{}" constructs.  For more info please see:
+//
+// https://docs.gradle.org/current/userguide/sharing_build_logic_between_subprojects.html
+// https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#sec:build_sources
+//
+
+plugins {
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    gradlePluginPortal() // Allows external plugins to be resolved in dependencies section.
+}
+
+dependencies {
+    // Specify the version of each plugin used in buildSrc/src/*.gradle.
+    implementation 'com.diffplug.spotless:spotless-plugin-gradle:3.27.2'
+    implementation 'com.google.protobuf:protobuf-gradle-plugin:0.8.15'
+    implementation 'gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.2'
+    implementation 'ru.vyarus:gradle-quality-plugin:4.5.0'
+}
