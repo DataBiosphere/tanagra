@@ -49,14 +49,24 @@ dependencies {
         google_protobuf = "3.17.3"
         jackson = "2.11.2"
     }
+
     implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.48-SNAPSHOT"
     implementation group: "com.google.auto.value", name: "auto-value-annotations", version: auto_value
     annotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
-    implementation group: "com.google.protobuf", name: "protobuf-java", version: google_protobuf
-    implementation group: "com.google.protobuf", name: "protobuf-java-util", version: google_protobuf
-    implementation group: "com.google.guava", name: "guava", version: "30.1.1-jre"
     implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
     annotationProcessor group: "org.springframework.boot", name: "spring-boot-configuration-processor"
+
+    // GCP BOM version controlled libraries
+    // See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
+    implementation platform(group: "com.google.cloud", name: "libraries-bom", version: "22.0.0")
+    constraints {
+        // "-jre" for Java 8 or higher
+        implementation group: "com.google.guava", name:"guava", version: "30.1.1-jre"
+    }
+    implementation group: "com.google.cloud", name: "google-cloud-bigquery"
+    implementation group: "com.google.protobuf", name: "protobuf-java"
+    implementation group: "com.google.protobuf", name: "protobuf-java-util"
+    implementation group: "com.google.guava", name: "guava"
 
     // Dependencies whose versions are controlled by Spring
     implementation group: "javax.validation", name: "validation-api"
@@ -78,6 +88,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
+    testImplementation group: "com.google.auto.value", name: "auto-value-annotations", version: auto_value
+    testAnnotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
 }
 
 // Apply Gradle Script Plugins for more modular gradle files.
