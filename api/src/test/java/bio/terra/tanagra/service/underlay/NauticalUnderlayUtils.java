@@ -1,10 +1,10 @@
 package bio.terra.tanagra.service.underlay;
 
+import bio.terra.common.exception.InternalServerErrorException;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
-import bio.terra.common.exception.InternalServerErrorException;
 import com.google.common.io.Resources;
 import com.google.protobuf.TextFormat;
 import java.io.IOException;
