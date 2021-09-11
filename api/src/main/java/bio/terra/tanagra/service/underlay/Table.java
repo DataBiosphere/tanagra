@@ -1,4 +1,4 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.service.underlay;
 
 import com.google.auto.value.AutoValue;
 

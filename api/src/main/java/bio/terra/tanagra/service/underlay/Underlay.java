@@ -1,4 +1,4 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.service.underlay;
 
 import bio.terra.tanagra.model.Attribute;
 import bio.terra.tanagra.model.Entity;

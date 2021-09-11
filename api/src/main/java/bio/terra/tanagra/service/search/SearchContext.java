@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.search;
 
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.auto.value.AutoValue;
 
 /** Value class to hold all the context that's needed to evaluate a search. */

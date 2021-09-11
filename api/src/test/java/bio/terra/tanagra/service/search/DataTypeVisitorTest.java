@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.underlay.NauticalUnderlayUtils;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.service.underlay.Underlay;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

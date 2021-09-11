@@ -14,7 +14,7 @@ import bio.terra.tanagra.service.search.AttributeVariable;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression;
 import bio.terra.tanagra.service.search.Variable;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.service.underlay.Underlay;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

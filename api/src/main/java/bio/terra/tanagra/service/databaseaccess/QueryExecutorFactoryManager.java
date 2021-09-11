@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.databaseaccess;
 
 import bio.terra.common.exception.InternalServerErrorException;
 import bio.terra.tanagra.service.databaseaccess.bigquery.BigQueryExecutor;
-import bio.terra.tanagra.underlay.Table;
+import bio.terra.tanagra.service.underlay.Table;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;

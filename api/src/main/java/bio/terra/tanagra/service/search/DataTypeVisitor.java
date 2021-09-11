@@ -6,7 +6,7 @@ import bio.terra.tanagra.service.search.Expression.Literal;
 import bio.terra.tanagra.service.search.Selection.Count;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.search.Selection.SelectExpression;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.annotations.VisibleForTesting;
 
 /** Visitor classes for inferring the {@link DataType} of different part of query expressions. */

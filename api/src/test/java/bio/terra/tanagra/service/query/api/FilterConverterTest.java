@@ -28,7 +28,7 @@ import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction.Operator;
 import bio.terra.tanagra.service.search.Variable;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;

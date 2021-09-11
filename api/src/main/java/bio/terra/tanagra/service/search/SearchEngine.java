@@ -6,8 +6,8 @@ import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
 import bio.terra.tanagra.service.databaseaccess.QueryExecutor;
 import bio.terra.tanagra.service.databaseaccess.QueryRequest;
 import bio.terra.tanagra.service.databaseaccess.QueryResult;
-import bio.terra.tanagra.underlay.Table;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.service.underlay.Table;
+import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.collect.ImmutableList;
 
 /** Interprets {@link Query} instances to execute against the appropriate databases. */

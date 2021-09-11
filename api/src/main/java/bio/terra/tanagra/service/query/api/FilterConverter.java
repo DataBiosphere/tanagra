@@ -12,7 +12,7 @@ import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Expression.Literal;
 import bio.terra.tanagra.service.search.Filter;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.Objects;
