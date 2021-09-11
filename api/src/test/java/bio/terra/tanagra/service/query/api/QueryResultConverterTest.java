@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
 import bio.terra.tanagra.generated.model.ApiEntityInstanceStruct;
-import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
 import bio.terra.tanagra.service.databaseaccess.QueryResult;
 import bio.terra.tanagra.service.databaseaccess.testing.TestCellValue;
 import bio.terra.tanagra.service.databaseaccess.testing.TestRowResult;
+import bio.terra.tanagra.service.search.DataType;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.hamcrest.Matchers;

@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.databaseaccess;
 
-import bio.terra.tanagra.model.DataType;
+import bio.terra.tanagra.service.search.DataType;
 import com.google.auto.value.AutoValue;
 
 /** The schema for a column in a {@link RowResult} describing the data in a column. */

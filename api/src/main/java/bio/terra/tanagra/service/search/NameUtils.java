@@ -1,4 +1,4 @@
-package bio.terra.tanagra.model;
+package bio.terra.tanagra.service.search;
 
 import com.google.common.base.Preconditions;
 import java.util.regex.Pattern;

@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service.search;
 
-import bio.terra.tanagra.model.DataType;
 import com.google.auto.value.AutoValue;
 
 /** A construct in a query syntax tree that evaluates to a value. */

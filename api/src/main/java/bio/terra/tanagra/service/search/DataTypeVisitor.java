@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service.search;
 
-import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Expression.Literal;
 import bio.terra.tanagra.service.search.Selection.Count;

@@ -9,7 +9,7 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauti
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.tanagra.model.Entity;
+import bio.terra.tanagra.service.search.Entity;
 import java.util.Optional;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Tag;

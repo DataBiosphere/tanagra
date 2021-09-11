@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.query;
 
-import bio.terra.tanagra.model.Attribute;
+import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Filter;
 import com.google.auto.value.AutoValue;

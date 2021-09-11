@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.databaseaccess.testing;
 
-import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.databaseaccess.CellValue;
+import bio.terra.tanagra.service.search.DataType;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import java.util.OptionalLong;

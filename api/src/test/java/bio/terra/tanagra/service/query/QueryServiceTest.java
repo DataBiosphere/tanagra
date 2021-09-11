@@ -5,8 +5,8 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NA
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.search.AttributeVariable;
+import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression;
 import bio.terra.tanagra.service.search.Filter;

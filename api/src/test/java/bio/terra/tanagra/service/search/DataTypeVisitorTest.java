@@ -2,7 +2,6 @@ package bio.terra.tanagra.service.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.underlay.NauticalUnderlayUtils;
 import bio.terra.tanagra.service.underlay.Underlay;
 import org.junit.jupiter.api.Tag;

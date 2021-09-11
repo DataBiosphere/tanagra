@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.underlay;
 
-import bio.terra.tanagra.model.Attribute;
+import bio.terra.tanagra.service.search.Attribute;
 import com.google.auto.value.AutoValue;
 
 /** A mapping from a logical attribute to the physical talbes and columns that make it up. */

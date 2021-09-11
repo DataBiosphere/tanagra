@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.databaseaccess.bigquery;
 
-import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.databaseaccess.CellValue;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
+import bio.terra.tanagra.service.search.DataType;
 import com.google.cloud.bigquery.FieldValue;
 import java.util.Optional;
 import java.util.OptionalLong;

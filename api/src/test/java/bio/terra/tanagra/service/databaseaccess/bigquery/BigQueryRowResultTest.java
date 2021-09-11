@@ -3,9 +3,9 @@ package bio.terra.tanagra.service.databaseaccess.bigquery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
+import bio.terra.tanagra.service.search.DataType;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValue.Attribute;
 import com.google.cloud.bigquery.FieldValueList;
