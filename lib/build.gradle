@@ -1,0 +1,10 @@
+plugins {
+    id "java-library"
+    // See /buildSrc/build.gradle
+    id 'tanagra.java-conventions'
+}
+
+dependencies {
+    implementation group: "com.google.protobuf", name: "protobuf-java"
+    implementation group: "com.google.protobuf", name: "protobuf-java-util"
+}

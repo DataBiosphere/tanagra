@@ -9,15 +9,13 @@
 
 plugins {
     id "idea"
-    id "java"
     id "jacoco"
     id "maven-publish"
-    id "com.github.spotbugs"
-    id "ru.vyarus.quality"
 
     // Other tanagra plugin conventions.
     id "tanagra.protobuf-conventions"
     id "tanagra.spotless-conventions"
+    id "tanagra.quality-conventions"
     id "tanagra.test-conventions"
 }
 
@@ -37,6 +35,24 @@ sourceCompatibility = JavaVersion.VERSION_11
 dependencyLocking {
     lockAllConfigurations()
     lockMode = LockMode.STRICT
+}
+
+dependencies {
+    ext {
+        auto_value = "1.8.1"
+    }
+    implementation group: "com.google.auto.value", name: "auto-value-annotations", version: auto_value
+    annotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
+    testImplementation group: "com.google.auto.value", name: "auto-value-annotations", version: auto_value
+    testAnnotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
+
+    // GCP BOM version controlled libraries
+    // See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
+    implementation platform(group: "com.google.cloud", name: "libraries-bom", version: "22.0.0")
+    constraints {
+        // "-jre" for Java 8 or higher
+        implementation group: "com.google.guava", name:"guava", version: "30.1.1-jre"
+    }
 }
 
 // Javadoc

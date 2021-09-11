@@ -120,7 +120,7 @@ public class EntitiesApiControllerTest extends BaseSpringUnitTest {
   }
 
   @Test
-  void convertAttributeFiltersHint_EntitySearchHint() {
+  void convertAttributeFiltersHintEntitySearchHint() {
     assertEquals(
         new ApiAttributeFilterHint().entitySearchHint(new ApiEntitySearchHint().entityName("foo")),
         EntitiesApiController.convert(
@@ -130,7 +130,7 @@ public class EntitiesApiControllerTest extends BaseSpringUnitTest {
   }
 
   @Test
-  void convertAttributeFiltersHint_EnumHint() {
+  void convertAttributeFiltersHintEnumHint() {
     assertEquals(
         new ApiAttributeFilterHint()
             .enumHint(
@@ -155,7 +155,7 @@ public class EntitiesApiControllerTest extends BaseSpringUnitTest {
   }
 
   @Test
-  void convertAttributeFiltersHint_IntegerBounds() {
+  void convertAttributeFiltersHintIntegerBounds() {
     IntegerBoundsHint hint = IntegerBoundsHint.newBuilder().setMin(0L).setMax(10L).build();
     assertEquals(
         new ApiAttributeFilterHint().integerBoundsHint(new ApiIntegerBoundsHint().min(0L).max(10L)),
@@ -177,7 +177,7 @@ public class EntitiesApiControllerTest extends BaseSpringUnitTest {
   }
 
   @Test
-  void convertAttributeFiltersHint_None() {
+  void convertAttributeFiltersHintNone() {
     assertEquals(null, EntitiesApiController.convert(FilterableAttribute.getDefaultInstance()));
   }
 }

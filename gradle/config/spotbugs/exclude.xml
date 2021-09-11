@@ -14,7 +14,6 @@
         <Package name="bio.terra.tanagra.proto.utils.pagination*"/>
     </Match>
 
-
     <!-- Disable check -->
     <Match>
         <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION" />
