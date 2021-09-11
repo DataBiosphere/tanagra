@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.search;
 
+import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
 import bio.terra.tanagra.service.databaseaccess.QueryExecutor;

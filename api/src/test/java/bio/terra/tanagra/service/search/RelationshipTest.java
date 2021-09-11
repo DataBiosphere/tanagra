@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.tanagra.model.Entity;
+import bio.terra.tanagra.model.Relationship;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

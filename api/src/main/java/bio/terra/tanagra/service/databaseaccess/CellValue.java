@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.databaseaccess;
 
-import bio.terra.tanagra.service.search.DataType;
+import bio.terra.tanagra.model.DataType;
 import java.util.Optional;
 import java.util.OptionalLong;
 

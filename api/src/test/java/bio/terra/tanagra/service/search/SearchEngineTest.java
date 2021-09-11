@@ -6,6 +6,7 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RA
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauticalUnderlay;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
 import bio.terra.tanagra.service.databaseaccess.QueryExecutorStub;

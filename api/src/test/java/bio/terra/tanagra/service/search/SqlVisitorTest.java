@@ -11,6 +11,7 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauti
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.search.SqlVisitor.SelectionVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;

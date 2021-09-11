@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.search;
+package bio.terra.tanagra.model;
 
 import com.google.auto.value.AutoValue;
 

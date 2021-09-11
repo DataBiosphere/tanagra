@@ -1,15 +1,15 @@
 package bio.terra.tanagra.service.underlay;
 
+import bio.terra.tanagra.model.Attribute;
+import bio.terra.tanagra.model.DataType;
+import bio.terra.tanagra.model.Entity;
+import bio.terra.tanagra.model.Relationship;
 import bio.terra.tanagra.proto.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.proto.underlay.Dataset;
 import bio.terra.tanagra.proto.underlay.EntityMapping;
 import bio.terra.tanagra.proto.underlay.FilterableAttribute;
 import bio.terra.tanagra.proto.underlay.FilterableRelationship;
 import bio.terra.tanagra.proto.underlay.RelationshipMapping;
-import bio.terra.tanagra.service.search.Attribute;
-import bio.terra.tanagra.service.search.DataType;
-import bio.terra.tanagra.service.search.Entity;
-import bio.terra.tanagra.service.search.Relationship;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;

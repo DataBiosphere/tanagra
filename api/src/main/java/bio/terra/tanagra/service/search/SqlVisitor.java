@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.search;
 
+import bio.terra.tanagra.model.Relationship;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;

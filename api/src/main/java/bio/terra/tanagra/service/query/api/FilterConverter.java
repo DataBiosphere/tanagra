@@ -7,7 +7,7 @@ import bio.terra.tanagra.generated.model.ApiBinaryFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
-import bio.terra.tanagra.service.search.Entity;
+import bio.terra.tanagra.model.Entity;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Expression.Literal;

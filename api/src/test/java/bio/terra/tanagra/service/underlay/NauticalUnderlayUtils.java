@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.underlay;
 
-import bio.terra.tanagra.service.search.Attribute;
-import bio.terra.tanagra.service.search.DataType;
-import bio.terra.tanagra.service.search.Entity;
-import bio.terra.tanagra.service.search.Relationship;
+import bio.terra.tanagra.model.Attribute;
+import bio.terra.tanagra.model.DataType;
+import bio.terra.tanagra.model.Entity;
+import bio.terra.tanagra.model.Relationship;
 import com.google.common.io.Resources;
 import com.google.protobuf.TextFormat;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.search;
+package bio.terra.tanagra.model;
 
 /** The type of data in an entity attribute value. */
 public enum DataType {

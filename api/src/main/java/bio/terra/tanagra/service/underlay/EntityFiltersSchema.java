@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.underlay;
 
+import bio.terra.tanagra.model.Attribute;
+import bio.terra.tanagra.model.Entity;
+import bio.terra.tanagra.model.Relationship;
 import bio.terra.tanagra.proto.underlay.FilterableAttribute;
-import bio.terra.tanagra.service.search.Attribute;
-import bio.terra.tanagra.service.search.Entity;
-import bio.terra.tanagra.service.search.Relationship;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;

@@ -32,11 +32,11 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RE
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauticalUnderlayProto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.tanagra.model.Attribute;
 import bio.terra.tanagra.proto.underlay.EnumHint;
 import bio.terra.tanagra.proto.underlay.EnumHintValue;
 import bio.terra.tanagra.proto.underlay.FilterableAttribute;
 import bio.terra.tanagra.proto.underlay.IntegerBoundsHint;
-import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;

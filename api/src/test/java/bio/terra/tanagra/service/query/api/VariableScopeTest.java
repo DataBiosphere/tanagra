@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.common.exception.BadRequestException;
-import bio.terra.tanagra.service.search.Entity;
+import bio.terra.tanagra.model.Entity;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Variable;
 import java.util.Optional;

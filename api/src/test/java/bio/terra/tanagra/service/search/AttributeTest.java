@@ -2,6 +2,9 @@ package bio.terra.tanagra.service.search;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.tanagra.model.Attribute;
+import bio.terra.tanagra.model.DataType;
+import bio.terra.tanagra.model.Entity;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
