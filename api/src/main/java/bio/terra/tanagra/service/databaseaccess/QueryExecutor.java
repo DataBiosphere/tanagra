@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.databaseaccess;
 
-import bio.terra.tanagra.service.underlay.Table;
+import bio.terra.tanagra.underlay.Table;
 
 /**
  * An interface for unifying read query access to different databases.

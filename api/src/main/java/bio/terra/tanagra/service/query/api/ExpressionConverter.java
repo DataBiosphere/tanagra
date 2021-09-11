@@ -8,7 +8,7 @@ import bio.terra.tanagra.model.DataType;
 import bio.terra.tanagra.service.search.AttributeVariable;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression;
-import bio.terra.tanagra.service.underlay.Underlay;
+import bio.terra.tanagra.underlay.Underlay;
 import java.util.Optional;
 
 /** Converts API expression to Tanagra search {@link Expression}s. */

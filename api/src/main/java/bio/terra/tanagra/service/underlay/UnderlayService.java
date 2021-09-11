@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service.underlay;
 
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.UnderlayConversion;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;

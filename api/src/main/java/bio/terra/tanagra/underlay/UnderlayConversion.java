@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.underlay;
+package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.model.Attribute;
 import bio.terra.tanagra.model.DataType;
@@ -10,7 +10,7 @@ import bio.terra.tanagra.proto.underlay.EntityMapping;
 import bio.terra.tanagra.proto.underlay.FilterableAttribute;
 import bio.terra.tanagra.proto.underlay.FilterableRelationship;
 import bio.terra.tanagra.proto.underlay.RelationshipMapping;
-import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
+import bio.terra.tanagra.underlay.AttributeMapping.LookupColumn;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** Utilities for converting protobuf representations to underlay classes. */
-final class UnderlayConversion {
+public final class UnderlayConversion {
   private UnderlayConversion() {}
 
   /** Creates an Underlay from a protobuf representation. */
