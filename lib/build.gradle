@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.protobuf", name: "protobuf-java"
     implementation group: "com.google.protobuf", name: "protobuf-java-util"
 }
