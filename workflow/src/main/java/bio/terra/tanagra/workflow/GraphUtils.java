@@ -91,6 +91,10 @@ public final class GraphUtils {
    * Concatenate two collections of edges by joining their "middle" shared vertex.
    *
    * <p>E.g. if paths1 has {A, B} and paths2 has {B, C}, we output {A, C} by joining on B.
+   *
+   * <p>This only checks paths1 tail to paths2 head, but not paths2 tail to paths1 head. In the
+   * current usage, this is sufficient and saves us some duplicates, but it is not technically a
+   * full concatenation.
    */
   private static <T> PCollection<KV<T, T>> concatenate(
       PCollection<KV<T, T>> paths1, PCollection<KV<T, T>> paths2, String nameSuffix) {
@@ -99,13 +103,13 @@ public final class GraphUtils {
 
     // Swap the key-values so that the middle vertex is the first key for both collections.
     PCollection<KV<T, T>> swappedPaths1 =
-        paths1.apply("concatenateSwap" + nameSuffix, KvSwap.create());
+        paths1.apply("concatenateSwap " + nameSuffix, KvSwap.create());
 
     return KeyedPCollectionTuple.of(t1, swappedPaths1)
         .and(t2, paths2)
-        .apply("concatenateJoin" + nameSuffix, CoGroupByKey.create())
+        .apply("concatenateJoin " + nameSuffix, CoGroupByKey.create())
         .apply(
-            "concatenateTransform" + nameSuffix,
+            "concatenateTransform " + nameSuffix,
             ParDo.of(
                 new DoFn<KV<T, CoGbkResult>, KV<T, T>>() {
                   @ProcessElement
