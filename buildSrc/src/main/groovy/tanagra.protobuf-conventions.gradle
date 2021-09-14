@@ -2,7 +2,6 @@ plugins {
     id "com.google.protobuf"
 }
 protobuf {
-    generatedFilesBaseDir = "$buildDir/generated/sources/proto"
     // Configure the protoc executable
     protoc {
         // Download from repositories
