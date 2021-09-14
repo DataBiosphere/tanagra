@@ -44,7 +44,7 @@ public final class GraphUtils {
     // edges.
     Map<Integer, PCollection<KV<T, T>>> exactPaths = new HashMap<>();
 
-    // The input edges are both all paths and exact paths for exactly N=1.
+    // The input edges are both allPaths[1] and exactPaths[1].
     allPaths.put(1, edges);
     exactPaths.put(1, edges);
 
@@ -116,8 +116,7 @@ public final class GraphUtils {
                     // tails of paths2.
                     ImmutableList<T> tails = ImmutableList.copyOf(element.getValue().getAll(t2));
                     // All combinations of heads and tails, where the 0th element is the head and
-                    // the 1st
-                    // element is the tail.
+                    // the 1st element is the tail.
                     List<List<T>> newEdges = Lists.cartesianProduct(heads, tails);
                     newEdges.stream()
                         .map((List<T> edge) -> KV.of(edge.get(0), edge.get(1)))
