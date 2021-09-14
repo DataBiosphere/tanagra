@@ -92,6 +92,10 @@ dependencies {
     testAnnotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
 }
 
+test {
+    useJUnitPlatform()
+}
+
 // Apply Gradle Script Plugins for more modular gradle files.
 // See also https://docs.gradle.org/current/userguide/plugins.html#sec:script_plugins
 apply from: "$rootDir/api/gradle/artifactory.gradle"
