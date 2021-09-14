@@ -28,7 +28,7 @@ public class SearchEngineTest {
   @Test
   void execute() {
     QueryExecutorStub queryExecutorStub = new QueryExecutorStub();
-    SearchEngine searchEngine = new SearchEngine((primaryTable -> queryExecutorStub));
+    SearchEngine searchEngine = new SearchEngine(primaryTable -> queryExecutorStub);
 
     Query query =
         Query.builder()

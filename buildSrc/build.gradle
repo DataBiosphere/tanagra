@@ -19,6 +19,5 @@ dependencies {
     // Specify the version of each plugin used in buildSrc/src/*.gradle.
     implementation 'com.diffplug.spotless:spotless-plugin-gradle:3.27.2'
     implementation 'com.google.protobuf:protobuf-gradle-plugin:0.8.15'
-    implementation 'gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.2'
     implementation 'ru.vyarus:gradle-quality-plugin:4.5.0'
 }

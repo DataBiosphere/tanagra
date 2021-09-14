@@ -7,6 +7,10 @@
  *
  * To suppress a violation in code, use `@SuppressWarning("ViolationName")`.
  */
+plugins {
+
+    id "ru.vyarus.quality"
+}
 quality {
     strict = true
 
@@ -14,12 +18,12 @@ quality {
     pmdIncremental = false
     pmdVersion = '6.31.0'
 
-    configDir = "/gradle/config/"
+    configDir = "$rootDir/gradle/config/"
 
     sourceSets = [
-        project.sourceSets.main,
-        project.sourceSets.test
+            project.sourceSets.main,
+            project.sourceSets.test
     ]
 
-    excludeSources = fileTree('build/generated')
+    excludeSources = fileTree('build')
 }

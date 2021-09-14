@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.underlay;
 
+import bio.terra.common.exception.InternalServerErrorException;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
@@ -19,7 +20,7 @@ public final class NauticalUnderlayUtils {
     try {
       return UnderlayConversion.convert(loadNauticalUnderlayProto());
     } catch (IOException e) {
-      throw new RuntimeException("Unable to load nautical underlay.", e);
+      throw new InternalServerErrorException("Unable to load nautical underlay.", e);
     }
   }
 
