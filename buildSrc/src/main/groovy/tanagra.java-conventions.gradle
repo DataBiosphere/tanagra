@@ -13,7 +13,6 @@ plugins {
     id "maven-publish"
 
     // Other tanagra plugin conventions.
-    id "tanagra.protobuf-conventions"
     id "tanagra.spotless-conventions"
     id "tanagra.quality-conventions"
     id "tanagra.test-conventions"
