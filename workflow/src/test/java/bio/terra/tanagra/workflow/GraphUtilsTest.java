@@ -61,6 +61,30 @@ public class GraphUtilsTest {
   }
 
   @Test
+  public void transitiveClosureLengthOneGraph() {
+    Multimap<String, String> edges = MultimapBuilder.hashKeys().arrayListValues().build();
+    edges.put("A", "B");
+
+    Multimap<String, String> expectedEdges = MultimapBuilder.hashKeys().arrayListValues().build();
+    expectedEdges.putAll("A", List.of("B"));
+
+    runTransitiveClosureAndAssert(edges, expectedEdges, 1);
+  }
+
+  @Test
+  public void transitiveClosureLengthTwoGraph() {
+    Multimap<String, String> edges = MultimapBuilder.hashKeys().arrayListValues().build();
+    edges.put("A", "B");
+    edges.put("B", "C");
+
+    Multimap<String, String> expectedEdges = MultimapBuilder.hashKeys().arrayListValues().build();
+    expectedEdges.putAll("A", List.of("B", "C"));
+    expectedEdges.putAll("B", List.of("C"));
+
+    runTransitiveClosureAndAssert(edges, expectedEdges, 2);
+  }
+
+  @Test
   public void transitiveClosureLongChain() {
     // Ascii art of the graph described by edges directed left to right.
     // A-B-C-D-E-F-G-H-I-J-K
@@ -109,5 +133,25 @@ public class GraphUtilsTest {
 
     // Not an error to have maxPathLength be much greater than the longest path, just extra work.
     runTransitiveClosureAndAssert(edges, expectedEdges, 64);
+  }
+
+  @Test
+  public void transitiveClosureCycle() {
+    // Ascii art of the graph described by edges directed left to right.
+    // A-B-C-D-E-A... cycle
+    Multimap<String, String> edges = MultimapBuilder.hashKeys().arrayListValues().build();
+    edges.put("A", "B");
+    edges.put("B", "C");
+    edges.put("C", "D");
+    edges.put("D", "E");
+    edges.put("E", "A");
+    Multimap<String, String> expectedEdges = MultimapBuilder.hashKeys().arrayListValues().build();
+    expectedEdges.putAll("A", List.of("A", "B", "C", "D", "E"));
+    expectedEdges.putAll("B", List.of("A", "B", "C", "D", "E"));
+    expectedEdges.putAll("C", List.of("A", "B", "C", "D", "E"));
+    expectedEdges.putAll("D", List.of("A", "B", "C", "D", "E"));
+    expectedEdges.putAll("E", List.of("A", "B", "C", "D", "E"));
+
+    runTransitiveClosureAndAssert(edges, expectedEdges, 5);
   }
 }

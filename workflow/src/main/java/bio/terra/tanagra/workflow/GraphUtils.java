@@ -22,7 +22,7 @@ public final class GraphUtils {
   private GraphUtils() {}
 
   /**
-   * Computes the transitive closure of a directed acyclic graph defined by {@code edges}.
+   * Computes the transitive closure of a directed graph defined by {@code edges}.
    *
    * <p>The returned PCollection has at least one KV for every pair of vertices [X, Y] where X can
    * reach Y by traversing the input edges. e.g. If the edges are [{A, B}, {B, C}], then the output
@@ -30,13 +30,14 @@ public final class GraphUtils {
    *
    * @param edges A directed acyclic graph where every KV defines a directed edge with a {Head,
    *     Tail} vertex pair.
-   * @param maxPathLength The maximum path length to try to find in the graph. If there is a path in
-   *     the graph longer than this, not all paths will be found. This is used to bound execution.
+   * @param maxPathLengthHint The maximum path length to try to find in the graph. If there is a
+   *     path in the graph longer than this, not all paths will be found. This is used to bound
+   *     execution.
    * @param <T> The type of the vertex in the graph.
    * @return A PCollection of all reachable vertex pairs, where there may be duplicate pairs.
    */
   public static <T> PCollection<KV<T, T>> transitiveClosure(
-      PCollection<KV<T, T>> edges, int maxPathLength) {
+      PCollection<KV<T, T>> edges, int maxPathLengthHint) {
     // allPaths[n] is the set of vertices {V0, V1}, where V0 -> V1 is reachable in N or less edges.
     // That is, there is a path with N or less edges from V0 to V1.
     Map<Integer, PCollection<KV<T, T>>> allPaths = new HashMap<>();
@@ -48,13 +49,13 @@ public final class GraphUtils {
     allPaths.put(1, edges);
     exactPaths.put(1, edges);
 
-    // Iteratively build up allPaths in O(log_2(maxPathLength)) joins. We want to avoid doing many
-    // joins or creating many duplicate paths that will increase the runtime.
+    // Iteratively build up allPaths in O(log_2(maxPathLengthHint)) joins. We want to avoid doing
+    // many joins or creating many duplicate paths that will increase the runtime.
     // The simplest algorithm would be to compute all paths incrementally one edge length at a time,
-    // taking O(maxPathLength) joins:
+    // taking O(maxPathLengthHint) joins:
     // allPaths[x+1] = allPaths[x] + exactPaths[x] * allPaths[1],
     // where '+' is appending lists, and '*' is concatenating paths together, joining on vertexes
-    // e.g. [{A, B}] * [{B, C}, {B, D}] yields [{A, C}, {A,D}].
+    // e.g. [{A, B}] * [{B, C}, {B, D}, {D, E}] yields [{A, C}, {A,D}].
     //
     // Given that exactPaths[x + y] = exactPaths[x] * exactPaths[y], and
     // and that for x >= y, allPaths[x] = allPaths[y - 1] + exactPaths[y] * allPaths[x - y], we have
@@ -64,6 +65,8 @@ public final class GraphUtils {
     // (n=2) allPaths[3] = allPaths[1] + exactPaths[2] + exactPaths[2] * allPaths[1]
     // (n=4) allPaths[7] = allPaths[3] + exactPaths[4] + exactPaths[4] * allPaths[3]
     // etc. where exactPaths[n] = exactPaths[n/2] * exactPaths[n/2].
+    // See also
+    // https://asingleneuron.files.wordpress.com/2013/10/distributedalgorithmsfortransitiveclosure.pdf
     int n = 2;
     while (true) {
       PCollection<KV<T, T>> nExactPaths =
@@ -78,8 +81,10 @@ public final class GraphUtils {
               .and(concatenate(nExactPaths, nMinus1AllPaths, "allPaths temp N" + n))
               .apply("flatten N" + n, Flatten.pCollections());
       int newLongestPathLength = 2 * n - 1;
-      if (newLongestPathLength >= maxPathLength) {
-        // Stop when we have computes at least maxPathLength length paths.
+      if (newLongestPathLength >= maxPathLengthHint) {
+        // Stop when we have computes at least maxPathLengthHint length paths.
+        // Apache Beam today does not support conditional iteration, so we cannot halt as soon as
+        // there are no new paths being added. See https://issues.apache.org/jira/browse/BEAM-106
         return newAllPaths;
       }
       allPaths.put(newLongestPathLength, newAllPaths);
