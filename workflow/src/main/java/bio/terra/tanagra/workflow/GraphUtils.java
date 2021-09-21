@@ -22,7 +22,7 @@ public final class GraphUtils {
   private GraphUtils() {}
 
   /**
-   * Computes the transitive closure of a directed acyclic graph defined by {@code edges}.
+   * Computes the transitive closure of a directed graph defined by {@code edges}.
    *
    * <p>The returned PCollection has at least one KV for every pair of vertices [X, Y] where X can
    * reach Y by traversing the input edges. e.g. If the edges are [{A, B}, {B, C}], then the output
@@ -30,8 +30,9 @@ public final class GraphUtils {
    *
    * @param edges A directed acyclic graph where every KV defines a directed edge with a {Head,
    *     Tail} vertex pair.
-   * @param maxPathLengthHint The maximum path length to try to find in the graph. If there is a path in
-   *     the graph longer than this, not all paths will be found. This is used to bound execution.
+   * @param maxPathLengthHint The maximum path length to try to find in the graph. If there is a
+   *     path in the graph longer than this, not all paths will be found. This is used to bound
+   *     execution.
    * @param <T> The type of the vertex in the graph.
    * @return A PCollection of all reachable vertex pairs, where there may be duplicate pairs.
    */
@@ -64,6 +65,8 @@ public final class GraphUtils {
     // (n=2) allPaths[3] = allPaths[1] + exactPaths[2] + exactPaths[2] * allPaths[1]
     // (n=4) allPaths[7] = allPaths[3] + exactPaths[4] + exactPaths[4] * allPaths[3]
     // etc. where exactPaths[n] = exactPaths[n/2] * exactPaths[n/2].
+    // See also
+    // https://asingleneuron.files.wordpress.com/2013/10/distributedalgorithmsfortransitiveclosure.pdf
     int n = 2;
     while (true) {
       PCollection<KV<T, T>> nExactPaths =
@@ -80,6 +83,8 @@ public final class GraphUtils {
       int newLongestPathLength = 2 * n - 1;
       if (newLongestPathLength >= maxPathLengthHint) {
         // Stop when we have computes at least maxPathLengthHint length paths.
+        // Apache Beam today does not support conditional iteration, so we cannot halt as soon as
+        // there are no new paths being added. See https://issues.apache.org/jira/browse/BEAM-106
         return newAllPaths;
       }
       allPaths.put(newLongestPathLength, newAllPaths);
