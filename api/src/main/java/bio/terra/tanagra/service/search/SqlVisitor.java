@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.search;
 
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
@@ -10,6 +11,8 @@ import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
+import bio.terra.tanagra.service.underlay.Hierarchy;
+import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import bio.terra.tanagra.service.underlay.Table;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.base.Preconditions;
@@ -130,10 +133,53 @@ public class SqlVisitor {
           return String.format("%s < %s", leftSql, rightSql);
         case EQUALS:
           return String.format("%s = %s", leftSql, rightSql);
+        case DESCENDANT_OF:
+          return resolveDescendantOf(binaryFunction);
         default:
           throw new UnsupportedOperationException(
               String.format("Unsupported BinaryFunction.Operator %s", binaryFunction.operator()));
       }
+    }
+
+    /**
+     * Returns an SQL string for a {@link BinaryFunction.Operator#DESCENDANT_OF} filter function.
+     */
+    private String resolveDescendantOf(BinaryFunction binaryFunction) {
+      Preconditions.checkArgument(
+          binaryFunction.operator().equals(BinaryFunction.Operator.DESCENDANT_OF));
+      if (!(binaryFunction.left() instanceof Expression.AttributeExpression)) {
+        throw new BadRequestException("DESCENDANT_OF only supported for attribute left operand.");
+      }
+      Expression.AttributeExpression attributeExpression =
+          (Expression.AttributeExpression) binaryFunction.left();
+      Hierarchy hierarchy =
+          searchContext
+              .underlay()
+              .hierarchies()
+              .get(attributeExpression.attributeVariable().attribute());
+      if (hierarchy == null) {
+        throw new BadRequestException(
+            String.format(
+                "DESCENDANT_OF only supported for hierarchical attributes, but [%s] has no known hierarchy.",
+                attributeExpression.attributeVariable().attribute()));
+      }
+      DescendantsTable descendantsTable = hierarchy.descendantsTable();
+
+      ExpressionVisitor expressionVisitor = new ExpressionVisitor(searchContext);
+      String rightSql = binaryFunction.right().accept(expressionVisitor);
+      // TODO vary array unnesting for PostgresSQL variant with ANY instead of UNNEST
+      String template =
+          "${attribute} IN UNNEST((SELECT ${descendants} FROM ${hierarchy_table} WHERE ${ancestor} = ${right}))";
+
+      Map<String, String> params =
+          ImmutableMap.<String, String>builder()
+              .put("attribute", binaryFunction.left().accept(expressionVisitor))
+              .put("hierarchy_table", underlayResolver.resolveTable(descendantsTable.table()))
+              .put("ancestor", descendantsTable.ancestor().name())
+              .put("descendants", descendantsTable.descendants().name())
+              .put("right", rightSql)
+              .build();
+      return StringSubstitutor.replace(template, params);
     }
 
     @Override

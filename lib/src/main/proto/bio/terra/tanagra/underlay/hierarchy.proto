@@ -1,0 +1,27 @@
+// Messages for information about hierarchical attributes.
+
+syntax = "proto3";
+
+package bio.terra.tanagra.underlay;
+option java_package = "bio.terra.tanagra.proto.underlay";
+option java_multiple_files = true;
+
+import "bio/terra/tanagra/underlay/entities.proto";
+import "bio/terra/tanagra/underlay/tables.proto";
+
+// All of the mappings
+message Hierarchy {
+  // The attribute that is a part of this hierarchy.
+  AttributeId attribute = 1;
+
+  DescendantsTable descendants_table = 2;
+}
+
+// A table of ancestor attribute values to all descendent attribute values.
+message DescendantsTable {
+  // The column of the ancestor value. This should have the same data type as
+  // the attribute in the hierarchy.
+  ColumnId ancestor = 1;
+  // The column of an array of descendant values.
+  ColumnId descendants = 2;
+}

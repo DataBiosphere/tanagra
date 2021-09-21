@@ -20,6 +20,8 @@ entities:
         dataType: STRING
       - name: color
         dataType: STRING
+      - name: type_id
+        dataType: INT64
       - name: type_name
         dataType: STRING
   - name: reservations
@@ -79,6 +81,12 @@ datasets:
             dataType: INT64
           - name: bt_name
             dataType: STRING
+      - name: boat_types_descendants
+        columns:
+          - name: bt_ancestor
+            dataType: INT64
+          - name: bt_descendants
+            dataType: INT64
 entityMappings:
   - entity: sailors
     primaryKey:
@@ -144,6 +152,14 @@ attributeMappings:
         dataset: nautical
         table: boats
         column: color
+  - attribute:
+      entity: boats
+      attribute: type_id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boats
+        column: bt_id
   - attribute:
       entity: boats
       attribute: type_name
@@ -213,6 +229,19 @@ relationshipMappings:
         dataset: nautical
         table: reservations
         column: b_id
+hierarchies:
+  - attribute:
+      entity: boats
+      attribute: type_id
+    descendantsTable:
+      ancestor:
+        dataset: nautical
+        table: boat_types_descendants
+        column: bt_ancestor
+      descendants:
+        dataset: nautical
+        table: boat_types_descendants
+        column: bt_descendants
 entityFiltersSchemas:
   - entity: sailors
     attributes:

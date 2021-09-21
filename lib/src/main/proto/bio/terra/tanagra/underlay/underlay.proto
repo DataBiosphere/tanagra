@@ -7,6 +7,7 @@ option java_package = "bio.terra.tanagra.proto.underlay";
 option java_multiple_files = true;
 
 import "bio/terra/tanagra/underlay/entities.proto";
+import "bio/terra/tanagra/underlay/hierarchy.proto";
 import "bio/terra/tanagra/underlay/mapping.proto";
 import "bio/terra/tanagra/underlay/search.proto";
 import "bio/terra/tanagra/underlay/tables.proto";
@@ -30,6 +31,9 @@ message Underlay {
   repeated AttributeMapping attribute_mappings = 6;
   // Every relationship in an underlay must have a mapping.
   repeated RelationshipMapping relationship_mappings = 7;
+
+  // The hierarchies for attributes with hierarchies in the underlay.
+  repeated Hierarchy hierarchies = 9;
 
   // The entity filters available on this underlay.
   repeated EntityFiltersSchema entity_filters_schemas = 8;

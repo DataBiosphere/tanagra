@@ -35,6 +35,10 @@ entities: {
     data_type: STRING
   }
   attributes: {
+    name: "type_id"
+    data_type: INT64
+  }
+  attributes: {
     name: "type_name"
     data_type: STRING
   }
@@ -138,6 +142,17 @@ datasets: {
       data_type: STRING
     }
   }
+  tables: {
+    name: "boat_types_descendants"
+    columns: {
+      name: "bt_ancestor"
+      data_type: INT64
+    }
+    columns: {
+      name: "bt_descendants"
+      data_type: INT64
+    }
+  }
 }
 entity_mappings: {
   entity: "sailors"
@@ -238,6 +253,19 @@ attribute_mappings: {
       dataset: "nautical"
       table: "boats"
       column: "color"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boats"
+    attribute: "type_id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boats"
+      column: "bt_id"
     }
   }
 }
@@ -360,6 +388,24 @@ entity_filters_schemas: {
   }
   relationships: {
     relationship_name: "sailor_reservation"
+  }
+}
+hierarchies: {
+  attribute: {
+    entity: "boats"
+    attribute: "type_id"
+  }
+  descendants_table: {
+    ancestor: {
+      dataset: "nautical"
+      table: "boat_types_descendants"
+      column: "bt_ancestor"
+    }
+    descendants: {
+      dataset: "nautical"
+      table: "boat_types_descendants"
+      column: "bt_descendants"
+    }
   }
 }
 entity_filters_schemas: {

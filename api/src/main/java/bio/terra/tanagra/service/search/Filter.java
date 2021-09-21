@@ -48,8 +48,10 @@ public interface Filter {
 
     public enum Operator {
       EQUALS,
-      LESS_THAN
-      // TODO add more including DESCENDANT_OF
+      LESS_THAN,
+      // The left side is a descendant of the right expression in a hierarchy. The expressions
+      // must be a part of a known hierarchy.
+      DESCENDANT_OF
     }
   }
 

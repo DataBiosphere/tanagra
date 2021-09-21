@@ -9,6 +9,9 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ID_C
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_ANCESTOR_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_DESCENDANTS_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME_COL;
@@ -38,6 +41,7 @@ import bio.terra.tanagra.proto.underlay.FilterableAttribute;
 import bio.terra.tanagra.proto.underlay.IntegerBoundsHint;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
+import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
@@ -67,6 +71,7 @@ public class UnderlayConversionTest {
             .put(BOAT, "name", BOAT_NAME)
             .put(BOAT, "color", BOAT_COLOR)
             .put(BOAT, "type_name", BOAT_TYPE_NAME)
+            .put(BOAT, "type_id", BOAT_TYPE_ID)
             .put(RESERVATION, "id", RESERVATION_ID)
             .put(RESERVATION, "boats_id", RESERVATION_B_ID)
             .put(RESERVATION, "sailors_id", RESERVATION_S_ID)
@@ -96,6 +101,7 @@ public class UnderlayConversionTest {
             .put(BOAT_ID, AttributeMapping.SimpleColumn.create(BOAT_ID, BOAT_ID_COL))
             .put(BOAT_NAME, AttributeMapping.SimpleColumn.create(BOAT_NAME, BOAT_NAME_COL))
             .put(BOAT_COLOR, AttributeMapping.SimpleColumn.create(BOAT_COLOR, BOAT_COLOR_COL))
+            .put(BOAT_TYPE_ID, AttributeMapping.SimpleColumn.create(BOAT_TYPE_ID, BOAT_BT_ID_COL))
             .put(
                 BOAT_TYPE_NAME,
                 LookupColumn.builder()
@@ -134,6 +140,19 @@ public class UnderlayConversionTest {
                     .build())
             .build(),
         nautical.foreignKeys());
+    assertEquals(
+        ImmutableMap.builder()
+            .put(
+                BOAT_TYPE_ID,
+                Hierarchy.builder()
+                    .descendantsTable(
+                        DescendantsTable.builder()
+                            .ancestor(BOAT_TYPE_DESCENDANTS_ANCESTOR_COL)
+                            .descendants(BOAT_TYPE_DESCENDANTS_DESCENDANTS_COL)
+                            .build())
+                    .build())
+            .build(),
+        nautical.hierarchies());
     assertEquals(
         ImmutableMap.builder()
             .put(

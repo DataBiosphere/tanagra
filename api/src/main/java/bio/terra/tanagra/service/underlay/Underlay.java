@@ -45,6 +45,9 @@ public abstract class Underlay {
    */
   public abstract ImmutableMap<Relationship, ForeignKey> foreignKeys();
 
+  /** Map from attributes to their {@link Hierarchy}, if the attribute is a part of a hierarchy. */
+  public abstract ImmutableMap<Attribute, Hierarchy> hierarchies();
+
   /**
    * Map from entities to the filters schema that supports the entity, if any.
    *
@@ -102,6 +105,8 @@ public abstract class Underlay {
     public abstract Builder attributeMappings(Map<Attribute, AttributeMapping> attributeMappings);
 
     public abstract Builder foreignKeys(Map<Relationship, ForeignKey> value);
+
+    public abstract Builder hierarchies(Map<Attribute, Hierarchy> value);
 
     public abstract Builder entityFiltersSchemas(Map<Entity, EntityFiltersSchema> value);
 

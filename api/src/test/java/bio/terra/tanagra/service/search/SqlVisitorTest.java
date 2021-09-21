@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.search;
 
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_DAY;
@@ -111,6 +112,19 @@ public class SqlVisitorTest {
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
         "s.rating = 62", equalsFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+  }
+
+  @Test
+  void filterBinaryFunctionDescendantOf() {
+    Filter descendantOfFilter =
+        Filter.BinaryFunction.create(
+            Expression.AttributeExpression.create(AttributeVariable.create(BOAT_TYPE_ID, B_VAR)),
+            Filter.BinaryFunction.Operator.DESCENDANT_OF,
+            Expression.Literal.create(DataType.INT64, "43"));
+    assertEquals(
+        "b.bt_id IN UNNEST((SELECT bt_descendants "
+            + "FROM `my-project-id.nautical`.boat_types_descendants WHERE bt_ancestor = 43))",
+        descendantOfFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }
 
   @Test
