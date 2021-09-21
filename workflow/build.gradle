@@ -12,6 +12,16 @@ dependencies {
     }
     implementation "org.apache.beam:beam-sdks-java-core:${beam}"
     runtimeOnly "org.apache.beam:beam-runners-direct-java:${beam}"
+
+
+    // GCP BOM version controlled libraries, see /buildSrc
+    implementation group: "com.google.guava", name: "guava"
+
+    testImplementation "junit:junit:4.12"
+    testImplementation("org.hamcrest:hamcrest:2.2")
+}
+test {
+    useJUnit()
 }
 
 // Sample task to allow executing workflow from gradle.
