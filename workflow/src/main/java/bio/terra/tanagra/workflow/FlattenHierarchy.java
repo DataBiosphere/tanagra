@@ -1,9 +1,9 @@
 package bio.terra.tanagra.workflow;
 
-import avro.shaded.com.google.common.collect.Lists;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
