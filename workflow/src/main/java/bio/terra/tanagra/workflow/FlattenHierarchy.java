@@ -3,7 +3,6 @@ package bio.terra.tanagra.workflow;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,6 @@ import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.GroupByKey;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
@@ -87,11 +85,12 @@ public final class FlattenHierarchy {
             List.of(
                 new TableFieldSchema()
                     .setName(options.getOutputAncestorColumn())
-                    .setType("INTEGER"),
+                    .setType("INTEGER")
+                    .setMode("REQUIRED"),
                 new TableFieldSchema()
                     .setName(options.getOutputDescendantColumn())
-                    .setMode("REPEATED")
-                    .setType("INTEGER")));
+                    .setType("INTEGER")
+                    .setMode("REQUIRED")));
   }
 
   public static void main(String[] args) throws IOException {
@@ -117,28 +116,19 @@ public final class FlattenHierarchy {
         GraphUtils.transitiveClosure(relationships, options.getMaxHierarchyDepth())
             .apply(Distinct.create()); // There may be duplicate descendants.
     flattenedRelationships
-        .apply(GroupByKey.create())
         .apply(
             ParDo.of(
-                new DoFn<KV<Long, Iterable<Long>>, TableRow>() {
+                new DoFn<KV<Long, Long>, TableRow>() {
                   @ProcessElement
                   public void processElement(ProcessContext context) {
                     Long ancestor = context.element().getKey();
-                    List<Long> descendants = Lists.newArrayList(context.element().getValue());
+                    Long descendant = context.element().getValue();
+                    FlattenHierarchyOptions contextOptions =
+                        context.getPipelineOptions().as(FlattenHierarchyOptions.class);
                     TableRow row =
                         new TableRow()
-                            .set(
-                                context
-                                    .getPipelineOptions()
-                                    .as(FlattenHierarchyOptions.class)
-                                    .getOutputAncestorColumn(),
-                                ancestor)
-                            .set(
-                                context
-                                    .getPipelineOptions()
-                                    .as(FlattenHierarchyOptions.class)
-                                    .getOutputDescendantColumn(),
-                                descendants);
+                            .set(contextOptions.getOutputAncestorColumn(), ancestor)
+                            .set(contextOptions.getOutputDescendantColumn(), descendant);
                     context.output(row);
                   }
                 }))
