@@ -16,4 +16,4 @@ spring:
 
 tanagra:
   underlay:
-    underlay-yaml-files: "underlays/omop_test.yaml"
+    underlay-yaml-files: ["underlays/omop_test.yaml", "underlays/synpuf.yaml"]
