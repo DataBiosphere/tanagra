@@ -17,11 +17,12 @@ message Hierarchy {
   DescendantsTable descendants_table = 2;
 }
 
-// A table of ancestor attribute values to all descendent attribute values.
+// A table of ancestor attribute values to all descendant attribute values.
+// There should be a row for each (ancestor, descendant) pair in the hierarchy.
 message DescendantsTable {
   // The column of the ancestor value. This should have the same data type as
   // the attribute in the hierarchy.
   ColumnId ancestor = 1;
-  // The column of an array of descendant values.
-  ColumnId descendants = 2;
+  // The column of the descendant value.
+  ColumnId descendant = 2;
 }

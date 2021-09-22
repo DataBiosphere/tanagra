@@ -445,7 +445,7 @@ components:
     BinaryFilterOperator:
       description: Enum for binary function operators
       type: string
-      enum: ['EQUALS', 'LESS_THAN']
+      enum: ['EQUALS', 'LESS_THAN', 'DESCENDANT_OF']
 
     RelationshipFilter:
       type: object

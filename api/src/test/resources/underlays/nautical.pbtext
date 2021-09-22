@@ -149,7 +149,7 @@ datasets: {
       data_type: INT64
     }
     columns: {
-      name: "bt_descendants"
+      name: "bt_descendant"
       data_type: INT64
     }
   }
@@ -401,10 +401,10 @@ hierarchies: {
       table: "boat_types_descendants"
       column: "bt_ancestor"
     }
-    descendants: {
+    descendant: {
       dataset: "nautical"
       table: "boat_types_descendants"
-      column: "bt_descendants"
+      column: "bt_descendant"
     }
   }
 }

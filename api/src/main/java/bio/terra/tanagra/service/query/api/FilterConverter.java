@@ -7,6 +7,7 @@ import bio.terra.tanagra.generated.model.ApiBinaryFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
+import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
@@ -65,6 +66,9 @@ class FilterConverter {
         expressionConverter.convert(apiBinary.getAttributeVariable(), scope);
     Filter.BinaryFunction.Operator operator = convert(apiBinary.getOperator());
     Literal literal = expressionConverter.convert(apiBinary.getAttributeValue());
+
+    checkAttributeOperatorMatch(attributeExpression.attributeVariable().attribute(), operator);
+
     return Filter.BinaryFunction.create(attributeExpression, operator, literal);
   }
 
@@ -75,8 +79,22 @@ class FilterConverter {
         return Filter.BinaryFunction.Operator.EQUALS;
       case LESS_THAN:
         return Filter.BinaryFunction.Operator.LESS_THAN;
+      case DESCENDANT_OF:
+        return Filter.BinaryFunction.Operator.DESCENDANT_OF;
       default:
         throw new BadRequestException("Unknown BinaryFilterOperator: " + apiOperator.toString());
+    }
+  }
+
+  /** Checks if the operator maybe be used with the attribute or else throws. */
+  private void checkAttributeOperatorMatch(
+      Attribute attribute, Filter.BinaryFunction.Operator operator) {
+    if (operator.equals(Filter.BinaryFunction.Operator.DESCENDANT_OF)
+        && underlay.hierarchies().get(attribute) == null) {
+      throw new BadRequestException(
+          String.format(
+              "Unable to use %s operator on attribute [%s.%s] that does not have a hierarchy.",
+              operator, attribute.entity().name(), attribute.name()));
     }
   }
 

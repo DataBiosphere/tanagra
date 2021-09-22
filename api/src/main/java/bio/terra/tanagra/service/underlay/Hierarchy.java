@@ -17,18 +17,23 @@ public abstract class Hierarchy {
     return new AutoValue_Hierarchy.Builder();
   }
 
+  /**
+   * The specification for a ancestor-descendants table for the hierarchy.
+   *
+   * <p>For each (ancestor, descendant) pair, there should be a row in the table referenced by the
+   * {@link DescendantsTable}.
+   */
   @AutoValue
   public abstract static class DescendantsTable {
     /** A column with an id of the ancestor in the hierarchy table. */
     public abstract Column ancestor();
 
     /**
-     * A column with an array of the descendants of the ancestor column of the table.
+     * A column with the descendant of the ancestor column of the table.
      *
      * <p>Must have the same Table as {@link #ancestor()}.
      */
-    // TODO support other descendants table layouts.
-    public abstract Column descendants();
+    public abstract Column descendant();
 
     /** The underlying {@link Table}. */
     public Table table() {
@@ -47,16 +52,16 @@ public abstract class Hierarchy {
 
       public abstract Column ancestor();
 
-      public abstract Builder descendants(Column descendants);
+      public abstract Builder descendant(Column descendants);
 
-      public abstract Column descendants();
+      public abstract Column descendant();
 
       public DescendantsTable build() {
         Preconditions.checkArgument(
-            ancestor().table().equals(descendants().table()),
+            ancestor().table().equals(descendant().table()),
             "ancestor and descendants must share the same table, but found [%s] and [%s] tables",
             ancestor().table(),
-            descendants().table());
+            descendant().table());
         return autoBuild();
       }
 

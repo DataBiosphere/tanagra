@@ -85,7 +85,7 @@ datasets:
         columns:
           - name: bt_ancestor
             dataType: INT64
-          - name: bt_descendants
+          - name: bt_descendant
             dataType: INT64
 entityMappings:
   - entity: sailors
@@ -238,10 +238,10 @@ hierarchies:
         dataset: nautical
         table: boat_types_descendants
         column: bt_ancestor
-      descendants:
+      descendant:
         dataset: nautical
         table: boat_types_descendants
-        column: bt_descendants
+        column: bt_descendant
 entityFiltersSchemas:
   - entity: sailors
     attributes:

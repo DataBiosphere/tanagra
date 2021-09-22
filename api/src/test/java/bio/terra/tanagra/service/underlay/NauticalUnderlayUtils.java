@@ -123,9 +123,9 @@ public final class NauticalUnderlayUtils {
           .dataType(DataType.INT64)
           .table(BOAT_TYPE_DESCENDANTS_TABLE)
           .build();
-  public static final Column BOAT_TYPE_DESCENDANTS_DESCENDANTS_COL =
+  public static final Column BOAT_TYPE_DESCENDANTS_DESCENDANT_COL =
       Column.builder()
-          .name("bt_descendants")
+          .name("bt_descendant")
           .dataType(DataType.INT64)
           .table(BOAT_TYPE_DESCENDANTS_TABLE)
           .build();

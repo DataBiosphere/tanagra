@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service.query.api;
 
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_DAY;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
@@ -61,6 +63,36 @@ public class FilterConverterTest {
   }
 
   @Test
+  void convertBinaryDescendantOfOperator() {
+    EntityVariable bBoat = EntityVariable.create(BOAT, Variable.create("b"));
+    VariableScope scope = new VariableScope().add(bBoat);
+    FilterConverter converter = new FilterConverter(NAUTICAL_UNDERLAY);
+
+    ApiBinaryFilter apiBinary =
+        new ApiBinaryFilter()
+            .attributeVariable(new ApiAttributeVariable().variable("b").name("type_id"))
+            .operator(ApiBinaryFilterOperator.DESCENDANT_OF)
+            .attributeValue(new ApiAttributeValue().int64Val(12L));
+    BinaryFunction expectedFilter =
+        BinaryFunction.create(
+            AttributeExpression.create(AttributeVariable.create(BOAT_TYPE_ID, bBoat.variable())),
+            Operator.DESCENDANT_OF,
+            Literal.create(DataType.INT64, "12"));
+    // DESCENDANT_OF allowed with hierarchical attribute.
+    assertEquals(expectedFilter, converter.convert(apiBinary, scope));
+    // DESCENDANT_OF throws with non-hierarchical attribute.
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            converter.convert(
+                new ApiBinaryFilter()
+                    .attributeVariable(new ApiAttributeVariable().variable("b").name("type_name"))
+                    .operator(ApiBinaryFilterOperator.DESCENDANT_OF)
+                    .attributeValue(new ApiAttributeValue().stringVal("foo")),
+                scope));
+  }
+
+  @Test
   void convertBinaryOperator() {
     assertEquals(
         Filter.BinaryFunction.Operator.EQUALS,
@@ -68,6 +100,9 @@ public class FilterConverterTest {
     assertEquals(
         Filter.BinaryFunction.Operator.LESS_THAN,
         FilterConverter.convert(ApiBinaryFilterOperator.LESS_THAN));
+    assertEquals(
+        Filter.BinaryFunction.Operator.DESCENDANT_OF,
+        FilterConverter.convert(ApiBinaryFilterOperator.DESCENDANT_OF));
   }
 
   @Test

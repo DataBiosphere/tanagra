@@ -275,16 +275,16 @@ final class UnderlayConversion {
               columns,
               "ancestor",
               hierarchyProto);
-      Column descendants =
+      Column descendant =
           retrieve(
-              hierarchyProto.getDescendantsTable().getDescendants(),
+              hierarchyProto.getDescendantsTable().getDescendant(),
               columns,
               "descendants",
               hierarchyProto);
       Hierarchy hierarchy =
           Hierarchy.builder()
               .descendantsTable(
-                  DescendantsTable.builder().ancestor(ancestor).descendants(descendants).build())
+                  DescendantsTable.builder().ancestor(ancestor).descendant(descendant).build())
               .build();
       if (hierarchies.put(attribute, hierarchy) != null) {
         throw new IllegalArgumentException(

@@ -10,7 +10,7 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_ANCESTOR_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_DESCENDANTS_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_DESCENDANT_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
@@ -148,7 +148,7 @@ public class UnderlayConversionTest {
                     .descendantsTable(
                         DescendantsTable.builder()
                             .ancestor(BOAT_TYPE_DESCENDANTS_ANCESTOR_COL)
-                            .descendants(BOAT_TYPE_DESCENDANTS_DESCENDANTS_COL)
+                            .descendant(BOAT_TYPE_DESCENDANTS_DESCENDANT_COL)
                             .build())
                     .build())
             .build(),

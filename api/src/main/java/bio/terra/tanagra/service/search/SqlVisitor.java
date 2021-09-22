@@ -167,16 +167,15 @@ public class SqlVisitor {
 
       ExpressionVisitor expressionVisitor = new ExpressionVisitor(searchContext);
       String rightSql = binaryFunction.right().accept(expressionVisitor);
-      // TODO vary array unnesting for PostgresSQL variant with ANY instead of UNNEST
       String template =
-          "${attribute} IN UNNEST((SELECT ${descendants} FROM ${hierarchy_table} WHERE ${ancestor} = ${right}))";
+          "${attribute} IN (SELECT ${descendant} FROM ${hierarchy_table} WHERE ${ancestor} = ${right})";
 
       Map<String, String> params =
           ImmutableMap.<String, String>builder()
               .put("attribute", binaryFunction.left().accept(expressionVisitor))
               .put("hierarchy_table", underlayResolver.resolveTable(descendantsTable.table()))
               .put("ancestor", descendantsTable.ancestor().name())
-              .put("descendants", descendantsTable.descendants().name())
+              .put("descendant", descendantsTable.descendant().name())
               .put("right", rightSql)
               .build();
       return StringSubstitutor.replace(template, params);
