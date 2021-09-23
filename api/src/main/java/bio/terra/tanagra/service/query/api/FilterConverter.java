@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /** Converts API filters to Tanagra search {@link bio.terra.tanagra.service.search.Filter}s. */
 class FilterConverter {
@@ -28,7 +29,15 @@ class FilterConverter {
     this.expressionConverter = new ExpressionConverter(underlay);
   }
 
-  public Filter convert(ApiFilter apiFilter, VariableScope scope) {
+  /**
+   * Converts an {@link ApiFilter} to a {@link Filter}.
+   *
+   * <p>If the ApiFilter is null, returns a filter that allows everything.
+   */
+  public Filter convert(@Nullable ApiFilter apiFilter, VariableScope scope) {
+    if (apiFilter == null) {
+      return Filter.NullFilter.INSTANCE;
+    }
     if (!ConversionUtils.exactlyOneNonNull(
         apiFilter.getArrayFilter(),
         apiFilter.getBinaryFilter(),
