@@ -89,8 +89,8 @@ class FilterConverter {
   /** Checks if the operator maybe be used with the attribute or else throws. */
   private void checkAttributeOperatorMatch(
       Attribute attribute, Filter.BinaryFunction.Operator operator) {
-    if (operator.equals(Filter.BinaryFunction.Operator.DESCENDANT_OF)
-        && underlay.hierarchies().get(attribute) == null) {
+    if (Filter.BinaryFunction.Operator.DESCENDANT_OF.equals(operator)
+        && !underlay.hierarchies().containsKey(attribute)) {
       throw new BadRequestException(
           String.format(
               "Unable to use %s operator on attribute [%s.%s] that does not have a hierarchy.",
