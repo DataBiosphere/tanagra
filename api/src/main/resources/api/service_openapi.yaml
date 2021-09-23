@@ -351,6 +351,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Relationship'
+        searchTermSupported:
+          description: Whether a SearchTermFilter can be used to filter on this entity.
+          type: boolean
 
     EntityDataset:
       description: A selection of entity attributes and filters on them.
@@ -411,6 +414,8 @@ components:
           $ref: '#/components/schemas/BinaryFilter'
         relationshipFilter:
           $ref: '#/components/schemas/RelationshipFilter'
+        searchTermFilter:
+          $ref: '#/components/schemas/SearchTermFilter'
         # TODO allow aggregations in filters.
 
     ArrayFilter:
@@ -464,6 +469,19 @@ components:
           type: string
         filter:
           $ref: '#/components/schemas/Filter'
+
+    SearchTermFilter:
+      type: object
+      description: |
+        A filter for finding entity instances that match a free form text search.
+        This is supported only for entities that have searchTermSupported = true.
+      properties:
+        entityVariable:
+          description: The variable of the entity to apply the search term to.
+          type: string
+        term:
+          description: The search term to search against the entity.
+          type: string
     # End Filters
 
     ErrorReport:
