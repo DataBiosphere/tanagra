@@ -29,6 +29,11 @@ class FilterConverter {
     this.expressionConverter = new ExpressionConverter(underlay);
   }
 
+  /**
+   * Converts an {@link ApiFilter} to a {@link Filter}.
+   *
+   * <p>If the ApiFilter is null, returns a filter that allows everything.
+   */
   public Filter convert(@Nullable ApiFilter apiFilter, VariableScope scope) {
     if (apiFilter == null) {
       return Filter.NullFilter.INSTANCE;
