@@ -62,7 +62,7 @@ paths:
         200:
           $ref: '#/components/responses/ListEntitiesResponse'
 
-  '/underlays/{underlayName}/entities/{entities}':
+  '/underlays/{underlayName}/entities/{entityName}':
     parameters:
       - $ref: '#/components/parameters/Underlay'
       - $ref: '#/components/parameters/Entity'
