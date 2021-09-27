@@ -17,13 +17,15 @@ dependencies {
 
     implementation "org.apache.beam:beam-sdks-java-core:${beam}"
     implementation "org.apache.beam:beam-sdks-java-io-google-cloud-platform:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-io-jdbc:${beam}"
     implementation "org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:${beam}"
     testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${beam}"
     implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${beam}"
 
 
     // GCP BOM version controlled libraries, see /buildSrc
-    implementation group: "com.google.guava", name: "guava"
+    implementation "com.google.guava:guava"
+    implementation "com.google.cloud.sql:postgres-socket-factory"
 
     // ApacheBeam TestPipeline requires JUnit4. https://issues.apache.org/jira/browse/BEAM-3415
     testImplementation "junit:junit:4.12"
