@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.underlay;
 
+import bio.terra.tanagra.proto.underlay.AttributeId;
 import bio.terra.tanagra.proto.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.proto.underlay.Dataset;
 import bio.terra.tanagra.proto.underlay.EntityMapping;
@@ -11,6 +12,7 @@ import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
+import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
@@ -49,6 +51,8 @@ final class UnderlayConversion {
         buildAttributeMapping(underlayProto, entities, attributes, columns, primaryKeys);
     Map<Relationship, ForeignKey> foreignKeys =
         buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
+    Map<Attribute, Hierarchy> hierarchies =
+        buildHierarchies(underlayProto, entities, attributes, columns);
     Map<Entity, EntityFiltersSchema> entityFiltersSchemas =
         buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
 
@@ -60,6 +64,7 @@ final class UnderlayConversion {
         .primaryKeys(primaryKeys)
         .attributeMappings(attributeMappings)
         .foreignKeys(foreignKeys)
+        .hierarchies(hierarchies)
         .entityFiltersSchemas(entityFiltersSchemas)
         .build();
   }
@@ -157,16 +162,9 @@ final class UnderlayConversion {
     Map<Attribute, AttributeMapping> attributeMappings = new HashMap<>();
     for (bio.terra.tanagra.proto.underlay.AttributeMapping attributeMapping :
         underlayProto.getAttributeMappingsList()) {
-      Entity entity = entities.get(attributeMapping.getAttribute().getEntity());
-      if (entity == null) {
-        throw new IllegalArgumentException(
-            String.format("Unknown entity in AttributeMapping %s", attributeMapping));
-      }
-      Attribute attribute = attributes.get(entity, attributeMapping.getAttribute().getAttribute());
-      if (attribute == null) {
-        throw new IllegalArgumentException(
-            String.format("Unknown attribute in AttributeMapping %s", attributeMapping));
-      }
+      Attribute attribute =
+          retrieve(
+              attributeMapping.getAttribute(), entities, attributes, "attribute", attributeMapping);
 
       AttributeMapping newMapping;
       switch (attributeMapping.getMappingCase()) {
@@ -258,6 +256,42 @@ final class UnderlayConversion {
       }
     }
     return foreignKeys;
+  }
+
+  private static Map<Attribute, Hierarchy> buildHierarchies(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      com.google.common.collect.Table<Entity, String, Attribute> attributes,
+      Map<ColumnId, Column> columns) {
+    Map<Attribute, Hierarchy> hierarchies = new HashMap<>();
+    for (bio.terra.tanagra.proto.underlay.Hierarchy hierarchyProto :
+        underlayProto.getHierarchiesList()) {
+      Attribute attribute =
+          retrieve(
+              hierarchyProto.getAttribute(), entities, attributes, "attribute", hierarchyProto);
+      Column ancestor =
+          retrieve(
+              hierarchyProto.getDescendantsTable().getAncestor(),
+              columns,
+              "ancestor",
+              hierarchyProto);
+      Column descendant =
+          retrieve(
+              hierarchyProto.getDescendantsTable().getDescendant(),
+              columns,
+              "descendants",
+              hierarchyProto);
+      Hierarchy hierarchy =
+          Hierarchy.builder()
+              .descendantsTable(
+                  DescendantsTable.builder().ancestor(ancestor).descendant(descendant).build())
+              .build();
+      if (hierarchies.put(attribute, hierarchy) != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate attribute hierarchies not allowed: %s", attribute));
+      }
+    }
+    return hierarchies;
   }
 
   /** Build a map from entities to their {@link EntityFiltersSchema} for filters. */
@@ -396,6 +430,30 @@ final class UnderlayConversion {
         .table(columnIdProto.getTable())
         .column(columnIdProto.getColumn())
         .build();
+  }
+
+  /**
+   * Retrieves the {@link Attribute} corresponding to the proto {@link AttributeId}, or throws if
+   * none is found.
+   */
+  private static Attribute retrieve(
+      AttributeId attributeId,
+      Map<String, Entity> entities,
+      com.google.common.collect.Table<Entity, String, Attribute> attributes,
+      String attributeIdField,
+      Message parentMessage) {
+    Entity entity = entities.get(attributeId.getEntity());
+    if (entity == null) {
+      throw new IllegalArgumentException(
+          String.format("Unknown entity in %s AttributeId in %s", attributeIdField, parentMessage));
+    }
+    Attribute attribute = attributes.get(entity, attributeId.getAttribute());
+    if (attribute == null) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Unknown attribute in %s AttributeId in %s", attributeIdField, parentMessage));
+    }
+    return attribute;
   }
 
   /**
