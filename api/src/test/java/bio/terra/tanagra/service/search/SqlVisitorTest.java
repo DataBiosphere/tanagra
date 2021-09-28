@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.common.exception.BadRequestException;
+import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.SqlVisitor.SelectionVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
@@ -214,6 +215,11 @@ public class SqlVisitorTest {
                     Filter.ArrayFunction.Operator.AND))
             .build()
             .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+  }
+
+  @Test
+  void filterNull() {
+    assertEquals("TRUE", NullFilter.INSTANCE.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }
 
   @Test

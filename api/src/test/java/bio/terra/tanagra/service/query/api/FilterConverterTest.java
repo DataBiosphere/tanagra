@@ -44,6 +44,13 @@ public class FilterConverterTest {
       EntityVariable.create(SAILOR, Variable.create("s"));
 
   @Test
+  void convertNull() {
+    FilterConverter converter = new FilterConverter(NAUTICAL_UNDERLAY);
+    assertEquals(
+        Filter.NullFilter.INSTANCE, converter.convert((ApiFilter) null, new VariableScope()));
+  }
+
+  @Test
   void convertBinary() {
     VariableScope scope = new VariableScope().add(S_SAILOR);
     FilterConverter converter = new FilterConverter(NAUTICAL_UNDERLAY);

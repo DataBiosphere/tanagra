@@ -23,6 +23,8 @@ public interface Filter {
     R visitBinaryComparision(BinaryFunction binaryFunction);
 
     R visitRelationship(RelationshipFilter relationshipFilter);
+
+    R visitNull(NullFilter nullFilter);
   }
 
   /** Accept the {@link Visitor} pattern. */
@@ -133,6 +135,19 @@ public interface Filter {
       }
 
       abstract RelationshipFilter autoBuild();
+    }
+  }
+
+  /** A "null object" filter where everything is allowed by the filter. */
+  class NullFilter implements Filter {
+    private NullFilter() {}
+
+    /** Singleton {@link NullFilter} so that all NullFilters are equal to each other. */
+    public static final NullFilter INSTANCE = new NullFilter();
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitNull(this);
     }
   }
 }

@@ -4,6 +4,7 @@ import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
+import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
@@ -186,6 +187,11 @@ public class SqlVisitor {
       String innerFilterSql = relationshipFilter.filter().accept(this);
       return underlayResolver.resolveRelationship(
           relationshipFilter.outerVariable(), relationshipFilter.newVariable(), innerFilterSql);
+    }
+
+    @Override
+    public String visitNull(NullFilter nullFilter) {
+      return "TRUE";
     }
   }
 
