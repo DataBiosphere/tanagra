@@ -51,9 +51,9 @@ public interface Filter {
     public enum Operator {
       EQUALS,
       LESS_THAN,
-      // The left side is a descendant of the right expression in a hierarchy. The expressions
-      // must be a part of a known hierarchy.
-      DESCENDANT_OF
+      // The left side is a descendant of or equal to the right expression in a hierarchy. The
+      // expressions must be a part of a known hierarchy.
+      DESCENDANT_OF_INCLUSIVE
     }
   }
 
