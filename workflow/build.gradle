@@ -33,7 +33,7 @@ dependencies {
 
     // ApacheBeam TestPipeline requires JUnit4. https://issues.apache.org/jira/browse/BEAM-3415
     testImplementation "junit:junit:4.12"
-    testImplementation("org.hamcrest:hamcrest:2.2")
+    testImplementation "org.hamcrest:hamcrest:2.2"
 }
 test {
     useJUnit()

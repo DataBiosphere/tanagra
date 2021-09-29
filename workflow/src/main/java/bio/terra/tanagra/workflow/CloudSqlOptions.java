@@ -1,20 +1,19 @@
 package bio.terra.tanagra.workflow;
 
-import javax.sql.DataSource;
-import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO.DataSourceConfiguration;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.beam.sdk.transforms.SerializableFunction;
 
 /** {@link PipelineOptions} for connecting to a Cloud SQL Postgres instance. */
 public interface CloudSqlOptions extends PipelineOptions {
-  /** The environment variable used to specify the password to use to connect to a CloudSQL instance.
-   * <p>Sensitive values like passwords should not be included as options, which are copied to logs. */
+  /**
+   * The environment variable used to specify the password to use to connect to a CloudSQL instance.
+   *
+   * <p>Sensitive values like passwords should not be included as options, which are copied to logs.
+   */
   String DB_PASSWORD_ENV = "CLOUDSQL_PWD";
 
-  @Description(
-      "The full name of the CloudSQL instance: {projectId}:{region}:{instanceId}")
+  @Description("The full name of the CloudSQL instance: {projectId}:{region}:{instanceId}")
   String getCloudSqlInstanceName();
 
   void setCloudSqlInstanceName(String instanceName);
@@ -29,7 +28,10 @@ public interface CloudSqlOptions extends PipelineOptions {
 
   void setCloudSqlUserName(String userName);
 
-  /** Create a {@link DataSourceConfiguration} for connectint to the Cloud SQL instance specified by the options. */
+  /**
+   * Create a {@link DataSourceConfiguration} for connectint to the Cloud SQL instance specified by
+   * the options.
+   */
   static DataSourceConfiguration createDataSourceConfiguration(CloudSqlOptions options) {
     // Don't encode sensitive information in options as they are written in job logs.
     String dbPassword = System.getenv(DB_PASSWORD_ENV);
