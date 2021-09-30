@@ -18,10 +18,6 @@ entities:
         dataType: INT64
       - name: ethnicity
         dataType: STRING
-      - name: sex_at_birth_concept_id
-        dataType: INT64
-      - name: sex_at_birth
-        dataType: STRING
   - name: condition_occurrence
     attributes:
       - name: condition_occurrence_id
@@ -45,7 +41,7 @@ entities:
       - name: domain_id
         dataType: STRING
       - name: vocabulary_id
-        dataType: INT64
+        dataType: STRING
       - name: vocabulary_name
         dataType: STRING
       - name: standard_concept
@@ -87,8 +83,6 @@ datasets:
             dataType: INT64
           - name: ethnicity_concept_id
             dataType: INT64
-          - name: sex_at_birth_concept_id
-            dataType: INT64
       - name: condition_occurrence
         columns:
           - name: condition_occurrence_id
@@ -108,13 +102,13 @@ datasets:
           - name: standard_concept
             dataType: STRING
           - name: vocabulary_id
-            dataType: INT64
+            dataType: STRING
           - name: concept_code
             dataType: STRING
       - name: vocabulary
         columns:
           - name: vocabulary_id
-            dataType: INT64
+            dataType: STRING
           - name: vocabulary_name
             dataType: STRING
 entityMappings:
@@ -206,30 +200,6 @@ attributeMappings:
         dataset: omop_test
         table: person
         column: ethnicity_concept_id
-      lookupTableKey:
-        dataset: omop_test
-        table: concept
-        column: concept_id
-      lookupColumn:
-        dataset: omop_test
-        table: concept
-        column: concept_name
-  - attribute:
-      entity: person
-      attribute: sex_at_birth_concept_id
-    simpleColumn:
-      columnId:
-        dataset: omop_test
-        table: person
-        column: sex_at_birth_concept_id
-  - attribute:
-      entity: person
-      attribute: sex_at_birth
-    lookupColumn:
-      primaryTableLookupKey:
-        dataset: omop_test
-        table: person
-        column: sex_at_birth_concept_id
       lookupTableKey:
         dataset: omop_test
         table: concept
@@ -415,16 +385,6 @@ relationshipMappings:
         dataset: omop_test
         table: person
         column: ethnicity_concept_id
-  - name: concept_id_person_sex_at_birth
-    foreignKey:
-      primaryKey:
-        dataset: omop_test
-        table: concept
-        column: concept_id
-      foreignKey:
-        dataset: omop_test
-        table: person
-        column: sex_at_birth_concept_id
   - name: concept_id_condition
     foreignKey:
       primaryKey:

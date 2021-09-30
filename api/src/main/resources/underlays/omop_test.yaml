@@ -45,7 +45,7 @@ entities:
       - name: domain_id
         dataType: STRING
       - name: vocabulary_id
-        dataType: INT64
+        dataType: STRING
       - name: vocabulary_name
         dataType: STRING
       - name: standard_concept
@@ -108,13 +108,13 @@ datasets:
           - name: standard_concept
             dataType: STRING
           - name: vocabulary_id
-            dataType: INT64
+            dataType: STRING
           - name: concept_code
             dataType: STRING
       - name: vocabulary
         columns:
           - name: vocabulary_id
-            dataType: INT64
+            dataType: STRING
           - name: vocabulary_name
             dataType: STRING
 entityMappings:

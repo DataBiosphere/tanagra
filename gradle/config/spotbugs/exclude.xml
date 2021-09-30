@@ -19,6 +19,10 @@
         <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION" />
     </Match>
     <Match>
+        <!-- Disabled for false positives -->
+        <Bug pattern="NP_NONNULL_PARAM_VIOLATION" />
+    </Match>
+    <Match>
         <!-- Disabled as confusing check (very misleading description) and also not so useful -->
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
