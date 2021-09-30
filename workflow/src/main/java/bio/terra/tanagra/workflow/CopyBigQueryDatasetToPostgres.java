@@ -26,12 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** A batch Apache Beam pipeline for copying data from BigQuery to CloudSQL Postgres instances. */
-public class CopyBigQueryDataset {
-  private CopyBigQueryDataset() {}
+public class CopyBigQueryDatasetToPostgres {
+  private CopyBigQueryDatasetToPostgres() {}
 
-  private static final Logger LOG = LoggerFactory.getLogger(CopyBigQueryDataset.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CopyBigQueryDatasetToPostgres.class);
 
-  /** Options supported by {@link CopyBigQueryDataset}. */
+  /** Options supported by {@link CopyBigQueryDatasetToPostgres}. */
   public interface CopyBigQueryDatasetOptions
       extends BigQueryOptions, CloudSqlOptions, UnderlayOptions {}
 
@@ -52,8 +52,8 @@ public class CopyBigQueryDataset {
     DataSource localDataSource = dataSourceProvider.apply(null);
     for (Table table : dataset.getTablesList()) {
       createSqlTable(underlay, dataset, table, localDataSource);
-      CopyBigQueryTable copyTable =
-          CopyBigQueryTable.builder()
+      CopyBigQueryTableToPostgres copyTable =
+          CopyBigQueryTableToPostgres.builder()
               .dataset(dataset.getBigQueryDataset())
               .table(table)
               .dataSourceProvider(dataSourceProvider)
@@ -77,7 +77,7 @@ public class CopyBigQueryDataset {
     }
   }
 
-  /** Creates an SQL string for creating a SQL table based on ta {@link Table}. */
+  /** Creates an SQL string for creating a SQL table based on {@link Table}. */
   @VisibleForTesting
   static String makeCreateTableSql(Underlay underlay, Dataset dataset, Table table) {
     Optional<String> primaryKeyColumn = getPrimaryKeyColumn(underlay, dataset, table);

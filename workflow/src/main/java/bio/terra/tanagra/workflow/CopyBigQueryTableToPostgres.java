@@ -30,7 +30,7 @@ import org.apache.beam.sdk.values.PDone;
  * <p>The SQL table must already exist.
  */
 @AutoValue
-abstract class CopyBigQueryTable extends PTransform<PBegin, PDone> {
+abstract class CopyBigQueryTableToPostgres extends PTransform<PBegin, PDone> {
 
   /** The BigQuery dataset to read the table from. */
   abstract BigQueryDataset dataset();
@@ -42,8 +42,8 @@ abstract class CopyBigQueryTable extends PTransform<PBegin, PDone> {
   abstract SerializableFunction<Void, DataSource> dataSourceProvider();
 
   /**
-   * Returns a name to use in transforms to uniquely identify this {@link CopyBigQueryTable}
-   * instances operations.
+   * Returns a name to use in transforms to uniquely identify this {@link
+   * CopyBigQueryTableToPostgres} instances operations.
    */
   String transformNameSuffix() {
     return dataset().getDatasetId() + "." + table().getName();
@@ -125,10 +125,10 @@ abstract class CopyBigQueryTable extends PTransform<PBegin, PDone> {
   }
 
   public static Builder builder() {
-    return new AutoValue_CopyBigQueryTable.Builder();
+    return new AutoValue_CopyBigQueryTableToPostgres.Builder();
   }
 
-  /** Builder for {@link CopyBigQueryTable}. */
+  /** Builder for {@link CopyBigQueryTableToPostgres}. */
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -139,6 +139,6 @@ abstract class CopyBigQueryTable extends PTransform<PBegin, PDone> {
     public abstract Builder dataSourceProvider(
         SerializableFunction<Void, DataSource> dataSourceProvider);
 
-    public abstract CopyBigQueryTable build();
+    public abstract CopyBigQueryTableToPostgres build();
   }
 }

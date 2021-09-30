@@ -12,7 +12,7 @@ import bio.terra.tanagra.proto.underlay.Underlay;
 import org.junit.Test;
 
 // TODO add an integration test.
-public class CopyBigQueryDatasetTest {
+public class CopyBigQueryDatasetToPostgresTest {
 
   @Test
   public void makeCreateTableSql() {
@@ -22,7 +22,7 @@ public class CopyBigQueryDatasetTest {
             + "c_int64 bigint,\n"
             + "c_float real,\n"
             + "c_string text);",
-        CopyBigQueryDataset.makeCreateTableSql(
+        CopyBigQueryDatasetToPostgres.makeCreateTableSql(
             Underlay.getDefaultInstance(),
             Dataset.getDefaultInstance(),
             Table.newBuilder()
@@ -39,7 +39,7 @@ public class CopyBigQueryDatasetTest {
         "DROP TABLE IF EXISTS foo;\n"
             + "CREATE TABLE foo (\n"
             + "c_int64 bigint, PRIMARY KEY(c_int64));",
-        CopyBigQueryDataset.makeCreateTableSql(
+        CopyBigQueryDatasetToPostgres.makeCreateTableSql(
             Underlay.newBuilder()
                 .addEntityMappings(
                     EntityMapping.newBuilder()

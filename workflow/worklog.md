@@ -11,5 +11,4 @@ Initial flattening of SNOMED conditions in a synpuf concept set.
 ## copying BQ tables
 Need to export postgres password and service account credentials file.
 ```
-./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.CopyBqTable -Dexec.args="--underlayYaml=api/src/main/resources/underlays/synpuf.yaml --cloudSqlInstanceName=broad-tanagra-dev:us-central1:tanagra-cloudsql-2cd088adcd745a91 --cloudSqlDatabaseName=indexes --cloudSqlUserName=tanagra --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com
-```
+./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.CopyBigQueryDatasetToPostgres -Dexec.args="--underlayYaml=api/src/main/resources/underlays/synpuf.yaml --cloudSqlInstanceName=broad-tanagra-dev:us-central1:tanagra-cloudsql-2cd088adcd745a91 --cloudSqlDatabaseName=indexes --cloudSqlUserName=tanagra --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com"```

@@ -10,12 +10,12 @@ import javax.sql.DataSource;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.junit.Test;
 
-public class CopyBigQueryTableTest {
+public class CopyBigQueryTableToPostgresTest {
 
   @Test
   public void insertSql() {
-    CopyBigQueryTable copyTable =
-        CopyBigQueryTable.builder()
+    CopyBigQueryTableToPostgres copyTable =
+        CopyBigQueryTableToPostgres.builder()
             .table(
                 Table.newBuilder()
                     .setName("foo")

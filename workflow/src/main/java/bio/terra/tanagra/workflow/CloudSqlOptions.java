@@ -29,7 +29,7 @@ public interface CloudSqlOptions extends PipelineOptions {
   void setCloudSqlUserName(String userName);
 
   /**
-   * Create a {@link DataSourceConfiguration} for connectint to the Cloud SQL instance specified by
+   * Create a {@link DataSourceConfiguration} for connecting to the Cloud SQL instance specified by
    * the options.
    */
   static DataSourceConfiguration createDataSourceConfiguration(CloudSqlOptions options) {
