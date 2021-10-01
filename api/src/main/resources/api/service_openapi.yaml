@@ -62,7 +62,7 @@ paths:
         200:
           $ref: '#/components/responses/ListEntitiesResponse'
 
-  '/underlays/{underlayName}/entities/{entities}':
+  '/underlays/{underlayName}/entities/{entityName}':
     parameters:
       - $ref: '#/components/parameters/Underlay'
       - $ref: '#/components/parameters/Entity'
@@ -403,7 +403,9 @@ components:
       type: object
       description: |
         Base Filter type that contains one-of any Filter subtype.
+        If null, no filter is applied and everything is allowed.
         OpenApi inheritance and one-of code generation support are not great, so we roll our own.
+      nullable: true
       properties:
         arrayFilter:
           $ref: '#/components/schemas/ArrayFilter'
@@ -445,7 +447,7 @@ components:
     BinaryFilterOperator:
       description: Enum for binary function operators
       type: string
-      enum: ['EQUALS', 'LESS_THAN']
+      enum: ['EQUALS', 'LESS_THAN', 'DESCENDANT_OF_INCLUSIVE']
 
     RelationshipFilter:
       type: object

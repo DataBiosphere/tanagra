@@ -55,6 +55,8 @@ public final class NauticalUnderlayUtils {
       Attribute.builder().name("name").dataType(DataType.STRING).entity(BOAT).build();
   public static final Attribute BOAT_COLOR =
       Attribute.builder().name("color").dataType(DataType.STRING).entity(BOAT).build();
+  public static final Attribute BOAT_TYPE_ID =
+      Attribute.builder().name("type_id").dataType(DataType.INT64).entity(BOAT).build();
   public static final Attribute BOAT_TYPE_NAME =
       Attribute.builder().name("type_name").dataType(DataType.STRING).entity(BOAT).build();
 
@@ -86,6 +88,8 @@ public final class NauticalUnderlayUtils {
   public static final Table BOAT_TABLE = Table.create("boats", NAUTICAL_DATASET);
   public static final Table RESERVATION_TABLE = Table.create("reservations", NAUTICAL_DATASET);
   public static final Table BOAT_TYPE_TABLE = Table.create("boat_types", NAUTICAL_DATASET);
+  public static final Table BOAT_TYPE_DESCENDANTS_TABLE =
+      Table.create("boat_types_descendants", NAUTICAL_DATASET);
 
   public static final Column SAILOR_ID_COL =
       Column.builder().name("s_id").dataType(DataType.INT64).table(SAILOR_TABLE).build();
@@ -113,4 +117,16 @@ public final class NauticalUnderlayUtils {
       Column.builder().name("bt_id").dataType(DataType.INT64).table(BOAT_TYPE_TABLE).build();
   public static final Column BOAT_TYPE_NAME_COL =
       Column.builder().name("bt_name").dataType(DataType.STRING).table(BOAT_TYPE_TABLE).build();
+  public static final Column BOAT_TYPE_DESCENDANTS_ANCESTOR_COL =
+      Column.builder()
+          .name("bt_ancestor")
+          .dataType(DataType.INT64)
+          .table(BOAT_TYPE_DESCENDANTS_TABLE)
+          .build();
+  public static final Column BOAT_TYPE_DESCENDANTS_DESCENDANT_COL =
+      Column.builder()
+          .name("bt_descendant")
+          .dataType(DataType.INT64)
+          .table(BOAT_TYPE_DESCENDANTS_TABLE)
+          .build();
 }

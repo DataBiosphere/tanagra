@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.search;
 
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_DAY;
@@ -11,6 +12,8 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.loadNauti
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.common.exception.BadRequestException;
+import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.SqlVisitor.SelectionVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
@@ -114,6 +117,28 @@ public class SqlVisitorTest {
   }
 
   @Test
+  void filterBinaryFunctionDescendantOfInclusive() {
+    Filter descendantOfFilter =
+        Filter.BinaryFunction.create(
+            Expression.AttributeExpression.create(AttributeVariable.create(BOAT_TYPE_ID, B_VAR)),
+            Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE,
+            Expression.Literal.create(DataType.INT64, "43"));
+    assertEquals(
+        "(b.bt_id = 43 OR b.bt_id IN (SELECT bt_descendant "
+            + "FROM `my-project-id.nautical`.boat_types_descendants WHERE bt_ancestor = 43))",
+        descendantOfFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+
+    Filter nonHierarchicalAttribute =
+        Filter.BinaryFunction.create(
+            Expression.AttributeExpression.create(AttributeVariable.create(BOAT_NAME, B_VAR)),
+            Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE,
+            Expression.Literal.create(DataType.INT64, "Foo"));
+    assertThrows(
+        BadRequestException.class,
+        () -> nonHierarchicalAttribute.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+  }
+
+  @Test
   void filterArrayFunction() {
     ImmutableList<Filter> operands =
         ImmutableList.of(
@@ -190,6 +215,11 @@ public class SqlVisitorTest {
                     Filter.ArrayFunction.Operator.AND))
             .build()
             .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+  }
+
+  @Test
+  void filterNull() {
+    assertEquals("TRUE", NullFilter.INSTANCE.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }
 
   @Test
