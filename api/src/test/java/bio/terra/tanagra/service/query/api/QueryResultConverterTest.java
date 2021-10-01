@@ -7,9 +7,9 @@ import bio.terra.tanagra.generated.model.ApiAttributeValue;
 import bio.terra.tanagra.generated.model.ApiEntityInstanceStruct;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
+import bio.terra.tanagra.service.databaseaccess.EagerCellValue;
+import bio.terra.tanagra.service.databaseaccess.EagerRowResult;
 import bio.terra.tanagra.service.databaseaccess.QueryResult;
-import bio.terra.tanagra.service.databaseaccess.testing.TestCellValue;
-import bio.terra.tanagra.service.databaseaccess.testing.TestRowResult;
 import bio.terra.tanagra.service.search.DataType;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -33,12 +33,16 @@ public class QueryResultConverterTest {
             QueryResult.builder()
                 .rowResults(
                     ImmutableList.of(
-                        new TestRowResult(
-                            columnHeaderSchema,
-                            ImmutableList.of(TestCellValue.of("foo"), TestCellValue.of(42L))),
-                        new TestRowResult(
-                            columnHeaderSchema,
-                            ImmutableList.of(TestCellValue.of("bar"), TestCellValue.of(43L)))))
+                        EagerRowResult.builder()
+                            .columnHeaderSchema(columnHeaderSchema)
+                            .cellValues(
+                                ImmutableList.of(EagerCellValue.of("foo"), EagerCellValue.of(42L)))
+                            .build(),
+                        EagerRowResult.builder()
+                            .columnHeaderSchema(columnHeaderSchema)
+                            .cellValues(
+                                ImmutableList.of(EagerCellValue.of("bar"), EagerCellValue.of(43L)))
+                            .build()))
                 .columnHeaderSchema(columnHeaderSchema)
                 .build());
 
@@ -56,9 +60,10 @@ public class QueryResultConverterTest {
   void convertCellValue() {
     assertEquals(
         new ApiAttributeValue().stringVal("foo"),
-        QueryResultConverter.convert(TestCellValue.of("foo")));
+        QueryResultConverter.convert(EagerCellValue.of("foo")));
     assertEquals(
-        new ApiAttributeValue().int64Val(42L), QueryResultConverter.convert(TestCellValue.of(42L)));
-    assertEquals(null, QueryResultConverter.convert(TestCellValue.ofNull(DataType.STRING)));
+        new ApiAttributeValue().int64Val(42L),
+        QueryResultConverter.convert(EagerCellValue.of(42L)));
+    assertEquals(null, QueryResultConverter.convert(EagerCellValue.ofNull(DataType.STRING)));
   }
 }

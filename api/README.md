@@ -4,7 +4,12 @@ The API service backing the Tanagra application.
 Images hosted at [gcr.io/broad-dsp-gcr-public/tanagra-api](gcr.io/broad-dsp-gcr-public/tanagra-api).
 
 # Development
-To get started, run `./gradlew build` to build and test.
+
+Initialize a local postgres container, see [local-dev README.md](local-dev/README.md).
+```sh
+./api/local-dev/run_postgres.sh start
+```
+To get started, run `./gradlew api:build` to build and test.
 
 ## Local Server
 `./gradlew bootRun` starts a local server
@@ -15,7 +20,7 @@ for the Swagger API page.
 We use [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html)
 for building with deterministic dependencies. When adding a new dependency, use
 
-`./gradlew dependencies --write-locks`
+`./gradlew api:dependencies --write-locks`
 
 to regenerate the `gradle.lockfile` with the added dependencies. If this is not done, building will
 error about
