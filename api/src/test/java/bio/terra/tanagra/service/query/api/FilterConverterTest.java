@@ -44,6 +44,13 @@ public class FilterConverterTest {
       EntityVariable.create(SAILOR, Variable.create("s"));
 
   @Test
+  void convertNull() {
+    FilterConverter converter = new FilterConverter(NAUTICAL_UNDERLAY);
+    assertEquals(
+        Filter.NullFilter.INSTANCE, converter.convert((ApiFilter) null, new VariableScope()));
+  }
+
+  @Test
   void convertBinary() {
     VariableScope scope = new VariableScope().add(S_SAILOR);
     FilterConverter converter = new FilterConverter(NAUTICAL_UNDERLAY);
@@ -71,12 +78,12 @@ public class FilterConverterTest {
     ApiBinaryFilter apiBinary =
         new ApiBinaryFilter()
             .attributeVariable(new ApiAttributeVariable().variable("b").name("type_id"))
-            .operator(ApiBinaryFilterOperator.DESCENDANT_OF)
+            .operator(ApiBinaryFilterOperator.DESCENDANT_OF_INCLUSIVE)
             .attributeValue(new ApiAttributeValue().int64Val(12L));
     BinaryFunction expectedFilter =
         BinaryFunction.create(
             AttributeExpression.create(AttributeVariable.create(BOAT_TYPE_ID, bBoat.variable())),
-            Operator.DESCENDANT_OF,
+            Operator.DESCENDANT_OF_INCLUSIVE,
             Literal.create(DataType.INT64, "12"));
     // DESCENDANT_OF allowed with hierarchical attribute.
     assertEquals(expectedFilter, converter.convert(apiBinary, scope));
@@ -87,7 +94,7 @@ public class FilterConverterTest {
             converter.convert(
                 new ApiBinaryFilter()
                     .attributeVariable(new ApiAttributeVariable().variable("b").name("type_name"))
-                    .operator(ApiBinaryFilterOperator.DESCENDANT_OF)
+                    .operator(ApiBinaryFilterOperator.DESCENDANT_OF_INCLUSIVE)
                     .attributeValue(new ApiAttributeValue().stringVal("foo")),
                 scope));
   }
@@ -101,8 +108,8 @@ public class FilterConverterTest {
         Filter.BinaryFunction.Operator.LESS_THAN,
         FilterConverter.convert(ApiBinaryFilterOperator.LESS_THAN));
     assertEquals(
-        Filter.BinaryFunction.Operator.DESCENDANT_OF,
-        FilterConverter.convert(ApiBinaryFilterOperator.DESCENDANT_OF));
+        Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE,
+        FilterConverter.convert(ApiBinaryFilterOperator.DESCENDANT_OF_INCLUSIVE));
   }
 
   @Test

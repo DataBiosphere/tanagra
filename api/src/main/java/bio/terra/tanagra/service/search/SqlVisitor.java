@@ -4,6 +4,7 @@ import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
 import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
+import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
@@ -133,8 +134,8 @@ public class SqlVisitor {
           return String.format("%s < %s", leftSql, rightSql);
         case EQUALS:
           return String.format("%s = %s", leftSql, rightSql);
-        case DESCENDANT_OF:
-          return resolveDescendantOf(binaryFunction);
+        case DESCENDANT_OF_INCLUSIVE:
+          return resolveDescendantOfInclusive(binaryFunction);
         default:
           throw new UnsupportedOperationException(
               String.format("Unsupported BinaryFunction.Operator %s", binaryFunction.operator()));
@@ -142,11 +143,12 @@ public class SqlVisitor {
     }
 
     /**
-     * Returns an SQL string for a {@link BinaryFunction.Operator#DESCENDANT_OF} filter function.
+     * Returns an SQL string for a {@link BinaryFunction.Operator#DESCENDANT_OF_INCLUSIVE} filter
+     * function.
      */
-    private String resolveDescendantOf(BinaryFunction binaryFunction) {
+    private String resolveDescendantOfInclusive(BinaryFunction binaryFunction) {
       Preconditions.checkArgument(
-          binaryFunction.operator().equals(BinaryFunction.Operator.DESCENDANT_OF));
+          binaryFunction.operator().equals(BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE));
       if (!(binaryFunction.left() instanceof Expression.AttributeExpression)) {
         throw new BadRequestException("DESCENDANT_OF only supported for attribute left operand.");
       }
@@ -168,7 +170,8 @@ public class SqlVisitor {
       ExpressionVisitor expressionVisitor = new ExpressionVisitor(searchContext);
       String rightSql = binaryFunction.right().accept(expressionVisitor);
       String template =
-          "${attribute} IN (SELECT ${descendant} FROM ${hierarchy_table} WHERE ${ancestor} = ${right})";
+          "(${attribute} = ${right} OR ${attribute} IN "
+              + "(SELECT ${descendant} FROM ${hierarchy_table} WHERE ${ancestor} = ${right}))";
 
       Map<String, String> params =
           ImmutableMap.<String, String>builder()
@@ -186,6 +189,11 @@ public class SqlVisitor {
       String innerFilterSql = relationshipFilter.filter().accept(this);
       return underlayResolver.resolveRelationship(
           relationshipFilter.outerVariable(), relationshipFilter.newVariable(), innerFilterSql);
+    }
+
+    @Override
+    public String visitNull(NullFilter nullFilter) {
+      return "TRUE";
     }
   }
 
