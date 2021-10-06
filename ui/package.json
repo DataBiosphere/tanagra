@@ -8,6 +8,7 @@
     "@emotion/styled": "^11.3.0",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
+    "@mui/icons-material": "^5.0.1",
     "@mui/material": "^5.0.0",
     "@mui/x-data-grid": "^5.0.0-beta.2",
     "@openapitools/openapi-generator-cli": "^2.4.1",
@@ -37,10 +38,17 @@
     "codegen": "rm -rf src/tanagra-api && openapi-generator-cli generate -i ../tanagra/api/src/main/resources/api/service_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true -o src/tanagra-api"
   },
   "eslintConfig": {
-    "extends": ["react-app", "react-app/jest"]
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

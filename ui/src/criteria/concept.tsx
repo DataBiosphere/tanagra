@@ -1,9 +1,33 @@
 import Typography from "@mui/material/Typography";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
-import { EntityInstancesApiContext } from "./apiContext";
-import { DataSet } from "./dataSet";
+import { EntityInstancesApiContext } from "../apiContext";
+import { Criteria, DataSet, Group } from "../dataSet";
+
+export class ConceptCriteria extends Criteria {
+  constructor(name: string, filter: string) {
+    super();
+    this.name = name;
+    this.filter = filter;
+  }
+
+  edit(dataSet: DataSet, group: Group): JSX.Element {
+    return (
+      <ConceptEdit
+        dataSet={dataSet}
+        group={group}
+        criteria={this}
+        filter={this.filter}
+      />
+    );
+  }
+
+  details(): JSX.Element {
+    return <Typography variant="body1">Details!</Typography>;
+  }
+
+  filter: string;
+}
 
 // Row acts as a bridge between the data format returned from the API and the
 // format expected by DataGrid.
@@ -12,17 +36,17 @@ class Row {
   [key: string]: string | number | boolean | undefined;
 }
 
-type ConceptListProps = {
-  underlayName: string;
+type ConceptEditProps = {
   dataSet: DataSet;
+  group: Group;
+  criteria: ConceptCriteria;
   filter: string;
 };
 
-export default function ConceptList(props: ConceptListProps) {
+function ConceptEdit(props: ConceptEditProps) {
   const [error, setError] = useState<Error | null>(null);
   const [rows, setRows] = useState<Array<Row> | null>(null);
 
-  const params = useParams<{ group: string; criteria: string }>();
   const api = useContext(EntityInstancesApiContext);
 
   const columns: GridColDef[] = useMemo(
@@ -39,7 +63,7 @@ export default function ConceptList(props: ConceptListProps) {
     api
       .searchEntityInstances({
         entityName: "concept",
-        underlayName: props.underlayName,
+        underlayName: props.dataSet.underlayName,
         searchEntityInstancesRequest: {
           entityDataset: {
             entityVariable: "c",
@@ -85,7 +109,7 @@ export default function ConceptList(props: ConceptListProps) {
           setError(error);
         }
       );
-  }, [api, props.filter, props.underlayName, columns]);
+  }, [api, props.filter, props.dataSet.underlayName, columns]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -93,13 +117,5 @@ export default function ConceptList(props: ConceptListProps) {
     return <div>Loading...</div>;
   }
 
-  return (
-    <>
-      <Typography variant="h4">Concepts</Typography>
-      <Typography variant="body1">
-        Group {params.group}, criteria {params.criteria}
-      </Typography>
-      <DataGrid autoHeight rows={rows} columns={columns} />
-    </>
-  );
+  return <DataGrid autoHeight rows={rows} columns={columns} />;
 }
