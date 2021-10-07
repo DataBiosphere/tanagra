@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { HashRouter, Route, Switch } from "react-router-dom";
 import "./app.css";
 import { ConceptCriteria } from "./criteria/concept";
-import { DataSet, Group, GroupKind } from "./dataSet";
+import { Dataset, Group, GroupKind } from "./dataset";
 import Edit from "./edit";
 import Overview from "./overview";
 
@@ -11,8 +11,8 @@ type AppProps = {
 };
 
 export default function App(props: AppProps) {
-  const [dataSet, setDataSet] = useState<DataSet>(
-    new DataSet(props.underlayName, [
+  const [dataset, setDataset] = useState<Dataset>(
+    new Dataset(props.underlayName, [
       new Group(GroupKind.Included, [
         new ConceptCriteria("Contains Conditions Code", "condition_occurrence"),
         new ConceptCriteria(
@@ -37,10 +37,10 @@ export default function App(props: AppProps) {
     <HashRouter basename="/">
       <Switch>
         <Route path="/edit/:group/:criteria">
-          <Edit dataSet={dataSet} />
+          <Edit dataset={dataset} />
         </Route>
         <Route path="/">
-          <Overview dataSet={dataSet} />
+          <Overview dataset={dataset} />
         </Route>
       </Switch>
     </HashRouter>
