@@ -21,10 +21,10 @@ import {
 } from "material-ui-popup-state/hooks";
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Criteria, DataSet, Group, GroupKind } from "./dataSet";
+import { Criteria, Dataset, Group, GroupKind } from "./dataset";
 
 type OverviewProps = {
-  dataSet: DataSet;
+  dataset: Dataset;
 };
 
 export default function Overview(props: OverviewProps) {
@@ -34,7 +34,7 @@ export default function Overview(props: OverviewProps) {
         <Grid item xs={1} sx={{ mx: 2 }}>
           <Typography variant="h4">Included Participants</Typography>
           <Stack spacing={0}>
-            {props.dataSet.listGroups(GroupKind.Included).map((group) => (
+            {props.dataset.listGroups(GroupKind.Included).map((group) => (
               <Box key={group.id}>
                 <ParticipantsGroup group={group} />
                 <Divider>
@@ -125,7 +125,7 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
             {props.criteria.name}: {props.criteria.count}
           </Typography>
         </AccordionSummary>
-        <AccordionDetails>{props.criteria.details()}</AccordionDetails>
+        <AccordionDetails>{props.criteria.renderDetails()}</AccordionDetails>
       </Accordion>
     </Stack>
   );

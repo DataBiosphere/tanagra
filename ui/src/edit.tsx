@@ -4,16 +4,16 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
-import { DataSet } from "./dataSet";
+import { Dataset } from "./dataset";
 
 type EditProps = {
-  dataSet: DataSet;
+  dataset: Dataset;
 };
 
 export default function Edit(props: EditProps) {
   const params = useParams<{ group: string; criteria: string }>();
 
-  const group = props.dataSet.findGroup(params.group);
+  const group = props.dataset.findGroup(params.group);
   const criteria = !!group ? group.findCriteria(params.criteria) : null;
 
   return (
@@ -26,7 +26,7 @@ export default function Edit(props: EditProps) {
           {!!criteria ? criteria.name : "Unknown"}
         </Typography>
       </Stack>
-      {!!criteria && !!group ? criteria.edit(props.dataSet, group) : null}
+      {!!criteria && !!group ? criteria.renderEdit(props.dataset, group) : null}
     </>
   );
 }

@@ -1,20 +1,18 @@
 import Typography from "@mui/material/Typography";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { Criteria, Dataset, Group } from "dataset";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { EntityInstancesApiContext } from "../apiContext";
-import { Criteria, DataSet, Group } from "../dataSet";
 
 export class ConceptCriteria extends Criteria {
-  constructor(name: string, filter: string) {
-    super();
-    this.name = name;
-    this.filter = filter;
+  constructor(name: string, public filter: string) {
+    super(name);
   }
 
-  edit(dataSet: DataSet, group: Group): JSX.Element {
+  renderEdit(dataset: Dataset, group: Group): JSX.Element {
     return (
       <ConceptEdit
-        dataSet={dataSet}
+        dataset={dataset}
         group={group}
         criteria={this}
         filter={this.filter}
@@ -22,11 +20,9 @@ export class ConceptCriteria extends Criteria {
     );
   }
 
-  details(): JSX.Element {
+  renderDetails(): JSX.Element {
     return <Typography variant="body1">Details!</Typography>;
   }
-
-  filter: string;
 }
 
 // Row acts as a bridge between the data format returned from the API and the
@@ -37,7 +33,7 @@ class Row {
 }
 
 type ConceptEditProps = {
-  dataSet: DataSet;
+  dataset: Dataset;
   group: Group;
   criteria: ConceptCriteria;
   filter: string;
@@ -63,7 +59,7 @@ function ConceptEdit(props: ConceptEditProps) {
     api
       .searchEntityInstances({
         entityName: "concept",
-        underlayName: props.dataSet.underlayName,
+        underlayName: props.dataset.underlayName,
         searchEntityInstancesRequest: {
           entityDataset: {
             entityVariable: "c",
@@ -109,7 +105,7 @@ function ConceptEdit(props: ConceptEditProps) {
           setError(error);
         }
       );
-  }, [api, props.filter, props.dataSet.underlayName, columns]);
+  }, [api, props.filter, props.dataset.underlayName, columns]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
