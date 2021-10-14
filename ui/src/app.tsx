@@ -3,6 +3,7 @@ import { HashRouter, Route, Switch } from "react-router-dom";
 import "./app.css";
 import { ConceptCriteria } from "./criteria/concept";
 import { Dataset, Group, GroupKind } from "./dataset";
+import { DatasetUpdaterProvider } from "./datasetUpdaterContext";
 import Edit from "./edit";
 import Overview from "./overview";
 
@@ -34,15 +35,17 @@ export default function App(props: AppProps) {
   );
 
   return (
-    <HashRouter basename="/">
-      <Switch>
-        <Route path="/edit/:group/:criteria">
-          <Edit dataset={dataset} />
-        </Route>
-        <Route path="/">
-          <Overview dataset={dataset} />
-        </Route>
-      </Switch>
-    </HashRouter>
+    <DatasetUpdaterProvider dataset={dataset} setDataset={setDataset}>
+      <HashRouter basename="/">
+        <Switch>
+          <Route path="/edit/:group/:criteria">
+            <Edit dataset={dataset} />
+          </Route>
+          <Route path="/">
+            <Overview dataset={dataset} />
+          </Route>
+        </Switch>
+      </HashRouter>
+    </DatasetUpdaterProvider>
   );
 }

@@ -10,6 +10,18 @@ export class Dataset {
   listGroups(kind: GroupKind): Group[] {
     return this.groups.filter((group) => group.kind == kind);
   }
+
+  addCriteria(groupId: string, criteria: Criteria) {
+    const group = this.findGroup(groupId);
+    if (!group) {
+      throw new Error("invalid group id");
+    }
+    group.criteria.push(criteria);
+  }
+
+  addGroupAndCriteria(kind: GroupKind, criteria: Criteria) {
+    this.groups.push(new Group(kind, [criteria]));
+  }
 }
 
 export enum GroupKind {
