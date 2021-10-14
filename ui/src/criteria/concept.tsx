@@ -1,6 +1,13 @@
 import Checkbox from "@mui/material/Checkbox";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
 import Typography from "@mui/material/Typography";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridRowData,
+} from "@mui/x-data-grid";
 import { EntityInstancesApiContext } from "apiContext";
 import { Criteria, Dataset, Group } from "dataset";
 import { useDatasetUpdater } from "datasetUpdaterContext";
@@ -29,17 +36,10 @@ export class ConceptCriteria extends Criteria {
   }
 
   renderDetails(): JSX.Element {
-    return <Typography variant="body1">Details!</Typography>;
+    return <ConceptDetails criteria={this} />;
   }
 
-  selected = new Array<number>();
-}
-
-// Row acts as a bridge between the data format returned from the API and the
-// format expected by DataGrid.
-class Row {
-  id = 0;
-  [key: string]: string | number | boolean | undefined;
+  selected = new Array<GridRowData>();
 }
 
 const fetchedColumns: GridColDef[] = [
@@ -57,7 +57,7 @@ type ConceptEditProps = {
 
 function ConceptEdit(props: ConceptEditProps) {
   const [error, setError] = useState<Error | null>(null);
-  const [rows, setRows] = useState<Array<Row> | null>(null);
+  const [rows, setRows] = useState<Array<GridRowData> | null>(null);
 
   const api = useContext(EntityInstancesApiContext);
 
@@ -89,7 +89,7 @@ function ConceptEdit(props: ConceptEditProps) {
             setRows(
               res.instances
                 .map((instance) => {
-                  const row: Row = {
+                  const row: GridRowData = {
                     id: instance["concept_id"]?.int64Val || 0,
                   };
                   for (const k in instance) {
@@ -122,7 +122,9 @@ function ConceptEdit(props: ConceptEditProps) {
 
   const renderSelected = useCallback(
     (params: GridRenderCellParams) => {
-      const index = props.criteria.selected.indexOf(params.row.id);
+      const index = props.criteria.selected.findIndex(
+        (row) => row.id === params.row.id
+      );
       return (
         <Checkbox
           checked={index > -1}
@@ -135,7 +137,7 @@ function ConceptEdit(props: ConceptEditProps) {
                 if (index > -1) {
                   criteria.selected.splice(index, 1);
                 } else {
-                  criteria.selected.push(params.row.id);
+                  criteria.selected.push(params.row);
                 }
               }
             );
@@ -166,4 +168,21 @@ function ConceptEdit(props: ConceptEditProps) {
   }
 
   return <DataGrid autoHeight rows={rows} columns={columns} />;
+}
+
+type ConceptDetailsProps = {
+  criteria: ConceptCriteria;
+};
+
+function ConceptDetails(props: ConceptDetailsProps) {
+  return (
+    <List dense>
+      {props.criteria.selected.map((row) => (
+        <ListItem key={row.id}>
+          <Typography variant="body1">{row.concept_id}</Typography>&nbsp;
+          <Typography variant="body2">{row.concept_name}</Typography>
+        </ListItem>
+      ))}
+    </List>
+  );
 }
