@@ -14,14 +14,16 @@ import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { ConceptCriteria } from "criteria/concept";
 import {
   bindMenu,
   bindTrigger,
   usePopupState,
 } from "material-ui-popup-state/hooks";
-import React from "react";
+import React, { useCallback } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Criteria, Dataset, Group, GroupKind } from "./dataset";
+import { useDatasetUpdater } from "./datasetUpdaterContext";
 
 type OverviewProps = {
   dataset: Dataset;
@@ -43,7 +45,7 @@ export default function Overview(props: OverviewProps) {
               </Box>
             ))}
             <Box key="">
-              <AddCriteriaButton id="" />
+              <AddCriteriaButton group={GroupKind.Included} />
             </Box>
           </Stack>
         </Grid>
@@ -52,31 +54,55 @@ export default function Overview(props: OverviewProps) {
   );
 }
 
-function AddCriteriaButton(props: { id: string }) {
+function AddCriteriaButton(props: { group: string | GroupKind }) {
   const addCriteriaState = usePopupState({
     variant: "popover",
     popupId: "addCriteria",
   });
 
-  const onAddCriteria = () => {
-    console.log(
-      "Group: " + addCriteriaState.anchorEl?.getAttribute("data-group")
-    );
-    addCriteriaState.close();
-  };
+  const updater = useDatasetUpdater();
+
+  const onAddCriteria = useCallback(
+    (create: () => Criteria) => {
+      addCriteriaState.close();
+
+      updater.update((dataset: Dataset) => {
+        if (typeof props.group === "string") {
+          dataset.addCriteria(props.group, create());
+        } else {
+          dataset.addGroupAndCriteria(props.group, create());
+        }
+      });
+    },
+    [updater, addCriteriaState]
+  );
+
+  const items = [
+    {
+      title: "Conditions",
+      create: () =>
+        new ConceptCriteria("Contains Condition Code", "condition_occurrence"),
+    },
+  ];
 
   return (
     <>
-      <Button
-        data-group={props.id}
-        variant="contained"
-        {...bindTrigger(addCriteriaState)}
-      >
+      <Button variant="contained" {...bindTrigger(addCriteriaState)}>
         Add Criteria
       </Button>
       <Menu {...bindMenu(addCriteriaState)}>
-        <MenuItem onClick={onAddCriteria}>Pie</MenuItem>
-        <MenuItem onClick={onAddCriteria}>Death</MenuItem>
+        {items.map((item) => {
+          return (
+            <MenuItem
+              key={item.title}
+              onClick={() => {
+                onAddCriteria(item.create);
+              }}
+            >
+              {item.title}
+            </MenuItem>
+          );
+        })}
       </Menu>
     </>
   );
@@ -93,7 +119,7 @@ function ParticipantsGroup(props: { group: Group }) {
           </Box>
         ))}
         <Box key="">
-          <AddCriteriaButton id={props.group.id} />
+          <AddCriteriaButton group={props.group.id} />
         </Box>
       </Stack>
     </Paper>
