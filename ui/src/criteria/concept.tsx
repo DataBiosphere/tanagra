@@ -1,12 +1,16 @@
+import SchemaIcon from "@mui/icons-material/Schema";
 import Checkbox from "@mui/material/Checkbox";
+import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import {
   DataGrid,
   GridColDef,
   GridRenderCellParams,
   GridRowData,
+  GridValueFormatterParams,
 } from "@mui/x-data-grid";
 import { EntityInstancesApiContext } from "apiContext";
 import { Criteria, Dataset, Group } from "dataset";
@@ -46,6 +50,18 @@ const fetchedColumns: GridColDef[] = [
   { field: "concept_name", headerName: "Concept Name", width: 400 },
   { field: "concept_id", headerName: "Concept ID", width: 100 },
   { field: "domain_id", headerName: "Domain", width: 100 },
+  {
+    field: "standard_concept",
+    headerName: "Source/Standard",
+    width: 140,
+    valueFormatter: (params: GridValueFormatterParams) =>
+      !params.value ? "Source" : "Standard",
+  },
+  { field: "vocabulary_id", headerName: "Vocab", width: 120 },
+  { field: "concept_code", headerName: "Code", width: 120 },
+  // TODO(tjennison): Add support for counts to the API.
+  //{ field: "roll_up_count", headerName: "Roll-up Count", width: 100 },
+  //{ field: "item_count", headerName: "Item Count", width: 100 },
 ];
 
 type ConceptEditProps = {
@@ -89,8 +105,13 @@ function ConceptEdit(props: ConceptEditProps) {
             setRows(
               res.instances
                 .map((instance) => {
+                  const id = instance["concept_id"]?.int64Val || 0;
                   const row: GridRowData = {
-                    id: instance["concept_id"]?.int64Val || 0,
+                    id: id,
+                    SELECTED:
+                      props.criteria.selected.findIndex(
+                        (row) => row.id === id
+                      ) > -1,
                   };
                   for (const k in instance) {
                     const v = instance[k];
@@ -126,23 +147,28 @@ function ConceptEdit(props: ConceptEditProps) {
         (row) => row.id === params.row.id
       );
       return (
-        <Checkbox
-          checked={index > -1}
-          inputProps={{ "aria-label": "controlled" }}
-          onChange={() => {
-            updater.updateCriteria(
-              props.group.id,
-              props.criteria.id,
-              (criteria: ConceptCriteria) => {
-                if (index > -1) {
-                  criteria.selected.splice(index, 1);
-                } else {
-                  criteria.selected.push(params.row);
+        <Stack direction="row">
+          <Checkbox
+            checked={index > -1}
+            inputProps={{ "aria-label": "controlled" }}
+            onChange={() => {
+              updater.updateCriteria(
+                props.group.id,
+                props.criteria.id,
+                (criteria: ConceptCriteria) => {
+                  if (index > -1) {
+                    criteria.selected.splice(index, 1);
+                  } else {
+                    criteria.selected.push(params.row);
+                  }
                 }
-              }
-            );
-          }}
-        />
+              );
+            }}
+          />
+          <IconButton>
+            <SchemaIcon />
+          </IconButton>
+        </Stack>
       );
     },
     [updater]
@@ -152,8 +178,9 @@ function ConceptEdit(props: ConceptEditProps) {
     () => [
       {
         field: "SELECTED",
-        headerName: "",
-        width: 50,
+        headerName: "✓",
+        type: "boolean",
+        width: 80,
         renderCell: renderSelected,
       },
       ...fetchedColumns,
@@ -167,7 +194,14 @@ function ConceptEdit(props: ConceptEditProps) {
     return <div>Loading...</div>;
   }
 
-  return <DataGrid autoHeight rows={rows} columns={columns} />;
+  return (
+    <DataGrid
+      autoHeight
+      rows={rows}
+      columns={columns}
+      disableSelectionOnClick
+    />
+  );
 }
 
 type ConceptDetailsProps = {
