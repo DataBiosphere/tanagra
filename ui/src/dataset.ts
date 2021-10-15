@@ -23,8 +23,10 @@ export class Dataset {
     group.criteria.push(criteria);
   }
 
-  addGroupAndCriteria(kind: GroupKind, criteria: Criteria) {
-    this.groups.push(new Group(kind, [criteria]));
+  addGroupAndCriteria(kind: GroupKind, criteria: Criteria): string {
+    const group = new Group(kind, [criteria]);
+    this.groups.push(group);
+    return group.id;
   }
 
   deleteCriteria(groupId: string, criteriaId: string) {

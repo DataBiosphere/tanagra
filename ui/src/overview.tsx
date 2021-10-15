@@ -21,9 +21,13 @@ import {
   usePopupState,
 } from "material-ui-popup-state/hooks";
 import React, { useCallback } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import { Criteria, Dataset, Group, GroupKind } from "./dataset";
 import { useDatasetUpdater } from "./datasetUpdaterContext";
+
+function editRoute(groupId: string, criteriaId: string): string {
+  return `/edit/${groupId}/${criteriaId}`;
+}
 
 type OverviewProps = {
   dataset: Dataset;
@@ -54,25 +58,32 @@ export default function Overview(props: OverviewProps) {
   );
 }
 
+// If group is a string, the criteria is added to the group with that id. If
+// it's a GroupKind, a new group of that kind is added instead.
 function AddCriteriaButton(props: { group: string | GroupKind }) {
   const addCriteriaState = usePopupState({
     variant: "popover",
     popupId: "addCriteria",
   });
 
+  const history = useHistory();
   const updater = useDatasetUpdater();
 
   const onAddCriteria = useCallback(
     (create: () => Criteria) => {
       addCriteriaState.close();
 
+      let groupId = "";
+      const criteria = create();
       updater.update((dataset: Dataset) => {
         if (typeof props.group === "string") {
-          dataset.addCriteria(props.group, create());
+          dataset.addCriteria(props.group, criteria);
+          groupId = props.group;
         } else {
-          dataset.addGroupAndCriteria(props.group, create());
+          groupId = dataset.addGroupAndCriteria(props.group, criteria);
         }
       });
+      history.push(editRoute(groupId, criteria.id));
     },
     [updater, addCriteriaState]
   );
@@ -142,7 +153,7 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
       <Menu {...bindMenu(popupState)}>
         <MenuItem
           component={RouterLink}
-          to={`/edit/${props.group.id}/${props.criteria.id}`}
+          to={editRoute(props.group.id, props.criteria.id)}
         >
           Edit Criteria
         </MenuItem>
