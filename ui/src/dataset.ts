@@ -3,8 +3,12 @@ import { v4 as uuid } from "uuid";
 export class Dataset {
   constructor(public underlayName: string, public groups: Group[] = []) {}
 
+  findGroupIndex(id: string): number {
+    return this.groups.findIndex((group) => group.id === id);
+  }
+
   findGroup(id: string): Group | undefined {
-    return this.groups.find((group) => group.id === id);
+    return this.groups[this.findGroupIndex(id)];
   }
 
   listGroups(kind: GroupKind): Group[] {
@@ -22,6 +26,24 @@ export class Dataset {
   addGroupAndCriteria(kind: GroupKind, criteria: Criteria) {
     this.groups.push(new Group(kind, [criteria]));
   }
+
+  deleteCriteria(groupId: string, criteriaId: string) {
+    const groupIndex = this.findGroupIndex(groupId);
+    if (groupIndex === -1) {
+      throw new Error("invalid group id");
+    }
+    const group = this.groups[groupIndex];
+
+    const criteriaIndex = group.findCriteriaIndex(criteriaId);
+    if (criteriaIndex === -1) {
+      throw new Error("invalid criteria id");
+    }
+    group.criteria.splice(criteriaIndex, 1);
+
+    if (group.criteria.length === 0) {
+      this.groups.splice(groupIndex, 1);
+    }
+  }
 }
 
 export enum GroupKind {
@@ -36,8 +58,12 @@ export class Group {
     this.criteria = criteria;
   }
 
+  findCriteriaIndex(id: string): number {
+    return this.criteria.findIndex((criteria) => criteria.id === id);
+  }
+
   findCriteria(id: string): Criteria | undefined {
-    return this.criteria.find((criteria) => criteria.id === id);
+    return this.criteria[this.findCriteriaIndex(id)];
   }
 
   id: string;
