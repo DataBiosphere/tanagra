@@ -132,6 +132,8 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
     popupId: "criteria",
   });
 
+  const updater = useDatasetUpdater();
+
   return (
     <Stack direction="row" alignItems="flex-start">
       <IconButton {...bindTrigger(popupState)}>
@@ -143,6 +145,16 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
           to={`/edit/${props.group.id}/${props.criteria.id}`}
         >
           Edit Criteria
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            updater.update((dataset: Dataset) => {
+              popupState.close();
+              dataset.deleteCriteria(props.group.id, props.criteria.id);
+            });
+          }}
+        >
+          Delete Criteria
         </MenuItem>
       </Menu>
       <Accordion disableGutters={true} square={true}>
