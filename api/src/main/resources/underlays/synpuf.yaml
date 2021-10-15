@@ -31,7 +31,7 @@ entities:
       - name: condition_standard
         dataType: STRING
       - name: condition_concept_code
-        dataType: INT64
+        dataType: STRING
   - name: concept
     attributes:
       - name: concept_id
@@ -47,7 +47,7 @@ entities:
       - name: standard_concept
         dataType: STRING
       - name: concept_code
-        dataType: INT64
+        dataType: STRING
 relationships:
   - name: person_condition_occurrence
     entity1: person
