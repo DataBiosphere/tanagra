@@ -22,6 +22,7 @@ import {
 } from "material-ui-popup-state/hooks";
 import React, { useCallback } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
+import ActionBar from "./actionBar";
 import { Criteria, Dataset, Group, GroupKind } from "./dataset";
 import { useDatasetUpdater } from "./datasetUpdaterContext";
 
@@ -36,6 +37,7 @@ type OverviewProps = {
 export default function Overview(props: OverviewProps) {
   return (
     <>
+      <ActionBar title="Cohort" />
       <Grid container columns={3}>
         <Grid item xs={1} sx={{ mx: 2 }}>
           <Typography variant="h4">Included Participants</Typography>
