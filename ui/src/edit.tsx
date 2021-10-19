@@ -16,7 +16,11 @@ export default function Edit(props: EditProps) {
   return (
     <>
       {!criteria ? <Redirect to="/" /> : null}
-      <ActionBar title={criteria?.name || "Unknown"} backUrl="/" />
+      <ActionBar
+        title={criteria?.name || "Unknown"}
+        backUrl="/"
+        dataset={props.dataset}
+      />
       {!!criteria && !!group ? criteria.renderEdit(props.dataset, group) : null}
     </>
   );

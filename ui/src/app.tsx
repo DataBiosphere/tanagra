@@ -9,29 +9,38 @@ import Overview from "./overview";
 
 type AppProps = {
   underlayName: string;
+  entityName: string;
 };
 
 export default function App(props: AppProps) {
   const [dataset, setDataset] = useState<Dataset>(
-    new Dataset(props.underlayName, [
-      new Group(GroupKind.Included, [
-        new ConceptCriteria("Contains Conditions Code", "condition_occurrence"),
-        new ConceptCriteria(
-          "Contains Conditions Code 2",
-          "condition_occurrence"
-        ),
-      ]),
-      new Group(GroupKind.Included, [
-        new ConceptCriteria(
-          "Contains Conditions Code 3",
-          "condition_occurrence"
-        ),
-        new ConceptCriteria(
-          "Contains Conditions Code 4",
-          "condition_occurrence"
-        ),
-      ]),
-    ])
+    new Dataset(
+      props.underlayName,
+      props.entityName,
+      [
+        new Group(GroupKind.Included, [
+          new ConceptCriteria(
+            "Contains Conditions Code",
+            "condition_occurrence"
+          ),
+          new ConceptCriteria(
+            "Contains Conditions Code 2",
+            "condition_occurrence"
+          ),
+        ]),
+        new Group(GroupKind.Included, [
+          new ConceptCriteria(
+            "Contains Conditions Code 3",
+            "condition_occurrence"
+          ),
+          new ConceptCriteria(
+            "Contains Conditions Code 4",
+            "condition_occurrence"
+          ),
+        ]),
+      ],
+      ["person_id"] // TODO(tjennison): Populate from an actual source.
+    )
   );
 
   return (

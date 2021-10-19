@@ -34,6 +34,12 @@ class FakeEntityInstancesApi {
       });
     });
   }
+
+  async generateDatasetSqlQuery(): Promise<tanagra.SqlQuery> {
+    return new Promise<tanagra.SqlQuery>((resolve) => {
+      resolve({ query: "SELECT * FROM table WHERE xyz;" });
+    });
+  }
 }
 
 function apiForEnvironment<Real, Fake>(

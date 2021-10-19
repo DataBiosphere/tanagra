@@ -22,6 +22,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import * as tanagra from "tanagra-api";
 
 export class ConceptCriteria extends Criteria {
   constructor(name: string, public filter: string) {
@@ -41,6 +42,41 @@ export class ConceptCriteria extends Criteria {
 
   renderDetails(): JSX.Element {
     return <ConceptDetails criteria={this} />;
+  }
+
+  generateFilter(): tanagra.Filter | null {
+    if (this.selected.length === 0) {
+      return null;
+    }
+
+    const operands = this.selected.map((row) => {
+      return {
+        binaryFilter: {
+          attributeVariable: {
+            variable: "cc",
+            name: "condition_concept_id",
+          },
+          operator: tanagra.BinaryFilterOperator.Equals,
+          attributeValue: {
+            int64Val: row.id,
+          },
+        },
+      };
+    });
+
+    return {
+      relationshipFilter: {
+        outerVariable: "p",
+        newVariable: "cc",
+        newEntity: this.filter,
+        filter: {
+          arrayFilter: {
+            operands: operands,
+            operator: tanagra.ArrayFilterOperator.Or,
+          },
+        },
+      },
+    };
   }
 
   selected = new Array<GridRowData>();

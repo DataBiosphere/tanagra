@@ -37,7 +37,7 @@ type OverviewProps = {
 export default function Overview(props: OverviewProps) {
   return (
     <>
-      <ActionBar title="Cohort" />
+      <ActionBar title="Cohort" dataset={props.dataset} />
       <Grid container columns={3}>
         <Grid item xs={1} sx={{ mx: 2 }}>
           <Typography variant="h4">Included Participants</Typography>
