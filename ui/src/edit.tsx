@@ -1,9 +1,6 @@
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import React from "react";
-import { Link as RouterLink, Redirect, useParams } from "react-router-dom";
+import { Redirect, useParams } from "react-router-dom";
+import ActionBar from "./actionBar";
 import { Dataset } from "./dataset";
 
 type EditProps = {
@@ -19,12 +16,7 @@ export default function Edit(props: EditProps) {
   return (
     <>
       {!criteria ? <Redirect to="/" /> : null}
-      <Stack direction="row" alignItems="flex-start">
-        <IconButton aria-label="back" component={RouterLink} to="/">
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography variant="h4">{criteria?.name}</Typography>
-      </Stack>
+      <ActionBar title={criteria?.name || "Unknown"} backUrl="/" />
       {!!criteria && !!group ? criteria.renderEdit(props.dataset, group) : null}
     </>
   );
