@@ -25,7 +25,6 @@ export default function ActionBar(props: ActionBarProps) {
         <Toolbar>
           {!!props.backUrl ? (
             <IconButton
-              size="large"
               color="inherit"
               aria-label="back"
               component={RouterLink}
@@ -37,7 +36,7 @@ export default function ActionBar(props: ActionBarProps) {
           <Typography variant="h3" sx={{ flexGrow: 1 }}>
             {props.title}
           </Typography>
-          <IconButton size="large" color="inherit" onClick={showSqlDialog}>
+          <IconButton component="span" color="inherit" onClick={showSqlDialog}>
             <FileDownloadIcon />
           </IconButton>
           {dialog}
