@@ -1,30 +1,25 @@
-import Button from "@material-ui/core/Button";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
+import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { ConceptCriteria } from "criteria/concept";
-import {
-  bindMenu,
-  bindTrigger,
-  usePopupState,
-} from "material-ui-popup-state/hooks";
 import React, { useCallback } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import ActionBar from "./actionBar";
 import { Criteria, Dataset, Group, GroupKind } from "./dataset";
 import { useDatasetUpdater } from "./datasetUpdaterContext";
+import { useMenu } from "./menu";
 
 function editRoute(groupId: string, criteriaId: string): string {
   return `/edit/${groupId}/${criteriaId}`;
@@ -63,18 +58,11 @@ export default function Overview(props: OverviewProps) {
 // If group is a string, the criteria is added to the group with that id. If
 // it's a GroupKind, a new group of that kind is added instead.
 function AddCriteriaButton(props: { group: string | GroupKind }) {
-  const addCriteriaState = usePopupState({
-    variant: "popover",
-    popupId: "addCriteria",
-  });
-
   const history = useHistory();
   const updater = useDatasetUpdater();
 
   const onAddCriteria = useCallback(
     (create: () => Criteria) => {
-      addCriteriaState.close();
-
       let groupId = "";
       const criteria = create();
       updater.update((dataset: Dataset) => {
@@ -87,7 +75,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       });
       history.push(editRoute(groupId, criteria.id));
     },
-    [updater, addCriteriaState]
+    [updater]
   );
 
   const items = [
@@ -98,25 +86,25 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
     },
   ];
 
+  const [menu, show] = useMenu({
+    children: items.map((item) => (
+      <MenuItem
+        key={item.title}
+        onClick={() => {
+          onAddCriteria(item.create);
+        }}
+      >
+        {item.title}
+      </MenuItem>
+    )),
+  });
+
   return (
     <>
-      <Button variant="contained" {...bindTrigger(addCriteriaState)}>
+      <Button onClick={show} variant="contained">
         Add Criteria
       </Button>
-      <Menu {...bindMenu(addCriteriaState)}>
-        {items.map((item) => {
-          return (
-            <MenuItem
-              key={item.title}
-              onClick={() => {
-                onAddCriteria(item.create);
-              }}
-            >
-              {item.title}
-            </MenuItem>
-          );
-        })}
-      </Menu>
+      {menu}
     </>
   );
 }
@@ -140,36 +128,36 @@ function ParticipantsGroup(props: { group: Group }) {
 }
 
 function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
-  const popupState = usePopupState({
-    variant: "popover",
-    popupId: "criteria",
-  });
-
   const updater = useDatasetUpdater();
+
+  const [menu, show] = useMenu({
+    children: [
+      <MenuItem
+        key="1"
+        component={RouterLink}
+        to={editRoute(props.group.id, props.criteria.id)}
+      >
+        Edit Criteria
+      </MenuItem>,
+      <MenuItem
+        key="2"
+        onClick={() => {
+          updater.update((dataset: Dataset) => {
+            dataset.deleteCriteria(props.group.id, props.criteria.id);
+          });
+        }}
+      >
+        Delete Criteria
+      </MenuItem>,
+    ],
+  });
 
   return (
     <Stack direction="row" alignItems="flex-start">
-      <IconButton {...bindTrigger(popupState)}>
-        <MoreVertIcon />
+      <IconButton onClick={show} component="span" size="small">
+        <MoreVertIcon fontSize="small" />
       </IconButton>
-      <Menu {...bindMenu(popupState)}>
-        <MenuItem
-          component={RouterLink}
-          to={editRoute(props.group.id, props.criteria.id)}
-        >
-          Edit Criteria
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            updater.update((dataset: Dataset) => {
-              popupState.close();
-              dataset.deleteCriteria(props.group.id, props.criteria.id);
-            });
-          }}
-        >
-          Delete Criteria
-        </MenuItem>
-      </Menu>
+      {menu}
       <Accordion disableGutters={true} square={true}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">
