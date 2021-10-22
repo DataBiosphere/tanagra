@@ -1,18 +1,26 @@
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import {
   default as BaseMenu,
   MenuProps as BaseMenuProps,
 } from "@mui/material/Menu";
-import {
-  MouseEvent,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useState,
-} from "react";
+import MenuItem from "@mui/material/MenuItem";
+import { MouseEvent, ReactElement, useCallback, useState } from "react";
+
+interface ItemProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  key?: any;
+  text?: string;
+  icon?: ReactElement;
+  onClick?: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  props?: { [name: string]: any };
+}
 
 interface MenuProps
   extends Omit<BaseMenuProps, "anchorEl" | "open" | "onClick" | "onClose"> {
-  items: ReactNode;
+  //items: ReactNode;
+  items: ItemProps[];
 }
 
 export function useMenu(
@@ -30,7 +38,16 @@ export function useMenu(
       onClick={() => setAnchorEl(undefined)}
       onClose={() => setAnchorEl(undefined)}
     >
-      {props.items}
+      {props.items.map((item, index) => (
+        <MenuItem
+          {...item.props}
+          key={item.key || index}
+          onClick={item.onClick}
+        >
+          {item.icon ? <ListItemIcon>{item.icon}</ListItemIcon> : null}
+          {item.text ? <ListItemText>{item.text}</ListItemText> : null}
+        </MenuItem>
+      ))}
     </BaseMenu>,
     show,
   ];

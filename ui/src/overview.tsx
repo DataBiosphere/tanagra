@@ -9,7 +9,6 @@ import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -87,16 +86,14 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
   ];
 
   const [menu, show] = useMenu({
-    items: items.map((item) => (
-      <MenuItem
-        key={item.title}
-        onClick={() => {
+    items: items.map((item) => {
+      return {
+        text: item.title,
+        onClick: () => {
           onAddCriteria(item.create);
-        }}
-      >
-        {item.title}
-      </MenuItem>
-    )),
+        },
+      };
+    }),
   });
 
   return (
@@ -132,23 +129,21 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
 
   const [menu, show] = useMenu({
     items: [
-      <MenuItem
-        key="1"
-        component={RouterLink}
-        to={editRoute(props.group.id, props.criteria.id)}
-      >
-        Edit Criteria
-      </MenuItem>,
-      <MenuItem
-        key="2"
-        onClick={() => {
+      {
+        text: "Edit Criteria",
+        props: {
+          component: RouterLink,
+          to: editRoute(props.group.id, props.criteria.id),
+        },
+      },
+      {
+        text: "Delete Criteria",
+        onClick: () => {
           updater.update((dataset: Dataset) => {
             dataset.deleteCriteria(props.group.id, props.criteria.id);
           });
-        }}
-      >
-        Delete Criteria
-      </MenuItem>,
+        },
+      },
     ],
   });
 
