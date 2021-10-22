@@ -1,7 +1,13 @@
 import { v4 as uuid } from "uuid";
+import * as tanagra from "./tanagra-api";
 
 export class Dataset {
-  constructor(public underlayName: string, public groups: Group[] = []) {}
+  constructor(
+    public underlayName: string,
+    public entityName: string,
+    public groups: Group[] = [],
+    public attributes: string[] = []
+  ) {}
 
   findGroupIndex(id: string): number {
     return this.groups.findIndex((group) => group.id === id);
@@ -46,6 +52,26 @@ export class Dataset {
       this.groups.splice(groupIndex, 1);
     }
   }
+
+  generateQueryParameters(): tanagra.EntityDataset | null {
+    const operands = this.groups
+      .map((group) => group.generateFilter())
+      .filter((filter) => filter) as Array<tanagra.Filter>;
+    if (operands.length === 0) {
+      return null;
+    }
+
+    return {
+      entityVariable: "p",
+      selectedAttributes: this.attributes,
+      filter: {
+        arrayFilter: {
+          operands: operands,
+          operator: tanagra.ArrayFilterOperator.And,
+        },
+      },
+    };
+  }
 }
 
 export enum GroupKind {
@@ -68,6 +94,22 @@ export class Group {
     return this.criteria[this.findCriteriaIndex(id)];
   }
 
+  generateFilter(): tanagra.Filter | null {
+    const operands = this.criteria
+      .map((group) => group.generateFilter())
+      .filter((filter) => filter) as Array<tanagra.Filter>;
+    if (operands.length === 0) {
+      return null;
+    }
+
+    return {
+      arrayFilter: {
+        operands: operands,
+        operator: tanagra.ArrayFilterOperator.Or,
+      },
+    };
+  }
+
   id: string;
   kind: GroupKind;
   criteria: Array<Criteria>;
@@ -78,6 +120,7 @@ export abstract class Criteria {
 
   abstract renderEdit(dataset: Dataset, group: Group): JSX.Element;
   abstract renderDetails(): JSX.Element;
+  abstract generateFilter(): tanagra.Filter | null;
 
   id = uuid();
   count = 0;

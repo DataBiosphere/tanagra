@@ -6,7 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App underlayName="omop_test" />
+    <App underlayName="omop_test" entityName="person" />
   </React.StrictMode>,
   document.getElementById("root")
 );
