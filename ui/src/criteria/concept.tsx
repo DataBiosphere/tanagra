@@ -13,6 +13,7 @@ import {
 import { EntityInstancesApiContext } from "apiContext";
 import { Criteria, Dataset, Group } from "dataset";
 import { useDatasetUpdater } from "datasetUpdaterContext";
+import Loading from "loading";
 import React, {
   useCallback,
   useContext,
@@ -224,7 +225,7 @@ function ConceptEdit(props: ConceptEditProps) {
   if (error) {
     return <div>Error: {error.message}</div>;
   } else if (!rows) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (
