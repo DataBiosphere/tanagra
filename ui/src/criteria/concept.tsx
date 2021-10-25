@@ -1,8 +1,6 @@
 import SchemaIcon from "@mui/icons-material/Schema";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import {
@@ -246,13 +244,17 @@ type ConceptDetailsProps = {
 
 function ConceptDetails(props: ConceptDetailsProps) {
   return (
-    <List dense>
-      {props.criteria.selected.map((row) => (
-        <ListItem key={row.id}>
-          <Typography variant="body1">{row.concept_id}</Typography>&nbsp;
-          <Typography variant="body2">{row.concept_name}</Typography>
-        </ListItem>
-      ))}
-    </List>
+    <>
+      {props.criteria.selected.length === 0 ? (
+        <Typography variant="body1">None selected</Typography>
+      ) : (
+        props.criteria.selected.map((row) => (
+          <Stack direction="row" alignItems="baseline" key={row.concept_id}>
+            <Typography variant="body1">{row.concept_id}</Typography>&nbsp;
+            <Typography variant="body2">{row.concept_name}</Typography>
+          </Stack>
+        ))
+      )}
+    </>
   );
 }
