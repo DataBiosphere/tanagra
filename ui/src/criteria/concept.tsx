@@ -53,7 +53,7 @@ export class ConceptCriteria extends Criteria {
       return {
         binaryFilter: {
           attributeVariable: {
-            variable: "cc",
+            variable: "co",
             name: "condition_concept_id",
           },
           operator: tanagra.BinaryFilterOperator.Equals,
@@ -65,16 +65,9 @@ export class ConceptCriteria extends Criteria {
     });
 
     return {
-      relationshipFilter: {
-        outerVariable: "p",
-        newVariable: "cc",
-        newEntity: this.filter,
-        filter: {
-          arrayFilter: {
-            operands: operands,
-            operator: tanagra.ArrayFilterOperator.Or,
-          },
-        },
+      arrayFilter: {
+        operands,
+        operator: tanagra.ArrayFilterOperator.Or,
       },
     };
   }
@@ -126,10 +119,16 @@ function ConceptEdit(props: ConceptEditProps) {
               return col.field;
             }),
             filter: {
-              relationshipFilter: {
-                outerVariable: "c",
-                newVariable: "cc",
-                newEntity: props.filter,
+              // TODO(tjennison): Generalize this when we have more instances.
+              binaryFilter: {
+                attributeVariable: {
+                  name: "domain_id",
+                  variable: "c",
+                },
+                operator: tanagra.BinaryFilterOperator.Equals,
+                attributeValue: {
+                  stringVal: "Condition",
+                },
               },
             },
           },
