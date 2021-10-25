@@ -5,8 +5,8 @@ export class Dataset {
   constructor(
     public underlayName: string,
     public entityName: string,
-    public groups: Group[] = [],
-    public attributes: string[] = []
+    public attributes: string[] = [],
+    public groups: Group[] = []
   ) {}
 
   findGroupIndex(id: string): number {
