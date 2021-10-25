@@ -20,19 +20,18 @@ export default function ActionBar(props: ActionBarProps) {
   const [dialog, showSqlDialog] = useSqlDialog({ dataset: props.dataset });
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1 }} className="action-bar">
       <AppBar position="static">
         <Toolbar>
-          {!!props.backUrl ? (
-            <IconButton
-              color="inherit"
-              aria-label="back"
-              component={RouterLink}
-              to={props.backUrl}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-          ) : null}
+          <IconButton
+            color="inherit"
+            aria-label="back"
+            component={RouterLink}
+            to={props.backUrl || "/"}
+            sx={{ visibility: props.backUrl ? "visible" : "hidden" }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
           <Typography variant="h3" sx={{ flexGrow: 1 }}>
             {props.title}
           </Typography>

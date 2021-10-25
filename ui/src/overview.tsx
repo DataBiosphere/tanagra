@@ -33,14 +33,14 @@ export default function Overview(props: OverviewProps) {
   return (
     <>
       <ActionBar title="Cohort" dataset={props.dataset} />
-      <Grid container columns={3}>
-        <Grid item xs={1} sx={{ mx: 2 }}>
+      <Grid container columns={3} className="overview">
+        <Grid item xs={1}>
           <Typography variant="h4">Included Participants</Typography>
           <Stack spacing={0}>
             {props.dataset.listGroups(GroupKind.Included).map((group) => (
               <Box key={group.id}>
                 <ParticipantsGroup group={group} />
-                <Divider>
+                <Divider className="and-divider">
                   <Chip label="AND" />
                 </Divider>
               </Box>
@@ -101,7 +101,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
 
   return (
     <>
-      <Button onClick={show} variant="contained">
+      <Button onClick={show} variant="contained" className="add-criteria">
         Add Criteria
       </Button>
       {menu}
@@ -111,7 +111,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
 
 function ParticipantsGroup(props: { group: Group }) {
   return (
-    <Paper>
+    <Paper className="participants-group">
       <Stack spacing={0}>
         {props.group.criteria.map((criteria) => (
           <Box key={criteria.id}>
@@ -153,19 +153,28 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
   });
 
   return (
-    <Stack direction="row" alignItems="flex-start">
-      <IconButton onClick={show} component="span" size="small">
-        <MoreVertIcon fontSize="small" />
-      </IconButton>
-      {menu}
-      <Accordion disableGutters={true} square={true}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6">
-            {props.criteria.name}: {props.criteria.count}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>{props.criteria.renderDetails()}</AccordionDetails>
-      </Accordion>
-    </Stack>
+    <Grid container>
+      <Grid item xs="auto">
+        <IconButton onClick={show} component="span" size="small">
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+        {menu}
+      </Grid>
+      <Grid item xs>
+        <Accordion
+          disableGutters={true}
+          square={true}
+          sx={{ boxShadow: 0 }}
+          className="criteria-accordion"
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">{props.criteria.name}</Typography>
+            <Divider orientation="vertical" variant="middle" flexItem />
+            <Typography variant="body1">{props.criteria.count}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>{props.criteria.renderDetails()}</AccordionDetails>
+        </Accordion>
+      </Grid>
+    </Grid>
   );
 }
