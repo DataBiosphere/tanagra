@@ -54,7 +54,7 @@ export class ConceptCriteria extends Criteria {
             variable: "co",
             name: "condition_concept_id",
           },
-          operator: tanagra.BinaryFilterOperator.Equals,
+          operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
           attributeValue: {
             int64Val: row.id,
           },
