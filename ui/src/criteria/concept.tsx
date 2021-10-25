@@ -53,7 +53,7 @@ export class ConceptCriteria extends Criteria {
       return {
         binaryFilter: {
           attributeVariable: {
-            variable: "cc",
+            variable: "co",
             name: "condition_concept_id",
           },
           operator: tanagra.BinaryFilterOperator.Equals,
@@ -65,16 +65,9 @@ export class ConceptCriteria extends Criteria {
     });
 
     return {
-      relationshipFilter: {
-        outerVariable: "p",
-        newVariable: "cc",
-        newEntity: this.filter,
-        filter: {
-          arrayFilter: {
-            operands: operands,
-            operator: tanagra.ArrayFilterOperator.Or,
-          },
-        },
+      arrayFilter: {
+        operands,
+        operator: tanagra.ArrayFilterOperator.Or,
       },
     };
   }

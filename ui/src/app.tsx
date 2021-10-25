@@ -39,7 +39,13 @@ export default function App(props: AppProps) {
           ),
         ]),
       ],
-      ["person_id"] // TODO(tjennison): Populate from an actual source.
+      // TODO(tjennison): Populate from an actual source.
+      [
+        "person_id",
+        "condition_occurrence_id",
+        "condition_concept_id",
+        "condition_name",
+      ]
     )
   );
 

@@ -62,7 +62,7 @@ export class Dataset {
     }
 
     return {
-      entityVariable: "p",
+      entityVariable: "co",
       selectedAttributes: this.attributes,
       filter: {
         arrayFilter: {
