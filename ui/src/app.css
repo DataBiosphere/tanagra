@@ -2,6 +2,10 @@
   padding-left: 0px !important;
 }
 
+.action-bar .underlay-name {
+  margin-right: 1em;
+}
+
 .overview {
   padding: 0em 1em;
 }
