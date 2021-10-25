@@ -35,6 +35,9 @@ export default function ActionBar(props: ActionBarProps) {
           <Typography variant="h3" sx={{ flexGrow: 1 }}>
             {props.title}
           </Typography>
+          <Typography variant="h6" className="underlay-name">
+            Dataset: {props.dataset.underlayName}
+          </Typography>
           <IconButton component="span" color="inherit" onClick={showSqlDialog}>
             <FileDownloadIcon />
           </IconButton>
