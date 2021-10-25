@@ -236,6 +236,7 @@ function ConceptEdit(props: ConceptEditProps) {
       rows={rows}
       columns={columns}
       disableSelectionOnClick
+      className="criteria-concept"
     />
   );
 }
