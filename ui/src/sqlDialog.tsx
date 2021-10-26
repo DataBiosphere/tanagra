@@ -3,6 +3,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { EntityInstancesApiContext } from "apiContext";
+import Loading from "loading";
 import {
   ReactElement,
   useCallback,
@@ -80,7 +81,7 @@ export function useSqlDialog(
           tabIndex={-1}
           sx={{ fontFamily: "Monospace" }}
         >
-          {error?.message || sql || "Loading..."}
+          {error?.message || sql || <Loading />}
         </DialogContentText>
       </DialogContent>
     </Dialog>,
