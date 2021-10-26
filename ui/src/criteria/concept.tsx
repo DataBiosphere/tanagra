@@ -11,8 +11,8 @@ import {
   GridValueFormatterParams,
 } from "@mui/x-data-grid";
 import { EntityInstancesApiContext } from "apiContext";
-import { Criteria, Dataset, Group } from "dataset";
-import { useDatasetUpdater } from "datasetUpdaterContext";
+import { useCohortUpdater } from "cohortUpdaterContext";
+import { Cohort, Criteria, Group } from "dataset";
 import Loading from "loading";
 import React, {
   useCallback,
@@ -28,10 +28,10 @@ export class ConceptCriteria extends Criteria {
     super(name);
   }
 
-  renderEdit(dataset: Dataset, group: Group): JSX.Element {
+  renderEdit(cohort: Cohort, group: Group): JSX.Element {
     return (
       <ConceptEdit
-        dataset={dataset}
+        cohort={cohort}
         group={group}
         criteria={this}
         filter={this.filter}
@@ -93,7 +93,7 @@ const fetchedColumns: GridColDef[] = [
 ];
 
 type ConceptEditProps = {
-  dataset: Dataset;
+  cohort: Cohort;
   group: Group;
   criteria: ConceptCriteria;
   filter: string;
@@ -110,7 +110,7 @@ function ConceptEdit(props: ConceptEditProps) {
     api
       .searchEntityInstances({
         entityName: "concept",
-        underlayName: props.dataset.underlayName,
+        underlayName: props.cohort.underlayName,
         searchEntityInstancesRequest: {
           entityDataset: {
             entityVariable: "c",
@@ -171,9 +171,9 @@ function ConceptEdit(props: ConceptEditProps) {
           setError(error);
         }
       );
-  }, [api, props.filter, props.dataset.underlayName]);
+  }, [api, props.filter, props.cohort.underlayName]);
 
-  const updater = useDatasetUpdater();
+  const updater = useCohortUpdater();
 
   const renderSelected = useCallback(
     (params: GridRenderCellParams) => {

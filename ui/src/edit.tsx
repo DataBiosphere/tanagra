@@ -1,16 +1,16 @@
 import React from "react";
 import { Redirect, useParams } from "react-router-dom";
 import ActionBar from "./actionBar";
-import { Dataset } from "./dataset";
+import { Cohort } from "./dataset";
 
 type EditProps = {
-  dataset: Dataset;
+  cohort: Cohort;
 };
 
 export default function Edit(props: EditProps) {
   const params = useParams<{ group: string; criteria: string }>();
 
-  const group = props.dataset.findGroup(params.group);
+  const group = props.cohort.findGroup(params.group);
   const criteria = !!group ? group.findCriteria(params.criteria) : null;
 
   return (
@@ -19,9 +19,9 @@ export default function Edit(props: EditProps) {
       <ActionBar
         title={criteria?.name || "Unknown"}
         backUrl="/"
-        dataset={props.dataset}
+        cohort={props.cohort}
       />
-      {!!criteria && !!group ? criteria.renderEdit(props.dataset, group) : null}
+      {!!criteria && !!group ? criteria.renderEdit(props.cohort, group) : null}
     </>
   );
 }

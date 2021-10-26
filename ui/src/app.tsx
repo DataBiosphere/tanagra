@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { HashRouter, Route, Switch } from "react-router-dom";
 import "./app.css";
-import { Dataset } from "./dataset";
-import { DatasetUpdaterProvider } from "./datasetUpdaterContext";
+import { CohortUpdaterProvider } from "./cohortUpdaterContext";
+import { Cohort } from "./dataset";
 import Edit from "./edit";
 import Overview from "./overview";
 
@@ -12,8 +12,8 @@ type AppProps = {
 };
 
 export default function App(props: AppProps) {
-  const [dataset, setDataset] = useState<Dataset>(
-    new Dataset(
+  const [cohort, setCohort] = useState<Cohort>(
+    new Cohort(
       props.underlayName,
       props.entityName,
       // TODO(tjennison): Populate from an actual source.
@@ -27,17 +27,17 @@ export default function App(props: AppProps) {
   );
 
   return (
-    <DatasetUpdaterProvider dataset={dataset} setDataset={setDataset}>
+    <CohortUpdaterProvider cohort={cohort} setCohort={setCohort}>
       <HashRouter basename="/">
         <Switch>
           <Route path="/edit/:group/:criteria">
-            <Edit dataset={dataset} />
+            <Edit cohort={cohort} />
           </Route>
           <Route path="/">
-            <Overview dataset={dataset} />
+            <Overview cohort={cohort} />
           </Route>
         </Switch>
       </HashRouter>
-    </DatasetUpdaterProvider>
+    </CohortUpdaterProvider>
   );
 }

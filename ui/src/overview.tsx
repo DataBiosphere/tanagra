@@ -17,8 +17,8 @@ import { ConceptCriteria } from "criteria/concept";
 import React, { useCallback } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import ActionBar from "./actionBar";
-import { Criteria, Dataset, Group, GroupKind } from "./dataset";
-import { useDatasetUpdater } from "./datasetUpdaterContext";
+import { useCohortUpdater } from "./cohortUpdaterContext";
+import { Cohort, Criteria, Group, GroupKind } from "./dataset";
 import { useMenu } from "./menu";
 
 function editRoute(groupId: string, criteriaId: string): string {
@@ -26,18 +26,18 @@ function editRoute(groupId: string, criteriaId: string): string {
 }
 
 type OverviewProps = {
-  dataset: Dataset;
+  cohort: Cohort;
 };
 
 export default function Overview(props: OverviewProps) {
   return (
     <>
-      <ActionBar title="Cohort" dataset={props.dataset} />
+      <ActionBar title="Cohort" cohort={props.cohort} />
       <Grid container columns={3} className="overview">
         <Grid item xs={1}>
           <Typography variant="h4">Included Participants</Typography>
           <Stack spacing={0}>
-            {props.dataset.listGroups(GroupKind.Included).map((group) => (
+            {props.cohort.listGroups(GroupKind.Included).map((group) => (
               <Box key={group.id}>
                 <ParticipantsGroup group={group} />
                 <Divider className="and-divider">
@@ -59,18 +59,18 @@ export default function Overview(props: OverviewProps) {
 // it's a GroupKind, a new group of that kind is added instead.
 function AddCriteriaButton(props: { group: string | GroupKind }) {
   const history = useHistory();
-  const updater = useDatasetUpdater();
+  const updater = useCohortUpdater();
 
   const onAddCriteria = useCallback(
     (create: () => Criteria) => {
       let groupId = "";
       const criteria = create();
-      updater.update((dataset: Dataset) => {
+      updater.update((cohort: Cohort) => {
         if (typeof props.group === "string") {
-          dataset.addCriteria(props.group, criteria);
+          cohort.addCriteria(props.group, criteria);
           groupId = props.group;
         } else {
-          groupId = dataset.addGroupAndCriteria(props.group, criteria);
+          groupId = cohort.addGroupAndCriteria(props.group, criteria);
         }
       });
       history.push(editRoute(groupId, criteria.id));
@@ -128,7 +128,7 @@ function ParticipantsGroup(props: { group: Group }) {
 }
 
 function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
-  const updater = useDatasetUpdater();
+  const updater = useCohortUpdater();
 
   const [menu, show] = useMenu({
     children: [
@@ -142,8 +142,8 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
       <MenuItem
         key="2"
         onClick={() => {
-          updater.update((dataset: Dataset) => {
-            dataset.deleteCriteria(props.group.id, props.criteria.id);
+          updater.update((cohort: Cohort) => {
+            cohort.deleteCriteria(props.group.id, props.criteria.id);
           });
         }}
       >
