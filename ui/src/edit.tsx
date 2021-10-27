@@ -8,17 +8,19 @@ type EditProps = {
 };
 
 export default function Edit(props: EditProps) {
-  const params = useParams<{ group: string; criteria: string }>();
+  const params =
+    useParams<{ cohortId: string; group: string; criteria: string }>();
+  const backUrl = `/cohort/${params.cohortId}`;
 
   const group = props.cohort.findGroup(params.group);
   const criteria = !!group ? group.findCriteria(params.criteria) : null;
 
   return (
     <>
-      {!criteria ? <Redirect to="/" /> : null}
+      {!criteria ? <Redirect to={backUrl} /> : null}
       <ActionBar
         title={criteria?.name || "Unknown"}
-        backUrl="/"
+        backUrl={backUrl}
         cohort={props.cohort}
       />
       {!!criteria && !!group ? criteria.renderEdit(props.cohort, group) : null}

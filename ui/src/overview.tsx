@@ -15,14 +15,18 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { ConceptCriteria } from "criteria/concept";
 import React, { useCallback } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Link as RouterLink, useHistory, useParams } from "react-router-dom";
 import ActionBar from "./actionBar";
 import { Cohort, Criteria, Group, GroupKind } from "./cohort";
 import { useCohortUpdater } from "./cohortUpdaterContext";
 import { useMenu } from "./menu";
 
-function editRoute(groupId: string, criteriaId: string): string {
-  return `/edit/${groupId}/${criteriaId}`;
+function editRoute(
+  cohortId: string,
+  groupId: string,
+  criteriaId: string
+): string {
+  return `/cohort/${cohortId}/edit/${groupId}/${criteriaId}`;
 }
 
 type OverviewProps = {
@@ -32,7 +36,7 @@ type OverviewProps = {
 export default function Overview(props: OverviewProps) {
   return (
     <>
-      <ActionBar title="Cohort" cohort={props.cohort} />
+      <ActionBar backUrl="/" title={props.cohort.name} cohort={props.cohort} />
       <Grid container columns={3} className="overview">
         <Grid item xs={1}>
           <Typography variant="h4">Included Participants</Typography>
@@ -58,6 +62,7 @@ export default function Overview(props: OverviewProps) {
 // If group is a string, the criteria is added to the group with that id. If
 // it's a GroupKind, a new group of that kind is added instead.
 function AddCriteriaButton(props: { group: string | GroupKind }) {
+  const { cohortId } = useParams<{ cohortId: string }>();
   const history = useHistory();
   const updater = useCohortUpdater();
 
@@ -73,7 +78,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
           groupId = cohort.addGroupAndCriteria(props.group, criteria);
         }
       });
-      history.push(editRoute(groupId, criteria.id));
+      history.push(editRoute(cohortId, groupId, criteria.id));
     },
     [updater]
   );
@@ -128,6 +133,7 @@ function ParticipantsGroup(props: { group: Group }) {
 }
 
 function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
+  const { cohortId } = useParams<{ cohortId: string }>();
   const updater = useCohortUpdater();
 
   const [menu, show] = useMenu({
@@ -135,7 +141,7 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
       <MenuItem
         key="1"
         component={RouterLink}
-        to={editRoute(props.group.id, props.criteria.id)}
+        to={editRoute(cohortId, props.group.id, props.criteria.id)}
       >
         Edit Criteria
       </MenuItem>,
