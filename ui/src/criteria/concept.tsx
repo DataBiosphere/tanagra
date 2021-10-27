@@ -11,8 +11,8 @@ import {
   GridValueFormatterParams,
 } from "@mui/x-data-grid";
 import { EntityInstancesApiContext } from "apiContext";
+import { Cohort, Criteria, Group } from "cohort";
 import { useCohortUpdater } from "cohortUpdaterContext";
-import { Cohort, Criteria, Group } from "dataset";
 import Loading from "loading";
 import React, {
   useCallback,

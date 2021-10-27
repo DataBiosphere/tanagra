@@ -7,7 +7,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Cohort } from "./dataset";
+import { Cohort } from "./cohort";
 import { useSqlDialog } from "./sqlDialog";
 
 type ActionBarProps = {

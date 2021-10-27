@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { createContext, ReactNode, useContext, useMemo } from "react";
-import { Cohort, Criteria } from "./dataset";
+import { Cohort, Criteria } from "./cohort";
 
 const CohortUpdaterContext = createContext<CohortUpdater | null>(null);
 

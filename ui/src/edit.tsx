@@ -1,7 +1,7 @@
 import React from "react";
 import { Redirect, useParams } from "react-router-dom";
 import ActionBar from "./actionBar";
-import { Cohort } from "./dataset";
+import { Cohort } from "./cohort";
 
 type EditProps = {
   cohort: Cohort;

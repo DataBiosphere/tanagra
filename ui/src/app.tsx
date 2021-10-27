@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { HashRouter, Route, Switch } from "react-router-dom";
 import "./app.css";
+import { Cohort } from "./cohort";
 import { CohortUpdaterProvider } from "./cohortUpdaterContext";
-import { Cohort } from "./dataset";
 import Edit from "./edit";
 import Overview from "./overview";
 
