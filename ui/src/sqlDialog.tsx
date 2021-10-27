@@ -11,10 +11,10 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Dataset } from "./dataset";
+import { Cohort } from "./dataset";
 
 type SqlDialogProps = {
-  dataset: Dataset;
+  cohort: Cohort;
 };
 
 export function useSqlDialog(
@@ -32,12 +32,12 @@ export function useSqlDialog(
 
   useEffect(() => {
     if (open) {
-      const params = props.dataset.generateQueryParameters();
+      const params = props.cohort.generateQueryParameters();
       if (params) {
         api
           .generateDatasetSqlQuery({
-            entityName: props.dataset.entityName,
-            underlayName: props.dataset.underlayName,
+            entityName: props.cohort.entityName,
+            underlayName: props.cohort.underlayName,
             generateDatasetSqlQueryRequest: {
               entityDataset: params,
             },
@@ -59,7 +59,7 @@ export function useSqlDialog(
         setError(new Error("No criteria have been selected"));
       }
     }
-  }, [api, props.dataset, open]);
+  }, [api, props.cohort, open]);
 
   return [
     // eslint-disable-next-line react/jsx-key

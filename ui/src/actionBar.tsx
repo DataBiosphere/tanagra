@@ -7,17 +7,17 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Dataset } from "./dataset";
+import { Cohort } from "./dataset";
 import { useSqlDialog } from "./sqlDialog";
 
 type ActionBarProps = {
   title: string;
   backUrl?: string;
-  dataset: Dataset;
+  cohort: Cohort;
 };
 
 export default function ActionBar(props: ActionBarProps) {
-  const [dialog, showSqlDialog] = useSqlDialog({ dataset: props.dataset });
+  const [dialog, showSqlDialog] = useSqlDialog({ cohort: props.cohort });
 
   return (
     <Box sx={{ flexGrow: 1 }} className="action-bar">
@@ -36,7 +36,7 @@ export default function ActionBar(props: ActionBarProps) {
             {props.title}
           </Typography>
           <Typography variant="h6" className="underlay-name">
-            Dataset: {props.dataset.underlayName}
+            Dataset: {props.cohort.underlayName}
           </Typography>
           <IconButton component="span" color="inherit" onClick={showSqlDialog}>
             <FileDownloadIcon />

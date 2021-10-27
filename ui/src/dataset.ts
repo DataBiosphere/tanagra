@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 import * as tanagra from "./tanagra-api";
 
-export class Dataset {
+export class Cohort {
   constructor(
     public underlayName: string,
     public entityName: string,
@@ -118,7 +118,7 @@ export class Group {
 export abstract class Criteria {
   constructor(public name: string) {}
 
-  abstract renderEdit(dataset: Dataset, group: Group): JSX.Element;
+  abstract renderEdit(cohort: Cohort, group: Group): JSX.Element;
   abstract renderDetails(): JSX.Element;
   abstract generateFilter(): tanagra.Filter | null;
 
