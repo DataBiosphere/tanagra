@@ -118,16 +118,10 @@ function ConceptEdit(props: ConceptEditProps) {
               return col.field;
             }),
             filter: {
-              // TODO(tjennison): Generalize this when we have more instances.
-              binaryFilter: {
-                attributeVariable: {
-                  name: "domain_id",
-                  variable: "c",
-                },
-                operator: tanagra.BinaryFilterOperator.Equals,
-                attributeValue: {
-                  stringVal: "Condition",
-                },
+              relationshipFilter: {
+                outerVariable: "c",
+                newVariable: "cc",
+                newEntity: props.filter,
               },
             },
           },
