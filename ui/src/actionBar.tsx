@@ -21,7 +21,7 @@ export default function ActionBar(props: ActionBarProps) {
 
   return (
     <Box sx={{ flexGrow: 1 }} className="action-bar">
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             color="inherit"
@@ -44,6 +44,7 @@ export default function ActionBar(props: ActionBarProps) {
           {dialog}
         </Toolbar>
       </AppBar>
+      <Toolbar /> {/*Prevent content from flowing under the AppBar.*/}
     </Box>
   );
 }
