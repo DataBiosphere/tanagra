@@ -1,5 +1,9 @@
-import { v4 as uuid } from "uuid";
+import { generate } from "randomstring";
 import * as tanagra from "./tanagra-api";
+
+function id(): string {
+  return generate(8);
+}
 
 export class Cohort {
   constructor(
@@ -9,7 +13,7 @@ export class Cohort {
     public attributes: string[] = [],
     public groups: Group[] = []
   ) {
-    this.id = uuid();
+    this.id = id();
   }
 
   findGroupIndex(id: string): number {
@@ -86,7 +90,7 @@ export enum GroupKind {
 
 export class Group {
   constructor(kind: GroupKind, criteria: Criteria[] = []) {
-    this.id = uuid();
+    this.id = id();
     this.kind = kind;
     this.criteria = criteria;
   }
@@ -127,6 +131,6 @@ export abstract class Criteria {
   abstract renderDetails(): JSX.Element;
   abstract generateFilter(): tanagra.Filter | null;
 
-  id = uuid();
+  id = id();
   count = 0;
 }
