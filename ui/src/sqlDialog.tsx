@@ -11,7 +11,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Cohort } from "./dataset";
+import { Cohort } from "./cohort";
 
 type SqlDialogProps = {
   cohort: Cohort;

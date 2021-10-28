@@ -17,8 +17,8 @@ import { ConceptCriteria } from "criteria/concept";
 import React, { useCallback } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import ActionBar from "./actionBar";
+import { Cohort, Criteria, Group, GroupKind } from "./cohort";
 import { useCohortUpdater } from "./cohortUpdaterContext";
-import { Cohort, Criteria, Group, GroupKind } from "./dataset";
 import { useMenu } from "./menu";
 
 function editRoute(groupId: string, criteriaId: string): string {
