@@ -14,7 +14,7 @@ import {
 import { Cohort } from "./cohort";
 
 type SqlDialogProps = {
-  cohort: Cohort;
+  cohort?: Cohort;
 };
 
 export function useSqlDialog(
@@ -31,7 +31,7 @@ export function useSqlDialog(
   const api = useContext(EntityInstancesApiContext);
 
   useEffect(() => {
-    if (open) {
+    if (open && props.cohort) {
       const params = props.cohort.generateQueryParameters();
       if (params) {
         api

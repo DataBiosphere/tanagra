@@ -3,11 +3,14 @@ import * as tanagra from "./tanagra-api";
 
 export class Cohort {
   constructor(
+    public name: string,
     public underlayName: string,
     public entityName: string,
     public attributes: string[] = [],
     public groups: Group[] = []
-  ) {}
+  ) {
+    this.id = uuid();
+  }
 
   findGroupIndex(id: string): number {
     return this.groups.findIndex((group) => group.id === id);
@@ -72,6 +75,8 @@ export class Cohort {
       },
     };
   }
+
+  id: string;
 }
 
 export enum GroupKind {
