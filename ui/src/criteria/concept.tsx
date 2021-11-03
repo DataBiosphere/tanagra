@@ -13,14 +13,9 @@ import {
 import { EntityInstancesApiContext } from "apiContext";
 import { Cohort, Criteria, Group } from "cohort";
 import { useCohortUpdater } from "cohortUpdaterContext";
+import { useAsyncWithApi } from "errors";
 import Loading from "loading";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
 
 export class ConceptCriteria extends Criteria {
@@ -100,38 +95,34 @@ type ConceptEditProps = {
 };
 
 function ConceptEdit(props: ConceptEditProps) {
-  const [error, setError] = useState<Error | null>(null);
-  const [rows, setRows] = useState<Array<GridRowData> | null>(null);
-
   const api = useContext(EntityInstancesApiContext);
 
-  // TODO(tjennison): Migrate to useAsync.
-  useEffect(() => {
-    api
-      .searchEntityInstances({
-        entityName: "concept",
-        underlayName: props.cohort.underlayName,
-        searchEntityInstancesRequest: {
-          entityDataset: {
-            entityVariable: "c",
-            selectedAttributes: fetchedColumns.map((col) => {
-              return col.field;
-            }),
-            filter: {
-              relationshipFilter: {
-                outerVariable: "c",
-                newVariable: "cc",
-                newEntity: props.filter,
+  const conceptsState = useAsyncWithApi<Array<GridRowData>>(
+    useCallback(
+      () =>
+        api
+          .searchEntityInstances({
+            entityName: "concept",
+            underlayName: props.cohort.underlayName,
+            searchEntityInstancesRequest: {
+              entityDataset: {
+                entityVariable: "c",
+                selectedAttributes: fetchedColumns.map((col) => {
+                  return col.field;
+                }),
+                filter: {
+                  relationshipFilter: {
+                    outerVariable: "c",
+                    newVariable: "cc",
+                    newEntity: props.filter,
+                  },
+                },
               },
             },
-          },
-        },
-      })
-      .then(
-        (res) => {
-          if (res.instances) {
-            setRows(
-              res.instances
+          })
+          .then((res) => {
+            if (res.instances) {
+              return res.instances
                 .map((instance) => {
                   const id = instance["concept_id"]?.int64Val || 0;
                   const row: GridRowData = {
@@ -155,17 +146,13 @@ function ConceptEdit(props: ConceptEditProps) {
                   }
                   return row;
                 })
-                .filter((row) => row.id !== 0)
-            );
-          } else {
-            setRows([]);
-          }
-        },
-        (error) => {
-          setError(error);
-        }
-      );
-  }, [api, props.filter, props.cohort.underlayName]);
+                .filter((row) => row.id !== 0);
+            }
+            return [];
+          }),
+      [api]
+    )
+  );
 
   const updater = useCohortUpdater();
 
@@ -216,20 +203,18 @@ function ConceptEdit(props: ConceptEditProps) {
     [renderSelected]
   );
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  } else if (!rows) {
-    return <Loading />;
-  }
-
   return (
-    <DataGrid
-      autoHeight
-      rows={rows}
-      columns={columns}
-      disableSelectionOnClick
-      className="criteria-concept"
-    />
+    <Loading status={conceptsState}>
+      {conceptsState.data ? (
+        <DataGrid
+          autoHeight
+          rows={conceptsState.data}
+          columns={columns}
+          disableSelectionOnClick
+          className="criteria-concept"
+        />
+      ) : null}
+    </Loading>
   );
 }
 
