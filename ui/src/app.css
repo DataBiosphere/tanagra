@@ -72,3 +72,25 @@
 .criteria-concept {
   border: none !important;
 }
+
+.loading {
+  margin: 2em 4em;
+}
+
+.loading h2 {
+  text-align: center;
+}
+
+.loading p {
+  text-align: center;
+}
+
+.loading Button {
+  margin: 0 auto;
+  display: block;
+}
+
+.loading .MuiCircularProgress-root {
+  margin: 0 auto;
+  display: block;
+}

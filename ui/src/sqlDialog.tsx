@@ -4,13 +4,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { EntityInstancesApiContext } from "apiContext";
 import Loading from "loading";
-import {
-  ReactElement,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { ReactElement, useCallback, useContext, useState } from "react";
+import { useAsync } from "react-async";
 import { Cohort } from "./cohort";
 
 type SqlDialogProps = {
@@ -25,41 +20,37 @@ export function useSqlDialog(
     setOpen(true);
   }, []);
 
-  const [sql, setSql] = useState<string | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-
   const api = useContext(EntityInstancesApiContext);
 
-  useEffect(() => {
-    if (open && props.cohort) {
-      const params = props.cohort.generateQueryParameters();
-      if (params) {
-        api
-          .generateDatasetSqlQuery({
-            entityName: props.cohort.entityName,
-            underlayName: props.cohort.underlayName,
-            generateDatasetSqlQueryRequest: {
-              entityDataset: params,
-            },
-          })
-          .then(
-            (res) => {
+  const sqlState = useAsync<string>({
+    promiseFn: useCallback(() => {
+      if (open && props.cohort) {
+        const params = props.cohort.generateQueryParameters();
+        if (params) {
+          return api
+            .generateDatasetSqlQuery({
+              entityName: props.cohort.entityName,
+              underlayName: props.cohort.underlayName,
+              generateDatasetSqlQueryRequest: {
+                entityDataset: params,
+              },
+            })
+            .then((res) => {
               if (res?.query) {
-                setSql(res.query);
-                setError(null);
-              } else {
-                setError(new Error("Service returned an empty query"));
+                return res.query;
               }
-            },
-            (error) => {
-              setError(error);
-            }
-          );
-      } else {
-        setError(new Error("No criteria have been selected"));
+              throw new Error("Service returned an empty query");
+            });
+        }
+        return new Promise<string>((resolve) => {
+          resolve("No criteria have been selected");
+        });
       }
-    }
-  }, [api, props.cohort, open]);
+      return new Promise<string>((resolve) => {
+        resolve("");
+      });
+    }, [api, props.cohort, open]),
+  });
 
   return [
     // eslint-disable-next-line react/jsx-key
@@ -81,7 +72,7 @@ export function useSqlDialog(
           tabIndex={-1}
           sx={{ fontFamily: "Monospace" }}
         >
-          {error?.message || sql || <Loading />}
+          <Loading status={sqlState}>{sqlState.data}</Loading>
         </DialogContentText>
       </DialogContent>
     </Dialog>,
