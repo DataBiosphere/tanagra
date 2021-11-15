@@ -1,14 +1,14 @@
-package bio.terra.tanagra.service.databaseaccess.testing;
+package bio.terra.tanagra.service.databaseaccess;
 
-import bio.terra.tanagra.service.databaseaccess.CellValue;
 import bio.terra.tanagra.service.search.DataType;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import java.util.OptionalLong;
+import javax.annotation.Nullable;
 
-/** A {@link CellValue} for use in tests. */
+/** A {@link CellValue} where the value is eagerly materialized. */
 @AutoValue
-public abstract class TestCellValue implements CellValue {
+public abstract class EagerCellValue implements CellValue {
 
   @Override
   public abstract DataType dataType();
@@ -40,20 +40,20 @@ public abstract class TestCellValue implements CellValue {
     }
   }
 
-  public static TestCellValue of(String value) {
+  public static EagerCellValue of(@Nullable String value) {
     return builder().dataType(DataType.STRING).stringVal(value).build();
   }
 
-  public static TestCellValue of(long value) {
+  public static EagerCellValue of(long value) {
     return builder().dataType(DataType.INT64).longVal(value).build();
   }
 
-  public static TestCellValue ofNull(DataType type) {
+  public static EagerCellValue ofNull(DataType type) {
     return builder().dataType(type).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_TestCellValue.Builder();
+    return new AutoValue_EagerCellValue.Builder();
   }
 
   @AutoValue.Builder
@@ -63,8 +63,8 @@ public abstract class TestCellValue implements CellValue {
 
     public abstract Builder longVal(Long longVal);
 
-    public abstract Builder stringVal(String stringVal);
+    public abstract Builder stringVal(@Nullable String stringVal);
 
-    public abstract TestCellValue build();
+    public abstract EagerCellValue build();
   }
 }

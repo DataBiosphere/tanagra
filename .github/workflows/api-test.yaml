@@ -11,12 +11,28 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13.1
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - name: Set up AdoptOpenJDK 11
         uses: joschi/setup-jdk@v2
         with:
           java-version: 11
+      - name: Initialize Postgres DB
+        env:
+          PGPASSWORD: postgres
+        run: psql -h 127.0.0.1 -U postgres -f ./api/local-dev/local-postgres-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
