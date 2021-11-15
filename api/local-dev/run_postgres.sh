@@ -2,6 +2,7 @@
 # Start up a postgres container with initial user/database setup.
 POSTGRES_VERSION=13.1
 
+# TODO consider using docker-compose instead of these local sh files.
 start() {
     echo "attempting to remove old $CONTAINER container..."
     docker rm -f $CONTAINER
