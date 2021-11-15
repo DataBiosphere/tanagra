@@ -1,0 +1,96 @@
+.action-bar .MuiToolbar-root {
+  padding-left: 0px !important;
+}
+
+.action-bar .underlay-name {
+  margin-right: 1em;
+}
+
+.datasets {
+  padding: 0em 4em;
+}
+
+.datasets .MuiGrid-item {
+  padding: 1em 2em;
+}
+
+.datasets .MuiPaper-root {
+  margin: 0em 0em 1em 0em;
+}
+
+.new-cohort-dialog .MuiTextField-root {
+  margin-bottom: 2em;
+}
+
+.overview {
+  padding: 0em 1em;
+}
+
+.overview h4 {
+  padding: 0.25em 0em;
+}
+
+.overview .participants-group {
+  padding: 0.5em 0em;
+}
+
+.overview .criteria-accordion .MuiAccordionSummary-root {
+  padding: 0em 0.5em 0em 0em;
+  align-items: flex-start;
+  min-height: 0em;
+}
+
+.overview .criteria-accordion .MuiAccordionSummary-content {
+  margin: 0em;
+  align-items: baseline;
+}
+
+.overview .criteria-accordion .MuiAccordionSummary-content .MuiDivider-root {
+  margin: 0em 0.5em;
+}
+
+.overview .criteria-accordion .MuiAccordionDetails-root {
+  padding: 0em;
+}
+
+.overview .criteria-accordion .MuiList-root {
+  padding: 0em;
+}
+
+.overview .criteria-accordion .MuiAccordionSummary-expandIconWrapper {
+  margin: 0.3em 0em 0em 0em;
+}
+
+.overview .add-criteria {
+  margin: 0em 0.5em !important;
+}
+
+.overview .and-divider {
+  margin: 0.2em 0em !important;
+}
+
+.criteria-concept {
+  border: none !important;
+}
+
+.loading {
+  margin: 2em 4em;
+}
+
+.loading h2 {
+  text-align: center;
+}
+
+.loading p {
+  text-align: center;
+}
+
+.loading Button {
+  margin: 0 auto;
+  display: block;
+}
+
+.loading .MuiCircularProgress-root {
+  margin: 0 auto;
+  display: block;
+}

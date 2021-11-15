@@ -1,6 +1,6 @@
 # An initial OMOP underlay schema for development.
 
-name: omop_test
+name: aou_synthetic
 entities:
   - name: person
     attributes:
@@ -35,7 +35,7 @@ entities:
       - name: condition_standard
         dataType: STRING
       - name: condition_concept_code
-        dataType: INT64
+        dataType: STRING
   - name: concept
     attributes:
       - name: concept_id
@@ -51,7 +51,7 @@ entities:
       - name: standard_concept
         dataType: STRING
       - name: concept_code
-        dataType: INT64
+        dataType: STRING
 relationships:
   - name: person_condition_occurrence
     entity1: person
@@ -72,10 +72,10 @@ relationships:
     entity1: concept
     entity2: condition_occurrence
 datasets:
-  - name: omop_test
+  - name: aou_synthetic
     bigQueryDataset:
-      projectId: all-of-us-ehr-dev
-      datasetId: SR2019q4r4
+      projectId: broad-tanagra-dev
+      datasetId: aou_synthetic_SR2019q4r4
     tables:
       - name: person
         columns:
@@ -117,20 +117,31 @@ datasets:
             dataType: STRING
           - name: vocabulary_name
             dataType: STRING
+  - name: omop_indexes
+    bigQueryDataset:
+      projectId: broad-tanagra-dev
+      datasetId: aou_synthetic_SR2019q4r4_indexes
+    tables:
+      - name: flatten_snomed_conditions_0
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
 entityMappings:
   - entity: person
     primaryKey:
-      dataset: omop_test
+      dataset: aou_synthetic
       table: person
       column: person_id
   - entity: condition_occurrence
     primaryKey:
-      dataset: omop_test
+      dataset: aou_synthetic
       table: condition_occurrence
       column: condition_occurrence_id
   - entity: concept
     primaryKey:
-      dataset: omop_test
+      dataset: aou_synthetic
       table: concept
       column: concept_id
 attributeMappings:
@@ -139,7 +150,7 @@ attributeMappings:
       attribute: person_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: person_id
   - attribute:
@@ -147,7 +158,7 @@ attributeMappings:
       attribute: gender_concept_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: gender_concept_id
   - attribute:
@@ -155,15 +166,15 @@ attributeMappings:
       attribute: gender
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: gender_concept_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_name
   - attribute:
@@ -171,7 +182,7 @@ attributeMappings:
       attribute: race_concept_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: race_concept_id
   - attribute:
@@ -179,15 +190,15 @@ attributeMappings:
       attribute: race
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: race_concept_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_name
   - attribute:
@@ -195,7 +206,7 @@ attributeMappings:
       attribute: ethnicity_concept_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: ethnicity_concept_id
   - attribute:
@@ -203,15 +214,15 @@ attributeMappings:
       attribute: ethnicity
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: ethnicity_concept_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_name
   - attribute:
@@ -219,7 +230,7 @@ attributeMappings:
       attribute: sex_at_birth_concept_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: sex_at_birth_concept_id
   - attribute:
@@ -227,15 +238,15 @@ attributeMappings:
       attribute: sex_at_birth
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: sex_at_birth_concept_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_name
   - attribute:
@@ -243,7 +254,7 @@ attributeMappings:
       attribute: condition_occurrence_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: condition_occurrence_id
   - attribute:
@@ -251,7 +262,7 @@ attributeMappings:
       attribute: person_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: person_id
   - attribute:
@@ -259,7 +270,7 @@ attributeMappings:
       attribute: condition_concept_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: condition_concept_id
   - attribute:
@@ -267,15 +278,15 @@ attributeMappings:
       attribute: condition_name
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: condition_concept_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_name
   - attribute:
@@ -283,15 +294,15 @@ attributeMappings:
       attribute: condition_standard
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: condition_concept_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: standard_concept
   - attribute:
@@ -299,15 +310,15 @@ attributeMappings:
       attribute: condition_concept_code
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: condition_concept_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_code
   - attribute:
@@ -315,7 +326,7 @@ attributeMappings:
       attribute: concept_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
   - attribute:
@@ -323,7 +334,7 @@ attributeMappings:
       attribute: concept_name
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_name
   - attribute:
@@ -331,7 +342,7 @@ attributeMappings:
       attribute: domain_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: domain_id
   - attribute:
@@ -339,7 +350,7 @@ attributeMappings:
       attribute: vocabulary_id
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: vocabulary_id
   - attribute:
@@ -347,15 +358,15 @@ attributeMappings:
       attribute: vocabulary_name
     lookupColumn:
       primaryTableLookupKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: vocabulary_id
       lookupTableKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: vocabulary
         column: vocabulary_id
       lookupColumn:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: vocabulary
         column: vocabulary_name
   - attribute:
@@ -363,7 +374,7 @@ attributeMappings:
       attribute: standard_concept
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: standard_concept
   - attribute:
@@ -371,67 +382,80 @@ attributeMappings:
       attribute: concept_code
     simpleColumn:
       columnId:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_code
 relationshipMappings:
   - name: person_condition_occurrence
     foreignKey:
       primaryKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: person_id
       foreignKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: person_id
   - name: concept_id_person_gender
     foreignKey:
       primaryKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       foreignKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: gender_concept_id
   - name: concept_id_person_race
     foreignKey:
       primaryKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       foreignKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: race_concept_id
   - name: concept_id_person_ethnicity
     foreignKey:
       primaryKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       foreignKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: ethnicity_concept_id
   - name: concept_id_person_sex_at_birth
     foreignKey:
       primaryKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       foreignKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: person
         column: sex_at_birth_concept_id
   - name: concept_id_condition
     foreignKey:
       primaryKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: concept
         column: concept_id
       foreignKey:
-        dataset: omop_test
+        dataset: aou_synthetic
         table: condition_occurrence
         column: condition_concept_id
+hierarchies:
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_concept_id
+    descendantsTable:
+      ancestor:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: ancestor
+      descendant:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: descendant
