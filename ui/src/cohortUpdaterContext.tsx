@@ -12,7 +12,7 @@ export function useCohortUpdater(): CohortUpdater {
   return updater;
 }
 
-class CohortUpdater {
+export class CohortUpdater {
   constructor(
     public cohort: Cohort,
     public setCohort: (cohort: Cohort) => void
