@@ -52,6 +52,22 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+  - name: condition_concept
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: domain_id
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
 relationships:
   - name: person_condition_occurrence
     entity1: person
@@ -70,6 +86,9 @@ relationships:
     entity2: person
   - name: concept_id_condition
     entity1: concept
+    entity2: condition_occurrence
+  - name: condition_concept_condition
+    entity1: condition_concept
     entity2: condition_occurrence
 datasets:
   - name: aou_synthetic
@@ -144,6 +163,16 @@ entityMappings:
       dataset: aou_synthetic
       table: concept
       column: concept_id
+  - entity: condition_concept
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+      filter:
+        type: booleanEquality
+        column: domain_id
+        value: <domain_id where domain_name = "Condition">
+
 attributeMappings:
   - attribute:
       entity: person
@@ -379,6 +408,70 @@ attributeMappings:
         column: standard_concept
   - attribute:
       entity: concept
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: condition_concept
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: condition_concept
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: condition_concept
+      attribute: domain_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: domain_id
+  - attribute:
+      entity: condition_concept
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: condition_concept
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: condition_concept
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: condition_concept
       attribute: concept_code
     simpleColumn:
       columnId:
