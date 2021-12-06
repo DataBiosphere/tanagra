@@ -136,9 +136,9 @@ function ConceptEdit(props: ConceptEditProps) {
                     const v = instance[k];
                     if (!v) {
                       row[k] = "";
-                    } else if (v.int64Val !== null) {
+                    } else if (isValid(v.int64Val)) {
                       row[k] = v.int64Val;
-                    } else if (v.boolVal !== null) {
+                    } else if (isValid(v.boolVal)) {
                       row[k] = v.boolVal;
                     } else {
                       row[k] = v.stringVal;
@@ -212,10 +212,18 @@ function ConceptEdit(props: ConceptEditProps) {
           columns={columns}
           disableSelectionOnClick
           className="criteria-concept"
+          // jsdom, which jest uses for testing, has incomplete support for
+          // layout sizing so virtualization ends up not displaying most of the
+          // columns in tests.
+          disableVirtualization={!!process.env.JEST_WORKER_ID}
         />
       ) : null}
     </Loading>
   );
+}
+
+function isValid<Type>(arg: Type) {
+  return arg !== null && typeof arg !== "undefined";
 }
 
 type ConceptDetailsProps = {
