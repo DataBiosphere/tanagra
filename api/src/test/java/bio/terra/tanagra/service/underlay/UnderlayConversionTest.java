@@ -4,10 +4,15 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_BT_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_COLOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_COLOR_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_NAME_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_ANCESTOR_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_DESCENDANT_COL;
@@ -60,6 +65,7 @@ public class UnderlayConversionTest {
             .put(SAILOR.name(), SAILOR)
             .put(BOAT.name(), BOAT)
             .put(RESERVATION.name(), RESERVATION)
+            .put(BOAT_ENGINE.name(), BOAT_ENGINE)
             .build(),
         nautical.entities());
     assertEquals(
@@ -76,6 +82,8 @@ public class UnderlayConversionTest {
             .put(RESERVATION, "boats_id", RESERVATION_B_ID)
             .put(RESERVATION, "sailors_id", RESERVATION_S_ID)
             .put(RESERVATION, "day", RESERVATION_DAY)
+            .put(BOAT_ENGINE, "id", BOAT_ENGINE_ID)
+            .put(BOAT_ENGINE, "name", BOAT_ENGINE_NAME)
             .build(),
         nautical.attributes());
     assertEquals(
@@ -89,6 +97,7 @@ public class UnderlayConversionTest {
             .put(SAILOR, SAILOR_ID_COL)
             .put(BOAT, BOAT_ID_COL)
             .put(RESERVATION, RESERVATION_ID_COL)
+            .put(BOAT_ENGINE, BOAT_PARTS_ID_COL)
             .build(),
         nautical.primaryKeys());
     assertEquals(
@@ -122,6 +131,12 @@ public class UnderlayConversionTest {
             .put(
                 RESERVATION_DAY,
                 AttributeMapping.SimpleColumn.create(RESERVATION_DAY, RESERVATION_DAY_COL))
+            .put(
+                BOAT_ENGINE_ID,
+                AttributeMapping.SimpleColumn.create(BOAT_ENGINE_ID, BOAT_PARTS_ID_COL))
+            .put(
+                BOAT_ENGINE_NAME,
+                AttributeMapping.SimpleColumn.create(BOAT_ENGINE_NAME, BOAT_PARTS_NAME_COL))
             .build(),
         nautical.attributeMappings());
     assertEquals(
