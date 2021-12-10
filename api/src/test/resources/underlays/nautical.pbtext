@@ -62,6 +62,17 @@ entities: {
     data_type: STRING
   }
 }
+entities: {
+  name: "boat_engines"
+  attributes: {
+    name: "id"
+    data_type: INT64
+  }
+  attributes: {
+    name: "name"
+    data_type: STRING
+  }
+}
 relationships: {
   name: "sailor_reservation"
   entity1: "sailors"
@@ -153,6 +164,21 @@ datasets: {
       data_type: INT64
     }
   }
+  tables: {
+    name: "boat_parts"
+    columns: {
+      name: "bp_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "bp_name"
+      data_type: STRING
+    }
+    columns: {
+      name: "bp_type"
+      data_type: STRING
+    }
+  }
 }
 entity_mappings: {
   entity: "sailors"
@@ -176,6 +202,24 @@ entity_mappings: {
     dataset: "nautical"
     table: "reservations"
     column: "r_id"
+  }
+}
+entity_mappings: {
+  entity: "boat_engines"
+  primary_key: {
+    dataset: "nautical"
+    table: "boat_parts"
+    column: "bp_id"
+  }
+  table_filter: {
+    column_filter: {
+      column: {
+        dataset: "nautical"
+        table: "boat_parts"
+        column: "bp_type"
+      }
+      value: "engine"
+    }
   }
 }
 attribute_mappings: {
@@ -341,6 +385,32 @@ attribute_mappings: {
       dataset: "nautical"
       table: "reservations"
       column: "day"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boat_engines"
+    attribute: "id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boat_parts"
+      column: "bp_id"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boat_engines"
+    attribute: "name"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boat_parts"
+      column: "bp_name"
     }
   }
 }

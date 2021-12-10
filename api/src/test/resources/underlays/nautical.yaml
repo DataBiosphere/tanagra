@@ -34,6 +34,12 @@ entities:
         dataType: INT64
       - name: day
         dataType: STRING
+  - name: boat_engines
+    attributes:
+      - name: id
+        dataType: INT64
+      - name: name
+        dataType: STRING
 relationships:
   - name: sailor_reservation
     entity1: sailors
@@ -87,6 +93,14 @@ datasets:
             dataType: INT64
           - name: bt_descendant
             dataType: INT64
+      - name: boat_parts
+        columns:
+          - name: bp_id
+            dataType: INT64
+          - name: bp_name
+            dataType: STRING
+          - name: bp_type
+            dataType: STRING
 entityMappings:
   - entity: sailors
     primaryKey:
@@ -103,6 +117,18 @@ entityMappings:
       dataset: nautical
       table: reservations
       column: r_id
+  - entity: boat_engines
+    primaryKey:
+      dataset: nautical
+      table: boat_parts
+      column: bp_id
+    tableFilter:
+      columnFilter:
+        column:
+          dataset: nautical
+          table: boat_parts
+          column: bp_type
+        value: engine
 attributeMappings:
   - attribute:
       entity: sailors
@@ -208,6 +234,22 @@ attributeMappings:
         dataset: nautical
         table: reservations
         column: day
+  - attribute:
+      entity: boat_engines
+      attribute: id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boat_parts
+        column: bp_id
+  - attribute:
+      entity: boat_engines
+      attribute: name
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boat_parts
+        column: bp_name
 relationshipMappings:
   - name: sailor_reservation
     foreignKey:

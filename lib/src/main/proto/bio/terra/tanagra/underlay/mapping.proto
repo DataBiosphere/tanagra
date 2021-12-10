@@ -20,6 +20,10 @@ message EntityMapping {
   // The primary key for the entity. This is used to uniquely identify an entity
   // and the corresponding table is treated as the entity's primary table.
   ColumnId primary_key = 2;
+
+  // An optional filter to apply to the table. This is used to map an entity to
+  // a subset of a table's rows instead of the entire table.
+  optional TableFilter table_filter = 3;
 }
 
 // How to map an attribute.

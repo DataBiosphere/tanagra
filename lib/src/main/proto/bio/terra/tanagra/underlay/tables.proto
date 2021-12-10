@@ -48,3 +48,18 @@ message ColumnId {
   // The name of the column.
   string column = 3;
 }
+
+// A filter specification to get a subset of the rows in a table.
+message TableFilter {
+  // A condition on a particular column
+  // TODO: allow multiple ColumnFilters and AND/OR'ing them together
+  ColumnFilter column_filter = 1;
+}
+
+// A building block for a TableFilter that defines a condition on a single column.
+message ColumnFilter {
+  // Pointer to the column.
+  ColumnId column = 1;
+  // Column value to filter on
+  string value = 2;
+}
