@@ -1,0 +1,28 @@
+name: Run UI Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [15.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup environment
+        run: |
+          echo REACT_APP_USE_FAKE_API=y > .env.development.local
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          build: npm run codegen
+          start: npm start
+          wait-on: "http://localhost:3000"
+          working-directory: ui
