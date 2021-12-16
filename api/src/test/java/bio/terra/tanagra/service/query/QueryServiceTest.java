@@ -1,5 +1,8 @@
 package bio.terra.tanagra.service.query;
 
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING;
@@ -53,6 +56,20 @@ public class QueryServiceTest extends BaseSpringUnitTest {
                             AttributeVariable.create(SAILOR_RATING, Variable.create("s"))),
                         Filter.BinaryFunction.Operator.EQUALS,
                         Expression.Literal.create(DataType.INT64, "42")))
+                .build()));
+  }
+
+  @Test
+  void generateSqlEntityDatasetWithTableFilter() {
+    assertEquals(
+        "SELECT boatengine.bp_id AS id, boatengine.bp_name AS name "
+            + "FROM (SELECT bp_id, bp_name FROM `my-project-id.nautical`.boat_parts WHERE bp_type = 'engine') AS boatengine "
+            + "WHERE TRUE",
+        queryService.generateSql(
+            EntityDataset.builder()
+                .primaryEntity(EntityVariable.create(BOAT_ENGINE, Variable.create("boatengine")))
+                .selectedAttributes(ImmutableList.of(BOAT_ENGINE_ID, BOAT_ENGINE_NAME))
+                .filter(Filter.NullFilter.INSTANCE)
                 .build()));
   }
 }
