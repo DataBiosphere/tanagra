@@ -259,15 +259,27 @@ public class SqlVisitor {
     }
 
     private String resolveTable(Table table, TableFilter tableFilter) {
-      // TODO: handle types other than string
+      String valueInWhereClause;
+      switch (tableFilter.columnFilter().column().dataType()) {
+        case STRING:
+          valueInWhereClause = String.format("'%s'", tableFilter.columnFilter().value());
+          break;
+        case INT64:
+          valueInWhereClause = tableFilter.columnFilter().value();
+          break;
+        default:
+          throw new IllegalArgumentException(
+              "Unknown column data type: " + tableFilter.columnFilter().column().dataType());
+      }
+
       // (SELECT * FROM `projectId.datasetId`.table WHERE columnFilter=value)
       return String.format(
-          "(SELECT * FROM `%s.%s`.%s WHERE %s = '%s')",
+          "(SELECT * FROM `%s.%s`.%s WHERE %s = %s)",
           table.dataset().projectId(),
           table.dataset().datasetId(),
           table.name(),
           tableFilter.columnFilter().column().name(),
-          tableFilter.columnFilter().value());
+          valueInWhereClause);
     }
 
     /** Resolve an {@link AttributeExpression} as an SQL expression. */
