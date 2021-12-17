@@ -63,7 +63,7 @@ public class QueryServiceTest extends BaseSpringUnitTest {
   void generateSqlEntityDatasetWithTableFilter() {
     assertEquals(
         "SELECT boatengine.bp_id AS id, boatengine.bp_name AS name "
-            + "FROM (SELECT bp_id, bp_name FROM `my-project-id.nautical`.boat_parts WHERE bp_type = 'engine') AS boatengine "
+            + "FROM (SELECT * FROM `my-project-id.nautical`.boat_parts WHERE bp_type = 'engine') AS boatengine "
             + "WHERE TRUE",
         queryService.generateSql(
             EntityDataset.builder()
