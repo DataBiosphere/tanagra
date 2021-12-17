@@ -37,6 +37,8 @@ public abstract class Underlay {
 
   /** Map from entities to the columns for their primary keys. */
   public abstract ImmutableMap<Entity, Column> primaryKeys();
+  /** Map from entities to their optional table filters. */
+  public abstract ImmutableMap<Entity, TableFilter> tableFilters();
   /** Map from attributes to their {@link AttributeMapping}s. */
   public abstract ImmutableMap<Attribute, AttributeMapping> attributeMappings();
   /**
@@ -101,6 +103,8 @@ public abstract class Underlay {
     public abstract Builder relationships(Map<String, Relationship> value);
 
     public abstract Builder primaryKeys(Map<Entity, Column> primaryKeys);
+
+    public abstract Builder tableFilters(Map<Entity, TableFilter> tableFilters);
 
     public abstract Builder attributeMappings(Map<Attribute, AttributeMapping> attributeMappings);
 

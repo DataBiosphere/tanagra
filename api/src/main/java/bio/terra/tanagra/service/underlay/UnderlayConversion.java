@@ -47,6 +47,7 @@ final class UnderlayConversion {
     Map<String, Relationship> relationships = buildRelationships(underlayProto, entities);
     Map<ColumnId, Column> columns = buildColumns(underlayProto);
     Map<Entity, Column> primaryKeys = buildPrimaryKeys(underlayProto, entities, columns);
+    Map<Entity, TableFilter> tableFilters = buildTableFilters(underlayProto, entities, columns);
     Map<Attribute, AttributeMapping> attributeMappings =
         buildAttributeMapping(underlayProto, entities, attributes, columns, primaryKeys);
     Map<Relationship, ForeignKey> foreignKeys =
@@ -62,6 +63,7 @@ final class UnderlayConversion {
         .attributes(attributes)
         .relationships(relationships)
         .primaryKeys(primaryKeys)
+        .tableFilters(tableFilters)
         .attributeMappings(attributeMappings)
         .foreignKeys(foreignKeys)
         .hierarchies(hierarchies)
@@ -150,6 +152,38 @@ final class UnderlayConversion {
       }
     }
     return primaryKeys;
+  }
+
+  /** Builds a map of entities to the optional filter on their primary table. */
+  private static Map<Entity, TableFilter> buildTableFilters(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      Map<ColumnId, Column> columns) {
+    Map<Entity, TableFilter> tableFilters = new HashMap<>();
+    for (EntityMapping entityMapping : underlayProto.getEntityMappingsList()) {
+      Entity entity = entities.get(entityMapping.getEntity());
+      if (entity == null) {
+        throw new IllegalArgumentException(
+            String.format("Unknown entity being mapped: %s", entityMapping));
+      }
+      if (!entityMapping.hasTableFilter()) {
+        continue;
+      }
+      ColumnId tableFilterColumnId =
+          convert(entityMapping.getTableFilter().getColumnFilter().getColumn());
+      Column tableFilterColumn = columns.get(tableFilterColumnId);
+      if (tableFilterColumn == null) {
+        throw new IllegalArgumentException(
+            String.format("Unknown table filter column: %s", entityMapping));
+      }
+      TableFilter tableFilter = convert(entityMapping.getTableFilter(), tableFilterColumn);
+
+      if (tableFilters.put(entity, tableFilter) != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate entity being mapped: %s", entityMapping));
+      }
+    }
+    return tableFilters;
   }
 
   /** Builds a map from {@link Attribute}s to their corresponding {@link AttributeMapping}. */
@@ -429,6 +463,17 @@ final class UnderlayConversion {
         .dataset(columnIdProto.getDataset())
         .table(columnIdProto.getTable())
         .column(columnIdProto.getColumn())
+        .build();
+  }
+
+  private static TableFilter convert(
+      bio.terra.tanagra.proto.underlay.TableFilter tableFilterProto, Column column) {
+    return TableFilter.builder()
+        .columnFilter(
+            ColumnFilter.builder()
+                .column(column)
+                .value(tableFilterProto.getColumnFilter().getValue())
+                .build())
         .build();
   }
 

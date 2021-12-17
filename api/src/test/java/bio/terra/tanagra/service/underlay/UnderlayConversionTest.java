@@ -13,6 +13,7 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_TYPE_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_ANCESTOR_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_DESCENDANT_COL;
@@ -100,6 +101,12 @@ public class UnderlayConversionTest {
             .put(BOAT_ENGINE, BOAT_PARTS_ID_COL)
             .build(),
         nautical.primaryKeys());
+    assertEquals(
+        ImmutableMap.builder()
+            .put(
+                BOAT_ENGINE, TableFilter.create(ColumnFilter.create(BOAT_PARTS_TYPE_COL, "engine")))
+            .build(),
+        nautical.tableFilters());
     assertEquals(
         ImmutableMap.builder()
             .put(SAILOR_ID, AttributeMapping.SimpleColumn.create(SAILOR_ID, SAILOR_ID_COL))

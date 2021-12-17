@@ -141,4 +141,6 @@ public final class NauticalUnderlayUtils {
       Column.builder().name("bp_id").dataType(DataType.INT64).table(BOAT_PARTS_TABLE).build();
   public static final Column BOAT_PARTS_NAME_COL =
       Column.builder().name("bp_name").dataType(DataType.STRING).table(BOAT_PARTS_TABLE).build();
+  public static final Column BOAT_PARTS_TYPE_COL =
+      Column.builder().name("bp_type").dataType(DataType.STRING).table(BOAT_PARTS_TABLE).build();
 }
