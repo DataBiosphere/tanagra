@@ -262,10 +262,11 @@ public class SqlVisitor {
       String valueInWhereClause;
       switch (tableFilter.columnFilter().column().dataType()) {
         case STRING:
-          valueInWhereClause = String.format("'%s'", tableFilter.columnFilter().value());
+          valueInWhereClause =
+              String.format("'%s'", tableFilter.columnFilter().value().stringVal());
           break;
         case INT64:
-          valueInWhereClause = tableFilter.columnFilter().value();
+          valueInWhereClause = String.valueOf(tableFilter.columnFilter().value().longVal());
           break;
         default:
           throw new IllegalArgumentException(

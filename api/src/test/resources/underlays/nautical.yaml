@@ -128,7 +128,7 @@ entityMappings:
           dataset: nautical
           table: boat_parts
           column: bp_type
-        value: engine
+        string_val: engine
 attributeMappings:
   - attribute:
       entity: sailors

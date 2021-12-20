@@ -9,9 +9,9 @@ public abstract class ColumnFilter {
   public abstract Column column();
 
   /** The column value to filter on. */
-  public abstract String value();
+  public abstract ColumnValue value();
 
-  public static ColumnFilter create(Column column, String value) {
+  public static ColumnFilter create(Column column, ColumnValue value) {
     return builder().column(column).value(value).build();
   }
 
@@ -24,7 +24,7 @@ public abstract class ColumnFilter {
   public abstract static class Builder {
     public abstract Builder column(Column column);
 
-    public abstract Builder value(String value);
+    public abstract Builder value(ColumnValue value);
 
     public abstract ColumnFilter build();
   }

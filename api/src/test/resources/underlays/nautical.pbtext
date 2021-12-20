@@ -218,7 +218,7 @@ entity_mappings: {
         table: "boat_parts"
         column: "bp_type"
       }
-      value: "engine"
+      string_val: "engine"
     }
   }
 }

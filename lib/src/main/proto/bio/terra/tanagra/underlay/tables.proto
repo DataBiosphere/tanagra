@@ -60,6 +60,10 @@ message TableFilter {
 message ColumnFilter {
   // Pointer to the column.
   ColumnId column = 1;
-  // Column value to filter on
-  string value = 2;
+  // Column value to filter on.
+  oneof value {
+    int64 int64_val = 2;
+    string string_val = 3;
+    bool bool_val = 4;
+  }
 }
