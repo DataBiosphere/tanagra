@@ -47,7 +47,8 @@ final class UnderlayConversion {
     Map<String, Relationship> relationships = buildRelationships(underlayProto, entities);
     Map<ColumnId, Column> columns = buildColumns(underlayProto);
     Map<Entity, Column> primaryKeys = buildPrimaryKeys(underlayProto, entities, columns);
-    Map<Entity, TableFilter> tableFilters = buildTableFilters(underlayProto, entities, columns);
+    Map<Entity, TableFilter> tableFilters =
+        buildTableFilters(underlayProto, entities, columns, primaryKeys);
     Map<Attribute, AttributeMapping> attributeMappings =
         buildAttributeMapping(underlayProto, entities, attributes, columns, primaryKeys);
     Map<Relationship, ForeignKey> foreignKeys =
@@ -158,7 +159,8 @@ final class UnderlayConversion {
   private static Map<Entity, TableFilter> buildTableFilters(
       bio.terra.tanagra.proto.underlay.Underlay underlayProto,
       Map<String, Entity> entities,
-      Map<ColumnId, Column> columns) {
+      Map<ColumnId, Column> columns,
+      Map<Entity, Column> primaryKeys) {
     Map<Entity, TableFilter> tableFilters = new HashMap<>();
     for (EntityMapping entityMapping : underlayProto.getEntityMappingsList()) {
       Entity entity = entities.get(entityMapping.getEntity());
@@ -169,14 +171,25 @@ final class UnderlayConversion {
       if (!entityMapping.hasTableFilter()) {
         continue;
       }
-      ColumnId tableFilterColumnId =
-          convert(entityMapping.getTableFilter().getBinaryColumnFilter().getColumn());
-      Column tableFilterColumn = columns.get(tableFilterColumnId);
-      if (tableFilterColumn == null) {
-        throw new IllegalArgumentException(
-            String.format("Unknown table filter column: %s", entityMapping));
+
+      TableFilter tableFilter;
+      switch (entityMapping.getTableFilter().getFilterCase()) {
+        case BINARY_COLUMN_FILTER:
+          tableFilter =
+              TableFilter.builder()
+                  .binaryColumnFilter(
+                      convert(
+                          entityMapping.getTableFilter().getBinaryColumnFilter(),
+                          columns,
+                          primaryKeys.get(entity)))
+                  .build();
+          break;
+        case FILTER_NOT_SET:
+          continue;
+        default:
+          throw new IllegalArgumentException(
+              String.format("Unknown table filter type: %s", entityMapping));
       }
-      TableFilter tableFilter = convert(entityMapping.getTableFilter(), tableFilterColumn);
 
       if (tableFilters.put(entity, tableFilter) != null) {
         throw new IllegalArgumentException(
@@ -466,33 +479,44 @@ final class UnderlayConversion {
         .build();
   }
 
-  private static TableFilter convert(
-      bio.terra.tanagra.proto.underlay.TableFilter tableFilterProto, Column column) {
+  private static BinaryColumnFilter convert(
+      bio.terra.tanagra.proto.underlay.BinaryColumnFilter binaryColumnFilterProto,
+      Map<ColumnId, Column> columns,
+      Column primaryKeyColumn) {
+    ColumnId filterColumnId = convert(binaryColumnFilterProto.getColumn());
+    Column filterColumn = columns.get(filterColumnId);
+    if (filterColumn == null) {
+      throw new IllegalArgumentException(
+          String.format("Unknown table filter column: %s", binaryColumnFilterProto));
+    }
+    if (!filterColumn.table().equals(primaryKeyColumn.table())) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Binary table filter column is not in the same table as the entity primary key: %s",
+              binaryColumnFilterProto));
+    }
+
     ColumnValue columnValue;
-    bio.terra.tanagra.proto.underlay.BinaryColumnFilter columnFilterProto =
-        tableFilterProto.getBinaryColumnFilter();
-    switch (columnFilterProto.getValueCase()) {
+    switch (binaryColumnFilterProto.getValueCase()) {
       case INT64_VAL:
-        columnValue = ColumnValue.builder().longVal(columnFilterProto.getInt64Val()).build();
+        columnValue = ColumnValue.builder().longVal(binaryColumnFilterProto.getInt64Val()).build();
         break;
       case STRING_VAL:
-        columnValue = ColumnValue.builder().stringVal(columnFilterProto.getStringVal()).build();
+        columnValue =
+            ColumnValue.builder().stringVal(binaryColumnFilterProto.getStringVal()).build();
         break;
       case VALUE_NOT_SET:
         columnValue = null;
         break;
       default:
         throw new IllegalArgumentException(
-            "Unknown column filter value type: " + columnFilterProto.getValueCase());
+            "Unknown binary column filter value type: " + binaryColumnFilterProto.getValueCase());
     }
 
-    return TableFilter.builder()
-        .binaryColumnFilter(
-            BinaryColumnFilter.builder()
-                .column(column)
-                .operator(convert(columnFilterProto.getOperator()))
-                .value(columnValue)
-                .build())
+    return BinaryColumnFilter.builder()
+        .column(filterColumn)
+        .operator(convert(binaryColumnFilterProto.getOperator()))
+        .value(columnValue)
         .build();
   }
 
