@@ -12,9 +12,6 @@ public abstract class ColumnValue {
   @Nullable
   public abstract String stringVal();
 
-  @Nullable
-  public abstract Boolean booleanVal();
-
   public static ColumnValue.Builder builder() {
     return new AutoValue_ColumnValue.Builder();
   }
@@ -25,8 +22,6 @@ public abstract class ColumnValue {
     public abstract Builder longVal(Long longVal);
 
     public abstract Builder stringVal(String stringVal);
-
-    public abstract Builder booleanVal(Boolean booleanVal);
 
     public abstract ColumnValue build();
   }

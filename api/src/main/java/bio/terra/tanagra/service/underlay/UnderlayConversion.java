@@ -478,9 +478,6 @@ final class UnderlayConversion {
       case STRING_VAL:
         columnValue = ColumnValue.builder().stringVal(columnFilterProto.getStringVal()).build();
         break;
-      case BOOL_VAL:
-        columnValue = ColumnValue.builder().booleanVal(columnFilterProto.getBoolVal()).build();
-        break;
       case VALUE_NOT_SET:
         columnValue = null;
         break;
