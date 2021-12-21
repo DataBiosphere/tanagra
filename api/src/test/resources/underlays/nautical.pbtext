@@ -212,12 +212,13 @@ entity_mappings: {
     column: "bp_id"
   }
   table_filter: {
-    column_filter: {
+    binary_column_filter: {
       column: {
         dataset: "nautical"
         table: "boat_parts"
         column: "bp_type"
       }
+      operator: EQUALS
       string_val: "engine"
     }
   }

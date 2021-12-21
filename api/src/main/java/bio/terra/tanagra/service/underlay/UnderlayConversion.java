@@ -170,7 +170,7 @@ final class UnderlayConversion {
         continue;
       }
       ColumnId tableFilterColumnId =
-          convert(entityMapping.getTableFilter().getColumnFilter().getColumn());
+          convert(entityMapping.getTableFilter().getBinaryColumnFilter().getColumn());
       Column tableFilterColumn = columns.get(tableFilterColumnId);
       if (tableFilterColumn == null) {
         throw new IllegalArgumentException(
@@ -469,8 +469,8 @@ final class UnderlayConversion {
   private static TableFilter convert(
       bio.terra.tanagra.proto.underlay.TableFilter tableFilterProto, Column column) {
     ColumnValue columnValue;
-    bio.terra.tanagra.proto.underlay.ColumnFilter columnFilterProto =
-        tableFilterProto.getColumnFilter();
+    bio.terra.tanagra.proto.underlay.BinaryColumnFilter columnFilterProto =
+        tableFilterProto.getBinaryColumnFilter();
     switch (columnFilterProto.getValueCase()) {
       case INT64_VAL:
         columnValue = ColumnValue.builder().longVal(columnFilterProto.getInt64Val()).build();
@@ -490,8 +490,28 @@ final class UnderlayConversion {
     }
 
     return TableFilter.builder()
-        .columnFilter(ColumnFilter.builder().column(column).value(columnValue).build())
+        .binaryColumnFilter(
+            BinaryColumnFilter.builder()
+                .column(column)
+                .operator(convert(columnFilterProto.getOperator()))
+                .value(columnValue)
+                .build())
         .build();
+  }
+
+  private static BinaryColumnFilterOperator convert(
+      bio.terra.tanagra.proto.underlay.BinaryColumnFilterOperator operator) {
+    switch (operator) {
+      case EQUALS:
+        return BinaryColumnFilterOperator.EQUALS;
+      case LESS_THAN:
+        return BinaryColumnFilterOperator.LESS_THAN;
+      case GREATER_THAN:
+        return BinaryColumnFilterOperator.GREATER_THAN;
+      default:
+        throw new UnsupportedOperationException(
+            String.format("Unsupported BinaryColumnFilterOperator %s", operator.name()));
+    }
   }
 
   /**

@@ -123,12 +123,13 @@ entityMappings:
       table: boat_parts
       column: bp_id
     tableFilter:
-      columnFilter:
+      binaryColumnFilter:
         column:
           dataset: nautical
           table: boat_parts
           column: bp_type
-        string_val: engine
+        operator: EQUALS
+        stringVal: engine
 attributeMappings:
   - attribute:
       entity: sailors

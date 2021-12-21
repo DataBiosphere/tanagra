@@ -259,27 +259,45 @@ public class SqlVisitor {
     }
 
     private String resolveTable(Table table, TableFilter tableFilter) {
-      String valueInWhereClause;
-      switch (tableFilter.columnFilter().column().dataType()) {
-        case STRING:
-          valueInWhereClause =
-              String.format("'%s'", tableFilter.columnFilter().value().stringVal());
+      String operatorInWhereClause;
+      switch (tableFilter.binaryColumnFilter().operator()) {
+        case EQUALS:
+          operatorInWhereClause = "=";
           break;
-        case INT64:
-          valueInWhereClause = String.valueOf(tableFilter.columnFilter().value().longVal());
+        case LESS_THAN:
+          operatorInWhereClause = "<";
+          break;
+        case GREATER_THAN:
+          operatorInWhereClause = ">";
           break;
         default:
           throw new IllegalArgumentException(
-              "Unknown column data type: " + tableFilter.columnFilter().column().dataType());
+              "Unknown column filter operator type: "
+                  + tableFilter.binaryColumnFilter().operator());
+      }
+
+      String valueInWhereClause;
+      switch (tableFilter.binaryColumnFilter().column().dataType()) {
+        case STRING:
+          valueInWhereClause =
+              String.format("'%s'", tableFilter.binaryColumnFilter().value().stringVal());
+          break;
+        case INT64:
+          valueInWhereClause = String.valueOf(tableFilter.binaryColumnFilter().value().longVal());
+          break;
+        default:
+          throw new IllegalArgumentException(
+              "Unknown column data type: " + tableFilter.binaryColumnFilter().column().dataType());
       }
 
       // (SELECT * FROM `projectId.datasetId`.table WHERE columnFilter=value)
       return String.format(
-          "(SELECT * FROM `%s.%s`.%s WHERE %s = %s)",
+          "(SELECT * FROM `%s.%s`.%s WHERE %s %s %s)",
           table.dataset().projectId(),
           table.dataset().datasetId(),
           table.name(),
-          tableFilter.columnFilter().column().name(),
+          tableFilter.binaryColumnFilter().column().name(),
+          operatorInWhereClause,
           valueInWhereClause);
     }
 
