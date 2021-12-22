@@ -283,7 +283,7 @@ public class SqlVisitor {
               String.format("'%s'", tableFilter.binaryColumnFilter().value().stringVal());
           break;
         case INT64:
-          valueInWhereClause = String.valueOf(tableFilter.binaryColumnFilter().value().longVal());
+          valueInWhereClause = String.valueOf(tableFilter.binaryColumnFilter().value().int64Val());
           break;
         default:
           throw new IllegalArgumentException(

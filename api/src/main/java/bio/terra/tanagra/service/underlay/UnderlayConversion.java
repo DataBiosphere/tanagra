@@ -13,6 +13,7 @@ import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
@@ -22,7 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 /** Utilities for converting protobuf representations to underlay classes. */
-final class UnderlayConversion {
+@VisibleForTesting
+public final class UnderlayConversion {
   private UnderlayConversion() {}
 
   /** Creates an Underlay from a protobuf representation. */
@@ -499,9 +501,21 @@ final class UnderlayConversion {
     ColumnValue columnValue;
     switch (binaryColumnFilterProto.getValueCase()) {
       case INT64_VAL:
-        columnValue = ColumnValue.builder().longVal(binaryColumnFilterProto.getInt64Val()).build();
+        if (!filterColumn.dataType().equals(DataType.INT64)) {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Binary table filter value is a different data type than the column: %s",
+                  binaryColumnFilterProto));
+        }
+        columnValue = ColumnValue.builder().int64Val(binaryColumnFilterProto.getInt64Val()).build();
         break;
       case STRING_VAL:
+        if (!filterColumn.dataType().equals(DataType.STRING)) {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Binary table filter value is a different data type than the column: %s",
+                  binaryColumnFilterProto));
+        }
         columnValue =
             ColumnValue.builder().stringVal(binaryColumnFilterProto.getStringVal()).build();
         break;

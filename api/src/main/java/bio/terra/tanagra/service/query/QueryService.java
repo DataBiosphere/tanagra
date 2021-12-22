@@ -66,7 +66,7 @@ public class QueryService {
         .execute(query, SearchContext.builder().underlay(underlay).build());
   }
 
-  private Query createQuery(EntityDataset entityDataset) {
+  Query createQuery(EntityDataset entityDataset) {
     ImmutableList<Selection> selections =
         entityDataset.selectedAttributes().stream()
             .map(

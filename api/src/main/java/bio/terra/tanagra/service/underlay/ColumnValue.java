@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 @AutoValue
 public abstract class ColumnValue {
   @Nullable
-  public abstract Long longVal();
+  public abstract Long int64Val();
 
   @Nullable
   public abstract String stringVal();
@@ -19,7 +19,7 @@ public abstract class ColumnValue {
   /** A builder for {@link ColumnValue}. */
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder longVal(Long longVal);
+    public abstract Builder int64Val(Long int64Val);
 
     public abstract Builder stringVal(String stringVal);
 
