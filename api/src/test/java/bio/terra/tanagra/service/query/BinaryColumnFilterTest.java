@@ -41,7 +41,7 @@ public class BinaryColumnFilterTest extends BaseSpringUnitTest {
 
   // underlay proto without any entity mappings defined, so that we can vary the table filter in the
   // entity mapping in each test method
-  Underlay.Builder underlayProtoBuilder =
+  private final Underlay.Builder underlayProtoBuilder =
       Underlay.newBuilder()
           .setName("underlayA")
           .addDatasets(
@@ -118,7 +118,7 @@ public class BinaryColumnFilterTest extends BaseSpringUnitTest {
 
   // entity mapping proto without any table filter defined, so that we can vary the table filter in
   // each test method
-  EntityMapping.Builder entityMappingProtoBuilder =
+  private final EntityMapping.Builder entityMappingProtoBuilder =
       EntityMapping.newBuilder()
           .setEntity("entityA")
           .setPrimaryKey(
