@@ -62,4 +62,14 @@ public final class UnderlayUtils {
   public static final String VISIT_ENTITY = "visit";
   public static final List<String> ALL_VISIT_ATTRIBUTES =
       ImmutableList.of("concept_id", "concept_name");
+
+  public static final String OBSERVATION_ENTITY = "observation";
+  public static final List<String> ALL_OBSERVATION_ATTRIBUTES =
+      ImmutableList.of(
+          "concept_id",
+          "concept_name",
+          "vocabulary_id",
+          "vocabulary_name",
+          "standard_concept",
+          "concept_code");
 }
