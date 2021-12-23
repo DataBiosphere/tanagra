@@ -7,7 +7,7 @@ import java.util.List;
  * Utilities for testing with the AoU synthetic underlay. These constants are used to generate SQL
  * for queries.
  */
-public class UnderlayUtils {
+public final class UnderlayUtils {
   private UnderlayUtils() {}
 
   public static final String UNDERLAY_NAME = "aou_synthetic";
