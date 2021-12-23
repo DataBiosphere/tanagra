@@ -50,6 +50,20 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+  - name: ingredient
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
   - name: measurement
     attributes:
       - name: concept_id
@@ -187,6 +201,8 @@ datasets:
             dataType: STRING
           - name: concept_code
             dataType: STRING
+          - name: concept_class_id
+            dataType: STRING
       - name: vocabulary
         columns:
           - name: vocabulary_id
@@ -236,6 +252,19 @@ entityMappings:
           column: domain_id
         operator: EQUALS
         stringVal: Procedure
+  - entity: ingredient
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: concept_class_id
+        operator: EQUALS
+        stringVal: Ingredient
   - entity: measurement
     primaryKey:
       dataset: aou_synthetic
@@ -509,6 +538,62 @@ attributeMappings:
         column: standard_concept
   - attribute:
       entity: procedure
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: ingredient
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: ingredient
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: ingredient
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: ingredient
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: ingredient
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: ingredient
       attribute: concept_code
     simpleColumn:
       columnId:

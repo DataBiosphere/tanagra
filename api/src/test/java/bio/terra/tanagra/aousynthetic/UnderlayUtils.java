@@ -49,6 +49,16 @@ public final class UnderlayUtils {
           "standard_concept",
           "concept_code");
 
+  public static final String INGREDIENT_ENTITY = "ingredient";
+  public static final List<String> ALL_INGREDIENT_ATTRIBUTES =
+      ImmutableList.of(
+          "concept_id",
+          "concept_name",
+          "vocabulary_id",
+          "vocabulary_name",
+          "standard_concept",
+          "concept_code");
+
   public static final String MEASUREMENT_ENTITY = "measurement";
   public static final List<String> ALL_MEASUREMENT_ATTRIBUTES =
       ImmutableList.of(
