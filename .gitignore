@@ -4,6 +4,9 @@ build/
 !**/src/main/**
 !**/src/test/**
 
+### Jenv ###
+.java-version
+
 ### STS ###
 .apt_generated
 .classpath

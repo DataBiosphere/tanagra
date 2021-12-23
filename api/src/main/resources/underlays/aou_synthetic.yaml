@@ -22,6 +22,20 @@ entities:
         dataType: INT64
       - name: sex_at_birth
         dataType: STRING
+  - name: condition
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
   - name: condition_occurrence
     attributes:
       - name: condition_occurrence_id
@@ -134,6 +148,19 @@ entityMappings:
       dataset: aou_synthetic
       table: person
       column: person_id
+  - entity: condition
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: domain_id
+        operator: EQUALS
+        stringVal: Condition
   - entity: condition_occurrence
     primaryKey:
       dataset: aou_synthetic
@@ -249,6 +276,62 @@ attributeMappings:
         dataset: aou_synthetic
         table: concept
         column: concept_name
+  - attribute:
+      entity: condition
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: condition
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: condition
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: condition
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: condition
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: condition
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
   - attribute:
       entity: condition_occurrence
       attribute: condition_occurrence_id
@@ -447,6 +530,18 @@ relationshipMappings:
         table: condition_occurrence
         column: condition_concept_id
 hierarchies:
+  - attribute:
+      entity: condition
+      attribute: concept_id
+    descendantsTable:
+      ancestor:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: ancestor
+      descendant:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: descendant
   - attribute:
       entity: condition_occurrence
       attribute: condition_concept_id
