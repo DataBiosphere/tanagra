@@ -50,6 +50,20 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+  - name: measurement
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
   - name: condition_occurrence
     attributes:
       - name: condition_occurrence_id
@@ -188,6 +202,19 @@ entityMappings:
           column: domain_id
         operator: EQUALS
         stringVal: Procedure
+  - entity: measurement
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: domain_id
+        operator: EQUALS
+        stringVal: Measurement
   - entity: condition_occurrence
     primaryKey:
       dataset: aou_synthetic
@@ -409,6 +436,62 @@ attributeMappings:
         column: standard_concept
   - attribute:
       entity: procedure
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: measurement
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: measurement
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: measurement
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: measurement
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: measurement
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: measurement
       attribute: concept_code
     simpleColumn:
       columnId:

@@ -16,7 +16,6 @@ public final class UnderlayUtils {
   public static final String BQ_DATASET_ID = "aou_synthetic_SR2019q4r4";
   public static final String BQ_DATASET_SQL_REFERENCE = BQ_PROJECT_ID + "." + BQ_DATASET_ID;
 
-  // entities
   public static final String PERSON_ENTITY = "person";
   public static final List<String> ALL_PERSON_ATTRIBUTES =
       ImmutableList.of(
@@ -42,6 +41,16 @@ public final class UnderlayUtils {
 
   public static final String PROCEDURE_ENTITY = "procedure";
   public static final List<String> ALL_PROCEDURE_ATTRIBUTES =
+      ImmutableList.of(
+          "concept_id",
+          "concept_name",
+          "vocabulary_id",
+          "vocabulary_name",
+          "standard_concept",
+          "concept_code");
+
+  public static final String MEASUREMENT_ENTITY = "measurement";
+  public static final List<String> ALL_MEASUREMENT_ATTRIBUTES =
       ImmutableList.of(
           "concept_id",
           "concept_name",
