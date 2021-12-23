@@ -13,6 +13,8 @@ import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import org.springframework.http.ResponseEntity;
  * active profile for this test, because we want to test the main application definition.
  */
 public class PersonEntityQueries extends BaseSpringUnitTest {
+  private static final Logger LOG = LoggerFactory.getLogger(PersonEntityQueries.class);
   @Autowired private EntityInstancesApiController apiController;
 
   @Test
@@ -38,6 +41,7 @@ public class PersonEntityQueries extends BaseSpringUnitTest {
                         .selectedAttributes(ALL_PERSON_ATTRIBUTES)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
+    LOG.info(generatedSql);
     assertEquals(
         "SELECT person_alias.person_id AS person_id, "
             + "person_alias.gender_concept_id AS gender_concept_id, "

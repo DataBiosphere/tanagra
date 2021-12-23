@@ -39,4 +39,14 @@ public final class UnderlayUtils {
           "vocabulary_name",
           "standard_concept",
           "concept_code");
+
+  public static final String PROCEDURE_ENTITY = "procedure";
+  public static final List<String> ALL_PROCEDURE_ATTRIBUTES =
+      ImmutableList.of(
+          "concept_id",
+          "concept_name",
+          "vocabulary_id",
+          "vocabulary_name",
+          "standard_concept",
+          "concept_code");
 }
