@@ -64,6 +64,12 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+  - name: visit
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
   - name: condition_occurrence
     attributes:
       - name: condition_occurrence_id
@@ -215,6 +221,19 @@ entityMappings:
           column: domain_id
         operator: EQUALS
         stringVal: Measurement
+  - entity: visit
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: vocabulary_id
+        operator: EQUALS
+        stringVal: Visit
   - entity: condition_occurrence
     primaryKey:
       dataset: aou_synthetic
@@ -498,6 +517,22 @@ attributeMappings:
         dataset: aou_synthetic
         table: concept
         column: concept_code
+  - attribute:
+      entity: visit
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: visit
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
   - attribute:
       entity: condition_occurrence
       attribute: condition_occurrence_id

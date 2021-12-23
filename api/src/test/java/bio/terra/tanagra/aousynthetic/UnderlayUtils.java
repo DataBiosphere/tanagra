@@ -58,4 +58,8 @@ public final class UnderlayUtils {
           "vocabulary_name",
           "standard_concept",
           "concept_code");
+
+  public static final String VISIT_ENTITY = "visit";
+  public static final List<String> ALL_VISIT_ATTRIBUTES =
+      ImmutableList.of("concept_id", "concept_name");
 }
