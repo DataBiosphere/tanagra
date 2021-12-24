@@ -59,6 +59,10 @@ public final class UnderlayUtils {
           "standard_concept",
           "concept_code");
 
+  public static final String BRAND_ENTITY = "brand";
+  public static final List<String> ALL_BRAND_ATTRIBUTES =
+      ImmutableList.of("concept_id", "concept_name", "standard_concept", "concept_code");
+
   public static final String MEASUREMENT_ENTITY = "measurement";
   public static final List<String> ALL_MEASUREMENT_ATTRIBUTES =
       ImmutableList.of(

@@ -64,6 +64,16 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+  - name: brand
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
   - name: measurement
     attributes:
       - name: concept_id
@@ -265,6 +275,19 @@ entityMappings:
           column: concept_class_id
         operator: EQUALS
         stringVal: Ingredient
+  - entity: brand
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: concept_class_id
+        operator: EQUALS
+        stringVal: Brand Name
   - entity: measurement
     primaryKey:
       dataset: aou_synthetic
@@ -594,6 +617,38 @@ attributeMappings:
         column: standard_concept
   - attribute:
       entity: ingredient
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: brand
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: brand
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: brand
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: brand
       attribute: concept_code
     simpleColumn:
       columnId:
