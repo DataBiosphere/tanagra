@@ -11,6 +11,7 @@ import bio.terra.tanagra.service.search.Selection;
 import bio.terra.tanagra.service.search.SqlVisitor;
 import bio.terra.tanagra.service.underlay.Underlay;
 import bio.terra.tanagra.service.underlay.UnderlayService;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
@@ -66,6 +67,7 @@ public class QueryService {
         .execute(query, SearchContext.builder().underlay(underlay).build());
   }
 
+  @VisibleForTesting
   Query createQuery(EntityDataset entityDataset) {
     ImmutableList<Selection> selections =
         entityDataset.selectedAttributes().stream()
