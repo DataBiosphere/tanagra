@@ -1,4 +1,4 @@
-package bio.terra.tanagra.aousynthetic;
+package bio.terra.tanagra.testing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,10 +23,8 @@ import org.slf4j.LoggerFactory;
 public final class GeneratedSqlUtils {
   private static final Logger LOG = LoggerFactory.getLogger(GeneratedSqlUtils.class);
 
-  private static final String GENERATED_SQL_FILES_RESOURCES_SUBDIR = "aousynthetic";
-  private static final Path GENERATED_SQL_FILES_DIR =
-      Path.of(System.getProperty("GRADLE_PROJECT_DIR"))
-          .resolve("src/test/resources/" + GENERATED_SQL_FILES_RESOURCES_SUBDIR);
+  private static final Path GENERATED_SQL_FILES_PARENT_DIR =
+      Path.of(System.getProperty("GRADLE_PROJECT_DIR")).resolve("src/test/resources/");
 
   private GeneratedSqlUtils() {}
 
@@ -48,7 +46,10 @@ public final class GeneratedSqlUtils {
     if (System.getProperty("GENERATE_SQL_FILES") == null) {
       LOG.info("reading generated sql from file because generateSqlFiles flag is not set");
       String expectedSql = readSqlFromFile(fileName);
-      assertEquals(expectedSql, generatedSql);
+      assertEquals(
+          expectedSql,
+          generatedSql,
+          "Generated SQL does not match the expected. To regenerate the golden files that contain the expected SQL, you can run `./gradlew cleanTest api:test --info -PgenerateSqlFiles=true`");
     } else {
       LOG.info("writing generated sql to file because generateSqlFiles flag is set");
       writeSqlToFile(generatedSql, fileName);
@@ -57,10 +58,9 @@ public final class GeneratedSqlUtils {
 
   /** Read the SQL string from a file. */
   private static String readSqlFromFile(String fileName) throws IOException {
-    String resourcesFilePath = GENERATED_SQL_FILES_RESOURCES_SUBDIR + "/" + fileName;
-    LOG.info("reading generated sql from file: {}", resourcesFilePath);
+    LOG.info("reading generated sql from file: {}", fileName);
     InputStream inputStream =
-        GeneratedSqlUtils.class.getClassLoader().getResourceAsStream(resourcesFilePath);
+        GeneratedSqlUtils.class.getClassLoader().getResourceAsStream(fileName);
 
     InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
     BufferedReader reader = new BufferedReader(streamReader);
@@ -75,7 +75,7 @@ public final class GeneratedSqlUtils {
 
   /** Write the generated SQL string to a file. */
   private static void writeSqlToFile(String generatedSql, String fileName) throws IOException {
-    Path generatedSqlFile = GENERATED_SQL_FILES_DIR.resolve(fileName).toAbsolutePath();
+    Path generatedSqlFile = GENERATED_SQL_FILES_PARENT_DIR.resolve(fileName).toAbsolutePath();
     LOG.info("writing generated sql to file: {}", generatedSqlFile);
     PrintWriter writer = new PrintWriter(generatedSqlFile.toFile(), StandardCharsets.UTF_8);
     writer.println(generatedSql);

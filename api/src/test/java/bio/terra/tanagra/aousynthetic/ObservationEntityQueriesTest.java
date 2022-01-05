@@ -10,6 +10,7 @@ import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
+import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,6 @@ public class ObservationEntityQueriesTest extends BaseSpringUnitTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql, "all-observation-entities.sql");
+        generatedSql, "aousynthetic/all-observation-entities.sql");
   }
 }
