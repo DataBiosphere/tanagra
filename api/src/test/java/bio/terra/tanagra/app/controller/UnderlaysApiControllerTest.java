@@ -28,7 +28,7 @@ public class UnderlaysApiControllerTest extends BaseSpringUnitTest {
   private static final ApiUnderlay NAUTICAL_API_UNDERLAY =
       new ApiUnderlay()
           .name(NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME)
-          .entityNames(ImmutableList.of("boats", "reservations", "sailors"));
+          .entityNames(ImmutableList.of("boat_engines", "boats", "reservations", "sailors"));
 
   @Test
   void getUnderlay() {

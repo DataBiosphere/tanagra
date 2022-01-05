@@ -48,3 +48,33 @@ message ColumnId {
   // The name of the column.
   string column = 3;
 }
+
+// A filter specification to get a subset of the rows in a table.
+message TableFilter {
+  // One type of table filter
+  oneof filter {
+    // A condition on a particular column
+    BinaryColumnFilter binary_column_filter = 1;
+    // TODO: add more filter types here (see entity search filters for ideas)
+  }
+}
+
+// A building block for a TableFilter that defines a condition on a single column.
+message BinaryColumnFilter {
+  // Pointer to the column.
+  ColumnId column = 1;
+
+  BinaryColumnFilterOperator operator = 2;
+
+  // Column value to filter on.
+  oneof value {
+    int64 int64_val = 3;
+    string string_val = 4;
+  }
+}
+
+enum BinaryColumnFilterOperator {
+  EQUALS = 0;
+  LESS_THAN = 1;
+  GREATER_THAN = 2;
+}

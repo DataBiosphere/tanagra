@@ -13,6 +13,7 @@ import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
@@ -22,7 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 /** Utilities for converting protobuf representations to underlay classes. */
-final class UnderlayConversion {
+@VisibleForTesting
+public final class UnderlayConversion {
   private UnderlayConversion() {}
 
   /** Creates an Underlay from a protobuf representation. */
@@ -47,6 +49,8 @@ final class UnderlayConversion {
     Map<String, Relationship> relationships = buildRelationships(underlayProto, entities);
     Map<ColumnId, Column> columns = buildColumns(underlayProto);
     Map<Entity, Column> primaryKeys = buildPrimaryKeys(underlayProto, entities, columns);
+    Map<Entity, TableFilter> tableFilters =
+        buildTableFilters(underlayProto, entities, columns, primaryKeys);
     Map<Attribute, AttributeMapping> attributeMappings =
         buildAttributeMapping(underlayProto, entities, attributes, columns, primaryKeys);
     Map<Relationship, ForeignKey> foreignKeys =
@@ -62,6 +66,7 @@ final class UnderlayConversion {
         .attributes(attributes)
         .relationships(relationships)
         .primaryKeys(primaryKeys)
+        .tableFilters(tableFilters)
         .attributeMappings(attributeMappings)
         .foreignKeys(foreignKeys)
         .hierarchies(hierarchies)
@@ -150,6 +155,50 @@ final class UnderlayConversion {
       }
     }
     return primaryKeys;
+  }
+
+  /** Builds a map of entities to the optional filter on their primary table. */
+  private static Map<Entity, TableFilter> buildTableFilters(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      Map<ColumnId, Column> columns,
+      Map<Entity, Column> primaryKeys) {
+    Map<Entity, TableFilter> tableFilters = new HashMap<>();
+    for (EntityMapping entityMapping : underlayProto.getEntityMappingsList()) {
+      Entity entity = entities.get(entityMapping.getEntity());
+      if (entity == null) {
+        throw new IllegalArgumentException(
+            String.format("Unknown entity being mapped: %s", entityMapping));
+      }
+      if (!entityMapping.hasTableFilter()) {
+        continue;
+      }
+
+      TableFilter tableFilter;
+      switch (entityMapping.getTableFilter().getFilterCase()) {
+        case BINARY_COLUMN_FILTER:
+          tableFilter =
+              TableFilter.builder()
+                  .binaryColumnFilter(
+                      convert(
+                          entityMapping.getTableFilter().getBinaryColumnFilter(),
+                          columns,
+                          primaryKeys.get(entity)))
+                  .build();
+          break;
+        case FILTER_NOT_SET:
+          continue;
+        default:
+          throw new IllegalArgumentException(
+              String.format("Unknown table filter type: %s", entityMapping));
+      }
+
+      if (tableFilters.put(entity, tableFilter) != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate entity being mapped: %s", entityMapping));
+      }
+    }
+    return tableFilters;
   }
 
   /** Builds a map from {@link Attribute}s to their corresponding {@link AttributeMapping}. */
@@ -430,6 +479,74 @@ final class UnderlayConversion {
         .table(columnIdProto.getTable())
         .column(columnIdProto.getColumn())
         .build();
+  }
+
+  private static BinaryColumnFilter convert(
+      bio.terra.tanagra.proto.underlay.BinaryColumnFilter binaryColumnFilterProto,
+      Map<ColumnId, Column> columns,
+      Column primaryKeyColumn) {
+    ColumnId filterColumnId = convert(binaryColumnFilterProto.getColumn());
+    Column filterColumn = columns.get(filterColumnId);
+    if (filterColumn == null) {
+      throw new IllegalArgumentException(
+          String.format("Unknown table filter column: %s", binaryColumnFilterProto));
+    }
+    if (!filterColumn.table().equals(primaryKeyColumn.table())) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Binary table filter column is not in the same table as the entity primary key: %s",
+              binaryColumnFilterProto));
+    }
+
+    ColumnValue columnValue;
+    switch (binaryColumnFilterProto.getValueCase()) {
+      case INT64_VAL:
+        if (!filterColumn.dataType().equals(DataType.INT64)) {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Binary table filter value is a different data type than the column: %s",
+                  binaryColumnFilterProto));
+        }
+        columnValue = ColumnValue.builder().int64Val(binaryColumnFilterProto.getInt64Val()).build();
+        break;
+      case STRING_VAL:
+        if (!filterColumn.dataType().equals(DataType.STRING)) {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Binary table filter value is a different data type than the column: %s",
+                  binaryColumnFilterProto));
+        }
+        columnValue =
+            ColumnValue.builder().stringVal(binaryColumnFilterProto.getStringVal()).build();
+        break;
+      case VALUE_NOT_SET:
+        columnValue = null;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "Unknown binary column filter value type: " + binaryColumnFilterProto.getValueCase());
+    }
+
+    return BinaryColumnFilter.builder()
+        .column(filterColumn)
+        .operator(convert(binaryColumnFilterProto.getOperator()))
+        .value(columnValue)
+        .build();
+  }
+
+  private static BinaryColumnFilterOperator convert(
+      bio.terra.tanagra.proto.underlay.BinaryColumnFilterOperator operator) {
+    switch (operator) {
+      case EQUALS:
+        return BinaryColumnFilterOperator.EQUALS;
+      case LESS_THAN:
+        return BinaryColumnFilterOperator.LESS_THAN;
+      case GREATER_THAN:
+        return BinaryColumnFilterOperator.GREATER_THAN;
+      default:
+        throw new UnsupportedOperationException(
+            String.format("Unsupported BinaryColumnFilterOperator %s", operator.name()));
+    }
   }
 
   /**

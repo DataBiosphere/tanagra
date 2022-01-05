@@ -15,6 +15,7 @@ import bio.terra.tanagra.service.underlay.ForeignKey;
 import bio.terra.tanagra.service.underlay.Hierarchy;
 import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import bio.terra.tanagra.service.underlay.Table;
+import bio.terra.tanagra.service.underlay.TableFilter;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -241,14 +242,63 @@ public class SqlVisitor {
         throw new IllegalArgumentException(
             String.format("Unable to find primary key for entity %s", entityVariable.entity()));
       }
-      return String.format(
-          "%s AS %s", resolveTable(primaryKey.table()), entityVariable.variable().name());
+      TableFilter tableFilter = underlay.tableFilters().get(entityVariable.entity());
+      String resolvedTable;
+      if (tableFilter == null) {
+        resolvedTable = resolveTable(primaryKey.table());
+      } else {
+        resolvedTable = resolveTable(primaryKey.table(), tableFilter);
+      }
+      return String.format("%s AS %s", resolvedTable, entityVariable.variable().name());
     }
 
     private String resolveTable(Table table) {
       // `projectId.datasetId`.table
       return String.format(
           "`%s.%s`.%s", table.dataset().projectId(), table.dataset().datasetId(), table.name());
+    }
+
+    private String resolveTable(Table table, TableFilter tableFilter) {
+      String operatorInWhereClause;
+      switch (tableFilter.binaryColumnFilter().operator()) {
+        case EQUALS:
+          operatorInWhereClause = "=";
+          break;
+        case LESS_THAN:
+          operatorInWhereClause = "<";
+          break;
+        case GREATER_THAN:
+          operatorInWhereClause = ">";
+          break;
+        default:
+          throw new IllegalArgumentException(
+              "Unknown column filter operator type: "
+                  + tableFilter.binaryColumnFilter().operator());
+      }
+
+      String valueInWhereClause;
+      switch (tableFilter.binaryColumnFilter().column().dataType()) {
+        case STRING:
+          valueInWhereClause =
+              String.format("'%s'", tableFilter.binaryColumnFilter().value().stringVal());
+          break;
+        case INT64:
+          valueInWhereClause = String.valueOf(tableFilter.binaryColumnFilter().value().int64Val());
+          break;
+        default:
+          throw new IllegalArgumentException(
+              "Unknown column data type: " + tableFilter.binaryColumnFilter().column().dataType());
+      }
+
+      // (SELECT * FROM `projectId.datasetId`.table WHERE columnFilter=value)
+      return String.format(
+          "(SELECT * FROM `%s.%s`.%s WHERE %s %s %s)",
+          table.dataset().projectId(),
+          table.dataset().datasetId(),
+          table.name(),
+          tableFilter.binaryColumnFilter().column().name(),
+          operatorInWhereClause,
+          valueInWhereClause);
     }
 
     /** Resolve an {@link AttributeExpression} as an SQL expression. */

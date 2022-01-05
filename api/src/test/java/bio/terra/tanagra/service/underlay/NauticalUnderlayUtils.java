@@ -41,6 +41,8 @@ public final class NauticalUnderlayUtils {
       Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("boats").build();
   public static final Entity RESERVATION =
       Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("reservations").build();
+  public static final Entity BOAT_ENGINE =
+      Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("boat_engines").build();
 
   public static final Attribute SAILOR_ID =
       Attribute.builder().name("id").dataType(DataType.INT64).entity(SAILOR).build();
@@ -69,6 +71,11 @@ public final class NauticalUnderlayUtils {
   public static final Attribute RESERVATION_DAY =
       Attribute.builder().name("day").dataType(DataType.STRING).entity(RESERVATION).build();
 
+  public static final Attribute BOAT_ENGINE_ID =
+      Attribute.builder().name("id").dataType(DataType.INT64).entity(BOAT_ENGINE).build();
+  public static final Attribute BOAT_ENGINE_NAME =
+      Attribute.builder().name("name").dataType(DataType.STRING).entity(BOAT_ENGINE).build();
+
   public static final Relationship SAILOR_RESERVATION_RELATIONSHIP =
       Relationship.builder()
           .name("sailor_reservation")
@@ -90,6 +97,7 @@ public final class NauticalUnderlayUtils {
   public static final Table BOAT_TYPE_TABLE = Table.create("boat_types", NAUTICAL_DATASET);
   public static final Table BOAT_TYPE_DESCENDANTS_TABLE =
       Table.create("boat_types_descendants", NAUTICAL_DATASET);
+  public static final Table BOAT_PARTS_TABLE = Table.create("boat_parts", NAUTICAL_DATASET);
 
   public static final Column SAILOR_ID_COL =
       Column.builder().name("s_id").dataType(DataType.INT64).table(SAILOR_TABLE).build();
@@ -129,4 +137,15 @@ public final class NauticalUnderlayUtils {
           .dataType(DataType.INT64)
           .table(BOAT_TYPE_DESCENDANTS_TABLE)
           .build();
+  public static final Column BOAT_PARTS_ID_COL =
+      Column.builder().name("bp_id").dataType(DataType.INT64).table(BOAT_PARTS_TABLE).build();
+  public static final Column BOAT_PARTS_NAME_COL =
+      Column.builder().name("bp_name").dataType(DataType.STRING).table(BOAT_PARTS_TABLE).build();
+  public static final Column BOAT_PARTS_TYPE_COL =
+      Column.builder().name("bp_type").dataType(DataType.STRING).table(BOAT_PARTS_TABLE).build();
+
+  public static final BinaryColumnFilterOperator BOAT_PARTS_TYPE_COL_OPERATOR =
+      BinaryColumnFilterOperator.EQUALS;
+  public static final ColumnValue BOAT_PARTS_TYPE_COL_ENGINE_VALUE =
+      ColumnValue.builder().stringVal("engine").build();
 }
