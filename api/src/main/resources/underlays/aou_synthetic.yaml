@@ -22,6 +22,106 @@ entities:
         dataType: INT64
       - name: sex_at_birth
         dataType: STRING
+  - name: condition
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
+  - name: procedure
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
+  - name: ingredient
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
+  - name: brand
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
+  - name: measurement
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
+  - name: visit
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+  - name: observation
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
+  - name: device
+    attributes:
+      - name: concept_id
+        dataType: INT64
+      - name: concept_name
+        dataType: STRING
+      - name: vocabulary_id
+        dataType: STRING
+      - name: vocabulary_name
+        dataType: STRING
+      - name: standard_concept
+        dataType: STRING
+      - name: concept_code
+        dataType: STRING
   - name: condition_occurrence
     attributes:
       - name: condition_occurrence_id
@@ -111,6 +211,8 @@ datasets:
             dataType: STRING
           - name: concept_code
             dataType: STRING
+          - name: concept_class_id
+            dataType: STRING
       - name: vocabulary
         columns:
           - name: vocabulary_id
@@ -134,6 +236,110 @@ entityMappings:
       dataset: aou_synthetic
       table: person
       column: person_id
+  - entity: condition
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: domain_id
+        operator: EQUALS
+        stringVal: Condition
+  - entity: procedure
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: domain_id
+        operator: EQUALS
+        stringVal: Procedure
+  - entity: ingredient
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: concept_class_id
+        operator: EQUALS
+        stringVal: Ingredient
+  - entity: brand
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: concept_class_id
+        operator: EQUALS
+        stringVal: Brand Name
+  - entity: measurement
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: domain_id
+        operator: EQUALS
+        stringVal: Measurement
+  - entity: visit
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: vocabulary_id
+        operator: EQUALS
+        stringVal: Visit
+  - entity: observation
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: domain_id
+        operator: EQUALS
+        stringVal: Observation
+  - entity: device
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      binaryColumnFilter:
+        column:
+          dataset: aou_synthetic
+          table: concept
+          column: domain_id
+        operator: EQUALS
+        stringVal: Device
   - entity: condition_occurrence
     primaryKey:
       dataset: aou_synthetic
@@ -249,6 +455,390 @@ attributeMappings:
         dataset: aou_synthetic
         table: concept
         column: concept_name
+  - attribute:
+      entity: condition
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: condition
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: condition
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: condition
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: condition
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: condition
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: procedure
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: procedure
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: procedure
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: procedure
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: procedure
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: procedure
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: ingredient
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: ingredient
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: ingredient
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: ingredient
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: ingredient
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: ingredient
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: brand
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: brand
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: brand
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: brand
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: measurement
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: measurement
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: measurement
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: measurement
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: measurement
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: measurement
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: visit
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: visit
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: observation
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: observation
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: observation
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: observation
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: observation
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: observation
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
+  - attribute:
+      entity: device
+      attribute: concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - attribute:
+      entity: device
+      attribute: concept_name
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
+  - attribute:
+      entity: device
+      attribute: vocabulary_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+  - attribute:
+      entity: device
+      attribute: vocabulary_name
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: vocabulary_id
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_id
+      lookupColumn:
+        dataset: aou_synthetic
+        table: vocabulary
+        column: vocabulary_name
+  - attribute:
+      entity: device
+      attribute: standard_concept
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: standard_concept
+  - attribute:
+      entity: device
+      attribute: concept_code
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_code
   - attribute:
       entity: condition_occurrence
       attribute: condition_occurrence_id
@@ -447,6 +1037,18 @@ relationshipMappings:
         table: condition_occurrence
         column: condition_concept_id
 hierarchies:
+  - attribute:
+      entity: condition
+      attribute: concept_id
+    descendantsTable:
+      ancestor:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: ancestor
+      descendant:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: descendant
   - attribute:
       entity: condition_occurrence
       attribute: condition_concept_id
