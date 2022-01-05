@@ -23,8 +23,8 @@ import org.springframework.http.ResponseEntity;
  * Tests for measurement entity queries on the AoU synthetic underlay. There is no need to specify
  * an active profile for this test, because we want to test the main application definition.
  */
-public class MeasurementEntityQueries extends BaseSpringUnitTest {
-  private static final Logger LOG = LoggerFactory.getLogger(MeasurementEntityQueries.class);
+public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
+  private static final Logger LOG = LoggerFactory.getLogger(MeasurementEntityQueriesTest.class);
   @Autowired private EntityInstancesApiController apiController;
 
   @Test

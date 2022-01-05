@@ -23,8 +23,8 @@ import org.springframework.http.ResponseEntity;
  * Tests for person entity queries on the AoU synthetic underlay. There is no need to specify an
  * active profile for this test, because we want to test the main application definition.
  */
-public class PersonEntityQueries extends BaseSpringUnitTest {
-  private static final Logger LOG = LoggerFactory.getLogger(PersonEntityQueries.class);
+public class PersonEntityQueriesTest extends BaseSpringUnitTest {
+  private static final Logger LOG = LoggerFactory.getLogger(PersonEntityQueriesTest.class);
   @Autowired private EntityInstancesApiController apiController;
 
   @Test

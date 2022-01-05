@@ -1,8 +1,8 @@
 package bio.terra.tanagra.aousynthetic;
 
-import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_OBSERVATION_ATTRIBUTES;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_DEVICE_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.BQ_DATASET_SQL_REFERENCE;
-import static bio.terra.tanagra.aousynthetic.UnderlayUtils.OBSERVATION_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.DEVICE_ENTITY;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,40 +20,40 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 /**
- * Tests for observation entity queries on the AoU synthetic underlay. There is no need to specify
- * an active profile for this test, because we want to test the main application definition.
+ * Tests for device entity queries on the AoU synthetic underlay. There is no need to specify an
+ * active profile for this test, because we want to test the main application definition.
  */
-public class ObservationEntityQueries extends BaseSpringUnitTest {
-  private static final Logger LOG = LoggerFactory.getLogger(ObservationEntityQueries.class);
+public class DeviceEntityQueriesTest extends BaseSpringUnitTest {
+  private static final Logger LOG = LoggerFactory.getLogger(DeviceEntityQueriesTest.class);
   @Autowired private EntityInstancesApiController apiController;
 
   @Test
-  @DisplayName("correct SQL string for listing all observation entity instances")
-  void generateSqlForAllObservationEntities() {
+  @DisplayName("correct SQL string for listing all device entity instances")
+  void generateSqlForAllDeviceEntities() {
     ResponseEntity<ApiSqlQuery> response =
         apiController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
-            OBSERVATION_ENTITY,
+            DEVICE_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
                 .entityDataset(
                     new ApiEntityDataset()
-                        .entityVariable("observation_alias")
-                        .selectedAttributes(ALL_OBSERVATION_ATTRIBUTES)));
+                        .entityVariable("device_alias")
+                        .selectedAttributes(ALL_DEVICE_ATTRIBUTES)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     LOG.info(generatedSql);
     assertEquals(
-        "SELECT observation_alias.concept_id AS concept_id, "
-            + "observation_alias.concept_name AS concept_name, "
-            + "observation_alias.vocabulary_id AS vocabulary_id, "
+        "SELECT device_alias.concept_id AS concept_id, "
+            + "device_alias.concept_name AS concept_name, "
+            + "device_alias.vocabulary_id AS vocabulary_id, "
             + "(SELECT vocabulary.vocabulary_name FROM `"
             + BQ_DATASET_SQL_REFERENCE
-            + "`.vocabulary WHERE vocabulary.vocabulary_id = observation_alias.vocabulary_id) AS vocabulary_name, "
-            + "observation_alias.standard_concept AS standard_concept, "
-            + "observation_alias.concept_code AS concept_code "
+            + "`.vocabulary WHERE vocabulary.vocabulary_id = device_alias.vocabulary_id) AS vocabulary_name, "
+            + "device_alias.standard_concept AS standard_concept, "
+            + "device_alias.concept_code AS concept_code "
             + "FROM (SELECT * FROM `"
             + BQ_DATASET_SQL_REFERENCE
-            + "`.concept WHERE domain_id = 'Observation') AS observation_alias "
+            + "`.concept WHERE domain_id = 'Device') AS device_alias "
             + "WHERE TRUE",
         generatedSql);
   }
