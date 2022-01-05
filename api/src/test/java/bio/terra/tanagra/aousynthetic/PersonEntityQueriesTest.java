@@ -1,7 +1,6 @@
 package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_PERSON_ATTRIBUTES;
-import static bio.terra.tanagra.aousynthetic.UnderlayUtils.BQ_DATASET_SQL_REFERENCE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PERSON_ENTITY;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,10 +10,9 @@ import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
+import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +22,11 @@ import org.springframework.http.ResponseEntity;
  * active profile for this test, because we want to test the main application definition.
  */
 public class PersonEntityQueriesTest extends BaseSpringUnitTest {
-  private static final Logger LOG = LoggerFactory.getLogger(PersonEntityQueriesTest.class);
   @Autowired private EntityInstancesApiController apiController;
 
   @Test
   @DisplayName("correct SQL string for listing all person entity instances")
-  void generateSqlForAllPersonEntities() {
+  void generateSqlForAllPersonEntities() throws IOException {
     ResponseEntity<ApiSqlQuery> response =
         apiController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
@@ -41,29 +38,6 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                         .selectedAttributes(ALL_PERSON_ATTRIBUTES)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
-    LOG.info(generatedSql);
-    assertEquals(
-        "SELECT person_alias.person_id AS person_id, "
-            + "person_alias.gender_concept_id AS gender_concept_id, "
-            + "(SELECT concept.concept_name FROM `"
-            + BQ_DATASET_SQL_REFERENCE
-            + "`.concept WHERE concept.concept_id = person_alias.gender_concept_id) AS gender, "
-            + "person_alias.race_concept_id AS race_concept_id, "
-            + "(SELECT concept.concept_name FROM `"
-            + BQ_DATASET_SQL_REFERENCE
-            + "`.concept WHERE concept.concept_id = person_alias.race_concept_id) AS race, "
-            + "person_alias.ethnicity_concept_id AS ethnicity_concept_id, "
-            + "(SELECT concept.concept_name FROM `"
-            + BQ_DATASET_SQL_REFERENCE
-            + "`.concept WHERE concept.concept_id = person_alias.ethnicity_concept_id) AS ethnicity, "
-            + "person_alias.sex_at_birth_concept_id AS sex_at_birth_concept_id, "
-            + "(SELECT concept.concept_name FROM `"
-            + BQ_DATASET_SQL_REFERENCE
-            + "`.concept WHERE concept.concept_id = person_alias.sex_at_birth_concept_id) AS sex_at_birth "
-            + "FROM `"
-            + BQ_DATASET_SQL_REFERENCE
-            + "`.person AS person_alias "
-            + "WHERE TRUE",
-        generatedSql);
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(generatedSql, "all-person-entities.sql");
   }
 }
