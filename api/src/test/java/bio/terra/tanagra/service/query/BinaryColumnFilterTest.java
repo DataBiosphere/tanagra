@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.query;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.proto.underlay.Attribute;
 import bio.terra.tanagra.proto.underlay.AttributeId;
@@ -27,10 +27,9 @@ import bio.terra.tanagra.service.search.Variable;
 import bio.terra.tanagra.service.underlay.UnderlayConversion;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import com.google.common.collect.ImmutableList;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -39,8 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Java class. Other tests check the SQL string generated for queries against this underlay.
  */
 public class BinaryColumnFilterTest extends BaseSpringUnitTest {
-  private static final Logger LOG = LoggerFactory.getLogger(BinaryColumnFilterTest.class);
-
   @Autowired private QueryService queryService;
 
   // underlay proto without any entity mappings defined, so that we can vary the table filter in the
@@ -156,13 +153,11 @@ public class BinaryColumnFilterTest extends BaseSpringUnitTest {
             IllegalArgumentException.class,
             () -> convertUnderlayFromProto(tableFilterProto),
             "exception thrown when binary column filter table doesn't match entity primary key table");
-    LOG.info("underlay conversion exception message: {}", exception.getMessage());
-    assertTrue(
-        exception
-            .getMessage()
-            .contains(
-                "Binary table filter column is not in the same table as the entity primary key"),
-        "exception message says that binary column filter table doesn't match entity primary key table");
+    assertThat(
+        "exception message says that binary column filter table doesn't match entity primary key table",
+        exception.getMessage(),
+        Matchers.containsString(
+            "Binary table filter column is not in the same table as the entity primary key"));
   }
 
   @Test
@@ -189,12 +184,11 @@ public class BinaryColumnFilterTest extends BaseSpringUnitTest {
             IllegalArgumentException.class,
             () -> convertUnderlayFromProto(tableFilterProto),
             "exception thrown when binary column filter value doesn't match the column data type");
-    LOG.info("underlay conversion exception message: {}", exception.getMessage());
-    assertTrue(
-        exception
-            .getMessage()
-            .contains("Binary table filter value is a different data type than the column"),
-        "exception message says that binary column filter value doesn't match the column data type");
+    assertThat(
+        "exception message says that binary column filter value doesn't match the column data type",
+        exception.getMessage(),
+        Matchers.containsString(
+            "Binary table filter value is a different data type than the column"));
   }
 
   @Test
