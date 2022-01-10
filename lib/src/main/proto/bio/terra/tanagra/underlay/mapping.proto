@@ -72,8 +72,23 @@ message RelationshipMapping {
     ColumnId foreign_key = 2;
   }
 
+  // A mapping where a relationship is navigated by a separate intermediate table.
+  // Each entity table has a column that foreign keys to a column in the intermediate table.
+  message IntermediateTable {
+    // The column in the entity1 table that FKs to the relationship table.
+    ColumnId entity1_entity_table_key = 1;
+    // The column in the relationship table that FKs to the entity1 table.
+    ColumnId entity1_intermediate_table_key = 2;
+
+    // The column in the entity2 table that FKs to the intermediate table.
+    ColumnId entity2_entity_table_key = 3;
+    // The column in the intermediate table that FKs to the entity2 table.
+    ColumnId entity2_intermediate_table_key = 4;
+  }
+
   // The mapping for this relationship.
   oneof mapping {
     ForeignKey foreign_key = 2;
+    IntermediateTable intermediate_table = 3;
   }
 }

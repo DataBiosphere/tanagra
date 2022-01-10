@@ -53,7 +53,7 @@ public final class UnderlayConversion {
         buildTableFilters(underlayProto, entities, columns, primaryKeys);
     Map<Attribute, AttributeMapping> attributeMappings =
         buildAttributeMapping(underlayProto, entities, attributes, columns, primaryKeys);
-    Map<Relationship, ForeignKey> foreignKeys =
+    Map<Relationship, Object> relationshipMappings =
         buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
     Map<Attribute, Hierarchy> hierarchies =
         buildHierarchies(underlayProto, entities, attributes, columns);
@@ -68,7 +68,7 @@ public final class UnderlayConversion {
         .primaryKeys(primaryKeys)
         .tableFilters(tableFilters)
         .attributeMappings(attributeMappings)
-        .foreignKeys(foreignKeys)
+        .relationshipMappings(relationshipMappings)
         .hierarchies(hierarchies)
         .entityFiltersSchemas(entityFiltersSchemas)
         .build();
@@ -262,49 +262,109 @@ public final class UnderlayConversion {
   }
 
   /** Builds a map of {@link Relationship} to their corresponding relationship mapping. */
-  private static Map<Relationship, ForeignKey> buildRelationshipMapping(
+  private static Map<Relationship, Object> buildRelationshipMapping(
       bio.terra.tanagra.proto.underlay.Underlay underlayProto,
       Map<String, Relationship> relationships,
       Map<ColumnId, Column> columns,
       Map<Entity, Column> primaryKeys) {
-    Map<Relationship, ForeignKey> foreignKeys = new HashMap<>();
+    Map<Relationship, Object> relationshipMappings = new HashMap<>();
     for (RelationshipMapping relationshipMapping : underlayProto.getRelationshipMappingsList()) {
-      // TODO support other relationship mappings.
-      Column primaryKey =
-          retrieve(
-              relationshipMapping.getForeignKey().getPrimaryKey(),
-              columns,
-              "primary key",
-              relationshipMapping);
-      Column foreignKey =
-          retrieve(
-              relationshipMapping.getForeignKey().getForeignKey(),
-              columns,
-              "foreign key",
-              relationshipMapping);
       Relationship relationship = relationships.get(relationshipMapping.getName());
       if (relationship == null) {
         throw new IllegalArgumentException(
             String.format(
                 "Unknown relationship name in RelationshipMapping %s", relationshipMapping));
       }
-      Preconditions.checkArgument(
-          primaryKeys.get(relationship.entity1()).table().equals(primaryKey.table()),
-          "The first entity's primary table does not match the primary key in the foreign key mapping. %s",
-          relationshipMapping);
-      Preconditions.checkArgument(
-          primaryKeys.get(relationship.entity2()).table().equals(foreignKey.table()),
-          "The second entity's primary table does not match the foreign key in the foreign key mapping. %s",
-          relationshipMapping);
-      if (foreignKeys.put(
-              relationship,
-              ForeignKey.builder().primaryKey(primaryKey).foreignKey(foreignKey).build())
-          != null) {
-        throw new IllegalArgumentException(
-            String.format("Duplicate foreign key relationship mapping. %s", relationshipMapping));
+
+      switch (relationshipMapping.getMappingCase()) {
+        case FOREIGN_KEY:
+          Column primaryKey =
+              retrieve(
+                  relationshipMapping.getForeignKey().getPrimaryKey(),
+                  columns,
+                  "primary key",
+                  relationshipMapping);
+          Column foreignKey =
+              retrieve(
+                  relationshipMapping.getForeignKey().getForeignKey(),
+                  columns,
+                  "foreign key",
+                  relationshipMapping);
+          Preconditions.checkArgument(
+              primaryKeys.get(relationship.entity1()).table().equals(primaryKey.table()),
+              "The first entity's primary table does not match the primary key in the foreign key mapping. %s",
+              relationshipMapping);
+          Preconditions.checkArgument(
+              primaryKeys.get(relationship.entity2()).table().equals(foreignKey.table()),
+              "The second entity's primary table does not match the foreign key in the foreign key mapping. %s",
+              relationshipMapping);
+          if (relationshipMappings.put(
+                  relationship,
+                  ForeignKey.builder().primaryKey(primaryKey).foreignKey(foreignKey).build())
+              != null) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Duplicate foreign key relationship mapping. %s", relationshipMapping));
+          }
+          break;
+        case INTERMEDIATE_TABLE:
+          Column entity1EntityTableKey =
+              retrieve(
+                  relationshipMapping.getIntermediateTable().getEntity1EntityTableKey(),
+                  columns,
+                  "entity1 entity table key",
+                  relationshipMapping);
+          Column entity1IntermediateTableKey =
+              retrieve(
+                  relationshipMapping.getIntermediateTable().getEntity1IntermediateTableKey(),
+                  columns,
+                  "entity1 intermediate table key",
+                  relationshipMapping);
+          Column entity2EntityTableKey =
+              retrieve(
+                  relationshipMapping.getIntermediateTable().getEntity2EntityTableKey(),
+                  columns,
+                  "entity2 entity table key",
+                  relationshipMapping);
+          Column entity2IntermediateTableKey =
+              retrieve(
+                  relationshipMapping.getIntermediateTable().getEntity2IntermediateTableKey(),
+                  columns,
+                  "entity2 intermediate table key",
+                  relationshipMapping);
+
+          Preconditions.checkArgument(
+              entity1IntermediateTableKey.table().equals(entity2IntermediateTableKey.table()),
+              "The first and second entities' intermediate table keys are not in the same table in the relationship table mapping. %s",
+              relationshipMapping);
+          Preconditions.checkArgument(
+              primaryKeys.get(relationship.entity1()).table().equals(entity1EntityTableKey.table()),
+              "The first entity's primary table does not match the entity table key in the relationship table mapping. %s",
+              relationshipMapping);
+          Preconditions.checkArgument(
+              primaryKeys.get(relationship.entity2()).table().equals(entity2EntityTableKey.table()),
+              "The second entity's primary table does not match the entity table key in the relationship table mapping. %s",
+              relationshipMapping);
+          if (relationshipMappings.put(
+                  relationship,
+                  IntermediateTable.builder()
+                      .entity1EntityTableKey(entity1EntityTableKey)
+                      .entity1IntermediateTableKey(entity1IntermediateTableKey)
+                      .entity2EntityTableKey(entity2EntityTableKey)
+                      .entity2IntermediateTableKey(entity2IntermediateTableKey)
+                      .build())
+              != null) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Duplicate foreign key relationship mapping. %s", relationshipMapping));
+          }
+          break;
+        default:
+          throw new IllegalArgumentException(
+              String.format("Unknown relationship mapping type %s", relationshipMapping));
       }
     }
-    return foreignKeys;
+    return relationshipMappings;
   }
 
   private static Map<Attribute, Hierarchy> buildHierarchies(

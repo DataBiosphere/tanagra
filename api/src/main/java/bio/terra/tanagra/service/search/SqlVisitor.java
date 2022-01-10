@@ -14,6 +14,7 @@ import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
 import bio.terra.tanagra.service.underlay.Hierarchy;
 import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
+import bio.terra.tanagra.service.underlay.IntermediateTable;
 import bio.terra.tanagra.service.underlay.Table;
 import bio.terra.tanagra.service.underlay.TableFilter;
 import bio.terra.tanagra.service.underlay.Underlay;
@@ -362,31 +363,40 @@ public class SqlVisitor {
                 "Unable to resolve RelationshipFilter for unknown relationship. Outer entity {%s}, inner entity {%s}",
                 outerVariable.entity(), innerVariable.entity()));
       }
-      ForeignKey foreignKey = underlay.foreignKeys().get(relationship.get());
-      if (foreignKey == null) {
-        // TODO implement other kinds of relationship mappings.
+      Object relationshipMapping = underlay.relationshipMappings().get(relationship.get());
+      if (relationshipMapping == null) {
         throw new IllegalArgumentException(
             String.format(
-                "Unable to find foreign key mapping for relationship %s", relationship.get()));
+                "Unable to find relationship mapping for relationship %s", relationship.get()));
       }
-      Table outerPrimaryTable = underlay.primaryKeys().get(outerVariable.entity()).table();
-      Table innerPrimaryTable = underlay.primaryKeys().get(innerVariable.entity()).table();
 
-      Column outerColumn = getKeyForTable(foreignKey, outerPrimaryTable);
-      Column innerColumn = getKeyForTable(foreignKey, innerPrimaryTable);
+      if (relationshipMapping instanceof ForeignKey) {
+        ForeignKey foreignKey = (ForeignKey) relationshipMapping;
+        Table outerPrimaryTable = underlay.primaryKeys().get(outerVariable.entity()).table();
+        Table innerPrimaryTable = underlay.primaryKeys().get(innerVariable.entity()).table();
 
-      String template =
-          "${outer_var}.${outer_column} IN (SELECT ${inner_var}.${inner_column} FROM ${inner_table} WHERE ${inner_filter})";
-      Map<String, String> params =
-          ImmutableMap.<String, String>builder()
-              .put("outer_var", outerVariable.variable().name())
-              .put("outer_column", outerColumn.name())
-              .put("inner_var", innerVariable.variable().name())
-              .put("inner_column", innerColumn.name())
-              .put("inner_table", resolveTable(innerVariable))
-              .put("inner_filter", innerFilterSql)
-              .build();
-      return StringSubstitutor.replace(template, params);
+        Column outerColumn = getKeyForTable(foreignKey, outerPrimaryTable);
+        Column innerColumn = getKeyForTable(foreignKey, innerPrimaryTable);
+
+        String template =
+            "${outer_var}.${outer_column} IN (SELECT ${inner_var}.${inner_column} FROM ${inner_table} WHERE ${inner_filter})";
+        Map<String, String> params =
+            ImmutableMap.<String, String>builder()
+                .put("outer_var", outerVariable.variable().name())
+                .put("outer_column", outerColumn.name())
+                .put("inner_var", innerVariable.variable().name())
+                .put("inner_column", innerColumn.name())
+                .put("inner_table", resolveTable(innerVariable))
+                .put("inner_filter", innerFilterSql)
+                .build();
+        return StringSubstitutor.replace(template, params);
+      } else if (relationshipMapping instanceof IntermediateTable) {
+        return "mariko"; // !!!
+      } else {
+        throw new IllegalArgumentException(
+            String.format(
+                "Unknown relationship mapping type for relationship %s", relationship.get()));
+      }
     }
 
     /** Returns the primary key or the foreign key that matches the table, or else throw. */

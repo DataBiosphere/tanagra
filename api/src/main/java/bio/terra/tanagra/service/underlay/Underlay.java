@@ -41,11 +41,18 @@ public abstract class Underlay {
   public abstract ImmutableMap<Entity, TableFilter> tableFilters();
   /** Map from attributes to their {@link AttributeMapping}s. */
   public abstract ImmutableMap<Attribute, AttributeMapping> attributeMappings();
+
   /**
-   * Map from relationships to the foreign keys describing the relation between the tables. The
-   * {@link Relationship#entity1()} should correspond to the {@link ForeignKey#primaryKey()}.
+   * Map from relationships to the objects describing the relation between the entity tables.
+   *
+   * <p>For foreign key relationships, the {@link Relationship#entity1()} should correspond to the
+   * {@link ForeignKey#primaryKey()}.
+   *
+   * <p>For intermediate table relationships, the {@link Relationship#entity1()} should correspond
+   * to the {@link IntermediateTable#entity1EntityTableKey()} and the {@link Relationship#entity2()}
+   * should correspond to the {@link IntermediateTable#entity2EntityTableKey()}.
    */
-  public abstract ImmutableMap<Relationship, ForeignKey> foreignKeys();
+  public abstract ImmutableMap<Relationship, Object> relationshipMappings();
 
   /** Map from attributes to their {@link Hierarchy}, if the attribute is a part of a hierarchy. */
   public abstract ImmutableMap<Attribute, Hierarchy> hierarchies();
@@ -108,7 +115,7 @@ public abstract class Underlay {
 
     public abstract Builder attributeMappings(Map<Attribute, AttributeMapping> attributeMappings);
 
-    public abstract Builder foreignKeys(Map<Relationship, ForeignKey> value);
+    public abstract Builder relationshipMappings(Map<Relationship, Object> value);
 
     public abstract Builder hierarchies(Map<Attribute, Hierarchy> value);
 

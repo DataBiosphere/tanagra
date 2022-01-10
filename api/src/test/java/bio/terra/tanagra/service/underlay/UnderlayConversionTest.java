@@ -170,7 +170,7 @@ public class UnderlayConversionTest {
                     .foreignKey(RESERVATION_B_ID_COL)
                     .build())
             .build(),
-        nautical.foreignKeys());
+        nautical.relationshipMappings());
     assertEquals(
         ImmutableMap.builder()
             .put(
