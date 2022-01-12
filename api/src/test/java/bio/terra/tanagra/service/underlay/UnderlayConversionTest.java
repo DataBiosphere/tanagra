@@ -56,6 +56,7 @@ import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
+import java.util.HashMap;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -218,6 +219,13 @@ public class UnderlayConversionTest {
                                     .build())
                             .build())
                     .filterableRelationships(ImmutableSet.of(SAILOR_RESERVATION_RELATIONSHIP))
+                    .build())
+            .put(
+                BOAT,
+                EntityFiltersSchema.builder()
+                    .entity(BOAT)
+                    .filterableAttributes(new HashMap<>())
+                    .filterableRelationships(ImmutableSet.of(SAILOR_BOAT_RELATIONSHIP))
                     .build())
             .put(
                 RESERVATION,

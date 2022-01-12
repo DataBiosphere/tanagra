@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -391,12 +392,58 @@ public class SqlVisitor {
                 .build();
         return StringSubstitutor.replace(template, params);
       } else if (relationshipMapping instanceof IntermediateTable) {
-        return "mariko"; // !!!
+        IntermediateTable intermediateTable = (IntermediateTable) relationshipMapping;
+
+        Column outerColumn;
+        Column innerColumn;
+        Column outerIntermediateColumn;
+        Column innerIntermediateColumn;
+        if (outerVariable.entity().equals(relationship.get().entity1())) {
+          // outer variable = entity 1, inner variable = entity 2
+          outerColumn = intermediateTable.entity1EntityTableKey();
+          innerColumn = intermediateTable.entity2EntityTableKey();
+          outerIntermediateColumn = intermediateTable.entity1IntermediateTableKey();
+          innerIntermediateColumn = intermediateTable.entity2IntermediateTableKey();
+        } else {
+          // outer variable = entity 2, inner variable = entity 1
+          outerColumn = intermediateTable.entity2EntityTableKey();
+          innerColumn = intermediateTable.entity1EntityTableKey();
+          outerIntermediateColumn = intermediateTable.entity2IntermediateTableKey();
+          innerIntermediateColumn = intermediateTable.entity1IntermediateTableKey();
+        }
+
+        String template =
+            "${outer_var}.${outer_column} IN "
+                + "(SELECT ${intermediate_var}.${outer_intermediate_column} FROM ${intermediate_table} AS ${intermediate_var} WHERE ${intermediate_var}.${inner_intermediate_column} IN "
+                + "(SELECT ${inner_var}.${inner_column} FROM ${inner_table} WHERE ${inner_filter}))";
+        Map<String, String> params =
+            ImmutableMap.<String, String>builder()
+                .put("outer_var", outerVariable.variable().name())
+                .put("outer_column", outerColumn.name())
+                .put("inner_var", innerVariable.variable().name())
+                .put("inner_column", innerColumn.name())
+                .put("inner_table", resolveTable(innerVariable))
+                .put("inner_filter", innerFilterSql)
+                .put("intermediate_var", generateIntermediateTableAlias(relationship.get().name()))
+                .put(
+                    "intermediate_table",
+                    resolveTable(intermediateTable.entity1IntermediateTableKey().table()))
+                .put("outer_intermediate_column", outerIntermediateColumn.name())
+                .put("inner_intermediate_column", innerIntermediateColumn.name())
+                .build();
+        return StringSubstitutor.replace(template, params);
       } else {
         throw new IllegalArgumentException(
             String.format(
                 "Unknown relationship mapping type for relationship %s", relationship.get()));
       }
+    }
+
+    /**
+     * Generate an alias for an intermediate table with prefixed with the given relationship name.
+     */
+    private static String generateIntermediateTableAlias(String relationshipName) {
+      return relationshipName + UUID.randomUUID().toString().replace('-', '_');
     }
 
     /** Returns the primary key or the foreign key that matches the table, or else throw. */
