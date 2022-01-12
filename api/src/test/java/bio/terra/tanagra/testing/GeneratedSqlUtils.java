@@ -1,7 +1,9 @@
 package bio.terra.tanagra.testing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +11,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,5 +86,42 @@ public final class GeneratedSqlUtils {
     PrintWriter writer = new PrintWriter(generatedSqlFile.toFile(), StandardCharsets.UTF_8);
     writer.println(generatedSql);
     writer.close();
+  }
+
+  /**
+   * Replace the generated table aliases in the expected SQL with those in the actual SQL. The
+   * purpose of this helper method is to allow a test to compare the expected and actual SQL without
+   * failing on the generated alias names. This is necessary because the generated table names
+   * include a randomly generated UUID, and so we will get a different alias each time.
+   *
+   * @param expected the expected SQL string that contains generated table aliases (e.g.
+   *     sailor_boatb61b6fa5_9756_4de7_9c68_bc57fe223635)
+   * @param actual the actual SQL string that contains generated table aliases (e.g.
+   *     sailor_boat237e13f7_ab74_42b4_9b0c_e5a45299f942)
+   * @param relationshipName the name of the relationship with the intermediate table
+   * @return the expected SQL string, with its generated table aliases replaced with those in the
+   *     actual SQL string
+   */
+  public static String replaceGeneratedIntermediateTableAliasDiffs(
+      String expected, String actual, String relationshipName) {
+    Pattern generatedTableAliasRegex =
+        Pattern.compile(
+            relationshipName
+                + "[a-fA-F0-9]{8}_[a-fA-F0-9]{4}_[a-fA-F0-9]{4}_[a-fA-F0-9]{4}_[a-fA-F0-9]{12}");
+
+    // find the generated table alias in the actual SQL
+    Matcher actualAliasMatcher = generatedTableAliasRegex.matcher(actual);
+    assertTrue(actualAliasMatcher.find(), "generated intermediate table alias not found");
+    String actualAlias = actual.substring(actualAliasMatcher.start(), actualAliasMatcher.end());
+
+    // replace all the generated table aliases in the expected SQL with ${generated_table_alias}
+    String expectedTemplate =
+        generatedTableAliasRegex.matcher(expected).replaceAll("\\$\\{generated_table_alias\\}");
+
+    // substitute the ${generated_table_alias} in the expected SQL with the alias from the actual
+    // SQL
+    Map<String, String> params =
+        ImmutableMap.<String, String>builder().put("generated_table_alias", actualAlias).build();
+    return StringSubstitutor.replace(expectedTemplate, params);
   }
 }
