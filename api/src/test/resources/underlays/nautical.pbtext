@@ -185,6 +185,21 @@ datasets: {
     }
   }
   tables: {
+    name: "boat_types_children"
+    columns: {
+      name: "btc_parent"
+      data_type: INT64
+    }
+    columns: {
+      name: "btc_child"
+      data_type: INT64
+    }
+    columns: {
+      name: "btc_is_expired"
+      data_type: STRING
+    }
+  }
+  tables: {
     name: "boat_parts"
     columns: {
       name: "bp_id"
@@ -527,6 +542,29 @@ hierarchies: {
       dataset: "nautical"
       table: "boat_types_descendants"
       column: "bt_descendant"
+    }
+  }
+  children_table: {
+    parent: {
+      dataset: "nautical"
+      table: "boat_types_children"
+      column: "btc_parent"
+    }
+    child: {
+      dataset: "nautical"
+      table: "boat_types_children"
+      column: "btc_child"
+    }
+    table_filter: {
+      binary_column_filter: {
+        column: {
+          dataset: "nautical"
+          table: "boat_types_children"
+          column: "btc_is_expired"
+        }
+        operator: EQUALS
+        string_val: "false"
+      }
     }
   }
 }

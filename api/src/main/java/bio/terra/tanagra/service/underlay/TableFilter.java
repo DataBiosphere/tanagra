@@ -10,6 +10,11 @@ public abstract class TableFilter {
   @Nullable
   public abstract BinaryColumnFilter binaryColumnFilter();
 
+  /** The underlying {@link Table}. */
+  public Table table() {
+    return binaryColumnFilter().column().table();
+  }
+
   public static TableFilter.Builder builder() {
     return new AutoValue_TableFilter.Builder();
   }

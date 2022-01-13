@@ -12,6 +12,7 @@ import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.Relationship;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
+import bio.terra.tanagra.service.underlay.Hierarchy.ChildrenTable;
 import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -174,17 +175,20 @@ public final class UnderlayConversion {
         continue;
       }
 
-      TableFilter tableFilter;
+      // convert the TableFilter proto and do entity table-specific validation
+      TableFilter tableFilter = convert(entityMapping.getTableFilter(), columns);
       switch (entityMapping.getTableFilter().getFilterCase()) {
         case BINARY_COLUMN_FILTER:
-          tableFilter =
-              TableFilter.builder()
-                  .binaryColumnFilter(
-                      convert(
-                          entityMapping.getTableFilter().getBinaryColumnFilter(),
-                          columns,
-                          primaryKeys.get(entity)))
-                  .build();
+          if (!tableFilter
+              .binaryColumnFilter()
+              .column()
+              .table()
+              .equals(primaryKeys.get(entity).table())) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Binary table filter column is not in the same table as the entity primary key: %s",
+                    entityMapping));
+          }
           break;
         case FILTER_NOT_SET:
           continue;
@@ -378,6 +382,7 @@ public final class UnderlayConversion {
       Attribute attribute =
           retrieve(
               hierarchyProto.getAttribute(), entities, attributes, "attribute", hierarchyProto);
+
       Column ancestor =
           retrieve(
               hierarchyProto.getDescendantsTable().getAncestor(),
@@ -390,11 +395,26 @@ public final class UnderlayConversion {
               columns,
               "descendants",
               hierarchyProto);
+      DescendantsTable.Builder descendantsTable =
+          DescendantsTable.builder().ancestor(ancestor).descendant(descendant);
+
+      Column parent =
+          retrieve(
+              hierarchyProto.getChildrenTable().getParent(), columns, "parent", hierarchyProto);
+      Column child =
+          retrieve(hierarchyProto.getChildrenTable().getChild(), columns, "child", hierarchyProto);
+      ChildrenTable.Builder childrenTable = ChildrenTable.builder().parent(parent).child(child);
+      if (hierarchyProto.getChildrenTable().hasTableFilter()) {
+        childrenTable.tableFilter(
+            convert(hierarchyProto.getChildrenTable().getTableFilter(), columns));
+      }
+
       Hierarchy hierarchy =
           Hierarchy.builder()
-              .descendantsTable(
-                  DescendantsTable.builder().ancestor(ancestor).descendant(descendant).build())
+              .descendantsTable(descendantsTable.build())
+              .childrenTable(childrenTable.build())
               .build();
+
       if (hierarchies.put(attribute, hierarchy) != null) {
         throw new IllegalArgumentException(
             String.format("Duplicate attribute hierarchies not allowed: %s", attribute));
@@ -541,21 +561,29 @@ public final class UnderlayConversion {
         .build();
   }
 
+  private static TableFilter convert(
+      bio.terra.tanagra.proto.underlay.TableFilter tableFilterProto,
+      Map<ColumnId, Column> columns) {
+    switch (tableFilterProto.getFilterCase()) {
+      case BINARY_COLUMN_FILTER:
+        return TableFilter.builder()
+            .binaryColumnFilter(convert(tableFilterProto.getBinaryColumnFilter(), columns))
+            .build();
+      case FILTER_NOT_SET:
+      default:
+        throw new IllegalArgumentException(
+            String.format("Unknown table filter type: %s", tableFilterProto));
+    }
+  }
+
   private static BinaryColumnFilter convert(
       bio.terra.tanagra.proto.underlay.BinaryColumnFilter binaryColumnFilterProto,
-      Map<ColumnId, Column> columns,
-      Column primaryKeyColumn) {
+      Map<ColumnId, Column> columns) {
     ColumnId filterColumnId = convert(binaryColumnFilterProto.getColumn());
     Column filterColumn = columns.get(filterColumnId);
     if (filterColumn == null) {
       throw new IllegalArgumentException(
           String.format("Unknown table filter column: %s", binaryColumnFilterProto));
-    }
-    if (!filterColumn.table().equals(primaryKeyColumn.table())) {
-      throw new IllegalArgumentException(
-          String.format(
-              "Binary table filter column is not in the same table as the entity primary key: %s",
-              binaryColumnFilterProto));
     }
 
     ColumnValue columnValue;

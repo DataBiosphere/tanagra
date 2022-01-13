@@ -15,6 +15,8 @@ message Hierarchy {
   AttributeId attribute = 1;
 
   DescendantsTable descendants_table = 2;
+
+  ChildrenTable children_table = 3;
 }
 
 // A table of ancestor attribute values to all descendant attribute values.
@@ -25,4 +27,17 @@ message DescendantsTable {
   ColumnId ancestor = 1;
   // The column of the descendant value.
   ColumnId descendant = 2;
+}
+
+// A table of parent attribute values to all immediate children attribute values.
+// There should be a row for each (parent, child) pair in the hierarchy.
+message ChildrenTable {
+  // The column of the parent value. This should have the same data type as
+  // the attribute in the hierarchy.
+  ColumnId parent = 1;
+  // The column of the child value.
+  ColumnId child = 2;
+
+  // An optional additional filter on the table.
+  optional TableFilter table_filter = 3;
 }
