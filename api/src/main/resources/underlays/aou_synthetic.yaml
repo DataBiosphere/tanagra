@@ -156,6 +156,9 @@ relationships:
   - name: person_condition_occurrence
     entity1: person
     entity2: condition_occurrence
+  - name: brand_ingredient
+    entity1: brand
+    entity2: ingredient
   - name: concept_id_person_gender
     entity1: concept
     entity2: person
@@ -218,6 +221,14 @@ datasets:
           - name: vocabulary_id
             dataType: STRING
           - name: vocabulary_name
+            dataType: STRING
+      - name: concept_relationship
+        columns:
+          - name: concept_id_1
+            dataType: INT64
+          - name: concept_id_2
+            dataType: INT64
+          - name: relationship_id
             dataType: STRING
   - name: omop_indexes
     bigQueryDataset:
@@ -986,6 +997,24 @@ relationshipMappings:
         dataset: aou_synthetic
         table: condition_occurrence
         column: person_id
+  - name: brand_ingredient
+    intermediateTable:
+      entity1EntityTableKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      entity1IntermediateTableKey:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_1
+      entity2EntityTableKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      entity2IntermediateTableKey:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_2
   - name: concept_id_person_gender
     foreignKey:
       primaryKey:
