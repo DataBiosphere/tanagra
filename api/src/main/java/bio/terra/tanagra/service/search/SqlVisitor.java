@@ -440,7 +440,10 @@ public class SqlVisitor {
     }
 
     /**
-     * Generate an alias for an intermediate table with prefixed with the given relationship name.
+     * Generate an alias for an intermediate table prefixed with the given relationship name.
+     *
+     * <p>The logic in this method needs to be kept in sync with
+     * GeneratedSqlUtils.replaceGeneratedIntermediateTableAliasDiffs method.
      */
     private static String generateIntermediateTableAlias(String relationshipName) {
       return relationshipName + UUID.randomUUID().toString().replace('-', '_');
