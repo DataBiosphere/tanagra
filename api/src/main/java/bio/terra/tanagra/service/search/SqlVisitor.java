@@ -13,6 +13,7 @@ import bio.terra.tanagra.service.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
 import bio.terra.tanagra.service.underlay.Hierarchy;
+import bio.terra.tanagra.service.underlay.Hierarchy.ChildrenTable;
 import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import bio.terra.tanagra.service.underlay.IntermediateTable;
 import bio.terra.tanagra.service.underlay.Table;
@@ -139,6 +140,8 @@ public class SqlVisitor {
           return String.format("%s = %s", leftSql, rightSql);
         case DESCENDANT_OF_INCLUSIVE:
           return resolveDescendantOfInclusive(binaryFunction);
+        case CHILD_OF:
+          return resolveChildOf(binaryFunction);
         default:
           throw new UnsupportedOperationException(
               String.format("Unsupported BinaryFunction.Operator %s", binaryFunction.operator()));
@@ -182,6 +185,47 @@ public class SqlVisitor {
               .put("hierarchy_table", underlayResolver.resolveTable(descendantsTable.table()))
               .put("ancestor", descendantsTable.ancestor().name())
               .put("descendant", descendantsTable.descendant().name())
+              .put("right", rightSql)
+              .build();
+      return StringSubstitutor.replace(template, params);
+    }
+
+    /** Returns an SQL string for a {@link BinaryFunction.Operator#CHILD_OF} filter function. */
+    private String resolveChildOf(BinaryFunction binaryFunction) {
+      Preconditions.checkArgument(
+          binaryFunction.operator().equals(BinaryFunction.Operator.CHILD_OF));
+      if (!(binaryFunction.left() instanceof Expression.AttributeExpression)) {
+        throw new BadRequestException("CHILD_OF only supported for attribute left operand.");
+      }
+      Expression.AttributeExpression attributeExpression =
+          (Expression.AttributeExpression) binaryFunction.left();
+      Hierarchy hierarchy =
+          searchContext
+              .underlay()
+              .hierarchies()
+              .get(attributeExpression.attributeVariable().attribute());
+      if (hierarchy == null) {
+        throw new BadRequestException(
+            String.format(
+                "CHILD_OF only supported for hierarchical attributes, but [%s] has no known hierarchy.",
+                attributeExpression.attributeVariable().attribute()));
+      }
+      ChildrenTable childrenTable = hierarchy.childrenTable();
+
+      ExpressionVisitor expressionVisitor = new ExpressionVisitor(searchContext);
+      String rightSql = binaryFunction.right().accept(expressionVisitor);
+      String template =
+          "${attribute} IN "
+              + "(SELECT ${child} FROM ${hierarchy_table} WHERE ${parent} = ${right})";
+
+      Map<String, String> params =
+          ImmutableMap.<String, String>builder()
+              .put("attribute", binaryFunction.left().accept(expressionVisitor))
+              .put(
+                  "hierarchy_table",
+                  underlayResolver.resolveTable(childrenTable.table(), childrenTable.tableFilter()))
+              .put("child", childrenTable.child().name())
+              .put("parent", childrenTable.parent().name())
               .put("right", rightSql)
               .build();
       return StringSubstitutor.replace(template, params);
@@ -244,13 +288,8 @@ public class SqlVisitor {
         throw new IllegalArgumentException(
             String.format("Unable to find primary key for entity %s", entityVariable.entity()));
       }
-      TableFilter tableFilter = underlay.tableFilters().get(entityVariable.entity());
-      String resolvedTable;
-      if (tableFilter == null) {
-        resolvedTable = resolveTable(primaryKey.table());
-      } else {
-        resolvedTable = resolveTable(primaryKey.table(), tableFilter);
-      }
+      String resolvedTable =
+          resolveTable(primaryKey.table(), underlay.tableFilters().get(entityVariable.entity()));
       return String.format("%s AS %s", resolvedTable, entityVariable.variable().name());
     }
 
@@ -261,6 +300,10 @@ public class SqlVisitor {
     }
 
     private String resolveTable(Table table, TableFilter tableFilter) {
+      if (tableFilter == null) {
+        return resolveTable(table);
+      }
+
       String operatorInWhereClause;
       switch (tableFilter.binaryColumnFilter().operator()) {
         case EQUALS:

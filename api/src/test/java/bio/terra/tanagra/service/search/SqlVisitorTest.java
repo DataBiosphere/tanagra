@@ -139,6 +139,29 @@ public class SqlVisitorTest {
   }
 
   @Test
+  void filterBinaryFunctionChildOfWithTableFilter() {
+    Filter childOfFilter =
+        Filter.BinaryFunction.create(
+            Expression.AttributeExpression.create(AttributeVariable.create(BOAT_TYPE_ID, B_VAR)),
+            Filter.BinaryFunction.Operator.CHILD_OF,
+            Expression.Literal.create(DataType.INT64, "432"));
+    assertEquals(
+        "b.bt_id IN (SELECT btc_child "
+            + "FROM (SELECT * FROM `my-project-id.nautical`.boat_types_children WHERE btc_is_expired = 'false') "
+            + "WHERE btc_parent = 432)",
+        childOfFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+
+    Filter nonHierarchicalAttribute =
+        Filter.BinaryFunction.create(
+            Expression.AttributeExpression.create(AttributeVariable.create(BOAT_NAME, B_VAR)),
+            Filter.BinaryFunction.Operator.CHILD_OF,
+            Expression.Literal.create(DataType.STRING, "Foo"));
+    assertThrows(
+        BadRequestException.class,
+        () -> nonHierarchicalAttribute.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+  }
+
+  @Test
   void filterArrayFunction() {
     ImmutableList<Filter> operands =
         ImmutableList.of(

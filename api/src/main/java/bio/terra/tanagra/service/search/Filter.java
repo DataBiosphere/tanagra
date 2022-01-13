@@ -53,7 +53,10 @@ public interface Filter {
       LESS_THAN,
       // The left side is a descendant of or equal to the right expression in a hierarchy. The
       // expressions must be a part of a known hierarchy.
-      DESCENDANT_OF_INCLUSIVE
+      DESCENDANT_OF_INCLUSIVE,
+      // The left side is a parent of the right expression in a hierarchy. The expressions must be a
+      // part of a known hierarchy.
+      CHILD_OF
     }
   }
 

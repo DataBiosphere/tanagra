@@ -50,6 +50,37 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
+      "correct SQL string for filtering entity instances based on a binary filter with the CHILD_OF operator")
+  void generateSqlQueryBinaryFilterChildOf() {
+    // filter for "boats" entity instances that have a type that is a child of type 423
+    // i.e. say sailboat = boat type 423. give me all the boats that are an immediate sub-type of
+    // sailboat
+    ApiEntityFilter apiEntityFilter =
+        new ApiEntityFilter()
+            .entityVariable("boat")
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("boat").name("type_id"))
+                            .operator(ApiBinaryFilterOperator.CHILD_OF)
+                            .attributeValue(new ApiAttributeValue().int64Val(423L))));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateSqlQuery(
+            NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME, "boats", apiEntityFilter);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT boat.b_id AS primary_key FROM `my-project-id.nautical`.boats AS boat "
+            + "WHERE boat.bt_id IN (SELECT btc_child FROM "
+            + "(SELECT * FROM `my-project-id.nautical`.boat_types_children WHERE btc_is_expired = 'false') "
+            + "WHERE btc_parent = 423)",
+        response.getBody().getQuery());
+  }
+
+  @Test
+  @DisplayName(
       "correct SQL string for filtering entity instances based on a relationship where the entity=entity1")
   void generateSqlQueryRelationshipFilterForEntity1() {
     // filter for "boats" entity instances that have color=red
