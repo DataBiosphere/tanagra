@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.underlay;
 
 import com.google.auto.value.AutoValue;
 
-/** A foreign key constraint between two SLQ columns. */
+/** A foreign key constraint between two SQL columns. */
 @AutoValue
 public abstract class ForeignKey {
   /** The primary key column in the constraint. */

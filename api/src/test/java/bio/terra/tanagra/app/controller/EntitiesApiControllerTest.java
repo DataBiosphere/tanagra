@@ -58,7 +58,11 @@ public class EntitiesApiControllerTest extends BaseSpringUnitTest {
                   new ApiRelationship()
                       .name("sailor_reservation")
                       .relatedEntity("reservations")
-                      .filterable(true)));
+                      .filterable(true),
+                  new ApiRelationship()
+                      .name("sailor_boat")
+                      .relatedEntity("boats")
+                      .filterable(false)));
 
   @Test
   void getEntity() {

@@ -83,6 +83,11 @@ relationships: {
   entity1: "boats"
   entity2: "reservations"
 }
+relationships: {
+  name: "sailor_boat"
+  entity1: "sailors"
+  entity2: "boats"
+}
 datasets: {
   name: "nautical"
   big_query_dataset: {
@@ -120,6 +125,21 @@ datasets: {
     }
     columns: {
       name: "bt_id"
+      data_type: INT64
+    }
+  }
+  tables: {
+    name: "sailors_favorite_boats"
+    columns: {
+      name: "sfb_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "s_id"
+      data_type: INT64
+    }
+    columns: {
+      name: "b_id"
       data_type: INT64
     }
   }
@@ -445,6 +465,31 @@ relationship_mappings: {
     }
   }
 }
+relationship_mappings: {
+  name: "sailor_boat"
+  intermediate_table: {
+    entity1_entity_table_key: {
+      dataset: "nautical"
+      table: "sailors"
+      column: "s_id"
+    }
+    entity1_intermediate_table_key: {
+      dataset: "nautical"
+      table: "sailors_favorite_boats"
+      column: "s_id"
+    }
+    entity2_entity_table_key: {
+      dataset: "nautical"
+      table: "boats"
+      column: "b_id"
+    }
+    entity2_intermediate_table_key: {
+      dataset: "nautical"
+      table: "sailors_favorite_boats"
+      column: "b_id"
+    }
+  }
+}
 entity_filters_schemas: {
   entity: "sailors"
   attributes: {
@@ -459,6 +504,12 @@ entity_filters_schemas: {
   }
   relationships: {
     relationship_name: "sailor_reservation"
+  }
+}
+entity_filters_schemas: {
+  entity: "boats"
+  relationships: {
+    relationship_name: "sailor_boat"
   }
 }
 hierarchies: {

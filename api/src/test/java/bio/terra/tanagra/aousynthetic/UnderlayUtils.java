@@ -12,10 +12,6 @@ public final class UnderlayUtils {
 
   public static final String UNDERLAY_NAME = "aou_synthetic";
 
-  public static final String BQ_PROJECT_ID = "broad-tanagra-dev";
-  public static final String BQ_DATASET_ID = "aou_synthetic_SR2019q4r4";
-  public static final String BQ_DATASET_SQL_REFERENCE = BQ_PROJECT_ID + "." + BQ_DATASET_ID;
-
   public static final String PERSON_ENTITY = "person";
   public static final List<String> ALL_PERSON_ATTRIBUTES =
       ImmutableList.of(

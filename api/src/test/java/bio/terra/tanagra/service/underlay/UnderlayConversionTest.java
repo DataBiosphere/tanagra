@@ -33,6 +33,9 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATI
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_S_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_S_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILORS_FAVORITE_BOATS_B_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILORS_FAVORITE_BOATS_S_ID_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_BOAT_RELATIONSHIP;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME;
@@ -53,6 +56,7 @@ import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
+import java.util.HashMap;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -93,6 +97,7 @@ public class UnderlayConversionTest {
         ImmutableMap.builder()
             .put(SAILOR_RESERVATION_RELATIONSHIP.name(), SAILOR_RESERVATION_RELATIONSHIP)
             .put(BOAT_RESERVATION_RELATIONSHIP.name(), BOAT_RESERVATION_RELATIONSHIP)
+            .put(SAILOR_BOAT_RELATIONSHIP.name(), SAILOR_BOAT_RELATIONSHIP)
             .build(),
         nautical.relationships());
     assertEquals(
@@ -169,8 +174,16 @@ public class UnderlayConversionTest {
                     .primaryKey(BOAT_ID_COL)
                     .foreignKey(RESERVATION_B_ID_COL)
                     .build())
+            .put(
+                SAILOR_BOAT_RELATIONSHIP,
+                IntermediateTable.builder()
+                    .entity1EntityTableKey(SAILOR_ID_COL)
+                    .entity1IntermediateTableKey(SAILORS_FAVORITE_BOATS_S_ID_COL)
+                    .entity2EntityTableKey(BOAT_ID_COL)
+                    .entity2IntermediateTableKey(SAILORS_FAVORITE_BOATS_B_ID_COL)
+                    .build())
             .build(),
-        nautical.foreignKeys());
+        nautical.relationshipMappings());
     assertEquals(
         ImmutableMap.builder()
             .put(
@@ -206,6 +219,13 @@ public class UnderlayConversionTest {
                                     .build())
                             .build())
                     .filterableRelationships(ImmutableSet.of(SAILOR_RESERVATION_RELATIONSHIP))
+                    .build())
+            .put(
+                BOAT,
+                EntityFiltersSchema.builder()
+                    .entity(BOAT)
+                    .filterableAttributes(new HashMap<>())
+                    .filterableRelationships(ImmutableSet.of(SAILOR_BOAT_RELATIONSHIP))
                     .build())
             .put(
                 RESERVATION,

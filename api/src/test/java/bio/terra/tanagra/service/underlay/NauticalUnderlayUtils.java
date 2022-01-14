@@ -84,6 +84,8 @@ public final class NauticalUnderlayUtils {
           .build();
   public static final Relationship BOAT_RESERVATION_RELATIONSHIP =
       Relationship.builder().name("boat_reservation").entity1(BOAT).entity2(RESERVATION).build();
+  public static final Relationship SAILOR_BOAT_RELATIONSHIP =
+      Relationship.builder().name("sailor_boat").entity1(SAILOR).entity2(BOAT).build();
 
   public static final BigQueryDataset NAUTICAL_DATASET =
       BigQueryDataset.builder()
@@ -93,6 +95,8 @@ public final class NauticalUnderlayUtils {
           .build();
   public static final Table SAILOR_TABLE = Table.create("sailors", NAUTICAL_DATASET);
   public static final Table BOAT_TABLE = Table.create("boats", NAUTICAL_DATASET);
+  public static final Table SAILORS_FAVORITE_BOATS_TABLE =
+      Table.create("sailors_favorite_boats", NAUTICAL_DATASET);
   public static final Table RESERVATION_TABLE = Table.create("reservations", NAUTICAL_DATASET);
   public static final Table BOAT_TYPE_TABLE = Table.create("boat_types", NAUTICAL_DATASET);
   public static final Table BOAT_TYPE_DESCENDANTS_TABLE =
@@ -113,6 +117,18 @@ public final class NauticalUnderlayUtils {
       Column.builder().name("color").dataType(DataType.STRING).table(BOAT_TABLE).build();
   public static final Column BOAT_BT_ID_COL =
       Column.builder().name("bt_id").dataType(DataType.INT64).table(BOAT_TABLE).build();
+  public static final Column SAILORS_FAVORITE_BOATS_S_ID_COL =
+      Column.builder()
+          .name("s_id")
+          .dataType(DataType.INT64)
+          .table(SAILORS_FAVORITE_BOATS_TABLE)
+          .build();
+  public static final Column SAILORS_FAVORITE_BOATS_B_ID_COL =
+      Column.builder()
+          .name("b_id")
+          .dataType(DataType.INT64)
+          .table(SAILORS_FAVORITE_BOATS_TABLE)
+          .build();
   public static final Column RESERVATION_ID_COL =
       Column.builder().name("r_id").dataType(DataType.INT64).table(RESERVATION_TABLE).build();
   public static final Column RESERVATION_S_ID_COL =

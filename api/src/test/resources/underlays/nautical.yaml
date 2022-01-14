@@ -47,6 +47,9 @@ relationships:
   - name: boat_reservation
     entity1: boats
     entity2: reservations
+  - name: sailor_boat
+    entity1: sailors
+    entity2: boats
 datasets:
   - name: nautical
     bigQueryDataset:
@@ -70,6 +73,14 @@ datasets:
           - name: color
             dataType: STRING
           - name: bt_id
+            dataType: INT64
+      - name: sailors_favorite_boats
+        columns:
+          - name: sfb_id
+            dataType: INT64
+          - name: s_id
+            dataType: INT64
+          - name: b_id
             dataType: INT64
       - name: reservations
         columns:
@@ -272,6 +283,24 @@ relationshipMappings:
         dataset: nautical
         table: reservations
         column: b_id
+  - name: sailor_boat
+    intermediateTable:
+      entity1EntityTableKey:
+        dataset: nautical
+        table: sailors
+        column: s_id
+      entity1IntermediateTableKey:
+        dataset: nautical
+        table: sailors_favorite_boats
+        column: s_id
+      entity2EntityTableKey:
+        dataset: nautical
+        table: boats
+        column: b_id
+      entity2IntermediateTableKey:
+        dataset: nautical
+        table: sailors_favorite_boats
+        column: b_id
 hierarchies:
   - attribute:
       entity: boats
@@ -295,6 +324,9 @@ entityFiltersSchemas:
       - attributeName: name
     relationships:
       - relationshipName: sailor_reservation
+  - entity: boats
+    relationships:
+      - relationshipName: sailor_boat
   - entity: reservations
     attributes:
       - attributeName: day
