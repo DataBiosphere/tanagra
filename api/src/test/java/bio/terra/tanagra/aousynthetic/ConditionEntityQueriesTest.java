@@ -1,12 +1,18 @@
 package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_CONDITION_ATTRIBUTES;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_INGREDIENT_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.app.controller.EntityInstancesApiController;
+import bio.terra.tanagra.generated.model.ApiAttributeValue;
+import bio.terra.tanagra.generated.model.ApiAttributeVariable;
+import bio.terra.tanagra.generated.model.ApiBinaryFilter;
+import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
+import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
@@ -41,5 +47,67 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/all-condition-entities.sql");
+  }
+
+  @Test
+  @DisplayName("correct SQL string for listing descendants of a single condition entity instance")
+  void generateSqlForDescendantsOfAConditionEntity() throws IOException {
+    // filter for "condition" entity instances that are descendants of the "condition" entity
+    // instance with concept_id=201826
+    // i.e. give me all the descendants of "Type 2 diabetes mellitus"
+    ApiFilter descendantsOfType2Diabetes =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("condition_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.DESCENDANT_OF_INCLUSIVE)
+                    .attributeValue(new ApiAttributeValue().int64Val(201_826L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            CONDITION_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("condition_alias")
+                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
+                        .filter(descendantsOfType2Diabetes)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/condition-entities-descendants-of-a-condition.sql");
+  }
+
+  @Test
+  @DisplayName("correct SQL string for listing children of a single condition entity instance")
+  void generateSqlForChildrenOfAConditionEntity() throws IOException {
+    // filter for "condition" entity instances that are children of the "condition" entity
+    // instance with concept_id=201826
+    // i.e. give me all the children of "Type 2 diabetes mellitus"
+    ApiFilter descendantsOfType2Diabetes =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("condition_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.CHILD_OF)
+                    .attributeValue(new ApiAttributeValue().int64Val(201_826L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            CONDITION_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("condition_alias")
+                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
+                        .filter(descendantsOfType2Diabetes)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/condition-entities-children-of-a-condition.sql");
   }
 }
