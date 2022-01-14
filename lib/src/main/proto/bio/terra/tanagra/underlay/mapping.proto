@@ -74,6 +74,11 @@ message RelationshipMapping {
 
   // A mapping where a relationship is navigated by a separate intermediate table.
   // Each entity table has a column that foreign keys to a column in the intermediate table.
+  // Note that, it's also possible to express such a relationship (table 1 FKs to intermediate table FKs to table 2)
+  // using two FK mappings. This would require 3 entity definitions, one for each table.
+  // The reason for defining a new relationship mapping type instead of using the existing FK one was to allow
+  // defining this relationship with just 2 entities. The intermediate table may not really mean anything to the UI,
+  // in the same way that the other two tables do. The goal is to avoid defining extra entities just based on the SQL schema.
   message IntermediateTable {
     // The column in the entity1 table that FKs to the relationship table.
     ColumnId entity1_entity_table_key = 1;
