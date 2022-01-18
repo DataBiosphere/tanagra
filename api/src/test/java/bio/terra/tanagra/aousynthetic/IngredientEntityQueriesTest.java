@@ -92,4 +92,66 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
         "aousynthetic/ingredient-entities-related-to-a-brand.sql",
         "brand_ingredient");
   }
+
+  @Test
+  @DisplayName("correct SQL string for listing descendants of a single ingredient entity instance")
+  void generateSqlForDescendantsOfAnIngredientEntity() throws IOException {
+    // filter for "ingredient" entity instances that are descendants of the "ingredient" entity
+    // instance with concept_id=21600360
+    // i.e. give me all the descendants of "Other cardiac preparations"
+    ApiFilter descendantsOfOtherCardiacPreparations =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("ingredient_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.DESCENDANT_OF_INCLUSIVE)
+                    .attributeValue(new ApiAttributeValue().int64Val(21_600_360L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            INGREDIENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("ingredient_alias")
+                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
+                        .filter(descendantsOfOtherCardiacPreparations)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/ingredient-entities-descendants-of-an-ingredient.sql");
+  }
+
+  @Test
+  @DisplayName("correct SQL string for listing children of a single ingredient entity instance")
+  void generateSqlForChildrenOfAnIngredientEntity() throws IOException {
+    // filter for "ingredient" entity instances that are children of the "ingredient" entity
+    // instance with concept_id=21603396
+    // i.e. give me all the children of "Opium alkaloids and derivatives"
+    ApiFilter childrenOfOpiumAlkaloids =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("ingredient_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.CHILD_OF)
+                    .attributeValue(new ApiAttributeValue().int64Val(21_603_396L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            INGREDIENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("ingredient_alias")
+                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
+                        .filter(childrenOfOpiumAlkaloids)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/ingredient-entities-children-of-an-ingredient.sql");
+  }
 }
