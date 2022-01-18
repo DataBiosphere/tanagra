@@ -1102,6 +1102,35 @@ hierarchies:
           operator: EQUALS
           stringVal: Subsumes
   - attribute:
+      entity: procedure
+      attribute: concept_id
+    descendantsTable:
+      ancestor:
+        dataset: omop_indexes
+        table: concept_ancestor_descendant_1
+        column: ancestor
+      descendant:
+        dataset: omop_indexes
+        table: concept_ancestor_descendant_1
+        column: descendant
+    childrenTable:
+      parent:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_1
+      child:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_2
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: aou_synthetic
+            table: concept_relationship
+            column: relationship_id
+          operator: EQUALS
+          stringVal: Subsumes
+  - attribute:
       entity: condition_occurrence
       attribute: condition_concept_id
     descendantsTable:

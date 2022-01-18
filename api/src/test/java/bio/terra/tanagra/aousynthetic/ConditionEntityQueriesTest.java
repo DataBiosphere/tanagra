@@ -1,7 +1,6 @@
 package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_CONDITION_ATTRIBUTES;
-import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_INGREDIENT_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,7 +71,7 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
                 .entityDataset(
                     new ApiEntityDataset()
                         .entityVariable("condition_alias")
-                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
+                        .selectedAttributes(ALL_CONDITION_ATTRIBUTES)
                         .filter(descendantsOfType2Diabetes)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
@@ -86,7 +85,7 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
     // filter for "condition" entity instances that are children of the "condition" entity
     // instance with concept_id=201826
     // i.e. give me all the children of "Type 2 diabetes mellitus"
-    ApiFilter descendantsOfType2Diabetes =
+    ApiFilter childrenOfType2Diabetes =
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
@@ -103,8 +102,8 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
                 .entityDataset(
                     new ApiEntityDataset()
                         .entityVariable("condition_alias")
-                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
-                        .filter(descendantsOfType2Diabetes)));
+                        .selectedAttributes(ALL_CONDITION_ATTRIBUTES)
+                        .filter(childrenOfType2Diabetes)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
