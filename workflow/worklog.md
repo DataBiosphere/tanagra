@@ -33,7 +33,7 @@ If you have trouble logging into Vault, here are some troubleshooting links:
 
 Use the key file to set the `gcloud` application default credentials.
 ```
-export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/rendered/tanagra_sa.json
+export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/workflow/rendered/tanagra_sa.json
 ```
 
 Generate the ancestor-descendant tables `concept_ancestor_descendant_1` for all concept domain-based entities in the `synpuf` and `aou_synthetic` underlays.
