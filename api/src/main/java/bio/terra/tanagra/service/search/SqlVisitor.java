@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.text.StringSubstitutor;
 
 /** Visitors for walking query constructs to create SQL. */
@@ -299,7 +300,7 @@ public class SqlVisitor {
           "`%s.%s`.%s", table.dataset().projectId(), table.dataset().datasetId(), table.name());
     }
 
-    private String resolveTable(Table table, TableFilter tableFilter) {
+    private String resolveTable(Table table, @Nullable TableFilter tableFilter) {
       if (tableFilter == null) {
         return resolveTable(table);
       }
