@@ -20,6 +20,7 @@ test.each([
         domain_id: {
           int64Val: 5678,
         },
+        standard_concept: null,
       },
       matches: ["test-concept", "1234", "5678", "Source"],
     },
@@ -49,13 +50,16 @@ test.each([
           stringVal: "test-concept",
         },
       },
-      matches: ["0-0 of 0"],
+      notMatches: ["test-concept"],
     },
   ],
-])("%s", async (name, { instance, matches }) => {
+])("%s", async (name, { instance, matches, notMatches }) => {
   await renderCriteria([instance]);
 
-  matches.forEach((match) => screen.getByText(match));
+  matches?.forEach((match) => screen.getByText(match));
+  notMatches?.forEach((match) => {
+    expect(screen.queryByText(match)).not.toBeInTheDocument();
+  });
 });
 
 test("selection", async () => {
