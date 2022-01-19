@@ -3,7 +3,7 @@
 ## This script pulls from Vault the SA key file needed for generating index tables.
 ## Dependencies: vault
 ## Inputs: VAULT_TOKEN (arg, optional) default is $HOME/.vault-token
-## Usage: ./render-config.sh
+## Usage: ./pull-credentials.sh
 
 ## The script assumes that it is being run from the project-level directory "tanagra/workflow/".
 if [ $(basename $PWD) != 'workflow' ]; then
