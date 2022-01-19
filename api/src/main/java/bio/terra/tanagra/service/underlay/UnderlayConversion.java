@@ -191,7 +191,6 @@ public final class UnderlayConversion {
           }
           break;
         case FILTER_NOT_SET:
-          continue;
         default:
           throw new IllegalArgumentException(
               String.format("Unknown table filter type: %s", entityMapping));
