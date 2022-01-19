@@ -21,11 +21,18 @@ Need to export postgres password and service account credentials file.
 ```
 
 ## Generate hierarchy tables for all concept domain-based entities
-Fetch the tanagra-dev SA key file from Vault. (You may need to be on the Broad VPN to do this.)
-Use the key file to set the `gcloud` application default credentials.
+Fetch the tanagra-dev SA key file from Vault.
 ```
 vault login -method=github token=$(cat ~/.github-token)
-./render-config.sh
+cd workflow/
+./pull-credentials.sh
+```
+If you have trouble logging into Vault, here are some troubleshooting links:
+- Link your GH account to your Broad account ([https://github.broadinstitute.org/](https://github.broadinstitute.org/)).
+- Authenticate to Vault using your GH credentials ([https://github.com/broadinstitute/dsde-toolbox#authenticating-to-vault](https://github.com/broadinstitute/dsde-toolbox#authenticating-to-vault)).
+
+Use the key file to set the `gcloud` application default credentials.
+```
 export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/rendered/tanagra_sa.json
 ```
 

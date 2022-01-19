@@ -1,13 +1,13 @@
 #!/bin/bash
 
-## This script renders configuration files needed for development.
+## This script pulls from Vault the SA key file needed for generating index tables.
 ## Dependencies: vault
 ## Inputs: VAULT_TOKEN (arg, optional) default is $HOME/.vault-token
-## Usage: ./tools/render-config.sh
+## Usage: ./render-config.sh
 
-## The script assumes that it is being run from the top-level directory "tanagra/".
-if [ $(basename $PWD) != 'tanagra' ]; then
-  echo "Script must be run from top-level directory 'tanagra/'"
+## The script assumes that it is being run from the project-level directory "tanagra/workflow/".
+if [ $(basename $PWD) != 'workflow' ]; then
+  echo "Script must be run from project-level directory 'tanagra/workflow/'"
   exit 1
 fi
 
