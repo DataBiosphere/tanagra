@@ -2,6 +2,7 @@ package bio.terra.tanagra.service.underlay;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
 
 /**
  * The underlay configuration for attributes that are a part of a domain hierarchy.
@@ -12,6 +13,8 @@ import com.google.common.base.Preconditions;
 public abstract class Hierarchy {
   public abstract DescendantsTable descendantsTable();
   // TODO add relationship table.
+
+  public abstract ChildrenTable childrenTable();
 
   public static Builder builder() {
     return new AutoValue_Hierarchy.Builder();
@@ -69,11 +72,79 @@ public abstract class Hierarchy {
     }
   }
 
+  /**
+   * The specification for a parent-child table for the hierarchy.
+   *
+   * <p>For each (parent, child) pair, there should be a row in the table referenced by the {@link
+   * ChildrenTable}.
+   */
+  @AutoValue
+  public abstract static class ChildrenTable {
+    /** A column with an id of the parent in the hierarchy table. */
+    public abstract Column parent();
+
+    /**
+     * A column with the immediate child of the parent column of the table.
+     *
+     * <p>Must have the same Table as {@link #parent()}.
+     */
+    public abstract Column child();
+
+    @Nullable
+    public abstract TableFilter tableFilter();
+
+    /** The underlying {@link Table}. */
+    public Table table() {
+      return parent().table();
+    }
+
+    public static Builder builder() {
+      return new AutoValue_Hierarchy_ChildrenTable.Builder();
+    }
+
+    /** Builder for {@link ChildrenTable}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      public abstract Builder parent(Column parent);
+
+      public abstract Column parent();
+
+      public abstract Builder child(Column child);
+
+      public abstract Column child();
+
+      public abstract Builder tableFilter(TableFilter tableFilter);
+
+      public abstract TableFilter tableFilter();
+
+      public ChildrenTable build() {
+        Preconditions.checkArgument(
+            parent().table().equals(child().table()),
+            "parent and child must share the same table, but found [%s] and [%s] tables",
+            parent().table(),
+            child().table());
+        if (tableFilter() != null) {
+          Preconditions.checkArgument(
+              parent().table().equals(child().table()),
+              "parent column and table filter must share the same table, but found [%s] and [%s] tables",
+              parent().table(),
+              tableFilter().table());
+        }
+        return autoBuild();
+      }
+
+      abstract ChildrenTable autoBuild();
+    }
+  }
+
   /** Builder for {@link Hierarchy}. */
   @AutoValue.Builder
   public abstract static class Builder {
 
     public abstract Builder descendantsTable(DescendantsTable descendantsTable);
+
+    public abstract Builder childrenTable(ChildrenTable childrenTable);
 
     public abstract Hierarchy build();
   }

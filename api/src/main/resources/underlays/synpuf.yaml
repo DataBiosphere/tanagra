@@ -419,3 +419,12 @@ hierarchies:
         dataset: omop_indexes
         table: flatten_snomed_conditions_0
         column: descendant
+    childrenTable:
+      parent:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: ancestor
+      child:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: descendant

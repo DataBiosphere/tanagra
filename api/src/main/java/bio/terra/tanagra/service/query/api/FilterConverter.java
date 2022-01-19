@@ -90,6 +90,8 @@ class FilterConverter {
         return Filter.BinaryFunction.Operator.LESS_THAN;
       case DESCENDANT_OF_INCLUSIVE:
         return Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE;
+      case CHILD_OF:
+        return Filter.BinaryFunction.Operator.CHILD_OF;
       default:
         throw new BadRequestException("Unknown BinaryFilterOperator: " + apiOperator.toString());
     }
@@ -98,7 +100,8 @@ class FilterConverter {
   /** Checks if the operator maybe be used with the attribute or else throws. */
   private void checkAttributeOperatorMatch(
       Attribute attribute, Filter.BinaryFunction.Operator operator) {
-    if (Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE.equals(operator)
+    if ((Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE.equals(operator)
+            || Filter.BinaryFunction.Operator.CHILD_OF.equals(operator))
         && !underlay.hierarchies().containsKey(attribute)) {
       throw new BadRequestException(
           String.format(

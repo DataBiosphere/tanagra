@@ -1078,6 +1078,15 @@ hierarchies:
         dataset: omop_indexes
         table: flatten_snomed_conditions_0
         column: descendant
+    childrenTable:
+      parent:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: ancestor
+      child:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: descendant
   - attribute:
       entity: condition_occurrence
       attribute: condition_concept_id
@@ -1087,6 +1096,15 @@ hierarchies:
         table: flatten_snomed_conditions_0
         column: ancestor
       descendant:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: descendant
+    childrenTable:
+      parent:
+        dataset: omop_indexes
+        table: flatten_snomed_conditions_0
+        column: ancestor
+      child:
         dataset: omop_indexes
         table: flatten_snomed_conditions_0
         column: descendant

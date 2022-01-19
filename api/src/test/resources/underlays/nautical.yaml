@@ -104,6 +104,14 @@ datasets:
             dataType: INT64
           - name: bt_descendant
             dataType: INT64
+      - name: boat_types_children
+        columns:
+          - name: btc_parent
+            dataType: INT64
+          - name: btc_child
+            dataType: INT64
+          - name: btc_is_expired
+            dataType: STRING
       - name: boat_parts
         columns:
           - name: bp_id
@@ -314,6 +322,23 @@ hierarchies:
         dataset: nautical
         table: boat_types_descendants
         column: bt_descendant
+    childrenTable:
+      parent:
+        dataset: nautical
+        table: boat_types_children
+        column: btc_parent
+      child:
+        dataset: nautical
+        table: boat_types_children
+        column: btc_child
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: nautical
+            table: boat_types_children
+            column: btc_is_expired
+          operator: EQUALS
+          stringVal: false
 entityFiltersSchemas:
   - entity: sailors
     attributes:
