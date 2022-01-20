@@ -6,7 +6,12 @@ import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.app.controller.EntityInstancesApiController;
+import bio.terra.tanagra.generated.model.ApiAttributeValue;
+import bio.terra.tanagra.generated.model.ApiAttributeVariable;
+import bio.terra.tanagra.generated.model.ApiBinaryFilter;
+import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
+import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
@@ -41,5 +46,67 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/all-procedure-entities.sql");
+  }
+
+  @Test
+  @DisplayName("correct SQL string for listing descendants of a single procedure entity instance")
+  void generateSqlForDescendantsOfAProcedureEntity() throws IOException {
+    // filter for "procedure" entity instances that are descendants of the "procedure" entity
+    // instance with concept_id=4176720
+    // i.e. give me all the descendants of "Viral immunization"
+    ApiFilter descendantsOfViralImmunization =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("procedure_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.DESCENDANT_OF_INCLUSIVE)
+                    .attributeValue(new ApiAttributeValue().int64Val(4_176_720L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PROCEDURE_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("procedure_alias")
+                        .selectedAttributes(ALL_PROCEDURE_ATTRIBUTES)
+                        .filter(descendantsOfViralImmunization)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/procedure-entities-descendants-of-a-procedure.sql");
+  }
+
+  @Test
+  @DisplayName("correct SQL string for listing children of a single procedure entity instance")
+  void generateSqlForChildrenOfAProcedureEntity() throws IOException {
+    // filter for "procedure" entity instances that are children of the "procedure" entity
+    // instance with concept_id=4179181
+    // i.e. give me all the children of "Mumps vaccination"
+    ApiFilter childrenOfMumpsVaccination =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("procedure_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.CHILD_OF)
+                    .attributeValue(new ApiAttributeValue().int64Val(4_179_181L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PROCEDURE_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("procedure_alias")
+                        .selectedAttributes(ALL_PROCEDURE_ATTRIBUTES)
+                        .filter(childrenOfMumpsVaccination)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/procedure-entities-children-of-a-procedure.sql");
   }
 }

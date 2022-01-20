@@ -111,6 +111,14 @@ datasets:
             dataType: STRING
           - name: vocabulary_name
             dataType: STRING
+      - name: concept_relationship
+        columns:
+          - name: concept_id_1
+            dataType: INT64
+          - name: concept_id_2
+            dataType: INT64
+          - name: relationship_id
+            dataType: STRING
   - name: omop_indexes
     bigQueryDataset:
       projectId: broad-tanagra-dev
@@ -421,10 +429,18 @@ hierarchies:
         column: descendant
     childrenTable:
       parent:
-        dataset: omop_indexes
-        table: flatten_snomed_conditions_0
-        column: ancestor
+        dataset: omop_test
+        table: concept_relationship
+        column: concept_id_1
       child:
-        dataset: omop_indexes
-        table: flatten_snomed_conditions_0
-        column: descendant
+        dataset: omop_test
+        table: concept_relationship
+        column: concept_id_2
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: omop_test
+            table: concept_relationship
+            column: relationship_id
+          operator: EQUALS
+          stringVal: Subsumes

@@ -241,6 +241,12 @@ datasets:
             dataType: INT64
           - name: descendant
             dataType: INT64
+      - name: concept_ancestor_descendant_1
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
 entityMappings:
   - entity: person
     primaryKey:
@@ -1072,21 +1078,116 @@ hierarchies:
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: flatten_snomed_conditions_0
+        table: concept_ancestor_descendant_1
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: flatten_snomed_conditions_0
+        table: concept_ancestor_descendant_1
         column: descendant
     childrenTable:
       parent:
-        dataset: omop_indexes
-        table: flatten_snomed_conditions_0
-        column: ancestor
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_1
       child:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_2
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: aou_synthetic
+            table: concept_relationship
+            column: relationship_id
+          operator: EQUALS
+          stringVal: Subsumes
+  - attribute:
+      entity: procedure
+      attribute: concept_id
+    descendantsTable:
+      ancestor:
         dataset: omop_indexes
-        table: flatten_snomed_conditions_0
+        table: concept_ancestor_descendant_1
+        column: ancestor
+      descendant:
+        dataset: omop_indexes
+        table: concept_ancestor_descendant_1
         column: descendant
+    childrenTable:
+      parent:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_1
+      child:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_2
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: aou_synthetic
+            table: concept_relationship
+            column: relationship_id
+          operator: EQUALS
+          stringVal: Subsumes
+  - attribute:
+      entity: ingredient
+      attribute: concept_id
+    descendantsTable:
+      ancestor:
+        dataset: omop_indexes
+        table: concept_ancestor_descendant_1
+        column: ancestor
+      descendant:
+        dataset: omop_indexes
+        table: concept_ancestor_descendant_1
+        column: descendant
+    childrenTable:
+      parent:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_1
+      child:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_2
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: aou_synthetic
+            table: concept_relationship
+            column: relationship_id
+          operator: EQUALS
+          stringVal: Subsumes
+  - attribute:
+      entity: measurement
+      attribute: concept_id
+    descendantsTable:
+      ancestor:
+        dataset: omop_indexes
+        table: concept_ancestor_descendant_1
+        column: ancestor
+      descendant:
+        dataset: omop_indexes
+        table: concept_ancestor_descendant_1
+        column: descendant
+    childrenTable:
+      parent:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_1
+      child:
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_2
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: aou_synthetic
+            table: concept_relationship
+            column: relationship_id
+          operator: EQUALS
+          stringVal: Subsumes
   - attribute:
       entity: condition_occurrence
       attribute: condition_concept_id
@@ -1101,10 +1202,18 @@ hierarchies:
         column: descendant
     childrenTable:
       parent:
-        dataset: omop_indexes
-        table: flatten_snomed_conditions_0
-        column: ancestor
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_1
       child:
-        dataset: omop_indexes
-        table: flatten_snomed_conditions_0
-        column: descendant
+        dataset: aou_synthetic
+        table: concept_relationship
+        column: concept_id_2
+      tableFilter:
+        binaryColumnFilter:
+          column:
+            dataset: aou_synthetic
+            table: concept_relationship
+            column: relationship_id
+          operator: EQUALS
+          stringVal: Subsumes
