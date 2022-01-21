@@ -73,6 +73,17 @@ entities: {
     data_type: STRING
   }
 }
+entities: {
+  name: "boat_electric_anchors"
+  attributes: {
+    name: "id"
+    data_type: INT64
+  }
+  attributes: {
+    name: "name"
+    data_type: STRING
+  }
+}
 relationships: {
   name: "sailor_reservation"
   entity1: "sailors"
@@ -213,6 +224,10 @@ datasets: {
       name: "bp_type"
       data_type: STRING
     }
+    columns: {
+      name: "bp_requires_electricity"
+      data_type: STRING
+    }
   }
 }
 entity_mappings: {
@@ -255,6 +270,37 @@ entity_mappings: {
       }
       operator: EQUALS
       string_val: "engine"
+    }
+  }
+}
+entity_mappings: {
+  entity: "boat_electric_anchors"
+  primary_key: {
+    dataset: "nautical"
+    table: "boat_parts"
+    column: "bp_id"
+  }
+  table_filter: {
+    array_column_filter: {
+      operator: AND
+      binary_column_filters: {
+        column: {
+          dataset: "nautical"
+          table: "boat_parts"
+          column: "bp_type"
+        }
+        operator: EQUALS
+        string_val: "anchor"
+      }
+      binary_column_filters: {
+        column: {
+          dataset: "nautical"
+          table: "boat_parts"
+          column: "bp_requires_electricity"
+        }
+        operator: EQUALS
+        string_val: "true"
+      }
     }
   }
 }

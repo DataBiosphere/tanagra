@@ -40,6 +40,12 @@ entities:
         dataType: INT64
       - name: name
         dataType: STRING
+  - name: boat_electric_anchors
+    attributes:
+      - name: id
+        dataType: INT64
+      - name: name
+        dataType: STRING
 relationships:
   - name: sailor_reservation
     entity1: sailors
@@ -120,6 +126,8 @@ datasets:
             dataType: STRING
           - name: bp_type
             dataType: STRING
+          - name: bp_requires_electricity
+            dataType: STRING
 entityMappings:
   - entity: sailors
     primaryKey:
@@ -149,6 +157,27 @@ entityMappings:
           column: bp_type
         operator: EQUALS
         stringVal: engine
+  - entity: boat_electric_anchors
+    primaryKey:
+      dataset: nautical
+      table: boat_parts
+      column: bp_id
+    tableFilter:
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: nautical
+              table: boat_parts
+              column: bp_type
+            operator: EQUALS
+            stringVal: anchor
+          - column:
+              dataset: nautical
+              table: boat_parts
+              column: bp_requires_electricity
+            operator: EQUALS
+            stringVal: true
 attributeMappings:
   - attribute:
       entity: sailors

@@ -43,6 +43,8 @@ public final class NauticalUnderlayUtils {
       Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("reservations").build();
   public static final Entity BOAT_ENGINE =
       Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("boat_engines").build();
+  public static final Entity BOAT_ELECTRIC_ANCHOR =
+      Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("boat_electric_anchors").build();
 
   public static final Attribute SAILOR_ID =
       Attribute.builder().name("id").dataType(DataType.INT64).entity(SAILOR).build();
@@ -75,6 +77,15 @@ public final class NauticalUnderlayUtils {
       Attribute.builder().name("id").dataType(DataType.INT64).entity(BOAT_ENGINE).build();
   public static final Attribute BOAT_ENGINE_NAME =
       Attribute.builder().name("name").dataType(DataType.STRING).entity(BOAT_ENGINE).build();
+
+  public static final Attribute BOAT_ELECTRIC_ANCHOR_ID =
+      Attribute.builder().name("id").dataType(DataType.INT64).entity(BOAT_ELECTRIC_ANCHOR).build();
+  public static final Attribute BOAT_ELECTRIC_ANCHOR_NAME =
+      Attribute.builder()
+          .name("name")
+          .dataType(DataType.STRING)
+          .entity(BOAT_ELECTRIC_ANCHOR)
+          .build();
 
   public static final Relationship SAILOR_RESERVATION_RELATIONSHIP =
       Relationship.builder()
@@ -179,9 +190,19 @@ public final class NauticalUnderlayUtils {
       Column.builder().name("bp_name").dataType(DataType.STRING).table(BOAT_PARTS_TABLE).build();
   public static final Column BOAT_PARTS_TYPE_COL =
       Column.builder().name("bp_type").dataType(DataType.STRING).table(BOAT_PARTS_TABLE).build();
+  public static final Column BOAT_PARTS_REQUIRES_ELECTRICITY_COL =
+      Column.builder()
+          .name("bp_requires_electricity")
+          .dataType(DataType.STRING)
+          .table(BOAT_PARTS_TABLE)
+          .build();
 
   public static final BinaryColumnFilterOperator BOAT_PARTS_TYPE_COL_OPERATOR =
       BinaryColumnFilterOperator.EQUALS;
   public static final ColumnValue BOAT_PARTS_TYPE_COL_ENGINE_VALUE =
       ColumnValue.builder().stringVal("engine").build();
+  public static final ColumnValue BOAT_PARTS_TYPE_COL_ANCHOR_VALUE =
+      ColumnValue.builder().stringVal("anchor").build();
+  public static final ColumnValue BOAT_PARTS_REQUIRES_ELECTRICITY_COL_TRUE_VALUE =
+      ColumnValue.builder().stringVal("true").build();
 }
