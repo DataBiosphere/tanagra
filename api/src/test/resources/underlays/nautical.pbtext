@@ -496,6 +496,32 @@ attribute_mappings: {
     }
   }
 }
+attribute_mappings: {
+  attribute: {
+    entity: "boat_electric_anchors"
+    attribute: "id"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boat_parts"
+      column: "bp_id"
+    }
+  }
+}
+attribute_mappings: {
+  attribute: {
+    entity: "boat_electric_anchors"
+    attribute: "name"
+  }
+  simple_column: {
+    column_id: {
+      dataset: "nautical"
+      table: "boat_parts"
+      column: "bp_name"
+    }
+  }
+}
 relationship_mappings: {
   name: "sailor_reservation"
   foreign_key: {

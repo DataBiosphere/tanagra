@@ -299,6 +299,22 @@ attributeMappings:
         dataset: nautical
         table: boat_parts
         column: bp_name
+  - attribute:
+      entity: boat_electric_anchors
+      attribute: id
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boat_parts
+        column: bp_id
+  - attribute:
+      entity: boat_electric_anchors
+      attribute: name
+    simpleColumn:
+      columnId:
+        dataset: nautical
+        table: boat_parts
+        column: bp_name
 relationshipMappings:
   - name: sailor_reservation
     foreignKey:

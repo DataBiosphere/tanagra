@@ -7,9 +7,11 @@ import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
+import bio.terra.tanagra.service.underlay.ArrayColumnFilter;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.AttributeMapping.SimpleColumn;
+import bio.terra.tanagra.service.underlay.BinaryColumnFilter;
 import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
 import bio.terra.tanagra.service.underlay.Hierarchy;
@@ -303,10 +305,66 @@ public class SqlVisitor {
     private String resolveTable(Table table, @Nullable TableFilter tableFilter) {
       if (tableFilter == null) {
         return resolveTable(table);
+      } else if (tableFilter.arrayColumnFilter() != null) {
+        return resolveArrayColumnFilter(table, tableFilter.arrayColumnFilter(), false);
+      } else if (tableFilter.binaryColumnFilter() != null) {
+        return resolveBinaryColumnFilter(table, tableFilter.binaryColumnFilter(), false);
+      } else {
+        throw new IllegalArgumentException(
+            "Invalid table filter missing binary and array column filters.");
+      }
+    }
+
+    private String resolveArrayColumnFilter(
+        Table table, ArrayColumnFilter arrayColumnFilter, boolean whereClauseOnly) {
+      String joinOperatorInWhereClause;
+      switch (arrayColumnFilter.operator()) {
+        case AND:
+          joinOperatorInWhereClause = "AND";
+          break;
+        case OR:
+          joinOperatorInWhereClause = "OR";
+          break;
+        default:
+          throw new IllegalArgumentException(
+              "Unknown array column filter operator type: " + arrayColumnFilter.operator());
       }
 
+      // %s AND %s AND (%s OR %s) ...
+      StringBuilder joinedWhereClauses = new StringBuilder();
+      int subFiltersCtr = 0;
+      for (BinaryColumnFilter subFilter : arrayColumnFilter.binaryColumnFilters()) {
+        if (subFiltersCtr > 0) {
+          joinedWhereClauses.append(" " + joinOperatorInWhereClause + " ");
+        }
+        joinedWhereClauses.append(resolveBinaryColumnFilter(table, subFilter, true));
+        subFiltersCtr++;
+      }
+      for (ArrayColumnFilter subFilter : arrayColumnFilter.arrayColumnFilters()) {
+        if (subFiltersCtr > 0) {
+          joinedWhereClauses.append(" " + joinOperatorInWhereClause + " ");
+        }
+        joinedWhereClauses.append(resolveArrayColumnFilter(table, subFilter, true));
+        subFiltersCtr++;
+      }
+
+      if (whereClauseOnly) {
+        return "(" + joinedWhereClauses + ")";
+      } else {
+        // (SELECT * FROM `projectId.datasetId`.table WHERE joinedWhereClauses)
+        return String.format(
+            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
+            table.dataset().projectId(),
+            table.dataset().datasetId(),
+            table.name(),
+            joinedWhereClauses);
+      }
+    }
+
+    private String resolveBinaryColumnFilter(
+        Table table, BinaryColumnFilter binaryColumnFilter, boolean whereClauseOnly) {
       String operatorInWhereClause;
-      switch (tableFilter.binaryColumnFilter().operator()) {
+      switch (binaryColumnFilter.operator()) {
         case EQUALS:
           operatorInWhereClause = "=";
           break;
@@ -318,33 +376,36 @@ public class SqlVisitor {
           break;
         default:
           throw new IllegalArgumentException(
-              "Unknown column filter operator type: "
-                  + tableFilter.binaryColumnFilter().operator());
+              "Unknown binary column filter operator type: " + binaryColumnFilter.operator());
       }
 
       String valueInWhereClause;
-      switch (tableFilter.binaryColumnFilter().column().dataType()) {
+      switch (binaryColumnFilter.column().dataType()) {
         case STRING:
-          valueInWhereClause =
-              String.format("'%s'", tableFilter.binaryColumnFilter().value().stringVal());
+          valueInWhereClause = String.format("'%s'", binaryColumnFilter.value().stringVal());
           break;
         case INT64:
-          valueInWhereClause = String.valueOf(tableFilter.binaryColumnFilter().value().int64Val());
+          valueInWhereClause = String.valueOf(binaryColumnFilter.value().int64Val());
           break;
         default:
           throw new IllegalArgumentException(
-              "Unknown column data type: " + tableFilter.binaryColumnFilter().column().dataType());
+              "Unknown column data type: " + binaryColumnFilter.column().dataType());
       }
 
-      // (SELECT * FROM `projectId.datasetId`.table WHERE columnFilter=value)
-      return String.format(
-          "(SELECT * FROM `%s.%s`.%s WHERE %s %s %s)",
-          table.dataset().projectId(),
-          table.dataset().datasetId(),
-          table.name(),
-          tableFilter.binaryColumnFilter().column().name(),
-          operatorInWhereClause,
-          valueInWhereClause);
+      // columnFilter=value
+      String whereClause =
+          String.format(
+              "%s %s %s",
+              binaryColumnFilter.column().name(), operatorInWhereClause, valueInWhereClause);
+
+      if (whereClauseOnly) {
+        return whereClause;
+      } else {
+        // (SELECT * FROM `projectId.datasetId`.table WHERE %s)
+        return String.format(
+            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
+            table.dataset().projectId(), table.dataset().datasetId(), table.name(), whereClause);
+      }
     }
 
     /** Resolve an {@link AttributeExpression} as an SQL expression. */

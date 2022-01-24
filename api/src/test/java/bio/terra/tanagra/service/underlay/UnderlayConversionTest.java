@@ -189,6 +189,13 @@ public class UnderlayConversionTest {
             .put(
                 BOAT_ENGINE_NAME,
                 AttributeMapping.SimpleColumn.create(BOAT_ENGINE_NAME, BOAT_PARTS_NAME_COL))
+            .put(
+                BOAT_ELECTRIC_ANCHOR_ID,
+                AttributeMapping.SimpleColumn.create(BOAT_ELECTRIC_ANCHOR_ID, BOAT_PARTS_ID_COL))
+            .put(
+                BOAT_ELECTRIC_ANCHOR_NAME,
+                AttributeMapping.SimpleColumn.create(
+                    BOAT_ELECTRIC_ANCHOR_NAME, BOAT_PARTS_NAME_COL))
             .build(),
         nautical.attributeMappings());
     assertEquals(
