@@ -1,7 +1,7 @@
 import React from "react";
 import { Redirect, useParams } from "react-router-dom";
 import ActionBar from "./actionBar";
-import { Cohort } from "./cohort";
+import { Cohort, getCriteriaPlugin } from "./cohort";
 
 type EditProps = {
   cohort: Cohort;
@@ -12,8 +12,8 @@ export default function Edit(props: EditProps) {
     useParams<{ cohortId: string; group: string; criteria: string }>();
   const backUrl = `/cohort/${params.cohortId}`;
 
-  const group = props.cohort.findGroup(params.group);
-  const criteria = !!group ? group.findCriteria(params.criteria) : null;
+  const group = props.cohort.groups.find((g) => g.id === params.group);
+  const criteria = group?.criteria.find((c) => c.id === params.criteria);
 
   return (
     <>
@@ -23,7 +23,9 @@ export default function Edit(props: EditProps) {
         backUrl={backUrl}
         cohort={props.cohort}
       />
-      {!!criteria && !!group ? criteria.renderEdit(props.cohort, group) : null}
+      {!!criteria && !!group
+        ? getCriteriaPlugin(criteria).renderEdit(props.cohort, group)
+        : null}
     </>
   );
 }
