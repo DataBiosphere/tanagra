@@ -296,12 +296,14 @@ public class SqlVisitor {
       return String.format("%s AS %s", resolvedTable, entityVariable.variable().name());
     }
 
+    /** Resolve a {@link Table} into a SQL string. */
     private String resolveTable(Table table) {
       // `projectId.datasetId`.table
       return String.format(
           "`%s.%s`.%s", table.dataset().projectId(), table.dataset().datasetId(), table.name());
     }
 
+    /** Resolve a {@link Table} with a {@link TableFilter} into a SQL string. */
     private String resolveTable(Table table, @Nullable TableFilter tableFilter) {
       if (tableFilter == null) {
         return resolveTable(table);
@@ -315,6 +317,12 @@ public class SqlVisitor {
       }
     }
 
+    /**
+     * Resolve a {@link Table} with an {@link ArrayColumnFilter} into a SQL string.
+     *
+     * @param whereClauseOnly If true, only returns the part of the SQL string after the WHERE. This
+     *     is helpful when building an {@link ArrayColumnFilter} composed of multiple sub-filters.
+     */
     private String resolveArrayColumnFilter(
         Table table, ArrayColumnFilter arrayColumnFilter, boolean whereClauseOnly) {
       String joinOperatorInWhereClause;
@@ -361,6 +369,12 @@ public class SqlVisitor {
       }
     }
 
+    /**
+     * Resolve a {@link Table} with an {@link BinaryColumnFilter} into a SQL string.
+     *
+     * @param whereClauseOnly If true, only returns the part of the SQL string after the WHERE. This
+     *     is helpful when building an {@link ArrayColumnFilter} composed of multiple sub-filters.
+     */
     private String resolveBinaryColumnFilter(
         Table table, BinaryColumnFilter binaryColumnFilter, boolean whereClauseOnly) {
       String operatorInWhereClause;
