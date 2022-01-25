@@ -285,26 +285,66 @@ entityMappings:
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: concept_class_id
-        operator: EQUALS
-        stringVal: Ingredient
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Drug
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: NOT_EQUALS
+            stringVal: Brand Name
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: NOT_EQUALS
+            stringVal: Branded Drug
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: NOT_EQUALS
+            stringVal: Branded Drug Comp
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: NOT_EQUALS
+            stringVal: Branded Drug Form
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: NOT_EQUALS
+            stringVal: Branded Dose Group
   - entity: brand
     primaryKey:
       dataset: aou_synthetic
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: concept_class_id
-        operator: EQUALS
-        stringVal: Brand Name
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Drug
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: EQUALS
+            stringVal: Brand Name
   - entity: measurement
     primaryKey:
       dataset: aou_synthetic
