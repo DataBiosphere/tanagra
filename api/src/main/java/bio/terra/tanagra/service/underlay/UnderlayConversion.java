@@ -685,6 +685,8 @@ public final class UnderlayConversion {
     switch (operator) {
       case EQUALS:
         return BinaryColumnFilterOperator.EQUALS;
+      case NOT_EQUALS:
+        return BinaryColumnFilterOperator.NOT_EQUALS;
       case LESS_THAN:
         return BinaryColumnFilterOperator.LESS_THAN;
       case GREATER_THAN:

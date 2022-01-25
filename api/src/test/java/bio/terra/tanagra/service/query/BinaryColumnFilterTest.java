@@ -110,6 +110,34 @@ public class BinaryColumnFilterTest extends ColumnFilterTest {
   }
 
   @Test
+  @DisplayName("correct SQL string when binary column filter uses != operator and string value")
+  void generateSqlWithStringValueNotEqualsOperator() {
+    TableFilter tableFilterProto =
+        TableFilter.newBuilder()
+            .setBinaryColumnFilter(
+                BinaryColumnFilter.newBuilder()
+                    .setColumn(
+                        ColumnId.newBuilder()
+                            .setDataset("datasetA")
+                            .setTable("tableA")
+                            .setColumn("columnA")
+                            .build())
+                    .setOperator(BinaryColumnFilterOperator.NOT_EQUALS)
+                    .setStringVal("stringValueA")
+                    .build())
+            .build();
+
+    bio.terra.tanagra.service.underlay.Underlay underlay =
+        convertUnderlayFromProto(tableFilterProto);
+    String generatedSql = generateSql(underlay, getEntityDatasetForEntityA(underlay));
+    assertEquals(
+        "SELECT entitya_alias.columnA AS attributeA "
+            + "FROM (SELECT * FROM `my-project-id.my-dataset-id`.tableA WHERE columnA != 'stringValueA') AS entitya_alias "
+            + "WHERE TRUE",
+        generatedSql);
+  }
+
+  @Test
   @DisplayName("correct SQL string when binary column filter uses < operator and int64 value")
   void generateSqlWithIntValueLTOperator() {
     TableFilter tableFilterProto =
@@ -189,6 +217,34 @@ public class BinaryColumnFilterTest extends ColumnFilterTest {
     assertEquals(
         "SELECT entitya_alias.columnA AS attributeA "
             + "FROM (SELECT * FROM `my-project-id.my-dataset-id`.tableA WHERE columnB IS NULL) AS entitya_alias "
+            + "WHERE TRUE",
+        generatedSql);
+  }
+
+  @Test
+  @DisplayName("correct SQL string when binary column filter uses != operator and null value")
+  void generateSqlWithIsNotNull() {
+    TableFilter tableFilterProto =
+        TableFilter.newBuilder()
+            .setBinaryColumnFilter(
+                BinaryColumnFilter.newBuilder()
+                    .setColumn(
+                        ColumnId.newBuilder()
+                            .setDataset("datasetA")
+                            .setTable("tableA")
+                            .setColumn("columnB")
+                            .build())
+                    .setOperator(BinaryColumnFilterOperator.NOT_EQUALS)
+                    // no value set means null value
+                    .build())
+            .build();
+
+    bio.terra.tanagra.service.underlay.Underlay underlay =
+        convertUnderlayFromProto(tableFilterProto);
+    String generatedSql = generateSql(underlay, getEntityDatasetForEntityA(underlay));
+    assertEquals(
+        "SELECT entitya_alias.columnA AS attributeA "
+            + "FROM (SELECT * FROM `my-project-id.my-dataset-id`.tableA WHERE columnB IS NOT NULL) AS entitya_alias "
             + "WHERE TRUE",
         generatedSql);
   }

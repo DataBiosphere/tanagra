@@ -6,6 +6,7 @@ package bio.terra.tanagra.service.underlay;
  */
 public enum BinaryColumnFilterOperator {
   EQUALS,
+  NOT_EQUALS,
   LESS_THAN,
   GREATER_THAN
 }

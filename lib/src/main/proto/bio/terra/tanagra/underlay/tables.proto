@@ -95,6 +95,7 @@ message BinaryColumnFilter {
 
 enum BinaryColumnFilterOperator {
   EQUALS = 0;
-  LESS_THAN = 1;
-  GREATER_THAN = 2;
+  NOT_EQUALS = 1;
+  LESS_THAN = 2;
+  GREATER_THAN = 3;
 }

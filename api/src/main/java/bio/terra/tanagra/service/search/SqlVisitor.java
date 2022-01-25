@@ -402,6 +402,9 @@ public class SqlVisitor {
         case EQUALS:
           operatorInWhereClause = valueIsNull ? "IS" : "=";
           break;
+        case NOT_EQUALS:
+          operatorInWhereClause = valueIsNull ? "IS NOT" : "!=";
+          break;
         case LESS_THAN:
           operatorInWhereClause = "<";
           break;
