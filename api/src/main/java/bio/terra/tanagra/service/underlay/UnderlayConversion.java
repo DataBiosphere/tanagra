@@ -181,11 +181,8 @@ public final class UnderlayConversion {
       TableFilter tableFilter = convert(entityMapping.getTableFilter(), columns);
       switch (entityMapping.getTableFilter().getFilterCase()) {
         case ARRAY_COLUMN_FILTER:
-          tableFilter
-              .arrayColumnFilter()
-              .binaryColumnFilters()
-              .forEach(
-                  bcf -> validateForEntityMapping(bcf, primaryKeys.get(entity), entityMapping));
+          validateForEntityMapping(
+              tableFilter.arrayColumnFilter(), primaryKeys.get(entity), entityMapping);
           break;
         case BINARY_COLUMN_FILTER:
           validateForEntityMapping(
@@ -592,6 +589,11 @@ public final class UnderlayConversion {
             .map(bcf -> convert(bcf, columns))
             .collect(Collectors.toList());
 
+    if (arrayColumnFilters.isEmpty() && binaryColumnFilters.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("Array column filter contains no sub-filters: %s", arrayColumnFilterProto));
+    }
+
     return ArrayColumnFilter.builder()
         .operator(convert(arrayColumnFilterProto.getOperator()))
         .arrayColumnFilters(arrayColumnFilters)
@@ -610,6 +612,16 @@ public final class UnderlayConversion {
         throw new UnsupportedOperationException(
             String.format("Unsupported ArrayColumnFilterOperator %s", operator.name()));
     }
+  }
+
+  private static void validateForEntityMapping(
+      ArrayColumnFilter arrayColumnFilter, Column entityPrimaryKey, EntityMapping entityMapping) {
+    arrayColumnFilter
+        .arrayColumnFilters()
+        .forEach(acf -> validateForEntityMapping(acf, entityPrimaryKey, entityMapping));
+    arrayColumnFilter
+        .binaryColumnFilters()
+        .forEach(bcf -> validateForEntityMapping(bcf, entityPrimaryKey, entityMapping));
   }
 
   private static void validateForEntityMapping(
