@@ -1,22 +1,27 @@
-import SchemaIcon from "@mui/icons-material/Schema";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import {
-  DataGrid,
-  GridColDef,
-  GridRenderCellParams,
-  GridRowData,
-  GridValueFormatterParams,
-} from "@mui/x-data-grid";
 import { EntityInstancesApiContext } from "apiContext";
 import { Cohort, Criteria, Group } from "cohort";
 import { useCohortUpdater } from "cohortUpdaterContext";
 import { useAsyncWithApi } from "errors";
 import Loading from "loading";
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { useCallback, useContext } from "react";
 import * as tanagra from "tanagra-api";
+import {
+  TreeGrid,
+  TreeGridColumn,
+  TreeGridData,
+  TreeGridId,
+  TreeGridRowData,
+} from "treegrid";
+
+type Selection = {
+  id: number;
+  name: string;
+};
 
 export class ConceptCriteria extends Criteria {
   constructor(name: string, public filter: string) {
@@ -43,20 +48,18 @@ export class ConceptCriteria extends Criteria {
       return null;
     }
 
-    const operands = this.selected.map((row) => {
-      return {
-        binaryFilter: {
-          attributeVariable: {
-            variable: "co",
-            name: "condition_concept_id",
-          },
-          operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
-          attributeValue: {
-            int64Val: row.id,
-          },
+    const operands = this.selected.map(({ id }) => ({
+      binaryFilter: {
+        attributeVariable: {
+          variable: "co",
+          name: "condition_concept_id",
         },
-      };
-    });
+        operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
+        attributeValue: {
+          int64Val: id,
+        },
+      },
+    }));
 
     return {
       arrayFilter: {
@@ -66,25 +69,21 @@ export class ConceptCriteria extends Criteria {
     };
   }
 
-  selected = new Array<GridRowData>();
+  selected = new Array<Selection>();
 }
 
-const fetchedColumns: GridColDef[] = [
-  { field: "concept_name", headerName: "Concept Name", width: 400 },
-  { field: "concept_id", headerName: "Concept ID", width: 100 },
-  { field: "domain_id", headerName: "Domain", width: 100 },
-  {
-    field: "standard_concept",
-    headerName: "Source/Standard",
-    width: 140,
-    valueFormatter: (params: GridValueFormatterParams) =>
-      !params.value ? "Source" : "Standard",
-  },
-  { field: "vocabulary_id", headerName: "Vocab", width: 120 },
-  { field: "concept_code", headerName: "Code", width: 120 },
-  // TODO(tjennison): Add support for counts to the API.
-  //{ field: "roll_up_count", headerName: "Roll-up Count", width: 100 },
-  //{ field: "item_count", headerName: "Item Count", width: 100 },
+const fetchedColumns: TreeGridColumn[] = [
+  { key: "concept_name", width: "100%", title: "Concept Name" },
+  { key: "concept_id", width: 120, title: "Concept ID" },
+  { key: "domain_id", width: 100, title: "Domain" },
+  { key: "standard_concept", width: 180, title: "Source/Standard" },
+  { key: "vocabulary_id", width: 120, title: "Vocab" },
+  { key: "concept_code", width: 120, title: "Code" },
+];
+
+const allColumns: TreeGridColumn[] = [
+  ...fetchedColumns,
+  { key: "view_hierarchy", width: 160, title: "View Hierarchy" },
 ];
 
 type ConceptEditProps = {
@@ -97,7 +96,7 @@ type ConceptEditProps = {
 function ConceptEdit(props: ConceptEditProps) {
   const api = useContext(EntityInstancesApiContext);
 
-  const conceptsState = useAsyncWithApi<Array<GridRowData>>(
+  const conceptsState = useAsyncWithApi<TreeGridData>(
     useCallback(
       () =>
         api
@@ -108,7 +107,7 @@ function ConceptEdit(props: ConceptEditProps) {
               entityDataset: {
                 entityVariable: "c",
                 selectedAttributes: fetchedColumns.map((col) => {
-                  return col.field;
+                  return col.key;
                 }),
                 filter: {
                   relationshipFilter: {
@@ -121,34 +120,44 @@ function ConceptEdit(props: ConceptEditProps) {
             },
           })
           .then((res) => {
+            const data: TreeGridData = {};
+            const children: TreeGridId[] = [];
             if (res.instances) {
-              return res.instances
-                .map((instance) => {
-                  const id = instance["concept_id"]?.int64Val || 0;
-                  const row: GridRowData = {
-                    id: id,
-                    SELECTED:
-                      props.criteria.selected.findIndex(
-                        (row) => row.id === id
-                      ) > -1,
-                  };
-                  for (const k in instance) {
-                    const v = instance[k];
-                    if (!v) {
-                      row[k] = "";
-                    } else if (isValid(v.int64Val)) {
-                      row[k] = v.int64Val;
-                    } else if (isValid(v.boolVal)) {
-                      row[k] = v.boolVal;
-                    } else {
-                      row[k] = v.stringVal;
-                    }
+              // TODO(tjennison): Use server side limits.
+              res.instances.slice(0, 100).forEach((instance) => {
+                const id = instance["concept_id"]?.int64Val || 0;
+                if (id === 0) {
+                  return;
+                }
+
+                const row: TreeGridRowData = {
+                  view_hierarchy: (
+                    <IconButton size="small">
+                      <AccountTreeIcon fontSize="inherit" />
+                    </IconButton>
+                  ),
+                };
+                for (const k in instance) {
+                  const v = instance[k];
+                  if (k === "standard_concept") {
+                    row[k] = v ? "Standard" : "Source";
+                  } else if (!v) {
+                    row[k] = "";
+                  } else if (isValid(v.int64Val)) {
+                    row[k] = v.int64Val;
+                  } else if (isValid(v.boolVal)) {
+                    row[k] = v.boolVal;
+                  } else {
+                    row[k] = v.stringVal;
                   }
-                  return row;
-                })
-                .filter((row) => row.id !== 0);
+                }
+
+                children.push(id);
+                data[id] = { data: row };
+              });
             }
-            return [];
+            data.root = { children, data: {} };
+            return data;
           }),
       [api]
     )
@@ -156,66 +165,42 @@ function ConceptEdit(props: ConceptEditProps) {
 
   const updater = useCohortUpdater();
 
-  const renderSelected = useCallback(
-    (params: GridRenderCellParams) => {
-      const index = props.criteria.selected.findIndex(
-        (row) => row.id === params.row.id
-      );
-      return (
-        <Stack direction="row">
-          <Checkbox
-            checked={index > -1}
-            inputProps={{ "aria-label": "controlled" }}
-            onChange={() => {
-              updater.updateCriteria(
-                props.group.id,
-                props.criteria.id,
-                (criteria: ConceptCriteria) => {
-                  if (index > -1) {
-                    criteria.selected.splice(index, 1);
-                  } else {
-                    criteria.selected.push(params.row);
-                  }
-                }
-              );
-            }}
-          />
-          <IconButton>
-            <SchemaIcon />
-          </IconButton>
-        </Stack>
-      );
-    },
-    [updater]
-  );
-
-  const columns: GridColDef[] = useMemo(
-    () => [
-      {
-        field: "SELECTED",
-        headerName: "✓",
-        type: "boolean",
-        width: 80,
-        renderCell: renderSelected,
-      },
-      ...fetchedColumns,
-    ],
-    [renderSelected]
-  );
-
   return (
     <Loading status={conceptsState}>
       {conceptsState.data ? (
-        <DataGrid
-          autoHeight
-          rows={conceptsState.data}
-          columns={columns}
-          disableSelectionOnClick
-          className="criteria-concept"
-          // jsdom, which jest uses for testing, has incomplete support for
-          // layout sizing so virtualization ends up not displaying most of the
-          // columns in tests.
-          disableVirtualization={!!process.env.JEST_WORKER_ID}
+        <TreeGrid
+          columns={allColumns}
+          data={conceptsState.data}
+          prefixElements={(id: TreeGridId, data: TreeGridRowData) => {
+            const index = props.criteria.selected.findIndex(
+              (row) => row.id === id
+            );
+
+            return (
+              <Checkbox
+                size="small"
+                checked={index > -1}
+                inputProps={{ "aria-label": "controlled" }}
+                onChange={() => {
+                  updater.updateCriteria(
+                    props.group.id,
+                    props.criteria.id,
+                    (criteria: ConceptCriteria) => {
+                      if (index > -1) {
+                        criteria.selected.splice(index, 1);
+                      } else {
+                        const name = data["concept_name"];
+                        criteria.selected.push({
+                          id: id as number,
+                          name: !!name ? String(name) : "",
+                        });
+                      }
+                    }
+                  );
+                }}
+              />
+            );
+          }}
         />
       ) : null}
     </Loading>
@@ -236,10 +221,10 @@ function ConceptDetails(props: ConceptDetailsProps) {
       {props.criteria.selected.length === 0 ? (
         <Typography variant="body1">None selected</Typography>
       ) : (
-        props.criteria.selected.map((row) => (
-          <Stack direction="row" alignItems="baseline" key={row.concept_id}>
-            <Typography variant="body1">{row.concept_id}</Typography>&nbsp;
-            <Typography variant="body2">{row.concept_name}</Typography>
+        props.criteria.selected.map(({ id, name }) => (
+          <Stack direction="row" alignItems="baseline" key={id}>
+            <Typography variant="body1">{id}</Typography>&nbsp;
+            <Typography variant="body2">{name}</Typography>
           </Stack>
         ))
       )}

@@ -90,9 +90,14 @@ export function TreeGrid(props: TreeGridProps) {
       <table
         style={{
           tableLayout: "fixed",
+          width: "100%",
         }}
       >
-        <thead>
+        <thead
+          style={{
+            display: "block",
+          }}
+        >
           <tr>
             {props.columns.map((col, i) => (
               <td
@@ -110,18 +115,15 @@ export function TreeGrid(props: TreeGridProps) {
             ))}
           </tr>
         </thead>
-      </table>
-      <div style={{ overflowY: "auto", display: "block" }}>
-        <table
+        <tbody
           style={{
-            tableLayout: "fixed",
+            overflowY: "auto",
+            display: "block",
           }}
         >
-          <tbody>
-            {renderChildren(props, state, toggleExpanded, "root", 0, false)}
-          </tbody>
-        </table>
-      </div>
+          {renderChildren(props, state, toggleExpanded, "root", 0, false)}
+        </tbody>
+      </table>
     </>
   );
 }
