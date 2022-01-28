@@ -63,8 +63,7 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
             .attributeValue(new ApiAttributeValue().int64Val(19_082_059L));
 
     // filter for "ingredient" entity instances that are related to "brand" entity instances that
-    // have
-    // concept_id=19082059
+    // have concept_id=19082059
     // i.e. give me all the ingredients in "Tylenol Chest Congestion"
     ApiFilter ingredientsInTylenolChestCongestion =
         new ApiFilter()

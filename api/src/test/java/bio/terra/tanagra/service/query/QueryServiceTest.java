@@ -1,5 +1,8 @@
 package bio.terra.tanagra.service.query;
 
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_NAME;
@@ -60,7 +63,7 @@ public class QueryServiceTest extends BaseSpringUnitTest {
   }
 
   @Test
-  void generateSqlEntityDatasetWithTableFilter() {
+  void generateSqlEntityDatasetWithTableFilterBinary() {
     assertEquals(
         "SELECT boatengine.bp_id AS id, boatengine.bp_name AS name "
             + "FROM (SELECT * FROM `my-project-id.nautical`.boat_parts WHERE bp_type = 'engine') AS boatengine "
@@ -69,6 +72,23 @@ public class QueryServiceTest extends BaseSpringUnitTest {
             EntityDataset.builder()
                 .primaryEntity(EntityVariable.create(BOAT_ENGINE, Variable.create("boatengine")))
                 .selectedAttributes(ImmutableList.of(BOAT_ENGINE_ID, BOAT_ENGINE_NAME))
+                .filter(Filter.NullFilter.INSTANCE)
+                .build()));
+  }
+
+  @Test
+  void generateSqlEntityDatasetWithTableFilterArray() {
+    assertEquals(
+        "SELECT boatelectricanchors.bp_id AS id, boatelectricanchors.bp_name AS name "
+            + "FROM (SELECT * FROM `my-project-id.nautical`.boat_parts WHERE bp_type = 'anchor' AND bp_requires_electricity = 'true') AS boatelectricanchors "
+            + "WHERE TRUE",
+        queryService.generateSql(
+            EntityDataset.builder()
+                .primaryEntity(
+                    EntityVariable.create(
+                        BOAT_ELECTRIC_ANCHOR, Variable.create("boatelectricanchors")))
+                .selectedAttributes(
+                    ImmutableList.of(BOAT_ELECTRIC_ANCHOR_ID, BOAT_ELECTRIC_ANCHOR_NAME))
                 .filter(Filter.NullFilter.INSTANCE)
                 .build()));
   }
