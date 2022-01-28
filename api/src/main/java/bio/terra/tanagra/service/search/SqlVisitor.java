@@ -365,10 +365,33 @@ public class SqlVisitor {
 
     /** Resolve a {@link BinaryColumnFilter} into a SQL string WHERE clause. */
     private String resolveBinaryColumnFilter(BinaryColumnFilter binaryColumnFilter) {
+      String valueInWhereClause;
+      boolean valueIsNull = binaryColumnFilter.value() == null;
+      if (valueIsNull) {
+        valueInWhereClause = "NULL";
+      } else {
+        switch (binaryColumnFilter.column().dataType()) {
+          case STRING:
+            valueIsNull = binaryColumnFilter.value().stringVal() == null;
+            valueInWhereClause = String.format("'%s'", binaryColumnFilter.value().stringVal());
+            break;
+          case INT64:
+            valueIsNull = binaryColumnFilter.value().int64Val() == null;
+            valueInWhereClause = String.valueOf(binaryColumnFilter.value().int64Val());
+            break;
+          default:
+            throw new IllegalArgumentException(
+                "Unknown column data type: " + binaryColumnFilter.column().dataType());
+        }
+      }
+
       String operatorInWhereClause;
       switch (binaryColumnFilter.operator()) {
         case EQUALS:
-          operatorInWhereClause = "=";
+          operatorInWhereClause = valueIsNull ? "IS" : "=";
+          break;
+        case NOT_EQUALS:
+          operatorInWhereClause = valueIsNull ? "IS NOT" : "!=";
           break;
         case LESS_THAN:
           operatorInWhereClause = "<";
@@ -379,19 +402,6 @@ public class SqlVisitor {
         default:
           throw new IllegalArgumentException(
               "Unknown binary column filter operator type: " + binaryColumnFilter.operator());
-      }
-
-      String valueInWhereClause;
-      switch (binaryColumnFilter.column().dataType()) {
-        case STRING:
-          valueInWhereClause = String.format("'%s'", binaryColumnFilter.value().stringVal());
-          break;
-        case INT64:
-          valueInWhereClause = String.valueOf(binaryColumnFilter.value().int64Val());
-          break;
-        default:
-          throw new IllegalArgumentException(
-              "Unknown column data type: " + binaryColumnFilter.column().dataType());
       }
 
       // columnFilter=value

@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.underlay;
 
 import com.google.auto.value.AutoValue;
+import javax.annotation.Nullable;
 
 /** A filter on a SQL column within a table in an underlay. */
 @AutoValue
@@ -12,7 +13,7 @@ public abstract class BinaryColumnFilter {
   public abstract BinaryColumnFilterOperator operator();
 
   /** The column value. */
-  public abstract ColumnValue value();
+  public @Nullable abstract ColumnValue value();
 
   public static BinaryColumnFilter create(
       Column column, BinaryColumnFilterOperator operator, ColumnValue value) {
