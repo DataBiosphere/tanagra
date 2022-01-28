@@ -23,6 +23,7 @@ import bio.terra.tanagra.service.underlay.TableFilter;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -308,23 +309,29 @@ public class SqlVisitor {
       if (tableFilter == null) {
         return resolveTable(table);
       } else if (tableFilter.arrayColumnFilter() != null) {
-        return resolveArrayColumnFilter(table, tableFilter.arrayColumnFilter(), false);
+        // (SELECT * FROM `projectId.datasetId`.table WHERE whereclause)
+        return String.format(
+            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
+            table.dataset().projectId(),
+            table.dataset().datasetId(),
+            table.name(),
+            resolveArrayColumnFilter(tableFilter.arrayColumnFilter()));
       } else if (tableFilter.binaryColumnFilter() != null) {
-        return resolveBinaryColumnFilter(table, tableFilter.binaryColumnFilter(), false);
+        // (SELECT * FROM `projectId.datasetId`.table WHERE whereclause)
+        return String.format(
+            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
+            table.dataset().projectId(),
+            table.dataset().datasetId(),
+            table.name(),
+            resolveBinaryColumnFilter(tableFilter.binaryColumnFilter()));
       } else {
         throw new IllegalArgumentException(
             "Invalid table filter missing binary and array column filters.");
       }
     }
 
-    /**
-     * Resolve a {@link Table} with an {@link ArrayColumnFilter} into a SQL string.
-     *
-     * @param whereClauseOnly If true, only returns the part of the SQL string after the WHERE. This
-     *     is helpful when building an {@link ArrayColumnFilter} composed of multiple sub-filters.
-     */
-    private String resolveArrayColumnFilter(
-        Table table, ArrayColumnFilter arrayColumnFilter, boolean whereClauseOnly) {
+    /** Resolve an {@link ArrayColumnFilter} into a SQL string WHERE clause. */
+    private String resolveArrayColumnFilter(ArrayColumnFilter arrayColumnFilter) {
       String joinOperatorInWhereClause;
       switch (arrayColumnFilter.operator()) {
         case AND:
@@ -340,43 +347,24 @@ public class SqlVisitor {
 
       // %s AND %s AND (%s OR %s) ...
       StringBuilder joinedWhereClauses = new StringBuilder();
-      int subFiltersCtr = 0;
-      for (BinaryColumnFilter subFilter : arrayColumnFilter.binaryColumnFilters()) {
-        if (subFiltersCtr > 0) {
-          joinedWhereClauses.append(" " + joinOperatorInWhereClause + " ");
-        }
-        joinedWhereClauses.append(resolveBinaryColumnFilter(table, subFilter, true));
-        subFiltersCtr++;
-      }
-      for (ArrayColumnFilter subFilter : arrayColumnFilter.arrayColumnFilters()) {
-        if (subFiltersCtr > 0) {
-          joinedWhereClauses.append(" " + joinOperatorInWhereClause + " ");
-        }
-        joinedWhereClauses.append(resolveArrayColumnFilter(table, subFilter, true));
-        subFiltersCtr++;
-      }
+      Streams.concat(
+              arrayColumnFilter.binaryColumnFilters().stream()
+                  .map(f -> resolveBinaryColumnFilter(f)),
+              arrayColumnFilter.arrayColumnFilters().stream()
+                  .map(f -> "(" + resolveArrayColumnFilter(f) + ")"))
+          .forEach(
+              whereClause ->
+                  joinedWhereClauses.append(
+                      (joinedWhereClauses.length() > 0
+                              ? (" " + joinOperatorInWhereClause + " ")
+                              : "")
+                          + whereClause));
 
-      if (whereClauseOnly) {
-        return "(" + joinedWhereClauses + ")";
-      } else {
-        // (SELECT * FROM `projectId.datasetId`.table WHERE joinedWhereClauses)
-        return String.format(
-            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
-            table.dataset().projectId(),
-            table.dataset().datasetId(),
-            table.name(),
-            joinedWhereClauses);
-      }
+      return joinedWhereClauses.toString();
     }
 
-    /**
-     * Resolve a {@link Table} with an {@link BinaryColumnFilter} into a SQL string.
-     *
-     * @param whereClauseOnly If true, only returns the part of the SQL string after the WHERE. This
-     *     is helpful when building an {@link ArrayColumnFilter} composed of multiple sub-filters.
-     */
-    private String resolveBinaryColumnFilter(
-        Table table, BinaryColumnFilter binaryColumnFilter, boolean whereClauseOnly) {
+    /** Resolve a {@link BinaryColumnFilter} into a SQL string WHERE clause. */
+    private String resolveBinaryColumnFilter(BinaryColumnFilter binaryColumnFilter) {
       String valueInWhereClause;
       boolean valueIsNull = binaryColumnFilter.value() == null;
       if (valueIsNull) {
@@ -417,19 +405,9 @@ public class SqlVisitor {
       }
 
       // columnFilter=value
-      String whereClause =
-          String.format(
-              "%s %s %s",
-              binaryColumnFilter.column().name(), operatorInWhereClause, valueInWhereClause);
-
-      if (whereClauseOnly) {
-        return whereClause;
-      } else {
-        // (SELECT * FROM `projectId.datasetId`.table WHERE %s)
-        return String.format(
-            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
-            table.dataset().projectId(), table.dataset().datasetId(), table.name(), whereClause);
-      }
+      return String.format(
+          "%s %s %s",
+          binaryColumnFilter.column().name(), operatorInWhereClause, valueInWhereClause);
     }
 
     /** Resolve an {@link AttributeExpression} as an SQL expression. */
