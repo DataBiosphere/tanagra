@@ -20,8 +20,10 @@ import com.google.common.collect.HashBasedTable;
 import com.google.protobuf.Message;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Utilities for converting protobuf representations to underlay classes. */
 @VisibleForTesting
@@ -178,17 +180,13 @@ public final class UnderlayConversion {
       // convert the TableFilter proto and do entity table-specific validation
       TableFilter tableFilter = convert(entityMapping.getTableFilter(), columns);
       switch (entityMapping.getTableFilter().getFilterCase()) {
+        case ARRAY_COLUMN_FILTER:
+          validateForEntityMapping(
+              tableFilter.arrayColumnFilter(), primaryKeys.get(entity), entityMapping);
+          break;
         case BINARY_COLUMN_FILTER:
-          if (!tableFilter
-              .binaryColumnFilter()
-              .column()
-              .table()
-              .equals(primaryKeys.get(entity).table())) {
-            throw new IllegalArgumentException(
-                String.format(
-                    "Binary table filter column is not in the same table as the entity primary key: %s",
-                    entityMapping));
-          }
+          validateForEntityMapping(
+              tableFilter.binaryColumnFilter(), primaryKeys.get(entity), entityMapping);
           break;
         case FILTER_NOT_SET:
         default:
@@ -564,6 +562,10 @@ public final class UnderlayConversion {
       bio.terra.tanagra.proto.underlay.TableFilter tableFilterProto,
       Map<ColumnId, Column> columns) {
     switch (tableFilterProto.getFilterCase()) {
+      case ARRAY_COLUMN_FILTER:
+        return TableFilter.builder()
+            .arrayColumnFilter(convert(tableFilterProto.getArrayColumnFilter(), columns))
+            .build();
       case BINARY_COLUMN_FILTER:
         return TableFilter.builder()
             .binaryColumnFilter(convert(tableFilterProto.getBinaryColumnFilter(), columns))
@@ -572,6 +574,63 @@ public final class UnderlayConversion {
       default:
         throw new IllegalArgumentException(
             String.format("Unknown table filter type: %s", tableFilterProto));
+    }
+  }
+
+  private static ArrayColumnFilter convert(
+      bio.terra.tanagra.proto.underlay.ArrayColumnFilter arrayColumnFilterProto,
+      Map<ColumnId, Column> columns) {
+    List<ArrayColumnFilter> arrayColumnFilters =
+        arrayColumnFilterProto.getArrayColumnFiltersList().stream()
+            .map(acf -> convert(acf, columns))
+            .collect(Collectors.toList());
+    List<BinaryColumnFilter> binaryColumnFilters =
+        arrayColumnFilterProto.getBinaryColumnFiltersList().stream()
+            .map(bcf -> convert(bcf, columns))
+            .collect(Collectors.toList());
+
+    if (arrayColumnFilters.isEmpty() && binaryColumnFilters.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("Array column filter contains no sub-filters: %s", arrayColumnFilterProto));
+    }
+
+    return ArrayColumnFilter.builder()
+        .operator(convert(arrayColumnFilterProto.getOperator()))
+        .arrayColumnFilters(arrayColumnFilters)
+        .binaryColumnFilters(binaryColumnFilters)
+        .build();
+  }
+
+  private static ArrayColumnFilterOperator convert(
+      bio.terra.tanagra.proto.underlay.ArrayColumnFilterOperator operator) {
+    switch (operator) {
+      case AND:
+        return ArrayColumnFilterOperator.AND;
+      case OR:
+        return ArrayColumnFilterOperator.OR;
+      default:
+        throw new UnsupportedOperationException(
+            String.format("Unsupported ArrayColumnFilterOperator %s", operator.name()));
+    }
+  }
+
+  private static void validateForEntityMapping(
+      ArrayColumnFilter arrayColumnFilter, Column entityPrimaryKey, EntityMapping entityMapping) {
+    arrayColumnFilter
+        .arrayColumnFilters()
+        .forEach(acf -> validateForEntityMapping(acf, entityPrimaryKey, entityMapping));
+    arrayColumnFilter
+        .binaryColumnFilters()
+        .forEach(bcf -> validateForEntityMapping(bcf, entityPrimaryKey, entityMapping));
+  }
+
+  private static void validateForEntityMapping(
+      BinaryColumnFilter binaryColumnFilter, Column entityPrimaryKey, EntityMapping entityMapping) {
+    if (!binaryColumnFilter.column().table().equals(entityPrimaryKey.table())) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Binary table filter column is not in the same table as the entity primary key: %s",
+              entityMapping));
     }
   }
 

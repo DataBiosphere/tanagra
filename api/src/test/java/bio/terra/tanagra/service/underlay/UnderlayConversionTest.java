@@ -4,6 +4,9 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_BT_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_COLOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_COLOR_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_NAME;
@@ -13,7 +16,10 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_REQUIRES_ELECTRICITY_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_REQUIRES_ELECTRICITY_COL_TRUE_VALUE;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_TYPE_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_TYPE_COL_ANCHOR_VALUE;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_TYPE_COL_ENGINE_VALUE;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_TYPE_COL_OPERATOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
@@ -56,6 +62,7 @@ import bio.terra.tanagra.proto.underlay.IntegerBoundsHint;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
@@ -76,6 +83,7 @@ public class UnderlayConversionTest {
             .put(BOAT.name(), BOAT)
             .put(RESERVATION.name(), RESERVATION)
             .put(BOAT_ENGINE.name(), BOAT_ENGINE)
+            .put(BOAT_ELECTRIC_ANCHOR.name(), BOAT_ELECTRIC_ANCHOR)
             .build(),
         nautical.entities());
     assertEquals(
@@ -94,6 +102,8 @@ public class UnderlayConversionTest {
             .put(RESERVATION, "day", RESERVATION_DAY)
             .put(BOAT_ENGINE, "id", BOAT_ENGINE_ID)
             .put(BOAT_ENGINE, "name", BOAT_ENGINE_NAME)
+            .put(BOAT_ELECTRIC_ANCHOR, "id", BOAT_ELECTRIC_ANCHOR_ID)
+            .put(BOAT_ELECTRIC_ANCHOR, "name", BOAT_ELECTRIC_ANCHOR_NAME)
             .build(),
         nautical.attributes());
     assertEquals(
@@ -109,6 +119,7 @@ public class UnderlayConversionTest {
             .put(BOAT, BOAT_ID_COL)
             .put(RESERVATION, RESERVATION_ID_COL)
             .put(BOAT_ENGINE, BOAT_PARTS_ID_COL)
+            .put(BOAT_ELECTRIC_ANCHOR, BOAT_PARTS_ID_COL)
             .build(),
         nautical.primaryKeys());
     assertEquals(
@@ -121,6 +132,23 @@ public class UnderlayConversionTest {
                             BOAT_PARTS_TYPE_COL,
                             BOAT_PARTS_TYPE_COL_OPERATOR,
                             BOAT_PARTS_TYPE_COL_ENGINE_VALUE))
+                    .build())
+            .put(
+                BOAT_ELECTRIC_ANCHOR,
+                TableFilter.builder()
+                    .arrayColumnFilter(
+                        ArrayColumnFilter.create(
+                            ArrayColumnFilterOperator.AND,
+                            ImmutableList.of(),
+                            ImmutableList.of(
+                                BinaryColumnFilter.create(
+                                    BOAT_PARTS_TYPE_COL,
+                                    BOAT_PARTS_TYPE_COL_OPERATOR,
+                                    BOAT_PARTS_TYPE_COL_ANCHOR_VALUE),
+                                BinaryColumnFilter.create(
+                                    BOAT_PARTS_REQUIRES_ELECTRICITY_COL,
+                                    BOAT_PARTS_TYPE_COL_OPERATOR,
+                                    BOAT_PARTS_REQUIRES_ELECTRICITY_COL_TRUE_VALUE))))
                     .build())
             .build(),
         nautical.tableFilters());
@@ -161,6 +189,13 @@ public class UnderlayConversionTest {
             .put(
                 BOAT_ENGINE_NAME,
                 AttributeMapping.SimpleColumn.create(BOAT_ENGINE_NAME, BOAT_PARTS_NAME_COL))
+            .put(
+                BOAT_ELECTRIC_ANCHOR_ID,
+                AttributeMapping.SimpleColumn.create(BOAT_ELECTRIC_ANCHOR_ID, BOAT_PARTS_ID_COL))
+            .put(
+                BOAT_ELECTRIC_ANCHOR_NAME,
+                AttributeMapping.SimpleColumn.create(
+                    BOAT_ELECTRIC_ANCHOR_NAME, BOAT_PARTS_NAME_COL))
             .build(),
         nautical.attributeMappings());
     assertEquals(

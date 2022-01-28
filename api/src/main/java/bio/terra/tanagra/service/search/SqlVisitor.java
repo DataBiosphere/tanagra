@@ -7,9 +7,11 @@ import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
+import bio.terra.tanagra.service.underlay.ArrayColumnFilter;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.AttributeMapping.SimpleColumn;
+import bio.terra.tanagra.service.underlay.BinaryColumnFilter;
 import bio.terra.tanagra.service.underlay.Column;
 import bio.terra.tanagra.service.underlay.ForeignKey;
 import bio.terra.tanagra.service.underlay.Hierarchy;
@@ -21,6 +23,7 @@ import bio.terra.tanagra.service.underlay.TableFilter;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -294,19 +297,76 @@ public class SqlVisitor {
       return String.format("%s AS %s", resolvedTable, entityVariable.variable().name());
     }
 
+    /** Resolve a {@link Table} into a SQL string. */
     private String resolveTable(Table table) {
       // `projectId.datasetId`.table
       return String.format(
           "`%s.%s`.%s", table.dataset().projectId(), table.dataset().datasetId(), table.name());
     }
 
+    /** Resolve a {@link Table} with a {@link TableFilter} into a SQL string. */
     private String resolveTable(Table table, @Nullable TableFilter tableFilter) {
       if (tableFilter == null) {
         return resolveTable(table);
+      } else if (tableFilter.arrayColumnFilter() != null) {
+        // (SELECT * FROM `projectId.datasetId`.table WHERE whereclause)
+        return String.format(
+            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
+            table.dataset().projectId(),
+            table.dataset().datasetId(),
+            table.name(),
+            resolveArrayColumnFilter(tableFilter.arrayColumnFilter()));
+      } else if (tableFilter.binaryColumnFilter() != null) {
+        // (SELECT * FROM `projectId.datasetId`.table WHERE whereclause)
+        return String.format(
+            "(SELECT * FROM `%s.%s`.%s WHERE %s)",
+            table.dataset().projectId(),
+            table.dataset().datasetId(),
+            table.name(),
+            resolveBinaryColumnFilter(tableFilter.binaryColumnFilter()));
+      } else {
+        throw new IllegalArgumentException(
+            "Invalid table filter missing binary and array column filters.");
+      }
+    }
+
+    /** Resolve an {@link ArrayColumnFilter} into a SQL string WHERE clause. */
+    private String resolveArrayColumnFilter(ArrayColumnFilter arrayColumnFilter) {
+      String joinOperatorInWhereClause;
+      switch (arrayColumnFilter.operator()) {
+        case AND:
+          joinOperatorInWhereClause = "AND";
+          break;
+        case OR:
+          joinOperatorInWhereClause = "OR";
+          break;
+        default:
+          throw new IllegalArgumentException(
+              "Unknown array column filter operator type: " + arrayColumnFilter.operator());
       }
 
+      // %s AND %s AND (%s OR %s) ...
+      StringBuilder joinedWhereClauses = new StringBuilder();
+      Streams.concat(
+              arrayColumnFilter.binaryColumnFilters().stream()
+                  .map(f -> resolveBinaryColumnFilter(f)),
+              arrayColumnFilter.arrayColumnFilters().stream()
+                  .map(f -> "(" + resolveArrayColumnFilter(f) + ")"))
+          .forEach(
+              whereClause ->
+                  joinedWhereClauses.append(
+                      (joinedWhereClauses.length() > 0
+                              ? (" " + joinOperatorInWhereClause + " ")
+                              : "")
+                          + whereClause));
+
+      return joinedWhereClauses.toString();
+    }
+
+    /** Resolve a {@link BinaryColumnFilter} into a SQL string WHERE clause. */
+    private String resolveBinaryColumnFilter(BinaryColumnFilter binaryColumnFilter) {
       String operatorInWhereClause;
-      switch (tableFilter.binaryColumnFilter().operator()) {
+      switch (binaryColumnFilter.operator()) {
         case EQUALS:
           operatorInWhereClause = "=";
           break;
@@ -318,33 +378,26 @@ public class SqlVisitor {
           break;
         default:
           throw new IllegalArgumentException(
-              "Unknown column filter operator type: "
-                  + tableFilter.binaryColumnFilter().operator());
+              "Unknown binary column filter operator type: " + binaryColumnFilter.operator());
       }
 
       String valueInWhereClause;
-      switch (tableFilter.binaryColumnFilter().column().dataType()) {
+      switch (binaryColumnFilter.column().dataType()) {
         case STRING:
-          valueInWhereClause =
-              String.format("'%s'", tableFilter.binaryColumnFilter().value().stringVal());
+          valueInWhereClause = String.format("'%s'", binaryColumnFilter.value().stringVal());
           break;
         case INT64:
-          valueInWhereClause = String.valueOf(tableFilter.binaryColumnFilter().value().int64Val());
+          valueInWhereClause = String.valueOf(binaryColumnFilter.value().int64Val());
           break;
         default:
           throw new IllegalArgumentException(
-              "Unknown column data type: " + tableFilter.binaryColumnFilter().column().dataType());
+              "Unknown column data type: " + binaryColumnFilter.column().dataType());
       }
 
-      // (SELECT * FROM `projectId.datasetId`.table WHERE columnFilter=value)
+      // columnFilter=value
       return String.format(
-          "(SELECT * FROM `%s.%s`.%s WHERE %s %s %s)",
-          table.dataset().projectId(),
-          table.dataset().datasetId(),
-          table.name(),
-          tableFilter.binaryColumnFilter().column().name(),
-          operatorInWhereClause,
-          valueInWhereClause);
+          "%s %s %s",
+          binaryColumnFilter.column().name(), operatorInWhereClause, valueInWhereClause);
     }
 
     /** Resolve an {@link AttributeExpression} as an SQL expression. */
