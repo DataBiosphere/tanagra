@@ -114,6 +114,8 @@ public final class NauticalUnderlayUtils {
       Table.create("boat_types_descendants", NAUTICAL_DATASET);
   public static final Table BOAT_TYPE_CHILDREN_TABLE =
       Table.create("boat_types_children", NAUTICAL_DATASET);
+  public static final Table BOAT_TYPE_PATHS_TABLE =
+      Table.create("boat_types_paths", NAUTICAL_DATASET);
   public static final Table BOAT_PARTS_TABLE = Table.create("boat_parts", NAUTICAL_DATASET);
 
   public static final Column SAILOR_ID_COL =
@@ -183,6 +185,18 @@ public final class NauticalUnderlayUtils {
           .name("btc_is_expired")
           .dataType(DataType.STRING)
           .table(BOAT_TYPE_CHILDREN_TABLE)
+          .build();
+  public static final Column BOAT_TYPE_PATHS_NODE_COL =
+      Column.builder()
+          .name("bt_node")
+          .dataType(DataType.INT64)
+          .table(BOAT_TYPE_PATHS_TABLE)
+          .build();
+  public static final Column BOAT_TYPE_PATHS_PATH_COL =
+      Column.builder()
+          .name("bt_path")
+          .dataType(DataType.STRING)
+          .table(BOAT_TYPE_PATHS_TABLE)
           .build();
   public static final Column BOAT_PARTS_ID_COL =
       Column.builder().name("bp_id").dataType(DataType.INT64).table(BOAT_PARTS_TABLE).build();

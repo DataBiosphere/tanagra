@@ -32,6 +32,8 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_PATHS_NODE_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_PATHS_PATH_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_B_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_B_ID_COL;
@@ -245,6 +247,11 @@ public class UnderlayConversionTest {
                                             .value(ColumnValue.builder().stringVal("false").build())
                                             .build())
                                     .build())
+                            .build())
+                    .pathsTable(
+                        Hierarchy.PathsTable.builder()
+                            .node(BOAT_TYPE_PATHS_NODE_COL)
+                            .path(BOAT_TYPE_PATHS_PATH_COL)
                             .build())
                     .build())
             .build(),

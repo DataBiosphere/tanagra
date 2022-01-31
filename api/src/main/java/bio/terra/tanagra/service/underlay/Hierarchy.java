@@ -16,6 +16,8 @@ public abstract class Hierarchy {
 
   public abstract ChildrenTable childrenTable();
 
+  public abstract PathsTable pathsTable();
+
   public static Builder builder() {
     return new AutoValue_Hierarchy.Builder();
   }
@@ -138,6 +140,58 @@ public abstract class Hierarchy {
     }
   }
 
+  /**
+   * The specification for a node-path table for the hierarchy.
+   *
+   * <p>For each node in the hierarchy, there should be a (node, path) row in the table referenced
+   * by the {@link PathsTable}.
+   */
+  @AutoValue
+  public abstract static class PathsTable {
+    /** A column with an id of the node in the hierarchy table. */
+    public abstract Column node();
+
+    /**
+     * A column with the descendant of the path column of the table.
+     *
+     * <p>Must have the same Table as {@link #node()}.
+     */
+    public abstract Column path();
+
+    /** The underlying {@link Table}. */
+    public Table table() {
+      return node().table();
+    }
+
+    public static Builder builder() {
+      return new AutoValue_Hierarchy_PathsTable.Builder();
+    }
+
+    /** Builder for {@link PathsTable}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      public abstract Builder node(Column node);
+
+      public abstract Column node();
+
+      public abstract Builder path(Column path);
+
+      public abstract Column path();
+
+      public PathsTable build() {
+        Preconditions.checkArgument(
+            node().table().equals(path().table()),
+            "node and path columns must share the same table, but found [%s] and [%s] tables",
+            node().table(),
+            path().table());
+        return autoBuild();
+      }
+
+      abstract PathsTable autoBuild();
+    }
+  }
+
   /** Builder for {@link Hierarchy}. */
   @AutoValue.Builder
   public abstract static class Builder {
@@ -145,6 +199,8 @@ public abstract class Hierarchy {
     public abstract Builder descendantsTable(DescendantsTable descendantsTable);
 
     public abstract Builder childrenTable(ChildrenTable childrenTable);
+
+    public abstract Builder pathsTable(PathsTable pathsTable);
 
     public abstract Hierarchy build();
   }

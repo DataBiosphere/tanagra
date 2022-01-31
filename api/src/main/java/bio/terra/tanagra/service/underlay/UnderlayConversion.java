@@ -406,10 +406,18 @@ public final class UnderlayConversion {
             convert(hierarchyProto.getChildrenTable().getTableFilter(), columns));
       }
 
+      Column node =
+          retrieve(hierarchyProto.getPathsTable().getNode(), columns, "node", hierarchyProto);
+      Column path =
+          retrieve(hierarchyProto.getPathsTable().getPath(), columns, "path", hierarchyProto);
+      Hierarchy.PathsTable.Builder pathsTable =
+          Hierarchy.PathsTable.builder().node(node).path(path);
+
       Hierarchy hierarchy =
           Hierarchy.builder()
               .descendantsTable(descendantsTable.build())
               .childrenTable(childrenTable.build())
+              .pathsTable(pathsTable.build())
               .build();
 
       if (hierarchies.put(attribute, hierarchy) != null) {
