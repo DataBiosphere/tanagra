@@ -27,7 +27,7 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 
 /**
  * A batch Apache Beam pipeline for building a table that contains a path (i.e. a list of ancestors
- * in order) for each node in a hierarchy. Example row: (node,path)=(123,"123.456.789"), where 456
+ * in order) for each node in a hierarchy. Example row: (node,path)=(123,"456.789"), where 456
  * is the parent of 123 and 789 is the grandparent of 123.
  */
 public final class BuildPathsForHierarchy {
