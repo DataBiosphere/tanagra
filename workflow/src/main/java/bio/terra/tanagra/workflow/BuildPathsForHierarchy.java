@@ -111,7 +111,7 @@ public final class BuildPathsForHierarchy {
                 new TableFieldSchema()
                     .setName(options.getOutputPathColumn())
                     .setType("STRING")
-                    .setMode("REQUIRED")));
+                    .setMode("NULLABLE")));
   }
 
   public static void main(String[] args) throws IOException {
@@ -240,7 +240,7 @@ public final class BuildPathsForHierarchy {
     //    (c1,["c1"],[])
     //
     //    [iteration 1] nodePathKVs (next node,path)
-    //    (a2"a2.a1")
+    //    (a2,"a2.a1")
     //    (a3,"a3.a2")
     //    (a3,"a3")
     //    (b2,"b2.b1")
@@ -266,9 +266,20 @@ public final class BuildPathsForHierarchy {
 
                     String path = kvPair.getValue();
 
+                    // strip out the first node in the path, and make it the key
+                    // e.g. (a3,"a1.a2.a3") => (a1,"a2.a3")
+                    //      (c1,"c1") => (c1,"")
                     int indexOfFirstPeriod = path.indexOf(".");
-                    String firstNodeInPath =
-                        indexOfFirstPeriod > 0 ? path.substring(0, indexOfFirstPeriod) : path;
+                    String firstNodeInPath;
+                    String pathWithoutFirstNode;
+                    if (indexOfFirstPeriod > 0) {
+                      firstNodeInPath = path.substring(0, indexOfFirstPeriod);
+                      pathWithoutFirstNode = path.substring(indexOfFirstPeriod + 1);
+                    } else {
+                      firstNodeInPath = path;
+                      pathWithoutFirstNode = "";
+                    }
+
                     Long firstNode;
                     try {
                       firstNode = Long.valueOf(firstNodeInPath);
@@ -276,7 +287,7 @@ public final class BuildPathsForHierarchy {
                       firstNode = 0L;
                     }
 
-                    context.output(KV.of(firstNode, path));
+                    context.output(KV.of(firstNode, pathWithoutFirstNode));
                   }
                 }));
 
@@ -294,7 +305,9 @@ public final class BuildPathsForHierarchy {
                     context.output(
                         new TableRow()
                             .set(contextOptions.getOutputNodeColumn(), kvPair.getKey())
-                            .set(contextOptions.getOutputPathColumn(), kvPair.getValue()));
+                            .set(
+                                contextOptions.getOutputPathColumn(),
+                                kvPair.getValue().isEmpty() ? null : kvPair.getValue()));
                   }
                 }));
 
