@@ -63,6 +63,8 @@ public final class NauticalUnderlayUtils {
       Attribute.builder().name("type_id").dataType(DataType.INT64).entity(BOAT).build();
   public static final Attribute BOAT_TYPE_NAME =
       Attribute.builder().name("type_name").dataType(DataType.STRING).entity(BOAT).build();
+  public static final Attribute BOAT_T_PATH_TYPE_ID =
+      Attribute.builder().name("t_path_type_id").dataType(DataType.STRING).entity(BOAT).build();
 
   public static final Attribute RESERVATION_ID =
       Attribute.builder().name("id").dataType(DataType.INT64).entity(RESERVATION).build();
@@ -219,4 +221,32 @@ public final class NauticalUnderlayUtils {
       ColumnValue.builder().stringVal("anchor").build();
   public static final ColumnValue BOAT_PARTS_REQUIRES_ELECTRICITY_COL_TRUE_VALUE =
       ColumnValue.builder().stringVal("true").build();
+
+  public static final Hierarchy BOAT_TYPE_HIERARCHY =
+      Hierarchy.builder()
+          .descendantsTable(
+              Hierarchy.DescendantsTable.builder()
+                  .ancestor(BOAT_TYPE_DESCENDANTS_ANCESTOR_COL)
+                  .descendant(BOAT_TYPE_DESCENDANTS_DESCENDANT_COL)
+                  .build())
+          .childrenTable(
+              Hierarchy.ChildrenTable.builder()
+                  .parent(BOAT_TYPE_CHILDREN_PARENT_COL)
+                  .child(BOAT_TYPE_CHILDREN_CHILD_COL)
+                  .tableFilter(
+                      TableFilter.builder()
+                          .binaryColumnFilter(
+                              BinaryColumnFilter.builder()
+                                  .column(BOAT_TYPE_CHILDREN_IS_EXPIRED_COL)
+                                  .operator(BinaryColumnFilterOperator.EQUALS)
+                                  .value(ColumnValue.builder().stringVal("false").build())
+                                  .build())
+                          .build())
+                  .build())
+          .pathsTable(
+              Hierarchy.PathsTable.builder()
+                  .node(BOAT_TYPE_PATHS_NODE_COL)
+                  .path(BOAT_TYPE_PATHS_PATH_COL)
+                  .build())
+          .build();
 }

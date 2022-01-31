@@ -23,17 +23,12 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PART
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_TYPE_COL_ENGINE_VALUE;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_PARTS_TYPE_COL_OPERATOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_RESERVATION_RELATIONSHIP;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_CHILDREN_CHILD_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_CHILDREN_IS_EXPIRED_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_CHILDREN_PARENT_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_ANCESTOR_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_DESCENDANTS_DESCENDANT_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_HIERARCHY;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_PATHS_NODE_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_PATHS_PATH_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_T_PATH_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_B_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_B_ID_COL;
@@ -63,7 +58,6 @@ import bio.terra.tanagra.proto.underlay.FilterableAttribute;
 import bio.terra.tanagra.proto.underlay.IntegerBoundsHint;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
-import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -98,6 +92,7 @@ public class UnderlayConversionTest {
             .put(BOAT, "color", BOAT_COLOR)
             .put(BOAT, "type_name", BOAT_TYPE_NAME)
             .put(BOAT, "type_id", BOAT_TYPE_ID)
+            .put(BOAT, "t_path_type_id", BOAT_T_PATH_TYPE_ID)
             .put(RESERVATION, "id", RESERVATION_ID)
             .put(RESERVATION, "boats_id", RESERVATION_B_ID)
             .put(RESERVATION, "sailors_id", RESERVATION_S_ID)
@@ -166,6 +161,12 @@ public class UnderlayConversionTest {
             .put(BOAT_COLOR, AttributeMapping.SimpleColumn.create(BOAT_COLOR, BOAT_COLOR_COL))
             .put(BOAT_TYPE_ID, AttributeMapping.SimpleColumn.create(BOAT_TYPE_ID, BOAT_BT_ID_COL))
             .put(
+                BOAT_T_PATH_TYPE_ID,
+                AttributeMapping.HierarchyPathColumn.create(
+                    BOAT_T_PATH_TYPE_ID,
+                    BOAT_TYPE_HIERARCHY,
+                    AttributeMapping.SimpleColumn.create(BOAT_TYPE_ID, BOAT_BT_ID_COL)))
+            .put(
                 BOAT_TYPE_NAME,
                 LookupColumn.builder()
                     .attribute(BOAT_TYPE_NAME)
@@ -225,36 +226,7 @@ public class UnderlayConversionTest {
             .build(),
         nautical.relationshipMappings());
     assertEquals(
-        ImmutableMap.builder()
-            .put(
-                BOAT_TYPE_ID,
-                Hierarchy.builder()
-                    .descendantsTable(
-                        DescendantsTable.builder()
-                            .ancestor(BOAT_TYPE_DESCENDANTS_ANCESTOR_COL)
-                            .descendant(BOAT_TYPE_DESCENDANTS_DESCENDANT_COL)
-                            .build())
-                    .childrenTable(
-                        Hierarchy.ChildrenTable.builder()
-                            .parent(BOAT_TYPE_CHILDREN_PARENT_COL)
-                            .child(BOAT_TYPE_CHILDREN_CHILD_COL)
-                            .tableFilter(
-                                TableFilter.builder()
-                                    .binaryColumnFilter(
-                                        BinaryColumnFilter.builder()
-                                            .column(BOAT_TYPE_CHILDREN_IS_EXPIRED_COL)
-                                            .operator(BinaryColumnFilterOperator.EQUALS)
-                                            .value(ColumnValue.builder().stringVal("false").build())
-                                            .build())
-                                    .build())
-                            .build())
-                    .pathsTable(
-                        Hierarchy.PathsTable.builder()
-                            .node(BOAT_TYPE_PATHS_NODE_COL)
-                            .path(BOAT_TYPE_PATHS_PATH_COL)
-                            .build())
-                    .build())
-            .build(),
+        ImmutableMap.builder().put(BOAT_TYPE_ID, BOAT_TYPE_HIERARCHY).build(),
         nautical.hierarchies());
     assertEquals(
         ImmutableMap.builder()
