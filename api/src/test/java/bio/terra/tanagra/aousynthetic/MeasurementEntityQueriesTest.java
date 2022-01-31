@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_MEASUREMENT_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.MEASUREMENT_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.MEASUREMENT_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,6 +17,7 @@ import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -109,5 +111,36 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/measurement-entities-children-of-a-measurement.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for getting the hierarchy path for a single measurement entity instance")
+  void generateSqlForHierarchyPathOfAMeasurementEntity() throws IOException {
+    // filter for "measurement" entity instances that have concept_id=40785850
+    // i.e. the measurement "Calcium"
+    ApiFilter calcium =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("measurement_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(40_785_850L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            MEASUREMENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("measurement_alias")
+                        .selectedAttributes(ImmutableList.of(MEASUREMENT_HIERARCHY_PATH_ATTRIBUTE))
+                        .filter(calcium)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/hierarchy-path-of-a-measurement.sql");
   }
 }
