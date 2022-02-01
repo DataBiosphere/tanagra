@@ -347,21 +347,12 @@ public class SqlVisitor {
       }
 
       // %s AND %s AND (%s OR %s) ...
-      StringBuilder joinedWhereClauses = new StringBuilder();
-      Streams.concat(
+      return Streams.concat(
               arrayColumnFilter.binaryColumnFilters().stream()
                   .map(f -> resolveBinaryColumnFilter(f)),
               arrayColumnFilter.arrayColumnFilters().stream()
                   .map(f -> "(" + resolveArrayColumnFilter(f) + ")"))
-          .forEach(
-              whereClause ->
-                  joinedWhereClauses.append(
-                      (joinedWhereClauses.length() > 0
-                              ? (" " + joinOperatorInWhereClause + " ")
-                              : "")
-                          + whereClause));
-
-      return joinedWhereClauses.toString();
+          .collect(Collectors.joining(" " + joinOperatorInWhereClause + " "));
     }
 
     /** Resolve a {@link BinaryColumnFilter} into a SQL string WHERE clause. */
