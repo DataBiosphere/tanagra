@@ -42,10 +42,3 @@ These commands took ~30 and ~40 minutes, respectively.
 ./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.FlattenHierarchy -Dexec.args="--outputBigQueryTable=broad-tanagra-dev:synpuf_indexes.concept_ancestor_descendant_1 --hierarchyQuery=workflow/src/main/resources/queries/synpuf/concept_ancestor_descendant_1.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com"
 ./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.FlattenHierarchy -Dexec.args="--outputBigQueryTable=broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.concept_ancestor_descendant_1 --hierarchyQuery=workflow/src/main/resources/queries/aou_synthetic/concept_ancestor_descendant_1.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com"
 ```
-
-Generate the node-path tables `concept_node_path_1` for all concept domain-based entities in the `synpuf` and `aou_synthetic` underlays.
-These commands took ~50 and ~20 minutes, respectively.
-```
-./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildPathsForHierarchy -Dexec.args="--outputBigQueryTable=broad-tanagra-dev:synpuf_indexes.concept_node_path_1 --hierarchyQuery=workflow/src/main/resources/queries/synpuf/concept_ancestor_descendant_1.sql --allNodesQuery=workflow/src/main/resources/queries/synpuf/concept_node_path_allnodes_1.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com"
-./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildPathsForHierarchy -Dexec.args="--outputBigQueryTable=broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.concept_node_path_1 --hierarchyQuery=workflow/src/main/resources/queries/aou_synthetic/concept_ancestor_descendant_1.sql --allNodesQuery=workflow/src/main/resources/queries/aou_synthetic/concept_node_path_allnodes_1.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com"
-```
