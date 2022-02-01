@@ -24,7 +24,7 @@ test.each([
         },
         standard_concept: null,
       },
-      matches: ["test-concept", "1234", "5678", "Source"],
+      matches: ["test-concept", "1234", "Source"],
     },
   ],
   [
