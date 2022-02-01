@@ -18,6 +18,10 @@ message Hierarchy {
 
   ChildrenTable children_table = 3;
 
+  // Note that the definition of the PathsTable causes Tanagra to add a
+  // generated attribute to the entity. This attribute will be named
+  // "t_path_xx" where xx=the name of the attribute for this hierarchy
+  // (defined above in this message).
   PathsTable paths_table = 4;
 }
 

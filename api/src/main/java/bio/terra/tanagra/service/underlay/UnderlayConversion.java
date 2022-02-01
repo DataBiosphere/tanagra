@@ -427,6 +427,7 @@ public final class UnderlayConversion {
               .name("t_path_" + attribute.name())
               .entity(attribute.entity())
               .dataType(DataType.STRING)
+              .isGenerated(true)
               .build();
       AttributeMapping hierarchyPathAttributeMapping =
           AttributeMapping.HierarchyPathColumn.create(

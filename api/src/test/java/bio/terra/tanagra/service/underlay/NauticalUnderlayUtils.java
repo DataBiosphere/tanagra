@@ -64,7 +64,12 @@ public final class NauticalUnderlayUtils {
   public static final Attribute BOAT_TYPE_NAME =
       Attribute.builder().name("type_name").dataType(DataType.STRING).entity(BOAT).build();
   public static final Attribute BOAT_T_PATH_TYPE_ID =
-      Attribute.builder().name("t_path_type_id").dataType(DataType.STRING).entity(BOAT).build();
+      Attribute.builder()
+          .name("t_path_type_id")
+          .dataType(DataType.STRING)
+          .entity(BOAT)
+          .isGenerated(true)
+          .build();
 
   public static final Attribute RESERVATION_ID =
       Attribute.builder().name("id").dataType(DataType.INT64).entity(RESERVATION).build();
