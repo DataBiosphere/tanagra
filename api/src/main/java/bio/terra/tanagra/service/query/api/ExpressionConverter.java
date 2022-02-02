@@ -43,6 +43,10 @@ class ExpressionConverter {
   }
 
   public Expression.Literal convert(ApiAttributeValue apiAttributeValue) {
+    if (apiAttributeValue == null) {
+      return Expression.Literal.create(DataType.STRING, null);
+    }
+
     if (!ConversionUtils.exactlyOneNonNull(
         apiAttributeValue.isBoolVal(),
         apiAttributeValue.getInt64Val(),

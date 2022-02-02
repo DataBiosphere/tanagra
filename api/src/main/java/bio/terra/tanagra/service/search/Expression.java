@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.search;
 
 import com.google.auto.value.AutoValue;
+import javax.annotation.Nullable;
 
 /** A construct in a query syntax tree that evaluates to a value. */
 public interface Expression {
@@ -24,6 +25,7 @@ public interface Expression {
   abstract class Literal implements Expression {
     public abstract DataType dataType();
 
+    @Nullable
     public abstract String value();
 
     public static Literal create(DataType dataType, String value) {
