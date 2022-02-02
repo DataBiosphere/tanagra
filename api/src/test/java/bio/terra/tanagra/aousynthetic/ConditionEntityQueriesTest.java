@@ -142,4 +142,37 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/hierarchy-path-of-a-condition.sql");
   }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all condition entity instances that are root nodes in the hierarchy")
+  void generateSqlForAllRootNodeConditionEntities() throws IOException {
+    // filter for "condition" entity instances that have t_path_concept_id IS NULL
+    // i.e. condition root nodes
+    ApiFilter isRootNode =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    // not setting AttributeValue means to use a null value
+                    .attributeVariable(
+                        new ApiAttributeVariable()
+                            .variable("condition_alias")
+                            .name("t_path_concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            CONDITION_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("condition_alias")
+                        .selectedAttributes(ALL_CONDITION_ATTRIBUTES)
+                        .filter(isRootNode)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/condition-entities-root-nodes.sql");
+  }
 }

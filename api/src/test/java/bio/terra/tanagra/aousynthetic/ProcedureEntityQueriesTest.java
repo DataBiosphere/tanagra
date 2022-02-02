@@ -142,4 +142,37 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/hierarchy-path-of-a-procedure.sql");
   }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all procedure entity instances that are root nodes in the hierarchy")
+  void generateSqlForAllRootNodeProcedureEntities() throws IOException {
+    // filter for "procedure" entity instances that have t_path_concept_id IS NULL
+    // i.e. procedure root nodes
+    ApiFilter isRootNode =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    // not setting AttributeValue means to use a null value
+                    .attributeVariable(
+                        new ApiAttributeVariable()
+                            .variable("procedure_alias")
+                            .name("t_path_concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PROCEDURE_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("procedure_alias")
+                        .selectedAttributes(ALL_PROCEDURE_ATTRIBUTES)
+                        .filter(isRootNode)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/procedure-entities-root-nodes.sql");
+  }
 }

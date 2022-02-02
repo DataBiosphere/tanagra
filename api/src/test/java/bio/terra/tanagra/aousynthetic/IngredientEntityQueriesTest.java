@@ -186,4 +186,37 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/hierarchy-path-of-an-ingredient.sql");
   }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all ingredient entity instances that are root nodes in the hierarchy")
+  void generateSqlForAllRootNodeIngredientEntities() throws IOException {
+    // filter for "ingredient" entity instances that have t_path_concept_id IS NULL
+    // i.e. ingredient root nodes
+    ApiFilter isRootNode =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    // not setting AttributeValue means to use a null value
+                    .attributeVariable(
+                        new ApiAttributeVariable()
+                            .variable("ingredient_alias")
+                            .name("t_path_concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            INGREDIENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("ingredient_alias")
+                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
+                        .filter(isRootNode)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/ingredient-entities-root-nodes.sql");
+  }
 }
