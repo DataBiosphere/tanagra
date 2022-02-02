@@ -63,6 +63,13 @@ public final class NauticalUnderlayUtils {
       Attribute.builder().name("type_id").dataType(DataType.INT64).entity(BOAT).build();
   public static final Attribute BOAT_TYPE_NAME =
       Attribute.builder().name("type_name").dataType(DataType.STRING).entity(BOAT).build();
+  public static final Attribute BOAT_T_PATH_TYPE_ID =
+      Attribute.builder()
+          .name("t_path_type_id")
+          .dataType(DataType.STRING)
+          .entity(BOAT)
+          .isGenerated(true)
+          .build();
 
   public static final Attribute RESERVATION_ID =
       Attribute.builder().name("id").dataType(DataType.INT64).entity(RESERVATION).build();
@@ -114,6 +121,8 @@ public final class NauticalUnderlayUtils {
       Table.create("boat_types_descendants", NAUTICAL_DATASET);
   public static final Table BOAT_TYPE_CHILDREN_TABLE =
       Table.create("boat_types_children", NAUTICAL_DATASET);
+  public static final Table BOAT_TYPE_PATHS_TABLE =
+      Table.create("boat_types_paths", NAUTICAL_DATASET);
   public static final Table BOAT_PARTS_TABLE = Table.create("boat_parts", NAUTICAL_DATASET);
 
   public static final Column SAILOR_ID_COL =
@@ -184,6 +193,18 @@ public final class NauticalUnderlayUtils {
           .dataType(DataType.STRING)
           .table(BOAT_TYPE_CHILDREN_TABLE)
           .build();
+  public static final Column BOAT_TYPE_PATHS_NODE_COL =
+      Column.builder()
+          .name("bt_node")
+          .dataType(DataType.INT64)
+          .table(BOAT_TYPE_PATHS_TABLE)
+          .build();
+  public static final Column BOAT_TYPE_PATHS_PATH_COL =
+      Column.builder()
+          .name("bt_path")
+          .dataType(DataType.STRING)
+          .table(BOAT_TYPE_PATHS_TABLE)
+          .build();
   public static final Column BOAT_PARTS_ID_COL =
       Column.builder().name("bp_id").dataType(DataType.INT64).table(BOAT_PARTS_TABLE).build();
   public static final Column BOAT_PARTS_NAME_COL =
@@ -205,4 +226,32 @@ public final class NauticalUnderlayUtils {
       ColumnValue.builder().stringVal("anchor").build();
   public static final ColumnValue BOAT_PARTS_REQUIRES_ELECTRICITY_COL_TRUE_VALUE =
       ColumnValue.builder().stringVal("true").build();
+
+  public static final Hierarchy BOAT_TYPE_HIERARCHY =
+      Hierarchy.builder()
+          .descendantsTable(
+              Hierarchy.DescendantsTable.builder()
+                  .ancestor(BOAT_TYPE_DESCENDANTS_ANCESTOR_COL)
+                  .descendant(BOAT_TYPE_DESCENDANTS_DESCENDANT_COL)
+                  .build())
+          .childrenTable(
+              Hierarchy.ChildrenTable.builder()
+                  .parent(BOAT_TYPE_CHILDREN_PARENT_COL)
+                  .child(BOAT_TYPE_CHILDREN_CHILD_COL)
+                  .tableFilter(
+                      TableFilter.builder()
+                          .binaryColumnFilter(
+                              BinaryColumnFilter.builder()
+                                  .column(BOAT_TYPE_CHILDREN_IS_EXPIRED_COL)
+                                  .operator(BinaryColumnFilterOperator.EQUALS)
+                                  .value(ColumnValue.builder().stringVal("false").build())
+                                  .build())
+                          .build())
+                  .build())
+          .pathsTable(
+              Hierarchy.PathsTable.builder()
+                  .node(BOAT_TYPE_PATHS_NODE_COL)
+                  .path(BOAT_TYPE_PATHS_PATH_COL)
+                  .build())
+          .build();
 }

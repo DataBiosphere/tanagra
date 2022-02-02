@@ -15,8 +15,10 @@ public abstract class Attribute {
 
   public abstract Entity entity();
 
+  public abstract boolean isGenerated();
+
   public static Builder builder() {
-    return new AutoValue_Attribute.Builder();
+    return new AutoValue_Attribute.Builder().isGenerated(false);
   }
 
   /** A builder for {@link Attribute}. */
@@ -30,8 +32,15 @@ public abstract class Attribute {
 
     public abstract Builder entity(Entity entity);
 
+    public abstract Builder isGenerated(boolean isGenerated);
+
+    public abstract boolean isGenerated();
+
     public Attribute build() {
       NameUtils.checkName(name(), "Attribute name");
+      if (!isGenerated()) {
+        NameUtils.checkNameForReservedPrefix(name(), "Attribute name");
+      }
       return autoBuild();
     }
 

@@ -130,6 +130,18 @@ datasets:
             dataType: INT64
           - name: descendant
             dataType: INT64
+      - name: concept_ancestor_descendant_1
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: concept_node_path_1
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
 entityMappings:
   - entity: person
     primaryKey:
@@ -444,3 +456,12 @@ hierarchies:
             column: relationship_id
           operator: EQUALS
           stringVal: Subsumes
+    pathsTable:
+      node:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: node
+      path:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: path

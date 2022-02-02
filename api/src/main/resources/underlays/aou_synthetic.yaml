@@ -241,12 +241,18 @@ datasets:
             dataType: INT64
           - name: descendant
             dataType: INT64
-      - name: concept_ancestor_descendant_1
+      - name: concept_ancestor_descendant_2
         columns:
           - name: ancestor
             dataType: INT64
           - name: descendant
             dataType: INT64
+      - name: concept_node_path_1
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
 entityMappings:
   - entity: person
     primaryKey:
@@ -1118,11 +1124,11 @@ hierarchies:
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
@@ -1141,17 +1147,26 @@ hierarchies:
             column: relationship_id
           operator: EQUALS
           stringVal: Subsumes
+    pathsTable:
+      node:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: node
+      path:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: path
   - attribute:
       entity: procedure
       attribute: concept_id
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
@@ -1170,17 +1185,26 @@ hierarchies:
             column: relationship_id
           operator: EQUALS
           stringVal: Subsumes
+    pathsTable:
+      node:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: node
+      path:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: path
   - attribute:
       entity: ingredient
       attribute: concept_id
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
@@ -1199,17 +1223,26 @@ hierarchies:
             column: relationship_id
           operator: EQUALS
           stringVal: Subsumes
+    pathsTable:
+      node:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: node
+      path:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: path
   - attribute:
       entity: measurement
       attribute: concept_id
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_1
+        table: concept_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
@@ -1228,6 +1261,15 @@ hierarchies:
             column: relationship_id
           operator: EQUALS
           stringVal: Subsumes
+    pathsTable:
+      node:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: node
+      path:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: path
   - attribute:
       entity: condition_occurrence
       attribute: condition_concept_id
@@ -1257,3 +1299,12 @@ hierarchies:
             column: relationship_id
           operator: EQUALS
           stringVal: Subsumes
+    pathsTable:
+      node:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: node
+      path:
+        dataset: omop_indexes
+        table: concept_node_path_1
+        column: path

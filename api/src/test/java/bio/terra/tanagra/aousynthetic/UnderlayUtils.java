@@ -34,6 +34,7 @@ public final class UnderlayUtils {
           "vocabulary_name",
           "standard_concept",
           "concept_code");
+  public static final String CONDITION_HIERARCHY_PATH_ATTRIBUTE = "t_path_concept_id";
 
   public static final String PROCEDURE_ENTITY = "procedure";
   public static final List<String> ALL_PROCEDURE_ATTRIBUTES =
@@ -44,6 +45,7 @@ public final class UnderlayUtils {
           "vocabulary_name",
           "standard_concept",
           "concept_code");
+  public static final String PROCEDURE_HIERARCHY_PATH_ATTRIBUTE = "t_path_concept_id";
 
   public static final String INGREDIENT_ENTITY = "ingredient";
   public static final List<String> ALL_INGREDIENT_ATTRIBUTES =
@@ -54,6 +56,7 @@ public final class UnderlayUtils {
           "vocabulary_name",
           "standard_concept",
           "concept_code");
+  public static final String INGREDIENT_HIERARCHY_PATH_ATTRIBUTE = "t_path_concept_id";
 
   public static final String BRAND_ENTITY = "brand";
   public static final List<String> ALL_BRAND_ATTRIBUTES =
@@ -68,6 +71,7 @@ public final class UnderlayUtils {
           "vocabulary_name",
           "standard_concept",
           "concept_code");
+  public static final String MEASUREMENT_HIERARCHY_PATH_ATTRIBUTE = "t_path_concept_id";
 
   public static final String VISIT_ENTITY = "visit";
   public static final List<String> ALL_VISIT_ATTRIBUTES =

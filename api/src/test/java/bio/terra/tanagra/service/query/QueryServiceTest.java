@@ -1,11 +1,14 @@
 package bio.terra.tanagra.service.query;
 
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ELECTRIC_ANCHOR_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ENGINE_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_T_PATH_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_RATING;
@@ -89,6 +92,21 @@ public class QueryServiceTest extends BaseSpringUnitTest {
                         BOAT_ELECTRIC_ANCHOR, Variable.create("boatelectricanchors")))
                 .selectedAttributes(
                     ImmutableList.of(BOAT_ELECTRIC_ANCHOR_ID, BOAT_ELECTRIC_ANCHOR_NAME))
+                .filter(Filter.NullFilter.INSTANCE)
+                .build()));
+  }
+
+  @Test
+  void generateSqlHierarchyPath() {
+    assertEquals(
+        "SELECT boat.bt_id AS type_id, "
+            + "(SELECT boat_types_paths.bt_path FROM `my-project-id.nautical`.boat_types_paths WHERE boat_types_paths.bt_node = boat.bt_id) AS t_path_type_id "
+            + "FROM `my-project-id.nautical`.boats AS boat "
+            + "WHERE TRUE",
+        queryService.generateSql(
+            EntityDataset.builder()
+                .primaryEntity(EntityVariable.create(BOAT, Variable.create("boat")))
+                .selectedAttributes(ImmutableList.of(BOAT_TYPE_ID, BOAT_T_PATH_TYPE_ID))
                 .filter(Filter.NullFilter.INSTANCE)
                 .build()));
   }

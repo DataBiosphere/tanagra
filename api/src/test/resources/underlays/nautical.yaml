@@ -118,6 +118,12 @@ datasets:
             dataType: INT64
           - name: btc_is_expired
             dataType: STRING
+      - name: boat_types_paths
+        columns:
+          - name: bt_node
+            dataType: INT64
+          - name: bt_path
+            dataType: STRING
       - name: boat_parts
         columns:
           - name: bp_id
@@ -384,6 +390,15 @@ hierarchies:
             column: btc_is_expired
           operator: EQUALS
           stringVal: false
+    pathsTable:
+      node:
+        dataset: nautical
+        table: boat_types_paths
+        column: bt_node
+      path:
+        dataset: nautical
+        table: boat_types_paths
+        column: bt_path
 entityFiltersSchemas:
   - entity: sailors
     attributes:
