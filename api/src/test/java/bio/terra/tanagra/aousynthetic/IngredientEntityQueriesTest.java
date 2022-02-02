@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_INGREDIENT_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.INGREDIENT_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.INGREDIENT_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,6 +18,7 @@ import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -152,5 +154,36 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/ingredient-entities-children-of-an-ingredient.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for getting the hierarchy path for a single ingredient entity instance")
+  void generateSqlForHierarchyPathOfAnIngredientEntity() throws IOException {
+    // filter for "ingredient" entity instances that have concept_id=1784444
+    // i.e. the ingredient "Ivermectin"
+    ApiFilter ivermectin =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("ingredient_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(1_784_444L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            INGREDIENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("ingredient_alias")
+                        .selectedAttributes(ImmutableList.of(INGREDIENT_HIERARCHY_PATH_ATTRIBUTE))
+                        .filter(ivermectin)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/hierarchy-path-of-an-ingredient.sql");
   }
 }

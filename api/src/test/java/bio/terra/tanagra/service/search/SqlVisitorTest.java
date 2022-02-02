@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.search;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_T_PATH_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_DAY;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
@@ -37,6 +38,8 @@ public class SqlVisitorTest {
   private static final Variable B_VAR = Variable.create("b");
   private static final AttributeVariable B_NAME = AttributeVariable.create(BOAT_NAME, B_VAR);
   private static final AttributeVariable B_TYPE = AttributeVariable.create(BOAT_TYPE_NAME, B_VAR);
+  private static final AttributeVariable B_T_PATH_TYPE =
+      AttributeVariable.create(BOAT_T_PATH_TYPE_ID, B_VAR);
 
   @Test
   void query() {
@@ -93,6 +96,18 @@ public class SqlVisitorTest {
         Selection.PrimaryKey.builder()
             .entityVariable(S_SAILOR)
             .name("primary_id")
+            .build()
+            .accept(visitor));
+  }
+
+  @Test
+  void selectionExpressionHierarchyPath() {
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    assertEquals(
+        "(SELECT boat_types_paths.bt_path FROM `my-project-id.nautical`.boat_types_paths WHERE boat_types_paths.bt_node = b.bt_id) AS path",
+        Selection.SelectExpression.builder()
+            .expression(Expression.AttributeExpression.create(B_T_PATH_TYPE))
+            .name("path")
             .build()
             .accept(visitor));
   }

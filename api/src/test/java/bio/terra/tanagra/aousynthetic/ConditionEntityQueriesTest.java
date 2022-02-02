@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_CONDITION_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,6 +17,7 @@ import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -108,5 +110,36 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/condition-entities-children-of-a-condition.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for getting the hierarchy path for a single condition entity instance")
+  void generateSqlForHierarchyPathOfAConditionEntity() throws IOException {
+    // filter for "condition" entity instances that have concept_id=201620
+    // i.e. the condition "Kidney stone"
+    ApiFilter kidneyStone =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("condition_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(201_620L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            CONDITION_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("condition_alias")
+                        .selectedAttributes(ImmutableList.of(CONDITION_HIERARCHY_PATH_ATTRIBUTE))
+                        .filter(kidneyStone)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/hierarchy-path-of-a-condition.sql");
   }
 }

@@ -9,6 +9,7 @@ import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.underlay.ArrayColumnFilter;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
+import bio.terra.tanagra.service.underlay.AttributeMapping.HierarchyPathColumn;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
 import bio.terra.tanagra.service.underlay.AttributeMapping.SimpleColumn;
 import bio.terra.tanagra.service.underlay.BinaryColumnFilter;
@@ -346,21 +347,12 @@ public class SqlVisitor {
       }
 
       // %s AND %s AND (%s OR %s) ...
-      StringBuilder joinedWhereClauses = new StringBuilder();
-      Streams.concat(
+      return Streams.concat(
               arrayColumnFilter.binaryColumnFilters().stream()
                   .map(f -> resolveBinaryColumnFilter(f)),
               arrayColumnFilter.arrayColumnFilters().stream()
                   .map(f -> "(" + resolveArrayColumnFilter(f) + ")"))
-          .forEach(
-              whereClause ->
-                  joinedWhereClauses.append(
-                      (joinedWhereClauses.length() > 0
-                              ? (" " + joinOperatorInWhereClause + " ")
-                              : "")
-                          + whereClause));
-
-      return joinedWhereClauses.toString();
+          .collect(Collectors.joining(" " + joinOperatorInWhereClause + " "));
     }
 
     /** Resolve a {@link BinaryColumnFilter} into a SQL string WHERE clause. */
@@ -452,6 +444,29 @@ public class SqlVisitor {
                 .put("lookup_key", lookupColumn.lookupTableKey().name())
                 .put("var", attributeVariable.variable().name())
                 .put("primary_key", lookupColumn.primaryTableLookupKey().name())
+                .build();
+        return StringSubstitutor.replace(template, params);
+      }
+
+      @Override
+      public String visitHierarchyPathColumn(HierarchyPathColumn hierarchyPathColumn) {
+        String template =
+            "(SELECT ${hierarchy_path_table_name}.${path_column} "
+                + "FROM ${hierarchy_path_table} "
+                + "WHERE ${hierarchy_path_table_name}.${node_column} = ${hierarchy_attribute_value})";
+        Map<String, String> params =
+            ImmutableMap.<String, String>builder()
+                .put(
+                    "hierarchy_path_table_name",
+                    hierarchyPathColumn.hierarchy().pathsTable().table().name())
+                .put(
+                    "hierarchy_path_table",
+                    resolveTable(hierarchyPathColumn.hierarchy().pathsTable().table()))
+                .put("path_column", hierarchyPathColumn.hierarchy().pathsTable().path().name())
+                .put("node_column", hierarchyPathColumn.hierarchy().pathsTable().node().name())
+                .put(
+                    "hierarchy_attribute_value",
+                    hierarchyPathColumn.hierarchyAttributeMapping().accept(this))
                 .build();
         return StringSubstitutor.replace(template, params);
       }

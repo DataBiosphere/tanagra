@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_PROCEDURE_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PROCEDURE_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PROCEDURE_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,6 +17,7 @@ import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -108,5 +110,36 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/procedure-entities-children-of-a-procedure.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for getting the hierarchy path for a single procedure entity instance")
+  void generateSqlForHierarchyPathOfAProcedureEntity() throws IOException {
+    // filter for "procedure" entity instances that have concept_id=4198190
+    // i.e. the procedure "Appendectomy"
+    ApiFilter appendectomy =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("procedure_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(4_198_190L)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PROCEDURE_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("procedure_alias")
+                        .selectedAttributes(ImmutableList.of(PROCEDURE_HIERARCHY_PATH_ATTRIBUTE))
+                        .filter(appendectomy)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/hierarchy-path-of-a-procedure.sql");
   }
 }

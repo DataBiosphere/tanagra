@@ -59,7 +59,7 @@ public final class UnderlayConversion {
     Map<Relationship, Object> relationshipMappings =
         buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
     Map<Attribute, Hierarchy> hierarchies =
-        buildHierarchies(underlayProto, entities, attributes, columns);
+        buildHierarchies(underlayProto, entities, attributes, columns, attributeMappings);
     Map<Entity, EntityFiltersSchema> entityFiltersSchemas =
         buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
 
@@ -372,13 +372,15 @@ public final class UnderlayConversion {
       bio.terra.tanagra.proto.underlay.Underlay underlayProto,
       Map<String, Entity> entities,
       com.google.common.collect.Table<Entity, String, Attribute> attributes,
-      Map<ColumnId, Column> columns) {
+      Map<ColumnId, Column> columns,
+      Map<Attribute, AttributeMapping> attributeMappings) {
     Map<Attribute, Hierarchy> hierarchies = new HashMap<>();
     for (bio.terra.tanagra.proto.underlay.Hierarchy hierarchyProto :
         underlayProto.getHierarchiesList()) {
       Attribute attribute =
           retrieve(
               hierarchyProto.getAttribute(), entities, attributes, "attribute", hierarchyProto);
+      AttributeMapping attributeMapping = attributeMappings.get(attribute);
 
       Column ancestor =
           retrieve(
@@ -406,15 +408,47 @@ public final class UnderlayConversion {
             convert(hierarchyProto.getChildrenTable().getTableFilter(), columns));
       }
 
+      Column node =
+          retrieve(hierarchyProto.getPathsTable().getNode(), columns, "node", hierarchyProto);
+      Column path =
+          retrieve(hierarchyProto.getPathsTable().getPath(), columns, "path", hierarchyProto);
+      Hierarchy.PathsTable.Builder pathsTable =
+          Hierarchy.PathsTable.builder().node(node).path(path);
+
       Hierarchy hierarchy =
           Hierarchy.builder()
               .descendantsTable(descendantsTable.build())
               .childrenTable(childrenTable.build())
+              .pathsTable(pathsTable.build())
               .build();
+      // add a new attribute+mapping to the entity that contains the hierarchy path
+      Attribute hierarchyPathAttribute =
+          Attribute.builder()
+              .name("t_path_" + attribute.name())
+              .entity(attribute.entity())
+              .dataType(DataType.STRING)
+              .isGenerated(true)
+              .build();
+      AttributeMapping hierarchyPathAttributeMapping =
+          AttributeMapping.HierarchyPathColumn.create(
+              hierarchyPathAttribute, hierarchy, attributeMapping);
 
       if (hierarchies.put(attribute, hierarchy) != null) {
         throw new IllegalArgumentException(
             String.format("Duplicate attribute hierarchies not allowed: %s", attribute));
+      }
+      if (attributes.put(
+              hierarchyPathAttribute.entity(),
+              hierarchyPathAttribute.name(),
+              hierarchyPathAttribute)
+          != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate path attributes not allowed: %s", hierarchyPathAttribute));
+      }
+      if (attributeMappings.put(hierarchyPathAttribute, hierarchyPathAttributeMapping) != null) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Duplicate path attribute mappings not allowed: %s", hierarchyPathAttribute));
       }
     }
     return hierarchies;

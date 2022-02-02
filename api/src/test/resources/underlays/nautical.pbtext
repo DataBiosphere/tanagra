@@ -211,6 +211,17 @@ datasets: {
     }
   }
   tables: {
+    name: "boat_types_paths"
+    columns: {
+      name: "bt_node"
+      data_type: INT64
+    }
+    columns: {
+      name: "bt_path"
+      data_type: STRING
+    }
+  }
+  tables: {
     name: "boat_parts"
     columns: {
       name: "bp_id"
@@ -637,6 +648,18 @@ hierarchies: {
         operator: EQUALS
         string_val: "false"
       }
+    }
+  }
+  paths_table: {
+    node: {
+      dataset: "nautical"
+      table: "boat_types_paths"
+      column: "bt_node"
+    }
+    path: {
+      dataset: "nautical"
+      table: "boat_types_paths"
+      column: "bt_path"
     }
   }
 }
