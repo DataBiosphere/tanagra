@@ -6,8 +6,10 @@ import com.google.api.services.bigquery.model.TableSchema;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
@@ -27,8 +29,8 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 
 /**
  * A batch Apache Beam pipeline for building a table that contains a path (i.e. a list of ancestors
- * in order) for each node in a hierarchy. Example row: (node,path)=(123,"456.789"), where 456
- * is the parent of 123 and 789 is the grandparent of 123.
+ * in order) for each node in a hierarchy. Example row: (node,path)=(123,"456.789"), where 456 is
+ * the parent of 123 and 789 is the grandparent of 123.
  */
 public final class BuildPathsForHierarchy {
   private BuildPathsForHierarchy() {}
@@ -106,8 +108,10 @@ public final class BuildPathsForHierarchy {
                     .setName(options.getOutputNodeColumn())
                     .setType("INTEGER")
                     .setMode("REQUIRED"),
-                // TODO: make the path column an INTEGER/REPEATED field instead of a string so we
-                // can handle other node types
+                // TODO: consider how to handle other node types besides integer. one possibility is
+                // to serialize a list into a string. another possibility is to make the path column
+                // an INTEGER/REPEATED field instead of a string, although that may only work for BQ
+                // and not other backend.
                 new TableFieldSchema()
                     .setName(options.getOutputPathColumn())
                     .setType("STRING")
@@ -255,7 +259,7 @@ public final class BuildPathsForHierarchy {
     //    (c1,["c1"],[])
 
     // swap the key of all pairs from the next node in the path (which should all be root nodes at
-    // this point), to the first node in the path
+    // this point), to the first node in the path. also trim the first node from the path.
     PCollection<KV<Long, String>> nodePathKVs =
         nextNodePathKVs.apply(
             ParDo.of(
@@ -269,23 +273,12 @@ public final class BuildPathsForHierarchy {
                     // strip out the first node in the path, and make it the key
                     // e.g. (a3,"a1.a2.a3") => (a1,"a2.a3")
                     //      (c1,"c1") => (c1,"")
-                    int indexOfFirstPeriod = path.indexOf(".");
-                    String firstNodeInPath;
-                    String pathWithoutFirstNode;
-                    if (indexOfFirstPeriod > 0) {
-                      firstNodeInPath = path.substring(0, indexOfFirstPeriod);
-                      pathWithoutFirstNode = path.substring(indexOfFirstPeriod + 1);
-                    } else {
-                      firstNodeInPath = path;
-                      pathWithoutFirstNode = "";
-                    }
+                    List<String> nodesInPath = Arrays.asList(path.split("\\."));
+                    String firstNodeInPath = nodesInPath.remove(0);
+                    String pathWithoutFirstNode =
+                        nodesInPath.stream().collect(Collectors.joining("."));
 
-                    Long firstNode;
-                    try {
-                      firstNode = Long.valueOf(firstNodeInPath);
-                    } catch (NumberFormatException nfEx) {
-                      firstNode = 0L;
-                    }
+                    Long firstNode = Long.valueOf(firstNodeInPath);
 
                     context.output(KV.of(firstNode, pathWithoutFirstNode));
                   }
