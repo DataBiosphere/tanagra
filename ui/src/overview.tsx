@@ -13,12 +13,20 @@ import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { ConceptCriteria } from "criteria/concept";
+import { deleteCriteria, insertCriteria, insertGroup } from "cohortsSlice";
+import { useAppDispatch } from "hooks";
 import React, { useCallback } from "react";
 import { Link as RouterLink, useHistory, useParams } from "react-router-dom";
 import ActionBar from "./actionBar";
-import { Cohort, Criteria, Group, GroupKind } from "./cohort";
-import { useCohortUpdater } from "./cohortUpdaterContext";
+import {
+  Cohort,
+  createCriteria,
+  Criteria,
+  getCriteriaPlugin,
+  getCriteriaTitles,
+  Group,
+  GroupKind,
+} from "./cohort";
 import { useMenu } from "./menu";
 
 function editRoute(
@@ -41,14 +49,16 @@ export default function Overview(props: OverviewProps) {
         <Grid item xs={1}>
           <Typography variant="h4">Included Participants</Typography>
           <Stack spacing={0}>
-            {props.cohort.listGroups(GroupKind.Included).map((group) => (
-              <Box key={group.id}>
-                <ParticipantsGroup group={group} />
-                <Divider className="and-divider">
-                  <Chip label="AND" />
-                </Divider>
-              </Box>
-            ))}
+            {props.cohort.groups
+              .filter((g) => g.kind === GroupKind.Included)
+              .map((group) => (
+                <Box key={group.id}>
+                  <ParticipantsGroup group={group} />
+                  <Divider className="and-divider">
+                    <Chip label="AND" />
+                  </Divider>
+                </Box>
+              ))}
             <Box key="">
               <AddCriteriaButton group={GroupKind.Included} />
             </Box>
@@ -64,39 +74,31 @@ export default function Overview(props: OverviewProps) {
 function AddCriteriaButton(props: { group: string | GroupKind }) {
   const { cohortId } = useParams<{ cohortId: string }>();
   const history = useHistory();
-  const updater = useCohortUpdater();
+  const dispatch = useAppDispatch();
 
   const onAddCriteria = useCallback(
-    (create: () => Criteria) => {
+    (criteria: Criteria) => {
       let groupId = "";
-      const criteria = create();
-      updater.update((cohort: Cohort) => {
-        if (typeof props.group === "string") {
-          cohort.addCriteria(props.group, criteria);
-          groupId = props.group;
-        } else {
-          groupId = cohort.addGroupAndCriteria(props.group, criteria);
-        }
-      });
+      if (typeof props.group === "string") {
+        groupId = props.group;
+        dispatch(insertCriteria({ cohortId, groupId, criteria }));
+      } else {
+        const action = dispatch(insertGroup(cohortId, props.group, criteria));
+        groupId = action.payload.group.id;
+      }
       history.push(editRoute(cohortId, groupId, criteria.id));
     },
-    [updater]
+    [props.group]
   );
 
-  const items = [
-    {
-      title: "Conditions",
-      create: () =>
-        new ConceptCriteria("Contains Condition Code", "condition_occurrence"),
-    },
-  ];
+  const items = getCriteriaTitles();
 
   const [menu, show] = useMenu({
     children: items.map((item) => (
       <MenuItem
         key={item.title}
         onClick={() => {
-          onAddCriteria(item.create);
+          onAddCriteria(createCriteria(item.type));
         }}
       >
         {item.title}
@@ -134,7 +136,7 @@ function ParticipantsGroup(props: { group: Group }) {
 
 function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
   const { cohortId } = useParams<{ cohortId: string }>();
-  const updater = useCohortUpdater();
+  const dispatch = useAppDispatch();
 
   const [menu, show] = useMenu({
     children: [
@@ -148,9 +150,13 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
       <MenuItem
         key="2"
         onClick={() => {
-          updater.update((cohort: Cohort) => {
-            cohort.deleteCriteria(props.group.id, props.criteria.id);
-          });
+          dispatch(
+            deleteCriteria({
+              cohortId,
+              groupId: props.group.id,
+              criteriaId: props.criteria.id,
+            })
+          );
         }}
       >
         Delete Criteria
@@ -178,7 +184,9 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
             <Divider orientation="vertical" variant="middle" flexItem />
             <Typography variant="body1">{props.criteria.count}</Typography>
           </AccordionSummary>
-          <AccordionDetails>{props.criteria.renderDetails()}</AccordionDetails>
+          <AccordionDetails>
+            {getCriteriaPlugin(props.criteria).renderDetails()}
+          </AccordionDetails>
         </Accordion>
       </Grid>
     </Grid>

@@ -15,44 +15,44 @@ import Paper from "@mui/material/Paper";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { insertCohort } from "cohortsSlice";
+import { useAppDispatch, useAppSelector } from "hooks";
 import { ChangeEvent, ReactNode, useCallback, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "./actionBar";
-import { Cohort } from "./cohort";
 import { useSqlDialog } from "./sqlDialog";
-import { UserData } from "./userData";
 
 type DatasetProps = {
   underlayNames: string[];
-  userData: UserData;
-  update: (callback: (userData: UserData) => void) => void;
+  entityName: string;
 };
 
 export function Datasets(props: DatasetProps) {
+  const dispatch = useAppDispatch();
+  const cohorts = useAppSelector((state) => state.cohorts);
+
   const [selected, setSelected] = useState<string[]>([]);
   const [sqlDialog, showSqlDialog] = useSqlDialog({
-    cohort: props.userData.findCohort(selected[0]),
+    cohort: cohorts.find((c) => c.id === selected[0]),
   });
 
   const [dialog, show] = useNewCohortDialog({
     underlayNames: props.underlayNames,
     callback: (name: string, underlayName: string) => {
-      props.update((userData: UserData) => {
-        userData.cohorts.push(
-          new Cohort(
-            name,
-            underlayName,
-            userData.entityName,
-            // TODO(tjennison): Populate from an actual source.
-            [
-              "person_id",
-              "condition_occurrence_id",
-              "condition_concept_id",
-              "condition_name",
-            ]
-          )
-        );
-      });
+      dispatch(
+        insertCohort(
+          name,
+          underlayName,
+          props.entityName,
+          // TODO(tjennison): Populate from an actual source.
+          [
+            "person_id",
+            "condition_occurrence_id",
+            "condition_concept_id",
+            "condition_name",
+          ]
+        )
+      );
     },
   });
 
@@ -74,7 +74,7 @@ export function Datasets(props: DatasetProps) {
         <Grid item xs={1}>
           <Typography variant="h4">Cohorts</Typography>
           <Paper>
-            {props.userData.cohorts.map((cohort) => (
+            {cohorts.map((cohort) => (
               <Box
                 key={cohort.id}
                 sx={{

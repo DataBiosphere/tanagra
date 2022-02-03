@@ -4,9 +4,11 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { EntityInstancesApiContext } from "apiContext";
-import { Cohort, Criteria, Group } from "cohort";
-import { useCohortUpdater } from "cohortUpdaterContext";
+import { Cohort, CriteriaPlugin, Group, registerCriteriaPlugin } from "cohort";
+import { updateCriteriaData } from "cohortsSlice";
 import { useAsyncWithApi } from "errors";
+import { useAppDispatch } from "hooks";
+import produce from "immer";
 import Loading from "loading";
 import React, { useCallback, useContext } from "react";
 import * as tanagra from "tanagra-api";
@@ -23,32 +25,46 @@ type Selection = {
   name: string;
 };
 
-export class ConceptCriteria extends Criteria {
-  constructor(name: string, public filter: string) {
-    super(name);
+type Data = {
+  filter: string;
+  selected: Selection[];
+};
+
+@registerCriteriaPlugin("condition", "Condition", "Contains Conditions Codes")
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class _ implements CriteriaPlugin<Data> {
+  public data: Data;
+
+  constructor(public id: string, data: unknown) {
+    this.data = data
+      ? (data as Data)
+      : {
+          filter: "condition_occurrence",
+          selected: [],
+        };
   }
 
-  renderEdit(cohort: Cohort, group: Group): JSX.Element {
+  renderEdit(cohort: Cohort, group: Group) {
     return (
       <ConceptEdit
         cohort={cohort}
         group={group}
-        criteria={this}
-        filter={this.filter}
+        criteriaId={this.id}
+        data={this.data}
       />
     );
   }
 
-  renderDetails(): JSX.Element {
-    return <ConceptDetails criteria={this} />;
+  renderDetails() {
+    return <ConceptDetails data={this.data} />;
   }
 
-  generateFilter(): tanagra.Filter | null {
-    if (this.selected.length === 0) {
+  generateFilter() {
+    if (this.data.selected.length === 0) {
       return null;
     }
 
-    const operands = this.selected.map(({ id }) => ({
+    const operands = this.data.selected.map(({ id }) => ({
       binaryFilter: {
         attributeVariable: {
           variable: "co",
@@ -68,8 +84,6 @@ export class ConceptCriteria extends Criteria {
       },
     };
   }
-
-  selected = new Array<Selection>();
 }
 
 const fetchedColumns: TreeGridColumn[] = [
@@ -89,8 +103,8 @@ const allColumns: TreeGridColumn[] = [
 type ConceptEditProps = {
   cohort: Cohort;
   group: Group;
-  criteria: ConceptCriteria;
-  filter: string;
+  criteriaId: string;
+  data: Data;
 };
 
 function ConceptEdit(props: ConceptEditProps) {
@@ -113,7 +127,7 @@ function ConceptEdit(props: ConceptEditProps) {
                   relationshipFilter: {
                     outerVariable: "c",
                     newVariable: "cc",
-                    newEntity: props.filter,
+                    newEntity: props.data.filter,
                   },
                 },
               },
@@ -163,7 +177,7 @@ function ConceptEdit(props: ConceptEditProps) {
     )
   );
 
-  const updater = useCohortUpdater();
+  const dispatch = useAppDispatch();
 
   return (
     <Loading status={conceptsState}>
@@ -171,10 +185,8 @@ function ConceptEdit(props: ConceptEditProps) {
         <TreeGrid
           columns={allColumns}
           data={conceptsState.data}
-          prefixElements={(id: TreeGridId, data: TreeGridRowData) => {
-            const index = props.criteria.selected.findIndex(
-              (row) => row.id === id
-            );
+          prefixElements={(id: TreeGridId, rowData: TreeGridRowData) => {
+            const index = props.data.selected.findIndex((row) => row.id === id);
 
             return (
               <Checkbox
@@ -182,20 +194,23 @@ function ConceptEdit(props: ConceptEditProps) {
                 checked={index > -1}
                 inputProps={{ "aria-label": "controlled" }}
                 onChange={() => {
-                  updater.updateCriteria(
-                    props.group.id,
-                    props.criteria.id,
-                    (criteria: ConceptCriteria) => {
-                      if (index > -1) {
-                        criteria.selected.splice(index, 1);
-                      } else {
-                        const name = data["concept_name"];
-                        criteria.selected.push({
-                          id: id as number,
-                          name: !!name ? String(name) : "",
-                        });
-                      }
-                    }
+                  dispatch(
+                    updateCriteriaData({
+                      cohortId: props.cohort.id,
+                      groupId: props.group.id,
+                      criteriaId: props.criteriaId,
+                      data: produce(props.data, (data) => {
+                        if (index > -1) {
+                          data.selected.splice(index, 1);
+                        } else {
+                          const name = rowData["concept_name"];
+                          data.selected.push({
+                            id: id as number,
+                            name: !!name ? String(name) : "",
+                          });
+                        }
+                      }),
+                    })
                   );
                 }}
               />
@@ -212,16 +227,16 @@ function isValid<Type>(arg: Type) {
 }
 
 type ConceptDetailsProps = {
-  criteria: ConceptCriteria;
+  data: Data;
 };
 
 function ConceptDetails(props: ConceptDetailsProps) {
   return (
     <>
-      {props.criteria.selected.length === 0 ? (
+      {props.data.selected.length === 0 ? (
         <Typography variant="body1">None selected</Typography>
       ) : (
-        props.criteria.selected.map(({ id, name }) => (
+        props.data.selected.map(({ id, name }) => (
           <Stack direction="row" alignItems="baseline" key={id}>
             <Typography variant="body1">{id}</Typography>&nbsp;
             <Typography variant="body2">{name}</Typography>

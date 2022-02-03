@@ -6,7 +6,7 @@ import { EntityInstancesApiContext } from "apiContext";
 import Loading from "loading";
 import { ReactElement, useCallback, useContext, useState } from "react";
 import { useAsync } from "react-async";
-import { Cohort } from "./cohort";
+import { Cohort, generateQueryParameters } from "./cohort";
 
 type SqlDialogProps = {
   cohort?: Cohort;
@@ -25,7 +25,7 @@ export function useSqlDialog(
   const sqlState = useAsync<string>({
     promiseFn: useCallback(() => {
       if (open && props.cohort) {
-        const params = props.cohort.generateQueryParameters();
+        const params = generateQueryParameters(props.cohort);
         if (params) {
           return api
             .generateDatasetSqlQuery({

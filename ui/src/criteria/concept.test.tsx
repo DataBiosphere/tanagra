@@ -1,9 +1,11 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EntityInstancesApiContext } from "apiContext";
-import { Cohort, Group, GroupKind } from "cohort";
-import { CohortUpdaterProvider } from "cohortUpdaterContext";
-import { ConceptCriteria } from "criteria/concept";
+import { createCriteria, getCriteriaPlugin, GroupKind } from "cohort";
+import { insertCohort, insertGroup } from "cohortsSlice";
+import "criteria/concept";
+import { Provider } from "react-redux";
+import { store } from "store";
 import * as tanagra from "./tanagra-api";
 
 test.each([
@@ -79,9 +81,9 @@ test("selection", async () => {
   const checkboxes = screen.getAllByRole("checkbox");
   expect(checkboxes.length).toBe(2);
 
-  expect(getCriteria().selected.length).toBe(0);
+  expect(getCriteria().data.selected.length).toBe(0);
 
-  const getSelected = () => getCriteria().selected.map((row) => row.id);
+  const getSelected = () => getCriteria().data.selected.map((row) => row.id);
 
   // Use act explicitly because DataGrid has a focus update that occurs after
   // the event (i.e. outside of act) which causes a warning.
@@ -106,21 +108,18 @@ test("selection", async () => {
 async function renderCriteria(
   instances: Array<{ [key: string]: tanagra.AttributeValue }>
 ) {
-  const criteria = new ConceptCriteria("test-criteria", "test-filter");
-  const group = new Group(GroupKind.Included, [criteria]);
-  let cohort = new Cohort(
-    "test-cohort",
-    "test-underlay",
-    "test-entity",
-    [],
-    [group]
+  const action = store.dispatch(
+    insertCohort("test-cohort", "test-underlay", "test-entity", [])
+  );
+  store.dispatch(
+    insertGroup(
+      action.payload.id,
+      GroupKind.Included,
+      createCriteria("condition")
+    )
   );
 
-  const getCohort = () => cohort;
-  const getCriteria = () => getCohort().groups[0].criteria[0];
-  const setCohort = (c: Cohort) => {
-    cohort = c;
-  };
+  const getCriteria = () => store.getState().cohorts[0].groups[0].criteria[0];
 
   const api = {
     async searchEntityInstances(): Promise<tanagra.SearchEntityInstancesResponse> {
@@ -133,11 +132,14 @@ async function renderCriteria(
   };
 
   const components = () => (
-    <CohortUpdaterProvider cohort={getCohort()} setCohort={setCohort}>
+    <Provider store={store}>
       <EntityInstancesApiContext.Provider value={api}>
-        {getCriteria().renderEdit(getCohort(), group)}
+        {getCriteriaPlugin(getCriteria()).renderEdit(
+          store.getState().cohorts[0],
+          store.getState().cohorts[0].groups[0]
+        )}
       </EntityInstancesApiContext.Provider>
-    </CohortUpdaterProvider>
+    </Provider>
   );
 
   const { rerender } = render(components());

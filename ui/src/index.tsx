@@ -1,15 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { store } from "store";
 import App from "./app";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App
-      underlayNames={["aou_synthetic", "synpuf"]}
-      entityName="condition_occurrence"
-    />
+    <Provider store={store}>
+      <App
+        underlayNames={["aou_synthetic", "synpuf"]}
+        entityName="condition_occurrence"
+      />
+    </Provider>
   </React.StrictMode>,
   document.getElementById("root")
 );
