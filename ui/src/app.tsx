@@ -1,4 +1,5 @@
 import { useAppSelector } from "hooks";
+import { enableMapSet } from "immer";
 import "plugins";
 import {
   HashRouter,
@@ -12,6 +13,8 @@ import "./app.css";
 import { Datasets } from "./datasets";
 import Edit from "./edit";
 import Overview from "./overview";
+
+enableMapSet();
 
 type AppProps = {
   underlayNames: string[];

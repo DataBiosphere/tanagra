@@ -32,9 +32,7 @@ export type TreeGridProps = {
   columns: TreeGridColumn[];
   data: TreeGridData;
   prefixElements?: (id: TreeGridId, data: TreeGridRowData) => ReactNode;
-  // The returned string is displayed as an error message for failures and
-  // ignored for successes.
-  loadChildren?: (id: TreeGridId) => Promise<string>;
+  loadChildren?: (id: TreeGridId) => Promise<void>;
 };
 
 export function TreeGrid(props: TreeGridProps) {
@@ -190,7 +188,8 @@ function renderChildren(
                 >
                   {i === 0 && (
                     <>
-                      {child.children?.length && (
+                      {(!!child.children?.length ||
+                        (props.loadChildren && !child.children)) && (
                         <IconButton
                           size="small"
                           title={childState?.errorMessage}
