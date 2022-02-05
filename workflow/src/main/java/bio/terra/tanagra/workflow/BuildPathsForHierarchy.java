@@ -6,6 +6,7 @@ import com.google.api.services.bigquery.model.TableSchema;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -16,8 +17,12 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.join.CoGbkResult;
+import org.apache.beam.sdk.transforms.join.CoGroupByKey;
+import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 /**
@@ -70,6 +75,12 @@ public final class BuildPathsForHierarchy {
     String getOutputPathColumn();
 
     void setOutputPathColumn(String pathColumn);
+
+    @Description("What to name the numChildren column on the output BigQuery table.")
+    @Default.String("numChildren")
+    String getOutputNumChildrenColumn();
+
+    void setOutputNumChildrenColumn(String numChildrenColumn);
   }
 
   public static void main(String[] args) throws IOException {
@@ -83,19 +94,31 @@ public final class BuildPathsForHierarchy {
     String allNodesQuery = Files.readString(Path.of(options.getAllNodesQuery()));
     String hierarchyQuery = Files.readString(Path.of(options.getHierarchyQuery()));
 
-    // read in the nodes and the parent-child relationships from BQ
+    // read in the nodes and the child-parent relationships from BQ
     PCollection<Long> allNodesPC = readAllNodesFromBQ(pipeline, allNodesQuery);
-    PCollection<KV<Long, Long>> parentChildRelationshipsPC =
-        readParentChildRelationshipsFromBQ(pipeline, hierarchyQuery);
+    PCollection<KV<Long, Long>> childParentRelationshipsPC =
+        readChildParentRelationshipsFromBQ(pipeline, hierarchyQuery);
 
     // compute a path to a root node for each node in the hierarchy
     PCollection<KV<Long, String>> nodePathKVsPC =
         PathUtils.computePaths(
-            allNodesPC, parentChildRelationshipsPC, options.getMaxHierarchyDepth());
+            allNodesPC, childParentRelationshipsPC, options.getMaxHierarchyDepth());
 
-    // write the node-path pairs to BQ
-    writeNodePathsToBQ(
-        nodePathKVsPC, options.getOutputBigQueryTable(), pathsForHierarchySchema(options));
+    // count the number of children for each node in the hierarchy
+    PCollection<KV<Long, Long>> nodeNumChildrenKVsPC =
+        PathUtils.countChildren(allNodesPC, childParentRelationshipsPC);
+
+    // prune orphan nodes from the hierarchy (i.e. set path=null for nodes with no parents or
+    // children)
+    PCollection<KV<Long, String>> nodePrunedPathKVsPC =
+        PathUtils.pruneOrphanPaths(nodePathKVsPC, nodeNumChildrenKVsPC);
+
+    // write the node-{path, numChildren} pairs to BQ
+    writeNodePathAndNumChildrenToBQ(
+        nodePrunedPathKVsPC,
+        nodeNumChildrenKVsPC,
+        options.getOutputBigQueryTable(),
+        pathsForHierarchySchema(options));
 
     pipeline.run().waitUntilFinish();
   }
@@ -116,20 +139,20 @@ public final class BuildPathsForHierarchy {
   }
 
   /**
-   * Read all the parent-child relationships from BQ and build a {@link PCollection} of {@link KV}
-   * pairs (parent, child).
+   * Read all the child-parent relationships from BQ and build a {@link PCollection} of {@link KV}
+   * pairs (child, parent).
    */
-  private static PCollection<KV<Long, Long>> readParentChildRelationshipsFromBQ(
+  private static PCollection<KV<Long, Long>> readChildParentRelationshipsFromBQ(
       Pipeline pipeline, String sqlQuery) {
-    PCollection<TableRow> parentChildBqRows =
+    PCollection<TableRow> childParentBqRows =
         pipeline.apply(
-            "read all (parent, child) rows",
+            "read all (child, parent) rows",
             BigQueryIO.readTableRows()
                 .fromQuery(sqlQuery)
                 .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
                 .usingStandardSql());
-    return parentChildBqRows.apply(
-        "build (parent, child) pcollection",
+    return childParentBqRows.apply(
+        "build (child, parent) pcollection",
         MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
             .via(
                 tableRow -> {
@@ -140,29 +163,53 @@ public final class BuildPathsForHierarchy {
   }
 
   /** Write the {@link KV} pairs (node, path) to BQ. */
-  private static void writeNodePathsToBQ(
-      PCollection<KV<Long, String>> nodePathKVs, String outputBQTable, TableSchema outputBQSchema) {
-    PCollection<TableRow> nodePathBQRows =
-        nodePathKVs.apply(
-            "build the BQ (node, path) row objects",
+  private static void writeNodePathAndNumChildrenToBQ(
+      PCollection<KV<Long, String>> nodePathKVs,
+      PCollection<KV<Long, Long>> nodeNumChildrenKVs,
+      String outputBQTable,
+      TableSchema outputBQSchema) {
+    // define the CoGroupByKey tags
+    final TupleTag<String> pathTag = new TupleTag<>();
+    final TupleTag<Long> numChildrenTag = new TupleTag<>();
+
+    // do a CoGroupByKey join of the current node-numChildren collection and the parent-child
+    // collection
+    PCollection<KV<Long, CoGbkResult>> pathNumChildrenJoin =
+        KeyedPCollectionTuple.of(pathTag, nodePathKVs)
+            .and(numChildrenTag, nodeNumChildrenKVs)
+            .apply(
+                "join node-path and node-numChildren collections for BQ row generation",
+                CoGroupByKey.create());
+
+    // run a ParDo for each row of the join result
+    PCollection<TableRow> nodePathAndNumChildrenBQRows =
+        pathNumChildrenJoin.apply(
+            "run ParDo for each row of the node-path and node-numChildren join result to build the BQ (node, path, numChildren) row objects",
             ParDo.of(
-                new DoFn<KV<Long, String>, TableRow>() {
+                new DoFn<KV<Long, CoGbkResult>, TableRow>() {
                   @ProcessElement
                   public void processElement(ProcessContext context) {
+                    KV<Long, CoGbkResult> element = context.element();
+                    Long node = element.getKey();
+                    Iterator<String> pathTagIter = element.getValue().getAll(pathTag).iterator();
+                    Iterator<Long> numChildrenTagIter =
+                        element.getValue().getAll(numChildrenTag).iterator();
+
+                    String path = pathTagIter.next();
+                    Long numChildren = numChildrenTagIter.next();
+
                     BuildPathsForHierarchyOptions contextOptions =
                         context.getPipelineOptions().as(BuildPathsForHierarchyOptions.class);
-                    KV<Long, String> kvPair = context.element();
-
                     context.output(
                         new TableRow()
-                            .set(contextOptions.getOutputNodeColumn(), kvPair.getKey())
-                            .set(
-                                contextOptions.getOutputPathColumn(),
-                                kvPair.getValue().isEmpty() ? null : kvPair.getValue()));
+                            .set(contextOptions.getOutputNodeColumn(), node)
+                            .set(contextOptions.getOutputPathColumn(), path)
+                            .set(contextOptions.getOutputNumChildrenColumn(), numChildren));
                   }
                 }));
-    nodePathBQRows.apply(
-        "insert the (node, path) rows into BQ",
+
+    nodePathAndNumChildrenBQRows.apply(
+        "insert the (node, path, numChildren) rows into BQ",
         BigQueryIO.writeTableRows()
             .to(outputBQTable)
             .withSchema(outputBQSchema)
@@ -187,6 +234,10 @@ public final class BuildPathsForHierarchy {
                 new TableFieldSchema()
                     .setName(options.getOutputPathColumn())
                     .setType("STRING")
-                    .setMode("NULLABLE")));
+                    .setMode("NULLABLE"),
+                new TableFieldSchema()
+                    .setName(options.getOutputNumChildrenColumn())
+                    .setType("INTEGER")
+                    .setMode("REQUIRED")));
   }
 }

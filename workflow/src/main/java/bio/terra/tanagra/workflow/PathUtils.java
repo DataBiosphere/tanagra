@@ -3,7 +3,12 @@ package bio.terra.tanagra.workflow;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.beam.sdk.coders.KvCoder;
+import org.apache.beam.sdk.coders.NullableCoder;
+import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.apache.beam.sdk.coders.VarLongCoder;
 import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.KvSwap;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.join.CoGbkResult;
@@ -14,6 +19,9 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+    value = "NP_NULL_PARAM_DEREF",
+    justification = "PCollection is using a Nullable coder")
 public final class PathUtils {
   private PathUtils() {}
 
@@ -26,13 +34,13 @@ public final class PathUtils {
    * a given node to a root node, then select one at random.
    *
    * @param allNodes a collection of all nodes in the hierarchy
-   * @param parentChildRelationships a collection of all parent-child relationships in the hierarchy
+   * @param childParentRelationships a collection of all child-parent relationships in the hierarchy
    * @param maxPathLengthHint the maximum path length to handle
    * @return a collection of (node, path) mappings
    */
   public static PCollection<KV<Long, String>> computePaths(
       PCollection<Long> allNodes,
-      PCollection<KV<Long, Long>> parentChildRelationships,
+      PCollection<KV<Long, Long>> childParentRelationships,
       int maxPathLengthHint) {
     // build a collection of KV<node,path> where path="initial node"
     PCollection<KV<Long, String>> nextNodePathKVs =
@@ -40,7 +48,7 @@ public final class PathUtils {
             "build (node,path) KV pairs",
             MapElements.into(
                     TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.strings()))
-                .via(PathUtils::nodeToNodePath));
+                .via(node -> KV.of(node, node.toString())));
 
     // define the CoGroupByKey tags
     final TupleTag<String> pathTag = new TupleTag<>();
@@ -95,13 +103,13 @@ public final class PathUtils {
       // do a CoGroupByKey join of the current node-path collection and the child-parent collection
       PCollection<KV<Long, CoGbkResult>> nodeParentPathJoin =
           KeyedPCollectionTuple.of(pathTag, nextNodePathKVs)
-              .and(parentTag, parentChildRelationships)
+              .and(parentTag, childParentRelationships)
               .apply("join node-path and child-parent collections: " + ctr, CoGroupByKey.create());
 
       // run a ParDo for each row of the join result
       nextNodePathKVs =
           nodeParentPathJoin.apply(
-              "run ParDo for each row of the join result: " + ctr,
+              "run ParDo for each row of the node-path and child-parent join result: " + ctr,
               ParDo.of(
                   new DoFn<KV<Long, CoGbkResult>, KV<Long, String>>() {
                     @ProcessElement
@@ -164,9 +172,107 @@ public final class PathUtils {
   }
 
   /**
-   * Build a {@link KV} pair for a node: (node, path). The starting path is just the node itself.
+   * Count the number of children that each node has.
+   *
+   * @param childParentRelationships a collection of all child-parent relationships in the hierarchy
+   * @return a collection of (node, numChildren) mappings
    */
-  private static KV<Long, String> nodeToNodePath(Long node) {
-    return KV.of(node, node.toString());
+  public static PCollection<KV<Long, Long>> countChildren(
+      PCollection<Long> allNodes, PCollection<KV<Long, Long>> childParentRelationships) {
+    // build a collection of KV<node,numChildren> where numChildren=0
+    PCollection<KV<Long, Long>> nextNodePathKVs =
+        allNodes.apply(
+            "build (node,numChildren) KV pairs",
+            MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
+                .via(node -> KV.of(node, 0L)));
+
+    // reverse the key and value of the child-parent KVs => parent-child KVs
+    PCollection<KV<Long, Long>> parentChildKVs =
+        childParentRelationships.apply(
+            "reverse order of child-parent to parent-child KVs", KvSwap.create());
+
+    // define the CoGroupByKey tags
+    final TupleTag<Long> numChildrenTag = new TupleTag<>();
+    final TupleTag<Long> childTag = new TupleTag<>();
+
+    // do a CoGroupByKey join of the current node-numChildren collection and the parent-child
+    // collection
+    PCollection<KV<Long, CoGbkResult>> nodeNumChildrenJoin =
+        KeyedPCollectionTuple.of(numChildrenTag, nextNodePathKVs)
+            .and(childTag, parentChildKVs)
+            .apply("join node-numChildren and parent-child collections", CoGroupByKey.create());
+
+    // run a ParDo for each row of the join result
+    return nodeNumChildrenJoin.apply(
+        "run ParDo for each row of the node-numChildren and parent-child join result",
+        ParDo.of(
+            new DoFn<KV<Long, CoGbkResult>, KV<Long, Long>>() {
+              @ProcessElement
+              public void processElement(ProcessContext context) {
+                KV<Long, CoGbkResult> element = context.element();
+                Long node = element.getKey();
+                Iterator<Long> numChildrenTagIter =
+                    element.getValue().getAll(numChildrenTag).iterator();
+                Iterator<Long> childTagIter = element.getValue().getAll(childTag).iterator();
+
+                // count the number of children
+                long numChildren = numChildrenTagIter.next();
+                while (childTagIter.hasNext()) {
+                  childTagIter.next();
+                  numChildren++;
+                }
+
+                context.output(KV.of(node, numChildren));
+              }
+            }));
+  }
+
+  /**
+   * Prune orphan nodes from the hierarchy (i.e. set path=null for nodes with no parents or
+   * children).
+   *
+   * @param nodePaths a collection of all (node, path) mappings, where every node has a non-null
+   *     path (i.e. orphan nodes are root nodes)
+   * @param nodeNumChildren a collection of all (node, numChildren) mappings,
+   * @return a collection of (node, path) mappings, where orphan nodes have their path=null
+   */
+  public static PCollection<KV<Long, String>> pruneOrphanPaths(
+      PCollection<KV<Long, String>> nodePaths, PCollection<KV<Long, Long>> nodeNumChildren) {
+    // define the CoGroupByKey tags
+    final TupleTag<String> pathTag = new TupleTag<>();
+    final TupleTag<Long> numChildrenTag = new TupleTag<>();
+
+    // do a CoGroupByKey join of the current node-numChildren collection and the parent-child
+    // collection
+    PCollection<KV<Long, CoGbkResult>> pathNumChildrenJoin =
+        KeyedPCollectionTuple.of(pathTag, nodePaths)
+            .and(numChildrenTag, nodeNumChildren)
+            .apply("join node-path and node-numChildren collections", CoGroupByKey.create());
+
+    // run a ParDo for each row of the join result
+    PCollection<KV<Long, String>> prunedPaths =
+        pathNumChildrenJoin.apply(
+            "run ParDo for each row of the node-path and node-numChildren join result",
+            ParDo.of(
+                new DoFn<KV<Long, CoGbkResult>, KV<Long, String>>() {
+                  @ProcessElement
+                  public void processElement(ProcessContext context) {
+                    KV<Long, CoGbkResult> element = context.element();
+                    Long node = element.getKey();
+                    Iterator<String> pathTagIter = element.getValue().getAll(pathTag).iterator();
+                    Iterator<Long> numChildrenTagIter =
+                        element.getValue().getAll(numChildrenTag).iterator();
+
+                    String path = pathTagIter.next();
+                    Long numChildren = numChildrenTagIter.next();
+
+                    if (path.isEmpty() && numChildren == 0) {
+                      path = null;
+                    }
+                    context.output(KV.of(node, path));
+                  }
+                }));
+    prunedPaths.setCoder(KvCoder.of(VarLongCoder.of(), NullableCoder.of(StringUtf8Coder.of())));
+    return prunedPaths;
   }
 }
