@@ -4,6 +4,10 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.beam.sdk.coders.KvCoder;
+import org.apache.beam.sdk.coders.NullableCoder;
+import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.apache.beam.sdk.coders.VarLongCoder;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
@@ -223,6 +227,58 @@ public class PathUtilsTest {
         PathUtils.pruneOrphanPaths(nodePaths, nodeNumChildren);
 
     PAssert.that(nodePathAndNumChildren).containsInAnyOrder(convertToKvs(expectedPrunedPaths));
+
+    pipeline.run().waitUntilFinish();
+  }
+
+  @Test
+  public void filteredRootNodes() {
+    final List<Long> possibleRootNodes = List.of(10L, 20L, 31L);
+
+    Multimap<Long, String> nodePaths = MultimapBuilder.hashKeys().arrayListValues().build();
+    nodePaths.put(10L, "21.31");
+    nodePaths.put(11L, "21.31");
+    nodePaths.put(20L, "31");
+    nodePaths.put(21L, "31");
+    nodePaths.put(31L, "");
+    nodePaths.put(12L, "22");
+    nodePaths.put(22L, "");
+    nodePaths.put(13L, null);
+
+    Multimap<Long, String> expectedFilteredPaths =
+        MultimapBuilder.hashKeys().arrayListValues().build();
+    expectedFilteredPaths.put(10L, "21.31");
+    expectedFilteredPaths.put(11L, "21.31");
+    expectedFilteredPaths.put(20L, "31");
+    expectedFilteredPaths.put(21L, "31");
+    expectedFilteredPaths.put(31L, "");
+    expectedFilteredPaths.put(12L, null);
+    expectedFilteredPaths.put(22L, null);
+    expectedFilteredPaths.put(13L, null);
+
+    runFilterRootNodesAndAssert(possibleRootNodes, nodePaths, expectedFilteredPaths);
+  }
+
+  /**
+   * Run a test {@link PathUtils#filterRootNodes} pipeline with the possible root nodes and
+   * node-path pairs. Assert that the expected paths are returned.
+   */
+  void runFilterRootNodesAndAssert(
+      List<Long> possibleRootNodes,
+      Multimap<Long, String> nodePaths,
+      Multimap<Long, String> expectedFilteredNodePaths) {
+    PCollection<Long> possibleRootNodesPC =
+        pipeline.apply("create possible root nodes pcollection", Create.of(possibleRootNodes));
+    PCollection<KV<Long, String>> nodePathsPC =
+        pipeline.apply(
+            "create node-path kv pairs pcollection",
+            Create.of(convertToKvs(nodePaths))
+                .withCoder(KvCoder.of(VarLongCoder.of(), NullableCoder.of(StringUtf8Coder.of()))));
+
+    PCollection<KV<Long, String>> filteredNodePaths =
+        PathUtils.filterRootNodes(possibleRootNodesPC, nodePathsPC);
+
+    PAssert.that(filteredNodePaths).containsInAnyOrder(convertToKvs(expectedFilteredNodePaths));
 
     pipeline.run().waitUntilFinish();
   }

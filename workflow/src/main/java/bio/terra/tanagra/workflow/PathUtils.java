@@ -20,7 +20,7 @@ import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
-    value = "NP_NULL_PARAM_DEREF",
+    value = {"NP_NULL_PARAM_DEREF", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
     justification = "PCollection is using a Nullable coder")
 public final class PathUtils {
   private PathUtils() {}
@@ -274,5 +274,117 @@ public final class PathUtils {
                 }));
     prunedPaths.setCoder(KvCoder.of(VarLongCoder.of(), NullableCoder.of(StringUtf8Coder.of())));
     return prunedPaths;
+  }
+
+  /**
+   * Filter the root nodes in the hierarchy (i.e. set path=null for nodes that currently have
+   * path="" but are not members of the possible root nodes.
+   *
+   * @param possibleRootNodes a collection of all possible root nodes
+   * @param nodePaths a collection of all (node, path) mappings, where nodes may be null
+   * @return a collection of (node, path) mappings, where root nodes that are not one of the
+   *     possible root nodes have their path updated to null
+   */
+  public static PCollection<KV<Long, String>> filterRootNodes(
+      PCollection<Long> possibleRootNodes, PCollection<KV<Long, String>> nodePaths) {
+    // build a collection of KV<rootNode, fullPath>
+    PCollection<KV<Long, String>> rootNodeFullPathKVs =
+        nodePaths.apply(
+            "build (rootNode,fullPath) KV pairs",
+            ParDo.of(
+                new DoFn<KV<Long, String>, KV<Long, String>>() {
+                  @ProcessElement
+                  public void processElement(ProcessContext context) {
+                    KV<Long, String> element = context.element();
+                    Long firstNodeInPath = element.getKey();
+                    String pathWithoutFirstNode = element.getValue();
+
+                    if (pathWithoutFirstNode == null) {
+                      // if this node is not part of the hierarchy,
+                      // then there's nothing to update. leave the pair unchanged
+                      // e.g. (12,null) => (12,null)
+                      context.output(KV.of(firstNodeInPath, pathWithoutFirstNode));
+                    } else if (pathWithoutFirstNode.isEmpty()) {
+                      // if this node is a root node, then add the root node to the path.
+                      // e.g. (31,"") => (31,"31")
+                      context.output(KV.of(firstNodeInPath, firstNodeInPath.toString()));
+                    } else {
+                      // strip out the root node from the path, and make it the key
+                      // append the first node in the path to the beginning of the path, and make it
+                      // the value
+                      // e.g. (11,"21.31") => (31,"11.21.31")
+                      List<String> nodesInPath =
+                          new java.util.ArrayList<>(
+                              List.of(pathWithoutFirstNode.split(PATH_DELIMITER_REGEX)));
+                      Long rootNode = Long.valueOf(nodesInPath.get(nodesInPath.size() - 1));
+                      nodesInPath.add(0, firstNodeInPath.toString());
+                      String pathWithFirstNode =
+                          nodesInPath.stream().collect(Collectors.joining(PATH_DELIMITER));
+
+                      context.output(KV.of(rootNode, pathWithFirstNode));
+                    }
+                  }
+                }));
+
+    // build a collection of KV<node,possibleRoot> where possibleRoot=1
+    PCollection<KV<Long, Long>> possibleRootNodeKVs =
+        possibleRootNodes.apply(
+            "build (node,possibleRoot) KV pairs",
+            MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
+                .via(node -> KV.of(node, 1L)));
+
+    // define the CoGroupByKey tags
+    final TupleTag<String> pathTag = new TupleTag<>();
+    final TupleTag<Long> possibleRootTag = new TupleTag<>();
+
+    // do a CoGroupByKey join of the rootNode-fullPath collection and the node-possibleRoot
+    // collection
+    PCollection<KV<Long, CoGbkResult>> pathPossibleRootJoin =
+        KeyedPCollectionTuple.of(pathTag, rootNodeFullPathKVs)
+            .and(possibleRootTag, possibleRootNodeKVs)
+            .apply(
+                "join rootNode-fullPath and node-possibleRoot collections", CoGroupByKey.create());
+
+    // run a ParDo for each row of the join result
+    PCollection<KV<Long, String>> filteredPaths =
+        pathPossibleRootJoin.apply(
+            "run ParDo for each row of the rootNode-fullPath and node-possibleRoot join result",
+            ParDo.of(
+                new DoFn<KV<Long, CoGbkResult>, KV<Long, String>>() {
+                  @ProcessElement
+                  public void processElement(ProcessContext context) {
+                    KV<Long, CoGbkResult> element = context.element();
+                    Long node = element.getKey();
+                    Iterator<String> pathTagIter = element.getValue().getAll(pathTag).iterator();
+                    Iterator<Long> possibleRootTagIter =
+                        element.getValue().getAll(possibleRootTag).iterator();
+
+                    boolean isPossibleRoot = possibleRootTagIter.hasNext();
+                    while (pathTagIter.hasNext()) {
+                      String fullPath = pathTagIter.next();
+
+                      if (fullPath == null) {
+                        // if this node is not part of the hierarchy, then there's nothing to
+                        // update.
+                        context.output(KV.of(node, null));
+                      } else {
+                        // strip out the first node in the path
+                        // e.g. (31,"11.21.31") => (11,"21.31")
+                        List<String> nodesInPath =
+                            new java.util.ArrayList<>(
+                                List.of(fullPath.split(PATH_DELIMITER_REGEX)));
+                        Long firstNodeInPath = Long.valueOf(nodesInPath.remove(0));
+                        String path =
+                            isPossibleRoot
+                                ? nodesInPath.stream().collect(Collectors.joining(PATH_DELIMITER))
+                                : null;
+
+                        context.output(KV.of(firstNodeInPath, path));
+                      }
+                    }
+                  }
+                }));
+    filteredPaths.setCoder(KvCoder.of(VarLongCoder.of(), NullableCoder.of(StringUtf8Coder.of())));
+    return filteredPaths;
   }
 }

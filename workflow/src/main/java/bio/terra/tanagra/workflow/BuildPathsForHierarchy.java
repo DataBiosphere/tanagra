@@ -51,6 +51,14 @@ public final class BuildPathsForHierarchy {
     void setHierarchyQuery(String query);
 
     @Description(
+        "Path to a BigQuery standard SQL query file to execute to retrieve the root nodes."
+            + "The result of the query should have one column, (node).")
+    @Default.String("")
+    String getRootNodesFilterQuery();
+
+    void setRootNodesFilterQuery(String query);
+
+    @Description(
         "The maximum depth of ancestors present in the hierarchy. This may be larger "
             + "than the actual max depth, but if it is smaller the resulting table will be incomplete")
     @Default.Integer(64)
@@ -95,7 +103,7 @@ public final class BuildPathsForHierarchy {
     String hierarchyQuery = Files.readString(Path.of(options.getHierarchyQuery()));
 
     // read in the nodes and the child-parent relationships from BQ
-    PCollection<Long> allNodesPC = readAllNodesFromBQ(pipeline, allNodesQuery);
+    PCollection<Long> allNodesPC = readNodesFromBQ(pipeline, allNodesQuery, "allNodes");
     PCollection<KV<Long, Long>> childParentRelationshipsPC =
         readChildParentRelationshipsFromBQ(pipeline, hierarchyQuery);
 
@@ -113,9 +121,25 @@ public final class BuildPathsForHierarchy {
     PCollection<KV<Long, String>> nodePrunedPathKVsPC =
         PathUtils.pruneOrphanPaths(nodePathKVsPC, nodeNumChildrenKVsPC);
 
+    PCollection<KV<Long, String>> outputNodePathKVsPC;
+    if (!options.getRootNodesFilterQuery().isEmpty()) {
+      // read in the query from file
+      String rootNodesQuery = Files.readString(Path.of(options.getRootNodesFilterQuery()));
+
+      // read in the possible root nodes from BQ
+      PCollection<Long> possibleRootNodesPC =
+          readNodesFromBQ(pipeline, rootNodesQuery, "rootNodes");
+
+      // filter the root nodes (i.e. set path=null for any existing root nodes that are not in the
+      // list of possibles)
+      outputNodePathKVsPC = PathUtils.filterRootNodes(possibleRootNodesPC, nodePrunedPathKVsPC);
+    } else {
+      outputNodePathKVsPC = nodePrunedPathKVsPC;
+    }
+
     // write the node-{path, numChildren} pairs to BQ
     writeNodePathAndNumChildrenToBQ(
-        nodePrunedPathKVsPC,
+        outputNodePathKVsPC,
         nodeNumChildrenKVsPC,
         options.getOutputBigQueryTable(),
         pathsForHierarchySchema(options));
@@ -123,17 +147,18 @@ public final class BuildPathsForHierarchy {
     pipeline.run().waitUntilFinish();
   }
 
-  /** Read all the nodes from BQ and build a {@link PCollection} of just the node identifiers. */
-  private static PCollection<Long> readAllNodesFromBQ(Pipeline pipeline, String sqlQuery) {
+  /** Read the set of nodes from BQ and build a {@link PCollection} of just the node identifiers. */
+  private static PCollection<Long> readNodesFromBQ(
+      Pipeline pipeline, String sqlQuery, String description) {
     PCollection<TableRow> allNodesBqRows =
         pipeline.apply(
-            "read all (node) rows",
+            "read (node) rows: " + description,
             BigQueryIO.readTableRows()
                 .fromQuery(sqlQuery)
                 .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
                 .usingStandardSql());
     return allNodesBqRows.apply(
-        "build (node) pcollection",
+        "build (node) pcollection: " + description,
         MapElements.into(TypeDescriptors.longs())
             .via(tableRow -> Long.parseLong((String) tableRow.get("node"))));
   }
