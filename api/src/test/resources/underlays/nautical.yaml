@@ -124,6 +124,8 @@ datasets:
             dataType: INT64
           - name: bt_path
             dataType: STRING
+          - name: bt_num_children
+            dataType: INT64
       - name: boat_parts
         columns:
           - name: bp_id
@@ -399,6 +401,10 @@ hierarchies:
         dataset: nautical
         table: boat_types_paths
         column: bt_path
+      numChildren:
+        dataset: nautical
+        table: boat_types_paths
+        column: bt_num_children
 entityFiltersSchemas:
   - entity: sailors
     attributes:
