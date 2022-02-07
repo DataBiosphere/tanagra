@@ -311,6 +311,99 @@ entityMappings:
     tableFilter:
       arrayColumnFilter:
         operator: AND
+        arrayColumnFilters:
+          - operator: OR
+            arrayColumnFilters:
+              - operator: AND
+                arrayColumnFilters:
+                  - operator: OR
+                    binaryColumnFilters:
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: vocabulary_id
+                        operator: EQUALS
+                        stringVal: RxNorm
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: vocabulary_id
+                        operator: EQUALS
+                        stringVal: RxNorm Extension
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: concept_class_id
+                    operator: EQUALS
+                    stringVal: Ingredient
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: standard_concept
+                    operator: EQUALS
+                    stringVal: S
+              - operator: AND
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: vocabulary_id
+                    operator: EQUALS
+                    stringVal: RxNorm
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: concept_class_id
+                    operator: EQUALS
+                    stringVal: Precise Ingredient
+              - operator: AND
+                arrayColumnFilters:
+                  - operator: OR
+                    binaryColumnFilters:
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 1st
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 2nd
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 3rd
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 4th
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 5th
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: vocabulary_id
+                    operator: EQUALS
+                    stringVal: ATC
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: standard_concept
+                    operator: EQUALS
+                    stringVal: C
         binaryColumnFilters:
           - column:
               dataset: aou_synthetic
@@ -321,33 +414,9 @@ entityMappings:
           - column:
               dataset: aou_synthetic
               table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Brand Name
-          - column:
-              dataset: aou_synthetic
-              table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Drug
-          - column:
-              dataset: aou_synthetic
-              table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Drug Comp
-          - column:
-              dataset: aou_synthetic
-              table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Drug Form
-          - column:
-              dataset: aou_synthetic
-              table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Dose Group
+              column: valid_end_date
+            operator: GREATER_THAN
+            stringVal: 2022-01-01
   - entity: brand
     primaryKey:
       dataset: aou_synthetic

@@ -215,6 +215,12 @@ public final class PathUtils {
                     element.getValue().getAll(numChildrenTag).iterator();
                 Iterator<Long> childTagIter = element.getValue().getAll(childTag).iterator();
 
+                // if the parent node in the relationship is not a member of all the nodes, then
+                // skip processing
+                if (!numChildrenTagIter.hasNext()) {
+                  return;
+                }
+
                 // count the number of children
                 long numChildren = numChildrenTagIter.next();
                 while (childTagIter.hasNext()) {

@@ -15,7 +15,6 @@ import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.join.CoGbkResult;
 import org.apache.beam.sdk.transforms.join.CoGroupByKey;
@@ -23,7 +22,6 @@ import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TupleTag;
-import org.apache.beam.sdk.values.TypeDescriptors;
 
 /**
  * A batch Apache Beam pipeline for building a table that contains a path (i.e. a list of ancestors
@@ -103,9 +101,10 @@ public final class BuildPathsForHierarchy {
     String hierarchyQuery = Files.readString(Path.of(options.getHierarchyQuery()));
 
     // read in the nodes and the child-parent relationships from BQ
-    PCollection<Long> allNodesPC = readNodesFromBQ(pipeline, allNodesQuery, "allNodes");
+    PCollection<Long> allNodesPC =
+        BigQueryUtils.readNodesFromBQ(pipeline, allNodesQuery, "allNodes");
     PCollection<KV<Long, Long>> childParentRelationshipsPC =
-        readChildParentRelationshipsFromBQ(pipeline, hierarchyQuery);
+        BigQueryUtils.readChildParentRelationshipsFromBQ(pipeline, hierarchyQuery);
 
     // compute a path to a root node for each node in the hierarchy
     PCollection<KV<Long, String>> nodePathKVsPC =
@@ -128,7 +127,7 @@ public final class BuildPathsForHierarchy {
 
       // read in the possible root nodes from BQ
       PCollection<Long> possibleRootNodesPC =
-          readNodesFromBQ(pipeline, rootNodesQuery, "rootNodes");
+          BigQueryUtils.readNodesFromBQ(pipeline, rootNodesQuery, "rootNodes");
 
       // filter the root nodes (i.e. set path=null for any existing root nodes that are not in the
       // list of possibles)
@@ -145,46 +144,6 @@ public final class BuildPathsForHierarchy {
         pathsForHierarchySchema(options));
 
     pipeline.run().waitUntilFinish();
-  }
-
-  /** Read the set of nodes from BQ and build a {@link PCollection} of just the node identifiers. */
-  private static PCollection<Long> readNodesFromBQ(
-      Pipeline pipeline, String sqlQuery, String description) {
-    PCollection<TableRow> allNodesBqRows =
-        pipeline.apply(
-            "read (node) rows: " + description,
-            BigQueryIO.readTableRows()
-                .fromQuery(sqlQuery)
-                .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
-                .usingStandardSql());
-    return allNodesBqRows.apply(
-        "build (node) pcollection: " + description,
-        MapElements.into(TypeDescriptors.longs())
-            .via(tableRow -> Long.parseLong((String) tableRow.get("node"))));
-  }
-
-  /**
-   * Read all the child-parent relationships from BQ and build a {@link PCollection} of {@link KV}
-   * pairs (child, parent).
-   */
-  private static PCollection<KV<Long, Long>> readChildParentRelationshipsFromBQ(
-      Pipeline pipeline, String sqlQuery) {
-    PCollection<TableRow> childParentBqRows =
-        pipeline.apply(
-            "read all (child, parent) rows",
-            BigQueryIO.readTableRows()
-                .fromQuery(sqlQuery)
-                .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
-                .usingStandardSql());
-    return childParentBqRows.apply(
-        "build (child, parent) pcollection",
-        MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
-            .via(
-                tableRow -> {
-                  Long parent = Long.parseLong((String) tableRow.get("parent"));
-                  Long child = Long.parseLong((String) tableRow.get("child"));
-                  return KV.of(child, parent);
-                }));
   }
 
   /** Write the {@link KV} pairs (node, path) to BQ. */
