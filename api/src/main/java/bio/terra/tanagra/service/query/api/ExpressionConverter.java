@@ -44,6 +44,8 @@ class ExpressionConverter {
 
   public Expression.Literal convert(ApiAttributeValue apiAttributeValue) {
     if (apiAttributeValue == null) {
+      // the datatype here doesn't really matter. when deciding whether to handle the literal as a
+      // special case, we just check if the value is null and ignore the datatype.
       return Expression.Literal.create(DataType.STRING, null);
     }
 
