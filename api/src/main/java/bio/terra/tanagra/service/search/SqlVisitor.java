@@ -138,11 +138,18 @@ public class SqlVisitor {
 
       String leftSql = binaryFunction.left().accept(expressionVisitor);
       String rightSql = binaryFunction.right().accept(expressionVisitor);
+      boolean valueIsNull = "NULL".equals(rightSql);
       switch (binaryFunction.operator()) {
         case LESS_THAN:
           return String.format("%s < %s", leftSql, rightSql);
         case EQUALS:
-          return String.format("%s = %s", leftSql, rightSql);
+          return valueIsNull
+              ? String.format("%s IS %s", leftSql, rightSql)
+              : String.format("%s = %s", leftSql, rightSql);
+        case NOT_EQUALS:
+          return valueIsNull
+              ? String.format("%s IS NOT %s", leftSql, rightSql)
+              : String.format("%s != %s", leftSql, rightSql);
         case DESCENDANT_OF_INCLUSIVE:
           return resolveDescendantOfInclusive(binaryFunction);
         case CHILD_OF:
@@ -260,6 +267,9 @@ public class SqlVisitor {
     @Override
     public String visitLiteral(Expression.Literal literal) {
       // TODO parameterize output to avoid injection.
+      if (literal.value() == null) {
+        return "NULL";
+      }
       switch (literal.dataType()) {
         case STRING:
           return String.format("'%s'", literal.value());

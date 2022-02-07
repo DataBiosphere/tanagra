@@ -66,10 +66,6 @@ class FilterConverter {
       throw new BadRequestException(
           String.format("BinaryFilter.operator must not be null.%n%s", apiBinary));
     }
-    if (apiBinary.getAttributeValue() == null) {
-      throw new BadRequestException(
-          String.format("BinaryFilter.attributeValue must not be null.%n%s", apiBinary));
-    }
 
     AttributeExpression attributeExpression =
         expressionConverter.convert(apiBinary.getAttributeVariable(), scope);
@@ -86,6 +82,8 @@ class FilterConverter {
     switch (apiOperator) {
       case EQUALS:
         return Filter.BinaryFunction.Operator.EQUALS;
+      case NOT_EQUALS:
+        return Filter.BinaryFunction.Operator.NOT_EQUALS;
       case LESS_THAN:
         return Filter.BinaryFunction.Operator.LESS_THAN;
       case DESCENDANT_OF_INCLUSIVE:

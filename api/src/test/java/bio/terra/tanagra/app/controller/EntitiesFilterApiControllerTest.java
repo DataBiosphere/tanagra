@@ -168,4 +168,58 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
             expectedSql, actualSql, "sailor_boat");
     assertEquals(expectedSql, actualSql);
   }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for filtering entity instances based on a binary filter with a NULL value")
+  void generateSqlQueryBinaryFilterNullValue() {
+    // filter for "sailors" entity instances that have no rating
+    ApiEntityFilter apiEntityFilter =
+        new ApiEntityFilter()
+            .entityVariable("sailor")
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            // not setting AttributeValue means to use a null value
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("sailor").name("rating"))
+                            .operator(ApiBinaryFilterOperator.EQUALS)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateSqlQuery(
+            NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityFilter);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT sailor.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor "
+            + "WHERE sailor.rating IS NULL",
+        response.getBody().getQuery());
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for filtering entity instances based on a binary filter with a non-NULL value")
+  void generateSqlQueryBinaryFilterNonNullValue() {
+    // filter for "sailors" entity instances that have a rating
+    ApiEntityFilter apiEntityFilter =
+        new ApiEntityFilter()
+            .entityVariable("sailor")
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            // not setting AttributeValue means to use a null value
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("sailor").name("rating"))
+                            .operator(ApiBinaryFilterOperator.NOT_EQUALS)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateSqlQuery(
+            NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityFilter);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT sailor.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor "
+            + "WHERE sailor.rating IS NOT NULL",
+        response.getBody().getQuery());
+  }
 }
