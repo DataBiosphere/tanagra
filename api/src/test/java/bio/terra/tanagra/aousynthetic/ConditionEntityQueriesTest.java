@@ -147,13 +147,12 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
   @DisplayName(
       "correct SQL string for listing all condition entity instances that are root nodes in the hierarchy")
   void generateSqlForAllRootNodeConditionEntities() throws IOException {
-    // filter for "condition" entity instances that have t_path_concept_id IS NULL
+    // filter for "condition" entity instances that have t_path_concept_id = ""
     // i.e. condition root nodes
     ApiFilter isRootNode =
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
-                    // not setting AttributeValue means to use a null value
                     .attributeVariable(
                         new ApiAttributeVariable()
                             .variable("condition_alias")

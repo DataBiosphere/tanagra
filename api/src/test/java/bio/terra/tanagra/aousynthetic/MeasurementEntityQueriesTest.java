@@ -7,6 +7,8 @@ import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.app.controller.EntityInstancesApiController;
+import bio.terra.tanagra.generated.model.ApiArrayFilter;
+import bio.terra.tanagra.generated.model.ApiArrayFilterOperator;
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
 import bio.terra.tanagra.generated.model.ApiAttributeVariable;
 import bio.terra.tanagra.generated.model.ApiBinaryFilter;
@@ -146,21 +148,36 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for listing all measurement entity instances that are root nodes in the hierarchy")
-  void generateSqlForAllRootNodeMeasurementEntities() throws IOException {
-    // filter for "measurement" entity instances that have t_path_concept_id IS NULL
-    // i.e. measurement root nodes
+      "correct SQL string for listing all measurement entity instances that are root nodes in the LOINC hierarchy")
+  void generateSqlForAllLoincRootNodeMeasurementEntities() throws IOException {
+    // filter for "measurement" entity instances that have t_path_concept_id = "" AND vocabulary_id
+    // = "LOINC"
+    // i.e. measurement root nodes in the LOINC hierarchy
     ApiFilter isRootNode =
         new ApiFilter()
-            .binaryFilter(
-                new ApiBinaryFilter()
-                    // not setting AttributeValue means to use a null value
-                    .attributeVariable(
-                        new ApiAttributeVariable()
-                            .variable("measurement_alias")
-                            .name("t_path_concept_id"))
-                    .operator(ApiBinaryFilterOperator.EQUALS)
-                    .attributeValue(new ApiAttributeValue().stringVal("")));
+            .arrayFilter(
+                new ApiArrayFilter()
+                    .operator(ApiArrayFilterOperator.AND)
+                    .addOperandsItem(
+                        new ApiFilter()
+                            .binaryFilter(
+                                new ApiBinaryFilter()
+                                    .attributeVariable(
+                                        new ApiAttributeVariable()
+                                            .variable("measurement_alias")
+                                            .name("t_path_concept_id"))
+                                    .operator(ApiBinaryFilterOperator.EQUALS)
+                                    .attributeValue(new ApiAttributeValue().stringVal(""))))
+                    .addOperandsItem(
+                        new ApiFilter()
+                            .binaryFilter(
+                                new ApiBinaryFilter()
+                                    .attributeVariable(
+                                        new ApiAttributeVariable()
+                                            .variable("measurement_alias")
+                                            .name("vocabulary_id"))
+                                    .operator(ApiBinaryFilterOperator.EQUALS)
+                                    .attributeValue(new ApiAttributeValue().stringVal("LOINC")))));
 
     ResponseEntity<ApiSqlQuery> response =
         apiController.generateDatasetSqlQuery(
@@ -175,6 +192,55 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql, "aousynthetic/measurement-entities-root-nodes.sql");
+        generatedSql, "aousynthetic/measurement-entities-loinc-root-nodes.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all measurement entity instances that are root nodes in the SNOMED hierarchy")
+  void generateSqlForAllSnowmedRootNodeMeasurementEntities() throws IOException {
+    // filter for "measurement" entity instances that have t_path_concept_id = "" AND vocabulary_id
+    // = "SNOMED"
+    // i.e. measurement root nodes in the SNOMED hierarchy
+    ApiFilter isRootNode =
+        new ApiFilter()
+            .arrayFilter(
+                new ApiArrayFilter()
+                    .operator(ApiArrayFilterOperator.AND)
+                    .addOperandsItem(
+                        new ApiFilter()
+                            .binaryFilter(
+                                new ApiBinaryFilter()
+                                    .attributeVariable(
+                                        new ApiAttributeVariable()
+                                            .variable("measurement_alias")
+                                            .name("t_path_concept_id"))
+                                    .operator(ApiBinaryFilterOperator.EQUALS)
+                                    .attributeValue(new ApiAttributeValue().stringVal(""))))
+                    .addOperandsItem(
+                        new ApiFilter()
+                            .binaryFilter(
+                                new ApiBinaryFilter()
+                                    .attributeVariable(
+                                        new ApiAttributeVariable()
+                                            .variable("measurement_alias")
+                                            .name("vocabulary_id"))
+                                    .operator(ApiBinaryFilterOperator.EQUALS)
+                                    .attributeValue(new ApiAttributeValue().stringVal("SNOMED")))));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            MEASUREMENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("measurement_alias")
+                        .selectedAttributes(ALL_MEASUREMENT_ATTRIBUTES)
+                        .filter(isRootNode)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/measurement-entities-snomed-root-nodes.sql");
   }
 }

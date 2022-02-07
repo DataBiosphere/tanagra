@@ -147,13 +147,12 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
   @DisplayName(
       "correct SQL string for listing all procedure entity instances that are root nodes in the hierarchy")
   void generateSqlForAllRootNodeProcedureEntities() throws IOException {
-    // filter for "procedure" entity instances that have t_path_concept_id IS NULL
+    // filter for "procedure" entity instances that have t_path_concept_id = ""
     // i.e. procedure root nodes
     ApiFilter isRootNode =
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
-                    // not setting AttributeValue means to use a null value
                     .attributeVariable(
                         new ApiAttributeVariable()
                             .variable("procedure_alias")
