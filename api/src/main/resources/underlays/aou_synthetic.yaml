@@ -255,6 +255,54 @@ datasets:
             dataType: INT64
           - name: path
             dataType: STRING
+      - name: condition_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+      - name: procedure_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+      - name: measurement_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+      - name: ingredient_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+      - name: condition_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
+      - name: procedure_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
+      - name: measurement_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
+      - name: ingredient_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
 entityMappings:
   - entity: person
     primaryKey:
@@ -1267,29 +1315,21 @@ hierarchies:
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: condition_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: condition_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: condition_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: condition_node_path_2
         column: path
   - attribute:
       entity: procedure
@@ -1305,29 +1345,21 @@ hierarchies:
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: procedure_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: procedure_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: procedure_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: procedure_node_path_2
         column: path
   - attribute:
       entity: ingredient
@@ -1343,29 +1375,21 @@ hierarchies:
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: ingredient_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: ingredient_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: ingredient_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: ingredient_node_path_2
         column: path
   - attribute:
       entity: measurement
@@ -1381,29 +1405,21 @@ hierarchies:
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: measurement_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: measurement_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: measurement_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: measurement_node_path_2
         column: path
   - attribute:
       entity: condition_occurrence
