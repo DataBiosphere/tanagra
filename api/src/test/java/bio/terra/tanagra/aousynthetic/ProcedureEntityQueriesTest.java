@@ -158,7 +158,8 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
                         new ApiAttributeVariable()
                             .variable("procedure_alias")
                             .name("t_path_concept_id"))
-                    .operator(ApiBinaryFilterOperator.EQUALS));
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().stringVal("")));
 
     ResponseEntity<ApiSqlQuery> response =
         apiController.generateDatasetSqlQuery(

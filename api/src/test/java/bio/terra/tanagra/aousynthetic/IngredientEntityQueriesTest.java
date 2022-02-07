@@ -202,7 +202,8 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
                         new ApiAttributeVariable()
                             .variable("ingredient_alias")
                             .name("t_path_concept_id"))
-                    .operator(ApiBinaryFilterOperator.EQUALS));
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().stringVal("")));
 
     ResponseEntity<ApiSqlQuery> response =
         apiController.generateDatasetSqlQuery(
