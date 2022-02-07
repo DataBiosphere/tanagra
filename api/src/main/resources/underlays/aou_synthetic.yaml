@@ -473,6 +473,21 @@ entityMappings:
     tableFilter:
       arrayColumnFilter:
         operator: AND
+        arrayColumnFilters:
+          - operator: OR
+            binaryColumnFilters:
+              - column:
+                  dataset: aou_synthetic
+                  table: concept
+                  column: vocabulary_id
+                operator: EQUALS
+                stringVal: RxNorm
+              - column:
+                  dataset: aou_synthetic
+                  table: concept
+                  column: vocabulary_id
+                operator: EQUALS
+                stringVal: RxNorm Extension
         binaryColumnFilters:
           - column:
               dataset: aou_synthetic
@@ -486,6 +501,11 @@ entityMappings:
               column: concept_class_id
             operator: EQUALS
             stringVal: Brand Name
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: EQUALS
   - entity: measurement
     primaryKey:
       dataset: aou_synthetic
@@ -553,39 +573,75 @@ entityMappings:
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: vocabulary_id
-        operator: EQUALS
-        stringVal: Visit
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: vocabulary_id
+            operator: EQUALS
+            stringVal: Visit
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: standard_concept
+            operator: EQUALS
+            stringVal: S
   - entity: observation
     primaryKey:
       dataset: aou_synthetic
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: domain_id
-        operator: EQUALS
-        stringVal: Observation
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Observation
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: standard_concept
+            operator: EQUALS
+            stringVal: S
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: vocabulary_id
+            operator: NOT_EQUALS
+            stringVal: PPI
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: concept_class_id
+            operator: NOT_EQUALS
+            stringVal: Survey
   - entity: device
     primaryKey:
       dataset: aou_synthetic
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: domain_id
-        operator: EQUALS
-        stringVal: Device
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Device
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: standard_concept
+            operator: EQUALS
+            stringVal: S
   - entity: condition_occurrence
     primaryKey:
       dataset: aou_synthetic
