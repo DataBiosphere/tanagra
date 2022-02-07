@@ -143,4 +143,37 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/hierarchy-path-of-a-measurement.sql");
   }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all measurement entity instances that are root nodes in the hierarchy")
+  void generateSqlForAllRootNodeMeasurementEntities() throws IOException {
+    // filter for "measurement" entity instances that have t_path_concept_id IS NULL
+    // i.e. measurement root nodes
+    ApiFilter isRootNode =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    // not setting AttributeValue means to use a null value
+                    .attributeVariable(
+                        new ApiAttributeVariable()
+                            .variable("measurement_alias")
+                            .name("t_path_concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            MEASUREMENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("measurement_alias")
+                        .selectedAttributes(ALL_MEASUREMENT_ATTRIBUTES)
+                        .filter(isRootNode)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/measurement-entities-root-nodes.sql");
+  }
 }

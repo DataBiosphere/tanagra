@@ -247,7 +247,7 @@ datasets:
             dataType: INT64
           - name: descendant
             dataType: INT64
-      - name: concept_node_path_1
+      - name: concept_node_path_2
         columns:
           - name: node
             dataType: INT64
@@ -1150,11 +1150,11 @@ hierarchies:
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: path
   - attribute:
       entity: procedure
@@ -1188,11 +1188,11 @@ hierarchies:
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: path
   - attribute:
       entity: ingredient
@@ -1226,11 +1226,11 @@ hierarchies:
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: path
   - attribute:
       entity: measurement
@@ -1264,11 +1264,11 @@ hierarchies:
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: path
   - attribute:
       entity: condition_occurrence
@@ -1302,9 +1302,9 @@ hierarchies:
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_1
+        table: concept_node_path_2
         column: path
