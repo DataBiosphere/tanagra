@@ -44,9 +44,9 @@ public final class BuildPathsForHierarchy {
         "Path to a BigQuery standard SQL query file to execute to retrieve the hierarchy to be"
             + "flattened. The result of the query should have two columns, (parent, child) that"
             + "defines all of the direct relationships of the hierarchy.")
-    String getHierarchyQuery();
+    String getParentChildQuery();
 
-    void setHierarchyQuery(String query);
+    void setParentChildQuery(String query);
 
     @Description(
         "Path to a BigQuery standard SQL query file to execute to retrieve the root nodes."
@@ -98,7 +98,7 @@ public final class BuildPathsForHierarchy {
 
     // read in the queries from files
     String allNodesQuery = Files.readString(Path.of(options.getAllNodesQuery()));
-    String hierarchyQuery = Files.readString(Path.of(options.getHierarchyQuery()));
+    String hierarchyQuery = Files.readString(Path.of(options.getParentChildQuery()));
 
     // read in the nodes and the child-parent relationships from BQ
     PCollection<Long> allNodesPC =

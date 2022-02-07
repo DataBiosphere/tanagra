@@ -255,6 +255,30 @@ datasets:
             dataType: INT64
           - name: path
             dataType: STRING
+      - name: condition_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: procedure_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: measurement_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: ingredient_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
       - name: condition_node_path_2
         columns:
           - name: node
@@ -1363,11 +1387,11 @@ hierarchies:
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: condition_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: condition_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
@@ -1393,11 +1417,11 @@ hierarchies:
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: procedure_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: procedure_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
@@ -1423,11 +1447,11 @@ hierarchies:
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: ingredient_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: ingredient_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
@@ -1453,11 +1477,11 @@ hierarchies:
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: measurement_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: measurement_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
