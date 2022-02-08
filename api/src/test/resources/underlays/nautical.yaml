@@ -399,6 +399,17 @@ hierarchies:
         dataset: nautical
         table: boat_types_paths
         column: bt_path
+texts:
+  - entity: sailors
+    textTable:
+      lookupTableKey:
+        dataset: nautical
+        table: sailors
+        column: s_id
+      fullText:
+        dataset: nautical
+        table: sailors
+        column: s_name
 entityFiltersSchemas:
   - entity: sailors
     attributes:

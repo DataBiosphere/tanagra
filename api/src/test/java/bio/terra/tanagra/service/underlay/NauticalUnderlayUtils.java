@@ -254,4 +254,13 @@ public final class NauticalUnderlayUtils {
                   .path(BOAT_TYPE_PATHS_PATH_COL)
                   .build())
           .build();
+
+  public static final Text SAILORS_TEXT =
+      Text.builder()
+          .textTable(
+              Text.TextTable.builder()
+                  .lookupTableKey(SAILOR_ID_COL)
+                  .fullText(SAILOR_NAME_COL)
+                  .build())
+          .build();
 }

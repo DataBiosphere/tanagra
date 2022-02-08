@@ -60,6 +60,7 @@ public final class UnderlayConversion {
         buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
     Map<Attribute, Hierarchy> hierarchies =
         buildHierarchies(underlayProto, entities, attributes, columns, attributeMappings);
+    Map<Entity, Text> texts = buildTexts(underlayProto, entities, columns);
     Map<Entity, EntityFiltersSchema> entityFiltersSchemas =
         buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
 
@@ -73,6 +74,7 @@ public final class UnderlayConversion {
         .attributeMappings(attributeMappings)
         .relationshipMappings(relationshipMappings)
         .hierarchies(hierarchies)
+        .texts(texts)
         .entityFiltersSchemas(entityFiltersSchemas)
         .build();
   }
@@ -453,6 +455,34 @@ public final class UnderlayConversion {
     }
     return hierarchies;
   }
+  /** Build a map from entities to their {@link Text} for text search information. */
+  private static Map<Entity, Text> buildTexts(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      Map<ColumnId, Column> columns) {
+    Map<Entity, Text> texts = new HashMap<>();
+    for (bio.terra.tanagra.proto.underlay.Text textProto : underlayProto.getTextsList()) {
+      Entity entity = retrieve(textProto.getEntity(), entities, textProto);
+      Column lookupTableKey =
+          retrieve(
+              textProto.getTextTable().getLookupTableKey(), columns, "lookupTableKey", textProto);
+      Column fullText =
+          retrieve(textProto.getTextTable().getFullText(), columns, "fullText", textProto);
+      Text text =
+          Text.builder()
+              .textTable(
+                  Text.TextTable.builder()
+                      .lookupTableKey(lookupTableKey)
+                      .fullText(fullText)
+                      .build())
+              .build();
+      if (texts.put(entity, text) != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate entity '%s' in text: %s", entity.name(), textProto));
+      }
+    }
+    return texts;
+  }
 
   /** Build a map from entities to their {@link EntityFiltersSchema} for filters. */
   private static Map<Entity, EntityFiltersSchema> buildEntityFiltersSchemas(
@@ -729,6 +759,17 @@ public final class UnderlayConversion {
         throw new UnsupportedOperationException(
             String.format("Unsupported BinaryColumnFilterOperator %s", operator.name()));
     }
+  }
+
+  /** Retrieves the {@link Entity} by name, or throws if none is found. */
+  private static Entity retrieve(
+      String entityName, Map<String, Entity> entities, Message parentMessage) {
+    Entity entity = entities.get(entityName);
+    if (entity == null) {
+      throw new IllegalArgumentException(
+          String.format("Unknown entity %s in %s", entityName, parentMessage));
+    }
+    return entity;
   }
 
   /**

@@ -11,6 +11,7 @@ import "bio/terra/tanagra/underlay/hierarchy.proto";
 import "bio/terra/tanagra/underlay/mapping.proto";
 import "bio/terra/tanagra/underlay/search.proto";
 import "bio/terra/tanagra/underlay/tables.proto";
+import "bio/terra/tanagra/underlay/text.proto";
 
 // The description of an underlay.
 message Underlay {
@@ -34,6 +35,9 @@ message Underlay {
 
   // The hierarchies for attributes with hierarchies in the underlay.
   repeated Hierarchy hierarchies = 9;
+
+  // The text search information for entities in the underlay.
+  repeated Text texts = 10;
 
   // The entity filters available on this underlay.
   repeated EntityFiltersSchema entity_filters_schemas = 8;
