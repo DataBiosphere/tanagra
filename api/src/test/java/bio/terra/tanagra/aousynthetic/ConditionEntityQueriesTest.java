@@ -15,6 +15,7 @@ import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import com.google.common.collect.ImmutableList;
@@ -174,5 +175,34 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/condition-entities-root-nodes.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all condition entity instances that match a text search")
+  void generateSqlForTextSearchOnConditionEntities() throws IOException {
+    // filter for "condition" entity instances that match the search term "sense of smell absent"
+    // i.e. conditions that have a name or synonym that includes "sense of smell absent"
+    ApiFilter senseOfSmellAbsent =
+        new ApiFilter()
+            .textSearchFilter(
+                new ApiTextSearchFilter()
+                    .entityVariable("condition_alias")
+                    .term("sense of smell absent"));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            CONDITION_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("condition_alias")
+                        .selectedAttributes(ALL_CONDITION_ATTRIBUTES)
+                        .filter(senseOfSmellAbsent)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/condition-entities-text-search.sql");
   }
 }

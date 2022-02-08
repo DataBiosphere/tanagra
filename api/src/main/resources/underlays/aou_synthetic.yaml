@@ -230,6 +230,12 @@ datasets:
             dataType: INT64
           - name: relationship_id
             dataType: STRING
+      - name: concept_synonym
+        columns:
+          - name: concept_id
+            dataType: INT64
+          - name: concept_synonym_name
+            dataType: STRING
   - name: omop_indexes
     bigQueryDataset:
       projectId: broad-tanagra-dev
@@ -1308,3 +1314,44 @@ hierarchies:
         dataset: omop_indexes
         table: concept_node_path_2
         column: path
+texts:
+  - entity: condition
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_synonym_name
+  - entity: procedure
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_synonym_name
+  - entity: measurement
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_synonym_name
+  - entity: ingredient
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_synonym_name

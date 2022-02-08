@@ -16,6 +16,7 @@ import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import com.google.common.collect.ImmutableList;
@@ -218,5 +219,32 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/ingredient-entities-root-nodes.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all ingredient entity instances that match a text search")
+  void generateSqlForTextSearchOnIngredientEntities() throws IOException {
+    // filter for "ingredient" entity instances that match the search term "alcohol"
+    // i.e. ingredients that have a name or synonym that includes "alcohol"
+    ApiFilter mammogram =
+        new ApiFilter()
+            .textSearchFilter(
+                new ApiTextSearchFilter().entityVariable("ingredient_alias").term("alcohol"));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            INGREDIENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("ingredient_alias")
+                        .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
+                        .filter(mammogram)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/ingredient-entities-text-search.sql");
   }
 }
