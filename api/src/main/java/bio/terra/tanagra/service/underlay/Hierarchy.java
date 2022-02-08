@@ -158,6 +158,9 @@ public abstract class Hierarchy {
      */
     public abstract Column path();
 
+    /** A column with the number of children the node has in the hierarchy. */
+    public abstract Column numChildren();
+
     /** The underlying {@link Table}. */
     public Table table() {
       return node().table();
@@ -179,12 +182,17 @@ public abstract class Hierarchy {
 
       public abstract Column path();
 
+      public abstract Builder numChildren(Column numChildren);
+
+      public abstract Column numChildren();
+
       public PathsTable build() {
         Preconditions.checkArgument(
-            node().table().equals(path().table()),
-            "node and path columns must share the same table, but found [%s] and [%s] tables",
+            node().table().equals(path().table()) && node().table().equals(numChildren().table()),
+            "node, path, and numChildren columns must share the same table, but found [%s], [%s] and [%s] tables",
             node().table(),
-            path().table());
+            path().table(),
+            numChildren().table());
         return autoBuild();
       }
 

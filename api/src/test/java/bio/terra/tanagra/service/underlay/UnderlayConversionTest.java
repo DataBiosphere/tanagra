@@ -28,6 +28,7 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_NAME_COL;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_T_NUMCHILDREN_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_T_PATH_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATION_B_ID;
@@ -94,6 +95,7 @@ public class UnderlayConversionTest {
             .put(BOAT, "type_name", BOAT_TYPE_NAME)
             .put(BOAT, "type_id", BOAT_TYPE_ID)
             .put(BOAT, "t_path_type_id", BOAT_T_PATH_TYPE_ID)
+            .put(BOAT, "t_numChildren_type_id", BOAT_T_NUMCHILDREN_TYPE_ID)
             .put(RESERVATION, "id", RESERVATION_ID)
             .put(RESERVATION, "boats_id", RESERVATION_B_ID)
             .put(RESERVATION, "sailors_id", RESERVATION_S_ID)
@@ -165,6 +167,12 @@ public class UnderlayConversionTest {
                 BOAT_T_PATH_TYPE_ID,
                 AttributeMapping.HierarchyPathColumn.create(
                     BOAT_T_PATH_TYPE_ID,
+                    BOAT_TYPE_HIERARCHY,
+                    AttributeMapping.SimpleColumn.create(BOAT_TYPE_ID, BOAT_BT_ID_COL)))
+            .put(
+                BOAT_T_NUMCHILDREN_TYPE_ID,
+                AttributeMapping.HierarchyNumChildrenColumn.create(
+                    BOAT_T_NUMCHILDREN_TYPE_ID,
                     BOAT_TYPE_HIERARCHY,
                     AttributeMapping.SimpleColumn.create(BOAT_TYPE_ID, BOAT_BT_ID_COL)))
             .put(

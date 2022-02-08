@@ -216,6 +216,8 @@ datasets:
             dataType: STRING
           - name: concept_class_id
             dataType: STRING
+          - name: valid_end_date
+            dataType: STRING
       - name: vocabulary
         columns:
           - name: vocabulary_id
@@ -253,6 +255,86 @@ datasets:
             dataType: INT64
           - name: path
             dataType: STRING
+      - name: condition_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: procedure_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: measurement_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: ingredient_ancestor_descendant_2
+        columns:
+          - name: ancestor
+            dataType: INT64
+          - name: descendant
+            dataType: INT64
+      - name: condition_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+          - name: numChildren
+            dataType: INT64
+      - name: procedure_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+          - name: numChildren
+            dataType: INT64
+      - name: measurement_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+          - name: numChildren
+            dataType: INT64
+      - name: ingredient_node_path_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: path
+            dataType: STRING
+          - name: numChildren
+            dataType: INT64
+      - name: condition_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
+      - name: procedure_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
+      - name: measurement_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
+      - name: ingredient_parent_child_2
+        columns:
+          - name: parent
+            dataType: INT64
+          - name: child
+            dataType: INT64
 entityMappings:
   - entity: person
     primaryKey:
@@ -265,26 +347,42 @@ entityMappings:
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: domain_id
-        operator: EQUALS
-        stringVal: Condition
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Condition
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: valid_end_date
+            operator: GREATER_THAN
+            stringVal: 2022-01-01
   - entity: procedure
     primaryKey:
       dataset: aou_synthetic
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: domain_id
-        operator: EQUALS
-        stringVal: Procedure
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Procedure
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: valid_end_date
+            operator: GREATER_THAN
+            stringVal: 2022-01-01
   - entity: ingredient
     primaryKey:
       dataset: aou_synthetic
@@ -293,6 +391,135 @@ entityMappings:
     tableFilter:
       arrayColumnFilter:
         operator: AND
+        arrayColumnFilters:
+          - operator: OR
+            arrayColumnFilters:
+              - operator: AND
+                arrayColumnFilters:
+                  - operator: OR
+                    binaryColumnFilters:
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: vocabulary_id
+                        operator: EQUALS
+                        stringVal: RxNorm
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: vocabulary_id
+                        operator: EQUALS
+                        stringVal: RxNorm Extension
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: concept_class_id
+                    operator: EQUALS
+                    stringVal: Ingredient
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: standard_concept
+                    operator: EQUALS
+                    stringVal: S
+              - operator: AND
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: vocabulary_id
+                    operator: EQUALS
+                    stringVal: RxNorm
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: concept_class_id
+                    operator: EQUALS
+                    stringVal: Precise Ingredient
+              - operator: AND
+                arrayColumnFilters:
+                  - operator: OR
+                    binaryColumnFilters:
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 1st
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 2nd
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 3rd
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 4th
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: ATC 5th
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: vocabulary_id
+                    operator: EQUALS
+                    stringVal: ATC
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: standard_concept
+                    operator: EQUALS
+                    stringVal: C
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Drug
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: valid_end_date
+            operator: GREATER_THAN
+            stringVal: 2022-01-01
+  - entity: brand
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      arrayColumnFilter:
+        operator: AND
+        arrayColumnFilters:
+          - operator: OR
+            binaryColumnFilters:
+              - column:
+                  dataset: aou_synthetic
+                  table: concept
+                  column: vocabulary_id
+                operator: EQUALS
+                stringVal: RxNorm
+              - column:
+                  dataset: aou_synthetic
+                  table: concept
+                  column: vocabulary_id
+                operator: EQUALS
+                stringVal: RxNorm Extension
         binaryColumnFilters:
           - column:
               dataset: aou_synthetic
@@ -304,33 +531,96 @@ entityMappings:
               dataset: aou_synthetic
               table: concept
               column: concept_class_id
-            operator: NOT_EQUALS
+            operator: EQUALS
             stringVal: Brand Name
           - column:
               dataset: aou_synthetic
               table: concept
               column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Drug
+            operator: EQUALS
+  - entity: measurement
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      arrayColumnFilter:
+        operator: AND
+        arrayColumnFilters:
+          - operator: OR
+            arrayColumnFilters:
+              - operator: AND
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: domain_id
+                    operator: EQUALS
+                    stringVal: Measurement
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: vocabulary_id
+                    operator: EQUALS
+                    stringVal: SNOMED
+              - operator: AND
+                arrayColumnFilters:
+                  - operator: OR
+                    binaryColumnFilters:
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: LOINC Hierarchy
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: LOINC Component
+                      - column:
+                          dataset: aou_synthetic
+                          table: concept
+                          column: concept_class_id
+                        operator: EQUALS
+                        stringVal: Lab Test
+                binaryColumnFilters:
+                  - column:
+                      dataset: aou_synthetic
+                      table: concept
+                      column: vocabulary_id
+                    operator: EQUALS
+                    stringVal: LOINC
+        binaryColumnFilters:
           - column:
               dataset: aou_synthetic
               table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Drug Comp
+              column: valid_end_date
+            operator: GREATER_THAN
+            stringVal: 2022-01-01
+  - entity: visit
+    primaryKey:
+      dataset: aou_synthetic
+      table: concept
+      column: concept_id
+    tableFilter:
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
           - column:
               dataset: aou_synthetic
               table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Drug Form
+              column: vocabulary_id
+            operator: EQUALS
+            stringVal: Visit
           - column:
               dataset: aou_synthetic
               table: concept
-              column: concept_class_id
-            operator: NOT_EQUALS
-            stringVal: Branded Dose Group
-  - entity: brand
+              column: standard_concept
+            operator: EQUALS
+            stringVal: S
+  - entity: observation
     primaryKey:
       dataset: aou_synthetic
       table: concept
@@ -344,65 +634,46 @@ entityMappings:
               table: concept
               column: domain_id
             operator: EQUALS
-            stringVal: Drug
+            stringVal: Observation
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: standard_concept
+            operator: EQUALS
+            stringVal: S
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: vocabulary_id
+            operator: NOT_EQUALS
+            stringVal: PPI
           - column:
               dataset: aou_synthetic
               table: concept
               column: concept_class_id
-            operator: EQUALS
-            stringVal: Brand Name
-  - entity: measurement
-    primaryKey:
-      dataset: aou_synthetic
-      table: concept
-      column: concept_id
-    tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: domain_id
-        operator: EQUALS
-        stringVal: Measurement
-  - entity: visit
-    primaryKey:
-      dataset: aou_synthetic
-      table: concept
-      column: concept_id
-    tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: vocabulary_id
-        operator: EQUALS
-        stringVal: Visit
-  - entity: observation
-    primaryKey:
-      dataset: aou_synthetic
-      table: concept
-      column: concept_id
-    tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: domain_id
-        operator: EQUALS
-        stringVal: Observation
+            operator: NOT_EQUALS
+            stringVal: Survey
   - entity: device
     primaryKey:
       dataset: aou_synthetic
       table: concept
       column: concept_id
     tableFilter:
-      binaryColumnFilter:
-        column:
-          dataset: aou_synthetic
-          table: concept
-          column: domain_id
-        operator: EQUALS
-        stringVal: Device
+      arrayColumnFilter:
+        operator: AND
+        binaryColumnFilters:
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: domain_id
+            operator: EQUALS
+            stringVal: Device
+          - column:
+              dataset: aou_synthetic
+              table: concept
+              column: standard_concept
+            operator: EQUALS
+            stringVal: S
   - entity: condition_occurrence
     primaryKey:
       dataset: aou_synthetic
@@ -1124,187 +1395,133 @@ hierarchies:
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: condition_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: condition_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: condition_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: condition_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: condition_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: condition_node_path_2
         column: path
+      numChildren:
+        dataset: omop_indexes
+        table: condition_node_path_2
+        column: numChildren
   - attribute:
       entity: procedure
       attribute: concept_id
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: procedure_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: procedure_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: procedure_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: procedure_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: procedure_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: procedure_node_path_2
         column: path
+      numChildren:
+        dataset: omop_indexes
+        table: procedure_node_path_2
+        column: numChildren
   - attribute:
       entity: ingredient
       attribute: concept_id
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: ingredient_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: ingredient_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: ingredient_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: ingredient_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: ingredient_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: ingredient_node_path_2
         column: path
+      numChildren:
+        dataset: omop_indexes
+        table: ingredient_node_path_2
+        column: numChildren
   - attribute:
       entity: measurement
       attribute: concept_id
     descendantsTable:
       ancestor:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: measurement_ancestor_descendant_2
         column: ancestor
       descendant:
         dataset: omop_indexes
-        table: concept_ancestor_descendant_2
+        table: measurement_ancestor_descendant_2
         column: descendant
     childrenTable:
       parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
+        dataset: omop_indexes
+        table: measurement_parent_child_2
+        column: parent
       child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
+        dataset: omop_indexes
+        table: measurement_parent_child_2
+        column: child
     pathsTable:
       node:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: measurement_node_path_2
         column: node
       path:
         dataset: omop_indexes
-        table: concept_node_path_2
+        table: measurement_node_path_2
         column: path
-  - attribute:
-      entity: condition_occurrence
-      attribute: condition_concept_id
-    descendantsTable:
-      ancestor:
+      numChildren:
         dataset: omop_indexes
-        table: flatten_snomed_conditions_0
-        column: ancestor
-      descendant:
-        dataset: omop_indexes
-        table: flatten_snomed_conditions_0
-        column: descendant
-    childrenTable:
-      parent:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_1
-      child:
-        dataset: aou_synthetic
-        table: concept_relationship
-        column: concept_id_2
-      tableFilter:
-        binaryColumnFilter:
-          column:
-            dataset: aou_synthetic
-            table: concept_relationship
-            column: relationship_id
-          operator: EQUALS
-          stringVal: Subsumes
-    pathsTable:
-      node:
-        dataset: omop_indexes
-        table: concept_node_path_2
-        column: node
-      path:
-        dataset: omop_indexes
-        table: concept_node_path_2
-        column: path
+        table: measurement_node_path_2
+        column: numChildren

@@ -34,6 +34,10 @@ dependencies {
     // ApacheBeam TestPipeline requires JUnit4. https://issues.apache.org/jira/browse/BEAM-3415
     testImplementation "junit:junit:4.12"
     testImplementation "org.hamcrest:hamcrest:2.2"
+
+    // static analysis
+    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
 }
 test {
     useJUnit()

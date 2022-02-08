@@ -18,10 +18,10 @@ message Hierarchy {
 
   ChildrenTable children_table = 3;
 
-  // Note that the definition of the PathsTable causes Tanagra to add a
-  // generated attribute to the entity. This attribute will be named
-  // "t_path_xx" where xx=the name of the attribute for this hierarchy
-  // (defined above in this message).
+  // Note that the definition of the PathsTable causes Tanagra to add two
+  // generated attributes to the entity. These attributes will be named
+  // "t_path_xx" and "t_numChildren_xx" where xx=the name of the attribute
+  // for this hierarchy (defined above in this message).
   PathsTable paths_table = 4;
 }
 
@@ -48,12 +48,14 @@ message ChildrenTable {
   optional TableFilter table_filter = 3;
 }
 
-// A table of node attribute values to all path attribute values.
-// There should be a row for each node in the hierarchy (node, path).
+// A table of node attribute values to all path and numChildren attribute values.
+// There should be a row for each node in the hierarchy (node, path, numChildren).
 message PathsTable {
   // The column of the node value. This should have the same data type as
   // the attribute in the hierarchy.
   ColumnId node = 1;
   // The column of the path.
   ColumnId path = 2;
+  // The column of the number of children this node has in the hierarchy.
+  ColumnId num_children = 3;
 }
