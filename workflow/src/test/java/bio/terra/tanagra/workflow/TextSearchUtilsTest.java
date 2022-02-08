@@ -16,7 +16,7 @@ public class TextSearchUtilsTest {
   @Rule public final transient TestPipeline pipeline = TestPipeline.create();
 
   // list of all nodes
-  final List<Long> ALL_NODES = List.of(10L, 11L, 12L, 13L, 14L);
+  private static final List<Long> ALL_NODES = List.of(10L, 11L, 12L, 13L, 14L);
 
   @Test
   public void allNodesHaveAtLeastOneSearchString() {
