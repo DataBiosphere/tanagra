@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_MEASUREMENT_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.MEASUREMENT_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.MEASUREMENT_HIERARCHY_NUMCHILDREN_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.MEASUREMENT_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -117,8 +118,8 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for getting the hierarchy path for a single measurement entity instance")
-  void generateSqlForHierarchyPathOfAMeasurementEntity() throws IOException {
+      "correct SQL string for getting the hierarchy attributes (path, numChildren) for a single measurement entity instance")
+  void generateSqlForHierarchyAttributesOfAMeasurementEntity() throws IOException {
     // filter for "measurement" entity instances that have concept_id=40785850
     // i.e. the measurement "Calcium"
     ApiFilter calcium =
@@ -138,12 +139,15 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
                 .entityDataset(
                     new ApiEntityDataset()
                         .entityVariable("measurement_alias")
-                        .selectedAttributes(ImmutableList.of(MEASUREMENT_HIERARCHY_PATH_ATTRIBUTE))
+                        .selectedAttributes(
+                            ImmutableList.of(
+                                MEASUREMENT_HIERARCHY_PATH_ATTRIBUTE,
+                                MEASUREMENT_HIERARCHY_NUMCHILDREN_ATTRIBUTE))
                         .filter(calcium)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql, "aousynthetic/hierarchy-path-of-a-measurement.sql");
+        generatedSql, "aousynthetic/measurement-entity-hierarchy-attributes.sql");
   }
 
   @Test

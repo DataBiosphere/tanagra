@@ -19,6 +19,8 @@ public interface AttributeMapping {
     R visitLookupColumn(LookupColumn lookupColumn);
 
     R visitHierarchyPathColumn(HierarchyPathColumn hierarchyPathColumn);
+
+    R visitHierarchyNumChildrenColumn(HierarchyNumChildrenColumn hierarchyNumChildrenColumn);
   }
 
   /** Accept the {@link AttributeMapping.Visitor} pattern. */
@@ -89,9 +91,9 @@ public interface AttributeMapping {
   }
 
   /**
-   * An {@link AttributeMapping} where an attribute maps to the path of the node in a hierarchy.
-   * This type of attribute mapping is never specified in the underlay explicitly. It is added
-   * automatically for any attribute that is part of a hierarchy.
+   * An {@link AttributeMapping} where an attribute maps to the path column in the node-path table
+   * for the hierarchy. This type of attribute mapping is never specified in the underlay
+   * explicitly. It is added automatically for any attribute that is part of a hierarchy.
    */
   @AutoValue
   abstract class HierarchyPathColumn implements AttributeMapping {
@@ -115,6 +117,37 @@ public interface AttributeMapping {
     public static HierarchyPathColumn create(
         Attribute attribute, Hierarchy hierarchy, AttributeMapping attributeMapping) {
       return new AutoValue_AttributeMapping_HierarchyPathColumn(
+          attribute, hierarchy, attributeMapping);
+    }
+  }
+
+  /**
+   * An {@link AttributeMapping} where an attribute maps to the numChildren column in the node-path
+   * table for the hierarchy. This type of attribute mapping is never specified in the underlay
+   * explicitly. It is added automatically for any attribute that is part of a hierarchy.
+   */
+  @AutoValue
+  abstract class HierarchyNumChildrenColumn implements AttributeMapping {
+    @Override
+    public abstract Attribute attribute();
+
+    /* The hierarchy for the attribute. */
+    public abstract Hierarchy hierarchy();
+
+    /**
+     * The mapping for the attribute that the hierarchy is based on. This cannot be a {@link
+     * HierarchyNumChildrenColumn} mapping.
+     */
+    public abstract AttributeMapping hierarchyAttributeMapping();
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitHierarchyNumChildrenColumn(this);
+    }
+
+    public static HierarchyNumChildrenColumn create(
+        Attribute attribute, Hierarchy hierarchy, AttributeMapping attributeMapping) {
+      return new AutoValue_AttributeMapping_HierarchyNumChildrenColumn(
           attribute, hierarchy, attributeMapping);
     }
   }

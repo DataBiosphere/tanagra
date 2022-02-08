@@ -412,8 +412,14 @@ public final class UnderlayConversion {
           retrieve(hierarchyProto.getPathsTable().getNode(), columns, "node", hierarchyProto);
       Column path =
           retrieve(hierarchyProto.getPathsTable().getPath(), columns, "path", hierarchyProto);
+      Column numChildren =
+          retrieve(
+              hierarchyProto.getPathsTable().getNumChildren(),
+              columns,
+              "numChildren",
+              hierarchyProto);
       Hierarchy.PathsTable.Builder pathsTable =
-          Hierarchy.PathsTable.builder().node(node).path(path);
+          Hierarchy.PathsTable.builder().node(node).path(path).numChildren(numChildren);
 
       Hierarchy hierarchy =
           Hierarchy.builder()
@@ -421,7 +427,12 @@ public final class UnderlayConversion {
               .childrenTable(childrenTable.build())
               .pathsTable(pathsTable.build())
               .build();
-      // add a new attribute+mapping to the entity that contains the hierarchy path
+      if (hierarchies.put(attribute, hierarchy) != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate attribute hierarchies not allowed: %s", attribute));
+      }
+
+      // add 2 new attribute+mappings to the entity for the hierarchy path and numChildren
       Attribute hierarchyPathAttribute =
           Attribute.builder()
               .name("t_path_" + attribute.name())
@@ -432,26 +443,41 @@ public final class UnderlayConversion {
       AttributeMapping hierarchyPathAttributeMapping =
           AttributeMapping.HierarchyPathColumn.create(
               hierarchyPathAttribute, hierarchy, attributeMapping);
-
-      if (hierarchies.put(attribute, hierarchy) != null) {
-        throw new IllegalArgumentException(
-            String.format("Duplicate attribute hierarchies not allowed: %s", attribute));
-      }
-      if (attributes.put(
-              hierarchyPathAttribute.entity(),
-              hierarchyPathAttribute.name(),
-              hierarchyPathAttribute)
-          != null) {
-        throw new IllegalArgumentException(
-            String.format("Duplicate path attributes not allowed: %s", hierarchyPathAttribute));
-      }
-      if (attributeMappings.put(hierarchyPathAttribute, hierarchyPathAttributeMapping) != null) {
-        throw new IllegalArgumentException(
-            String.format(
-                "Duplicate path attribute mappings not allowed: %s", hierarchyPathAttribute));
-      }
+      addHierarchyAttributeMapping(
+          hierarchyPathAttribute, hierarchyPathAttributeMapping, attributes, attributeMappings);
+      Attribute hierarchyNumChildrenAttribute =
+          Attribute.builder()
+              .name("t_numChildren_" + attribute.name())
+              .entity(attribute.entity())
+              .dataType(DataType.INT64)
+              .isGenerated(true)
+              .build();
+      AttributeMapping hierarchyNumChildrenAttributeMapping =
+          AttributeMapping.HierarchyNumChildrenColumn.create(
+              hierarchyNumChildrenAttribute, hierarchy, attributeMapping);
+      addHierarchyAttributeMapping(
+          hierarchyNumChildrenAttribute,
+          hierarchyNumChildrenAttributeMapping,
+          attributes,
+          attributeMappings);
     }
     return hierarchies;
+  }
+
+  private static void addHierarchyAttributeMapping(
+      Attribute hierarchyAttribute,
+      AttributeMapping hierarchyAttributeMapping,
+      com.google.common.collect.Table<Entity, String, Attribute> attributes,
+      Map<Attribute, AttributeMapping> attributeMappings) {
+    if (attributes.put(hierarchyAttribute.entity(), hierarchyAttribute.name(), hierarchyAttribute)
+        != null) {
+      throw new IllegalArgumentException(
+          String.format("Duplicate attributes not allowed: %s", hierarchyAttribute));
+    }
+    if (attributeMappings.put(hierarchyAttribute, hierarchyAttributeMapping) != null) {
+      throw new IllegalArgumentException(
+          String.format("Duplicate attribute mappings not allowed: %s", hierarchyAttribute));
+    }
   }
 
   /** Build a map from entities to their {@link EntityFiltersSchema} for filters. */

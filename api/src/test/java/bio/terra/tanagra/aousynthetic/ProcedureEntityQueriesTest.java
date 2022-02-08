@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_PROCEDURE_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PROCEDURE_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PROCEDURE_HIERARCHY_NUMCHILDREN_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PROCEDURE_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -114,8 +115,8 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for getting the hierarchy path for a single procedure entity instance")
-  void generateSqlForHierarchyPathOfAProcedureEntity() throws IOException {
+      "correct SQL string for getting the hierarchy attributes (path, numChildren) for a single procedure entity instance")
+  void generateSqlForHierarchyAttributesOfAProcedureEntity() throws IOException {
     // filter for "procedure" entity instances that have concept_id=4198190
     // i.e. the procedure "Appendectomy"
     ApiFilter appendectomy =
@@ -135,12 +136,15 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
                 .entityDataset(
                     new ApiEntityDataset()
                         .entityVariable("procedure_alias")
-                        .selectedAttributes(ImmutableList.of(PROCEDURE_HIERARCHY_PATH_ATTRIBUTE))
+                        .selectedAttributes(
+                            ImmutableList.of(
+                                PROCEDURE_HIERARCHY_PATH_ATTRIBUTE,
+                                PROCEDURE_HIERARCHY_NUMCHILDREN_ATTRIBUTE))
                         .filter(appendectomy)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql, "aousynthetic/hierarchy-path-of-a-procedure.sql");
+        generatedSql, "aousynthetic/procedure-entity-hierarchy-attributes.sql");
   }
 
   @Test

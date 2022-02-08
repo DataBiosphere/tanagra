@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_CONDITION_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_HIERARCHY_NUMCHILDREN_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -114,8 +115,8 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for getting the hierarchy path for a single condition entity instance")
-  void generateSqlForHierarchyPathOfAConditionEntity() throws IOException {
+      "correct SQL string for getting the hierarchy attributes (path, numChildren) for a single condition entity instance")
+  void generateSqlForHierarchyAttributesOfAConditionEntity() throws IOException {
     // filter for "condition" entity instances that have concept_id=201620
     // i.e. the condition "Kidney stone"
     ApiFilter kidneyStone =
@@ -135,12 +136,15 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
                 .entityDataset(
                     new ApiEntityDataset()
                         .entityVariable("condition_alias")
-                        .selectedAttributes(ImmutableList.of(CONDITION_HIERARCHY_PATH_ATTRIBUTE))
+                        .selectedAttributes(
+                            ImmutableList.of(
+                                CONDITION_HIERARCHY_PATH_ATTRIBUTE,
+                                CONDITION_HIERARCHY_NUMCHILDREN_ATTRIBUTE))
                         .filter(kidneyStone)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql, "aousynthetic/hierarchy-path-of-a-condition.sql");
+        generatedSql, "aousynthetic/condition-entity-hierarchy-attributes.sql");
   }
 
   @Test
