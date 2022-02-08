@@ -70,6 +70,13 @@ public final class NauticalUnderlayUtils {
           .entity(BOAT)
           .isGenerated(true)
           .build();
+  public static final Attribute BOAT_T_NUMCHILDREN_TYPE_ID =
+      Attribute.builder()
+          .name("t_numChildren_type_id")
+          .dataType(DataType.INT64)
+          .entity(BOAT)
+          .isGenerated(true)
+          .build();
 
   public static final Attribute RESERVATION_ID =
       Attribute.builder().name("id").dataType(DataType.INT64).entity(RESERVATION).build();
@@ -205,6 +212,12 @@ public final class NauticalUnderlayUtils {
           .dataType(DataType.STRING)
           .table(BOAT_TYPE_PATHS_TABLE)
           .build();
+  public static final Column BOAT_TYPE_PATHS_NUMCHILDREN_COL =
+      Column.builder()
+          .name("bt_num_children")
+          .dataType(DataType.INT64)
+          .table(BOAT_TYPE_PATHS_TABLE)
+          .build();
   public static final Column BOAT_PARTS_ID_COL =
       Column.builder().name("bp_id").dataType(DataType.INT64).table(BOAT_PARTS_TABLE).build();
   public static final Column BOAT_PARTS_NAME_COL =
@@ -252,6 +265,7 @@ public final class NauticalUnderlayUtils {
               Hierarchy.PathsTable.builder()
                   .node(BOAT_TYPE_PATHS_NODE_COL)
                   .path(BOAT_TYPE_PATHS_PATH_COL)
+                  .numChildren(BOAT_TYPE_PATHS_NUMCHILDREN_COL)
                   .build())
           .build();
 

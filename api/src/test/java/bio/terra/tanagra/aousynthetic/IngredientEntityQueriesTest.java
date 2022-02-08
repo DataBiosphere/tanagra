@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_INGREDIENT_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.INGREDIENT_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.INGREDIENT_HIERARCHY_NUMCHILDREN_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.INGREDIENT_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -159,7 +160,7 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for getting the hierarchy path for a single ingredient entity instance")
+      "correct SQL string for getting the hierarchy attributes (path, numChildren) for a single ingredient entity instance")
   void generateSqlForHierarchyPathOfAnIngredientEntity() throws IOException {
     // filter for "ingredient" entity instances that have concept_id=1784444
     // i.e. the ingredient "Ivermectin"
@@ -180,30 +181,33 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
                 .entityDataset(
                     new ApiEntityDataset()
                         .entityVariable("ingredient_alias")
-                        .selectedAttributes(ImmutableList.of(INGREDIENT_HIERARCHY_PATH_ATTRIBUTE))
+                        .selectedAttributes(
+                            ImmutableList.of(
+                                INGREDIENT_HIERARCHY_PATH_ATTRIBUTE,
+                                INGREDIENT_HIERARCHY_NUMCHILDREN_ATTRIBUTE))
                         .filter(ivermectin)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql, "aousynthetic/hierarchy-path-of-an-ingredient.sql");
+        generatedSql, "aousynthetic/ingredient-entity-hierarchy-attributes.sql");
   }
 
   @Test
   @DisplayName(
       "correct SQL string for listing all ingredient entity instances that are root nodes in the hierarchy")
   void generateSqlForAllRootNodeIngredientEntities() throws IOException {
-    // filter for "ingredient" entity instances that have t_path_concept_id IS NULL
+    // filter for "ingredient" entity instances that have t_path_concept_id = ""
     // i.e. ingredient root nodes
     ApiFilter isRootNode =
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
-                    // not setting AttributeValue means to use a null value
                     .attributeVariable(
                         new ApiAttributeVariable()
                             .variable("ingredient_alias")
                             .name("t_path_concept_id"))
-                    .operator(ApiBinaryFilterOperator.EQUALS));
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().stringVal("")));
 
     ResponseEntity<ApiSqlQuery> response =
         apiController.generateDatasetSqlQuery(

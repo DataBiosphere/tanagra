@@ -2,6 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_CONDITION_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_HIERARCHY_NUMCHILDREN_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -115,8 +116,8 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for getting the hierarchy path for a single condition entity instance")
-  void generateSqlForHierarchyPathOfAConditionEntity() throws IOException {
+      "correct SQL string for getting the hierarchy attributes (path, numChildren) for a single condition entity instance")
+  void generateSqlForHierarchyAttributesOfAConditionEntity() throws IOException {
     // filter for "condition" entity instances that have concept_id=201620
     // i.e. the condition "Kidney stone"
     ApiFilter kidneyStone =
@@ -136,30 +137,33 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
                 .entityDataset(
                     new ApiEntityDataset()
                         .entityVariable("condition_alias")
-                        .selectedAttributes(ImmutableList.of(CONDITION_HIERARCHY_PATH_ATTRIBUTE))
+                        .selectedAttributes(
+                            ImmutableList.of(
+                                CONDITION_HIERARCHY_PATH_ATTRIBUTE,
+                                CONDITION_HIERARCHY_NUMCHILDREN_ATTRIBUTE))
                         .filter(kidneyStone)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql, "aousynthetic/hierarchy-path-of-a-condition.sql");
+        generatedSql, "aousynthetic/condition-entity-hierarchy-attributes.sql");
   }
 
   @Test
   @DisplayName(
       "correct SQL string for listing all condition entity instances that are root nodes in the hierarchy")
   void generateSqlForAllRootNodeConditionEntities() throws IOException {
-    // filter for "condition" entity instances that have t_path_concept_id IS NULL
+    // filter for "condition" entity instances that have t_path_concept_id = ""
     // i.e. condition root nodes
     ApiFilter isRootNode =
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
-                    // not setting AttributeValue means to use a null value
                     .attributeVariable(
                         new ApiAttributeVariable()
                             .variable("condition_alias")
                             .name("t_path_concept_id"))
-                    .operator(ApiBinaryFilterOperator.EQUALS));
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().stringVal("")));
 
     ResponseEntity<ApiSqlQuery> response =
         apiController.generateDatasetSqlQuery(

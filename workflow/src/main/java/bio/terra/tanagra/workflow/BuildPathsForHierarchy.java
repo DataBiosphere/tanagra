@@ -6,10 +6,8 @@ import com.google.api.services.bigquery.model.TableSchema;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
@@ -17,7 +15,6 @@ import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.join.CoGbkResult;
 import org.apache.beam.sdk.transforms.join.CoGroupByKey;
@@ -25,7 +22,6 @@ import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TupleTag;
-import org.apache.beam.sdk.values.TypeDescriptors;
 
 /**
  * A batch Apache Beam pipeline for building a table that contains a path (i.e. a list of ancestors
@@ -48,9 +44,17 @@ public final class BuildPathsForHierarchy {
         "Path to a BigQuery standard SQL query file to execute to retrieve the hierarchy to be"
             + "flattened. The result of the query should have two columns, (parent, child) that"
             + "defines all of the direct relationships of the hierarchy.")
-    String getHierarchyQuery();
+    String getParentChildQuery();
 
-    void setHierarchyQuery(String query);
+    void setParentChildQuery(String query);
+
+    @Description(
+        "Path to a BigQuery standard SQL query file to execute to retrieve the root nodes."
+            + "The result of the query should have one column, (node).")
+    @Default.String("")
+    String getRootNodesFilterQuery();
+
+    void setRootNodesFilterQuery(String query);
 
     @Description(
         "The maximum depth of ancestors present in the hierarchy. This may be larger "
@@ -77,29 +81,128 @@ public final class BuildPathsForHierarchy {
     String getOutputPathColumn();
 
     void setOutputPathColumn(String pathColumn);
+
+    @Description("What to name the numChildren column on the output BigQuery table.")
+    @Default.String("numChildren")
+    String getOutputNumChildrenColumn();
+
+    void setOutputNumChildrenColumn(String numChildrenColumn);
   }
 
-  /**
-   * Convert a BQ {@link TableRow} to an Apache Beam {@link KV} pair for the (node, starting path).
-   * The starting path is just the node itself.
-   */
-  private static KV<Long, String> bqRowToNodePathKV(TableRow row) {
-    Long node = Long.parseLong((String) row.get("node"));
-    return KV.of(node, node.toString());
+  public static void main(String[] args) throws IOException {
+    BuildPathsForHierarchyOptions options =
+        PipelineOptionsFactory.fromArgs(args)
+            .withValidation()
+            .as(BuildPathsForHierarchyOptions.class);
+    Pipeline pipeline = Pipeline.create(options);
+
+    // read in the queries from files
+    String allNodesQuery = Files.readString(Path.of(options.getAllNodesQuery()));
+    String hierarchyQuery = Files.readString(Path.of(options.getParentChildQuery()));
+
+    // read in the nodes and the child-parent relationships from BQ
+    PCollection<Long> allNodesPC =
+        BigQueryUtils.readNodesFromBQ(pipeline, allNodesQuery, "allNodes");
+    PCollection<KV<Long, Long>> childParentRelationshipsPC =
+        BigQueryUtils.readChildParentRelationshipsFromBQ(pipeline, hierarchyQuery);
+
+    // compute a path to a root node for each node in the hierarchy
+    PCollection<KV<Long, String>> nodePathKVsPC =
+        PathUtils.computePaths(
+            allNodesPC, childParentRelationshipsPC, options.getMaxHierarchyDepth());
+
+    // count the number of children for each node in the hierarchy
+    PCollection<KV<Long, Long>> nodeNumChildrenKVsPC =
+        PathUtils.countChildren(allNodesPC, childParentRelationshipsPC);
+
+    // prune orphan nodes from the hierarchy (i.e. set path=null for nodes with no parents or
+    // children)
+    PCollection<KV<Long, String>> nodePrunedPathKVsPC =
+        PathUtils.pruneOrphanPaths(nodePathKVsPC, nodeNumChildrenKVsPC);
+
+    PCollection<KV<Long, String>> outputNodePathKVsPC;
+    if (!options.getRootNodesFilterQuery().isEmpty()) {
+      // read in the query from file
+      String rootNodesQuery = Files.readString(Path.of(options.getRootNodesFilterQuery()));
+
+      // read in the possible root nodes from BQ
+      PCollection<Long> possibleRootNodesPC =
+          BigQueryUtils.readNodesFromBQ(pipeline, rootNodesQuery, "rootNodes");
+
+      // filter the root nodes (i.e. set path=null for any existing root nodes that are not in the
+      // list of possibles)
+      outputNodePathKVsPC = PathUtils.filterRootNodes(possibleRootNodesPC, nodePrunedPathKVsPC);
+    } else {
+      outputNodePathKVsPC = nodePrunedPathKVsPC;
+    }
+
+    // write the node-{path, numChildren} pairs to BQ
+    writeNodePathAndNumChildrenToBQ(
+        outputNodePathKVsPC,
+        nodeNumChildrenKVsPC,
+        options.getOutputBigQueryTable(),
+        pathsForHierarchySchema(options));
+
+    pipeline.run().waitUntilFinish();
   }
 
-  /**
-   * Convert a BQ {@link TableRow} to an Apache Beam {@link KV} pair for the (child, parent)
-   * relationship.
-   */
-  private static KV<Long, String> bqRowToChildParentKV(TableRow row) {
-    Long parent = Long.parseLong((String) row.get("parent"));
-    Long child = Long.parseLong((String) row.get("child"));
+  /** Write the {@link KV} pairs (node, path) to BQ. */
+  private static void writeNodePathAndNumChildrenToBQ(
+      PCollection<KV<Long, String>> nodePathKVs,
+      PCollection<KV<Long, Long>> nodeNumChildrenKVs,
+      String outputBQTable,
+      TableSchema outputBQSchema) {
+    // define the CoGroupByKey tags
+    final TupleTag<String> pathTag = new TupleTag<>();
+    final TupleTag<Long> numChildrenTag = new TupleTag<>();
 
-    return KV.of(child, parent.toString());
+    // do a CoGroupByKey join of the current node-numChildren collection and the parent-child
+    // collection
+    PCollection<KV<Long, CoGbkResult>> pathNumChildrenJoin =
+        KeyedPCollectionTuple.of(pathTag, nodePathKVs)
+            .and(numChildrenTag, nodeNumChildrenKVs)
+            .apply(
+                "join node-path and node-numChildren collections for BQ row generation",
+                CoGroupByKey.create());
+
+    // run a ParDo for each row of the join result
+    PCollection<TableRow> nodePathAndNumChildrenBQRows =
+        pathNumChildrenJoin.apply(
+            "run ParDo for each row of the node-path and node-numChildren join result to build the BQ (node, path, numChildren) row objects",
+            ParDo.of(
+                new DoFn<KV<Long, CoGbkResult>, TableRow>() {
+                  @ProcessElement
+                  public void processElement(ProcessContext context) {
+                    KV<Long, CoGbkResult> element = context.element();
+                    Long node = element.getKey();
+                    Iterator<String> pathTagIter = element.getValue().getAll(pathTag).iterator();
+                    Iterator<Long> numChildrenTagIter =
+                        element.getValue().getAll(numChildrenTag).iterator();
+
+                    String path = pathTagIter.next();
+                    Long numChildren = numChildrenTagIter.next();
+
+                    BuildPathsForHierarchyOptions contextOptions =
+                        context.getPipelineOptions().as(BuildPathsForHierarchyOptions.class);
+                    context.output(
+                        new TableRow()
+                            .set(contextOptions.getOutputNodeColumn(), node)
+                            .set(contextOptions.getOutputPathColumn(), path)
+                            .set(contextOptions.getOutputNumChildrenColumn(), numChildren));
+                  }
+                }));
+
+    nodePathAndNumChildrenBQRows.apply(
+        "insert the (node, path, numChildren) rows into BQ",
+        BigQueryIO.writeTableRows()
+            .to(outputBQTable)
+            .withSchema(outputBQSchema)
+            .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
+            .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
+            .withMethod(BigQueryIO.Write.Method.FILE_LOADS));
   }
 
-  /** Defines the BigQuery schema for the output hierarchy table. */
+  /** Defines the BigQuery schema for the output (node, path) table. */
   private static TableSchema pathsForHierarchySchema(BuildPathsForHierarchyOptions options) {
     return new TableSchema()
         .setFields(
@@ -115,204 +218,10 @@ public final class BuildPathsForHierarchy {
                 new TableFieldSchema()
                     .setName(options.getOutputPathColumn())
                     .setType("STRING")
-                    .setMode("NULLABLE")));
-  }
-
-  public static void main(String[] args) throws IOException {
-    BuildPathsForHierarchyOptions options =
-        PipelineOptionsFactory.fromArgs(args)
-            .withValidation()
-            .as(BuildPathsForHierarchyOptions.class);
-
-    // read in the queries from files
-    String allNodesQuery = Files.readString(Path.of(options.getAllNodesQuery()));
-    String hierarchyQuery = Files.readString(Path.of(options.getHierarchyQuery()));
-
-    Pipeline pipeline = Pipeline.create(options);
-
-    // read in all (parent, child) rows
-    PCollection<TableRow> parentChildBQrows =
-        pipeline.apply(
-            "read all (parent,child) rows",
-            BigQueryIO.readTableRows()
-                .fromQuery(hierarchyQuery)
-                .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
-                .usingStandardSql());
-
-    // build a collection of KV<child,parent>
-    PCollection<KV<Long, String>> childParentKVs =
-        parentChildBQrows.apply(
-            "build (child,parent) KV pairs",
-            MapElements.into(
-                    TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.strings()))
-                .via(BuildPathsForHierarchy::bqRowToChildParentKV));
-
-    // read in all (node) rows
-    PCollection<TableRow> nodeBqRows =
-        pipeline.apply(
-            "read all (node) rows",
-            BigQueryIO.readTableRows()
-                .fromQuery(allNodesQuery)
-                .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
-                .usingStandardSql());
-
-    // build a collection of KV<node,path> where path=node
-    PCollection<KV<Long, String>> nextNodePathKVs =
-        nodeBqRows.apply(
-            "build (node,path) KV pairs",
-            MapElements.into(
-                    TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.strings()))
-                .via(BuildPathsForHierarchy::bqRowToNodePathKV));
-
-    // define the CoGroupByKey tags
-    final TupleTag<String> pathTag = new TupleTag<>();
-    final TupleTag<String> parentTag = new TupleTag<>();
-
-    // iterate through each possible level of the hierarchy, adding up to one node to each path per
-    // iteration
-    for (int ctr = 0; ctr < options.getMaxHierarchyDepth(); ctr++) {
-      // do a CoGroupByKey join of the current node-path collection and the child-parent collection
-      PCollection<KV<Long, CoGbkResult>> nodeParentPathJoin =
-          KeyedPCollectionTuple.of(pathTag, nextNodePathKVs)
-              .and(parentTag, childParentKVs)
-              .apply(CoGroupByKey.create());
-
-      nextNodePathKVs =
-          nodeParentPathJoin.apply(
-              ParDo.of(
-                  new DoFn<KV<Long, CoGbkResult>, KV<Long, String>>() {
-                    @ProcessElement
-                    public void processElement(ProcessContext context) {
-                      KV<Long, CoGbkResult> element = context.element();
-                      Long node = element.getKey();
-                      Iterator<String> pathTagIter = element.getValue().getAll(pathTag).iterator();
-                      Iterator<String> parentTagIter =
-                          element.getValue().getAll(parentTag).iterator();
-
-                      // there may be multiple possible next steps (i.e. the current node may have
-                      // multiple parents). just pick the first one
-                      String nextNodeInPath = parentTagIter.hasNext() ? parentTagIter.next() : null;
-
-                      // iterate through all the paths that need this relationship to complete their
-                      // next step
-                      while (pathTagIter.hasNext()) {
-                        String currentPath = pathTagIter.next();
-
-                        if (nextNodeInPath == null) {
-                          // if there are no relationships to complete the next step, then we've
-                          // reached a root node. just keep the path as is and move on the next one
-                          context.output(KV.of(node, currentPath));
-                        } else {
-                          // if there is a next node, then append it to the path and make it the new
-                          // key
-                          context.output(
-                              KV.of(
-                                  Long.valueOf(nextNodeInPath),
-                                  currentPath + "." + nextNodeInPath));
-                        }
-                      }
-                    }
-                  }));
-    }
-    // example for CoGroupByKey+ParDo iteration above:
-    //    desired result (node,path)
-    //    (a1,"a1.a2.a3")
-    //    (a2,"a2.a3")
-    //    (a3,"a3")
-    //    (b1,"b1.b2")
-    //    (b2,"b2")
-    //    (c1,"c1")
-    //
-    //    childParentKVs (child,parent)
-    //    (a1,"a2")
-    //    (a2,"a3")
-    //    (b1,"b2")
-    //
-    //    [iteration 0] nodePathKVs (next node,path)
-    //    (a1,"a1")
-    //    (a2,"a2")
-    //    (a3,"a3")
-    //    (b1,"b1")
-    //    (b2,"b2")
-    //    (c1,"c1")
-    //    [iteration 0] nodeParentPathJoin (next node,paths,next node parents)
-    //    (a1,["a1"],["a2"])
-    //    (a2,["a2"],["a3"])
-    //    (a3,["a3"],[])
-    //    (b1,["b1"],["b2"])
-    //    (b2,["b2"],[])
-    //    (c1,["c1"],[])
-    //
-    //    [iteration 1] nodePathKVs (next node,path)
-    //    (a2,"a2.a1")
-    //    (a3,"a3.a2")
-    //    (a3,"a3")
-    //    (b2,"b2.b1")
-    //    (b2,"b2")
-    //    (c1,"c1")
-    //    [iteration 1] nodeParentPathJoin (next node,paths,next node parents)
-    //    (a1,[],["a2"])
-    //    (a2,["a2.a1"],["a3"])
-    //    (a3,["a3.a2","a3"],[])
-    //    (b1,[],["b2]")
-    //    (b2,["b2.b1","b2"],[])
-    //    (c1,["c1"],[])
-
-    // swap the key of all pairs from the next node in the path (which should all be root nodes at
-    // this point), to the first node in the path. also trim the first node from the path.
-    PCollection<KV<Long, String>> nodePathKVs =
-        nextNodePathKVs.apply(
-            ParDo.of(
-                new DoFn<KV<Long, String>, KV<Long, String>>() {
-                  @ProcessElement
-                  public void processElement(ProcessContext context) {
-                    KV<Long, String> kvPair = context.element();
-
-                    String path = kvPair.getValue();
-
-                    // strip out the first node in the path, and make it the key
-                    // e.g. (a3,"a1.a2.a3") => (a1,"a2.a3")
-                    //      (c1,"c1") => (c1,"")
-                    List<String> nodesInPath = Arrays.asList(path.split("\\."));
-                    String firstNodeInPath = nodesInPath.remove(0);
-                    String pathWithoutFirstNode =
-                        nodesInPath.stream().collect(Collectors.joining("."));
-
-                    Long firstNode = Long.valueOf(firstNodeInPath);
-
-                    context.output(KV.of(firstNode, pathWithoutFirstNode));
-                  }
-                }));
-
-    // build the BQ row objects to insert
-    PCollection<TableRow> nodePathBQRows =
-        nodePathKVs.apply(
-            ParDo.of(
-                new DoFn<KV<Long, String>, TableRow>() {
-                  @ProcessElement
-                  public void processElement(ProcessContext context) {
-                    BuildPathsForHierarchyOptions contextOptions =
-                        context.getPipelineOptions().as(BuildPathsForHierarchyOptions.class);
-                    KV<Long, String> kvPair = context.element();
-
-                    context.output(
-                        new TableRow()
-                            .set(contextOptions.getOutputNodeColumn(), kvPair.getKey())
-                            .set(
-                                contextOptions.getOutputPathColumn(),
-                                kvPair.getValue().isEmpty() ? null : kvPair.getValue()));
-                  }
-                }));
-
-    // insert all these rows into BQ
-    nodePathBQRows.apply(
-        BigQueryIO.writeTableRows()
-            .to(options.getOutputBigQueryTable())
-            .withSchema(pathsForHierarchySchema(options))
-            .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
-            .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
-            .withMethod(BigQueryIO.Write.Method.FILE_LOADS));
-
-    pipeline.run().waitUntilFinish();
+                    .setMode("NULLABLE"),
+                new TableFieldSchema()
+                    .setName(options.getOutputNumChildrenColumn())
+                    .setType("INTEGER")
+                    .setMode("REQUIRED")));
   }
 }

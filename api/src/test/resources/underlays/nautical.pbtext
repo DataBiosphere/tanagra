@@ -220,6 +220,10 @@ datasets: {
       name: "bt_path"
       data_type: STRING
     }
+    columns: {
+      name: "bt_num_children"
+      data_type: INT64
+    }
   }
   tables: {
     name: "boat_parts"
@@ -638,6 +642,11 @@ hierarchies: {
       dataset: "nautical"
       table: "boat_types_paths"
       column: "bt_path"
+    }
+    num_children: {
+      dataset: "nautical"
+      table: "boat_types_paths"
+      column: "bt_num_children"
     }
   }
 }
