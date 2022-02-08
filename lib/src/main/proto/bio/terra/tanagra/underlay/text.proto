@@ -17,7 +17,8 @@ message Text {
 }
 
 // The table of information required to perform the text search.
-// There should be a row (node, fullText) for each entity instance.
+// There should be a row (lookupTableKey, fullText) for each possible
+// text string to match against per entity.
 message TextTable {
   // A column that foreign keys to the entity primary key.
   ColumnId lookup_table_key = 1;

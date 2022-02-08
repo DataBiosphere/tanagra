@@ -6,6 +6,7 @@ import bio.terra.tanagra.service.search.Filter.ArrayFunction;
 import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
+import bio.terra.tanagra.service.search.Filter.TextSearchFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.underlay.ArrayColumnFilter;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
@@ -21,6 +22,8 @@ import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import bio.terra.tanagra.service.underlay.IntermediateTable;
 import bio.terra.tanagra.service.underlay.Table;
 import bio.terra.tanagra.service.underlay.TableFilter;
+import bio.terra.tanagra.service.underlay.Text;
+import bio.terra.tanagra.service.underlay.Text.TextTable;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -248,6 +251,42 @@ public class SqlVisitor {
       String innerFilterSql = relationshipFilter.filter().accept(this);
       return underlayResolver.resolveRelationship(
           relationshipFilter.outerVariable(), relationshipFilter.newVariable(), innerFilterSql);
+    }
+
+    @Override
+    public String visitTextSearch(TextSearchFilter textSearchFilter) {
+      Text textSearchInfo =
+          searchContext.underlay().texts().get(textSearchFilter.entityVariable().entity());
+      if (textSearchInfo == null) {
+        throw new BadRequestException(
+            String.format(
+                "Text search only supported for entities with related information defined, but [%s] has no known information.",
+                textSearchFilter.entityVariable().entity().name()));
+      }
+      TextTable textTable = textSearchInfo.textTable();
+
+      Column primaryKeyColumn =
+          searchContext.underlay().primaryKeys().get(textSearchFilter.entityVariable().entity());
+      Preconditions.checkArgument(
+          primaryKeyColumn != null,
+          "Unable to find a primary key for entity '%s'",
+          textSearchFilter.entityVariable().entity());
+
+      String template =
+          "${entity_table_ref}.${entity_primary_key} IN "
+              + "(SELECT ${lookup_table_key} FROM ${text_table} WHERE CONTAINS_SUBSTR(${full_text}, ${search_text}))";
+      Map<String, String> params =
+          ImmutableMap.<String, String>builder()
+              .put("entity_table_ref", textSearchFilter.entityVariable().variable().name())
+              .put("entity_primary_key", primaryKeyColumn.name())
+              .put("text_table", underlayResolver.resolveTable(textTable.table()))
+              .put("lookup_table_key", textTable.lookupTableKey().name())
+              .put("full_text", textTable.fullText().name())
+              .put(
+                  "search_text",
+                  textSearchFilter.term().accept(new ExpressionVisitor(searchContext)))
+              .build();
+      return StringSubstitutor.replace(template, params);
     }
 
     @Override

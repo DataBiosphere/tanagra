@@ -7,7 +7,9 @@ import bio.terra.tanagra.generated.model.ApiBinaryFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.service.search.Attribute;
+import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Expression.AttributeExpression;
@@ -42,7 +44,8 @@ class FilterConverter {
     if (!ConversionUtils.exactlyOneNonNull(
         apiFilter.getArrayFilter(),
         apiFilter.getBinaryFilter(),
-        apiFilter.getRelationshipFilter())) {
+        apiFilter.getRelationshipFilter(),
+        apiFilter.getTextSearchFilter())) {
       throw new BadRequestException(
           String.format("Filter must have exactly one non-null field.%n%s", apiFilter.toString()));
     }
@@ -52,6 +55,8 @@ class FilterConverter {
       return convert(apiFilter.getBinaryFilter(), scope);
     } else if (apiFilter.getRelationshipFilter() != null) {
       return convert(apiFilter.getRelationshipFilter(), scope);
+    } else if (apiFilter.getTextSearchFilter() != null) {
+      return convert(apiFilter.getTextSearchFilter(), scope);
     }
     throw new BadRequestException("Unknown Filter type: " + apiFilter.toString());
   }
@@ -164,5 +169,20 @@ class FilterConverter {
         .newVariable(newEntityVariable)
         .filter(innerFilter)
         .build();
+  }
+
+  @VisibleForTesting
+  Filter.TextSearchFilter convert(ApiTextSearchFilter apiTextSearch, VariableScope scope) {
+    Optional<EntityVariable> entityVariable = scope.get(apiTextSearch.getEntityVariable());
+    if (entityVariable.isEmpty()) {
+      throw new BadRequestException(
+          String.format(
+              "Unknown variable '%s' in TextSearchFilter: %s",
+              apiTextSearch.getEntityVariable(), apiTextSearch));
+    }
+
+    Literal term = Literal.create(DataType.STRING, apiTextSearch.getTerm());
+
+    return Filter.TextSearchFilter.create(entityVariable.get(), term);
   }
 }
