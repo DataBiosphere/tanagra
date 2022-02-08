@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.app.controller.EntityInstancesApiController;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
+import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import java.io.IOException;
@@ -41,5 +43,32 @@ public class DeviceEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/all-device-entities.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all device entity instances that match a text search")
+  void generateSqlForTextSearchOnDeviceEntities() throws IOException {
+    // filter for "device" entity instances that match the search term "hearing aid"
+    // i.e. devices that have a name or synonym that includes "hearing aid"
+    ApiFilter hearingAid =
+        new ApiFilter()
+            .textSearchFilter(
+                new ApiTextSearchFilter().entityVariable("device_alias").term("hearing aid"));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            DEVICE_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("device_alias")
+                        .selectedAttributes(ALL_DEVICE_ATTRIBUTES)
+                        .filter(hearingAid)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/device-entities-text-search.sql");
   }
 }

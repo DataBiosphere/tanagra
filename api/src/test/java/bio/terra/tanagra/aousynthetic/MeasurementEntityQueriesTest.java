@@ -184,7 +184,7 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
   void generateSqlForTextSearchOnMeasurementEntities() throws IOException {
     // filter for "measurement" entity instances that match the search term "hematocrit"
     // i.e. measurements that have a name or synonym that includes "hematocrit"
-    ApiFilter mammogram =
+    ApiFilter hematocrit =
         new ApiFilter()
             .textSearchFilter(
                 new ApiTextSearchFilter().entityVariable("measurement_alias").term("hematocrit"));
@@ -198,7 +198,7 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
                     new ApiEntityDataset()
                         .entityVariable("measurement_alias")
                         .selectedAttributes(ALL_MEASUREMENT_ATTRIBUTES)
-                        .filter(mammogram)));
+                        .filter(hematocrit)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(

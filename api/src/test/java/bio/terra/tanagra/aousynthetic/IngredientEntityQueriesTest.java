@@ -227,7 +227,7 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
   void generateSqlForTextSearchOnIngredientEntities() throws IOException {
     // filter for "ingredient" entity instances that match the search term "alcohol"
     // i.e. ingredients that have a name or synonym that includes "alcohol"
-    ApiFilter mammogram =
+    ApiFilter alcohol =
         new ApiFilter()
             .textSearchFilter(
                 new ApiTextSearchFilter().entityVariable("ingredient_alias").term("alcohol"));
@@ -241,7 +241,7 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
                     new ApiEntityDataset()
                         .entityVariable("ingredient_alias")
                         .selectedAttributes(ALL_INGREDIENT_ATTRIBUTES)
-                        .filter(mammogram)));
+                        .filter(alcohol)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(

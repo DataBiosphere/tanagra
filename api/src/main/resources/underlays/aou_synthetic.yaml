@@ -1355,3 +1355,43 @@ texts:
         dataset: aou_synthetic
         table: concept_synonym
         column: concept_synonym_name
+  - entity: brand
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_synonym_name
+  - entity: device
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_synonym_name
+  - entity: observation
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept_synonym
+        column: concept_synonym_name
+  - entity: visit
+    textTable:
+      lookupTableKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      fullText:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_name
