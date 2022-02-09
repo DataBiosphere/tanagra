@@ -92,7 +92,7 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql,
         "aousynthetic/ingredient-entities-related-to-a-brand.sql",
-        "brand_ingredient");
+        ImmutableList.of("brand_ingredient"));
   }
 
   @Test

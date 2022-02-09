@@ -13,6 +13,7 @@ public final class UnderlayUtils {
   public static final String UNDERLAY_NAME = "aou_synthetic";
 
   public static final String PERSON_ENTITY = "person";
+  public static final String PERSON_ID_ATTRIBUTE = "person_id";
   public static final List<String> ALL_PERSON_ATTRIBUTES =
       ImmutableList.of(
           "person_id",
@@ -36,6 +37,16 @@ public final class UnderlayUtils {
           "concept_code");
   public static final String CONDITION_HIERARCHY_PATH_ATTRIBUTE = "t_path_concept_id";
   public static final String CONDITION_HIERARCHY_NUMCHILDREN_ATTRIBUTE = "t_numChildren_concept_id";
+
+  public static final String CONDITION_OCCURRENCE_ENTITY = "condition_occurrence";
+  public static final List<String> ALL_CONDITION_OCCURRENCE_ATTRIBUTES =
+      ImmutableList.of(
+          "condition_occurrence_id",
+          "person_id",
+          "condition_concept_id",
+          "condition_name",
+          "condition_standard",
+          "condition_concept_code");
 
   public static final String PROCEDURE_ENTITY = "procedure";
   public static final List<String> ALL_PROCEDURE_ATTRIBUTES =
