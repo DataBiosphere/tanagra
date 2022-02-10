@@ -156,12 +156,12 @@ relationships:
   - name: brand_ingredient
     entity1: brand
     entity2: ingredient
-  - name: condition_person
-    entity1: condition
+  - name: condition_occurrence_condition
+    entity1: condition_occurrence
+    entity2: condition
+  - name: condition_occurrence_person
+    entity1: condition_occurrence
     entity2: person
-  - name: person_condition_occurrence
-    entity1: person
-    entity2: condition_occurrence
   - name: concept_id_person_gender
     entity1: concept
     entity2: person
@@ -1331,33 +1331,25 @@ relationshipMappings:
         dataset: aou_synthetic
         table: concept_relationship
         column: concept_id_2
-  - name: condition_person
-    intermediateTable:
-      entity1EntityTableKey:
-        dataset: aou_synthetic
-        table: concept
-        column: concept_id
-      entity1IntermediateTableKey:
-        dataset: aou_synthetic
-        table: condition_occurrence
-        column: condition_concept_id
-      entity2EntityTableKey:
-        dataset: aou_synthetic
-        table: person
-        column: person_id
-      entity2IntermediateTableKey:
-        dataset: aou_synthetic
-        table: condition_occurrence
-        column: person_id
-  - name: person_condition_occurrence
+  - name: condition_occurrence_condition
     foreignKey:
       primaryKey:
         dataset: aou_synthetic
-        table: person
+        table: condition_occurrence
         column: person_id
       foreignKey:
         dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - name: condition_occurrence_person
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
         table: condition_occurrence
+        column: condition_concept_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: person
         column: person_id
   - name: concept_id_person_gender
     foreignKey:

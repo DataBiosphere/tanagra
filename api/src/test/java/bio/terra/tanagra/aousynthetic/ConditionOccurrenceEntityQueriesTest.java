@@ -43,31 +43,46 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
-                    .attributeVariable(new ApiAttributeVariable().variable("c").name("concept_id"))
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("condition_alias").name("concept_id"))
                     .operator(ApiBinaryFilterOperator.EQUALS)
                     .attributeValue(new ApiAttributeValue().int64Val(439_676L)));
 
-    // filter for "person" entity instances that are related to "condition" entity instances that
-    // have concept_id=439676
-    // i.e. give me all the people with "Coronavirus infection"
+    // filter for "condition_occurrence" entity instances that are related to "condition" entity
+    // instances that have concept_id=439676
+    // i.e. give me all the condition occurrences of "Coronavirus infection"
+    ApiFilter occurrencesOfCoronavirusInfection =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("condition_occurrence_alias1")
+                    .newVariable("condition_alias")
+                    .newEntity("condition")
+                    .filter(coronavirusInfection));
+
+    // filter for "person" entity instances that are related to "condition_occurrence" entity
+    // instances that are related to "condition" entity instances that have concept_id=439676
+    // i.e. give me all the people with condition occurrences of "Coronavirus infection"
     ApiFilter peopleWithCoronavirusInfection =
         new ApiFilter()
             .relationshipFilter(
                 new ApiRelationshipFilter()
-                    .outerVariable("p")
-                    .newVariable("c")
-                    .newEntity("condition")
-                    .filter(coronavirusInfection));
+                    .outerVariable("person_alias")
+                    .newVariable("condition_occurrence_alias1")
+                    .newEntity("condition_occurrence")
+                    .filter(occurrencesOfCoronavirusInfection));
 
     // filter for "condition occurrence" entity instances that are related to "person" entity
-    // instances that are related to "condition" entity instances that have concept_id=439676
-    // i.e. give me all the condition occurrence rows for people with "Coronavirus infection"
-    ApiFilter conditionOccurrencesForPeopleWithCoronavirusInfection =
+    // instances that are related to "condition_occurrence" entity instances that are related to
+    // "condition" entity instances that have concept_id=439676
+    // i.e. give me all the condition occurrence rows for people with "Coronavirus infection". this
+    // set of rows will include non-coronavirus infection condition occurrences, such as diabetes.
+    ApiFilter allConditionOccurrencesForPeopleWithCoronavirusInfection =
         new ApiFilter()
             .relationshipFilter(
                 new ApiRelationshipFilter()
-                    .outerVariable("co")
-                    .newVariable("p")
+                    .outerVariable("condition_occurrence_alias2")
+                    .newVariable("person_alias")
                     .newEntity("person")
                     .filter(peopleWithCoronavirusInfection));
 
@@ -78,9 +93,9 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
             new ApiGenerateDatasetSqlQueryRequest()
                 .entityDataset(
                     new ApiEntityDataset()
-                        .entityVariable("co")
+                        .entityVariable("condition_occurrence_alias2")
                         .selectedAttributes(ALL_CONDITION_OCCURRENCE_ATTRIBUTES)
-                        .filter(conditionOccurrencesForPeopleWithCoronavirusInfection)));
+                        .filter(allConditionOccurrencesForPeopleWithCoronavirusInfection)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
@@ -99,21 +114,34 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
-                    .attributeVariable(new ApiAttributeVariable().variable("c").name("concept_id"))
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("condition_alias").name("concept_id"))
                     .operator(ApiBinaryFilterOperator.EQUALS)
                     .attributeValue(new ApiAttributeValue().int64Val(439_676L)));
 
-    // filter for "person" entity instances that are related to "condition" entity instances that
-    // have concept_id=439676
-    // i.e. give me all the people with "Coronavirus infection"
+    // filter for "condition_occurrence" entity instances that are related to "condition" entity
+    // instances that have concept_id=439676
+    // i.e. give me all the condition occurrences of "Coronavirus infection"
+    ApiFilter occurrencesOfCoronavirusInfection =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("condition_occurrence_alias1")
+                    .newVariable("condition_alias")
+                    .newEntity("condition")
+                    .filter(coronavirusInfection));
+
+    // filter for "person" entity instances that are related to "condition_occurrence" entity
+    // instances that are related to "condition" entity instances that have concept_id=439676
+    // i.e. give me all the people with condition occurrences of "Coronavirus infection"
     ApiFilter peopleWithCoronavirusInfection =
         new ApiFilter()
             .relationshipFilter(
                 new ApiRelationshipFilter()
-                    .outerVariable("p")
-                    .newVariable("c")
-                    .newEntity("condition")
-                    .filter(coronavirusInfection));
+                    .outerVariable("person_alias")
+                    .newVariable("condition_occurrence_alias1")
+                    .newEntity("condition_occurrence")
+                    .filter(occurrencesOfCoronavirusInfection));
 
     // filter for "condition" entity instances that have concept_id=132797
     // i.e. the condition "Sepsis"
@@ -121,33 +149,49 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
         new ApiFilter()
             .binaryFilter(
                 new ApiBinaryFilter()
-                    .attributeVariable(new ApiAttributeVariable().variable("c").name("concept_id"))
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("condition_alias").name("concept_id"))
                     .operator(ApiBinaryFilterOperator.EQUALS)
                     .attributeValue(new ApiAttributeValue().int64Val(132_797L)));
 
-    // filter for "person" entity instances that are related to "condition" entity instances that
-    // have concept_id=132797
-    // i.e. give me all the people with "Sepsis"
+    // filter for "condition_occurrence" entity instances that are related to "condition" entity
+    // instances that have concept_id=132797
+    // i.e. give me all the condition occurrences of "Sepsis"
+    ApiFilter occurrencesOfSepsis =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("condition_occurrence_alias2")
+                    .newVariable("condition_alias")
+                    .newEntity("condition")
+                    .filter(sepsis));
+
+    // filter for "person" entity instances that are related to "condition_occurrence" entity
+    // instances that are related to "condition" entity instances that have concept_id=132797
+    // i.e. give me all the people with condition occurrences of "Sepsis"
     ApiFilter peopleWithSepsis =
         new ApiFilter()
             .relationshipFilter(
                 new ApiRelationshipFilter()
-                    .outerVariable("p")
-                    .newVariable("c")
-                    .newEntity("condition")
-                    .filter(sepsis));
+                    .outerVariable("person_alias")
+                    .newVariable("condition_occurrence_alias2")
+                    .newEntity("condition_occurrence")
+                    .filter(occurrencesOfSepsis));
 
     // filter for "condition occurrence" entity instances that are related to "person" entity
-    // instances that are related to "condition" entity instances with concept_id=439676
-    // AND are related to "condition" entity instances with concept_id=132797
-    // i.e. give me all the condition occurrence rows for people with "Coronavirus infection" AND
-    // "Sepsis"
-    ApiFilter conditionOccurrencesForPeopleWithCoronavirusInfectionAndSepsis =
+    // instances that are related to "condition_occurrence" entity instances that are related to
+    // "condition" entity instances that have concept_id=439676 AND are related to
+    // "condition_occurrence" entity instances that are related to "condition" entity instances that
+    // have concept_id=132797
+    // i.e. give me all the condition occurrence rows for people with "Coronavirus infection" and
+    // "Sepsis". this set of rows will include non-coronavirus infection and non-sepsis condition
+    // occurrences, such as diabetes.
+    ApiFilter allConditionOccurrencesForPeopleWithCoronavirusInfectionAndSepsis =
         new ApiFilter()
             .relationshipFilter(
                 new ApiRelationshipFilter()
-                    .outerVariable("co")
-                    .newVariable("p")
+                    .outerVariable("condition_occurrence_alias3")
+                    .newVariable("person_alias")
                     .newEntity("person")
                     .filter(
                         new ApiFilter()
@@ -164,9 +208,10 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
             new ApiGenerateDatasetSqlQueryRequest()
                 .entityDataset(
                     new ApiEntityDataset()
-                        .entityVariable("co")
+                        .entityVariable("condition_occurrence_alias3")
                         .selectedAttributes(ALL_CONDITION_OCCURRENCE_ATTRIBUTES)
-                        .filter(conditionOccurrencesForPeopleWithCoronavirusInfectionAndSepsis)));
+                        .filter(
+                            allConditionOccurrencesForPeopleWithCoronavirusInfectionAndSepsis)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
