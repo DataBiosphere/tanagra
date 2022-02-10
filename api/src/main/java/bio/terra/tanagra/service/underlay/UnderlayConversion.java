@@ -60,7 +60,8 @@ public final class UnderlayConversion {
         buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
     Map<Attribute, Hierarchy> hierarchies =
         buildHierarchies(underlayProto, entities, attributes, columns, attributeMappings);
-    Map<Entity, Text> texts = buildTexts(underlayProto, entities, columns);
+    Map<Entity, TextSearchInformation> textSearchInformation =
+        buildTextSearchInformation(underlayProto, entities, columns);
     Map<Entity, EntityFiltersSchema> entityFiltersSchemas =
         buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
 
@@ -74,7 +75,7 @@ public final class UnderlayConversion {
         .attributeMappings(attributeMappings)
         .relationshipMappings(relationshipMappings)
         .hierarchies(hierarchies)
-        .texts(texts)
+        .textSearchInformation(textSearchInformation)
         .entityFiltersSchemas(entityFiltersSchemas)
         .build();
   }
@@ -465,33 +466,43 @@ public final class UnderlayConversion {
     }
     return hierarchies;
   }
-  /** Build a map from entities to their {@link Text} for text search information. */
-  private static Map<Entity, Text> buildTexts(
+  /**
+   * Build a map from entities to their {@link TextSearchInformation} for text search information.
+   */
+  private static Map<Entity, TextSearchInformation> buildTextSearchInformation(
       bio.terra.tanagra.proto.underlay.Underlay underlayProto,
       Map<String, Entity> entities,
       Map<ColumnId, Column> columns) {
-    Map<Entity, Text> texts = new HashMap<>();
-    for (bio.terra.tanagra.proto.underlay.Text textProto : underlayProto.getTextsList()) {
-      Entity entity = retrieve(textProto.getEntity(), entities, textProto);
+    Map<Entity, TextSearchInformation> textSearchInfoMap = new HashMap<>();
+    for (bio.terra.tanagra.proto.underlay.TextSearchInformation textSearchInfoProto :
+        underlayProto.getTextSearchInformationList()) {
+      Entity entity = retrieve(textSearchInfoProto.getEntity(), entities, textSearchInfoProto);
       Column lookupTableKey =
           retrieve(
-              textProto.getTextTable().getLookupTableKey(), columns, "lookupTableKey", textProto);
+              textSearchInfoProto.getTextTable().getLookupTableKey(),
+              columns,
+              "lookupTableKey",
+              textSearchInfoProto);
       Column fullText =
-          retrieve(textProto.getTextTable().getFullText(), columns, "fullText", textProto);
-      Text text =
-          Text.builder()
+          retrieve(
+              textSearchInfoProto.getTextTable().getFullText(),
+              columns,
+              "fullText",
+              textSearchInfoProto);
+      TextSearchInformation textSearchInformation =
+          TextSearchInformation.builder()
               .textTable(
-                  Text.TextTable.builder()
+                  TextSearchInformation.TextTable.builder()
                       .lookupTableKey(lookupTableKey)
                       .fullText(fullText)
                       .build())
               .build();
-      if (texts.put(entity, text) != null) {
+      if (textSearchInfoMap.put(entity, textSearchInformation) != null) {
         throw new IllegalArgumentException(
-            String.format("Duplicate entity '%s' in text: %s", entity.name(), textProto));
+            String.format("Duplicate entity '%s' in text: %s", entity.name(), textSearchInfoProto));
       }
     }
-    return texts;
+    return textSearchInfoMap;
   }
 
   private static void addHierarchyAttributeMapping(

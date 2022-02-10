@@ -9,7 +9,7 @@ option java_multiple_files = true;
 import "bio/terra/tanagra/underlay/tables.proto";
 
 // Information required to do a text search for an entity instance.
-message Text {
+message TextSearchInformation {
   // The name of the entity to search.
   string entity = 1;
 

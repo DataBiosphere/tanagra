@@ -269,10 +269,10 @@ public final class NauticalUnderlayUtils {
                   .build())
           .build();
 
-  public static final Text SAILORS_TEXT =
-      Text.builder()
+  public static final TextSearchInformation SAILORS_TEXT_SEARCH_INFORMATION =
+      TextSearchInformation.builder()
           .textTable(
-              Text.TextTable.builder()
+              TextSearchInformation.TextTable.builder()
                   .lookupTableKey(SAILOR_ID_COL)
                   .fullText(SAILOR_NAME_COL)
                   .build())

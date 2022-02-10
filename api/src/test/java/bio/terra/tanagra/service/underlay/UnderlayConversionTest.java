@@ -42,7 +42,7 @@ import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.RESERVATI
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILORS_FAVORITE_BOATS_B_ID_COL;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILORS_FAVORITE_BOATS_S_ID_COL;
-import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILORS_TEXT;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILORS_TEXT_SEARCH_INFORMATION;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_BOAT_RELATIONSHIP;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_ID_COL;
@@ -237,7 +237,9 @@ public class UnderlayConversionTest {
     assertEquals(
         ImmutableMap.builder().put(BOAT_TYPE_ID, BOAT_TYPE_HIERARCHY).build(),
         nautical.hierarchies());
-    assertEquals(ImmutableMap.builder().put(SAILOR, SAILORS_TEXT).build(), nautical.texts());
+    assertEquals(
+        ImmutableMap.builder().put(SAILOR, SAILORS_TEXT_SEARCH_INFORMATION).build(),
+        nautical.textSearchInformation());
     assertEquals(
         ImmutableMap.builder()
             .put(
