@@ -12,7 +12,6 @@ import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.service.underlay.NauticalUnderlayUtils;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
-import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,12 +114,9 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
     String expectedSql =
         "SELECT sailor.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor "
             + "WHERE sailor.s_id IN "
-            + "(SELECT sailor_boatb61b6fa5_9756_4de7_9c68_bc57fe223635.s_id FROM `my-project-id.nautical`.sailors_favorite_boats AS sailor_boatb61b6fa5_9756_4de7_9c68_bc57fe223635 "
-            + "WHERE sailor_boatb61b6fa5_9756_4de7_9c68_bc57fe223635.b_id IN ("
+            + "(SELECT sailor_boat1329273297.s_id FROM `my-project-id.nautical`.sailors_favorite_boats AS sailor_boat1329273297 "
+            + "WHERE sailor_boat1329273297.b_id IN ("
             + "SELECT boat.b_id FROM `my-project-id.nautical`.boats AS boat WHERE boat.color = 'red'))";
-    expectedSql =
-        GeneratedSqlUtils.replaceGeneratedIntermediateTableAliasDiffs(
-            expectedSql, actualSql, "sailor_boat");
     assertEquals(expectedSql, actualSql);
   }
 
@@ -160,12 +156,9 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
     String expectedSql =
         "SELECT boat.b_id AS primary_key FROM `my-project-id.nautical`.boats AS boat "
             + "WHERE boat.b_id IN "
-            + "(SELECT sailor_boatb61b6fa5_9756_4de7_9c68_bc57fe223635.b_id FROM `my-project-id.nautical`.sailors_favorite_boats AS sailor_boatb61b6fa5_9756_4de7_9c68_bc57fe223635 "
-            + "WHERE sailor_boatb61b6fa5_9756_4de7_9c68_bc57fe223635.s_id IN ("
+            + "(SELECT sailor_boat261376546.b_id FROM `my-project-id.nautical`.sailors_favorite_boats AS sailor_boat261376546 "
+            + "WHERE sailor_boat261376546.s_id IN ("
             + "SELECT sailor.s_id FROM `my-project-id.nautical`.sailors AS sailor WHERE sailor.s_name = 'Jim'))";
-    expectedSql =
-        GeneratedSqlUtils.replaceGeneratedIntermediateTableAliasDiffs(
-            expectedSql, actualSql, "sailor_boat");
     assertEquals(expectedSql, actualSql);
   }
 

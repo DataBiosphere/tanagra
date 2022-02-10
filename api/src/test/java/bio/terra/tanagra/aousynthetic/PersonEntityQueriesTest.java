@@ -90,8 +90,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql,
-        "aousynthetic/person-entities-related-to-a-condition.sql",
-        ImmutableList.of("condition_person"));
+        generatedSql, "aousynthetic/person-entities-related-to-a-condition.sql");
+    //        ImmutableList.of("condition_person"));
   }
 }

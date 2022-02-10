@@ -19,7 +19,6 @@ import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -86,8 +85,7 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql,
-        "aousynthetic/condition-occurrence-entities-related-to-people-with-a-condition.sql",
-        ImmutableList.of("condition_person"));
+        "aousynthetic/condition-occurrence-entities-related-to-people-with-a-condition.sql");
   }
 
   @Test
@@ -173,7 +171,6 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql,
-        "aousynthetic/condition-occurrence-entities-related-to-people-with-two-conditions.sql",
-        ImmutableList.of("condition_person"));
+        "aousynthetic/condition-occurrence-entities-related-to-people-with-two-conditions.sql");
   }
 }
