@@ -7,6 +7,7 @@ import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
+import bio.terra.tanagra.service.search.utils.RandomNumberGenerator;
 import bio.terra.tanagra.service.underlay.ArrayColumnFilter;
 import bio.terra.tanagra.service.underlay.AttributeMapping;
 import bio.terra.tanagra.service.underlay.AttributeMapping.LookupColumn;
@@ -26,7 +27,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.text.StringSubstitutor;
@@ -601,7 +601,8 @@ public class SqlVisitor {
 
     /** Generate an alias for an intermediate table prefixed with the given relationship name. */
     private static String generateIntermediateTableAlias(String relationshipName) {
-      return relationshipName + Math.abs(RANDOM.nextInt(Integer.MAX_VALUE));
+      return relationshipName
+          + Math.abs(RandomNumberGenerator.getRandom().nextInt(Integer.MAX_VALUE));
     }
 
     /** Returns the primary key or the foreign key that matches the table, or else throw. */
@@ -615,28 +616,6 @@ public class SqlVisitor {
             String.format(
                 "Table {%s} matches neither the primary key {%s} nor the foreign key {%s}.",
                 table, foreignKey.primaryKey(), foreignKey.foreignKey()));
-      }
-    }
-
-    // Random number generator. Seeded during testing, not during normal operation.
-    private static final Random RANDOM = initializeRandom();
-    /**
-     * Generates a positive random number.
-     *
-     * <p>Initializes the static random number generator object if currently null. During testing,
-     * we seed the random number generator so that we'll get the same sequence every time. This
-     * makes it easier to compare generated SQL against an expected string. During normal use, there
-     * is no seed.
-     */
-    private static Random initializeRandom() {
-      // pull the seed from a system property, which is set in the BaseSpringUnitTest class before
-      // each test method
-      String randomSeedStr = System.getProperty("GENERATE_SQL_RANDOM_SEED");
-      try {
-        long randomSeed = Long.parseLong(randomSeedStr);
-        return new Random(randomSeed);
-      } catch (NumberFormatException nfEx) {
-        return new Random();
       }
     }
   }

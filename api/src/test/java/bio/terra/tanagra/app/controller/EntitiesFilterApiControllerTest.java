@@ -156,8 +156,8 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
     String expectedSql =
         "SELECT boat.b_id AS primary_key FROM `my-project-id.nautical`.boats AS boat "
             + "WHERE boat.b_id IN "
-            + "(SELECT sailor_boat261376546.b_id FROM `my-project-id.nautical`.sailors_favorite_boats AS sailor_boat261376546 "
-            + "WHERE sailor_boat261376546.s_id IN ("
+            + "(SELECT sailor_boat1329273297.b_id FROM `my-project-id.nautical`.sailors_favorite_boats AS sailor_boat1329273297 "
+            + "WHERE sailor_boat1329273297.s_id IN ("
             + "SELECT sailor.s_id FROM `my-project-id.nautical`.sailors AS sailor WHERE sailor.s_name = 'Jim'))";
     assertEquals(expectedSql, actualSql);
   }
