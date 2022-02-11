@@ -158,4 +158,58 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/person-entities-related-to-a-procedure.sql");
   }
+
+  @Test
+  @DisplayName("example cohort builder breakdown query: cohort=people who've had outpatient visit")
+  void generateSqlForPersonEntitiesWithAVisit() throws IOException {
+    // filter for "visit" entity instances that have concept_id=9202
+    // i.e. the visit "Outpatient Visit"
+    ApiFilter outpatientVisit =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("visit_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(9_202L)));
+
+    // filter for "visit_occurrence" entity instances that are related to "visit" entity
+    // instances that have concept_id=9202
+    // i.e. give me all the visit occurrences of "Outpatient Visit"
+    ApiFilter occurrencesOfOutpatientVisit =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("visit_occurrence_alias1")
+                    .newVariable("visit_alias")
+                    .newEntity("visit")
+                    .filter(outpatientVisit));
+
+    // filter for "person" entity instances that are related to "visit_occurrence" entity
+    // instances that are related to "visit" entity instances that have concept_id=9202
+    // i.e. give me all the people with visit occurrences of "Outpatient Visit"
+    ApiFilter peopleWhoHadOutpatientVisit =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("person_alias")
+                    .newVariable("visit_occurrence_alias1")
+                    .newEntity("visit_occurrence")
+                    .filter(occurrencesOfOutpatientVisit));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("person_alias")
+                        .selectedAttributes(ImmutableList.of(PERSON_ID_ATTRIBUTE))
+                        .filter(peopleWhoHadOutpatientVisit)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/person-entities-related-to-a-visit.sql");
+  }
 }

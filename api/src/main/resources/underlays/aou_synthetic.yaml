@@ -158,6 +158,22 @@ entities:
         dataType: STRING
       - name: procedure_source_concept_id
         dataType: INT64
+  - name: visit_occurrence
+    attributes:
+      - name: visit_occurrence_id
+        dataType: INT64
+      - name: person_id
+        dataType: INT64
+      - name: visit_concept_id
+        dataType: INT64
+      - name: visit_start_date
+        dataType: STRING
+      - name: visit_end_date
+        dataType: STRING
+      - name: visit_source_value
+        dataType: STRING
+      - name: visit_source_concept_id
+        dataType: INT64
   - name: concept
     attributes:
       - name: concept_id
@@ -189,6 +205,12 @@ relationships:
     entity2: procedure
   - name: procedure_occurrence_person
     entity1: procedure_occurrence
+    entity2: person
+  - name: visit_occurrence_visit
+    entity1: visit_occurrence
+    entity2: visit
+  - name: visit_occurrence_person
+    entity1: visit_occurrence
     entity2: person
   - name: concept_id_person_gender
     entity1: concept
@@ -258,6 +280,22 @@ datasets:
           - name: procedure_source_value
             dataType: STRING
           - name: procedure_source_concept_id
+            dataType: INT64
+      - name: visit_occurrence
+        columns:
+          - name: visit_occurrence_id
+            dataType: INT64
+          - name: person_id
+            dataType: INT64
+          - name: visit_concept_id
+            dataType: INT64
+          - name: visit_start_date
+            dataType: STRING
+          - name: visit_end_date
+            dataType: STRING
+          - name: visit_source_value
+            dataType: STRING
+          - name: visit_source_concept_id
             dataType: INT64
       - name: concept
         columns:
@@ -799,6 +837,11 @@ entityMappings:
       dataset: aou_synthetic
       table: procedure_occurrence
       column: procedure_occurrence_id
+  - entity: visit_occurrence
+    primaryKey:
+      dataset: aou_synthetic
+      table: visit_occurrence
+      column: visit_occurrence_id
   - entity: concept
     primaryKey:
       dataset: aou_synthetic
@@ -1422,6 +1465,62 @@ attributeMappings:
         table: procedure_occurrence
         column: procedure_source_concept_id
   - attribute:
+      entity: visit_occurrence
+      attribute: visit_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: visit_occurrence_id
+  - attribute:
+      entity: visit_occurrence
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: person_id
+  - attribute:
+      entity: visit_occurrence
+      attribute: visit_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: visit_concept_id
+  - attribute:
+      entity: visit_occurrence
+      attribute: visit_start_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: visit_start_date
+  - attribute:
+      entity: visit_occurrence
+      attribute: visit_end_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: visit_end_date
+  - attribute:
+      entity: visit_occurrence
+      attribute: visit_source_value
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: visit_source_value
+  - attribute:
+      entity: visit_occurrence
+      attribute: visit_source_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: visit_source_concept_id
+  - attribute:
       entity: concept
       attribute: concept_id
     simpleColumn:
@@ -1539,6 +1638,26 @@ relationshipMappings:
       primaryKey:
         dataset: aou_synthetic
         table: procedure_occurrence
+        column: person_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: person
+        column: person_id
+  - name: visit_occurrence_visit
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: visit_occurrence
+        column: visit_concept_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - name: visit_occurrence_person
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: visit_occurrence
         column: person_id
       foreignKey:
         dataset: aou_synthetic

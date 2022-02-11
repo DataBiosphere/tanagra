@@ -34,7 +34,7 @@ public class ProcedureOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
   @Test
   @DisplayName(
       "example dataset builder query: cohort=people who've had a mammogram, concept set=all procedures")
-  void generateSqlForConditionOccurrenceEntitiesRelatedToPeopleWithACondition() throws IOException {
+  void generateSqlForProcedureOccurrenceEntitiesRelatedToPeopleWithAProcedure() throws IOException {
     // filter for "procedure" entity instances that have concept_id=4324693
     // i.e. the procedure "Mammography"
     ApiFilter mammography =
@@ -75,7 +75,7 @@ public class ProcedureOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
     // "procedure" entity instances that have concept_id=4324693
     // i.e. give me all the procedure occurrence rows for people with "Mammography". this
     // set of rows will include non-mammography procedure occurrences, such as knee surgery.
-    ApiFilter allConditionOccurrencesForPeopleWithCoronavirusInfection =
+    ApiFilter allProcedureOccurrencesForPeopleWithMammography =
         new ApiFilter()
             .relationshipFilter(
                 new ApiRelationshipFilter()
@@ -93,7 +93,7 @@ public class ProcedureOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
                     new ApiEntityDataset()
                         .entityVariable("procedure_occurrence_alias2")
                         .selectedAttributes(ALL_PROCEDURE_OCCURRENCE_ATTRIBUTES)
-                        .filter(allConditionOccurrencesForPeopleWithCoronavirusInfection)));
+                        .filter(allProcedureOccurrencesForPeopleWithMammography)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
