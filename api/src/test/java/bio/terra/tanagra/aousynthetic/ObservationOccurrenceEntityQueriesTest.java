@@ -76,7 +76,7 @@ public class ObservationOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
     // instances that are related to "observation_occurrence" entity instances that are related to
     // "observation" entity instances that have concept_id=43531662
     // i.e. give me all the observation occurrence rows for people with "Vaccine refused by
-    // patient". this set of rows will include non-vaccine ingredient occurrences, such as blood
+    // patient". this set of rows will include non-vaccine observation occurrences, such as blood
     // disorder.
     ApiFilter allObservationOccurrencesForPeopleWhoRefusedVaccine =
         new ApiFilter()

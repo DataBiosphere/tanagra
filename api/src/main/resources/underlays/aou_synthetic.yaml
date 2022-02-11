@@ -240,6 +240,24 @@ entities:
         dataType: STRING
       - name: observation_source_concept_id
         dataType: INT64
+  - name: device_occurrence
+    attributes:
+      - name: device_exposure_id
+        dataType: INT64
+      - name: person_id
+        dataType: INT64
+      - name: device_concept_id
+        dataType: INT64
+      - name: device_exposure_start_date
+        dataType: STRING
+      - name: device_exposure_end_date
+        dataType: STRING
+      - name: visit_occurrence_id
+        dataType: INT64
+      - name: device_source_value
+        dataType: STRING
+      - name: device_source_concept_id
+        dataType: INT64
   - name: concept
     attributes:
       - name: concept_id
@@ -295,6 +313,12 @@ relationships:
     entity2: observation
   - name: observation_occurrence_person
     entity1: observation_occurrence
+    entity2: person
+  - name: device_occurrence_device
+    entity1: device_occurrence
+    entity2: device
+  - name: device_occurrence_person
+    entity1: device_occurrence
     entity2: person
   - name: concept_id_person_gender
     entity1: concept
@@ -446,6 +470,24 @@ datasets:
           - name: observation_source_value
             dataType: STRING
           - name: observation_source_concept_id
+            dataType: INT64
+      - name: device_exposure
+        columns:
+          - name: device_exposure_id
+            dataType: INT64
+          - name: person_id
+            dataType: INT64
+          - name: device_concept_id
+            dataType: INT64
+          - name: device_exposure_start_date
+            dataType: STRING
+          - name: device_exposure_end_date
+            dataType: STRING
+          - name: visit_occurrence_id
+            dataType: INT64
+          - name: device_source_value
+            dataType: STRING
+          - name: device_source_concept_id
             dataType: INT64
       - name: concept
         columns:
@@ -1007,6 +1049,11 @@ entityMappings:
       dataset: aou_synthetic
       table: observation
       column: observation_id
+  - entity: device_occurrence
+    primaryKey:
+      dataset: aou_synthetic
+      table: device_exposure
+      column: device_exposure_id
   - entity: concept
     primaryKey:
       dataset: aou_synthetic
@@ -1926,6 +1973,70 @@ attributeMappings:
         table: observation
         column: observation_source_concept_id
   - attribute:
+      entity: device_occurrence
+      attribute: device_exposure_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: device_exposure_id
+  - attribute:
+      entity: device_occurrence
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: person_id
+  - attribute:
+      entity: device_occurrence
+      attribute: device_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: device_concept_id
+  - attribute:
+      entity: device_occurrence
+      attribute: device_exposure_start_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: device_exposure_start_date
+  - attribute:
+      entity: device_occurrence
+      attribute: device_exposure_end_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: device_exposure_end_date
+  - attribute:
+      entity: device_occurrence
+      attribute: visit_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: visit_occurrence_id
+  - attribute:
+      entity: device_occurrence
+      attribute: device_source_value
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: device_source_value
+  - attribute:
+      entity: device_occurrence
+      attribute: device_source_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: device_source_concept_id
+  - attribute:
       entity: concept
       attribute: concept_id
     simpleColumn:
@@ -2123,6 +2234,26 @@ relationshipMappings:
       primaryKey:
         dataset: aou_synthetic
         table: observation
+        column: person_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: person
+        column: person_id
+  - name: device_occurrence_device
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: device_exposure
+        column: device_concept_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - name: device_occurrence_person
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: device_exposure
         column: person_id
       foreignKey:
         dataset: aou_synthetic

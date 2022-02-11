@@ -376,4 +376,58 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/person-entities-related-to-an-observation.sql");
   }
+
+  @Test
+  @DisplayName("example cohort builder breakdown query: cohort=people who used a long leg cast")
+  void generateSqlForPersonEntitiesWithADevice() throws IOException {
+    // filter for "device" entity instances that have concept_id=4038664
+    // i.e. the device "Long leg cast"
+    ApiFilter longLegCast =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("device_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(4_038_664L)));
+
+    // filter for "device_occurrence" entity instances that are related to "device" entity
+    // instances that have concept_id=4038664
+    // i.e. give me all the device occurrences of "Long leg cast"
+    ApiFilter occurrencesOfLongLegCast =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("device_occurrence_alias1")
+                    .newVariable("device_alias")
+                    .newEntity("device")
+                    .filter(longLegCast));
+
+    // filter for "person" entity instances that are related to "device_occurrence" entity
+    // instances that are related to "device" entity instances that have concept_id=4038664
+    // i.e. give me all the people with device occurrences of "Long leg cast"
+    ApiFilter peopleWhoUsedLongLegCast =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("person_alias")
+                    .newVariable("device_occurrence_alias1")
+                    .newEntity("device_occurrence")
+                    .filter(occurrencesOfLongLegCast));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("person_alias")
+                        .selectedAttributes(ImmutableList.of(PERSON_ID_ATTRIBUTE))
+                        .filter(peopleWhoUsedLongLegCast)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/person-entities-related-to-a-device.sql");
+  }
 }

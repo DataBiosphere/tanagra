@@ -180,4 +180,16 @@ public final class UnderlayUtils {
           "vocabulary_name",
           "standard_concept",
           "concept_code");
+
+  public static final String DEVICE_OCCURRENCE_ENTITY = "device_occurrence";
+  public static final List<String> ALL_DEVICE_OCCURRENCE_ATTRIBUTES =
+      ImmutableList.of(
+          "device_exposure_id",
+          "person_id",
+          "device_concept_id",
+          "device_exposure_start_date",
+          "device_exposure_end_date",
+          "visit_occurrence_id",
+          "device_source_value",
+          "device_source_concept_id");
 }
