@@ -57,6 +57,9 @@ public abstract class Underlay {
   /** Map from attributes to their {@link Hierarchy}, if the attribute is a part of a hierarchy. */
   public abstract ImmutableMap<Attribute, Hierarchy> hierarchies();
 
+  /** Map from entities to their optional text search information. */
+  public abstract ImmutableMap<Entity, TextSearchInformation> textSearchInformation();
+
   /**
    * Map from entities to the filters schema that supports the entity, if any.
    *
@@ -118,6 +121,8 @@ public abstract class Underlay {
     public abstract Builder relationshipMappings(Map<Relationship, Object> value);
 
     public abstract Builder hierarchies(Map<Attribute, Hierarchy> value);
+
+    public abstract Builder textSearchInformation(Map<Entity, TextSearchInformation> value);
 
     public abstract Builder entityFiltersSchemas(Map<Entity, EntityFiltersSchema> value);
 

@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.app.controller.EntityInstancesApiController;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
+import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import java.io.IOException;
@@ -41,5 +43,31 @@ public class BrandEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/all-brand-entities.sql");
+  }
+
+  @Test
+  @DisplayName("correct SQL string for listing all brand entity instances that match a text search")
+  void generateSqlForTextSearchOnBrandEntities() throws IOException {
+    // filter for "brand" entity instances that match the search term "paracetamol"
+    // i.e. brands that have a name or synonym that includes "paracetamol"
+    ApiFilter paracetamol =
+        new ApiFilter()
+            .textSearchFilter(
+                new ApiTextSearchFilter().entityVariable("brand_alias").term("paracetamol"));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            BRAND_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("brand_alias")
+                        .selectedAttributes(ALL_BRAND_ATTRIBUTES)
+                        .filter(paracetamol)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/brand-entities-text-search.sql");
   }
 }

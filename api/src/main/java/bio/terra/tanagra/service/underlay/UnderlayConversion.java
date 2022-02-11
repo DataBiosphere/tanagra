@@ -60,6 +60,8 @@ public final class UnderlayConversion {
         buildRelationshipMapping(underlayProto, relationships, columns, primaryKeys);
     Map<Attribute, Hierarchy> hierarchies =
         buildHierarchies(underlayProto, entities, attributes, columns, attributeMappings);
+    Map<Entity, TextSearchInformation> textSearchInformation =
+        buildTextSearchInformation(underlayProto, entities, columns);
     Map<Entity, EntityFiltersSchema> entityFiltersSchemas =
         buildEntityFiltersSchemas(underlayProto, entities, attributes, relationships);
 
@@ -73,6 +75,7 @@ public final class UnderlayConversion {
         .attributeMappings(attributeMappings)
         .relationshipMappings(relationshipMappings)
         .hierarchies(hierarchies)
+        .textSearchInformation(textSearchInformation)
         .entityFiltersSchemas(entityFiltersSchemas)
         .build();
   }
@@ -463,6 +466,44 @@ public final class UnderlayConversion {
     }
     return hierarchies;
   }
+  /**
+   * Build a map from entities to their {@link TextSearchInformation} for text search information.
+   */
+  private static Map<Entity, TextSearchInformation> buildTextSearchInformation(
+      bio.terra.tanagra.proto.underlay.Underlay underlayProto,
+      Map<String, Entity> entities,
+      Map<ColumnId, Column> columns) {
+    Map<Entity, TextSearchInformation> textSearchInfoMap = new HashMap<>();
+    for (bio.terra.tanagra.proto.underlay.TextSearchInformation textSearchInfoProto :
+        underlayProto.getTextSearchInformationList()) {
+      Entity entity = retrieve(textSearchInfoProto.getEntity(), entities, textSearchInfoProto);
+      Column lookupTableKey =
+          retrieve(
+              textSearchInfoProto.getTextTable().getLookupTableKey(),
+              columns,
+              "lookupTableKey",
+              textSearchInfoProto);
+      Column fullText =
+          retrieve(
+              textSearchInfoProto.getTextTable().getFullText(),
+              columns,
+              "fullText",
+              textSearchInfoProto);
+      TextSearchInformation textSearchInformation =
+          TextSearchInformation.builder()
+              .textTable(
+                  TextSearchInformation.TextTable.builder()
+                      .lookupTableKey(lookupTableKey)
+                      .fullText(fullText)
+                      .build())
+              .build();
+      if (textSearchInfoMap.put(entity, textSearchInformation) != null) {
+        throw new IllegalArgumentException(
+            String.format("Duplicate entity '%s' in text: %s", entity.name(), textSearchInfoProto));
+      }
+    }
+    return textSearchInfoMap;
+  }
 
   private static void addHierarchyAttributeMapping(
       Attribute hierarchyAttribute,
@@ -755,6 +796,17 @@ public final class UnderlayConversion {
         throw new UnsupportedOperationException(
             String.format("Unsupported BinaryColumnFilterOperator %s", operator.name()));
     }
+  }
+
+  /** Retrieves the {@link Entity} by name, or throws if none is found. */
+  private static Entity retrieve(
+      String entityName, Map<String, Entity> entities, Message parentMessage) {
+    Entity entity = entities.get(entityName);
+    if (entity == null) {
+      throw new IllegalArgumentException(
+          String.format("Unknown entity %s in %s", entityName, parentMessage));
+    }
+    return entity;
   }
 
   /**

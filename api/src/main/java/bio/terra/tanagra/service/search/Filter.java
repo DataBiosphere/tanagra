@@ -24,6 +24,8 @@ public interface Filter {
 
     R visitRelationship(RelationshipFilter relationshipFilter);
 
+    R visitTextSearch(TextSearchFilter textSearchFilter);
+
     R visitNull(NullFilter nullFilter);
   }
 
@@ -139,6 +141,30 @@ public interface Filter {
       }
 
       abstract RelationshipFilter autoBuild();
+    }
+  }
+
+  /**
+   * A {@link Filter} that does a text search against an entity. The entity must have text search
+   * information defined for it in the underlay.
+   */
+  @AutoValue
+  abstract class TextSearchFilter implements Filter {
+    /** The entity variable that has text search information defined for it in the underlay. */
+    public abstract EntityVariable entityVariable();
+
+    /** The text to search on. */
+    public abstract Expression.Literal term();
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitTextSearch(this);
+    }
+
+    public static TextSearchFilter create(EntityVariable entityVariable, Expression.Literal term) {
+      Preconditions.checkArgument(
+          term.dataType().equals(DataType.STRING), "Text search term must be a string.");
+      return new AutoValue_Filter_TextSearchFilter(entityVariable, term);
     }
   }
 

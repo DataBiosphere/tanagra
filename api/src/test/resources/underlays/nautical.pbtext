@@ -592,28 +592,6 @@ relationship_mappings: {
     }
   }
 }
-entity_filters_schemas: {
-  entity: "sailors"
-  attributes: {
-    attribute_name: "rating"
-    integer_bounds_hint: {
-      min: 0
-      max: 10
-    }
-  }
-  attributes: {
-    attribute_name: "name"
-  }
-  relationships: {
-    relationship_name: "sailor_reservation"
-  }
-}
-entity_filters_schemas: {
-  entity: "boats"
-  relationships: {
-    relationship_name: "sailor_boat"
-  }
-}
 hierarchies: {
   attribute: {
     entity: "boats"
@@ -670,6 +648,43 @@ hierarchies: {
       table: "boat_types_paths"
       column: "bt_num_children"
     }
+  }
+}
+text_search_information: {
+  entity: "sailors"
+  text_table: {
+    lookup_table_key: {
+      dataset: "nautical"
+      table: "sailors"
+      column: "s_id"
+    }
+    full_text: {
+      dataset: "nautical"
+      table: "sailors"
+      column: "s_name"
+    }
+  }
+}
+entity_filters_schemas: {
+  entity: "sailors"
+  attributes: {
+    attribute_name: "rating"
+    integer_bounds_hint: {
+      min: 0
+      max: 10
+    }
+  }
+  attributes: {
+    attribute_name: "name"
+  }
+  relationships: {
+    relationship_name: "sailor_reservation"
+  }
+}
+entity_filters_schemas: {
+  entity: "boats"
+  relationships: {
+    relationship_name: "sailor_boat"
   }
 }
 entity_filters_schemas: {

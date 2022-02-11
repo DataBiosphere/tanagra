@@ -4,7 +4,7 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import { ReactNode, useCallback } from "react";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
 
 export type TreeGridId = string | number;
@@ -31,6 +31,7 @@ export type TreeGridColumn = {
 export type TreeGridProps = {
   columns: TreeGridColumn[];
   data: TreeGridData;
+  defaultExpanded?: TreeGridId[];
   prefixElements?: (id: TreeGridId, data: TreeGridRowData) => ReactNode;
   loadChildren?: (id: TreeGridId) => Promise<void>;
 };
@@ -40,48 +41,68 @@ export function TreeGrid(props: TreeGridProps) {
     new Map<TreeGridId, TreeGridItemState>()
   );
 
+  const cancel = useRef<boolean>(false);
+  useEffect(
+    () => () => {
+      cancel.current = true;
+    },
+    []
+  );
+
   const toggleExpanded = useCallback(
-    (id: TreeGridId) => {
-      updateState((draft) => {
-        const itemState = draft.get(id) || {
-          status: Status.Collapsed,
-        };
-        switch (itemState.status) {
-          case Status.Loading:
-            return;
-          case Status.Expanded:
-            itemState.status = Status.Collapsed;
-            break;
-          default:
-            if (!props.loadChildren || !!itemState.loaded) {
-              itemState.status = Status.Expanded;
-            } else {
-              itemState.status = Status.Loading;
-              props
-                .loadChildren(id)
-                .then(() => {
+    (draft: TreeGridState, id: TreeGridId) => {
+      const itemState = draft.get(id) || {
+        status: Status.Collapsed,
+      };
+      switch (itemState.status) {
+        case Status.Loading:
+          return;
+        case Status.Expanded:
+          itemState.status = Status.Collapsed;
+          break;
+        default:
+          if (!props.loadChildren || !!itemState.loaded) {
+            itemState.status = Status.Expanded;
+          } else {
+            itemState.status = Status.Loading;
+            props
+              .loadChildren(id)
+              .then(() => {
+                if (!cancel.current) {
                   updateState((draft) => {
                     draft.set(id, {
                       status: Status.Expanded,
                       loaded: true,
                     });
                   });
-                })
-                .catch((error) => {
+                }
+              })
+              .catch((error) => {
+                if (!cancel.current) {
                   updateState((draft) => {
                     draft.set(id, {
                       status: Status.Failed,
                       errorMessage: error,
                     });
                   });
-                });
-            }
-        }
-        draft.set(id, itemState);
-      });
+                }
+              });
+          }
+      }
+      draft.set(id, itemState);
     },
     [props.loadChildren]
   );
+
+  useEffect(() => {
+    const de = props?.defaultExpanded;
+    if (de && de.length > 0) {
+      updateState((draft) => {
+        draft.clear();
+        de.forEach((id) => toggleExpanded(draft, id));
+      });
+    }
+  }, [props.defaultExpanded]);
 
   return (
     <>
@@ -119,7 +140,15 @@ export function TreeGrid(props: TreeGridProps) {
             display: "block",
           }}
         >
-          {renderChildren(props, state, toggleExpanded, "root", 0, false)}
+          {renderChildren(
+            props,
+            state,
+            (id: TreeGridId) =>
+              updateState((draft) => toggleExpanded(draft, id)),
+            "root",
+            0,
+            false
+          )}
         </tbody>
       </table>
     </>

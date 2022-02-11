@@ -96,6 +96,15 @@ const fetchedColumns: TreeGridColumn[] = [
   { key: "concept_code", width: 120, title: "Code" },
 ];
 
+const PATH_ATTRIBUTE = "t_path_concept_id";
+const NUM_CHILDREN_ATTRIBUTE = "t_numChildren_concept_id";
+
+const fetchedAttributes = [
+  PATH_ATTRIBUTE,
+  NUM_CHILDREN_ATTRIBUTE,
+  ...fetchedColumns.map(({ key }) => key),
+];
+
 const allColumns: TreeGridColumn[] = [
   ...fetchedColumns,
   { key: "view_hierarchy", width: 160, title: "View Hierarchy" },
@@ -109,7 +118,9 @@ type ConceptEditProps = {
 };
 
 function ConceptEdit(props: ConceptEditProps) {
-  const [hierarchical, setHierarchical] = useState(false);
+  const [hierarchyPath, setHierarchyPath] = useState<
+    TreeGridId[] | undefined
+  >();
   const [data, updateData] = useImmer<TreeGridData>({});
   const api = useContext(EntityInstancesApiContext);
 
@@ -125,24 +136,21 @@ function ConceptEdit(props: ConceptEditProps) {
               return;
             }
 
-            const row: TreeGridRowData = {
-              view_hierarchy: (
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    setHierarchical(true);
-                  }}
-                >
-                  <AccountTreeIcon fontSize="inherit" />
-                </IconButton>
-              ),
-            };
+            let path: number[] | undefined;
+            let hasChildren = false;
+            const row: TreeGridRowData = {};
             for (const k in instance) {
               const v = instance[k];
               if (k === "standard_concept") {
                 row[k] = v ? "Standard" : "Source";
               } else if (!v) {
                 row[k] = "";
+              } else if (k === PATH_ATTRIBUTE) {
+                if (v.stringVal || v.stringVal === "") {
+                  path = v.stringVal.split(".").map((id) => +id);
+                }
+              } else if (k === NUM_CHILDREN_ATTRIBUTE) {
+                hasChildren = !!v.int64Val;
               } else if (isValid(v.int64Val)) {
                 row[k] = v.int64Val;
               } else if (isValid(v.boolVal)) {
@@ -152,15 +160,28 @@ function ConceptEdit(props: ConceptEditProps) {
               }
             }
 
+            if (path) {
+              row.view_hierarchy = (
+                <IconButton size="small" onClick={() => setHierarchyPath(path)}>
+                  <AccountTreeIcon fontSize="inherit" />
+                </IconButton>
+              );
+            }
+
             children.push(id);
-            // TODO(tjennison): Add attribute to indicate whether entities
-            // have children rather than always loading to check.
-            data[id] = { data: row };
+
+            // Copy over existing children in case they're being loaded in
+            // parallel.
+            data[id] = {
+              data: row,
+              children: data[id]?.children || (!hasChildren ? [] : undefined),
+            };
           });
         }
 
         if (id) {
-          data[id].children = children;
+          // Store children even if the data isn't loaded yet.
+          data[id] = { ...data[id], children };
         } else {
           data.root = { children, data: {} };
         }
@@ -170,17 +191,17 @@ function ConceptEdit(props: ConceptEditProps) {
   );
 
   const conceptsState = useAsyncWithApi<void>(
-    useCallback(
-      () =>
-        api
-          .searchEntityInstances(
-            searchFilter(props.data.entity, props.cohort.underlayName)
-          )
-          .then((res) => {
-            processEntities(res);
-          }),
-      [api, hierarchical]
-    )
+    useCallback(() => {
+      updateData(() => ({}));
+      return api
+        .searchEntityInstances(
+          searchFilter(props.data.entity, props.cohort.underlayName)
+        )
+        .then((res) => {
+          processEntities(res);
+        });
+    }, [api, props.data.entity, props.cohort.underlayName, processEntities]),
+    hierarchyPath
   );
 
   const hierarchyColumns = [
@@ -191,13 +212,14 @@ function ConceptEdit(props: ConceptEditProps) {
         <Button
           variant="contained"
           onClick={() => {
-            setHierarchical(false);
+            setHierarchyPath(undefined);
           }}
         >
           Return to List
         </Button>
       ),
     },
+    { key: "concept_id", width: 120, title: "Concept ID" },
   ];
 
   const dispatch = useAppDispatch();
@@ -205,8 +227,9 @@ function ConceptEdit(props: ConceptEditProps) {
   return (
     <Loading status={conceptsState}>
       <TreeGrid
-        columns={hierarchical ? hierarchyColumns : allColumns}
+        columns={hierarchyPath ? hierarchyColumns : allColumns}
         data={data}
+        defaultExpanded={hierarchyPath}
         prefixElements={(id: TreeGridId, rowData: TreeGridRowData) => {
           const index = props.data.selected.findIndex((row) => row.id === id);
 
@@ -239,7 +262,7 @@ function ConceptEdit(props: ConceptEditProps) {
           );
         }}
         loadChildren={
-          hierarchical
+          hierarchyPath
             ? (id: TreeGridId) => {
                 return api
                   .searchEntityInstances(
@@ -271,9 +294,7 @@ function searchFilter(entity: string, underlay: string, id?: number) {
     searchEntityInstancesRequest: {
       entityDataset: {
         entityVariable: "c",
-        selectedAttributes: fetchedColumns.map((col) => {
-          return col.key;
-        }),
+        selectedAttributes: fetchedAttributes,
         filter: {
           arrayFilter: {
             operands: [
@@ -304,7 +325,20 @@ function searchFilter(entity: string, underlay: string, id?: number) {
                       },
                     },
                   ]
-                : []),
+                : [
+                    {
+                      binaryFilter: {
+                        attributeVariable: {
+                          name: "t_path_concept_id",
+                          variable: "c",
+                        },
+                        operator: tanagra.BinaryFilterOperator.Equals,
+                        attributeValue: {
+                          stringVal: "",
+                        },
+                      },
+                    },
+                  ]),
             ],
             operator: tanagra.ArrayFilterOperator.And,
           },

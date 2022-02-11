@@ -256,6 +256,15 @@ public class SqlVisitorTest {
   }
 
   @Test
+  void filterTextSearch() {
+    assertEquals(
+        "s.s_id IN (SELECT s_id FROM `my-project-id.nautical`.sailors WHERE CONTAINS_SUBSTR(s_name, 'george'))",
+        Filter.TextSearchFilter.create(
+                S_SAILOR, Expression.Literal.create(DataType.STRING, "george"))
+            .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+  }
+
+  @Test
   void filterNull() {
     assertEquals("TRUE", NullFilter.INSTANCE.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
   }

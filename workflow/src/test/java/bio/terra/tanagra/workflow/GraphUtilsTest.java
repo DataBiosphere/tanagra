@@ -1,9 +1,9 @@
 package bio.terra.tanagra.workflow;
 
+import bio.terra.tanagra.workflow.utils.KVUtils;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
@@ -24,17 +24,11 @@ public class GraphUtilsTest {
   <T> void runTransitiveClosureAndAssert(
       Multimap<T, T> edges, Multimap<T, T> expectedEdges, int maxPathLength) {
     PCollection<KV<T, T>> transitiveEdges =
-        GraphUtils.transitiveClosure(pipeline.apply(Create.of(convertToKvs(edges))), maxPathLength)
+        GraphUtils.transitiveClosure(
+                pipeline.apply(Create.of(KVUtils.convertToKvs(edges))), maxPathLength)
             .apply(Distinct.create()); // The transitiveClosure may output duplicates.
-    PAssert.that(transitiveEdges).containsInAnyOrder(convertToKvs(expectedEdges));
+    PAssert.that(transitiveEdges).containsInAnyOrder(KVUtils.convertToKvs(expectedEdges));
     pipeline.run().waitUntilFinish();
-  }
-
-  /** Convert a multimap to an equivalent list of KVs. */
-  private static <T> List<KV<T, T>> convertToKvs(Multimap<T, T> multimap) {
-    return multimap.entries().stream()
-        .map(entry -> KV.of(entry.getKey(), entry.getValue()))
-        .collect(Collectors.toList());
   }
 
   @Test
