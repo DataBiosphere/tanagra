@@ -6,6 +6,8 @@ entities:
     attributes:
       - name: person_id
         dataType: INT64
+      - name: year_of_birth
+        dataType: INT64
       - name: gender_concept_id
         dataType: INT64
       - name: gender
@@ -344,6 +346,8 @@ datasets:
       - name: person
         columns:
           - name: person_id
+            dataType: INT64
+          - name: year_of_birth
             dataType: INT64
           - name: gender_concept_id
             dataType: INT64
@@ -1068,6 +1072,14 @@ attributeMappings:
         dataset: aou_synthetic
         table: person
         column: person_id
+  - attribute:
+      entity: person
+      attribute: year_of_birth
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: person
+        column: year_of_birth
   - attribute:
       entity: person
       attribute: gender_concept_id
@@ -2530,6 +2542,10 @@ textSearchInformation:
 entityFiltersSchemas:
   - entity: person
     attributes:
+      - attributeName: year_of_birth
+        integerBoundsHint:
+          min: 1930
+          max: 2001
       - attributeName: ethnicity_concept_id
         enumHint:
           enumHintValues:
