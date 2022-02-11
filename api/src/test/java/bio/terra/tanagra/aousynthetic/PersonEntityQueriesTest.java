@@ -228,7 +228,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .operator(ApiBinaryFilterOperator.EQUALS)
                     .attributeValue(new ApiAttributeValue().int64Val(3_009_542L)));
 
-    // filter for "measurement_occurrence" entity instances that are related to "measruement" entity
+    // filter for "measurement_occurrence" entity instances that are related to "measurement" entity
     // instances that have concept_id=3009542
     // i.e. give me all the measurement occurrences of "Hematocrit [Volume Fraction] of Blood"
     ApiFilter occurrencesOfHematocrit =
@@ -241,7 +241,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(hematocrit));
 
     // filter for "person" entity instances that are related to "measurement_occurrence" entity
-    // instances that are related to "measruement" entity instances that have concept_id=3009542
+    // instances that are related to "measurement" entity instances that have concept_id=3009542
     // i.e. give me all the people with measurement occurrences of "Hematocrit [Volume Fraction] of
     // Blood"
     ApiFilter peopleWhoHadHematocrit =
@@ -267,5 +267,59 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/person-entities-related-to-a-measurement.sql");
+  }
+
+  @Test
+  @DisplayName("example cohort builder breakdown query: cohort=people who took ibuprofen")
+  void generateSqlForPersonEntitiesWithAnIngredient() throws IOException {
+    // filter for "ingredient" entity instances that have concept_id=1177480
+    // i.e. the ingredient "Ibuprofen"
+    ApiFilter ibuprofen =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("ingredient_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(1_177_480L)));
+
+    // filter for "ingredient_occurrence" entity instances that are related to "ingredient" entity
+    // instances that have concept_id=1177480
+    // i.e. give me all the ingredient occurrences of "Ibuprofen"
+    ApiFilter occurrencesOfIbuprofen =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("ingredient_occurrence_alias1")
+                    .newVariable("ingredient_alias")
+                    .newEntity("ingredient")
+                    .filter(ibuprofen));
+
+    // filter for "person" entity instances that are related to "ingredient_occurrence" entity
+    // instances that are related to "ingredient" entity instances that have concept_id=1177480
+    // i.e. give me all the people with ingredient occurrences of "Ibuprofen"
+    ApiFilter peopleWhoTookIbuprofen =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("person_alias")
+                    .newVariable("ingredient_occurrence_alias1")
+                    .newEntity("ingredient_occurrence")
+                    .filter(occurrencesOfIbuprofen));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("person_alias")
+                        .selectedAttributes(ImmutableList.of(PERSON_ID_ATTRIBUTE))
+                        .filter(peopleWhoTookIbuprofen)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/person-entities-related-to-an-ingredient.sql");
   }
 }

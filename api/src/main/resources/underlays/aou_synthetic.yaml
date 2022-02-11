@@ -158,6 +158,30 @@ entities:
         dataType: STRING
       - name: procedure_source_concept_id
         dataType: INT64
+  - name: ingredient_occurrence
+    attributes:
+      - name: drug_exposure_id
+        dataType: INT64
+      - name: person_id
+        dataType: INT64
+      - name: drug_concept_id
+        dataType: INT64
+      - name: drug_exposure_start_date
+        dataType: STRING
+      - name: drug_exposure_end_date
+        dataType: STRING
+      - name: stop_reason
+        dataType: STRING
+      - name: refills
+        dataType: INT64
+      - name: days_supply
+        dataType: INT64
+      - name: visit_occurrence_id
+        dataType: INT64
+      - name: drug_source_value
+        dataType: STRING
+      - name: drug_source_concept_id
+        dataType: INT64
   - name: measurement_occurrence
     attributes:
       - name: measurement_id
@@ -225,6 +249,12 @@ relationships:
     entity2: procedure
   - name: procedure_occurrence_person
     entity1: procedure_occurrence
+    entity2: person
+  - name: ingredient_occurrence_ingredient
+    entity1: ingredient_occurrence
+    entity2: ingredient
+  - name: ingredient_occurrence_person
+    entity1: ingredient_occurrence
     entity2: person
   - name: measurement_occurrence_measurement
     entity1: measurement_occurrence
@@ -306,6 +336,30 @@ datasets:
           - name: procedure_source_value
             dataType: STRING
           - name: procedure_source_concept_id
+            dataType: INT64
+      - name: drug_exposure
+        columns:
+          - name: drug_exposure_id
+            dataType: INT64
+          - name: person_id
+            dataType: INT64
+          - name: drug_concept_id
+            dataType: INT64
+          - name: drug_exposure_start_date
+            dataType: STRING
+          - name: drug_exposure_end_date
+            dataType: STRING
+          - name: stop_reason
+            dataType: STRING
+          - name: refills
+            dataType: INT64
+          - name: days_supply
+            dataType: INT64
+          - name: visit_occurrence_id
+            dataType: INT64
+          - name: drug_source_value
+            dataType: STRING
+          - name: drug_source_concept_id
             dataType: INT64
       - name: measurement
         columns:
@@ -883,6 +937,11 @@ entityMappings:
       dataset: aou_synthetic
       table: procedure_occurrence
       column: procedure_occurrence_id
+  - entity: ingredient_occurrence
+    primaryKey:
+      dataset: aou_synthetic
+      table: drug_exposure
+      column: drug_exposure_id
   - entity: measurement_occurrence
     primaryKey:
       dataset: aou_synthetic
@@ -1516,6 +1575,94 @@ attributeMappings:
         table: procedure_occurrence
         column: procedure_source_concept_id
   - attribute:
+      entity: ingredient_occurrence
+      attribute: drug_exposure_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: drug_exposure_id
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: person_id
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: drug_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: drug_concept_id
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: drug_exposure_start_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: drug_exposure_start_date
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: drug_exposure_end_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: drug_exposure_end_date
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: stop_reason
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: stop_reason
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: refills
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: refills
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: days_supply
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: days_supply
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: visit_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: visit_occurrence_id
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: drug_source_value
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: drug_source_value
+  - attribute:
+      entity: ingredient_occurrence
+      attribute: drug_source_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: drug_source_concept_id
+  - attribute:
       entity: measurement_occurrence
       attribute: measurement_id
     simpleColumn:
@@ -1761,6 +1908,26 @@ relationshipMappings:
       primaryKey:
         dataset: aou_synthetic
         table: procedure_occurrence
+        column: person_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: person
+        column: person_id
+  - name: ingredient_occurrence_ingredient
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: drug_exposure
+        column: drug_concept_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - name: ingredient_occurrence_person
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: drug_exposure
         column: person_id
       foreignKey:
         dataset: aou_synthetic

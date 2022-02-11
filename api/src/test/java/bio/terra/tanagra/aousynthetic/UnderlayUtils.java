@@ -87,6 +87,21 @@ public final class UnderlayUtils {
   public static final String INGREDIENT_HIERARCHY_NUMCHILDREN_ATTRIBUTE =
       "t_numChildren_concept_id";
 
+  public static final String INGREDIENT_OCCURRENCE_ENTITY = "ingredient_occurrence";
+  public static final List<String> ALL_INGREDIENT_OCCURRENCE_ATTRIBUTES =
+      ImmutableList.of(
+          "drug_exposure_id",
+          "person_id",
+          "drug_concept_id",
+          "drug_exposure_start_date",
+          "drug_exposure_end_date",
+          "stop_reason",
+          "refills",
+          "days_supply",
+          "visit_occurrence_id",
+          "drug_source_value",
+          "drug_source_concept_id");
+
   public static final String BRAND_ENTITY = "brand";
   public static final List<String> ALL_BRAND_ATTRIBUTES =
       ImmutableList.of("concept_id", "concept_name", "standard_concept", "concept_code");
