@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.app.controller.EntityInstancesApiController;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
+import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import java.io.IOException;
@@ -41,5 +43,32 @@ public class ObservationEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/all-observation-entities.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all observation entity instances that match a text search")
+  void generateSqlForTextSearchOnObservationEntities() throws IOException {
+    // filter for "observation" entity instances that match the search term "smoke"
+    // i.e. observations that have a name or synonym that includes "smoke"
+    ApiFilter smoke =
+        new ApiFilter()
+            .textSearchFilter(
+                new ApiTextSearchFilter().entityVariable("observation_alias").term("smoke"));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            OBSERVATION_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("observation_alias")
+                        .selectedAttributes(ALL_OBSERVATION_ATTRIBUTES)
+                        .filter(smoke)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/observation-entities-text-search.sql");
   }
 }

@@ -10,6 +10,7 @@ import bio.terra.tanagra.generated.model.ApiEntityFilter;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.service.underlay.NauticalUnderlayUtils;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
@@ -220,6 +221,29 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
     assertEquals(
         "SELECT sailor.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor "
             + "WHERE sailor.rating IS NOT NULL",
+        response.getBody().getQuery());
+  }
+
+  @Test
+  @DisplayName("correct SQL string for filtering entity instances based on a text search filter")
+  void generateSqlQueryTextSearchFilter() {
+    // filter for "sailors" entity instances by the search text "george"
+    ApiEntityFilter apiEntityFilter =
+        new ApiEntityFilter()
+            .entityVariable("sailor_alias")
+            .filter(
+                new ApiFilter()
+                    .textSearchFilter(
+                        new ApiTextSearchFilter().entityVariable("sailor_alias").term("george")));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateSqlQuery(
+            NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityFilter);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT sailor_alias.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor_alias "
+            + "WHERE sailor_alias.s_id IN "
+            + "(SELECT s_id FROM `my-project-id.nautical`.sailors WHERE CONTAINS_SUBSTR(s_name, 'george'))",
         response.getBody().getQuery());
   }
 }

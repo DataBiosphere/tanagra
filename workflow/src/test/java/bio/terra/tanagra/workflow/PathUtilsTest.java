@@ -1,9 +1,9 @@
 package bio.terra.tanagra.workflow;
 
+import bio.terra.tanagra.workflow.utils.KVUtils;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.NullableCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -104,12 +104,12 @@ public class PathUtilsTest {
     PCollection<KV<Long, Long>> parentChildRelationshipsPC =
         pipeline.apply(
             "create parent-child kv pairs pcollection",
-            Create.of(convertToKvs(parentChildRelationships)));
+            Create.of(KVUtils.convertToKvs(parentChildRelationships)));
 
     PCollection<KV<Long, String>> nodePaths =
         PathUtils.computePaths(allNodesPC, parentChildRelationshipsPC, maxPathLength);
 
-    PAssert.that(nodePaths).containsInAnyOrder(convertToKvs(expectedPaths));
+    PAssert.that(nodePaths).containsInAnyOrder(KVUtils.convertToKvs(expectedPaths));
     pipeline.run().waitUntilFinish();
   }
 
@@ -156,11 +156,11 @@ public class PathUtilsTest {
     PCollection<KV<Long, Long>> parentChildRelationshipsPC =
         pipeline.apply(
             "create parent-child kv pairs pcollection",
-            Create.of(convertToKvs(parentChildRelationships)));
+            Create.of(KVUtils.convertToKvs(parentChildRelationships)));
 
     PCollection<KV<Long, Long>> nodeNumChildren =
         PathUtils.countChildren(allNodesPC, parentChildRelationshipsPC);
-    PAssert.that(nodeNumChildren).containsInAnyOrder(convertToKvs(expectedNumChildren));
+    PAssert.that(nodeNumChildren).containsInAnyOrder(KVUtils.convertToKvs(expectedNumChildren));
 
     pipeline.run().waitUntilFinish();
   }
@@ -217,7 +217,7 @@ public class PathUtilsTest {
     PCollection<KV<Long, Long>> parentChildRelationshipsPC =
         pipeline.apply(
             "create parent-child kv pairs pcollection",
-            Create.of(convertToKvs(parentChildRelationships)));
+            Create.of(KVUtils.convertToKvs(parentChildRelationships)));
 
     PCollection<KV<Long, String>> nodePaths =
         PathUtils.computePaths(allNodesPC, parentChildRelationshipsPC, maxPathLength);
@@ -226,7 +226,8 @@ public class PathUtilsTest {
     PCollection<KV<Long, String>> nodePathAndNumChildren =
         PathUtils.pruneOrphanPaths(nodePaths, nodeNumChildren);
 
-    PAssert.that(nodePathAndNumChildren).containsInAnyOrder(convertToKvs(expectedPrunedPaths));
+    PAssert.that(nodePathAndNumChildren)
+        .containsInAnyOrder(KVUtils.convertToKvs(expectedPrunedPaths));
 
     pipeline.run().waitUntilFinish();
   }
@@ -272,21 +273,15 @@ public class PathUtilsTest {
     PCollection<KV<Long, String>> nodePathsPC =
         pipeline.apply(
             "create node-path kv pairs pcollection",
-            Create.of(convertToKvs(nodePaths))
+            Create.of(KVUtils.convertToKvs(nodePaths))
                 .withCoder(KvCoder.of(VarLongCoder.of(), NullableCoder.of(StringUtf8Coder.of()))));
 
     PCollection<KV<Long, String>> filteredNodePaths =
         PathUtils.filterRootNodes(possibleRootNodesPC, nodePathsPC);
 
-    PAssert.that(filteredNodePaths).containsInAnyOrder(convertToKvs(expectedFilteredNodePaths));
+    PAssert.that(filteredNodePaths)
+        .containsInAnyOrder(KVUtils.convertToKvs(expectedFilteredNodePaths));
 
     pipeline.run().waitUntilFinish();
-  }
-
-  /** Convert a {@link Multimap} to an equivalent list of {@link KV}s. */
-  private static <K, V> List<KV<K, V>> convertToKvs(Multimap<K, V> multimap) {
-    return multimap.entries().stream()
-        .map(entry -> KV.of(entry.getKey(), entry.getValue()))
-        .collect(Collectors.toList());
   }
 }

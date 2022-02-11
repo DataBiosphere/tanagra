@@ -20,6 +20,7 @@ import bio.terra.tanagra.generated.model.ApiBinaryFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.service.search.AttributeVariable;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.EntityVariable;
@@ -249,6 +250,24 @@ public class FilterConverterTest {
     assertEquals(
         expectedFilter,
         converter.convert(new ApiFilter().relationshipFilter(apiRelationship), scope));
+  }
+
+  @Test
+  void convertTextSearch() {
+    FilterConverter converter = new FilterConverter(NAUTICAL_UNDERLAY);
+    VariableScope scope = new VariableScope().add(S_SAILOR);
+
+    ApiTextSearchFilter apiTextSearch =
+        new ApiTextSearchFilter().entityVariable("s").term("george");
+
+    Filter.TextSearchFilter expectedFilter =
+        Filter.TextSearchFilter.create(
+            EntityVariable.create(SAILOR, Variable.create("s")),
+            Literal.create(DataType.STRING, "george"));
+
+    assertEquals(expectedFilter, converter.convert(apiTextSearch, scope));
+    assertEquals(
+        expectedFilter, converter.convert(new ApiFilter().textSearchFilter(apiTextSearch), scope));
   }
 
   @Test
