@@ -34,6 +34,9 @@ public final class RandomNumberGenerator {
    * Check if the system property is set. This method is called to set a final static boolean, so
    * that we only need to check the system property once in the non-testing case, not each time we
    * need a random number.
+   *
+   * <p>See See bio.terra.tanagra.testing.BaseSpringUnitTest for where this is property set before
+   * each test method.
    */
   private static boolean useSeededRandom() {
     String useRandomSeedSysProp = System.getProperty(USE_RANDOM_SEED_SYSTEM_PROPERTY);

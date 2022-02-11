@@ -20,6 +20,7 @@ public class BaseSpringUnitTest {
   public void beforeEach() {
     // set a random number generator seed to be used in SQL query generation
     // this makes it easier to compare expected vs actual generated SQL strings in tests
+    // see bio.terra.tanagra.service.search.utils.RandomNumberGenerator for how this is used
     System.setProperty("GENERATE_SQL_RANDOM_SEED", "true");
   }
 }

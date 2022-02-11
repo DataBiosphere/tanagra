@@ -130,12 +130,18 @@ entities:
         dataType: INT64
       - name: condition_concept_id
         dataType: INT64
-      - name: condition_name
+      - name: condition_start_date
         dataType: STRING
-      - name: condition_standard
+      - name: condition_end_date
         dataType: STRING
-      - name: condition_concept_code
+      - name: stop_reason
         dataType: STRING
+      - name: visit_occurrence_id
+        dataType: INT64
+      - name: condition_source_value
+        dataType: STRING
+      - name: condition_source_concept_id
+        dataType: INT64
   - name: concept
     attributes:
       - name: concept_id
@@ -202,6 +208,18 @@ datasets:
           - name: person_id
             dataType: INT64
           - name: condition_concept_id
+            dataType: INT64
+          - name: condition_start_date
+            dataType: STRING
+          - name: condition_end_date
+            dataType: STRING
+          - name: stop_reason
+            dataType: STRING
+          - name: visit_occurrence_id
+            dataType: INT64
+          - name: condition_source_value
+            dataType: STRING
+          - name: condition_source_concept_id
             dataType: INT64
       - name: concept
         columns:
@@ -1258,52 +1276,52 @@ attributeMappings:
         column: condition_concept_id
   - attribute:
       entity: condition_occurrence
-      attribute: condition_name
-    lookupColumn:
-      primaryTableLookupKey:
+      attribute: condition_start_date
+    simpleColumn:
+      columnId:
         dataset: aou_synthetic
         table: condition_occurrence
-        column: condition_concept_id
-      lookupTableKey:
-        dataset: aou_synthetic
-        table: concept
-        column: concept_id
-      lookupColumn:
-        dataset: aou_synthetic
-        table: concept
-        column: concept_name
+        column: condition_start_date
   - attribute:
       entity: condition_occurrence
-      attribute: condition_standard
-    lookupColumn:
-      primaryTableLookupKey:
+      attribute: condition_end_date
+    simpleColumn:
+      columnId:
         dataset: aou_synthetic
         table: condition_occurrence
-        column: condition_concept_id
-      lookupTableKey:
-        dataset: aou_synthetic
-        table: concept
-        column: concept_id
-      lookupColumn:
-        dataset: aou_synthetic
-        table: concept
-        column: standard_concept
+        column: condition_end_date
   - attribute:
       entity: condition_occurrence
-      attribute: condition_concept_code
-    lookupColumn:
-      primaryTableLookupKey:
+      attribute: stop_reason
+    simpleColumn:
+      columnId:
         dataset: aou_synthetic
         table: condition_occurrence
-        column: condition_concept_id
-      lookupTableKey:
+        column: stop_reason
+  - attribute:
+      entity: condition_occurrence
+      attribute: visit_occurrence_id
+    simpleColumn:
+      columnId:
         dataset: aou_synthetic
-        table: concept
-        column: concept_id
-      lookupColumn:
+        table: condition_occurrence
+        column: visit_occurrence_id
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_source_value
+    simpleColumn:
+      columnId:
         dataset: aou_synthetic
-        table: concept
-        column: concept_code
+        table: condition_occurrence
+        column: condition_source_value
+  - attribute:
+      entity: condition_occurrence
+      attribute: condition_source_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: condition_occurrence
+        column: condition_source_concept_id
   - attribute:
       entity: concept
       attribute: concept_id

@@ -44,9 +44,12 @@ public final class UnderlayUtils {
           "condition_occurrence_id",
           "person_id",
           "condition_concept_id",
-          "condition_name",
-          "condition_standard",
-          "condition_concept_code");
+          "condition_start_date",
+          "condition_end_date",
+          "stop_reason",
+          "visit_occurrence_id",
+          "condition_source_value",
+          "condition_source_concept_id");
 
   public static final String PROCEDURE_ENTITY = "procedure";
   public static final List<String> ALL_PROCEDURE_ATTRIBUTES =

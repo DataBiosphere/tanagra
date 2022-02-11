@@ -35,7 +35,7 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for listing condition occurrence entity instances related to people with a condition")
+      "example dataset builder query: cohort=people who've had covid, concept set=all conditions")
   void generateSqlForConditionOccurrenceEntitiesRelatedToPeopleWithACondition() throws IOException {
     // filter for "condition" entity instances that have concept_id=439676
     // i.e. the condition "Coronavirus infection"
@@ -105,7 +105,7 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
 
   @Test
   @DisplayName(
-      "correct SQL string for listing condition occurrence entity instances related to people with two conditions")
+      "example dataset builder query: cohort=people who've had covid and sepsis, concept set=all conditions")
   void generateSqlForConditionOccurrenceEntitiesRelatedToPeopleWithTwoConditions()
       throws IOException {
     // filter for "condition" entity instances that have concept_id=439676
@@ -180,9 +180,9 @@ public class ConditionOccurrenceEntityQueriesTest extends BaseSpringUnitTest {
 
     // filter for "condition occurrence" entity instances that are related to "person" entity
     // instances that are related to "condition_occurrence" entity instances that are related to
-    // "condition" entity instances that have concept_id=439676 AND are related to
+    // ("condition" entity instances that have concept_id=439676 AND are related to
     // "condition_occurrence" entity instances that are related to "condition" entity instances that
-    // have concept_id=132797
+    // have concept_id=132797)
     // i.e. give me all the condition occurrence rows for people with "Coronavirus infection" and
     // "Sepsis". this set of rows will include non-coronavirus infection and non-sepsis condition
     // occurrences, such as diabetes.

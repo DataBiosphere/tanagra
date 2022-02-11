@@ -52,7 +52,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
   }
 
   @Test
-  @DisplayName("correct SQL string for listing person entity instances with a condition")
+  @DisplayName("example cohort builder breakdown query: cohort=people who've had covid")
   void generateSqlForPersonEntitiesWithACondition() throws IOException {
     // filter for "condition" entity instances that have concept_id=439676
     // i.e. the condition "Coronavirus infection"
