@@ -63,6 +63,17 @@ public final class UnderlayUtils {
   public static final String PROCEDURE_HIERARCHY_PATH_ATTRIBUTE = "t_path_concept_id";
   public static final String PROCEDURE_HIERARCHY_NUMCHILDREN_ATTRIBUTE = "t_numChildren_concept_id";
 
+  public static final String PROCEDURE_OCCURRENCE_ENTITY = "procedure_occurrence";
+  public static final List<String> ALL_PROCEDURE_OCCURRENCE_ATTRIBUTES =
+      ImmutableList.of(
+          "procedure_occurrence_id",
+          "person_id",
+          "procedure_concept_id",
+          "procedure_date",
+          "visit_occurrence_id",
+          "procedure_source_value",
+          "procedure_source_concept_id");
+
   public static final String INGREDIENT_ENTITY = "ingredient";
   public static final List<String> ALL_INGREDIENT_ATTRIBUTES =
       ImmutableList.of(

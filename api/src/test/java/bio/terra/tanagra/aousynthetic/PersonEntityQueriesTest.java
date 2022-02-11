@@ -104,4 +104,58 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/person-entities-related-to-a-condition.sql");
   }
+
+  @Test
+  @DisplayName("example cohort builder breakdown query: cohort=people who've had mammography")
+  void generateSqlForPersonEntitiesWithAProcedure() throws IOException {
+    // filter for "procedure" entity instances that have concept_id=4324693
+    // i.e. the procedure "Mammography"
+    ApiFilter mammography =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("procedure_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(4_324_693L)));
+
+    // filter for "procedure_occurrence" entity instances that are related to "procedure" entity
+    // instances that have concept_id=4324693
+    // i.e. give me all the procedure occurrences of "Mammography"
+    ApiFilter occurrencesOfMammography =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("procedure_occurrence_alias1")
+                    .newVariable("procedure_alias")
+                    .newEntity("procedure")
+                    .filter(mammography));
+
+    // filter for "person" entity instances that are related to "procedure_occurrence" entity
+    // instances that are related to "procedure" entity instances that have concept_id=4324693
+    // i.e. give me all the people with procedure occurrences of "Mammography"
+    ApiFilter peopleWhoHadMammography =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("person_alias")
+                    .newVariable("procedure_occurrence_alias1")
+                    .newEntity("procedure_occurrence")
+                    .filter(occurrencesOfMammography));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("person_alias")
+                        .selectedAttributes(ImmutableList.of(PERSON_ID_ATTRIBUTE))
+                        .filter(peopleWhoHadMammography)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/person-entities-related-to-a-procedure.sql");
+  }
 }

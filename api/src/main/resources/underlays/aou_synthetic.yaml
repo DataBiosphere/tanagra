@@ -142,6 +142,22 @@ entities:
         dataType: STRING
       - name: condition_source_concept_id
         dataType: INT64
+  - name: procedure_occurrence
+    attributes:
+      - name: procedure_occurrence_id
+        dataType: INT64
+      - name: person_id
+        dataType: INT64
+      - name: procedure_concept_id
+        dataType: INT64
+      - name: procedure_date
+        dataType: STRING
+      - name: visit_occurrence_id
+        dataType: INT64
+      - name: procedure_source_value
+        dataType: STRING
+      - name: procedure_source_concept_id
+        dataType: INT64
   - name: concept
     attributes:
       - name: concept_id
@@ -167,6 +183,12 @@ relationships:
     entity2: condition
   - name: condition_occurrence_person
     entity1: condition_occurrence
+    entity2: person
+  - name: procedure_occurrence_procedure
+    entity1: procedure_occurrence
+    entity2: procedure
+  - name: procedure_occurrence_person
+    entity1: procedure_occurrence
     entity2: person
   - name: concept_id_person_gender
     entity1: concept
@@ -220,6 +242,22 @@ datasets:
           - name: condition_source_value
             dataType: STRING
           - name: condition_source_concept_id
+            dataType: INT64
+      - name: procedure_occurrence
+        columns:
+          - name: procedure_occurrence_id
+            dataType: INT64
+          - name: person_id
+            dataType: INT64
+          - name: procedure_concept_id
+            dataType: INT64
+          - name: procedure_date
+            dataType: STRING
+          - name: visit_occurrence_id
+            dataType: INT64
+          - name: procedure_source_value
+            dataType: STRING
+          - name: procedure_source_concept_id
             dataType: INT64
       - name: concept
         columns:
@@ -756,6 +794,11 @@ entityMappings:
       dataset: aou_synthetic
       table: condition_occurrence
       column: condition_occurrence_id
+  - entity: procedure_occurrence
+    primaryKey:
+      dataset: aou_synthetic
+      table: procedure_occurrence
+      column: procedure_occurrence_id
   - entity: concept
     primaryKey:
       dataset: aou_synthetic
@@ -1323,6 +1366,62 @@ attributeMappings:
         table: condition_occurrence
         column: condition_source_concept_id
   - attribute:
+      entity: procedure_occurrence
+      attribute: procedure_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: procedure_occurrence_id
+  - attribute:
+      entity: procedure_occurrence
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: person_id
+  - attribute:
+      entity: procedure_occurrence
+      attribute: procedure_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: procedure_concept_id
+  - attribute:
+      entity: procedure_occurrence
+      attribute: procedure_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: procedure_date
+  - attribute:
+      entity: procedure_occurrence
+      attribute: visit_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: visit_occurrence_id
+  - attribute:
+      entity: procedure_occurrence
+      attribute: procedure_source_value
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: procedure_source_value
+  - attribute:
+      entity: procedure_occurrence
+      attribute: procedure_source_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: procedure_source_concept_id
+  - attribute:
       entity: concept
       attribute: concept_id
     simpleColumn:
@@ -1410,7 +1509,7 @@ relationshipMappings:
       primaryKey:
         dataset: aou_synthetic
         table: condition_occurrence
-        column: person_id
+        column: condition_concept_id
       foreignKey:
         dataset: aou_synthetic
         table: concept
@@ -1420,7 +1519,27 @@ relationshipMappings:
       primaryKey:
         dataset: aou_synthetic
         table: condition_occurrence
-        column: condition_concept_id
+        column: person_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: person
+        column: person_id
+  - name: procedure_occurrence_procedure
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: procedure_concept_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - name: procedure_occurrence_person
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: procedure_occurrence
+        column: person_id
       foreignKey:
         dataset: aou_synthetic
         table: person
