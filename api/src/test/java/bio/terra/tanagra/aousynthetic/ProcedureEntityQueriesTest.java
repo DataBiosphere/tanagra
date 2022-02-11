@@ -16,6 +16,7 @@ import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import com.google.common.collect.ImmutableList;
@@ -178,5 +179,32 @@ public class ProcedureEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/procedure-entities-root-nodes.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all procedure entity instances that match a text search")
+  void generateSqlForTextSearchOnProcedureEntities() throws IOException {
+    // filter for "procedure" entity instances that match the search term "mammogram"
+    // i.e. procedures that have a name or synonym that includes "mammogram"
+    ApiFilter mammogram =
+        new ApiFilter()
+            .textSearchFilter(
+                new ApiTextSearchFilter().entityVariable("procedure_alias").term("mammogram"));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PROCEDURE_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("procedure_alias")
+                        .selectedAttributes(ALL_PROCEDURE_ATTRIBUTES)
+                        .filter(mammogram)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/procedure-entities-text-search.sql");
   }
 }

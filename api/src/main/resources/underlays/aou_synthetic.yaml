@@ -218,6 +218,8 @@ datasets:
             dataType: STRING
           - name: valid_end_date
             dataType: STRING
+          - name: invalid_reason
+            dataType: STRING
       - name: vocabulary
         columns:
           - name: vocabulary_id
@@ -231,6 +233,12 @@ datasets:
           - name: concept_id_2
             dataType: INT64
           - name: relationship_id
+            dataType: STRING
+      - name: concept_synonym
+        columns:
+          - name: concept_id
+            dataType: INT64
+          - name: concept_synonym_name
             dataType: STRING
   - name: omop_indexes
     bigQueryDataset:
@@ -335,6 +343,54 @@ datasets:
             dataType: INT64
           - name: child
             dataType: INT64
+      - name: condition_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
+      - name: procedure_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
+      - name: measurement_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
+      - name: ingredient_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
+      - name: brand_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
+      - name: device_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
+      - name: observation_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
+      - name: visit_text_search_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: text
+            dataType: STRING
 entityMappings:
   - entity: person
     primaryKey:
@@ -536,7 +592,7 @@ entityMappings:
           - column:
               dataset: aou_synthetic
               table: concept
-              column: concept_class_id
+              column: invalid_reason
             operator: EQUALS
   - entity: measurement
     primaryKey:
@@ -611,7 +667,7 @@ entityMappings:
           - column:
               dataset: aou_synthetic
               table: concept
-              column: vocabulary_id
+              column: domain_id
             operator: EQUALS
             stringVal: Visit
           - column:
@@ -1525,3 +1581,84 @@ hierarchies:
         dataset: omop_indexes
         table: measurement_node_path_2
         column: numChildren
+textSearchInformation:
+  - entity: condition
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: condition_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: condition_text_search_2
+        column: text
+  - entity: procedure
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: procedure_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: procedure_text_search_2
+        column: text
+  - entity: measurement
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: measurement_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: measurement_text_search_2
+        column: text
+  - entity: ingredient
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: ingredient_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: ingredient_text_search_2
+        column: text
+  - entity: brand
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: brand_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: brand_text_search_2
+        column: text
+  - entity: device
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: device_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: device_text_search_2
+        column: text
+  - entity: observation
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: observation_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: observation_text_search_2
+        column: text
+  - entity: visit
+    textTable:
+      lookupTableKey:
+        dataset: omop_indexes
+        table: visit_text_search_2
+        column: node
+      fullText:
+        dataset: omop_indexes
+        table: visit_text_search_2
+        column: text

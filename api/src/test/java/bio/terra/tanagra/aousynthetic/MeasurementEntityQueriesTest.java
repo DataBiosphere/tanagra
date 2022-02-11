@@ -18,6 +18,7 @@ import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
+import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import com.google.common.collect.ImmutableList;
@@ -246,5 +247,32 @@ public class MeasurementEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/measurement-entities-snomed-root-nodes.sql");
+  }
+
+  @Test
+  @DisplayName(
+      "correct SQL string for listing all measurement entity instances that match a text search")
+  void generateSqlForTextSearchOnMeasurementEntities() throws IOException {
+    // filter for "measurement" entity instances that match the search term "hematocrit"
+    // i.e. measurements that have a name or synonym that includes "hematocrit"
+    ApiFilter hematocrit =
+        new ApiFilter()
+            .textSearchFilter(
+                new ApiTextSearchFilter().entityVariable("measurement_alias").term("hematocrit"));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            MEASUREMENT_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("measurement_alias")
+                        .selectedAttributes(ALL_MEASUREMENT_ATTRIBUTES)
+                        .filter(hematocrit)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/measurement-entities-text-search.sql");
   }
 }
