@@ -84,7 +84,7 @@ public final class BuildTextSearchInformation {
 
     // concatenate all the search strings for a particular entity instance into a single string
     PCollection<KV<Long, String>> concatenatedSearchStringsPC =
-        TextSearchUtils.buildSingleSearchString(allNodesPC, searchStringsPC);
+        TextSearchUtils.concatenateSearchStringsByKey(allNodesPC, searchStringsPC);
 
     // write the (node,text) rows to BQ
     writeSearchStringsToBQ(

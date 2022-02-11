@@ -35,7 +35,8 @@ public class TextSearchUtilsTest {
     expectedSingleSearchStrings.put(13L, "lemon , myers lemon");
     expectedSingleSearchStrings.put(14L, "pear");
 
-    runBuildSingleSearchStringAndAssert(ALL_NODES, searchStrings, expectedSingleSearchStrings);
+    runConcatenateSearchStringsByKeyAndAssert(
+        ALL_NODES, searchStrings, expectedSingleSearchStrings);
   }
 
   @Test
@@ -53,7 +54,8 @@ public class TextSearchUtilsTest {
     expectedSingleSearchStrings.put(13L, "lemon , myers lemon");
     expectedSingleSearchStrings.put(14L, "");
 
-    runBuildSingleSearchStringAndAssert(ALL_NODES, searchStrings, expectedSingleSearchStrings);
+    runConcatenateSearchStringsByKeyAndAssert(
+        ALL_NODES, searchStrings, expectedSingleSearchStrings);
   }
 
   @Test
@@ -74,15 +76,16 @@ public class TextSearchUtilsTest {
     expectedSingleSearchStrings.put(13L, "lemon , myers lemon");
     expectedSingleSearchStrings.put(14L, "pear");
 
-    runBuildSingleSearchStringAndAssert(ALL_NODES, searchStrings, expectedSingleSearchStrings);
+    runConcatenateSearchStringsByKeyAndAssert(
+        ALL_NODES, searchStrings, expectedSingleSearchStrings);
   }
 
   /**
-   * Run a test {@link TextSearchUtils#buildSingleSearchString(PCollection, PCollection)} pipeline
-   * with the input nodes and search strings. Assert that the expected single search strings are
-   * returned.
+   * Run a test {@link TextSearchUtils#concatenateSearchStringsByKey(PCollection, PCollection)}
+   * pipeline with the input nodes and search strings. Assert that the expected single search
+   * strings are returned.
    */
-  void runBuildSingleSearchStringAndAssert(
+  void runConcatenateSearchStringsByKeyAndAssert(
       List<Long> allNodes,
       Multimap<Long, String> searchStrings,
       Multimap<Long, String> expectedSingleSearchStrings) {
@@ -94,7 +97,7 @@ public class TextSearchUtilsTest {
             Create.of(KVUtils.convertToKvs(searchStrings)));
 
     PCollection<KV<Long, String>> nodeSingleSearchStrings =
-        TextSearchUtils.buildSingleSearchString(allNodesPC, searchStringsPC);
+        TextSearchUtils.concatenateSearchStringsByKey(allNodesPC, searchStringsPC);
 
     PAssert.that(nodeSingleSearchStrings)
         .containsInAnyOrder(KVUtils.convertToKvs(expectedSingleSearchStrings));

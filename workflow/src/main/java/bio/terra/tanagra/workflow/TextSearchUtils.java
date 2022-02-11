@@ -29,7 +29,7 @@ public final class TextSearchUtils {
    *     multiple elements per node
    * @return a collection of (node, text) mappings, where there is exactly one element per node
    */
-  public static PCollection<KV<Long, String>> buildSingleSearchString(
+  public static PCollection<KV<Long, String>> concatenateSearchStringsByKey(
       PCollection<Long> allNodes, PCollection<KV<Long, String>> searchStrings) {
     // build a collection of KV<node,singleSearchString> where singleSearchString=""
     PCollection<KV<Long, String>> nodeSingleSearchStringKVs =
