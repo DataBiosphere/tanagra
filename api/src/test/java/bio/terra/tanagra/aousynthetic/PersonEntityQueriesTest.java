@@ -212,4 +212,60 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/person-entities-related-to-a-visit.sql");
   }
+
+  @Test
+  @DisplayName(
+      "example cohort builder breakdown query: cohort=people who've had glucose tolerance test")
+  void generateSqlForPersonEntitiesWithAMeasurement() throws IOException {
+    // filter for "measurement" entity instances that have concept_id=3009542
+    // i.e. the measurement "Hematocrit [Volume Fraction] of Blood"
+    ApiFilter hematocrit =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("measurement_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(3_009_542L)));
+
+    // filter for "measurement_occurrence" entity instances that are related to "measruement" entity
+    // instances that have concept_id=3009542
+    // i.e. give me all the measurement occurrences of "Hematocrit [Volume Fraction] of Blood"
+    ApiFilter occurrencesOfHematocrit =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("measurement_occurrence_alias1")
+                    .newVariable("measurement_alias")
+                    .newEntity("measurement")
+                    .filter(hematocrit));
+
+    // filter for "person" entity instances that are related to "measurement_occurrence" entity
+    // instances that are related to "measruement" entity instances that have concept_id=3009542
+    // i.e. give me all the people with measurement occurrences of "Hematocrit [Volume Fraction] of
+    // Blood"
+    ApiFilter peopleWhoHadHematocrit =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("person_alias")
+                    .newVariable("measurement_occurrence_alias1")
+                    .newEntity("measurement_occurrence")
+                    .filter(occurrencesOfHematocrit));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("person_alias")
+                        .selectedAttributes(ImmutableList.of(PERSON_ID_ATTRIBUTE))
+                        .filter(peopleWhoHadHematocrit)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/person-entities-related-to-a-measurement.sql");
+  }
 }

@@ -104,6 +104,19 @@ public final class UnderlayUtils {
   public static final String MEASUREMENT_HIERARCHY_NUMCHILDREN_ATTRIBUTE =
       "t_numChildren_concept_id";
 
+  public static final String MEASUREMENT_OCCURRENCE_ENTITY = "measurement_occurrence";
+  public static final List<String> ALL_MEASUREMENT_OCCURRENCE_ATTRIBUTES =
+      ImmutableList.of(
+          "measurement_id",
+          "person_id",
+          "measurement_concept_id",
+          "measurement_date",
+          "value_as_concept_id",
+          "unit_concept_id",
+          "visit_occurrence_id",
+          "measurement_source_value",
+          "measurement_source_concept_id");
+
   public static final String VISIT_ENTITY = "visit";
   public static final List<String> ALL_VISIT_ATTRIBUTES =
       ImmutableList.of("concept_id", "concept_name");

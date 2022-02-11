@@ -158,6 +158,26 @@ entities:
         dataType: STRING
       - name: procedure_source_concept_id
         dataType: INT64
+  - name: measurement_occurrence
+    attributes:
+      - name: measurement_id
+        dataType: INT64
+      - name: person_id
+        dataType: INT64
+      - name: measurement_concept_id
+        dataType: INT64
+      - name: measurement_date
+        dataType: STRING
+      - name: value_as_concept_id
+        dataType: INT64
+      - name: unit_concept_id
+        dataType: INT64
+      - name: visit_occurrence_id
+        dataType: INT64
+      - name: measurement_source_value
+        dataType: STRING
+      - name: measurement_source_concept_id
+        dataType: INT64
   - name: visit_occurrence
     attributes:
       - name: visit_occurrence_id
@@ -205,6 +225,12 @@ relationships:
     entity2: procedure
   - name: procedure_occurrence_person
     entity1: procedure_occurrence
+    entity2: person
+  - name: measurement_occurrence_measurement
+    entity1: measurement_occurrence
+    entity2: measurement
+  - name: measurement_occurrence_person
+    entity1: measurement_occurrence
     entity2: person
   - name: visit_occurrence_visit
     entity1: visit_occurrence
@@ -280,6 +306,26 @@ datasets:
           - name: procedure_source_value
             dataType: STRING
           - name: procedure_source_concept_id
+            dataType: INT64
+      - name: measurement
+        columns:
+          - name: measurement_id
+            dataType: INT64
+          - name: person_id
+            dataType: INT64
+          - name: measurement_concept_id
+            dataType: INT64
+          - name: measurement_date
+            dataType: STRING
+          - name: value_as_concept_id
+            dataType: INT64
+          - name: unit_concept_id
+            dataType: INT64
+          - name: visit_occurrence_id
+            dataType: INT64
+          - name: measurement_source_value
+            dataType: STRING
+          - name: measurement_source_concept_id
             dataType: INT64
       - name: visit_occurrence
         columns:
@@ -837,6 +883,11 @@ entityMappings:
       dataset: aou_synthetic
       table: procedure_occurrence
       column: procedure_occurrence_id
+  - entity: measurement_occurrence
+    primaryKey:
+      dataset: aou_synthetic
+      table: measurement
+      column: measurement_id
   - entity: visit_occurrence
     primaryKey:
       dataset: aou_synthetic
@@ -1465,6 +1516,78 @@ attributeMappings:
         table: procedure_occurrence
         column: procedure_source_concept_id
   - attribute:
+      entity: measurement_occurrence
+      attribute: measurement_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: measurement_id
+  - attribute:
+      entity: measurement_occurrence
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: person_id
+  - attribute:
+      entity: measurement_occurrence
+      attribute: measurement_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: measurement_concept_id
+  - attribute:
+      entity: measurement_occurrence
+      attribute: measurement_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: measurement_date
+  - attribute:
+      entity: measurement_occurrence
+      attribute: value_as_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: value_as_concept_id
+  - attribute:
+      entity: measurement_occurrence
+      attribute: unit_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: unit_concept_id
+  - attribute:
+      entity: measurement_occurrence
+      attribute: visit_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: visit_occurrence_id
+  - attribute:
+      entity: measurement_occurrence
+      attribute: measurement_source_value
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: measurement_source_value
+  - attribute:
+      entity: measurement_occurrence
+      attribute: measurement_source_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: measurement
+        column: measurement_source_concept_id
+  - attribute:
       entity: visit_occurrence
       attribute: visit_occurrence_id
     simpleColumn:
@@ -1638,6 +1761,26 @@ relationshipMappings:
       primaryKey:
         dataset: aou_synthetic
         table: procedure_occurrence
+        column: person_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: person
+        column: person_id
+  - name: measurement_occurrence_measurement
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: measurement
+        column: measurement_concept_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - name: measurement_occurrence_person
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: measurement
         column: person_id
       foreignKey:
         dataset: aou_synthetic
