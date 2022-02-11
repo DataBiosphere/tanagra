@@ -1581,7 +1581,7 @@ hierarchies:
         dataset: omop_indexes
         table: measurement_node_path_2
         column: numChildren
-texts:
+textSearchInformation:
   - entity: condition
     textTable:
       lookupTableKey:
