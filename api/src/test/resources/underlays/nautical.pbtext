@@ -650,7 +650,7 @@ hierarchies: {
     }
   }
 }
-texts: {
+text_search_information: {
   entity: "sailors"
   text_table: {
     lookup_table_key: {

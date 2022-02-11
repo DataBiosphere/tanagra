@@ -21,8 +21,8 @@ import bio.terra.tanagra.service.underlay.Hierarchy.DescendantsTable;
 import bio.terra.tanagra.service.underlay.IntermediateTable;
 import bio.terra.tanagra.service.underlay.Table;
 import bio.terra.tanagra.service.underlay.TableFilter;
-import bio.terra.tanagra.service.underlay.Text;
-import bio.terra.tanagra.service.underlay.Text.TextTable;
+import bio.terra.tanagra.service.underlay.TextSearchInformation;
+import bio.terra.tanagra.service.underlay.TextSearchInformation.TextTable;
 import bio.terra.tanagra.service.underlay.Underlay;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -254,8 +254,11 @@ public class SqlVisitor {
 
     @Override
     public String visitTextSearch(TextSearchFilter textSearchFilter) {
-      Text textSearchInfo =
-          searchContext.underlay().texts().get(textSearchFilter.entityVariable().entity());
+      TextSearchInformation textSearchInfo =
+          searchContext
+              .underlay()
+              .textSearchInformation()
+              .get(textSearchFilter.entityVariable().entity());
       if (textSearchInfo == null) {
         throw new BadRequestException(
             String.format(

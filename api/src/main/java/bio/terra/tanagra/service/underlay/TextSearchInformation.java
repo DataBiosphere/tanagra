@@ -10,11 +10,11 @@ import com.google.common.base.Preconditions;
  * table.
  */
 @AutoValue
-public abstract class Text {
+public abstract class TextSearchInformation {
   public abstract TextTable textTable();
 
   public static Builder builder() {
-    return new AutoValue_Text.Builder();
+    return new AutoValue_TextSearchInformation.Builder();
   }
 
   /**
@@ -41,7 +41,7 @@ public abstract class Text {
     }
 
     public static Builder builder() {
-      return new AutoValue_Text_TextTable.Builder();
+      return new AutoValue_TextSearchInformation_TextTable.Builder();
     }
 
     /** Builder for {@link TextTable}. */
@@ -69,12 +69,12 @@ public abstract class Text {
     }
   }
 
-  /** Builder for {@link Text}. */
+  /** Builder for {@link TextSearchInformation}. */
   @AutoValue.Builder
   public abstract static class Builder {
 
     public abstract Builder textTable(TextTable textTable);
 
-    public abstract Text build();
+    public abstract TextSearchInformation build();
   }
 }

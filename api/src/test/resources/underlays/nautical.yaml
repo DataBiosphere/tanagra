@@ -405,7 +405,7 @@ hierarchies:
         dataset: nautical
         table: boat_types_paths
         column: bt_num_children
-texts:
+textSearchInformation:
   - entity: sailors
     textTable:
       lookupTableKey:
