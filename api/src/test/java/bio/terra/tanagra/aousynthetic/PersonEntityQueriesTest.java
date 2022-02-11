@@ -322,4 +322,58 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/person-entities-related-to-an-ingredient.sql");
   }
+
+  @Test
+  @DisplayName("example cohort builder breakdown query: cohort=people who refused a vaccine")
+  void generateSqlForPersonEntitiesWithAnObservation() throws IOException {
+    // filter for "observation" entity instances that have concept_id=43531662
+    // i.e. the observation "Vaccine refused by patient"
+    ApiFilter refusedVaccine =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("observation_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(43_531_662L)));
+
+    // filter for "observation_occurrence" entity instances that are related to "observation" entity
+    // instances that have concept_id=43531662
+    // i.e. give me all the observation occurrences of "Vaccine refused by patient"
+    ApiFilter occurrencesOfVaccineRefusal =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("observation_occurrence_alias1")
+                    .newVariable("observation_alias")
+                    .newEntity("observation")
+                    .filter(refusedVaccine));
+
+    // filter for "person" entity instances that are related to "observation_occurrence" entity
+    // instances that are related to "observation" entity instances that have concept_id=43531662
+    // i.e. give me all the people with observation occurrences of "Vaccine refused by patient"
+    ApiFilter peopleWhoRefusedVaccine =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("person_alias")
+                    .newVariable("observation_occurrence_alias1")
+                    .newEntity("observation_occurrence")
+                    .filter(occurrencesOfVaccineRefusal));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateDatasetSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("person_alias")
+                        .selectedAttributes(ImmutableList.of(PERSON_ID_ATTRIBUTE))
+                        .filter(peopleWhoRefusedVaccine)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/person-entities-related-to-an-observation.sql");
+  }
 }

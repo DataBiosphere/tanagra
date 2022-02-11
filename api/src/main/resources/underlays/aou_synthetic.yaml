@@ -218,6 +218,28 @@ entities:
         dataType: STRING
       - name: visit_source_concept_id
         dataType: INT64
+  - name: observation_occurrence
+    attributes:
+      - name: observation_id
+        dataType: INT64
+      - name: person_id
+        dataType: INT64
+      - name: observation_concept_id
+        dataType: INT64
+      - name: observation_date
+        dataType: STRING
+      - name: value_as_string
+        dataType: STRING
+      - name: value_as_concept_id
+        dataType: INT64
+      - name: unit_concept_id
+        dataType: INT64
+      - name: visit_occurrence_id
+        dataType: INT64
+      - name: observation_source_value
+        dataType: STRING
+      - name: observation_source_concept_id
+        dataType: INT64
   - name: concept
     attributes:
       - name: concept_id
@@ -267,6 +289,12 @@ relationships:
     entity2: visit
   - name: visit_occurrence_person
     entity1: visit_occurrence
+    entity2: person
+  - name: observation_occurrence_observation
+    entity1: observation_occurrence
+    entity2: observation
+  - name: observation_occurrence_person
+    entity1: observation_occurrence
     entity2: person
   - name: concept_id_person_gender
     entity1: concept
@@ -396,6 +424,28 @@ datasets:
           - name: visit_source_value
             dataType: STRING
           - name: visit_source_concept_id
+            dataType: INT64
+      - name: observation
+        columns:
+          - name: observation_id
+            dataType: INT64
+          - name: person_id
+            dataType: INT64
+          - name: observation_concept_id
+            dataType: INT64
+          - name: observation_date
+            dataType: STRING
+          - name: value_as_string
+            dataType: STRING
+          - name: value_as_concept_id
+            dataType: INT64
+          - name: unit_concept_id
+            dataType: INT64
+          - name: visit_occurrence_id
+            dataType: INT64
+          - name: observation_source_value
+            dataType: STRING
+          - name: observation_source_concept_id
             dataType: INT64
       - name: concept
         columns:
@@ -952,6 +1002,11 @@ entityMappings:
       dataset: aou_synthetic
       table: visit_occurrence
       column: visit_occurrence_id
+  - entity: observation_occurrence
+    primaryKey:
+      dataset: aou_synthetic
+      table: observation
+      column: observation_id
   - entity: concept
     primaryKey:
       dataset: aou_synthetic
@@ -1791,6 +1846,86 @@ attributeMappings:
         table: visit_occurrence
         column: visit_source_concept_id
   - attribute:
+      entity: observation_occurrence
+      attribute: observation_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: observation_id
+  - attribute:
+      entity: observation_occurrence
+      attribute: person_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: person_id
+  - attribute:
+      entity: observation_occurrence
+      attribute: observation_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: observation_concept_id
+  - attribute:
+      entity: observation_occurrence
+      attribute: observation_date
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: observation_date
+  - attribute:
+      entity: observation_occurrence
+      attribute: value_as_string
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: value_as_string
+  - attribute:
+      entity: observation_occurrence
+      attribute: value_as_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: value_as_concept_id
+  - attribute:
+      entity: observation_occurrence
+      attribute: unit_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: unit_concept_id
+  - attribute:
+      entity: observation_occurrence
+      attribute: visit_occurrence_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: visit_occurrence_id
+  - attribute:
+      entity: observation_occurrence
+      attribute: observation_source_value
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: observation_source_value
+  - attribute:
+      entity: observation_occurrence
+      attribute: observation_source_concept_id
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: observation
+        column: observation_source_concept_id
+  - attribute:
       entity: concept
       attribute: concept_id
     simpleColumn:
@@ -1968,6 +2103,26 @@ relationshipMappings:
       primaryKey:
         dataset: aou_synthetic
         table: visit_occurrence
+        column: person_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: person
+        column: person_id
+  - name: observation_occurrence_observation
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: observation
+        column: observation_concept_id
+      foreignKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+  - name: observation_occurrence_person
+    foreignKey:
+      primaryKey:
+        dataset: aou_synthetic
+        table: observation
         column: person_id
       foreignKey:
         dataset: aou_synthetic

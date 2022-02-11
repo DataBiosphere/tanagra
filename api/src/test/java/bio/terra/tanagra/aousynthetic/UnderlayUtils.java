@@ -157,6 +157,20 @@ public final class UnderlayUtils {
           "standard_concept",
           "concept_code");
 
+  public static final String OBSERVATION_OCCURRENCE_ENTITY = "observation_occurrence";
+  public static final List<String> ALL_OBSERVATION_OCCURRENCE_ATTRIBUTES =
+      ImmutableList.of(
+          "observation_id",
+          "person_id",
+          "observation_concept_id",
+          "observation_date",
+          "value_as_string",
+          "value_as_concept_id",
+          "unit_concept_id",
+          "visit_occurrence_id",
+          "observation_source_value",
+          "observation_source_concept_id");
+
   public static final String DEVICE_ENTITY = "device";
   public static final List<String> ALL_DEVICE_ATTRIBUTES =
       ImmutableList.of(
