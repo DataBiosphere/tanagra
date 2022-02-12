@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * A query for a dataset of entity instances. Contains the selected attributes of an entity with a
@@ -22,6 +23,13 @@ public abstract class EntityDataset {
    * primary entity.
    */
   public abstract ImmutableList<Attribute> selectedAttributes();
+
+  /**
+   * The attribute by which to order the entity instances. This must be one of the {@link
+   * #selectedAttributes}.
+   */
+  @Nullable
+  public abstract Attribute orderByAttribute();
 
   /** The filter to apply to the primary entity. */
   public abstract Filter filter();
@@ -42,6 +50,10 @@ public abstract class EntityDataset {
 
     public abstract ImmutableList<Attribute> selectedAttributes();
 
+    public abstract Builder orderByAttribute(Attribute orderByAttribute);
+
+    public abstract Attribute orderByAttribute();
+
     public abstract Builder filter(Filter filter);
 
     public EntityDataset build() {
@@ -52,6 +64,12 @@ public abstract class EntityDataset {
             attribute.name(),
             attribute.entity().name(),
             primaryEntity().entity().name());
+      }
+      if (orderByAttribute() != null) {
+        Preconditions.checkArgument(
+            selectedAttributes().contains(orderByAttribute()),
+            "Order by attribute '%s' is not one of the selected attributes.",
+            orderByAttribute().name());
       }
       return autoBuild();
     }

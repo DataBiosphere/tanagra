@@ -364,6 +364,9 @@ components:
           type: array
           items:
             type: string
+        orderByAttribute:
+          description: The name of one of the selected attributes of the primary entity to order the selection by.
+          type: string
         filter:
           $ref: '#/components/schemas/Filter'
 

@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /** A search query on an {@link Entity}. */
 @AutoValue
@@ -11,6 +12,10 @@ public abstract class Query {
   /** What to select for the query. */
   // TODO consider selections with a different entity than the primary entity.
   public abstract ImmutableList<Selection> selections();
+
+  /** What to order by for the query. */
+  @Nullable
+  public abstract Selection orderBy();
 
   /** The primary entity being queried. */
   public abstract EntityVariable primaryEntity();
@@ -27,6 +32,8 @@ public abstract class Query {
   public abstract static class Builder {
 
     public abstract Builder selections(List<Selection> selections);
+
+    public abstract Builder orderBy(Selection orderBy);
 
     public abstract Builder primaryEntity(EntityVariable primaryEntity);
 

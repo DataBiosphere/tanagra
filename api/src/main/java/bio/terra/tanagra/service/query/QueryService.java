@@ -81,8 +81,17 @@ public class QueryService {
                         .name(attribute.name())
                         .build())
             .collect(ImmutableList.toImmutableList());
+    Selection orderBy =
+        entityDataset.orderByAttribute() == null
+            ? null
+            : selections.stream()
+                .filter(
+                    selection -> selection.name().equals(entityDataset.orderByAttribute().name()))
+                .findFirst()
+                .get();
     return Query.builder()
         .selections(selections)
+        .orderBy(orderBy)
         .primaryEntity(entityDataset.primaryEntity())
         .filter(entityDataset.filter())
         .build();

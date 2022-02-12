@@ -59,9 +59,18 @@ public class ApiConversionService {
             .map(attributeName -> getAttribute(attributeName, primaryEntity, underlay))
             .collect(ImmutableList.toImmutableList());
 
+    Attribute orderByAttribute =
+        selectedAttributes.stream()
+            .filter(
+                selectedAttribute ->
+                    selectedAttribute.name().equals(apiEntityDataset.getOrderByAttribute()))
+            .findFirst()
+            .orElse(null);
+
     return EntityDataset.builder()
         .primaryEntity(primaryVariable)
         .selectedAttributes(selectedAttributes)
+        .orderByAttribute(orderByAttribute)
         .filter(filter)
         .build();
   }
