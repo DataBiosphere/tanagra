@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.query;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Filter;
+import bio.terra.tanagra.service.search.OrderByDirection;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -31,6 +32,10 @@ public abstract class EntityDataset {
   @Nullable
   public abstract Attribute orderByAttribute();
 
+  /** The direction in which to order the entity instances. */
+  @Nullable
+  public abstract OrderByDirection orderByDirection();
+
   /** The filter to apply to the primary entity. */
   public abstract Filter filter();
 
@@ -54,6 +59,10 @@ public abstract class EntityDataset {
 
     public abstract Attribute orderByAttribute();
 
+    public abstract Builder orderByDirection(OrderByDirection orderByDirection);
+
+    public abstract OrderByDirection orderByDirection();
+
     public abstract Builder filter(Filter filter);
 
     public EntityDataset build() {
@@ -70,6 +79,12 @@ public abstract class EntityDataset {
             selectedAttributes().contains(orderByAttribute()),
             "Order by attribute '%s' is not one of the selected attributes.",
             orderByAttribute().name());
+
+        // default the order by direction to ASC. only set this if there is an order by attribute
+        // specified
+        if (orderByDirection() == null) {
+          orderByDirection(OrderByDirection.ASC);
+        }
       }
       return autoBuild();
     }

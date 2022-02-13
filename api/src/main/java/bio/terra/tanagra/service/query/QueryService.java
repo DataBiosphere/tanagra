@@ -102,20 +102,23 @@ public class QueryService {
                         .name(attribute.name())
                         .build())
             .collect(ImmutableList.toImmutableList());
-    Selection orderBy =
-        entityDataset.orderByAttribute() == null
-            ? null
-            : selections.stream()
-                .filter(
-                    selection -> selection.name().equals(entityDataset.orderByAttribute().name()))
-                .findFirst()
-                .get();
-    return Query.builder()
-        .selections(selections)
-        .orderBy(orderBy)
-        .primaryEntity(entityDataset.primaryEntity())
-        .filter(entityDataset.filter())
-        .build();
+
+    Query.Builder queryBuilder =
+        Query.builder()
+            .selections(selections)
+            .primaryEntity(entityDataset.primaryEntity())
+            .filter(entityDataset.filter());
+
+    if (entityDataset.orderByAttribute() != null) {
+      Selection orderBy =
+          selections.stream()
+              .filter(selection -> selection.name().equals(entityDataset.orderByAttribute().name()))
+              .findFirst()
+              .get();
+      queryBuilder.orderBy(orderBy).orderByDirection(entityDataset.orderByDirection());
+    }
+
+    return queryBuilder.build();
   }
 
   private Underlay getUnderlay(String underlayName) {

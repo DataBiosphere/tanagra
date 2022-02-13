@@ -17,6 +17,10 @@ public abstract class Query {
   @Nullable
   public abstract Selection orderBy();
 
+  /** The direction to order by for the query. */
+  @Nullable
+  public abstract OrderByDirection orderByDirection();
+
   /** The primary entity being queried. */
   public abstract EntityVariable primaryEntity();
 
@@ -34,6 +38,8 @@ public abstract class Query {
     public abstract Builder selections(List<Selection> selections);
 
     public abstract Builder orderBy(Selection orderBy);
+
+    public abstract Builder orderByDirection(OrderByDirection orderByDirection);
 
     public abstract Builder primaryEntity(EntityVariable primaryEntity);
 

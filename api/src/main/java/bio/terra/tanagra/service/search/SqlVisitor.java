@@ -65,11 +65,12 @@ public class SqlVisitor {
     String sqlWithoutOrderBy = StringSubstitutor.replace(template, params);
 
     if (query.orderBy() != null) {
-      String orderByTemplate = "${sqlWithoutOrderBy} ORDER BY ${orderBy}";
+      String orderByTemplate = "${sqlWithoutOrderBy} ORDER BY ${orderBy} ${orderByDirection}";
       Map<String, String> orderByParams =
           ImmutableMap.<String, String>builder()
               .put("sqlWithoutOrderBy", sqlWithoutOrderBy)
               .put("orderBy", query.orderBy().name())
+              .put("orderByDirection", query.orderByDirection().name())
               .build();
       return StringSubstitutor.replace(orderByTemplate, orderByParams);
     } else {

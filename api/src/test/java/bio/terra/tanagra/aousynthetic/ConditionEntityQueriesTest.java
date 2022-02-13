@@ -16,6 +16,7 @@ import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
+import bio.terra.tanagra.generated.model.ApiOrderByDirection;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
@@ -47,7 +48,8 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
                     new ApiEntityDataset()
                         .entityVariable("condition_alias")
                         .selectedAttributes(ALL_CONDITION_ATTRIBUTES)
-                        .orderByAttribute(CONDITION_ENTITY_NAME_ATTRIBUTE)));
+                        .orderByAttribute(CONDITION_ENTITY_NAME_ATTRIBUTE)
+                        .orderByDirection(ApiOrderByDirection.ASC)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(

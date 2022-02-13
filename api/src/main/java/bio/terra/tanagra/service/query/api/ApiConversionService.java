@@ -3,12 +3,14 @@ package bio.terra.tanagra.service.query.api;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiEntityFilter;
+import bio.terra.tanagra.generated.model.ApiOrderByDirection;
 import bio.terra.tanagra.service.query.EntityDataset;
 import bio.terra.tanagra.service.query.EntityFilter;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.Entity;
 import bio.terra.tanagra.service.search.EntityVariable;
 import bio.terra.tanagra.service.search.Filter;
+import bio.terra.tanagra.service.search.OrderByDirection;
 import bio.terra.tanagra.service.underlay.Underlay;
 import bio.terra.tanagra.service.underlay.UnderlayService;
 import com.google.common.collect.ImmutableList;
@@ -71,6 +73,7 @@ public class ApiConversionService {
         .primaryEntity(primaryVariable)
         .selectedAttributes(selectedAttributes)
         .orderByAttribute(orderByAttribute)
+        .orderByDirection(convertOrderByDirection(apiEntityDataset.getOrderByDirection()))
         .filter(filter)
         .build();
   }
@@ -102,5 +105,20 @@ public class ApiConversionService {
               attributeName, entity.name(), underlay.name()));
     }
     return attribute;
+  }
+
+  private OrderByDirection convertOrderByDirection(ApiOrderByDirection apiOrderByDirection) {
+    if (apiOrderByDirection == null) {
+      return null;
+    }
+    switch (apiOrderByDirection) {
+      case ASC:
+        return OrderByDirection.ASC;
+      case DESC:
+        return OrderByDirection.DESC;
+      default:
+        throw new IllegalArgumentException(
+            "Unknown order by direction enum value: " + apiOrderByDirection);
+    }
   }
 }

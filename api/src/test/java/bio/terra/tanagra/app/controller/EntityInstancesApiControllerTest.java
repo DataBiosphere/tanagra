@@ -10,6 +10,7 @@ import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
+import bio.terra.tanagra.generated.model.ApiOrderByDirection;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import com.google.common.collect.ImmutableList;
@@ -61,6 +62,7 @@ public class EntityInstancesApiControllerTest extends BaseSpringUnitTest {
                         .entityVariable("s")
                         .selectedAttributes(ImmutableList.of("name", "rating"))
                         .orderByAttribute("name")
+                        .orderByDirection(ApiOrderByDirection.DESC)
                         .filter(
                             new ApiFilter()
                                 .binaryFilter(
@@ -73,7 +75,7 @@ public class EntityInstancesApiControllerTest extends BaseSpringUnitTest {
     assertEquals(
         "SELECT s.s_name AS name, s.rating AS rating "
             + "FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42 "
-            + "ORDER BY name",
+            + "ORDER BY name DESC",
         response.getBody().getQuery());
   }
 }
