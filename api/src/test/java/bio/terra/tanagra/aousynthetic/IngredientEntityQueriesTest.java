@@ -91,9 +91,7 @@ public class IngredientEntityQueriesTest extends BaseSpringUnitTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        generatedSql,
-        "aousynthetic/ingredient-entities-related-to-a-brand.sql",
-        "brand_ingredient");
+        generatedSql, "aousynthetic/ingredient-entities-related-to-a-brand.sql");
   }
 
   @Test
