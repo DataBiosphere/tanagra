@@ -9,6 +9,7 @@ import bio.terra.tanagra.service.search.SearchContext;
 import bio.terra.tanagra.service.search.SearchEngine;
 import bio.terra.tanagra.service.search.Selection;
 import bio.terra.tanagra.service.search.SqlVisitor;
+import bio.terra.tanagra.service.search.utils.RandomNumberGenerator;
 import bio.terra.tanagra.service.underlay.Underlay;
 import bio.terra.tanagra.service.underlay.UnderlayService;
 import com.google.common.annotations.VisibleForTesting;
@@ -28,11 +29,16 @@ import org.springframework.stereotype.Service;
 public class QueryService {
   private final UnderlayService underlayService;
   private final QueryExecutor.Factory queryExecutorFactory;
+  private final RandomNumberGenerator randomNumberGenerator;
 
   @Autowired
-  public QueryService(UnderlayService underlayService, QueryExecutor.Factory queryExecutorFactory) {
+  public QueryService(
+      UnderlayService underlayService,
+      QueryExecutor.Factory queryExecutorFactory,
+      RandomNumberGenerator randomNumberGenerator) {
     this.underlayService = underlayService;
     this.queryExecutorFactory = queryExecutorFactory;
+    this.randomNumberGenerator = randomNumberGenerator;
   }
 
   /** Generate an SQL query to select the primary ids for the entity of the entity filter. */
@@ -50,21 +56,36 @@ public class QueryService {
             .primaryEntity(entityFilter.primaryEntity())
             .filter(entityFilter.filter())
             .build();
-    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+    return new SqlVisitor(
+            SearchContext.builder()
+                .underlay(underlay)
+                .randomNumberGenerator(randomNumberGenerator)
+                .build())
+        .createSql(query);
   }
 
   /** Generate an SQL query for the entity dataset. */
   public String generateSql(EntityDataset entityDataset) {
     Underlay underlay = getUnderlay(entityDataset.primaryEntity().entity().underlay());
     Query query = createQuery(entityDataset);
-    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+    return new SqlVisitor(
+            SearchContext.builder()
+                .underlay(underlay)
+                .randomNumberGenerator(randomNumberGenerator)
+                .build())
+        .createSql(query);
   }
 
   public QueryResult retrieveResults(EntityDataset entityDataset) {
     Underlay underlay = getUnderlay(entityDataset.primaryEntity().entity().underlay());
     Query query = createQuery(entityDataset);
     return new SearchEngine(queryExecutorFactory)
-        .execute(query, SearchContext.builder().underlay(underlay).build());
+        .execute(
+            query,
+            SearchContext.builder()
+                .underlay(underlay)
+                .randomNumberGenerator(randomNumberGenerator)
+                .build());
   }
 
   @VisibleForTesting

@@ -1,10 +1,14 @@
 package bio.terra.tanagra.testing;
 
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.service.search.utils.RandomNumberGenerator;
+import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,11 +20,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 public class BaseSpringUnitTest {
+  @MockBean protected RandomNumberGenerator randomNumberGenerator;
+
+  private Random random;
+
   @BeforeEach
   public void beforeEach() {
-    // set a random number generator seed to be used in SQL query generation
-    // this makes it easier to compare expected vs actual generated SQL strings in tests
-    // see bio.terra.tanagra.service.search.utils.RandomNumberGenerator for how this is used
-    System.setProperty("GENERATE_SQL_RANDOM_SEED", "true");
+    random = new Random(2022);
+    Mockito.doAnswer(invocation -> Math.abs(random.nextInt(Integer.MAX_VALUE)))
+        .when(randomNumberGenerator)
+        .getNext();
   }
 }
