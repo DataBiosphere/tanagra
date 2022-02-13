@@ -16,16 +16,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.SqlVisitor.SelectionVisitor;
+import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("unit")
-public class SqlVisitorTest {
-  private static final SearchContext SIMPLE_CONTEXT =
-      SearchContext.builder().underlay(loadNauticalUnderlay()).build();
-
+public class SqlVisitorTest extends BaseSpringUnitTest {
   private static final Variable S_VAR = Variable.create("s");
   private static final EntityVariable S_SAILOR = EntityVariable.create(SAILOR, S_VAR);
   private static final AttributeVariable S_NAME = AttributeVariable.create(SAILOR_NAME, S_VAR);
@@ -40,6 +38,13 @@ public class SqlVisitorTest {
   private static final AttributeVariable B_TYPE = AttributeVariable.create(BOAT_TYPE_NAME, B_VAR);
   private static final AttributeVariable B_T_PATH_TYPE =
       AttributeVariable.create(BOAT_T_PATH_TYPE_ID, B_VAR);
+
+  private SearchContext getSimpleContext() {
+    return SearchContext.builder()
+        .underlay(loadNauticalUnderlay())
+        .randomNumberGenerator(randomNumberGenerator)
+        .build();
+  }
 
   @Test
   void query() {
@@ -65,12 +70,12 @@ public class SqlVisitorTest {
             .build();
     assertEquals(
         "SELECT s.rating AS rating, s.s_name AS name FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 62",
-        new SqlVisitor(SIMPLE_CONTEXT).createSql(query));
+        new SqlVisitor(getSimpleContext()).createSql(query));
   }
 
   @Test
   void selectionExpression() {
-    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(getSimpleContext());
     assertEquals(
         "s.rating AS rt",
         Selection.SelectExpression.builder()
@@ -82,7 +87,7 @@ public class SqlVisitorTest {
 
   @Test
   void selectionCount() {
-    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(getSimpleContext());
     assertEquals(
         "COUNT(s) AS c",
         Selection.Count.builder().entityVariable(S_SAILOR).name("c").build().accept(visitor));
@@ -90,7 +95,7 @@ public class SqlVisitorTest {
 
   @Test
   void selectionPrimaryKey() {
-    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(getSimpleContext());
     assertEquals(
         "s.s_id AS primary_id",
         Selection.PrimaryKey.builder()
@@ -102,7 +107,7 @@ public class SqlVisitorTest {
 
   @Test
   void selectionExpressionHierarchyPath() {
-    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(SIMPLE_CONTEXT);
+    SqlVisitor.SelectionVisitor visitor = new SelectionVisitor(getSimpleContext());
     assertEquals(
         "(SELECT boat_types_paths.bt_path FROM `my-project-id.nautical`.boat_types_paths WHERE boat_types_paths.bt_node = b.bt_id) AS path",
         Selection.SelectExpression.builder()
@@ -120,7 +125,7 @@ public class SqlVisitorTest {
             Filter.BinaryFunction.Operator.LESS_THAN,
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
-        "s.rating < 62", lessThanFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        "s.rating < 62", lessThanFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
 
     Filter.BinaryFunction equalsFilter =
         Filter.BinaryFunction.create(
@@ -128,7 +133,7 @@ public class SqlVisitorTest {
             Filter.BinaryFunction.Operator.EQUALS,
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
-        "s.rating = 62", equalsFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        "s.rating = 62", equalsFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
@@ -141,7 +146,7 @@ public class SqlVisitorTest {
     assertEquals(
         "(b.bt_id = 43 OR b.bt_id IN (SELECT bt_descendant "
             + "FROM `my-project-id.nautical`.boat_types_descendants WHERE bt_ancestor = 43))",
-        descendantOfFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        descendantOfFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
 
     Filter nonHierarchicalAttribute =
         Filter.BinaryFunction.create(
@@ -150,7 +155,7 @@ public class SqlVisitorTest {
             Expression.Literal.create(DataType.INT64, "Foo"));
     assertThrows(
         BadRequestException.class,
-        () -> nonHierarchicalAttribute.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        () -> nonHierarchicalAttribute.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
@@ -164,7 +169,7 @@ public class SqlVisitorTest {
         "b.bt_id IN (SELECT btc_child "
             + "FROM (SELECT * FROM `my-project-id.nautical`.boat_types_children WHERE btc_is_expired = 'false') "
             + "WHERE btc_parent = 432)",
-        childOfFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        childOfFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
 
     Filter nonHierarchicalAttribute =
         Filter.BinaryFunction.create(
@@ -173,7 +178,7 @@ public class SqlVisitorTest {
             Expression.Literal.create(DataType.STRING, "Foo"));
     assertThrows(
         BadRequestException.class,
-        () -> nonHierarchicalAttribute.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        () -> nonHierarchicalAttribute.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
@@ -192,12 +197,12 @@ public class SqlVisitorTest {
     Filter andFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.AND);
     assertEquals(
         "s.rating < 62 AND s.s_name = 'John'",
-        andFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        andFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
 
     Filter orFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.OR);
     assertEquals(
         "s.rating < 62 OR s.s_name = 'John'",
-        orFilter.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+        orFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
@@ -220,7 +225,7 @@ public class SqlVisitorTest {
                     Filter.BinaryFunction.Operator.EQUALS,
                     Expression.Literal.create(DataType.STRING, "Tuesday")))
             .build()
-            .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+            .accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
@@ -252,7 +257,7 @@ public class SqlVisitorTest {
                             .build()),
                     Filter.ArrayFunction.Operator.AND))
             .build()
-            .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+            .accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
@@ -261,18 +266,19 @@ public class SqlVisitorTest {
         "s.s_id IN (SELECT s_id FROM `my-project-id.nautical`.sailors WHERE CONTAINS_SUBSTR(s_name, 'george'))",
         Filter.TextSearchFilter.create(
                 S_SAILOR, Expression.Literal.create(DataType.STRING, "george"))
-            .accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+            .accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
   void filterNull() {
-    assertEquals("TRUE", NullFilter.INSTANCE.accept(new SqlVisitor.FilterVisitor(SIMPLE_CONTEXT)));
+    assertEquals(
+        "TRUE", NullFilter.INSTANCE.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
   @Test
   void expressionLiteral() {
     SqlVisitor.ExpressionVisitor expressionVisitor =
-        new SqlVisitor.ExpressionVisitor(SIMPLE_CONTEXT);
+        new SqlVisitor.ExpressionVisitor(getSimpleContext());
     assertEquals("42", Expression.Literal.create(DataType.INT64, "42").accept(expressionVisitor));
     assertEquals(
         "'foo'", Expression.Literal.create(DataType.STRING, "foo").accept(expressionVisitor));
@@ -281,7 +287,7 @@ public class SqlVisitorTest {
   @Test
   void expressionAttribute() {
     SqlVisitor.ExpressionVisitor expressionVisitor =
-        new SqlVisitor.ExpressionVisitor(SIMPLE_CONTEXT);
+        new SqlVisitor.ExpressionVisitor(getSimpleContext());
     // SimpleColumn attribute mapping
     assertEquals(
         "b.b_name", Expression.AttributeExpression.create(B_NAME).accept(expressionVisitor));

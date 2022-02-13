@@ -43,7 +43,8 @@ public class SqlVisitor {
 
   public SqlVisitor(SearchContext searchContext) {
     this.searchContext = searchContext;
-    this.underlayResolver = new UnderlayResolver(searchContext.underlay());
+    this.underlayResolver =
+        new UnderlayResolver(searchContext.underlay(), searchContext.randomNumberGenerator());
   }
 
   public String createSql(Query query) {
@@ -108,7 +109,8 @@ public class SqlVisitor {
 
     FilterVisitor(SearchContext searchContext) {
       this.searchContext = searchContext;
-      this.underlayResolver = new UnderlayResolver(searchContext.underlay());
+      this.underlayResolver =
+          new UnderlayResolver(searchContext.underlay(), searchContext.randomNumberGenerator());
     }
 
     @Override
@@ -302,7 +304,8 @@ public class SqlVisitor {
     private final UnderlayResolver underlayResolver;
 
     ExpressionVisitor(SearchContext searchContext) {
-      this.underlayResolver = new UnderlayResolver(searchContext.underlay());
+      this.underlayResolver =
+          new UnderlayResolver(searchContext.underlay(), searchContext.randomNumberGenerator());
     }
 
     @Override
@@ -332,9 +335,11 @@ public class SqlVisitor {
   private static class UnderlayResolver {
 
     private final Underlay underlay;
+    private final RandomNumberGenerator randomNumberGenerator;
 
-    UnderlayResolver(Underlay underlay) {
+    UnderlayResolver(Underlay underlay, RandomNumberGenerator randomNumberGenerator) {
       this.underlay = underlay;
+      this.randomNumberGenerator = randomNumberGenerator;
     }
 
     /** Resolve an {@link EntityVariable} as an SQL table clause. */
@@ -642,9 +647,8 @@ public class SqlVisitor {
     }
 
     /** Generate an alias for an intermediate table prefixed with the given relationship name. */
-    private static String generateIntermediateTableAlias(String relationshipName) {
-      return relationshipName
-          + Math.abs(RandomNumberGenerator.getRandom().nextInt(Integer.MAX_VALUE));
+    private String generateIntermediateTableAlias(String relationshipName) {
+      return relationshipName + randomNumberGenerator.getNext();
     }
 
     /** Returns the primary key or the foreign key that matches the table, or else throw. */

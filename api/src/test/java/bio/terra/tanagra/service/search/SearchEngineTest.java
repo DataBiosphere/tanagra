@@ -10,20 +10,25 @@ import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
 import bio.terra.tanagra.service.databaseaccess.QueryExecutorStub;
 import bio.terra.tanagra.service.databaseaccess.QueryRequest;
+import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("unit")
-public class SearchEngineTest {
-  private static final SearchContext SIMPLE_CONTEXT =
-      SearchContext.builder().underlay(loadNauticalUnderlay()).build();
-
+public class SearchEngineTest extends BaseSpringUnitTest {
   private static final Variable S_VAR = Variable.create("s");
   private static final EntityVariable S_SAILOR = EntityVariable.create(SAILOR, S_VAR);
   private static final AttributeVariable S_NAME = AttributeVariable.create(SAILOR_NAME, S_VAR);
   private static final AttributeVariable S_RATING = AttributeVariable.create(SAILOR_RATING, S_VAR);
+
+  private SearchContext getSimpleContext() {
+    return SearchContext.builder()
+        .underlay(loadNauticalUnderlay())
+        .randomNumberGenerator(randomNumberGenerator)
+        .build();
+  }
 
   @Test
   void execute() {
@@ -50,7 +55,7 @@ public class SearchEngineTest {
                         Filter.BinaryFunction.Operator.EQUALS,
                         Expression.Literal.create(DataType.INT64, "62"))))
             .build();
-    searchEngine.execute(query, SIMPLE_CONTEXT);
+    searchEngine.execute(query, getSimpleContext());
     assertEquals(
         QueryRequest.builder()
             .sql(

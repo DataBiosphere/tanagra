@@ -151,6 +151,11 @@ public class ColumnFilterTest extends BaseSpringUnitTest {
   protected String generateSql(
       bio.terra.tanagra.service.underlay.Underlay underlay, EntityDataset entityDataset) {
     Query query = queryService.createQuery(entityDataset);
-    return new SqlVisitor(SearchContext.builder().underlay(underlay).build()).createSql(query);
+    return new SqlVisitor(
+            SearchContext.builder()
+                .underlay(underlay)
+                .randomNumberGenerator(randomNumberGenerator)
+                .build())
+        .createSql(query);
   }
 }
