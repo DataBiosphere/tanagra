@@ -12,6 +12,7 @@ import { useAppDispatch } from "hooks";
 import produce from "immer";
 import Loading from "loading";
 import React, { useCallback, useContext, useState } from "react";
+import { Search } from "search";
 import * as tanagra from "tanagra-api";
 import {
   TreeGrid,
@@ -121,6 +122,7 @@ function ConceptEdit(props: ConceptEditProps) {
   const [hierarchyPath, setHierarchyPath] = useState<
     TreeGridId[] | undefined
   >();
+  const [query, setQuery] = useState<string>("");
   const [data, updateData] = useImmer<TreeGridData>({});
   const api = useContext(EntityInstancesApiContext);
 
@@ -195,12 +197,23 @@ function ConceptEdit(props: ConceptEditProps) {
       updateData(() => ({}));
       return api
         .searchEntityInstances(
-          searchFilter(props.data.entity, props.cohort.underlayName)
+          searchFilter(
+            props.data.entity,
+            props.cohort.underlayName,
+            !hierarchyPath ? query : ""
+          )
         )
         .then((res) => {
           processEntities(res);
         });
-    }, [api, props.data.entity, props.cohort.underlayName, processEntities]),
+    }, [
+      api,
+      props.data.entity,
+      props.cohort.underlayName,
+      processEntities,
+      hierarchyPath,
+      query,
+    ]),
     hierarchyPath
   );
 
@@ -225,61 +238,70 @@ function ConceptEdit(props: ConceptEditProps) {
   const dispatch = useAppDispatch();
 
   return (
-    <Loading status={conceptsState}>
-      <TreeGrid
-        columns={hierarchyPath ? hierarchyColumns : allColumns}
-        data={data}
-        defaultExpanded={hierarchyPath}
-        prefixElements={(id: TreeGridId, rowData: TreeGridRowData) => {
-          const index = props.data.selected.findIndex((row) => row.id === id);
+    <>
+      {!hierarchyPath && (
+        <Search
+          placeholder="Search by code or description"
+          onSearch={setQuery}
+        />
+      )}
+      <Loading status={conceptsState}>
+        <TreeGrid
+          columns={hierarchyPath ? hierarchyColumns : allColumns}
+          data={data}
+          defaultExpanded={hierarchyPath}
+          prefixElements={(id: TreeGridId, rowData: TreeGridRowData) => {
+            const index = props.data.selected.findIndex((row) => row.id === id);
 
-          return (
-            <Checkbox
-              size="small"
-              checked={index > -1}
-              inputProps={{ "aria-label": "controlled" }}
-              onChange={() => {
-                dispatch(
-                  updateCriteriaData({
-                    cohortId: props.cohort.id,
-                    groupId: props.group.id,
-                    criteriaId: props.criteriaId,
-                    data: produce(props.data, (data) => {
-                      if (index > -1) {
-                        data.selected.splice(index, 1);
-                      } else {
-                        const name = rowData["concept_name"];
-                        data.selected.push({
-                          id: id as number,
-                          name: !!name ? String(name) : "",
-                        });
-                      }
-                    }),
-                  })
-                );
-              }}
-            />
-          );
-        }}
-        loadChildren={
-          hierarchyPath
-            ? (id: TreeGridId) => {
-                return api
-                  .searchEntityInstances(
-                    searchFilter(
-                      props.data.entity,
-                      props.cohort.underlayName,
-                      id as number
+            return (
+              <Checkbox
+                size="small"
+                checked={index > -1}
+                inputProps={{ "aria-label": "controlled" }}
+                onChange={() => {
+                  dispatch(
+                    updateCriteriaData({
+                      cohortId: props.cohort.id,
+                      groupId: props.group.id,
+                      criteriaId: props.criteriaId,
+                      data: produce(props.data, (data) => {
+                        if (index > -1) {
+                          data.selected.splice(index, 1);
+                        } else {
+                          const name = rowData["concept_name"];
+                          data.selected.push({
+                            id: id as number,
+                            name: !!name ? String(name) : "",
+                          });
+                        }
+                      }),
+                    })
+                  );
+                }}
+              />
+            );
+          }}
+          loadChildren={
+            hierarchyPath
+              ? (id: TreeGridId) => {
+                  return api
+                    .searchEntityInstances(
+                      searchFilter(
+                        props.data.entity,
+                        props.cohort.underlayName,
+                        "",
+                        id as number
+                      )
                     )
-                  )
-                  .then((res) => {
-                    processEntities(res, id as number);
-                  });
-              }
-            : undefined
-        }
-      />
-    </Loading>
+                    .then((res) => {
+                      processEntities(res, id as number);
+                    });
+                }
+              : undefined
+          }
+        />
+      </Loading>
+    </>
   );
 }
 
@@ -287,7 +309,59 @@ function isValid<Type>(arg: Type) {
   return arg !== null && typeof arg !== "undefined";
 }
 
-function searchFilter(entity: string, underlay: string, id?: number) {
+function searchFilter(
+  entity: string,
+  underlay: string,
+  query: string,
+  id?: number
+) {
+  const operands: tanagra.Filter[] = [
+    {
+      binaryFilter: {
+        attributeVariable: {
+          name: "standard_concept",
+          variable: "c",
+        },
+        operator: tanagra.BinaryFilterOperator.NotEquals,
+      },
+    },
+  ];
+
+  if (id) {
+    operands.push({
+      binaryFilter: {
+        attributeVariable: {
+          name: "concept_id",
+          variable: "c",
+        },
+        operator: tanagra.BinaryFilterOperator.ChildOf,
+        attributeValue: {
+          int64Val: id as number,
+        },
+      },
+    });
+  } else if (query) {
+    operands.push({
+      textSearchFilter: {
+        entityVariable: "c",
+        term: query,
+      },
+    });
+  } else {
+    operands.push({
+      binaryFilter: {
+        attributeVariable: {
+          name: "t_path_concept_id",
+          variable: "c",
+        },
+        operator: tanagra.BinaryFilterOperator.Equals,
+        attributeValue: {
+          stringVal: "",
+        },
+      },
+    });
+  }
+
   return {
     entityName: entity,
     underlayName: underlay,
@@ -297,49 +371,7 @@ function searchFilter(entity: string, underlay: string, id?: number) {
         selectedAttributes: fetchedAttributes,
         filter: {
           arrayFilter: {
-            operands: [
-              {
-                binaryFilter: {
-                  attributeVariable: {
-                    name: "standard_concept",
-                    variable: "c",
-                  },
-                  operator: tanagra.BinaryFilterOperator.Equals,
-                  attributeValue: {
-                    stringVal: "S",
-                  },
-                },
-              },
-              ...(id
-                ? [
-                    {
-                      binaryFilter: {
-                        attributeVariable: {
-                          name: "concept_id",
-                          variable: "c",
-                        },
-                        operator: tanagra.BinaryFilterOperator.ChildOf,
-                        attributeValue: {
-                          int64Val: id as number,
-                        },
-                      },
-                    },
-                  ]
-                : [
-                    {
-                      binaryFilter: {
-                        attributeVariable: {
-                          name: "t_path_concept_id",
-                          variable: "c",
-                        },
-                        operator: tanagra.BinaryFilterOperator.Equals,
-                        attributeValue: {
-                          stringVal: "",
-                        },
-                      },
-                    },
-                  ]),
-            ],
+            operands,
             operator: tanagra.ArrayFilterOperator.And,
           },
         },
