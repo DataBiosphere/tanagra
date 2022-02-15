@@ -68,10 +68,22 @@ function generateFilter(group: Group): tanagra.Filter | null {
 // otherwise opaque except for a set of common methods.
 export interface Criteria {
   id: string;
-  type: string;
+  config: CriteriaConfig;
   name: string;
   count: number;
   data: unknown;
+}
+
+// CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
+// possible criteria.
+export interface CriteriaConfig {
+  // The plugin type to use for this criteria.
+  type: string;
+  title: string;
+  defaultName: string;
+
+  // Plugin specific config.
+  plugin: unknown;
 }
 
 // Having typed data here allows the registry to treat all data as unknown while
@@ -88,44 +100,32 @@ export interface CriteriaPlugin<DataType> {
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
   type: string,
-  title: string,
-  defaultName: string
+  initializeData: (config: CriteriaConfig) => unknown
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
-      title,
-      defaultName,
+      initializeData,
       constructor,
     });
   };
 }
 
-// In order to initialize the data for a newly created criteria, a plugin
-// instance is created causing it to initialize its own data.
-export function createCriteria(type: string): Criteria {
-  const entry = getCriteriaEntry(type);
-  const criteria = new entry.constructor(generateId(), null);
+export function createCriteria(config: CriteriaConfig): Criteria {
+  const entry = getCriteriaEntry(config.type);
   return {
-    id: criteria.id,
-    type,
-    name: entry.defaultName,
+    id: generateId(),
+    config,
+    name: config.defaultName,
     count: 0,
-    data: criteria.data,
+    data: entry.initializeData(config),
   };
 }
 
 export function getCriteriaPlugin(criteria: Criteria): CriteriaPlugin<unknown> {
-  return new (getCriteriaEntry(criteria.type).constructor)(
+  return new (getCriteriaEntry(criteria.config.type).constructor)(
     criteria.id,
     criteria.data
   );
-}
-
-export function getCriteriaTitles(): { type: string; title: string }[] {
-  return [...criteriaRegistry].map(([type, entry]) => ({
-    type,
-    title: entry.title,
-  }));
 }
 
 function getCriteriaEntry(type: string): RegistryEntry {
@@ -141,8 +141,7 @@ interface CriteriaPluginConstructor {
 }
 
 type RegistryEntry = {
-  title: string;
-  defaultName: string;
+  initializeData: (config: CriteriaConfig) => unknown;
   constructor: CriteriaPluginConstructor;
 };
 

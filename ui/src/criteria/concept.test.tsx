@@ -115,7 +115,12 @@ async function renderCriteria(
     insertGroup(
       action.payload.id,
       GroupKind.Included,
-      createCriteria("condition")
+      createCriteria({
+        type: "concept",
+        title: "Conditions",
+        defaultName: "Contains Conditions Codes",
+        entity: "condition",
+      })
     )
   );
 

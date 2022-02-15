@@ -23,7 +23,6 @@ import {
   createCriteria,
   Criteria,
   getCriteriaPlugin,
-  getCriteriaTitles,
   Group,
   GroupKind,
 } from "./cohort";
@@ -91,17 +90,35 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
     [props.group]
   );
 
-  const items = getCriteriaTitles();
+  // TODO(tjennison): Fetch configs from the backend.
+  const configs = [
+    {
+      type: "concept",
+      title: "Conditions",
+      defaultName: "Contains Conditions Codes",
+      plugin: {
+        entity: "condition",
+      },
+    },
+    {
+      type: "concept",
+      title: "Procedures",
+      defaultName: "Contains Procedures Codes",
+      plugin: {
+        entity: "procedure",
+      },
+    },
+  ];
 
   const [menu, show] = useMenu({
-    children: items.map((item) => (
+    children: configs.map((config) => (
       <MenuItem
-        key={item.title}
+        key={config.title}
         onClick={() => {
-          onAddCriteria(createCriteria(item.type));
+          onAddCriteria(createCriteria(config));
         }}
       >
-        {item.title}
+        {config.title}
       </MenuItem>
     )),
   });

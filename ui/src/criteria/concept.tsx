@@ -5,7 +5,13 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { EntityInstancesApiContext } from "apiContext";
-import { Cohort, CriteriaPlugin, Group, registerCriteriaPlugin } from "cohort";
+import {
+  Cohort,
+  CriteriaConfig,
+  CriteriaPlugin,
+  Group,
+  registerCriteriaPlugin,
+} from "cohort";
 import { updateCriteriaData } from "cohortsSlice";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch } from "hooks";
@@ -33,18 +39,20 @@ type Data = {
   selected: Selection[];
 };
 
-@registerCriteriaPlugin("condition", "Condition", "Contains Conditions Codes")
+interface Config extends CriteriaConfig {
+  entity: string;
+}
+
+@registerCriteriaPlugin("concept", (config: CriteriaConfig) => ({
+  ...(config.plugin as Config),
+  selected: [],
+}))
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
 
   constructor(public id: string, data: unknown) {
-    this.data = data
-      ? (data as Data)
-      : {
-          entity: "condition",
-          selected: [],
-        };
+    this.data = data as Data;
   }
 
   renderEdit(cohort: Cohort, group: Group) {
