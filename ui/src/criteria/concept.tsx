@@ -17,7 +17,7 @@ import { useAsyncWithApi } from "errors";
 import { useAppDispatch } from "hooks";
 import produce from "immer";
 import Loading from "loading";
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { Search } from "search";
 import * as tanagra from "tanagra-api";
 import {
@@ -34,13 +34,13 @@ type Selection = {
   name: string;
 };
 
-type Data = {
-  entity: string;
-  selected: Selection[];
-};
-
 interface Config extends CriteriaConfig {
   entity: string;
+  hierarchical?: boolean;
+}
+
+interface Data extends Config {
+  selected: Selection[];
 }
 
 @registerCriteriaPlugin("concept", (config: CriteriaConfig) => ({
@@ -107,17 +107,6 @@ const fetchedColumns: TreeGridColumn[] = [
 
 const PATH_ATTRIBUTE = "t_path_concept_id";
 const NUM_CHILDREN_ATTRIBUTE = "t_numChildren_concept_id";
-
-const fetchedAttributes = [
-  PATH_ATTRIBUTE,
-  NUM_CHILDREN_ATTRIBUTE,
-  ...fetchedColumns.map(({ key }) => key),
-];
-
-const allColumns: TreeGridColumn[] = [
-  ...fetchedColumns,
-  { key: "view_hierarchy", width: 160, title: "View Hierarchy" },
-];
 
 type ConceptEditProps = {
   cohort: Cohort;
@@ -206,7 +195,7 @@ function ConceptEdit(props: ConceptEditProps) {
       return api
         .searchEntityInstances(
           searchFilter(
-            props.data.entity,
+            props.data,
             props.cohort.underlayName,
             !hierarchyPath ? query : ""
           )
@@ -244,6 +233,16 @@ function ConceptEdit(props: ConceptEditProps) {
   ];
 
   const dispatch = useAppDispatch();
+
+  const allColumns: TreeGridColumn[] = useMemo(
+    () => [
+      ...fetchedColumns,
+      ...(props.data.hierarchical
+        ? [{ key: "view_hierarchy", width: 160, title: "View Hierarchy" }]
+        : []),
+    ],
+    [props.data.hierarchical]
+  );
 
   return (
     <>
@@ -295,7 +294,7 @@ function ConceptEdit(props: ConceptEditProps) {
                   return api
                     .searchEntityInstances(
                       searchFilter(
-                        props.data.entity,
+                        props.data,
                         props.cohort.underlayName,
                         "",
                         id as number
@@ -318,7 +317,7 @@ function isValid<Type>(arg: Type) {
 }
 
 function searchFilter(
-  entity: string,
+  data: Data,
   underlay: string,
   query: string,
   id?: number
@@ -355,7 +354,7 @@ function searchFilter(
         term: query,
       },
     });
-  } else {
+  } else if (data.hierarchical) {
     operands.push({
       binaryFilter: {
         attributeVariable: {
@@ -370,8 +369,13 @@ function searchFilter(
     });
   }
 
+  const fetchedAttributes = [
+    ...(data.hierarchical ? [PATH_ATTRIBUTE, NUM_CHILDREN_ATTRIBUTE] : []),
+    ...fetchedColumns.map(({ key }) => key),
+  ];
+
   return {
-    entityName: entity,
+    entityName: data.entity,
     underlayName: underlay,
     searchEntityInstancesRequest: {
       entityDataset: {

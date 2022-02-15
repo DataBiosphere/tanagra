@@ -119,7 +119,10 @@ async function renderCriteria(
         type: "concept",
         title: "Conditions",
         defaultName: "Contains Conditions Codes",
-        entity: "condition",
+        plugin: {
+          entity: "condition",
+          hierarchical: true,
+        },
       })
     )
   );

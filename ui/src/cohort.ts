@@ -68,7 +68,7 @@ function generateFilter(group: Group): tanagra.Filter | null {
 // otherwise opaque except for a set of common methods.
 export interface Criteria {
   id: string;
-  config: CriteriaConfig;
+  type: string;
   name: string;
   count: number;
   data: unknown;
@@ -114,7 +114,7 @@ export function createCriteria(config: CriteriaConfig): Criteria {
   const entry = getCriteriaEntry(config.type);
   return {
     id: generateId(),
-    config,
+    type: config.type,
     name: config.defaultName,
     count: 0,
     data: entry.initializeData(config),
@@ -122,7 +122,7 @@ export function createCriteria(config: CriteriaConfig): Criteria {
 }
 
 export function getCriteriaPlugin(criteria: Criteria): CriteriaPlugin<unknown> {
-  return new (getCriteriaEntry(criteria.config.type).constructor)(
+  return new (getCriteriaEntry(criteria.type).constructor)(
     criteria.id,
     criteria.data
   );
