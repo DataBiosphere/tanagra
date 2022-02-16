@@ -1,410 +1,64 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Table renders correctly 1`] = `
-<table
-  style={
-    Object {
-      "tableLayout": "fixed",
-      "width": "100%",
-    }
-  }
->
-  <thead
+Array [
+  <table
     style={
       Object {
-        "display": "block",
+        "tableLayout": "fixed",
+        "width": "100%",
       }
     }
   >
-    <tr>
-      <td
-        style={
-          Object {
-            "maxWidth": "100%",
-            "minWidth": "100%",
-            "width": "100%",
-          }
-        }
-      >
-        <h6
-          className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
-        >
-          Column 1
-        </h6>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 150,
-            "minWidth": 150,
-            "width": 150,
-          }
-        }
-      >
-        <h6
-          className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
-        >
-          Column 2
-        </h6>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 50,
-            "minWidth": 50,
-            "width": 50,
-          }
-        }
-      >
-        <h6
-          className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
-        >
-          <svg
-            aria-hidden={true}
-            className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-            data-testid="AccountTreeIcon"
-            focusable="false"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
-            />
-          </svg>
-        </h6>
-      </td>
-    </tr>
-  </thead>
-  <tbody
-    style={
-      Object {
-        "display": "block",
-        "overflowY": "auto",
-      }
-    }
-  >
-    <tr
-      style={Object {}}
-    >
-      <td
-        style={
-          Object {
-            "maxWidth": "100%",
-            "minWidth": "100%",
-            "width": "100%",
-          }
-        }
-      >
-        <div
-          style={
-            Object {
-              "overflow": "hidden",
-              "paddingLeft": "0em",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
-            }
-          }
-        >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title="1-col1"
-          >
-            <button
-              className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-              disabled={false}
-              onBlur={[Function]}
-              onClick={[Function]}
-              onContextMenu={[Function]}
-              onDragLeave={[Function]}
-              onFocus={[Function]}
-              onKeyDown={[Function]}
-              onKeyUp={[Function]}
-              onMouseDown={[Function]}
-              onMouseLeave={[Function]}
-              onMouseUp={[Function]}
-              onTouchEnd={[Function]}
-              onTouchMove={[Function]}
-              onTouchStart={[Function]}
-              tabIndex={0}
-              type="button"
-            >
-              <svg
-                aria-hidden={true}
-                className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                data-testid="KeyboardArrowRightIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                />
-              </svg>
-            </button>
-            1-col1
-          </p>
-        </div>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 150,
-            "minWidth": 150,
-            "width": 150,
-          }
-        }
-      >
-        <div
-          style={
-            Object {
-              "overflow": "hidden",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
-            }
-          }
-        >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title="1-col2"
-          >
-            1-col2
-          </p>
-        </div>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 50,
-            "minWidth": 50,
-            "width": 50,
-          }
-        }
-      >
-        <div
-          style={
-            Object {
-              "overflow": "hidden",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
-            }
-          }
-        >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title=""
-          >
-            
-          </p>
-        </div>
-      </td>
-    </tr>
-    <tr
+    <thead
       style={
         Object {
-          "visibility": "collapse",
+          "display": "block",
         }
       }
     >
-      <td
-        style={
-          Object {
-            "maxWidth": "100%",
-            "minWidth": "100%",
-            "width": "100%",
-          }
-        }
-      >
-        <div
+      <tr>
+        <td
           style={
             Object {
-              "overflow": "hidden",
-              "paddingLeft": "1em",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
+              "maxWidth": "100%",
+              "minWidth": "100%",
+              "width": "100%",
             }
           }
         >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title="2-col1"
+          <h6
+            className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
           >
-            2-col1
-          </p>
-        </div>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 150,
-            "minWidth": 150,
-            "width": 150,
-          }
-        }
-      >
-        <div
+            Column 1
+          </h6>
+        </td>
+        <td
           style={
             Object {
-              "overflow": "hidden",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
+              "maxWidth": 150,
+              "minWidth": 150,
+              "width": 150,
             }
           }
         >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title="2-col2"
+          <h6
+            className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
           >
-            2-col2
-          </p>
-        </div>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 50,
-            "minWidth": 50,
-            "width": 50,
-          }
-        }
-      >
-        <div
+            Column 2
+          </h6>
+        </td>
+        <td
           style={
             Object {
-              "overflow": "hidden",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
+              "maxWidth": 50,
+              "minWidth": 50,
+              "width": 50,
             }
           }
         >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title="2-col3"
-          >
-            2-col3
-          </p>
-        </div>
-      </td>
-    </tr>
-    <tr
-      style={Object {}}
-    >
-      <td
-        style={
-          Object {
-            "maxWidth": "100%",
-            "minWidth": "100%",
-            "width": "100%",
-          }
-        }
-      >
-        <div
-          style={
-            Object {
-              "overflow": "hidden",
-              "paddingLeft": "0em",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
-            }
-          }
-        >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title="3-col1"
-          >
-            3-col1
-          </p>
-        </div>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 150,
-            "minWidth": 150,
-            "width": 150,
-          }
-        }
-      >
-        <div
-          style={
-            Object {
-              "overflow": "hidden",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
-            }
-          }
-        >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title="3-col2"
-          >
-            3-col2
-          </p>
-        </div>
-      </td>
-      <td
-        style={
-          Object {
-            "maxWidth": 50,
-            "minWidth": 50,
-            "width": 50,
-          }
-        }
-      >
-        <div
-          style={
-            Object {
-              "overflow": "hidden",
-              "textOverflow": "ellipsis",
-              "whiteSpace": "nowrap",
-            }
-          }
-        >
-          <p
-            className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-            style={
-              Object {
-                "display": "inline",
-              }
-            }
-            title=""
+          <h6
+            className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
           >
             <svg
               aria-hidden={true}
@@ -417,10 +71,369 @@ exports[`Table renders correctly 1`] = `
                 d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
               />
             </svg>
-          </p>
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
+          </h6>
+        </td>
+      </tr>
+    </thead>
+  </table>,
+  <div
+    style={
+      Object {
+        "display": "block",
+        "overflowY": "auto",
+      }
+    }
+  >
+    <table
+      style={
+        Object {
+          "tableLayout": "fixed",
+          "width": "100%",
+        }
+      }
+    >
+      <tbody>
+        <tr
+          style={Object {}}
+        >
+          <td
+            style={
+              Object {
+                "maxWidth": "100%",
+                "minWidth": "100%",
+                "width": "100%",
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "paddingLeft": "0em",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title="1-col1"
+              >
+                <button
+                  className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onDragLeave={[Function]}
+                  onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyUp={[Function]}
+                  onMouseDown={[Function]}
+                  onMouseLeave={[Function]}
+                  onMouseUp={[Function]}
+                  onTouchEnd={[Function]}
+                  onTouchMove={[Function]}
+                  onTouchStart={[Function]}
+                  tabIndex={0}
+                  type="button"
+                >
+                  <svg
+                    aria-hidden={true}
+                    className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                </button>
+                1-col1
+              </p>
+            </div>
+          </td>
+          <td
+            style={
+              Object {
+                "maxWidth": 150,
+                "minWidth": 150,
+                "width": 150,
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title="1-col2"
+              >
+                1-col2
+              </p>
+            </div>
+          </td>
+          <td
+            style={
+              Object {
+                "maxWidth": 50,
+                "minWidth": 50,
+                "width": 50,
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title=""
+              >
+                
+              </p>
+            </div>
+          </td>
+        </tr>
+        <tr
+          style={
+            Object {
+              "visibility": "collapse",
+            }
+          }
+        >
+          <td
+            style={
+              Object {
+                "maxWidth": "100%",
+                "minWidth": "100%",
+                "width": "100%",
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "paddingLeft": "1em",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title="2-col1"
+              >
+                2-col1
+              </p>
+            </div>
+          </td>
+          <td
+            style={
+              Object {
+                "maxWidth": 150,
+                "minWidth": 150,
+                "width": 150,
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title="2-col2"
+              >
+                2-col2
+              </p>
+            </div>
+          </td>
+          <td
+            style={
+              Object {
+                "maxWidth": 50,
+                "minWidth": 50,
+                "width": 50,
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title="2-col3"
+              >
+                2-col3
+              </p>
+            </div>
+          </td>
+        </tr>
+        <tr
+          style={Object {}}
+        >
+          <td
+            style={
+              Object {
+                "maxWidth": "100%",
+                "minWidth": "100%",
+                "width": "100%",
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "paddingLeft": "0em",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title="3-col1"
+              >
+                3-col1
+              </p>
+            </div>
+          </td>
+          <td
+            style={
+              Object {
+                "maxWidth": 150,
+                "minWidth": 150,
+                "width": 150,
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title="3-col2"
+              >
+                3-col2
+              </p>
+            </div>
+          </td>
+          <td
+            style={
+              Object {
+                "maxWidth": 50,
+                "minWidth": 50,
+                "width": 50,
+              }
+            }
+          >
+            <div
+              style={
+                Object {
+                  "overflow": "hidden",
+                  "textOverflow": "ellipsis",
+                  "whiteSpace": "nowrap",
+                }
+              }
+            >
+              <p
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
+                style={
+                  Object {
+                    "display": "inline",
+                  }
+                }
+                title=""
+              >
+                <svg
+                  aria-hidden={true}
+                  className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  data-testid="AccountTreeIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
+                  />
+                </svg>
+              </p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>,
+]
 `;

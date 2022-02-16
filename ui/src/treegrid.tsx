@@ -134,23 +134,32 @@ export function TreeGrid(props: TreeGridProps) {
             ))}
           </tr>
         </thead>
-        <tbody
+      </table>
+      <div
+        style={{
+          overflowY: "auto",
+          display: "block",
+        }}
+      >
+        <table
           style={{
-            overflowY: "auto",
-            display: "block",
+            tableLayout: "fixed",
+            width: "100%",
           }}
         >
-          {renderChildren(
-            props,
-            state,
-            (id: TreeGridId) =>
-              updateState((draft) => toggleExpanded(draft, id)),
-            "root",
-            0,
-            false
-          )}
-        </tbody>
-      </table>
+          <tbody>
+            {renderChildren(
+              props,
+              state,
+              (id: TreeGridId) =>
+                updateState((draft) => toggleExpanded(draft, id)),
+              "root",
+              0,
+              false
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
