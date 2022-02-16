@@ -14,6 +14,11 @@ public final class UnderlayUtils {
 
   public static final String PERSON_ENTITY = "person";
   public static final String PERSON_ID_ATTRIBUTE = "person_id";
+  public static final String PERSON_YEAROFBIRTH_ATTRIBUTE = "year_of_birth";
+  public static final String PERSON_ETHNICITY_ATTRIBUTE = "ethnicity_concept_id";
+  public static final String PERSON_GENDER_ATTRIBUTE = "gender_concept_id";
+  public static final String PERSON_RACE_ATTRIBUTE = "race_concept_id";
+  public static final String PERSON_SEXATBIRTH_ATTRIBUTE = "sex_at_birth_concept_id";
   public static final List<String> ALL_PERSON_ATTRIBUTES =
       ImmutableList.of(
           "person_id",

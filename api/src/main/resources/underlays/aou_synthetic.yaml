@@ -6,6 +6,8 @@ entities:
     attributes:
       - name: person_id
         dataType: INT64
+      - name: year_of_birth
+        dataType: INT64
       - name: gender_concept_id
         dataType: INT64
       - name: gender
@@ -344,6 +346,8 @@ datasets:
       - name: person
         columns:
           - name: person_id
+            dataType: INT64
+          - name: year_of_birth
             dataType: INT64
           - name: gender_concept_id
             dataType: INT64
@@ -1068,6 +1072,14 @@ attributeMappings:
         dataset: aou_synthetic
         table: person
         column: person_id
+  - attribute:
+      entity: person
+      attribute: year_of_birth
+    simpleColumn:
+      columnId:
+        dataset: aou_synthetic
+        table: person
+        column: year_of_birth
   - attribute:
       entity: person
       attribute: gender_concept_id
@@ -2527,3 +2539,66 @@ textSearchInformation:
         dataset: omop_indexes
         table: visit_text_search_2
         column: text
+entityFiltersSchemas:
+  - entity: person
+    attributes:
+      - attributeName: year_of_birth
+        integerBoundsHint:
+          min: 1930
+          max: 2001
+      - attributeName: ethnicity_concept_id
+        enumHint:
+          enumHintValues:
+            - displayName: "Hispanic or Latino"
+              int64Val: 38003563
+            - displayName: "Race Ethnicity None Of These"
+              int64Val: 1586148
+            - displayName: "Not Hispanic or Latino"
+              int64Val: 38003564
+            - displayName: "Prefer Not To Answer"
+              int64Val: 903079
+            - displayName: "Skip"
+              int64Val: 903096
+      - attributeName: gender_concept_id
+        enumHint:
+          enumHintValues:
+            - displayName: "Not man only, not woman only, prefer not to answer, or skipped"
+              int64Val: 2000000002
+            - displayName: "Female"
+              int64Val: 45878463
+            - displayName: "Male"
+              int64Val: 45880669
+            - displayName: "Unknown"
+              int64Val: 0
+      - attributeName: race_concept_id
+        enumHint:
+          enumHintValues:
+            - displayName: "Another single population"
+              int64Val: 2000000001
+            - displayName: "White"
+              int64Val: 8527
+            - displayName: "I prefer not to answer"
+              int64Val: 1177221
+            - displayName: "More than one population"
+              int64Val: 2000000008
+            - displayName: "Asian"
+              int64Val: 8515
+            - displayName: "Black or African American"
+              int64Val: 8516
+            - displayName: "PMI: Skip"
+              int64Val: 903096
+            - displayName: "None of these"
+              int64Val: 45882607
+            - displayName: "Unknown"
+              int64Val: 0
+      - attributeName: sex_at_birth_concept_id
+        enumHint:
+          enumHintValues:
+            - displayName: "Female"
+              int64Val: 45878463
+            - displayName: "Male"
+              int64Val: 45880669
+            - displayName: "Not male, not female, prefer not to answer, or skipped"
+              int64Val: 2000000009
+            - displayName: "Unknown"
+              int64Val: 0
