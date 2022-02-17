@@ -65,11 +65,13 @@ public class SqlVisitor {
     String sqlWithoutOrderBy = StringSubstitutor.replace(template, params);
 
     if (query.orderBy() != null) {
+      String orderByExpression = query.orderBy().accept(new SelectionVisitor(searchContext));
+
       String orderByTemplate = "${sqlWithoutOrderBy} ORDER BY ${orderBy} ${orderByDirection}";
       Map<String, String> orderByParams =
           ImmutableMap.<String, String>builder()
               .put("sqlWithoutOrderBy", sqlWithoutOrderBy)
-              .put("orderBy", query.orderBy().name())
+              .put("orderBy", orderByExpression)
               .put("orderByDirection", query.orderByDirection().name())
               .build();
       return StringSubstitutor.replace(orderByTemplate, orderByParams);
@@ -90,7 +92,11 @@ public class SqlVisitor {
     public String selectExpression(Selection.SelectExpression selectExpression) {
       String expression =
           selectExpression.expression().accept(new ExpressionVisitor(searchContext));
-      return String.format("%s AS %s", expression, selectExpression.name());
+      if (selectExpression.name().isEmpty()) {
+        return expression;
+      } else {
+        return String.format("%s AS %s", expression, selectExpression.name());
+      }
     }
 
     @Override

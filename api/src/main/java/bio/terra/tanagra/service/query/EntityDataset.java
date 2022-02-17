@@ -76,9 +76,11 @@ public abstract class EntityDataset {
       }
       if (orderByAttribute() != null) {
         Preconditions.checkArgument(
-            selectedAttributes().contains(orderByAttribute()),
-            "Order by attribute '%s' is not one of the selected attributes.",
-            orderByAttribute().name());
+            orderByAttribute().entity().equals(primaryEntity().entity()),
+            "Order by attribute's '%s' entity '%s' did not match primary entity '%s'.",
+            orderByAttribute().name(),
+            orderByAttribute().entity().name(),
+            primaryEntity().entity().name());
 
         // default the order by direction to ASC. only set this if there is an order by attribute
         // specified

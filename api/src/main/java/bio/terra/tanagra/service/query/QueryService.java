@@ -111,10 +111,16 @@ public class QueryService {
 
     if (entityDataset.orderByAttribute() != null) {
       Selection orderBy =
-          selections.stream()
-              .filter(selection -> selection.name().equals(entityDataset.orderByAttribute().name()))
-              .findFirst()
-              .get();
+          Selection.SelectExpression.builder()
+              .expression(
+                  AttributeExpression.create(
+                      AttributeVariable.create(
+                          entityDataset.orderByAttribute(),
+                          entityDataset.primaryEntity().variable())))
+              // set the attribute alias to empty string, because we can't use the AS keyword in an
+              // ORDER BY clause
+              .name("")
+              .build();
       queryBuilder.orderBy(orderBy).orderByDirection(entityDataset.orderByDirection());
     }
 

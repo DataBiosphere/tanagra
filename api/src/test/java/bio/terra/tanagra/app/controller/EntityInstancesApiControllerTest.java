@@ -51,7 +51,7 @@ public class EntityInstancesApiControllerTest extends BaseSpringUnitTest {
   }
 
   @Test
-  void generateDatasetWithOrderBySqlQuery() {
+  void generateDatasetWithOrderBySimpleColumnSqlQuery() {
     ResponseEntity<ApiSqlQuery> response =
         controller.generateDatasetSqlQuery(
             NAUTICAL_UNDERLAY_NAME,
@@ -75,7 +75,37 @@ public class EntityInstancesApiControllerTest extends BaseSpringUnitTest {
     assertEquals(
         "SELECT s.s_name AS name, s.rating AS rating "
             + "FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42 "
-            + "ORDER BY name DESC",
+            + "ORDER BY s.s_name DESC",
+        response.getBody().getQuery());
+  }
+
+  @Test
+  void generateDatasetWithOrderByLookupColumnSqlQuery() {
+    ResponseEntity<ApiSqlQuery> response =
+        controller.generateDatasetSqlQuery(
+            NAUTICAL_UNDERLAY_NAME,
+            "boats",
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("b")
+                        .selectedAttributes(ImmutableList.of("name", "color"))
+                        .orderByAttribute("type_name")
+                        .orderByDirection(ApiOrderByDirection.ASC)
+                        .filter(
+                            new ApiFilter()
+                                .binaryFilter(
+                                    new ApiBinaryFilter()
+                                        .attributeVariable(
+                                            new ApiAttributeVariable().variable("b").name("color"))
+                                        .operator(ApiBinaryFilterOperator.EQUALS)
+                                        .attributeValue(
+                                            new ApiAttributeValue().stringVal("red"))))));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT b.b_name AS name, b.color AS color "
+            + "FROM `my-project-id.nautical`.boats AS b WHERE b.color = 'red' "
+            + "ORDER BY (SELECT boat_types.bt_name FROM `my-project-id.nautical`.boat_types WHERE boat_types.bt_id = b.bt_id) ASC",
         response.getBody().getQuery());
   }
 }
