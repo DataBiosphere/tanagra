@@ -364,8 +364,20 @@ components:
           type: array
           items:
             type: string
+        orderByAttribute:
+          description: The name of one of the selected attributes of the primary entity to order the selection by.
+          type: string
+        orderByDirection:
+          description: The direction to order the results in. Defaults to ascending.
+          nullable: true
+          $ref: '#/components/schemas/OrderByDirection'
         filter:
           $ref: '#/components/schemas/Filter'
+
+    OrderByDirection:
+      description: Enum for order by direction
+      type: string
+      enum: ['ASC', 'DESC']
 
     EntityFilter:
       description: A filter to apply to the given entity.

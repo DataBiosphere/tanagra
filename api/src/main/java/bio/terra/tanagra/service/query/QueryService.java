@@ -102,11 +102,29 @@ public class QueryService {
                         .name(attribute.name())
                         .build())
             .collect(ImmutableList.toImmutableList());
-    return Query.builder()
-        .selections(selections)
-        .primaryEntity(entityDataset.primaryEntity())
-        .filter(entityDataset.filter())
-        .build();
+
+    Query.Builder queryBuilder =
+        Query.builder()
+            .selections(selections)
+            .primaryEntity(entityDataset.primaryEntity())
+            .filter(entityDataset.filter());
+
+    if (entityDataset.orderByAttribute() != null) {
+      Selection orderBy =
+          Selection.SelectExpression.builder()
+              .expression(
+                  AttributeExpression.create(
+                      AttributeVariable.create(
+                          entityDataset.orderByAttribute(),
+                          entityDataset.primaryEntity().variable())))
+              // set the attribute alias to empty string, because we can't use the AS keyword in an
+              // ORDER BY clause
+              .name("")
+              .build();
+      queryBuilder.orderBy(orderBy).orderByDirection(entityDataset.orderByDirection());
+    }
+
+    return queryBuilder.build();
   }
 
   private Underlay getUnderlay(String underlayName) {
