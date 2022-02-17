@@ -98,6 +98,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       defaultName: "Contains Conditions Codes",
       plugin: {
         entity: "condition",
+        hierarchical: true,
       },
     },
     {
@@ -106,6 +107,15 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       defaultName: "Contains Procedures Codes",
       plugin: {
         entity: "procedure",
+        hierarchical: true,
+      },
+    },
+    {
+      type: "concept",
+      title: "Observations",
+      defaultName: "Contains Observtions Codes",
+      plugin: {
+        entity: "observation",
       },
     },
   ];
