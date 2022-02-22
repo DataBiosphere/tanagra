@@ -120,8 +120,16 @@ async function renderCriteria(
         title: "Conditions",
         defaultName: "Contains Conditions Codes",
         plugin: {
-          entity: "condition",
-          hierarchical: true,
+          columns: [
+            { key: "concept_name", width: "100%", title: "Concept Name" },
+            { key: "concept_id", width: 120, title: "Concept ID" },
+            { key: "standard_concept", width: 180, title: "Source/Standard" },
+            { key: "vocabulary_id", width: 120, title: "Vocab" },
+            { key: "concept_code", width: 120, title: "Code" },
+          ],
+          entities: [
+            { name: "condition", selectable: true, hierarchical: true },
+          ],
         },
       })
     )

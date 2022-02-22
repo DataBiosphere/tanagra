@@ -17,6 +17,7 @@ import { deleteCriteria, insertCriteria, insertGroup } from "cohortsSlice";
 import { useAppDispatch } from "hooks";
 import React, { useCallback } from "react";
 import { Link as RouterLink, useHistory, useParams } from "react-router-dom";
+import * as tanagra from "tanagra-api";
 import ActionBar from "./actionBar";
 import {
   Cohort,
@@ -91,14 +92,22 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
   );
 
   // TODO(tjennison): Fetch configs from the backend.
+  const columns = [
+    { key: "concept_name", width: "100%", title: "Concept Name" },
+    { key: "concept_id", width: 120, title: "Concept ID" },
+    { key: "standard_concept", width: 180, title: "Source/Standard" },
+    { key: "vocabulary_id", width: 120, title: "Vocab" },
+    { key: "concept_code", width: 120, title: "Code" },
+  ];
+
   const configs = [
     {
       type: "concept",
       title: "Conditions",
       defaultName: "Contains Conditions Codes",
       plugin: {
-        entity: "condition",
-        hierarchical: true,
+        columns,
+        entities: [{ name: "condition", selectable: true, hierarchical: true }],
       },
     },
     {
@@ -106,16 +115,61 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       title: "Procedures",
       defaultName: "Contains Procedures Codes",
       plugin: {
-        entity: "procedure",
-        hierarchical: true,
+        columns,
+        entities: [{ name: "procedure", selectable: true, hierarchical: true }],
       },
     },
     {
       type: "concept",
       title: "Observations",
-      defaultName: "Contains Observtions Codes",
+      defaultName: "Contains Observations Codes",
       plugin: {
-        entity: "observation",
+        columns,
+        entities: [{ name: "observation", selectable: true }],
+      },
+    },
+    {
+      type: "concept",
+      title: "Drugs",
+      defaultName: "Contains Drugs Codes",
+      plugin: {
+        columns,
+        entities: [
+          { name: "ingredient", selectable: true, hierarchical: true },
+          {
+            name: "brand",
+            sourceConcepts: true,
+            attributes: [
+              "concept_name",
+              "concept_id",
+              "standard_concept",
+              "concept_code",
+            ],
+            listChildren: {
+              entity: "ingredient",
+              idPath: "relationshipFilter.filter.binaryFilter.attributeValue",
+              filter: {
+                relationshipFilter: {
+                  outerVariable: "ingredient",
+                  newVariable: "brand",
+                  newEntity: "brand",
+                  filter: {
+                    binaryFilter: {
+                      attributeVariable: {
+                        variable: "brand",
+                        name: "concept_id",
+                      },
+                      operator: tanagra.BinaryFilterOperator.Equals,
+                      attributeValue: {
+                        int64Val: 0,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
       },
     },
   ];
