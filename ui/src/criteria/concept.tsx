@@ -1,10 +1,10 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { EntityInstancesApiContext } from "apiContext";
+import Checkbox from "checkbox";
 import {
   Cohort,
   CriteriaConfig,
@@ -263,8 +263,8 @@ function ConceptEdit(props: ConceptEditProps) {
             return (
               <Checkbox
                 size="small"
+                fontSize="inherit"
                 checked={index > -1}
-                inputProps={{ "aria-label": "controlled" }}
                 onChange={() => {
                   dispatch(
                     updateCriteriaData({
