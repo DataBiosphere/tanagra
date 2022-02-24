@@ -183,7 +183,7 @@ function renderChildren(
 
     results.push(
       <tr
-        key={childId}
+        key={id + "-" + childId}
         style={{
           ...(collapse && { visibility: "collapse" }),
         }}
