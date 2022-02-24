@@ -3,9 +3,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { EntityInstancesApiContext } from "apiContext";
+import { useAsyncWithApi } from "errors";
 import Loading from "loading";
 import { ReactElement, useCallback, useContext, useState } from "react";
-import { useAsync } from "react-async";
 import { Cohort, generateQueryParameters } from "./cohort";
 
 type SqlDialogProps = {
@@ -16,14 +16,14 @@ export function useSqlDialog(
   props: SqlDialogProps
 ): [ReactElement, () => void] {
   const [open, setOpen] = useState(false);
-  const show = useCallback(() => {
+  const show = () => {
     setOpen(true);
-  }, []);
+  };
 
   const api = useContext(EntityInstancesApiContext);
 
-  const sqlState = useAsync<string>({
-    promiseFn: useCallback(() => {
+  const sqlState = useAsyncWithApi<string>(
+    useCallback(() => {
       if (open && props.cohort) {
         const params = generateQueryParameters(props.cohort);
         if (params) {
@@ -49,8 +49,8 @@ export function useSqlDialog(
       return new Promise<string>((resolve) => {
         resolve("");
       });
-    }, [api, props.cohort, open]),
-  });
+    }, [api, props.cohort, open])
+  );
 
   return [
     // eslint-disable-next-line react/jsx-key

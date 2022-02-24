@@ -265,9 +265,7 @@ function ConceptEdit(props: ConceptEditProps) {
     hierarchy,
     query,
   ]);
-  // TODO(tjennison): Use the callback as the watch parameter instead of a
-  // separate value to avoid having two layers of equality testing.
-  const conceptsState = useAsyncWithApi<void>(fetchEntities, fetchEntities);
+  const conceptsState = useAsyncWithApi<void>(fetchEntities);
 
   const hierarchyColumns = [
     {

@@ -4,7 +4,7 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import { ReactNode, useCallback, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
 
 export type TreeGridId = string | number;
@@ -49,50 +49,47 @@ export function TreeGrid(props: TreeGridProps) {
     []
   );
 
-  const toggleExpanded = useCallback(
-    (draft: TreeGridState, id: TreeGridId) => {
-      const itemState = draft.get(id) || {
-        status: Status.Collapsed,
-      };
-      switch (itemState.status) {
-        case Status.Loading:
-          return;
-        case Status.Expanded:
-          itemState.status = Status.Collapsed;
-          break;
-        default:
-          if (!props.loadChildren || !!itemState.loaded) {
-            itemState.status = Status.Expanded;
-          } else {
-            itemState.status = Status.Loading;
-            props
-              .loadChildren(id)
-              .then(() => {
-                if (!cancel.current) {
-                  updateState((draft) => {
-                    draft.set(id, {
-                      status: Status.Expanded,
-                      loaded: true,
-                    });
+  const toggleExpanded = (draft: TreeGridState, id: TreeGridId) => {
+    const itemState = draft.get(id) || {
+      status: Status.Collapsed,
+    };
+    switch (itemState.status) {
+      case Status.Loading:
+        return;
+      case Status.Expanded:
+        itemState.status = Status.Collapsed;
+        break;
+      default:
+        if (!props.loadChildren || !!itemState.loaded) {
+          itemState.status = Status.Expanded;
+        } else {
+          itemState.status = Status.Loading;
+          props
+            .loadChildren(id)
+            .then(() => {
+              if (!cancel.current) {
+                updateState((draft) => {
+                  draft.set(id, {
+                    status: Status.Expanded,
+                    loaded: true,
                   });
-                }
-              })
-              .catch((error) => {
-                if (!cancel.current) {
-                  updateState((draft) => {
-                    draft.set(id, {
-                      status: Status.Failed,
-                      errorMessage: error,
-                    });
+                });
+              }
+            })
+            .catch((error) => {
+              if (!cancel.current) {
+                updateState((draft) => {
+                  draft.set(id, {
+                    status: Status.Failed,
+                    errorMessage: error,
                   });
-                }
-              });
-          }
-      }
-      draft.set(id, itemState);
-    },
-    [props.loadChildren]
-  );
+                });
+              }
+            });
+        }
+    }
+    draft.set(id, itemState);
+  };
 
   useEffect(() => {
     const de = props?.defaultExpanded;
