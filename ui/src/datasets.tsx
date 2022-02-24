@@ -17,13 +17,12 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { insertCohort } from "cohortsSlice";
 import { useAppDispatch, useAppSelector } from "hooks";
-import { ChangeEvent, ReactNode, useState } from "react";
+import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "./actionBar";
 import { useSqlDialog } from "./sqlDialog";
 
 type DatasetProps = {
-  underlayNames: string[];
   entityName: string;
 };
 
@@ -37,7 +36,6 @@ export function Datasets(props: DatasetProps) {
   });
 
   const [dialog, show] = useNewCohortDialog({
-    underlayNames: props.underlayNames,
     callback: (name: string, underlayName: string) => {
       dispatch(
         insertCohort(
@@ -137,7 +135,6 @@ export function Datasets(props: DatasetProps) {
 }
 
 type NewCohortDialogProps = {
-  underlayNames: string[];
   callback: (name: string, underlayName: string) => void;
 };
 
@@ -154,7 +151,16 @@ function useNewCohortDialog(
     setName(event.target.value);
   };
 
-  const [underlayName, setUnderlayName] = useState(props.underlayNames[0]);
+  const underlayNames = useAppSelector((state) =>
+    state.underlays.map((u) => u.name)
+  );
+
+  const [underlayName, setUnderlayName] = useState("");
+  useEffect(() => {
+    if (!underlayName && underlayNames?.length > 0) {
+      setUnderlayName(underlayNames[0]);
+    }
+  }, [underlayNames]);
 
   const onCreate = () => {
     setOpen(false);
@@ -197,7 +203,7 @@ function useNewCohortDialog(
             value={underlayName}
             onChange={onUnderlayChange}
           >
-            {props.underlayNames.map((underlayName) => (
+            {underlayNames.map((underlayName) => (
               <MenuItem key={underlayName} value={underlayName}>
                 {underlayName}
               </MenuItem>

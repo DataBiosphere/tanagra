@@ -9,7 +9,33 @@ class FakeUnderlaysApi {
         underlays: [
           {
             name: "underlay_name",
-            entityNames: ["entity 1", "entity 2"],
+            entityNames: ["entity_name"],
+          },
+        ],
+      });
+    });
+  }
+}
+
+class FakeEntitiesApi {
+  async listEntities(): Promise<tanagra.ListEntitiesResponse> {
+    return new Promise<tanagra.ListEntitiesResponse>((resolve) => {
+      resolve({
+        entities: [
+          {
+            name: "entity_name",
+            attributes: [
+              {
+                name: "attribute_name",
+                dataType: tanagra.DataType.Int64,
+                attributeFilterHint: {
+                  integerBoundsHint: {
+                    min: 1,
+                    max: 10,
+                  },
+                },
+              },
+            ],
           },
         ],
       });
@@ -64,4 +90,8 @@ export const UnderlaysApiContext = apiForEnvironment(
 export const EntityInstancesApiContext = apiForEnvironment(
   tanagra.EntityInstancesApi,
   FakeEntityInstancesApi
+);
+export const EntitiesApiContext = apiForEnvironment(
+  tanagra.EntitiesApi,
+  FakeEntitiesApi
 );
