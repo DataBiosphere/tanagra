@@ -2,16 +2,13 @@ import { getReasonPhrase } from "http-status-codes";
 import { useCallback } from "react";
 import { useAsync } from "react-async";
 
-export function useAsyncWithApi<T>(
-  promiseFn: () => Promise<T>,
-  watch?: unknown
-) {
+export function useAsyncWithApi<T>(promiseFn: () => Promise<T>) {
   const wrapped = useCallback(() => {
     return promiseFn().catch(async (e) => {
       throw await canonicalizeError(e);
     });
   }, [promiseFn]);
-  return useAsync<T>({ promiseFn: wrapped, watch });
+  return useAsync<T>({ promiseFn: wrapped, watch: wrapped });
 }
 
 async function canonicalizeError(response: unknown): Promise<Error> {

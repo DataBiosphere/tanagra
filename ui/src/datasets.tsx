@@ -17,7 +17,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { insertCohort } from "cohortsSlice";
 import { useAppDispatch, useAppSelector } from "hooks";
-import { ChangeEvent, ReactNode, useCallback, useState } from "react";
+import { ChangeEvent, ReactNode, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "./actionBar";
 import { useSqlDialog } from "./sqlDialog";
@@ -145,9 +145,9 @@ function useNewCohortDialog(
   props: NewCohortDialogProps
 ): [ReactNode, () => void] {
   const [open, setOpen] = useState(false);
-  const show = useCallback(() => {
+  const show = () => {
     setOpen(true);
-  }, []);
+  };
 
   const [name, setName] = useState("New Cohort");
   const onNameChange = (event: ChangeEvent<HTMLInputElement>) => {

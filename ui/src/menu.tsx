@@ -2,7 +2,7 @@ import {
   default as BaseMenu,
   MenuProps as BaseMenuProps,
 } from "@mui/material/Menu";
-import { MouseEvent, ReactElement, useCallback, useState } from "react";
+import { MouseEvent, ReactElement, useState } from "react";
 
 type MenuProps = Omit<
   BaseMenuProps,
@@ -17,7 +17,8 @@ export function useMenu({
   (e: MouseEvent<HTMLElement | undefined>) => void
 ] {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
-  const show = useCallback((e) => setAnchorEl(e.currentTarget), []);
+  const show = (e: MouseEvent<HTMLElement | undefined>) =>
+    setAnchorEl(e.currentTarget);
 
   return [
     // eslint-disable-next-line react/jsx-key

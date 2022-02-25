@@ -15,7 +15,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { deleteCriteria, insertCriteria, insertGroup } from "cohortsSlice";
 import { useAppDispatch } from "hooks";
-import React, { useCallback } from "react";
+import React from "react";
 import { Link as RouterLink, useHistory, useParams } from "react-router-dom";
 import * as tanagra from "tanagra-api";
 import ActionBar from "./actionBar";
@@ -76,21 +76,17 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
   const history = useHistory();
   const dispatch = useAppDispatch();
 
-  const onAddCriteria = useCallback(
-    (criteria: Criteria) => {
-      let groupId = "";
-      if (typeof props.group === "string") {
-        groupId = props.group;
-        dispatch(insertCriteria({ cohortId, groupId, criteria }));
-      } else {
-        const action = dispatch(insertGroup(cohortId, props.group, criteria));
-        groupId = action.payload.group.id;
-      }
-      history.push(editRoute(cohortId, groupId, criteria.id));
-    },
-    [props.group]
-  );
-
+  const onAddCriteria = (criteria: Criteria) => {
+    let groupId = "";
+    if (typeof props.group === "string") {
+      groupId = props.group;
+      dispatch(insertCriteria({ cohortId, groupId, criteria }));
+    } else {
+      const action = dispatch(insertGroup(cohortId, props.group, criteria));
+      groupId = action.payload.group.id;
+    }
+    history.push(editRoute(cohortId, groupId, criteria.id));
+  };
   // TODO(tjennison): Fetch configs from the backend.
   const columns = [
     { key: "concept_name", width: "100%", title: "Concept Name" },
