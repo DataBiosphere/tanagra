@@ -9,10 +9,7 @@ import reportWebVitals from "./reportWebVitals";
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App
-        underlayNames={["aou_synthetic", "synpuf"]}
-        entityName="condition_occurrence"
-      />
+      <App entityName="condition_occurrence" />
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")
