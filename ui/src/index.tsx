@@ -9,7 +9,7 @@ import reportWebVitals from "./reportWebVitals";
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App entityName="condition_occurrence" />
+      <App entityName="person" />
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")

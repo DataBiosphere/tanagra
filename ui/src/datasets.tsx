@@ -43,12 +43,7 @@ export function Datasets(props: DatasetProps) {
           underlayName,
           props.entityName,
           // TODO(tjennison): Populate from an actual source.
-          [
-            "person_id",
-            "condition_occurrence_id",
-            "condition_concept_id",
-            "condition_name",
-          ]
+          ["person_id"]
         )
       );
     },
