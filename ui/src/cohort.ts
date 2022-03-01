@@ -17,15 +17,17 @@ export interface Cohort {
 export function generateQueryParameters(
   cohort: Cohort
 ): tanagra.EntityDataset | null {
+  const entityVar = "entity";
+
   const operands = cohort.groups
-    .map((group) => generateFilter(group))
+    .map((group) => generateFilter(group, entityVar))
     .filter((filter) => filter) as Array<tanagra.Filter>;
   if (operands.length === 0) {
     return null;
   }
 
   return {
-    entityVariable: "co",
+    entityVariable: entityVar,
     selectedAttributes: cohort.attributes,
     filter: {
       arrayFilter: {
@@ -47,9 +49,12 @@ export interface Group {
   criteria: Criteria[];
 }
 
-function generateFilter(group: Group): tanagra.Filter | null {
+function generateFilter(
+  group: Group,
+  entityVar: string
+): tanagra.Filter | null {
   const operands = group.criteria
-    .map((criteria) => getCriteriaPlugin(criteria).generateFilter())
+    .map((criteria) => getCriteriaPlugin(criteria).generateFilter(entityVar))
     .filter((filter) => filter) as Array<tanagra.Filter>;
   if (operands.length === 0) {
     return null;
@@ -93,7 +98,7 @@ export interface CriteriaPlugin<DataType> {
   data: DataType;
   renderEdit: (cohort: Cohort, group: Group) => JSX.Element;
   renderDetails: () => JSX.Element;
-  generateFilter: () => tanagra.Filter | null;
+  generateFilter: (entityVar: string) => tanagra.Filter | null;
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically

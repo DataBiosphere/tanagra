@@ -30,6 +30,7 @@ import {
 import { useImmer } from "use-immer";
 
 type Selection = {
+  entity: string;
   id: number;
   name: string;
 };
@@ -91,27 +92,56 @@ class _ implements CriteriaPlugin<Data> {
     return <ConceptDetails data={this.data} />;
   }
 
-  generateFilter() {
+  generateFilter(entityVar: string) {
     if (this.data.selected.length === 0) {
       return null;
     }
 
-    const operands = this.data.selected.map(({ id }) => ({
-      binaryFilter: {
-        attributeVariable: {
-          variable: "co",
-          name: "condition_concept_id",
-        },
-        operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
-        attributeValue: {
-          int64Val: id,
-        },
-      },
-    }));
+    const operands = (e: string) =>
+      this.data.selected
+        .filter(({ entity }) => entity === e)
+        .map(({ id }) => ({
+          binaryFilter: {
+            attributeVariable: {
+              variable: "concept",
+              name: "concept_id",
+            },
+            operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
+            attributeValue: {
+              int64Val: id,
+            },
+          },
+        }));
 
     return {
       arrayFilter: {
-        operands,
+        operands: this.data.entities
+          .filter(
+            (entity) =>
+              this.data.selected.findIndex(
+                (sel) => sel.entity === entity.name
+              ) >= 0
+          )
+          .map((entity) => ({
+            relationshipFilter: {
+              outerVariable: entityVar,
+              newVariable: "occurrence",
+              newEntity: entity.name + "_occurrence",
+              filter: {
+                relationshipFilter: {
+                  outerVariable: "occurrence",
+                  newVariable: "concept",
+                  newEntity: entity.name,
+                  filter: {
+                    arrayFilter: {
+                      operands: operands(entity.name),
+                      operator: tanagra.ArrayFilterOperator.Or,
+                    },
+                  },
+                },
+              },
+            },
+          })),
         operator: tanagra.ArrayFilterOperator.Or,
       },
     };
@@ -311,11 +341,14 @@ function ConceptEdit(props: ConceptEditProps) {
           data={data}
           defaultExpanded={hierarchy?.path}
           prefixElements={(id: TreeGridId, rowData: TreeGridRowData) => {
-            if (!findEntity(props.data.entities, rowData).selectable) {
+            const entity = findEntity(props.data.entities, rowData);
+            if (!entity.selectable) {
               return null;
             }
 
-            const index = props.data.selected.findIndex((row) => row.id === id);
+            const index = props.data.selected.findIndex(
+              (row) => row.entity === entity.name && row.id === id
+            );
 
             return (
               <Checkbox
@@ -334,6 +367,7 @@ function ConceptEdit(props: ConceptEditProps) {
                         } else {
                           const name = rowData["concept_name"];
                           data.selected.push({
+                            entity: entity.name,
                             id: id as number,
                             name: !!name ? String(name) : "",
                           });
