@@ -92,7 +92,11 @@ class _ implements CriteriaPlugin<Data> {
     return <ConceptDetails data={this.data} />;
   }
 
-  generateFilter(entityVar: string) {
+  // Normally, filter generation assumes the concepts are liked to the entityVar
+  // via an occurrence table (e.g. person -> condition_occurrence -> condition).
+  // fromOccurrence causes entityVar to be treated as the occurrence instead
+  // (e.g. condition_occurrence -> condition).
+  generateFilter(entityVar: string, fromOccurrence: boolean) {
     if (this.data.selected.length === 0) {
       return null;
     }
@@ -113,7 +117,21 @@ class _ implements CriteriaPlugin<Data> {
           },
         }));
 
-    return {
+    const occurrenceFilter = (entity: EntityConfig, variable: string) => ({
+      relationshipFilter: {
+        outerVariable: variable,
+        newVariable: "concept",
+        newEntity: entity.name,
+        filter: {
+          arrayFilter: {
+            operands: operands(entity.name),
+            operator: tanagra.ArrayFilterOperator.Or,
+          },
+        },
+      },
+    });
+
+    const ret = {
       arrayFilter: {
         operands: this.data.entities
           .filter(
@@ -122,29 +140,22 @@ class _ implements CriteriaPlugin<Data> {
                 (sel) => sel.entity === entity.name
               ) >= 0
           )
-          .map((entity) => ({
-            relationshipFilter: {
-              outerVariable: entityVar,
-              newVariable: "occurrence",
-              newEntity: entity.name + "_occurrence",
-              filter: {
-                relationshipFilter: {
-                  outerVariable: "occurrence",
-                  newVariable: "concept",
-                  newEntity: entity.name,
-                  filter: {
-                    arrayFilter: {
-                      operands: operands(entity.name),
-                      operator: tanagra.ArrayFilterOperator.Or,
-                    },
+          .map((entity) =>
+            fromOccurrence
+              ? occurrenceFilter(entity, entityVar)
+              : {
+                  relationshipFilter: {
+                    outerVariable: entityVar,
+                    newVariable: "occurrence",
+                    newEntity: entity.name + "_occurrence",
+                    filter: occurrenceFilter(entity, "occurrence"),
                   },
-                },
-              },
-            },
-          })),
+                }
+          ),
         operator: tanagra.ArrayFilterOperator.Or,
       },
     };
+    return ret;
   }
 }
 
