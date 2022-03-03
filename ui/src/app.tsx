@@ -1,7 +1,7 @@
 import { EntitiesApiContext, UnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
 import { useAsyncWithApi } from "errors";
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import { enableMapSet } from "immer";
 import "plugins";
 import { useCallback, useContext } from "react";
@@ -10,9 +10,10 @@ import {
   Redirect,
   Route,
   Switch,
-  useParams,
   useRouteMatch,
 } from "react-router-dom";
+import * as tanagra from "tanagra-api";
+import { UnderlaySelect } from "underlaySelect";
 import { setUnderlays } from "underlaysSlice";
 import "./app.css";
 import { Datasets } from "./datasets";
@@ -24,6 +25,89 @@ enableMapSet();
 type AppProps = {
   entityName: string;
 };
+
+// TODO(tjennison): Fetch configs from the backend.
+const columns = [
+  { key: "concept_name", width: "100%", title: "Concept Name" },
+  { key: "concept_id", width: 120, title: "Concept ID" },
+  { key: "standard_concept", width: 180, title: "Source/Standard" },
+  { key: "vocabulary_id", width: 120, title: "Vocab" },
+  { key: "concept_code", width: 120, title: "Code" },
+];
+
+const criteriaConfigs = [
+  {
+    type: "concept",
+    title: "Conditions",
+    defaultName: "Contains Conditions Codes",
+    plugin: {
+      columns,
+      entities: [{ name: "condition", selectable: true, hierarchical: true }],
+    },
+  },
+  {
+    type: "concept",
+    title: "Procedures",
+    defaultName: "Contains Procedures Codes",
+    plugin: {
+      columns,
+      entities: [{ name: "procedure", selectable: true, hierarchical: true }],
+    },
+  },
+  {
+    type: "concept",
+    title: "Observations",
+    defaultName: "Contains Observations Codes",
+    plugin: {
+      columns,
+      entities: [{ name: "observation", selectable: true }],
+    },
+  },
+  {
+    type: "concept",
+    title: "Drugs",
+    defaultName: "Contains Drugs Codes",
+    plugin: {
+      columns,
+      entities: [
+        { name: "ingredient", selectable: true, hierarchical: true },
+        {
+          name: "brand",
+          sourceConcepts: true,
+          attributes: [
+            "concept_name",
+            "concept_id",
+            "standard_concept",
+            "concept_code",
+          ],
+          listChildren: {
+            entity: "ingredient",
+            idPath: "relationshipFilter.filter.binaryFilter.attributeValue",
+            filter: {
+              relationshipFilter: {
+                outerVariable: "ingredient",
+                newVariable: "brand",
+                newEntity: "brand",
+                filter: {
+                  binaryFilter: {
+                    attributeVariable: {
+                      variable: "brand",
+                      name: "concept_id",
+                    },
+                    operator: tanagra.BinaryFilterOperator.Equals,
+                    attributeValue: {
+                      int64Val: 0,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+  },
+];
 
 export default function App(props: AppProps) {
   const dispatch = useAppDispatch();
@@ -60,6 +144,7 @@ export default function App(props: AppProps) {
             return {
               name,
               entities: entitiesRes.entities,
+              criteriaConfigs,
             };
           })
         )
@@ -71,11 +156,11 @@ export default function App(props: AppProps) {
     <Loading status={underlaysState}>
       <HashRouter basename="/">
         <Switch>
-          <Route path="/cohort/:cohortId">
-            <CohortRouter />
+          <Route exact path="/">
+            <UnderlaySelect />
           </Route>
-          <Route path="/">
-            <Datasets entityName={props.entityName} />
+          <Route path="/:underlayName?/:cohortId?">
+            <CohortRouter entityName={props.entityName} />
           </Route>
         </Switch>
       </HashRouter>
@@ -83,23 +168,30 @@ export default function App(props: AppProps) {
   );
 }
 
-function CohortRouter() {
+function CohortRouter(props: { entityName: string }) {
   const match = useRouteMatch();
-  const { cohortId } = useParams<{ cohortId: string }>();
-  const cohort = useAppSelector((state) =>
-    state.cohorts.find((c) => c.id === cohortId)
-  );
+  const underlay = useUnderlay();
+  const cohort = useCohort();
 
-  return cohort ? (
-    <Switch>
-      <Route path={`${match.path}/edit/:group/:criteria`}>
-        <Edit cohort={cohort} />
-      </Route>
-      <Route path={match.path}>
-        <Overview cohort={cohort} />
-      </Route>
-    </Switch>
-  ) : (
-    <Redirect to="/" />
-  );
+  if (underlay && cohort) {
+    return (
+      <Switch>
+        <Route path={`${match.path}/edit/:group/:criteria`}>
+          <Edit cohort={cohort} />
+        </Route>
+        <Route path={match.path}>
+          <Overview cohort={cohort} />
+        </Route>
+      </Switch>
+    );
+  }
+  if (underlay) {
+    return (
+      <>
+        <Redirect to={`/${underlay.name}`} />
+        <Datasets entityName={props.entityName} />
+      </>
+    );
+  }
+  return <Redirect to="/" />;
 }

@@ -16,10 +16,9 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { deleteCriteria, insertCriteria, insertGroup } from "cohortsSlice";
 import { useMenu } from "components/menu";
-import { useAppDispatch } from "hooks";
+import { useAppDispatch, useCohortOrFail, useUnderlayOrFail } from "hooks";
 import React from "react";
-import { Link as RouterLink, useHistory, useParams } from "react-router-dom";
-import * as tanagra from "tanagra-api";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import {
   Cohort,
   createCriteria,
@@ -30,11 +29,12 @@ import {
 } from "./cohort";
 
 function editRoute(
+  underlayName: string,
   cohortId: string,
   groupId: string,
   criteriaId: string
 ): string {
-  return `/cohort/${cohortId}/edit/${groupId}/${criteriaId}`;
+  return `/${underlayName}/${cohortId}/edit/${groupId}/${criteriaId}`;
 }
 
 type OverviewProps = {
@@ -42,9 +42,11 @@ type OverviewProps = {
 };
 
 export default function Overview(props: OverviewProps) {
+  const underlay = useUnderlayOrFail();
+
   return (
     <>
-      <ActionBar backUrl="/" title={props.cohort.name} cohort={props.cohort} />
+      <ActionBar backUrl={`/${underlay.name}`} title={props.cohort.name} />
       <Grid container columns={3} className="overview">
         <Grid item xs={1}>
           <Typography variant="h4">Included Participants</Typography>
@@ -72,103 +74,24 @@ export default function Overview(props: OverviewProps) {
 // If group is a string, the criteria is added to the group with that id. If
 // it's a GroupKind, a new group of that kind is added instead.
 function AddCriteriaButton(props: { group: string | GroupKind }) {
-  const { cohortId } = useParams<{ cohortId: string }>();
+  const underlay = useUnderlayOrFail();
+  const cohort = useCohortOrFail();
   const history = useHistory();
   const dispatch = useAppDispatch();
+
+  const configs = useUnderlayOrFail().criteriaConfigs;
 
   const onAddCriteria = (criteria: Criteria) => {
     let groupId = "";
     if (typeof props.group === "string") {
       groupId = props.group;
-      dispatch(insertCriteria({ cohortId, groupId, criteria }));
+      dispatch(insertCriteria({ cohortId: cohort.id, groupId, criteria }));
     } else {
-      const action = dispatch(insertGroup(cohortId, props.group, criteria));
+      const action = dispatch(insertGroup(cohort.id, props.group, criteria));
       groupId = action.payload.group.id;
     }
-    history.push(editRoute(cohortId, groupId, criteria.id));
+    history.push(editRoute(underlay.name, cohort.id, groupId, criteria.id));
   };
-  // TODO(tjennison): Fetch configs from the backend.
-  const columns = [
-    { key: "concept_name", width: "100%", title: "Concept Name" },
-    { key: "concept_id", width: 120, title: "Concept ID" },
-    { key: "standard_concept", width: 180, title: "Source/Standard" },
-    { key: "vocabulary_id", width: 120, title: "Vocab" },
-    { key: "concept_code", width: 120, title: "Code" },
-  ];
-
-  const configs = [
-    {
-      type: "concept",
-      title: "Conditions",
-      defaultName: "Contains Conditions Codes",
-      plugin: {
-        columns,
-        entities: [{ name: "condition", selectable: true, hierarchical: true }],
-      },
-    },
-    {
-      type: "concept",
-      title: "Procedures",
-      defaultName: "Contains Procedures Codes",
-      plugin: {
-        columns,
-        entities: [{ name: "procedure", selectable: true, hierarchical: true }],
-      },
-    },
-    {
-      type: "concept",
-      title: "Observations",
-      defaultName: "Contains Observations Codes",
-      plugin: {
-        columns,
-        entities: [{ name: "observation", selectable: true }],
-      },
-    },
-    {
-      type: "concept",
-      title: "Drugs",
-      defaultName: "Contains Drugs Codes",
-      plugin: {
-        columns,
-        entities: [
-          { name: "ingredient", selectable: true, hierarchical: true },
-          {
-            name: "brand",
-            sourceConcepts: true,
-            attributes: [
-              "concept_name",
-              "concept_id",
-              "standard_concept",
-              "concept_code",
-            ],
-            listChildren: {
-              entity: "ingredient",
-              idPath: "relationshipFilter.filter.binaryFilter.attributeValue",
-              filter: {
-                relationshipFilter: {
-                  outerVariable: "ingredient",
-                  newVariable: "brand",
-                  newEntity: "brand",
-                  filter: {
-                    binaryFilter: {
-                      attributeVariable: {
-                        variable: "brand",
-                        name: "concept_id",
-                      },
-                      operator: tanagra.BinaryFilterOperator.Equals,
-                      attributeValue: {
-                        int64Val: 0,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        ],
-      },
-    },
-  ];
 
   const [menu, show] = useMenu({
     children: configs.map((config) => (
@@ -212,7 +135,8 @@ function ParticipantsGroup(props: { group: Group }) {
 }
 
 function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
-  const { cohortId } = useParams<{ cohortId: string }>();
+  const underlay = useUnderlayOrFail();
+  const cohort = useCohortOrFail();
   const dispatch = useAppDispatch();
 
   const [menu, show] = useMenu({
@@ -220,7 +144,12 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
       <MenuItem
         key="1"
         component={RouterLink}
-        to={editRoute(cohortId, props.group.id, props.criteria.id)}
+        to={editRoute(
+          underlay.name,
+          cohort.id,
+          props.group.id,
+          props.criteria.id
+        )}
       >
         Edit Criteria
       </MenuItem>,
@@ -229,7 +158,7 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
         onClick={() => {
           dispatch(
             deleteCriteria({
-              cohortId,
+              cohortId: cohort.id,
               groupId: props.group.id,
               criteriaId: props.criteria.id,
             })
