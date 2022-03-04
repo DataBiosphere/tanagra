@@ -48,3 +48,6 @@ out/
 *.tar.gz
 *.rar
 
+### Cypress ###
+ui/cypress/videos/
+ui/cypress/screenshots/
