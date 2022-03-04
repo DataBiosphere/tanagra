@@ -1,6 +1,6 @@
+import ActionBar from "actionBar";
 import React from "react";
 import { Redirect, useParams } from "react-router-dom";
-import ActionBar from "./actionBar";
 import { Cohort, getCriteriaPlugin } from "./cohort";
 
 type EditProps = {

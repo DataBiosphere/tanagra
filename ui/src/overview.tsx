@@ -13,12 +13,13 @@ import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import ActionBar from "actionBar";
 import { deleteCriteria, insertCriteria, insertGroup } from "cohortsSlice";
+import { useMenu } from "components/menu";
 import { useAppDispatch } from "hooks";
 import React from "react";
 import { Link as RouterLink, useHistory, useParams } from "react-router-dom";
 import * as tanagra from "tanagra-api";
-import ActionBar from "./actionBar";
 import {
   Cohort,
   createCriteria,
@@ -27,7 +28,6 @@ import {
   Group,
   GroupKind,
 } from "./cohort";
-import { useMenu } from "./menu";
 
 function editRoute(
   cohortId: string,

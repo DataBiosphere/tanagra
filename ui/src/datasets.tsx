@@ -15,11 +15,11 @@ import Paper from "@mui/material/Paper";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import ActionBar from "actionBar";
 import { insertCohort } from "cohortsSlice";
 import { useAppDispatch, useAppSelector } from "hooks";
 import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import ActionBar from "./actionBar";
 import { useSqlDialog } from "./sqlDialog";
 
 type DatasetProps = {

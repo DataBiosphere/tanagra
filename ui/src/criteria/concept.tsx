@@ -4,7 +4,6 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { EntityInstancesApiContext } from "apiContext";
-import Checkbox from "checkbox";
 import {
   Cohort,
   CriteriaConfig,
@@ -13,20 +12,21 @@ import {
   registerCriteriaPlugin,
 } from "cohort";
 import { updateCriteriaData } from "cohortsSlice";
-import { useAsyncWithApi } from "errors";
-import { useAppDispatch } from "hooks";
-import produce from "immer";
-import Loading from "loading";
-import React, { useCallback, useContext, useMemo, useState } from "react";
-import { Search } from "search";
-import * as tanagra from "tanagra-api";
+import Checkbox from "components/checkbox";
+import Loading from "components/loading";
+import { Search } from "components/search";
 import {
   TreeGrid,
   TreeGridColumn,
   TreeGridData,
   TreeGridId,
   TreeGridRowData,
-} from "treegrid";
+} from "components/treegrid";
+import { useAsyncWithApi } from "errors";
+import { useAppDispatch } from "hooks";
+import produce from "immer";
+import React, { useCallback, useContext, useMemo, useState } from "react";
+import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 
 type Selection = {

@@ -3,8 +3,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { EntityInstancesApiContext } from "apiContext";
+import Loading from "components/loading";
 import { useAsyncWithApi } from "errors";
-import Loading from "loading";
 import { ReactElement, useCallback, useContext, useState } from "react";
 import { Cohort, generateQueryParameters } from "./cohort";
 
