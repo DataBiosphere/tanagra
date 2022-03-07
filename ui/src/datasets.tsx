@@ -6,19 +6,15 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { insertCohort } from "cohortsSlice";
-import { useAppDispatch, useAppSelector } from "hooks";
-import { ChangeEvent, ReactNode, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector, useUnderlayOrFail } from "hooks";
+import { ChangeEvent, ReactNode, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useSqlDialog } from "./sqlDialog";
 
@@ -30,17 +26,19 @@ export function Datasets(props: DatasetProps) {
   const dispatch = useAppDispatch();
   const cohorts = useAppSelector((state) => state.cohorts);
 
+  const underlay = useUnderlayOrFail();
+
   const [selected, setSelected] = useState<string[]>([]);
   const [sqlDialog, showSqlDialog] = useSqlDialog({
     cohort: cohorts.find((c) => c.id === selected[0]),
   });
 
   const [dialog, show] = useNewCohortDialog({
-    callback: (name: string, underlayName: string) => {
+    callback: (name: string) => {
       dispatch(
         insertCohort(
           name,
-          underlayName,
+          underlay.name,
           props.entityName,
           // TODO(tjennison): Populate from an actual source.
           ["person_id"]
@@ -62,39 +60,41 @@ export function Datasets(props: DatasetProps) {
 
   return (
     <>
-      <ActionBar title="Datasets" />
+      <ActionBar title="Datasets" backUrl="/" />
       <Grid container columns={2} className="datasets">
         <Grid item xs={1}>
           <Typography variant="h4">Cohorts</Typography>
           <Paper>
-            {cohorts.map((cohort) => (
-              <Box
-                key={cohort.id}
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "baseline",
-                }}
-              >
-                <Checkbox
-                  checked={selected.includes(cohort.id)}
-                  onChange={() => {
-                    onCheck(cohort.id);
+            {cohorts
+              .filter((cohort) => cohort.underlayName === underlay.name)
+              .map((cohort) => (
+                <Box
+                  key={cohort.id}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "baseline",
                   }}
-                />
-                <Typography variant="h5">{cohort.name}&nbsp;</Typography>
-                <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                  ({cohort.underlayName})
-                </Typography>
-                <IconButton
-                  color="inherit"
-                  component={RouterLink}
-                  to={`/cohort/${cohort.id}`}
                 >
-                  <EditIcon />
-                </IconButton>
-              </Box>
-            ))}
+                  <Checkbox
+                    checked={selected.includes(cohort.id)}
+                    onChange={() => {
+                      onCheck(cohort.id);
+                    }}
+                  />
+                  <Typography variant="h5">{cohort.name}&nbsp;</Typography>
+                  <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                    ({cohort.underlayName})
+                  </Typography>
+                  <IconButton
+                    color="inherit"
+                    component={RouterLink}
+                    to={`/${underlay.name}/${cohort.id}`}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Box>
+              ))}
           </Paper>
           <Button variant="contained" onClick={show}>
             New Cohort
@@ -130,7 +130,7 @@ export function Datasets(props: DatasetProps) {
 }
 
 type NewCohortDialogProps = {
-  callback: (name: string, underlayName: string) => void;
+  callback: (name: string) => void;
 };
 
 function useNewCohortDialog(
@@ -146,24 +146,9 @@ function useNewCohortDialog(
     setName(event.target.value);
   };
 
-  const underlayNames = useAppSelector((state) =>
-    state.underlays.map((u) => u.name)
-  );
-
-  const [underlayName, setUnderlayName] = useState("");
-  useEffect(() => {
-    if (!underlayName && underlayNames?.length > 0) {
-      setUnderlayName(underlayNames[0]);
-    }
-  }, [underlayNames]);
-
   const onCreate = () => {
     setOpen(false);
-    props.callback(name, underlayName);
-  };
-
-  const onUnderlayChange = (event: SelectChangeEvent<typeof underlayName>) => {
-    setUnderlayName(event.target.value || "");
+    props.callback(name);
   };
 
   return [
@@ -190,21 +175,6 @@ function useNewCohortDialog(
           value={name}
           onChange={onNameChange}
         />
-        <FormControl>
-          <InputLabel id="dataset-select-label">Dataset</InputLabel>
-          <Select
-            labelId="dataset-select-label"
-            label="Dataset"
-            value={underlayName}
-            onChange={onUnderlayChange}
-          >
-            {underlayNames.map((underlayName) => (
-              <MenuItem key={underlayName} value={underlayName}>
-                {underlayName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
       </DialogContent>
       <DialogActions>
         <Button

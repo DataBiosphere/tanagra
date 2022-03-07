@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { CriteriaConfig } from "cohort";
 import * as tanagra from "tanagra-api";
 
 export type Underlay = {
   name: string;
   entities: tanagra.Entity[];
+  criteriaConfigs: CriteriaConfig[];
 };
 
 const initialState: Underlay[] = [];
