@@ -1,24 +1,15 @@
 import { EntitiesApiContext, UnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
 import { useAsyncWithApi } from "errors";
-import { useAppDispatch, useCohort, useUnderlay } from "hooks";
+import { useAppDispatch } from "hooks";
 import { enableMapSet } from "immer";
 import "plugins";
 import { useCallback, useContext } from "react";
-import {
-  HashRouter,
-  Redirect,
-  Route,
-  Switch,
-  useRouteMatch,
-} from "react-router-dom";
+import { HashRouter } from "react-router-dom";
+import { AppRouter } from "router";
 import * as tanagra from "tanagra-api";
-import { UnderlaySelect } from "underlaySelect";
 import { setUnderlays } from "underlaysSlice";
 import "./app.css";
-import { Datasets } from "./datasets";
-import Edit from "./edit";
-import Overview from "./overview";
 
 enableMapSet();
 
@@ -186,44 +177,9 @@ export default function App() {
 
   return (
     <Loading status={underlaysState}>
-      <HashRouter basename="/">
-        <Switch>
-          <Route exact path="/">
-            <UnderlaySelect />
-          </Route>
-          <Route path="/:underlayName?/:cohortId?">
-            <CohortRouter />
-          </Route>
-        </Switch>
+      <HashRouter>
+        <AppRouter />
       </HashRouter>
     </Loading>
   );
-}
-
-function CohortRouter() {
-  const match = useRouteMatch();
-  const underlay = useUnderlay();
-  const cohort = useCohort();
-
-  if (underlay && cohort) {
-    return (
-      <Switch>
-        <Route path={`${match.path}/edit/:group/:criteria`}>
-          <Edit cohort={cohort} />
-        </Route>
-        <Route path={match.path}>
-          <Overview cohort={cohort} />
-        </Route>
-      </Switch>
-    );
-  }
-  if (underlay) {
-    return (
-      <>
-        <Redirect to={`/${underlay.name}`} />
-        <Datasets />
-      </>
-    );
-  }
-  return <Redirect to="/" />;
 }

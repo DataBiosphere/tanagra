@@ -21,7 +21,7 @@ import { insertCohort } from "cohortsSlice";
 import Loading from "components/loading";
 import { TreeGridData } from "components/treegrid";
 import { useAsyncWithApi } from "errors";
-import { useAppDispatch, useAppSelector, useUnderlayOrFail } from "hooks";
+import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
 import {
   ChangeEvent,
   ReactNode,
@@ -30,7 +30,8 @@ import {
   useContext,
   useState,
 } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
+import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 import { generateQueryFilter } from "./cohort";
@@ -38,8 +39,9 @@ import { generateQueryFilter } from "./cohort";
 export function Datasets() {
   const dispatch = useAppDispatch();
   const cohorts = useAppSelector((state) => state.cohorts);
+  const history = useHistory();
 
-  const underlay = useUnderlayOrFail();
+  const underlay = useUnderlay();
 
   const [selectedCohorts, updateSelectedCohorts] = useImmer(new Set<string>());
   const [selectedConceptSets, updateSelectedConceptSets] = useImmer(
@@ -48,13 +50,19 @@ export function Datasets() {
 
   const [dialog, show] = useNewCohortDialog({
     callback: (name: string) => {
-      dispatch(
+      const action = dispatch(
         insertCohort(
           name,
           underlay.name,
           // TODO(tjennison): Populate from an actual source.
           ["person_id"]
         )
+      );
+      history.push(
+        createUrl({
+          underlayName: underlay.name,
+          cohortId: action.payload.id,
+        })
       );
     },
   });
@@ -75,7 +83,7 @@ export function Datasets() {
 
   return (
     <>
-      <ActionBar title="Datasets" backUrl="/" />
+      <ActionBar title="Datasets" />
       <Grid container columns={3} className="datasets">
         <Grid item xs={1}>
           <Stack direction="row" alignItems="baseline">
@@ -104,7 +112,10 @@ export function Datasets() {
                     id={`edit-cohort-${cohort.name}`}
                     color="inherit"
                     component={RouterLink}
-                    to={`/${underlay.name}/${cohort.id}`}
+                    to={createUrl({
+                      underlayName: underlay.name,
+                      cohortId: cohort.id,
+                    })}
                   >
                     <EditIcon />
                   </IconButton>
@@ -228,7 +239,7 @@ type PreviewProps = {
 };
 
 function Preview(props: PreviewProps) {
-  const underlay = useUnderlayOrFail();
+  const underlay = useUnderlay();
   const cohorts = useAppSelector((state) =>
     state.cohorts.filter((cohort) => props.selectedCohorts.has(cohort.id))
   );
