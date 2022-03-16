@@ -9,7 +9,7 @@ class FakeUnderlaysApi {
         underlays: [
           {
             name: "underlay_name",
-            entityNames: ["entity_name"],
+            entityNames: ["person"],
           },
         ],
       });
@@ -23,7 +23,7 @@ class FakeEntitiesApi {
       resolve({
         entities: [
           {
-            name: "entity_name",
+            name: "person",
             attributes: [
               {
                 name: "attribute_name",

@@ -22,10 +22,6 @@ import Overview from "./overview";
 
 enableMapSet();
 
-type AppProps = {
-  entityName: string;
-};
-
 // TODO(tjennison): Fetch configs from the backend.
 const columns = [
   { key: "concept_name", width: "100%", title: "Concept Name" },
@@ -109,7 +105,41 @@ const criteriaConfigs = [
   },
 ];
 
-export default function App(props: AppProps) {
+// Prepackaged concept sets use _ in the ids to ensure they can't conflict with
+// user generated ones.
+const prepackagedConceptSets = [
+  {
+    id: "_demographics",
+    name: "Demographics",
+    entity: "person",
+  },
+  {
+    id: "_analgesics",
+    name: "Analgesics",
+    entity: "ingredient_occurrence",
+    filter: {
+      relationshipFilter: {
+        outerVariable: "ingredient_occurrence",
+        newVariable: "concept",
+        newEntity: "ingredient",
+        filter: {
+          binaryFilter: {
+            attributeVariable: {
+              variable: "concept",
+              name: "concept_id",
+            },
+            operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
+            attributeValue: {
+              int64Val: 21604253,
+            },
+          },
+        },
+      },
+    },
+  },
+];
+
+export default function App() {
   const dispatch = useAppDispatch();
   const underlaysApi = useContext(UnderlaysApiContext);
   const entitiesApi = useContext(EntitiesApiContext);
@@ -143,8 +173,10 @@ export default function App(props: AppProps) {
 
             return {
               name,
+              primaryEntity: "person",
               entities: entitiesRes.entities,
               criteriaConfigs,
+              prepackagedConceptSets,
             };
           })
         )
@@ -160,7 +192,7 @@ export default function App(props: AppProps) {
             <UnderlaySelect />
           </Route>
           <Route path="/:underlayName?/:cohortId?">
-            <CohortRouter entityName={props.entityName} />
+            <CohortRouter />
           </Route>
         </Switch>
       </HashRouter>
@@ -168,7 +200,7 @@ export default function App(props: AppProps) {
   );
 }
 
-function CohortRouter(props: { entityName: string }) {
+function CohortRouter() {
   const match = useRouteMatch();
   const underlay = useUnderlay();
   const cohort = useCohort();
@@ -189,7 +221,7 @@ function CohortRouter(props: { entityName: string }) {
     return (
       <>
         <Redirect to={`/${underlay.name}`} />
-        <Datasets entityName={props.entityName} />
+        <Datasets />
       </>
     );
   }
