@@ -11,6 +11,7 @@ import { useParentUrl } from "router";
 
 type ActionBarProps = {
   title: string;
+  backUrl?: string;
 };
 
 export default function ActionBar(props: ActionBarProps) {

@@ -74,13 +74,18 @@ export interface Criteria {
   count: number;
   data: unknown;
 }
+export type Item = {
+  title?: string;
+  subItems?: Item[];
+  criteriaConfig?: CriteriaConfig;
+};
 
 // CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
 // possible criteria.
 export interface CriteriaConfig {
   // The plugin type to use for this criteria.
   type: string;
-  title: string;
+  name: string;
   defaultName: string;
 
   // Plugin specific config.

@@ -26,6 +26,7 @@ import {
   getCriteriaPlugin,
   Group,
   GroupKind,
+  Item,
 } from "./cohort";
 
 export default function Overview() {
@@ -66,10 +67,12 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
   const history = useHistory();
   const dispatch = useAppDispatch();
 
-  const configs = underlay.criteriaConfigs;
+  const configs = underlay.criteriaMenu;
+
+  const [, setAnchorEl] = React.useState<HTMLElement | undefined>();
 
   const onAddCriteria = (criteria: Criteria) => {
-    let groupId = "";
+    let groupId: string;
     if (typeof props.group === "string") {
       groupId = props.group;
       dispatch(insertCriteria({ cohortId: cohort.id, groupId, criteria }));
@@ -87,15 +90,59 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
     );
   };
 
-  const [menu, show] = useMenu({
-    children: configs.map((config) => (
+  const handleClick = (
+    event: React.MouseEvent<HTMLElement | undefined, MouseEvent>,
+    config: Item
+  ) => {
+    if (
+      typeof config.criteriaConfig !== "undefined" &&
+      typeof config.subItems === "undefined"
+    ) {
+      onAddCriteria(createCriteria(config.criteriaConfig));
+      setAnchorEl(event.currentTarget);
+      // return show(event);
+    } else {
+      return showSub(event);
+    }
+  };
+
+  const [menu, show] = useMenu(
+    {
+      children: configs.map((config) => (
+        <MenuItem
+          key={config?.title}
+          onClick={(event) => {
+            handleClick(event, config);
+          }}
+        >
+          {config.title || config.criteriaConfig?.name}
+        </MenuItem>
+      )),
+    },
+    false
+  );
+
+  const subMenuConfig =
+    configs[
+      configs.findIndex((item) => {
+        return typeof item.subItems !== "undefined";
+      })
+    ];
+  const [subMenu, showSub] = useMenu({
+    anchorOrigin: {
+      vertical: "top",
+      horizontal: "right",
+    },
+    children: subMenuConfig.subItems?.map((config) => (
       <MenuItem
-        key={config.title}
-        onClick={() => {
-          onAddCriteria(createCriteria(config));
+        key={config.criteriaConfig?.name}
+        onClick={(event) => {
+          if (typeof config.criteriaConfig !== "undefined") {
+            onAddCriteria(createCriteria(config.criteriaConfig));
+          }
         }}
       >
-        {config.title}
+        {config?.criteriaConfig?.name}
       </MenuItem>
     )),
   });
@@ -106,6 +153,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
         Add Criteria
       </Button>
       {menu}
+      {subMenu}
     </>
   );
 }

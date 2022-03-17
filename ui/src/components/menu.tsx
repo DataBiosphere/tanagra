@@ -12,7 +12,8 @@ type MenuProps = Omit<
 export function useMenu({
   children,
   ...props
-}: MenuProps): [
+}: MenuProps,
+clickNclose = true): [
   ReactElement,
   (e: MouseEvent<HTMLElement | undefined>) => void
 ] {
@@ -26,7 +27,7 @@ export function useMenu({
       {...props}
       anchorEl={anchorEl}
       open={!!anchorEl}
-      onClick={() => setAnchorEl(undefined)}
+      onClick={() => {if (clickNclose) {setAnchorEl(undefined)}}}
       onClose={() => setAnchorEl(undefined)}
     >
       {children}

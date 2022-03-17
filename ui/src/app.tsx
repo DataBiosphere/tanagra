@@ -22,77 +22,156 @@ const columns = [
   { key: "concept_code", width: 120, title: "Code" },
 ];
 
-const criteriaConfigs = [
+const criteriaMenu = [
   {
-    type: "concept",
-    title: "Conditions",
-    defaultName: "Contains Conditions Codes",
-    plugin: {
-      columns,
-      entities: [{ name: "condition", selectable: true, hierarchical: true }],
+    criteriaConfig: {
+      type: "concept",
+      name: "Conditions",
+      defaultName: "Contains Conditions Codes",
+      plugin: {
+        columns,
+        entities: [{ name: "condition", selectable: true, hierarchical: true }],
+      },
     },
   },
   {
-    type: "concept",
-    title: "Procedures",
-    defaultName: "Contains Procedures Codes",
-    plugin: {
-      columns,
-      entities: [{ name: "procedure", selectable: true, hierarchical: true }],
+    criteriaConfig: {
+      type: "concept",
+      name: "Procedures",
+      defaultName: "Contains Procedures Codes",
+      plugin: {
+        columns,
+        entities: [{ name: "procedure", selectable: true, hierarchical: true }],
+      },
     },
   },
   {
-    type: "concept",
-    title: "Observations",
-    defaultName: "Contains Observations Codes",
-    plugin: {
-      columns,
-      entities: [{ name: "observation", selectable: true }],
+    criteriaConfig: {
+      type: "concept",
+      name: "Observations",
+      defaultName: "Contains Observations Codes",
+      plugin: {
+        columns,
+        entities: [{ name: "observation", selectable: true }],
+      },
     },
   },
   {
-    type: "concept",
-    title: "Drugs",
-    defaultName: "Contains Drugs Codes",
-    plugin: {
-      columns,
-      entities: [
-        { name: "ingredient", selectable: true, hierarchical: true },
-        {
-          name: "brand",
-          sourceConcepts: true,
-          attributes: [
-            "concept_name",
-            "concept_id",
-            "standard_concept",
-            "concept_code",
-          ],
-          listChildren: {
-            entity: "ingredient",
-            idPath: "relationshipFilter.filter.binaryFilter.attributeValue",
-            filter: {
-              relationshipFilter: {
-                outerVariable: "ingredient",
-                newVariable: "brand",
-                newEntity: "brand",
-                filter: {
-                  binaryFilter: {
-                    attributeVariable: {
-                      variable: "brand",
-                      name: "concept_id",
-                    },
-                    operator: tanagra.BinaryFilterOperator.Equals,
-                    attributeValue: {
-                      int64Val: 0,
+    criteriaConfig: {
+      type: "concept",
+      name: "Drugs",
+      defaultName: "Contains Drugs Codes",
+      plugin: {
+        columns,
+        entities: [
+          { name: "ingredient", selectable: true, hierarchical: true },
+          {
+            name: "brand",
+            sourceConcepts: true,
+            attributes: [
+              "concept_name",
+              "concept_id",
+              "standard_concept",
+              "concept_code",
+            ],
+            listChildren: {
+              entity: "ingredient",
+              idPath: "relationshipFilter.filter.binaryFilter.attributeValue",
+              filter: {
+                relationshipFilter: {
+                  outerVariable: "ingredient",
+                  newVariable: "brand",
+                  newEntity: "brand",
+                  filter: {
+                    binaryFilter: {
+                      attributeVariable: {
+                        variable: "brand",
+                        name: "concept_id",
+                      },
+                      operator: tanagra.BinaryFilterOperator.Equals,
+                      attributeValue: {
+                        int64Val: 0,
+                      },
                     },
                   },
                 },
               },
             },
           },
-        },
-      ],
+        ],
+      },
     },
+  },
+  {
+    title: "Demographics   ➤ ",
+    subItems:[
+      {
+        criteriaConfig: {
+          type: "attribute",
+          name: "Age",
+          defaultName: "Contains Age Codes",
+          plugin: {
+            columns,
+            entities: [{ name: "age", selectable: true }],
+          },
+        },
+      },
+      {
+        criteriaConfig: {
+          type: "attribute",
+          name: "Deceased",
+          defaultName: "Contains Deceased Codes",
+          plugin: {
+            columns,
+            entities: [{ name: "deceased", selectable: true }],
+          },
+        },
+      },
+      {
+        criteriaConfig: {
+          type: "attribute",
+          name: "Ethnicity",
+          defaultName: "Contains Ethnicity Codes",
+          plugin: {
+            columns,
+            entities: [{ name: "ethnicity", selectable: true }],
+          },
+        },
+      },
+      {
+        criteriaConfig: {
+          type: "attribute",
+          name: "Gender Identity",
+          defaultName: "Contains Gender Identity Codes",
+          plugin: {
+            columns,
+            entities: [{ name: "gender identity", selectable: true }],
+          },
+        },
+      },
+      {
+        criteriaConfig: {
+          type: "attribute",
+          name: "Race",
+          defaultName: "Contains Race Codes",
+          plugin: {
+            columns,
+            entities: [{ name: "race", selectable: true }],
+          },
+        },
+      },
+      {
+        criteriaConfig: {
+          type: "attribute",
+          name: "Sex Assigned at Birth",
+          defaultName: "Contains Sex Assigned at Birth Codes",
+          plugin: {
+            columns,
+            entities: [{ name: "sex assigned at birth", selectable: true }],
+          },
+        },
+      },
+    ],
   },
 ];
 
@@ -166,8 +245,8 @@ export default function App() {
               name,
               primaryEntity: "person",
               entities: entitiesRes.entities,
-              criteriaConfigs,
               prepackagedConceptSets,
+              criteriaMenu,
             };
           })
         )

@@ -144,11 +144,16 @@ export function Datasets() {
   };
 
   const [menu, showInsertConceptSet] = useMenu({
-    children: underlay.criteriaConfigs.map((config) => (
+    children: underlay.criteriaMenu.map((config) => (
       <MenuItem
         key={config.title}
         onClick={() => {
-          onInsertConceptSet(createCriteria(config));
+          if (
+            typeof config.criteriaConfig !== "undefined" &&
+            typeof config.subItems === "undefined"
+          ) {
+            onInsertConceptSet(createCriteria(config.criteriaConfig));
+          }
         }}
       >
         {config.title}
