@@ -4,14 +4,7 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { EntityInstancesApiContext } from "apiContext";
-import {
-  Cohort,
-  CriteriaConfig,
-  CriteriaPlugin,
-  Group,
-  registerCriteriaPlugin,
-} from "cohort";
-import { updateCriteriaData } from "cohortsSlice";
+import { CriteriaConfig, CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
 import { Search } from "components/search";
@@ -23,7 +16,7 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { useAsyncWithApi } from "errors";
-import { useAppDispatch } from "hooks";
+import { useCohort } from "hooks";
 import produce from "immer";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import * as tanagra from "tanagra-api";
@@ -77,15 +70,8 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderEdit(cohort: Cohort, group: Group) {
-    return (
-      <ConceptEdit
-        cohort={cohort}
-        group={group}
-        criteriaId={this.id}
-        data={this.data}
-      />
-    );
+  renderEdit(dispatchFn: (data: Data) => void) {
+    return <ConceptEdit dispatchFn={dispatchFn} data={this.data} />;
   }
 
   renderDetails() {
@@ -169,13 +155,13 @@ type HierarchyState = {
 };
 
 type ConceptEditProps = {
-  cohort: Cohort;
-  group: Group;
-  criteriaId: string;
+  dispatchFn: (data: Data) => void;
   data: Data;
 };
 
 function ConceptEdit(props: ConceptEditProps) {
+  const cohort = useCohort();
+
   const [hierarchy, setHierarchy] = useState<HierarchyState | undefined>();
   const [query, setQuery] = useState<string>("");
   const [data, updateData] = useImmer<TreeGridData>({});
@@ -287,7 +273,7 @@ function ConceptEdit(props: ConceptEditProps) {
             searchRequest(
               props.data.columns,
               entity,
-              props.cohort.underlayName,
+              cohort.underlayName,
               !hierarchy ? query : ""
             )
           )
@@ -301,7 +287,7 @@ function ConceptEdit(props: ConceptEditProps) {
     api,
     props.data.columns,
     props.data.entities,
-    props.cohort.underlayName,
+    cohort.underlayName,
     processEntities,
     hierarchy,
     query,
@@ -325,8 +311,6 @@ function ConceptEdit(props: ConceptEditProps) {
     },
     { key: "concept_id", width: 120, title: "Concept ID" },
   ];
-
-  const dispatch = useAppDispatch();
 
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
@@ -367,23 +351,18 @@ function ConceptEdit(props: ConceptEditProps) {
                 fontSize="inherit"
                 checked={index > -1}
                 onChange={() => {
-                  dispatch(
-                    updateCriteriaData({
-                      cohortId: props.cohort.id,
-                      groupId: props.group.id,
-                      criteriaId: props.criteriaId,
-                      data: produce(props.data, (data) => {
-                        if (index > -1) {
-                          data.selected.splice(index, 1);
-                        } else {
-                          const name = rowData["concept_name"];
-                          data.selected.push({
-                            entity: entity.name,
-                            id: id as number,
-                            name: !!name ? String(name) : "",
-                          });
-                        }
-                      }),
+                  props.dispatchFn(
+                    produce(props.data, (data) => {
+                      if (index > -1) {
+                        data.selected.splice(index, 1);
+                      } else {
+                        const name = rowData["concept_name"];
+                        data.selected.push({
+                          entity: entity.name,
+                          id: id as number,
+                          name: !!name ? String(name) : "",
+                        });
+                      }
                     })
                   );
                 }}
@@ -409,14 +388,14 @@ function ConceptEdit(props: ConceptEditProps) {
                 props.data.columns,
                 entity.listChildren,
                 childEntity,
-                props.cohort.underlayName,
+                cohort.underlayName,
                 id as number
               );
             } else {
               req = searchRequest(
                 props.data.columns,
                 entity,
-                props.cohort.underlayName,
+                cohort.underlayName,
                 "",
                 id as number
               );

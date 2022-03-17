@@ -1,16 +1,27 @@
 import ActionBar from "actionBar";
-import { useCohort, useGroupAndCriteria } from "hooks";
+import { updateCriteriaData } from "cohortsSlice";
+import { useAppDispatch, useCohort, useGroupAndCriteria } from "hooks";
 import React from "react";
 import { getCriteriaPlugin } from "./cohort";
 
 export default function Edit() {
+  const dispatch = useAppDispatch();
   const cohort = useCohort();
   const { group, criteria } = useGroupAndCriteria();
 
   return (
     <>
       <ActionBar title={criteria.name} />
-      {getCriteriaPlugin(criteria).renderEdit(cohort, group)}
+      {getCriteriaPlugin(criteria).renderEdit((data: unknown) => {
+        dispatch(
+          updateCriteriaData({
+            cohortId: cohort.id,
+            groupId: group.id,
+            criteriaId: criteria.id,
+            data: data,
+          })
+        );
+      })}
     </>
   );
 }
