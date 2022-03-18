@@ -16,7 +16,7 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { useAsyncWithApi } from "errors";
-import { useCohort } from "hooks";
+import { useUnderlay } from "hooks";
 import produce from "immer";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import * as tanagra from "tanagra-api";
@@ -143,6 +143,15 @@ class _ implements CriteriaPlugin<Data> {
     };
     return ret;
   }
+
+  // TODO(tjennison): Split filter generation into separate paths for
+  // occurrences and primary entities. This will allow occurrence logic to be
+  // centralized and remove the limitation of having a single selectable entity.
+  occurrenceEntities() {
+    return this.data.entities
+      .filter((entity) => entity.selectable)
+      .map((entity) => entity.name + "_occurrence");
+  }
 }
 
 const PATH_ATTRIBUTE = "t_path_concept_id";
@@ -160,7 +169,7 @@ type ConceptEditProps = {
 };
 
 function ConceptEdit(props: ConceptEditProps) {
-  const cohort = useCohort();
+  const underlay = useUnderlay();
 
   const [hierarchy, setHierarchy] = useState<HierarchyState | undefined>();
   const [query, setQuery] = useState<string>("");
@@ -273,7 +282,7 @@ function ConceptEdit(props: ConceptEditProps) {
             searchRequest(
               props.data.columns,
               entity,
-              cohort.underlayName,
+              underlay.name,
               !hierarchy ? query : ""
             )
           )
@@ -287,7 +296,7 @@ function ConceptEdit(props: ConceptEditProps) {
     api,
     props.data.columns,
     props.data.entities,
-    cohort.underlayName,
+    underlay.name,
     processEntities,
     hierarchy,
     query,
@@ -388,14 +397,14 @@ function ConceptEdit(props: ConceptEditProps) {
                 props.data.columns,
                 entity.listChildren,
                 childEntity,
-                cohort.underlayName,
+                underlay.name,
                 id as number
               );
             } else {
               req = searchRequest(
                 props.data.columns,
                 entity,
-                cohort.underlayName,
+                underlay.name,
                 "",
                 id as number
               );

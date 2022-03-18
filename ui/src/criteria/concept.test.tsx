@@ -8,6 +8,7 @@ import { Provider } from "react-redux";
 import { StaticRouter } from "react-router-dom";
 import { AppRouter } from "router";
 import { store } from "store";
+import { setUnderlays } from "underlaysSlice";
 import * as tanagra from "./tanagra-api";
 
 test.each([
@@ -108,6 +109,14 @@ test("selection", async () => {
 });
 
 beforeAll(() => {
+  store.dispatch(
+    setUnderlays([
+      {
+        name: "test-underlay",
+      },
+    ])
+  );
+
   const action = store.dispatch(
     insertCohort("test-cohort", "test-underlay", "test-entity", [])
   );

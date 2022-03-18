@@ -2,13 +2,14 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
+import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Tab from "@mui/material/Tab";
@@ -17,9 +18,18 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { EntityInstancesApiContext } from "apiContext";
+import {
+  createCriteria,
+  Criteria,
+  generateQueryFilter,
+  getCriteriaPlugin,
+} from "cohort";
 import { insertCohort } from "cohortsSlice";
+import Checkbox from "components/checkbox";
 import Loading from "components/loading";
+import { useMenu } from "components/menu";
 import { TreeGridData } from "components/treegrid";
+import { insertConceptSet } from "conceptSetsSlice";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
 import {
@@ -34,11 +44,11 @@ import { Link as RouterLink, useHistory } from "react-router-dom";
 import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
-import { generateQueryFilter } from "./cohort";
 
 export function Datasets() {
   const dispatch = useAppDispatch();
   const cohorts = useAppSelector((state) => state.cohorts);
+  const workspaceConceptSets = useAppSelector((state) => state.conceptSets);
   const history = useHistory();
 
   const underlay = useUnderlay();
@@ -48,7 +58,7 @@ export function Datasets() {
     new Set<string>()
   );
 
-  const [dialog, show] = useNewCohortDialog({
+  const [dialog, showNewCohort] = useNewCohortDialog({
     callback: (name: string) => {
       const action = dispatch(
         insertCohort(
@@ -81,6 +91,64 @@ export function Datasets() {
     });
   };
 
+  const listConceptSets = (
+    editable: boolean,
+    conceptSets: { id: string; name: string }[]
+  ) => {
+    return conceptSets.map((conceptSet) => (
+      <Stack key={conceptSet.name} direction="row" alignItems="center">
+        <Checkbox
+          size="small"
+          fontSize="inherit"
+          name={conceptSet.name}
+          checked={selectedConceptSets.has(conceptSet.id)}
+          onChange={() => onToggle(updateSelectedConceptSets, conceptSet.id)}
+        />
+        {editable ? (
+          <Link
+            variant="h6"
+            color="inherit"
+            underline="hover"
+            component={RouterLink}
+            to={createUrl({
+              underlayName: underlay.name,
+              conceptSetId: conceptSet.id,
+            })}
+          >
+            {conceptSet.name}
+          </Link>
+        ) : (
+          <Typography variant="h6">{conceptSet.name}</Typography>
+        )}
+      </Stack>
+    ));
+  };
+
+  const onInsertConceptSet = (criteria: Criteria) => {
+    const {
+      payload: { id },
+    } = dispatch(insertConceptSet(underlay.name, criteria));
+    history.push(
+      createUrl({
+        underlayName: underlay.name,
+        conceptSetId: id,
+      })
+    );
+  };
+
+  const [menu, showInsertConceptSet] = useMenu({
+    children: underlay.criteriaConfigs.map((config) => (
+      <MenuItem
+        key={config.title}
+        onClick={() => {
+          onInsertConceptSet(createCriteria(config));
+        }}
+      >
+        {config.title}
+      </MenuItem>
+    )),
+  });
+
   return (
     <>
       <ActionBar title="Datasets" />
@@ -90,7 +158,7 @@ export function Datasets() {
             <Typography variant="h4" sx={{ flexGrow: 1 }}>
               1. Select Cohorts
             </Typography>
-            <IconButton id="insert-cohort" onClick={show}>
+            <IconButton id="insert-cohort" onClick={showNewCohort}>
               <AddIcon />
             </IconButton>
             {dialog}
@@ -99,8 +167,10 @@ export function Datasets() {
             {cohorts
               .filter((cohort) => cohort.underlayName === underlay.name)
               .map((cohort) => (
-                <Stack key={cohort.id} direction="row" alignItems="baseline">
+                <Stack key={cohort.id} direction="row" alignItems="center">
                   <Checkbox
+                    size="small"
+                    fontSize="inherit"
                     name={cohort.name}
                     checked={selectedCohorts.has(cohort.id)}
                     onChange={() => onToggle(updateSelectedCohorts, cohort.id)}
@@ -124,25 +194,28 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={1}>
-          <Typography variant="h4">2. Select Concept Sets</Typography>
+          <Stack direction="row" alignItems="baseline">
+            <Typography variant="h4" sx={{ flexGrow: 1 }}>
+              2. Select Concept Sets
+            </Typography>
+            <IconButton id="insert-concept-set" onClick={showInsertConceptSet}>
+              <AddIcon />
+            </IconButton>
+            {menu}
+          </Stack>
           <Paper>
             <Typography variant="h5">Prepackaged</Typography>
-            {underlay.prepackagedConceptSets.map((conceptSet) => (
-              <Stack
-                key={conceptSet.name}
-                direction="row"
-                alignItems="baseline"
-              >
-                <Checkbox
-                  name={conceptSet.name}
-                  checked={selectedConceptSets.has(conceptSet.id)}
-                  onChange={() =>
-                    onToggle(updateSelectedConceptSets, conceptSet.id)
-                  }
-                />
-                <Typography variant="h6">{conceptSet.name}</Typography>
-              </Stack>
-            ))}
+            {listConceptSets(false, underlay.prepackagedConceptSets)}
+            <Typography variant="h5">Workspace</Typography>
+            {listConceptSets(
+              true,
+              workspaceConceptSets
+                .filter((cs) => cs.underlayName === underlay.name)
+                .map((cs) => ({
+                  id: cs.id,
+                  name: cs.criteria.name,
+                }))
+            )}
           </Paper>
         </Grid>
         <Grid item xs={1}>
@@ -243,6 +316,9 @@ function Preview(props: PreviewProps) {
   const cohorts = useAppSelector((state) =>
     state.cohorts.filter((cohort) => props.selectedCohorts.has(cohort.id))
   );
+  const workspaceConceptSets = useAppSelector((state) =>
+    state.conceptSets.filter((cs) => props.selectedConceptSets.has(cs.id))
+  );
   const api = useContext(EntityInstancesApiContext);
 
   const [tab, setTab] = useState(0);
@@ -250,15 +326,29 @@ function Preview(props: PreviewProps) {
   const tabDataState = useAsyncWithApi<PreviewTabData[]>(
     useCallback(async () => {
       const entities = new Map<string, tanagra.Filter[]>();
+      const addFilter = (entity: string, filter?: tanagra.Filter | null) => {
+        if (!entities.has(entity)) {
+          entities.set(entity, []);
+        }
+        if (filter) {
+          entities.get(entity)?.push(filter);
+        }
+      };
+
       underlay.prepackagedConceptSets.forEach((conceptSet) => {
         if (props.selectedConceptSets.has(conceptSet.id)) {
-          if (!entities.has(conceptSet.entity)) {
-            entities.set(conceptSet.entity, []);
-          }
-          if (conceptSet.filter) {
-            entities.get(conceptSet.entity)?.push(conceptSet.filter);
-          }
+          addFilter(conceptSet.entity, conceptSet.filter);
         }
+      });
+
+      workspaceConceptSets.forEach((conceptSet) => {
+        const plugin = getCriteriaPlugin(conceptSet.criteria);
+        if (plugin.occurrenceEntities().length != 1) {
+          throw new Error("Only one entity per concept set is supported.");
+        }
+
+        const entity = plugin.occurrenceEntities()[0];
+        addFilter(entity, plugin.generateFilter(entity, true));
       });
 
       return Promise.all(

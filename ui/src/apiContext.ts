@@ -37,6 +37,35 @@ class FakeEntitiesApi {
               },
             ],
           },
+          {
+            name: "condition_occurrence",
+            attributes: [
+              {
+                name: "attribute_name",
+                dataType: tanagra.DataType.Int64,
+                attributeFilterHint: {
+                  enumHint: {
+                    enumHintValues: [
+                      {
+                        displayName: "Yes",
+                        description: "Yes description",
+                        attributeValue: {
+                          int64Val: 2001,
+                        },
+                      },
+                      {
+                        displayName: "No",
+                        description: "No description",
+                        attributeValue: {
+                          int64Val: 2002,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
         ],
       });
     });

@@ -12,8 +12,14 @@ describe("Basic tests", () => {
     cy.get("button[role=checkbox]").click();
     cy.get("a[aria-label=back]").click();
     cy.get("a[aria-label=back]").click();
-    cy.get("input[name='New Cohort']").click();
-    cy.get("input[name=Demographics]").click();
+
+    cy.get("button[id=insert-concept-set]").click();
+    cy.get("li:Contains(Condition)").click();
+    cy.get("button[role=checkbox]").click();
+    cy.get("a[aria-label=back]").click();
+
+    cy.get("button[name='New Cohort']").click();
+    cy.get("button[name='Contains Conditions Codes']").click();
     cy.contains("SELECT *");
   });
 });
