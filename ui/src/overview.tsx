@@ -16,11 +16,11 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { deleteCriteria, insertCriteria, insertGroup } from "cohortsSlice";
 import { useMenu } from "components/menu";
-import { useAppDispatch, useCohortOrFail, useUnderlayOrFail } from "hooks";
+import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import React from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
+import { createUrl } from "router";
 import {
-  Cohort,
   createCriteria,
   Criteria,
   getCriteriaPlugin,
@@ -28,30 +28,17 @@ import {
   GroupKind,
 } from "./cohort";
 
-function editRoute(
-  underlayName: string,
-  cohortId: string,
-  groupId: string,
-  criteriaId: string
-): string {
-  return `/${underlayName}/${cohortId}/edit/${groupId}/${criteriaId}`;
-}
-
-type OverviewProps = {
-  cohort: Cohort;
-};
-
-export default function Overview(props: OverviewProps) {
-  const underlay = useUnderlayOrFail();
+export default function Overview() {
+  const cohort = useCohort();
 
   return (
     <>
-      <ActionBar backUrl={`/${underlay.name}`} title={props.cohort.name} />
+      <ActionBar title={cohort.name} />
       <Grid container columns={3} className="overview">
         <Grid item xs={1}>
           <Typography variant="h4">Included Participants</Typography>
           <Stack spacing={0}>
-            {props.cohort.groups
+            {cohort.groups
               .filter((g) => g.kind === GroupKind.Included)
               .map((group) => (
                 <Box key={group.id}>
@@ -74,12 +61,12 @@ export default function Overview(props: OverviewProps) {
 // If group is a string, the criteria is added to the group with that id. If
 // it's a GroupKind, a new group of that kind is added instead.
 function AddCriteriaButton(props: { group: string | GroupKind }) {
-  const underlay = useUnderlayOrFail();
-  const cohort = useCohortOrFail();
+  const underlay = useUnderlay();
+  const cohort = useCohort();
   const history = useHistory();
   const dispatch = useAppDispatch();
 
-  const configs = useUnderlayOrFail().criteriaConfigs;
+  const configs = underlay.criteriaConfigs;
 
   const onAddCriteria = (criteria: Criteria) => {
     let groupId = "";
@@ -90,7 +77,14 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       const action = dispatch(insertGroup(cohort.id, props.group, criteria));
       groupId = action.payload.group.id;
     }
-    history.push(editRoute(underlay.name, cohort.id, groupId, criteria.id));
+    history.push(
+      createUrl({
+        underlayName: underlay.name,
+        cohortId: cohort.id,
+        groupId,
+        criteriaId: criteria.id,
+      })
+    );
   };
 
   const [menu, show] = useMenu({
@@ -135,8 +129,8 @@ function ParticipantsGroup(props: { group: Group }) {
 }
 
 function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
-  const underlay = useUnderlayOrFail();
-  const cohort = useCohortOrFail();
+  const underlay = useUnderlay();
+  const cohort = useCohort();
   const dispatch = useAppDispatch();
 
   const [menu, show] = useMenu({
@@ -144,12 +138,12 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
       <MenuItem
         key="1"
         component={RouterLink}
-        to={editRoute(
-          underlay.name,
-          cohort.id,
-          props.group.id,
-          props.criteria.id
-        )}
+        to={createUrl({
+          underlayName: underlay.name,
+          cohortId: cohort.id,
+          groupId: props.group.id,
+          criteriaId: props.criteria.id,
+        })}
       >
         Edit Criteria
       </MenuItem>,

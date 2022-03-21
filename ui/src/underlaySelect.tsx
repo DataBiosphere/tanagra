@@ -5,6 +5,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ActionBar from "actionBar";
 import { useAppSelector } from "hooks";
 import { Link as RouterLink } from "react-router-dom";
+import { createUrl } from "router";
 
 export function UnderlaySelect() {
   const underlays = useAppSelector((state) => state.underlays);
@@ -15,7 +16,10 @@ export function UnderlaySelect() {
       <List>
         {underlays.map((underlay) => (
           <ListItem key={underlay.name}>
-            <ListItemButton component={RouterLink} to={`/${underlay.name}`}>
+            <ListItemButton
+              component={RouterLink}
+              to={createUrl({ underlayName: underlay.name })}
+            >
               <ListItemText primary={underlay.name}></ListItemText>
             </ListItemButton>
           </ListItem>

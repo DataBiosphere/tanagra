@@ -7,7 +7,6 @@ describe("Basic tests", () => {
 
     cy.get("button[id=insert-cohort]").click();
     cy.get("button:Contains(Create)").click();
-    cy.get("a[id^=edit-cohort]").click();
     cy.get("button:Contains(Add Criteria)").click();
     cy.get("li:Contains(Conditions)").click();
     cy.get("button[role=checkbox]").click();
