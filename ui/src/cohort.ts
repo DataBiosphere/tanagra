@@ -92,7 +92,7 @@ export interface CriteriaConfig {
 export interface CriteriaPlugin<DataType> {
   id: string;
   data: DataType;
-  renderEdit: (cohort: Cohort, group: Group) => JSX.Element;
+  renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
   renderDetails: () => JSX.Element;
   generateFilter: (
     entityVar: string,

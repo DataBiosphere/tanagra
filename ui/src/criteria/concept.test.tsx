@@ -5,6 +5,8 @@ import { createCriteria, getCriteriaPlugin, GroupKind } from "cohort";
 import { insertCohort, insertGroup } from "cohortsSlice";
 import "criteria/concept";
 import { Provider } from "react-redux";
+import { StaticRouter } from "react-router-dom";
+import { AppRouter } from "router";
 import { store } from "store";
 import * as tanagra from "./tanagra-api";
 
@@ -105,9 +107,7 @@ test("selection", async () => {
   expect(getSelected()).toEqual([101]);
 });
 
-async function renderCriteria(
-  instances: Array<{ [key: string]: tanagra.AttributeValue }>
-) {
+beforeAll(() => {
   const action = store.dispatch(
     insertCohort("test-cohort", "test-underlay", "test-entity", [])
   );
@@ -134,7 +134,11 @@ async function renderCriteria(
       })
     )
   );
+});
 
+async function renderCriteria(
+  instances: Array<{ [key: string]: tanagra.AttributeValue }>
+) {
   const getCriteria = () => store.getState().cohorts[0].groups[0].criteria[0];
 
   const api = {
@@ -147,13 +151,20 @@ async function renderCriteria(
     },
   };
 
+  const cohort = store.getState().cohorts[0];
+  const group = cohort.groups[0];
+  const criteria = group.criteria[0];
+
   const components = () => (
     <Provider store={store}>
       <EntityInstancesApiContext.Provider value={api}>
-        {getCriteriaPlugin(getCriteria()).renderEdit(
-          store.getState().cohorts[0],
-          store.getState().cohorts[0].groups[0]
-        )}
+        <StaticRouter
+          location={`/test-underlay/cohorts/${cohort.id}/edit/${group.id}/${criteria.id}`}
+        >
+          <AppRouter>
+            {getCriteriaPlugin(getCriteria()).renderEdit(jest.fn())}
+          </AppRouter>
+        </StaticRouter>
       </EntityInstancesApiContext.Provider>
     </Provider>
   );
