@@ -27,11 +27,22 @@ Array [
             }
           }
         >
-          <h6
-            className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
+          <div
+            style={
+              Object {
+                "overflow": "hidden",
+                "textOverflow": "ellipsis",
+                "whiteSpace": "nowrap",
+              }
+            }
           >
-            Column 1
-          </h6>
+            <h6
+              className="MuiTypography-root MuiTypography-h6 css-1to91m4-MuiTypography-root"
+              title="Column 1"
+            >
+              Column 1
+            </h6>
+          </div>
         </td>
         <td
           style={
@@ -42,11 +53,22 @@ Array [
             }
           }
         >
-          <h6
-            className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
+          <div
+            style={
+              Object {
+                "overflow": "hidden",
+                "textOverflow": "ellipsis",
+                "whiteSpace": "nowrap",
+              }
+            }
           >
-            Column 2
-          </h6>
+            <h6
+              className="MuiTypography-root MuiTypography-h6 css-1to91m4-MuiTypography-root"
+              title="Column 2"
+            >
+              Column 2
+            </h6>
+          </div>
         </td>
         <td
           style={
@@ -57,21 +79,32 @@ Array [
             }
           }
         >
-          <h6
-            className="MuiTypography-root MuiTypography-h6 css-2ulfj5-MuiTypography-root"
+          <div
+            style={
+              Object {
+                "overflow": "hidden",
+                "textOverflow": "ellipsis",
+                "whiteSpace": "nowrap",
+              }
+            }
           >
-            <svg
-              aria-hidden={true}
-              className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-              data-testid="AccountTreeIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
+            <h6
+              className="MuiTypography-root MuiTypography-h6 css-1to91m4-MuiTypography-root"
+              title="[object Object]"
             >
-              <path
-                d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
-              />
-            </svg>
-          </h6>
+              <svg
+                aria-hidden={true}
+                className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="AccountTreeIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
+                />
+              </svg>
+            </h6>
+          </div>
         </td>
       </tr>
     </thead>
@@ -79,7 +112,7 @@ Array [
   <div
     style={
       Object {
-        "display": "block",
+        "display": "inline-block",
         "overflowY": "auto",
       }
     }
@@ -116,12 +149,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="1-col1"
               >
                 <button
@@ -178,12 +206,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="1-col2"
               >
                 1-col2
@@ -209,12 +232,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title=""
               >
                 
@@ -249,12 +267,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="2-col1"
               >
                 2-col1
@@ -280,12 +293,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="2-col2"
               >
                 2-col2
@@ -311,12 +319,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="2-col3"
               >
                 2-col3
@@ -347,12 +350,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="3-col1"
               >
                 3-col1
@@ -378,12 +376,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="3-col2"
               >
                 3-col2
@@ -409,12 +402,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-fvtpii-MuiTypography-root"
-                style={
-                  Object {
-                    "display": "inline",
-                  }
-                }
+                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title=""
               >
                 <svg
