@@ -98,6 +98,7 @@ export interface CriteriaPlugin<DataType> {
     entityVar: string,
     fromOccurrence: boolean
   ) => tanagra.Filter | null;
+  occurrenceEntities: () => string[];
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically

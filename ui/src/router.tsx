@@ -1,4 +1,5 @@
 import Button from "@mui/material/Button";
+import ConceptSetEdit from "conceptSetEdit";
 import Edit from "edit";
 import { PathError } from "hooks";
 import Overview from "overview";
@@ -18,6 +19,7 @@ const pages = {
   "/:underlayName": Datasets,
   "/:underlayName/cohorts/:cohortId": Overview,
   "/:underlayName/cohorts/:cohortId/edit/:groupId/:criteriaId": Edit,
+  "/:underlayName/conceptSets/:conceptSetId": ConceptSetEdit,
 };
 
 export function AppRouter() {
@@ -50,6 +52,7 @@ export type UrlParams = {
   cohortId?: string;
   groupId?: string;
   criteriaId?: string;
+  conceptSetId?: string;
 };
 
 export function createUrl(params: UrlParams): string {

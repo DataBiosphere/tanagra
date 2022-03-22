@@ -7,6 +7,7 @@ export type CheckboxProps = {
   onChange?: () => void;
   size?: "small" | "medium" | "large";
   fontSize?: "small" | "medium" | "large" | "inherit";
+  name?: string;
 };
 
 export default function Checkbox({
@@ -14,11 +15,13 @@ export default function Checkbox({
   onChange,
   size,
   fontSize,
+  name,
 }: CheckboxProps) {
   return (
     <IconButton
       role={"checkbox"}
       size={size}
+      name={name}
       onClick={() => {
         if (onChange) {
           onChange();

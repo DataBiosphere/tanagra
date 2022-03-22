@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import cohortsReducer from "cohortsSlice";
+import conceptSetsReducer from "conceptSetsSlice";
 import underlaysReducer from "underlaysSlice";
 
 export const store = configureStore({
   reducer: {
     cohorts: cohortsReducer,
     underlays: underlaysReducer,
+    conceptSets: conceptSetsReducer,
   },
 });
 

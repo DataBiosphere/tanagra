@@ -43,3 +43,14 @@ export function useGroupAndCriteria() {
   }
   return { group, criteria };
 }
+
+export function useConceptSet() {
+  const { conceptSetId } = useParams<{ conceptSetId: string }>();
+  const conceptSet = useAppSelector((state) =>
+    state.conceptSets.find((conceptSet) => conceptSet.id === conceptSetId)
+  );
+  if (!conceptSet) {
+    throw new PathError(`Unknown concept set "${conceptSetId}".`);
+  }
+  return conceptSet;
+}
