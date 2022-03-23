@@ -551,7 +551,7 @@ function Preview(props: PreviewProps) {
             ))}
           </Tabs>
           <Typography variant="button">Data</Typography>
-          <Switch onChange={onQueriesModeChange} />
+          <Switch onChange={onQueriesModeChange} name="queries-mode" />
           <Typography variant="button">Queries</Typography>
         </Stack>
         {queriesMode ? (

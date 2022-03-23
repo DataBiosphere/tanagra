@@ -160,7 +160,7 @@ beforeAll(() => {
 });
 
 async function renderCriteria(
-  instances: Array<{ [key: string]: tanagra.AttributeValue }>
+  instances: Array<{ [key: string]: tanagra.AttributeValue | null }>
 ) {
   const getCriteria = () => store.getState().cohorts[0].groups[0].criteria[0];
 
