@@ -1,71 +1,80 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EntityInstancesApiContext } from "apiContext";
-import { createCriteria, getCriteriaPlugin, GroupKind } from "cohort";
+import { createCriteria, GroupKind } from "cohort";
 import { insertCohort, insertGroup } from "cohortsSlice";
 import "criteria/concept";
 import { Provider } from "react-redux";
 import { StaticRouter } from "react-router-dom";
 import { AppRouter } from "router";
 import { store } from "store";
+import * as tanagra from "tanagra-api";
 import { setUnderlays } from "underlaysSlice";
-import * as tanagra from "./tanagra-api";
+import { Data } from "./concept";
 
-test.each([
-  [
-    "source",
-    {
-      instance: {
-        concept_name: {
-          stringVal: "test-concept",
-        },
-        concept_id: {
-          int64Val: 1234,
-        },
-        domain_id: {
-          int64Val: 5678,
-        },
-        standard_concept: null,
-      },
-      matches: ["test-concept", "1234", "Source"],
-    },
-  ],
-  [
-    "standard",
-    {
-      instance: {
-        concept_name: {
-          stringVal: "test-concept",
-        },
-        concept_id: {
-          int64Val: 1234,
-        },
-        standard_concept: {
-          stringVal: "S",
-        },
-      },
-      matches: ["test-concept", "1234", "Standard"],
-    },
-  ],
-  [
-    "missing concept_id",
-    {
-      instance: {
-        concept_name: {
-          stringVal: "test-concept",
-        },
-      },
-      notMatches: ["test-concept"],
-    },
-  ],
-])("%s", async (name, { instance, matches, notMatches }) => {
-  await renderCriteria([instance]);
+// The Typescript compiler can't map the different parameters of the test cases
+// to a single type without actually having a type defined.
+type TestCase = {
+  name: string;
+  instance: { [key: string]: tanagra.AttributeValue | null };
+  matches?: string[];
+  notMatches?: string[];
+};
 
-  matches?.forEach((match) => screen.getByText(match));
-  notMatches?.forEach((match) => {
-    expect(screen.queryByText(match)).not.toBeInTheDocument();
-  });
-});
+const testCases: TestCase[] = [
+  {
+    name: "source",
+    instance: {
+      concept_name: {
+        stringVal: "test-concept",
+      },
+      concept_id: {
+        int64Val: 1234,
+      },
+      domain_id: {
+        int64Val: 5678,
+      },
+      standard_concept: null,
+    },
+    matches: ["test-concept", "1234", "Source"],
+  },
+  {
+    name: "standard",
+    instance: {
+      concept_name: {
+        stringVal: "test-concept",
+      },
+      concept_id: {
+        int64Val: 1234,
+      },
+      standard_concept: {
+        stringVal: "S",
+      },
+    },
+    matches: ["test-concept", "1234", "Standard"],
+  },
+  {
+    name: "missing concept_id",
+    instance: {
+      concept_name: {
+        stringVal: "test-concept",
+      },
+    },
+    notMatches: ["test-concept"],
+  },
+];
+
+test.each(testCases)(
+  "$name",
+  async ({ instance, matches = [], notMatches = [] }) => {
+    await renderCriteria([instance]);
+
+    matches?.forEach((match) => screen.getByText(match));
+    notMatches?.forEach((match) => {
+      expect(screen.queryByText(match)).not.toBeInTheDocument();
+    });
+  }
+);
 
 test("selection", async () => {
   const { getCriteria, rerender } = await renderCriteria([
@@ -84,9 +93,10 @@ test("selection", async () => {
   const checkboxes = screen.getAllByRole("checkbox");
   expect(checkboxes.length).toBe(2);
 
-  expect(getCriteria().data.selected.length).toBe(0);
+  const getData = () => getCriteria().data as Data;
+  expect(getData().selected.length).toBe(0);
 
-  const getSelected = () => getCriteria().data.selected.map((row) => row.id);
+  const getSelected = () => getData().selected.map((row) => row.id);
 
   // Use act explicitly because DataGrid has a focus update that occurs after
   // the event (i.e. outside of act) which causes a warning.
@@ -113,12 +123,16 @@ beforeAll(() => {
     setUnderlays([
       {
         name: "test-underlay",
+        primaryEntity: "test-entity",
+        entities: [],
+        criteriaConfigs: [],
+        prepackagedConceptSets: [],
       },
     ])
   );
 
   const action = store.dispatch(
-    insertCohort("test-cohort", "test-underlay", "test-entity", [])
+    insertCohort("test-cohort", "test-underlay", ["test-entity"])
   );
   store.dispatch(
     insertGroup(
@@ -158,6 +172,7 @@ async function renderCriteria(
         });
       });
     },
+    generateDatasetSqlQuery: jest.fn(),
   };
 
   const cohort = store.getState().cohorts[0];
@@ -170,9 +185,7 @@ async function renderCriteria(
         <StaticRouter
           location={`/test-underlay/cohorts/${cohort.id}/edit/${group.id}/${criteria.id}`}
         >
-          <AppRouter>
-            {getCriteriaPlugin(getCriteria()).renderEdit(jest.fn())}
-          </AppRouter>
+          <AppRouter />
         </StaticRouter>
       </EntityInstancesApiContext.Provider>
     </Provider>

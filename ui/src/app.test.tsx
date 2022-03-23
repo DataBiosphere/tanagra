@@ -8,7 +8,7 @@ import App from "./app";
 test("render included datasets heading", async () => {
   render(
     <Provider store={store}>
-      <App entityName={"person"} />
+      <App />
     </Provider>
   );
   await waitFor(() => {

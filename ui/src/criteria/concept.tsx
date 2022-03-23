@@ -54,7 +54,8 @@ interface Config extends CriteriaConfig {
   entities: EntityConfig[];
 }
 
-interface Data extends Config {
+// Exported for testing purposes.
+export interface Data extends Config {
   selected: Selection[];
 }
 

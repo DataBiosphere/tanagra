@@ -574,6 +574,7 @@ components:
         instances:
           type: array
           description: Repeated instances results of the search.
+          nullable: true
           items:
             $ref: '#/components/schemas/EntityInstanceStruct'
         nextPageToken:
