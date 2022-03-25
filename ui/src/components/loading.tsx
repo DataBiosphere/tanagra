@@ -6,8 +6,8 @@ import React, { ReactNode, useEffect, useRef, useState } from "react";
 
 type Status = {
   error?: Error;
-  isPending?: boolean;
-  reload?: () => void;
+  isPending: boolean;
+  reload: () => void;
 };
 
 type Props = {
@@ -54,7 +54,7 @@ function showStatus(visible: boolean, status?: Status): ReactNode {
           <Typography paragraph>An unknown error has occurred.</Typography>
         )}
         <div>
-          <Button onClick={status?.reload} variant="contained">
+          <Button onClick={status.reload} variant="contained">
             Reload
           </Button>
         </div>

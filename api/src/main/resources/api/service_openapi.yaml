@@ -574,7 +574,6 @@ components:
         instances:
           type: array
           description: Repeated instances results of the search.
-          nullable: true
           items:
             $ref: '#/components/schemas/EntityInstanceStruct'
         nextPageToken:
@@ -585,5 +584,4 @@ components:
       description: A map of an entity instance attribute names to their value for this instance.
       additionalProperties:
         type: object
-        nullable: true
         $ref: '#/components/schemas/AttributeValue'

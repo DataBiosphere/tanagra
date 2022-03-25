@@ -21,7 +21,6 @@ import produce from "immer";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
-import { isValid } from "util/valid";
 
 type Selection = {
   entity: string;
@@ -55,8 +54,7 @@ interface Config extends CriteriaConfig {
   entities: EntityConfig[];
 }
 
-// Exported for testing purposes.
-export interface Data extends Config {
+interface Data extends Config {
   selected: Selection[];
 }
 
@@ -426,6 +424,10 @@ function ConceptEdit(props: ConceptEditProps) {
       </Loading>
     </>
   );
+}
+
+function isValid<Type>(arg: Type) {
+  return arg !== null && typeof arg !== "undefined";
 }
 
 function findEntity(

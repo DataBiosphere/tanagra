@@ -34,8 +34,6 @@ export type TreeGridProps = {
   defaultExpanded?: TreeGridId[];
   prefixElements?: (id: TreeGridId, data: TreeGridRowData) => ReactNode;
   loadChildren?: (id: TreeGridId) => Promise<void>;
-  variableWidth?: boolean;
-  wrapBodyText?: boolean;
 };
 
 export function TreeGrid(props: TreeGridProps) {
@@ -108,7 +106,7 @@ export function TreeGrid(props: TreeGridProps) {
       <table
         style={{
           tableLayout: "fixed",
-          ...(!props.variableWidth ? { width: "100%" } : undefined),
+          width: "100%",
         }}
       >
         <thead
@@ -128,23 +126,7 @@ export function TreeGrid(props: TreeGridProps) {
                   }),
                 }}
               >
-                <div
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    title={String(col.title)}
-                    sx={{
-                      display: "inline",
-                    }}
-                  >
-                    {col.title}
-                  </Typography>
-                </div>
+                <Typography variant="h6">{col.title}</Typography>
               </td>
             ))}
           </tr>
@@ -153,7 +135,7 @@ export function TreeGrid(props: TreeGridProps) {
       <div
         style={{
           overflowY: "auto",
-          display: "inline-block",
+          display: "block",
         }}
       >
         <table
@@ -225,21 +207,17 @@ function renderChildren(
             >
               <div
                 style={{
-                  ...(props.wrapBodyText
-                    ? { wordBreak: "break-all" }
-                    : {
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                      }),
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
                   ...(i === 0 && { paddingLeft: `${indent}em` }),
                 }}
               >
                 <Typography
                   variant="body1"
-                  noWrap={!props.wrapBodyText}
+                  noWrap
                   title={title}
-                  sx={{
+                  style={{
                     display: "inline",
                   }}
                 >
