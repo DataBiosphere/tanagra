@@ -1,6 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -12,6 +11,7 @@ import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import TextField from "@mui/material/TextField";
@@ -28,7 +28,7 @@ import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
-import { TreeGridData } from "components/treegrid";
+import { TreeGrid, TreeGridData, TreeGridRowData } from "components/treegrid";
 import { insertConceptSet } from "conceptSetsSlice";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
@@ -44,6 +44,7 @@ import { Link as RouterLink, useHistory } from "react-router-dom";
 import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
+import { isValid } from "util/valid";
 
 export function Datasets() {
   const dispatch = useAppDispatch();
@@ -57,6 +58,11 @@ export function Datasets() {
   const [selectedConceptSets, updateSelectedConceptSets] = useImmer(
     new Set<string>()
   );
+  const [excludedAttributes, updateExcludedAttributes] = useImmer(
+    new Map<string, Set<string>>()
+  );
+
+  const conceptSetEntities = useConceptSetEntities(selectedConceptSets);
 
   const [dialog, showNewCohort] = useNewCohortDialog({
     callback: (name: string) => {
@@ -163,7 +169,10 @@ export function Datasets() {
             </IconButton>
             {dialog}
           </Stack>
-          <Paper>
+          <Paper
+            sx={{ overflowY: "auto", display: "block" }}
+            className="datasets-select-panel"
+          >
             {cohorts
               .filter((cohort) => cohort.underlayName === underlay.name)
               .map((cohort) => (
@@ -203,7 +212,10 @@ export function Datasets() {
             </IconButton>
             {menu}
           </Stack>
-          <Paper>
+          <Paper
+            sx={{ overflowY: "auto", display: "block" }}
+            className="datasets-select-panel"
+          >
             <Typography variant="h5">Prepackaged</Typography>
             {listConceptSets(false, underlay.prepackagedConceptSets)}
             <Typography variant="h5">Workspace</Typography>
@@ -223,7 +235,39 @@ export function Datasets() {
             <Typography variant="h4">3. Values</Typography>
             <Typography variant="h5">(Columns)</Typography>
           </Stack>
-          <Paper>{/* TODO(tjennison): Implement attribute selection. */}</Paper>
+          <Paper
+            sx={{ overflowY: "auto", display: "block" }}
+            className="datasets-select-panel"
+          >
+            {conceptSetEntities.map((entity) => (
+              <>
+                <Typography variant="h5">{entity.name}</Typography>
+                {entity.attributes.map((attribute) => (
+                  <Stack key={attribute} direction="row" alignItems="center">
+                    <Checkbox
+                      size="small"
+                      fontSize="inherit"
+                      name={entity + "-" + attribute}
+                      checked={
+                        !excludedAttributes.get(entity.name)?.has(attribute)
+                      }
+                      onChange={() =>
+                        updateExcludedAttributes((selection) => {
+                          const attributes = selection?.get(entity.name);
+                          if (attributes?.has(attribute)) {
+                            attributes?.delete(attribute);
+                          } else {
+                            attributes?.add(attribute);
+                          }
+                        })
+                      }
+                    />
+                    <Typography variant="h6">{attribute}</Typography>
+                  </Stack>
+                ))}
+              </>
+            ))}
+          </Paper>
         </Grid>
         <Grid item xs={3}>
           <Paper>
@@ -231,6 +275,7 @@ export function Datasets() {
               <Preview
                 selectedCohorts={selectedCohorts}
                 selectedConceptSets={selectedConceptSets}
+                conceptSetEntities={conceptSetEntities}
               />
             ) : (
               <Typography variant="h5">
@@ -306,9 +351,65 @@ function useNewCohortDialog(
   ];
 }
 
+type ConceptSetEntity = {
+  name: string;
+  attributes: string[];
+  filters: tanagra.Filter[];
+};
+
+function useConceptSetEntities(
+  selectedConceptSets: Set<string>
+): ConceptSetEntity[] {
+  const underlay = useUnderlay();
+
+  const entities = new Map<string, tanagra.Filter[]>();
+  const addFilter = (entity: string, filter?: tanagra.Filter | null) => {
+    if (!entities.has(entity)) {
+      entities.set(entity, []);
+    }
+    if (filter) {
+      entities.get(entity)?.push(filter);
+    }
+  };
+
+  underlay.prepackagedConceptSets.forEach((conceptSet) => {
+    if (selectedConceptSets.has(conceptSet.id)) {
+      addFilter(conceptSet.entity, conceptSet.filter);
+    }
+  });
+
+  const workspaceConceptSets = useAppSelector((state) =>
+    state.conceptSets.filter((cs) => selectedConceptSets.has(cs.id))
+  );
+  workspaceConceptSets.forEach((conceptSet) => {
+    const plugin = getCriteriaPlugin(conceptSet.criteria);
+    if (plugin.occurrenceEntities().length != 1) {
+      throw new Error("Only one entity per concept set is supported.");
+    }
+
+    const entity = plugin.occurrenceEntities()[0];
+    addFilter(entity, plugin.generateFilter(entity, true));
+  });
+
+  return Array.from(entities)
+    .sort()
+    .map(([entityName, filters]) => {
+      const attributes = underlay.entities
+        .find((entity) => entity.name === entityName)
+        ?.attributes?.map((attribute) => attribute.name || "unknown")
+        ?.filter((attribute) => !attribute.startsWith("t_"));
+      return {
+        name: entityName,
+        attributes: attributes || [],
+        filters,
+      };
+    });
+}
+
 type PreviewProps = {
   selectedCohorts: Set<string>;
   selectedConceptSets: Set<string>;
+  conceptSetEntities: ConceptSetEntity[];
 };
 
 function Preview(props: PreviewProps) {
@@ -316,43 +417,15 @@ function Preview(props: PreviewProps) {
   const cohorts = useAppSelector((state) =>
     state.cohorts.filter((cohort) => props.selectedCohorts.has(cohort.id))
   );
-  const workspaceConceptSets = useAppSelector((state) =>
-    state.conceptSets.filter((cs) => props.selectedConceptSets.has(cs.id))
-  );
   const api = useContext(EntityInstancesApiContext);
 
   const [tab, setTab] = useState(0);
+  const [queriesMode, setQueriesMode] = useState(false);
 
   const tabDataState = useAsyncWithApi<PreviewTabData[]>(
     useCallback(async () => {
-      const entities = new Map<string, tanagra.Filter[]>();
-      const addFilter = (entity: string, filter?: tanagra.Filter | null) => {
-        if (!entities.has(entity)) {
-          entities.set(entity, []);
-        }
-        if (filter) {
-          entities.get(entity)?.push(filter);
-        }
-      };
-
-      underlay.prepackagedConceptSets.forEach((conceptSet) => {
-        if (props.selectedConceptSets.has(conceptSet.id)) {
-          addFilter(conceptSet.entity, conceptSet.filter);
-        }
-      });
-
-      workspaceConceptSets.forEach((conceptSet) => {
-        const plugin = getCriteriaPlugin(conceptSet.criteria);
-        if (plugin.occurrenceEntities().length != 1) {
-          throw new Error("Only one entity per concept set is supported.");
-        }
-
-        const entity = plugin.occurrenceEntities()[0];
-        addFilter(entity, plugin.generateFilter(entity, true));
-      });
-
       return Promise.all(
-        Array.from(entities).map(async ([entity, filters]) => {
+        props.conceptSetEntities.map(async (entity) => {
           let filter: tanagra.Filter = {
             arrayFilter: {
               operands: cohorts
@@ -364,25 +437,25 @@ function Preview(props: PreviewProps) {
             },
           };
 
-          if (entity !== underlay.primaryEntity) {
+          if (entity.name !== underlay.primaryEntity) {
             filter = {
               arrayFilter: {
                 operator: tanagra.ArrayFilterOperator.And,
                 operands: [
                   {
                     relationshipFilter: {
-                      outerVariable: entity,
+                      outerVariable: entity.name,
                       newVariable: underlay.primaryEntity,
                       newEntity: underlay.primaryEntity,
                       filter: filter,
                     },
                   },
-                  ...(filters.length > 0
+                  ...(entity.filters.length > 0
                     ? [
                         {
                           arrayFilter: {
                             operator: tanagra.ArrayFilterOperator.Or,
-                            operands: filters,
+                            operands: entity.filters,
                           },
                         },
                       ]
@@ -392,27 +465,16 @@ function Preview(props: PreviewProps) {
             };
           }
 
-          const attributes = underlay.entities
-            .find((e) => e.name === entity)
-            ?.attributes?.map((attribute) => attribute.name)
-            .filter(
-              (attribute): attribute is string =>
-                !!attribute && !attribute.startsWith("t_")
-            );
-          if (!attributes) {
-            throw new Error(`No attributes for "${entity}"`);
-          }
-
           const entityDataset = {
-            entityVariable: entity,
-            selectedAttributes: attributes,
+            entityVariable: entity.name,
+            selectedAttributes: entity.attributes,
             filter: filter,
           };
 
           const dataParts = await Promise.all([
             (async () => {
               const res = await api.generateDatasetSqlQuery({
-                entityName: entity,
+                entityName: entity.name,
                 underlayName: underlay.name,
                 generateDatasetSqlQueryRequest: {
                   entityDataset,
@@ -425,13 +487,40 @@ function Preview(props: PreviewProps) {
               return res.query;
             })(),
             (async () => {
-              // TODO(tjennison): Fetch entity instances and refactor processing
-              // code from criteria/concept.
-              return {};
+              const res = await api.searchEntityInstances({
+                entityName: entity.name,
+                underlayName: underlay.name,
+                searchEntityInstancesRequest: {
+                  entityDataset,
+                },
+              });
+
+              const data: TreeGridData = {
+                root: { data: {}, children: [] },
+              };
+              res?.instances?.slice(0, 100)?.forEach((instance, i) => {
+                const row: TreeGridRowData = {};
+                for (const k in instance) {
+                  const v = instance[k];
+                  if (!v) {
+                    row[k] = "";
+                  } else if (isValid(v.int64Val)) {
+                    row[k] = v.int64Val;
+                  } else if (isValid(v.boolVal)) {
+                    row[k] = v.boolVal;
+                  } else {
+                    row[k] = v.stringVal;
+                  }
+                }
+
+                data[i] = { data: row };
+                data.root?.children?.push(i);
+              });
+              return data;
             })(),
           ]);
           return {
-            entity,
+            entity: entity.name,
             sql: dataParts[0],
             data: dataParts[1],
           };
@@ -440,23 +529,56 @@ function Preview(props: PreviewProps) {
     }, [props.selectedCohorts, props.selectedConceptSets])
   );
 
-  const handleChange = (event: SyntheticEvent, newValue: number) => {
+  const onTabChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
+  };
+
+  const onQueriesModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQueriesMode(event.target.checked);
   };
 
   return (
     <>
       <Loading status={tabDataState}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs value={tab} onChange={handleChange}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ borderBottom: 1, borderColor: "divider" }}
+        >
+          <Tabs value={tab} onChange={onTabChange} sx={{ flexGrow: 1 }}>
             {tabDataState.data?.map((data) => (
               <Tab key={data.entity} label={data.entity} />
             ))}
           </Tabs>
-        </Box>
-        <Typography sx={{ fontFamily: "monospace" }}>
-          {tabDataState.data?.[tab]?.sql}
-        </Typography>
+          <Typography variant="button">Data</Typography>
+          <Switch onChange={onQueriesModeChange} name="queries-mode" />
+          <Typography variant="button">Queries</Typography>
+        </Stack>
+        {queriesMode ? (
+          <Typography sx={{ fontFamily: "monospace" }}>
+            {tabDataState.data?.[tab]?.sql}
+          </Typography>
+        ) : tabDataState.data?.[tab]?.data ? (
+          <div
+            style={{
+              overflowX: "auto",
+              display: "block",
+            }}
+          >
+            <TreeGrid
+              data={tabDataState.data?.[tab]?.data}
+              columns={props.conceptSetEntities[tab]?.attributes.map(
+                (attribute) => ({
+                  key: attribute,
+                  width: 120,
+                  title: attribute,
+                })
+              )}
+              variableWidth
+              wrapBodyText
+            />
+          </div>
+        ) : undefined}
       </Loading>
     </>
   );

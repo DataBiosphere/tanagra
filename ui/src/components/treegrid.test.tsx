@@ -1,8 +1,8 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import IconButton from "@mui/material/IconButton";
-import renderer from "react-test-renderer";
 import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
+import renderer from "react-test-renderer";
 
 test("Table renders correctly", () => {
   const columns = [
