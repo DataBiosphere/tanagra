@@ -1,5 +1,4 @@
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -185,20 +184,18 @@ export function Datasets() {
                     checked={selectedCohorts.has(cohort.id)}
                     onChange={() => onToggle(updateSelectedCohorts, cohort.id)}
                   />
-                  <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                    {cohort.name}&nbsp;
-                  </Typography>
-                  <IconButton
-                    id={`edit-cohort-${cohort.name}`}
+                  <Link
+                    variant="h6"
                     color="inherit"
+                    underline="hover"
                     component={RouterLink}
                     to={createUrl({
                       underlayName: underlay.name,
                       cohortId: cohort.id,
                     })}
                   >
-                    <EditIcon />
-                  </IconButton>
+                    {cohort.name}
+                  </Link>
                 </Stack>
               ))}
           </Paper>
