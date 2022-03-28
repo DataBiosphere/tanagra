@@ -20,6 +20,10 @@ describe("Basic tests", () => {
 
     cy.get("button[name='New Cohort']").click();
     cy.get("button[name='Contains Conditions Codes']").click();
+
+    cy.get("button:Contains('condition_occurrence')");
+
+    cy.get("input[name='queries-mode']").click();
     cy.contains("SELECT *");
   });
 });
