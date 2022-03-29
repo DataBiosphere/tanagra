@@ -9,6 +9,7 @@ import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
@@ -100,7 +101,6 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
     ) {
       onAddCriteria(createCriteria(config.criteriaConfig));
       setAnchorEl(event.currentTarget);
-      // return show(event);
     } else {
       return showSub(event);
     }
@@ -138,7 +138,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
         key={config.criteriaConfig?.name}
         onClick={(event) => {
           if (typeof config.criteriaConfig !== "undefined") {
-            onAddCriteria(createCriteria(config.criteriaConfig));
+            handleClick(event, config);
           }
         }}
       >
@@ -185,18 +185,6 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
     children: [
       <MenuItem
         key="1"
-        component={RouterLink}
-        to={createUrl({
-          underlayName: underlay.name,
-          cohortId: cohort.id,
-          groupId: props.group.id,
-          criteriaId: props.criteria.id,
-        })}
-      >
-        Edit Criteria
-      </MenuItem>,
-      <MenuItem
-        key="2"
         onClick={() => {
           dispatch(
             deleteCriteria({
@@ -228,7 +216,20 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
           className="criteria-accordion"
         >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">{props.criteria.name}</Typography>
+            <Link
+              variant="h6"
+              color="inherit"
+              underline="hover"
+              component={RouterLink}
+              to={createUrl({
+                underlayName: underlay.name,
+                cohortId: cohort.id,
+                groupId: props.group.id,
+                criteriaId: props.criteria.id,
+              })}
+            >
+              {props.criteria.name}
+            </Link>
             <Divider orientation="vertical" variant="middle" flexItem />
             <Typography variant="body1">{props.criteria.count}</Typography>
           </AccordionSummary>

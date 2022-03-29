@@ -25,5 +25,9 @@ describe("Basic tests", () => {
 
     cy.get("input[name='queries-mode']").click();
     cy.contains("SELECT *");
+
+    cy.get("a:Contains('New Cohort')").click();
+    cy.get("a:Contains('Contains Conditions Codes')").click();
+    cy.contains("test concept");
   });
 });
