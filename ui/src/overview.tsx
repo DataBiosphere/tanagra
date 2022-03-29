@@ -100,7 +100,6 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
     ) {
       onAddCriteria(createCriteria(config.criteriaConfig));
       setAnchorEl(event.currentTarget);
-      // return show(event);
     } else {
       return showSub(event);
     }
@@ -138,7 +137,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
         key={config.criteriaConfig?.name}
         onClick={(event) => {
           if (typeof config.criteriaConfig !== "undefined") {
-            onAddCriteria(createCriteria(config.criteriaConfig));
+            handleClick(event, config);
           }
         }}
       >
