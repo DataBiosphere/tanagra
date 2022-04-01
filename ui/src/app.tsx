@@ -94,6 +94,60 @@ const criteriaConfigs = [
       ],
     },
   },
+  {
+    type: "attribute",
+    title: "Age",
+    defaultName: "Contains Age Codes",
+    plugin: {
+      columns,
+      entity: "age",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Deceased",
+    defaultName: "Contains Deceased Codes",
+    plugin: {
+      columns,
+      entity: "deceased",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Ethnicity",
+    defaultName: "Contains Ethnicity Codes",
+    plugin: {
+      columns,
+      entity: "ethnicity",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Gender Identity",
+    defaultName: "Contains Gender Identity Codes",
+    plugin: {
+      columns,
+      entity: "gender",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Race",
+    defaultName: "Contains Race Codes",
+    plugin: {
+      columns,
+      entity: "race",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Sex Assigned at Birth",
+    defaultName: "Contains Sex Assigned at Birth Codes",
+    plugin: {
+      columns,
+      entity: "sex_at_birth",
+    },
+  },
 ];
 
 // Prepackaged concept sets use _ in the ids to ensure they can't conflict with
@@ -153,7 +207,7 @@ export default function App() {
 
       dispatch(
         setUnderlays(
-          entitiesResList.map((entitiesRes, i) => {
+        entitiesResList.map((entitiesRes, i) => {
             const name = res.underlays?.[i]?.name;
             if (!name) {
               throw new Error("Unnamed underlay.");

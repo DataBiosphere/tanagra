@@ -1,17 +1,10 @@
 import { Checkbox, FormControlLabel, ListItem } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import {
-  Cohort,
-  CriteriaConfig,
-  CriteriaPlugin,
-  Group,
-  registerCriteriaPlugin,
-} from "cohort";
+import { CriteriaConfig, CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import produce from "immer";
 import React from "react";
 import * as tanagra from "tanagra-api";
-import { updateCriteriaData } from "../cohortsSlice";
 import { useAppDispatch, useUnderlay } from "../hooks";
 
 type Selection = {
@@ -20,23 +13,9 @@ type Selection = {
   name: string;
 };
 
-type ListChildrenConfig = {
-  entity: string;
-  idPath: string;
-  filter: tanagra.Filter;
-};
-
-type EntityConfig = {
-  name: string;
-  selectable?: boolean;
-  sourceConcepts?: boolean;
-  attributes?: string[];
-  hierarchical?: boolean;
-  listChildren?: ListChildrenConfig;
-};
 
 interface Config extends CriteriaConfig {
-  entities: EntityConfig[];
+  entity: string;
 }
 
 interface Data extends Config {
@@ -60,12 +39,13 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   renderEdit(dispatchFn: (data: Data) => void) {
+    console.log(this.data)
     return <AttributeEdit dispatchFn={dispatchFn} data={this.data} />;
   }
 
   renderDetails() {
     return <ConceptDetails data={this.data} />;
-  };
+  }
 
   generateFilter(entityVar: string, fromOccurrence: boolean) {
     return null;
@@ -79,27 +59,26 @@ class _ implements CriteriaPlugin<Data> {
 function AttributeEdit(props: AttributeEditProps) {
   const dispatch = useAppDispatch();
   const underlay = useUnderlay();
-  const demographic = props.data.entities[0].name;
-  const demographicName = verifyName(demographic);
+  const attribute = props.data.entity;
+  const attributeName = verifyName(attribute);
 
   function verifyName(demographic: string) {
-    if (demographic == "sex assigned at birth") {
-      demographic = "sex_at_birth";
-    } else if (demographic == "gender identity") {
-      demographic = "gender";
-    }
     return demographic.concat("_concept_id");
   }
 
-  const categoryList = underlay?.entities
-    .filter((g) => g.name === "person")[0]
-    .attributes?.filter((g) => g.name === demographicName)[0]
-    .attributeFilterHint?.enumHint?.enumHintValues;
+  function hintDisplayName(hint: tanagra.EnumHintValue) {
+    return hint.displayName || "Unknown Value";
+  }
+
+  const enumHintValues = underlay?.entities
+    .filter((g) => g.name === underlay.primaryEntity)[0]
+    .attributes?.filter((g) => g.name === attributeName)[0].attributeFilterHint
+    ?.enumHint?.enumHintValues;
   const index =
-    categoryList?.map((hint) => {
+    enumHintValues?.map((hint) => {
       return props.data.selected.findIndex(
         (row) =>
-          row.entity === demographic &&
+          row.entity === attribute &&
           row.id === (hint.attributeValue?.int64Val as number)
       );
     }) || [];
@@ -107,10 +86,10 @@ function AttributeEdit(props: AttributeEditProps) {
 
   return (
     <>
-      {categoryList?.map((hint, idx) => (
-        <ListItem key={hint.displayName || ""}>
+      {enumHintValues?.map((hint, idx) => (
+        <ListItem key={hintDisplayName(hint)}>
           <FormControlLabel
-            label={hint.displayName || ""}
+            label={hintDisplayName(hint)}
             control={
               <Checkbox
                 size="small"
@@ -122,11 +101,10 @@ function AttributeEdit(props: AttributeEditProps) {
                       if (index[idx] > -1) {
                         data.selected.splice(index[idx], 1);
                       } else {
-                        const name = hint.displayName;
                         data.selected.push({
-                          entity: demographic,
+                          entity: attribute,
                           id: hint.attributeValue?.int64Val as number,
-                          name: !!name ? String(name) : "",
+                          name: hintDisplayName(hint),
                         });
                       }
                     })
