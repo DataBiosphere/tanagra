@@ -6,8 +6,8 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
 import { useMenu } from "components/menu";
+import React from "react";
 
 function MenuButton(props: { onMenuItem: () => void }) {
   const [menu, show] = useMenu({
