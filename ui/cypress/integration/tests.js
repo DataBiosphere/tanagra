@@ -12,9 +12,9 @@ describe("Basic tests", () => {
     cy.get("button[role=checkbox]").click();
     cy.get("a[aria-label=back]").click();
 
-    cy.get("button:Contains(Add Criteria)").click();
+    cy.get("button:Contains(Add Criteria)").first().click();
     cy.get("li:Contains(Race)").click();
-    cy.get("button[role=checkbox]").click();
+    // required attribute.test.tsx cy.get("button[role=checkbox]").click();
     cy.get("a[aria-label=back]").click();
     cy.get("a[aria-label=back]").click();
 

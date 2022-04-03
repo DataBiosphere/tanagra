@@ -96,29 +96,10 @@ const criteriaConfigs = [
   },
   {
     type: "attribute",
-    title: "Age",
-    defaultName: "Contains Age Codes",
-    plugin: {
-      columns,
-      entity: "age",
-    },
-  },
-  {
-    type: "attribute",
-    title: "Deceased",
-    defaultName: "Contains Deceased Codes",
-    plugin: {
-      columns,
-      entity: "deceased",
-    },
-  },
-  {
-    type: "attribute",
     title: "Ethnicity",
     defaultName: "Contains Ethnicity Codes",
     plugin: {
-      columns,
-      entity: "ethnicity",
+      entity: "ethnicity_concept_id",
     },
   },
   {
@@ -126,8 +107,7 @@ const criteriaConfigs = [
     title: "Gender Identity",
     defaultName: "Contains Gender Identity Codes",
     plugin: {
-      columns,
-      entity: "gender",
+      entity: "gender_concept_id",
     },
   },
   {
@@ -135,8 +115,7 @@ const criteriaConfigs = [
     title: "Race",
     defaultName: "Contains Race Codes",
     plugin: {
-      columns,
-      entity: "race",
+      entity: "race_concept_id",
     },
   },
   {
@@ -144,8 +123,7 @@ const criteriaConfigs = [
     title: "Sex Assigned at Birth",
     defaultName: "Contains Sex Assigned at Birth Codes",
     plugin: {
-      columns,
-      entity: "sex_at_birth",
+      entity: "sex_at_birth_concept_id",
     },
   },
 ];
@@ -207,7 +185,7 @@ export default function App() {
 
       dispatch(
         setUnderlays(
-        entitiesResList.map((entitiesRes, i) => {
+          entitiesResList.map((entitiesRes, i) => {
             const name = res.underlays?.[i]?.name;
             if (!name) {
               throw new Error("Unnamed underlay.");

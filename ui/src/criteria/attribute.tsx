@@ -8,11 +8,9 @@ import * as tanagra from "tanagra-api";
 import { useAppDispatch, useUnderlay } from "../hooks";
 
 type Selection = {
-  entity: string;
   id: number;
   name: string;
 };
-
 
 interface Config extends CriteriaConfig {
   entity: string;
@@ -39,7 +37,6 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   renderEdit(dispatchFn: (data: Data) => void) {
-    console.log(this.data)
     return <AttributeEdit dispatchFn={dispatchFn} data={this.data} />;
   }
 
@@ -59,50 +56,38 @@ class _ implements CriteriaPlugin<Data> {
 function AttributeEdit(props: AttributeEditProps) {
   const dispatch = useAppDispatch();
   const underlay = useUnderlay();
-  const attribute = props.data.entity;
-  const attributeName = verifyName(attribute);
+  const attributeName = props.data.entity;
 
-  function verifyName(demographic: string) {
-    return demographic.concat("_concept_id");
-  }
+  const hintDisplayName = (hint: tanagra.EnumHintValue) =>
+    hint.displayName || "Unknown Value";
 
-  function hintDisplayName(hint: tanagra.EnumHintValue) {
-    return hint.displayName || "Unknown Value";
-  }
+  const enumHintValues = underlay.entities
+    .find((g) => g.name === underlay.primaryEntity)
+    ?.attributes?.find((attribute) => attribute.name === attributeName)
+    ?.attributeFilterHint?.enumHint?.enumHintValues;
 
-  const enumHintValues = underlay?.entities
-    .filter((g) => g.name === underlay.primaryEntity)[0]
-    .attributes?.filter((g) => g.name === attributeName)[0].attributeFilterHint
-    ?.enumHint?.enumHintValues;
-  const index =
-    enumHintValues?.map((hint) => {
-      return props.data.selected.findIndex(
-        (row) =>
-          row.entity === attribute &&
-          row.id === (hint.attributeValue?.int64Val as number)
-      );
-    }) || [];
-  console.log(index);
+  const selectionIndex = (hint: tanagra.EnumHintValue) =>
+    props.data.selected.findIndex(
+      (row) => row.id === hint.attributeValue?.int64Val
+    );
 
   return (
     <>
-      {enumHintValues?.map((hint, idx) => (
+      {enumHintValues?.map((hint: tanagra.EnumHintValue) => (
         <ListItem key={hintDisplayName(hint)}>
           <FormControlLabel
             label={hintDisplayName(hint)}
             control={
               <Checkbox
                 size="small"
-                checked={index[idx] > -1}
+                checked={selectionIndex(hint) > -1}
                 onChange={() => {
                   props.dispatchFn(
                     produce(props.data, (data) => {
-                      console.log(idx, index[idx]);
-                      if (index[idx] > -1) {
-                        data.selected.splice(index[idx], 1);
+                      if (selectionIndex(hint) > -1) {
+                        data.selected.splice(selectionIndex(hint), 1);
                       } else {
                         data.selected.push({
-                          entity: attribute,
                           id: hint.attributeValue?.int64Val as number,
                           name: hintDisplayName(hint),
                         });
