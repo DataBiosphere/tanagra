@@ -99,7 +99,7 @@ const criteriaConfigs = [
     title: "Ethnicity",
     defaultName: "Contains Ethnicity Codes",
     plugin: {
-      entity: "ethnicity_concept_id",
+      attribute: "ethnicity_concept_id",
     },
   },
   {
@@ -107,7 +107,7 @@ const criteriaConfigs = [
     title: "Gender Identity",
     defaultName: "Contains Gender Identity Codes",
     plugin: {
-      entity: "gender_concept_id",
+      attribute: "gender_concept_id",
     },
   },
   {
@@ -115,7 +115,7 @@ const criteriaConfigs = [
     title: "Race",
     defaultName: "Contains Race Codes",
     plugin: {
-      entity: "race_concept_id",
+      attribute: "race_concept_id",
     },
   },
   {
@@ -123,7 +123,7 @@ const criteriaConfigs = [
     title: "Sex Assigned at Birth",
     defaultName: "Contains Sex Assigned at Birth Codes",
     plugin: {
-      entity: "sex_at_birth_concept_id",
+      attribute: "sex_at_birth_concept_id",
     },
   },
 ];

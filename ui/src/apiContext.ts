@@ -35,6 +35,30 @@ class FakeEntitiesApi {
                   },
                 },
               },
+              {
+                name: "race_concept_id",
+                dataType: tanagra.DataType.Int64,
+                attributeFilterHint: {
+                  enumHint: {
+                    enumHintValues: [
+                      {
+                        displayName: "Asian",
+                        description: "",
+                        attributeValue: {
+                          int64Val: 8515,
+                        },
+                      },
+                      {
+                        displayName: "Black or African American",
+                        description: "",
+                        attributeValue: {
+                          int64Val: 8516,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
             ],
           },
           {

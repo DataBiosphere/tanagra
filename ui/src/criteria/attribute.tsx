@@ -13,7 +13,7 @@ type Selection = {
 };
 
 interface Config extends CriteriaConfig {
-  entity: string;
+  attribute: string;
 }
 
 interface Data extends Config {
@@ -49,8 +49,8 @@ class _ implements CriteriaPlugin<Data> {
     if (this.data.selected.length === 0) {
       return null;
     }
-    console.log(entityVar);
-    console.log(fromOccurrence);
+    // TODO(ginay): Implement generateFilter
+    console.log(entityVar, fromOccurrence);
     return null;
   }
 
@@ -61,7 +61,7 @@ class _ implements CriteriaPlugin<Data> {
 
 function AttributeEdit(props: AttributeEditProps) {
   const underlay = useUnderlay();
-  const attributeName = props.data.entity;
+  const attributeName = props.data.attribute;
 
   const hintDisplayName = (hint: tanagra.EnumHintValue) =>
     hint.displayName || "Unknown Value";
@@ -76,37 +76,41 @@ function AttributeEdit(props: AttributeEditProps) {
       (row) => row.id === hint.attributeValue?.int64Val
     );
 
-  return (
-    <>
-      {enumHintValues?.map((hint: tanagra.EnumHintValue) => (
-        <ListItem key={hintDisplayName(hint)}>
-          <FormControlLabel
-            label={hintDisplayName(hint)}
-            control={
-              <Checkbox
-                size="small"
-                checked={selectionIndex(hint) > -1}
-                onChange={() => {
-                  props.dispatchFn(
-                    produce(props.data, (data) => {
-                      if (selectionIndex(hint) > -1) {
-                        data.selected.splice(selectionIndex(hint), 1);
-                      } else {
-                        data.selected.push({
-                          id: hint.attributeValue?.int64Val as number,
-                          name: hintDisplayName(hint),
-                        });
-                      }
-                    })
-                  );
-                }}
-              />
-            }
-          />
-        </ListItem>
-      ))}
-    </>
-  );
+  if (enumHintValues?.length === 0) {
+    return <div>No attribute information!</div>;
+  } else {
+    return (
+      <>
+        {enumHintValues?.map((hint: tanagra.EnumHintValue) => (
+          <ListItem key={hintDisplayName(hint)}>
+            <FormControlLabel
+              label={hintDisplayName(hint)}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={selectionIndex(hint) > -1}
+                  onChange={() => {
+                    props.dispatchFn(
+                      produce(props.data, (data) => {
+                        if (selectionIndex(hint) > -1) {
+                          data.selected.splice(selectionIndex(hint), 1);
+                        } else {
+                          data.selected.push({
+                            id: hint.attributeValue?.int64Val as number,
+                            name: hintDisplayName(hint),
+                          });
+                        }
+                      })
+                    );
+                  }}
+                />
+              }
+            />
+          </ListItem>
+        ))}
+      </>
+    );
+  }
 }
 
 type ConceptDetailsProps = {
