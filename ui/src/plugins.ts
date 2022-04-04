@@ -1,4 +1,4 @@
 // Core plugins
-import "criteria/concept";
 import "criteria/attribute";
+import "criteria/concept";
 // User plugins

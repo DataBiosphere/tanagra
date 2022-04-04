@@ -5,7 +5,7 @@ import { CriteriaConfig, CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import produce from "immer";
 import React from "react";
 import * as tanagra from "tanagra-api";
-import { useAppDispatch, useUnderlay } from "../hooks";
+import { useUnderlay } from "../hooks";
 
 type Selection = {
   id: number;
@@ -29,6 +29,7 @@ type AttributeEditProps = {
   ...(config.plugin as Config),
   selected: [],
 }))
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
 
@@ -45,6 +46,11 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter(entityVar: string, fromOccurrence: boolean) {
+    if (this.data.selected.length === 0) {
+      return null;
+    }
+    console.log(entityVar);
+    console.log(fromOccurrence);
     return null;
   }
 
@@ -54,7 +60,6 @@ class _ implements CriteriaPlugin<Data> {
 }
 
 function AttributeEdit(props: AttributeEditProps) {
-  const dispatch = useAppDispatch();
   const underlay = useUnderlay();
   const attributeName = props.data.entity;
 
