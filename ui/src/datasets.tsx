@@ -251,6 +251,10 @@ export function Datasets() {
                       }
                       onChange={() =>
                         updateExcludedAttributes((selection) => {
+                          if (!selection?.get(entity.name)) {
+                            selection?.set(entity.name, new Set<string>());
+                          }
+
                           const attributes = selection?.get(entity.name);
                           if (attributes?.has(attribute)) {
                             attributes?.delete(attribute);
