@@ -45,13 +45,31 @@ class _ implements CriteriaPlugin<Data> {
     return <ConceptDetails data={this.data} />;
   }
 
-  generateFilter(entityVar: string, fromOccurrence: boolean) {
+  generateFilter() {
     if (this.data.selected.length === 0) {
       return null;
     }
-    // TODO(ginay): Implement generateFilter
-    console.log(entityVar, fromOccurrence);
-    return null;
+
+    const operands = () =>
+      this.data.selected.map(({ id }) => ({
+        binaryFilter: {
+          attributeVariable: {
+            variable: "person",
+            name: this.data.attribute,
+          },
+          operator: tanagra.BinaryFilterOperator.Equals,
+          attributeValue: {
+            int64Val: id,
+          },
+        },
+      }));
+
+    return {
+      arrayFilter: {
+        operands: operands(),
+        operator: tanagra.ArrayFilterOperator.Or,
+      },
+    };
   }
 
   occurrenceEntities() {
@@ -77,7 +95,7 @@ function AttributeEdit(props: AttributeEditProps) {
     );
 
   if (enumHintValues?.length === 0) {
-    return <div>No attribute information!</div>;
+    return <Typography>No attribute information!</Typography>;
   } else {
     return (
       <>
