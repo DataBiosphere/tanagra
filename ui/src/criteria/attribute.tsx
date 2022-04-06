@@ -94,7 +94,7 @@ function AttributeEdit(props: AttributeEditProps) {
   if (enumHintValues?.length === 0) {
     return (
       <Typography>
-        {'No information for attribute "${props.data.attribute}".'}
+        No information for attribute {props.data.attribute}.
       </Typography>
     );
   }
