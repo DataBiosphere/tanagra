@@ -94,6 +94,38 @@ const criteriaConfigs = [
       ],
     },
   },
+  {
+    type: "attribute",
+    title: "Ethnicity",
+    defaultName: "Contains Ethnicity Codes",
+    plugin: {
+      attribute: "ethnicity_concept_id",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Gender Identity",
+    defaultName: "Contains Gender Identity Codes",
+    plugin: {
+      attribute: "gender_concept_id",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Race",
+    defaultName: "Contains Race Codes",
+    plugin: {
+      attribute: "race_concept_id",
+    },
+  },
+  {
+    type: "attribute",
+    title: "Sex Assigned at Birth",
+    defaultName: "Contains Sex Assigned at Birth Codes",
+    plugin: {
+      attribute: "sex_at_birth_concept_id",
+    },
+  },
 ];
 
 // Prepackaged concept sets use _ in the ids to ensure they can't conflict with
