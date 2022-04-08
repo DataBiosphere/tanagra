@@ -6,10 +6,6 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
@@ -17,7 +13,6 @@ import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -26,9 +21,10 @@ import {
   insertGroup,
   renameCriteria,
 } from "cohortsSlice";
+import { useDialog } from "components/dialog";
 import { useMenu } from "components/menu";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
-import React, { ChangeEvent, ReactNode, useState } from "react";
+import React from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import { createUrl } from "router";
 import {
@@ -139,77 +135,16 @@ function ParticipantsGroup(props: { group: Group }) {
   );
 }
 
-type RenameCriteriaDialogProps = {
-  callback: (name: string) => void;
-  name: string;
-};
-
-function useRenameCriteriaDialog(
-  props: RenameCriteriaDialogProps
-): [ReactNode, () => void] {
-  const [open, setOpen] = useState(false);
-  const show = () => {
-    setOpen(true);
-  };
-
-  const [name, setName] = useState(props.name);
-  const onNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const onCreate = () => {
-    setOpen(false);
-    props.callback(name);
-  };
-
-  return [
-    // eslint-disable-next-line react/jsx-key
-    <Dialog
-      open={open}
-      onClose={() => {
-        setOpen(false);
-      }}
-      aria-labelledby="rename-criteria-dialog-title"
-      maxWidth="sm"
-      fullWidth
-      className="rename-criteria-dialog"
-    >
-      <DialogTitle id="rename-criteria-dialog-title">
-        Edit Criteria Name
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          id="name"
-          label="Criteria Name"
-          fullWidth
-          variant="standard"
-          value={name}
-          onChange={onNameChange}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button
-          variant="contained"
-          disabled={name.length === 0}
-          onClick={onCreate}
-        >
-          Rename
-        </Button>
-      </DialogActions>
-    </Dialog>,
-    show,
-  ];
-}
-
 function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
   const underlay = useUnderlay();
   const cohort = useCohort();
   const dispatch = useAppDispatch();
 
-  const [dialog, showRenameCriteria] = useRenameCriteriaDialog({
-    name: props.criteria.name,
+  const [dialog, showRenameCriteria] = useDialog({
+    title: "Edit Criteria Name",
+    titleId: "rename-criteria-dialog-title",
+    textLabel: "Criteria Name",
+    className: "rename-criteria-dialog",
     callback: (name: string) => {
       dispatch(
         renameCriteria({
