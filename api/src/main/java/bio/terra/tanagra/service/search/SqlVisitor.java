@@ -165,6 +165,8 @@ public class SqlVisitor {
       switch (binaryFunction.operator()) {
         case LESS_THAN:
           return String.format("%s < %s", leftSql, rightSql);
+        case GREATER_THAN:
+          return String.format("%s > %s", leftSql, rightSql);
         case EQUALS:
           return valueIsNull
               ? String.format("%s IS %s", leftSql, rightSql)
