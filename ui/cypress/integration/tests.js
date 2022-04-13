@@ -16,6 +16,11 @@ describe("Basic tests", () => {
     cy.get("li:Contains(Race)").click();
     cy.get('[type = "checkbox"]').check();
     cy.get("a[aria-label=back]").click();
+
+    cy.get("button:Contains(Add Criteria)").first().click();
+    cy.get("li:Contains(Age)").click();
+    cy.get("input").first().type("30");
+    cy.get("a[aria-label=back]").click();
     cy.get("a[aria-label=back]").click();
 
     cy.get("button[id=insert-concept-set]").click();
