@@ -148,12 +148,12 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
     buttonHint: "Confirm",
     callback: (name: string) => {
       dispatch(
-          renameCriteria({
-            cohortId: cohort.id,
-            groupId: props.group.id,
-            criteriaId: props.criteria.id,
-            criteriaName: name,
-          })
+        renameCriteria({
+          cohortId: cohort.id,
+          groupId: props.group.id,
+          criteriaId: props.criteria.id,
+          criteriaName: name,
+        })
       );
     },
   });

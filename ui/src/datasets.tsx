@@ -19,9 +19,9 @@ import {
 } from "cohort";
 import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
+import { useTextInputDialog } from "components/dialog";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
-import { useTextInputDialog } from "components/dialog";
 import { TreeGrid, TreeGridData, TreeGridRowData } from "components/treegrid";
 import { insertConceptSet } from "conceptSetsSlice";
 import { useAsyncWithApi } from "errors";

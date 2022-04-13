@@ -15,7 +15,9 @@ type NewDialogProps = {
   callback: (name: string) => void;
 };
 
-export function useTextInputDialog(props: NewDialogProps): [ReactNode, () => void] {
+export function useTextInputDialog(
+  props: NewDialogProps
+): [ReactNode, () => void] {
   const [open, setOpen] = useState(false);
   const show = () => {
     setOpen(true);
@@ -38,7 +40,7 @@ export function useTextInputDialog(props: NewDialogProps): [ReactNode, () => voi
       onClose={() => {
         setOpen(false);
       }}
-      aria-labelledby= "text-input-dialog-title"
+      aria-labelledby="text-input-dialog-title"
       maxWidth="sm"
       fullWidth
       className="text-input-dialog-name"
