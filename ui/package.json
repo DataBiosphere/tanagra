@@ -50,7 +50,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "codegen": "rm -rf src/tanagra-api && openapi-generator-cli generate -i ../api/src/main/resources/api/service_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true -o src/tanagra-api && sed -i 's/AttributeValue;/AttributeValue | null;/g' src/tanagra-api/models/SearchEntityInstancesResponse.ts"
+    "codegen": "rm -rf src/tanagra-api && openapi-generator-cli generate -i ../api/src/main/resources/api/service_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true -o src/tanagra-api && perl -i -pe 's/AttributeValue;/AttributeValue | null;/g' src/tanagra-api/models/SearchEntityInstancesResponse.ts"
   },
   "eslintConfig": {
     "extends": [
