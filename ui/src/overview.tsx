@@ -21,7 +21,7 @@ import {
   insertGroup,
   renameCriteria,
 } from "cohortsSlice";
-import { useDialog } from "components/dialog";
+import { useTextInputDialog } from "components/dialog";
 import { useMenu } from "components/menu";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import React from "react";
@@ -140,19 +140,20 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
   const cohort = useCohort();
   const dispatch = useAppDispatch();
 
-  const [dialog, showRenameCriteria] = useDialog({
+  const [renameDialog, showRenameCriteria] = useTextInputDialog({
     title: "Edit Criteria Name",
     titleId: "rename-criteria-dialog-title",
     textLabel: "Criteria Name",
     className: "rename-criteria-dialog",
+    buttonHint: "Confirm",
     callback: (name: string) => {
       dispatch(
-        renameCriteria({
-          cohortId: cohort.id,
-          groupId: props.group.id,
-          criteriaId: props.criteria.id,
-          criteriaName: name,
-        })
+          renameCriteria({
+            cohortId: cohort.id,
+            groupId: props.group.id,
+            criteriaId: props.criteria.id,
+            criteriaName: name,
+          })
       );
     },
   });
@@ -186,7 +187,7 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
           <MoreVertIcon fontSize="small" />
         </IconButton>
         {menu}
-        {dialog}
+        {renameDialog}
       </Grid>
       <Grid item xs>
         <Accordion

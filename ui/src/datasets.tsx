@@ -1,9 +1,4 @@
 import AddIcon from "@mui/icons-material/Add";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
@@ -13,7 +8,6 @@ import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { EntityInstancesApiContext } from "apiContext";
@@ -27,14 +21,13 @@ import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
+import { useTextInputDialog } from "components/dialog";
 import { TreeGrid, TreeGridData, TreeGridRowData } from "components/treegrid";
 import { insertConceptSet } from "conceptSetsSlice";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
-import {
-  ChangeEvent,
+import React, {
   Fragment,
-  ReactNode,
   SyntheticEvent,
   useCallback,
   useContext,
@@ -64,7 +57,12 @@ export function Datasets() {
 
   const conceptSetEntities = useConceptSetEntities(selectedConceptSets);
 
-  const [dialog, showNewCohort] = useNewCohortDialog({
+  const [dialog, showNewCohort] = useTextInputDialog({
+    title: "New Cohort",
+    titleId: "new-cohort-dialog-title",
+    textLabel: "Cohort Name",
+    className: "new-cohort-dialog",
+    buttonHint: "Create",
     callback: (name: string) => {
       const action = dispatch(
         insertCohort(
@@ -290,67 +288,6 @@ export function Datasets() {
       </Grid>
     </>
   );
-}
-
-type NewCohortDialogProps = {
-  callback: (name: string) => void;
-};
-
-function useNewCohortDialog(
-  props: NewCohortDialogProps
-): [ReactNode, () => void] {
-  const [open, setOpen] = useState(false);
-  const show = () => {
-    setOpen(true);
-  };
-
-  const [name, setName] = useState("New Cohort");
-  const onNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const onCreate = () => {
-    setOpen(false);
-    props.callback(name);
-  };
-
-  return [
-    // eslint-disable-next-line react/jsx-key
-    <Dialog
-      open={open}
-      onClose={() => {
-        setOpen(false);
-      }}
-      aria-labelledby="new-cohort-dialog-title"
-      maxWidth="sm"
-      fullWidth
-      className="new-cohort-dialog"
-    >
-      <DialogTitle id="new-cohort-dialog-title">New Cohort</DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          id="name"
-          label="Cohort Name"
-          fullWidth
-          variant="standard"
-          value={name}
-          onChange={onNameChange}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button
-          variant="contained"
-          disabled={name.length === 0}
-          onClick={onCreate}
-        >
-          Create
-        </Button>
-      </DialogActions>
-    </Dialog>,
-    show,
-  ];
 }
 
 type ConceptSetEntity = {

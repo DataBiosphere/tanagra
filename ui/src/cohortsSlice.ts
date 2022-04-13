@@ -96,7 +96,7 @@ const cohortsSlice = createSlice({
         cohortId: string;
         groupId: string;
         criteriaId: string;
-        criteriaName?: string;
+        criteriaName: string;
       }>
     ) => {
       const cohort = state.find((c) => c.id === action.payload.cohortId);
@@ -109,7 +109,7 @@ const cohortsSlice = createSlice({
             (c) => c.id === action.payload.criteriaId
           );
           if (criteria) {
-            criteria.name = action.payload.criteriaName || "";
+            criteria.name = action.payload.criteriaName;
           }
         }
       }

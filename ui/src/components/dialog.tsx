@@ -11,10 +11,11 @@ type NewDialogProps = {
   titleId: string;
   textLabel: string;
   className: string;
+  buttonHint: string;
   callback: (name: string) => void;
 };
 
-export function useDialog(props: NewDialogProps): [ReactNode, () => void] {
+export function useTextInputDialog(props: NewDialogProps): [ReactNode, () => void] {
   const [open, setOpen] = useState(false);
   const show = () => {
     setOpen(true);
@@ -37,10 +38,10 @@ export function useDialog(props: NewDialogProps): [ReactNode, () => void] {
       onClose={() => {
         setOpen(false);
       }}
-      aria-labelledby={props.titleId}
+      aria-labelledby= "text-input-dialog-title"
       maxWidth="sm"
       fullWidth
-      className={props.className}
+      className="text-input-dialog-name"
     >
       <DialogTitle id={props.titleId}>{props.title}</DialogTitle>
       <DialogContent>
@@ -61,7 +62,7 @@ export function useDialog(props: NewDialogProps): [ReactNode, () => void] {
           disabled={name.length === 0}
           onClick={onCreate}
         >
-          Create
+          {props.buttonHint}
         </Button>
       </DialogActions>
     </Dialog>,
