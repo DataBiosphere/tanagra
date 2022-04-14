@@ -91,6 +91,8 @@ class FilterConverter {
         return Filter.BinaryFunction.Operator.NOT_EQUALS;
       case LESS_THAN:
         return Filter.BinaryFunction.Operator.LESS_THAN;
+      case GREATER_THAN:
+        return Filter.BinaryFunction.Operator.GREATER_THAN;
       case DESCENDANT_OF_INCLUSIVE:
         return Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE;
       case CHILD_OF:

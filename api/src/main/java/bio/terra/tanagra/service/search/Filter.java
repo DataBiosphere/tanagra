@@ -54,6 +54,7 @@ public interface Filter {
       EQUALS,
       NOT_EQUALS,
       LESS_THAN,
+      GREATER_THAN,
       // The left side is a descendant of or equal to the right expression in a hierarchy. The
       // expressions must be a part of a known hierarchy.
       DESCENDANT_OF_INCLUSIVE,

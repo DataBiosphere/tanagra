@@ -139,6 +139,9 @@ public class FilterConverterTest {
         Filter.BinaryFunction.Operator.LESS_THAN,
         FilterConverter.convert(ApiBinaryFilterOperator.LESS_THAN));
     assertEquals(
+        Filter.BinaryFunction.Operator.GREATER_THAN,
+        FilterConverter.convert(ApiBinaryFilterOperator.GREATER_THAN));
+    assertEquals(
         Filter.BinaryFunction.Operator.DESCENDANT_OF_INCLUSIVE,
         FilterConverter.convert(ApiBinaryFilterOperator.DESCENDANT_OF_INCLUSIVE));
     assertEquals(Operator.CHILD_OF, FilterConverter.convert(ApiBinaryFilterOperator.CHILD_OF));
