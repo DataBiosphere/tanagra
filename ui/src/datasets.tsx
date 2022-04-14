@@ -19,9 +19,9 @@ import {
 } from "cohort";
 import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
-import { useTextInputDialog } from "components/dialog";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
+import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData, TreeGridRowData } from "components/treegrid";
 import { insertConceptSet } from "conceptSetsSlice";
 import { useAsyncWithApi } from "errors";
@@ -61,7 +61,6 @@ export function Datasets() {
     title: "New Cohort",
     titleId: "new-cohort-dialog-title",
     textLabel: "Cohort Name",
-    className: "new-cohort-dialog",
     buttonHint: "Create",
     callback: (name: string) => {
       const action = dispatch(

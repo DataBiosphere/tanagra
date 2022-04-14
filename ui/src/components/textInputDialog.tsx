@@ -6,17 +6,16 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import { ChangeEvent, ReactNode, useState } from "react";
 
-type NewDialogProps = {
+type textInputDialogProps = {
   title: string;
   titleId: string;
   textLabel: string;
-  className: string;
   buttonHint: string;
   callback: (name: string) => void;
 };
 
 export function useTextInputDialog(
-  props: NewDialogProps
+  props: textInputDialogProps
 ): [ReactNode, () => void] {
   const [open, setOpen] = useState(false);
   const show = () => {
@@ -28,7 +27,7 @@ export function useTextInputDialog(
     setName(event.target.value);
   };
 
-  const onCreate = () => {
+  const onConfirm = () => {
     setOpen(false);
     props.callback(name);
   };
@@ -45,7 +44,7 @@ export function useTextInputDialog(
       fullWidth
       className="text-input-dialog-name"
     >
-      <DialogTitle id={props.titleId}>{props.title}</DialogTitle>
+      <DialogTitle id="text-input-dialog-title">{props.title}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
@@ -62,7 +61,7 @@ export function useTextInputDialog(
         <Button
           variant="contained"
           disabled={name.length === 0}
-          onClick={onCreate}
+          onClick={onConfirm}
         >
           {props.buttonHint}
         </Button>

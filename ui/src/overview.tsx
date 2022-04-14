@@ -21,8 +21,8 @@ import {
   insertGroup,
   renameCriteria,
 } from "cohortsSlice";
-import { useTextInputDialog } from "components/dialog";
 import { useMenu } from "components/menu";
+import { useTextInputDialog } from "components/textInputDialog";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import React from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
@@ -144,7 +144,6 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
     title: "Edit Criteria Name",
     titleId: "rename-criteria-dialog-title",
     textLabel: "Criteria Name",
-    className: "rename-criteria-dialog",
     buttonHint: "Confirm",
     callback: (name: string) => {
       dispatch(
