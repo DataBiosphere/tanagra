@@ -4,11 +4,13 @@ import Grid from "@mui/material/Grid";
 import Input from "@mui/material/Input";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { CriteriaConfig, CriteriaPlugin, registerCriteriaPlugin } from "cohort";
+import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import produce from "immer";
 import React from "react";
 import * as tanagra from "tanagra-api";
+import { CriteriaConfig } from "underlaysSlice";
 import { useUnderlay } from "../hooks";
+import { Underlay } from "../underlaysSlice";
 import { isValid } from "../util/valid";
 
 type Selection = {
@@ -20,29 +22,10 @@ interface Config extends CriteriaConfig {
   attribute: string;
 }
 
-type ListChildrenConfig = {
-  entity: string;
-  idPath: string;
-  filter: tanagra.Filter;
-};
-
-type EntityConfig = {
-  name: string;
-  selectable?: boolean;
-  sourceConcepts?: boolean;
-  attributes?: string[];
-  hierarchical?: boolean;
-  listChildren?: ListChildrenConfig;
-};
-
-interface Config extends CriteriaConfig {
-  entities: EntityConfig[];
-}
-
 interface Data extends Config {
   selected: Selection[];
-  min: number;
-  max: number;
+  min: number | undefined;
+  max: number | undefined;
 }
 
 type AttributeEditProps = {
@@ -50,10 +33,27 @@ type AttributeEditProps = {
   data: Data;
 };
 
-@registerCriteriaPlugin("attribute", (config: CriteriaConfig) => ({
-  ...(config.plugin as Config),
-  selected: [],
-}))
+@registerCriteriaPlugin(
+  "attribute",
+  (underlay: Underlay, config: CriteriaConfig) => {
+    const data = config.plugin as Config;
+    const attributeFilterHint = underlay.entities
+      .find((g) => g.name === underlay.primaryEntity)
+      ?.attributes?.find(
+        (attribute) => attribute.name === data.attribute
+      )?.attributeFilterHint;
+    const integerBoundsHint = attributeFilterHint?.integerBoundsHint;
+    const minBound = integerBoundsHint?.min;
+    const maxBound = integerBoundsHint?.max;
+
+    return {
+      ...(config.plugin as Config),
+      selected: [],
+      min: minBound,
+      max: maxBound,
+    };
+  }
+)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
@@ -71,52 +71,64 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter() {
-    if (
-      this.data.selected.length === 0 &&
-      !isValid(this.data.min) &&
-      !isValid(this.data.max)
-    ) {
+    let operands: tanagra.Filter[] | undefined;
+    if (isValid(this.data.min) && isValid(this.data.max)) {
+      operands = [
+        {
+          binaryFilter: {
+            attributeVariable: {
+              variable: "person",
+              name: this.data.attribute,
+            },
+            operator: tanagra.BinaryFilterOperator.LessThan,
+            attributeValue: {
+              int64Val: this.data.max,
+            },
+          },
+        },
+        {
+          binaryFilter: {
+            attributeVariable: {
+              variable: "person",
+              name: this.data.attribute,
+            },
+            operator: tanagra.BinaryFilterOperator.GreaterThan,
+            attributeValue: {
+              int64Val: this.data.min,
+            },
+          },
+        },
+      ];
+
+      return {
+        arrayFilter: {
+          operands: operands,
+          operator: tanagra.ArrayFilterOperator.And,
+        },
+      };
+    } else if (this.data.selected.length >= 0) {
+      operands = this.data.selected.map(({ id }) => ({
+        binaryFilter: {
+          attributeVariable: {
+            variable: "person",
+            name: this.data.attribute,
+          },
+          operator: tanagra.BinaryFilterOperator.Equals,
+          attributeValue: {
+            int64Val: id,
+          },
+        },
+      }));
+
+      return {
+        arrayFilter: {
+          operands: operands,
+          operator: tanagra.ArrayFilterOperator.Or,
+        },
+      };
+    } else {
       return null;
     }
-
-    const year = new Date().getFullYear();
-    const max = this.data.min || 0;
-    const operands =
-      isValid(this.data.min) && isValid(this.data.max)
-        ? [
-            {
-              binaryFilter: {
-                attributeVariable: {
-                  variable: "person",
-                  name: this.data.attribute,
-                },
-                operator: tanagra.BinaryFilterOperator.LessThan,
-                attributeValue: {
-                  int64Val: year - max,
-                },
-              },
-            },
-            // TODO: add GreaterThan in the filter
-          ]
-        : this.data.selected.map(({ id }) => ({
-            binaryFilter: {
-              attributeVariable: {
-                variable: "person",
-                name: this.data.attribute,
-              },
-              operator: tanagra.BinaryFilterOperator.Equals,
-              attributeValue: {
-                int64Val: id,
-              },
-            },
-          }));
-
-    return {
-      arrayFilter: {
-        operands: operands,
-        operator: tanagra.ArrayFilterOperator.Or,
-      },
-    };
   }
 
   occurrenceEntities() {
@@ -134,102 +146,137 @@ function AttributeEdit(props: AttributeEditProps) {
     ?.attributes?.find(
       (attribute) => attribute.name === props.data.attribute
     )?.attributeFilterHint;
+  const enumHintValues = attributeFilterHint?.enumHint?.enumHintValues;
+  const integerBoundsHint = attributeFilterHint?.integerBoundsHint;
 
-  const year = new Date().getFullYear();
+  console.log(underlay);
+  console.log(attributeFilterHint);
 
-  if (isValid(attributeFilterHint?.integerBoundsHint)) {
-    const integerBoundsHint = attributeFilterHint?.integerBoundsHint;
+  if (!isValid(integerBoundsHint) && enumHintValues?.length === 0) {
+    return (
+      <Typography>
+        No information for attribute {props.data.attribute}.
+      </Typography>
+    );
+  }
 
-    if (
-      integerBoundsHint?.max !== null &&
-      integerBoundsHint?.max !== undefined &&
-      integerBoundsHint?.min !== null &&
-      integerBoundsHint?.min !== undefined
-    ) {
-      const min = year - integerBoundsHint?.max;
-      const max = year - integerBoundsHint.min;
+  if (
+    integerBoundsHint?.max !== null &&
+    integerBoundsHint?.max !== undefined &&
+    integerBoundsHint?.min !== null &&
+    integerBoundsHint?.min !== undefined
+  ) {
+    const minBound = integerBoundsHint?.min;
+    const maxBound = integerBoundsHint?.max;
 
-      const [minValue, setMinValue] = React.useState<number>(min);
-      const [maxValue, setMaxValue] = React.useState<number>(max);
+    const [minInputValue, setMinInputValue] = React.useState<number>(minBound);
+    const [maxInputValue, setMaxInputValue] = React.useState<number>(maxBound);
+    const [minValue, setMinValue] = React.useState<number>(minBound);
+    const [maxValue, setMaxValue] = React.useState<number>(maxBound);
 
-      const updateValue = (newMin: number, newMax: number) => {
-        setMinValue(newMin);
-        setMaxValue(newMax);
-        props.dispatchFn(
-          produce(props.data, (data) => {
-            data.min = newMin;
-            data.max = newMax;
-          })
-        );
-      };
-
-      React.useEffect(() => updateValue(min, max), []);
-
-      const handleChange = (event: Event, newValue: number | number[]) => {
-        newValue = newValue as number[];
-        const [newMin, newMax] = newValue;
-        updateValue(newMin, newMax);
-      };
-
-      const handleInputChange = (
-        event: React.ChangeEvent<HTMLInputElement>
-      ) => {
-        const newMin =
-          event.target.value === "" ? min : Number(event.target.value);
-        const newMax =
-          event.target.value === "" ? max : Number(event.target.value);
-        updateValue(Math.min(newMin, minValue), Math.max(newMax, maxValue));
-      };
-
-      return (
-        <Box sx={{ width: "30%", minWidth: 100 }}>
-          <Typography id="input-slider" gutterBottom>
-            Age
-          </Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item>
-              <Input
-                value={minValue}
-                size="small"
-                onChange={handleInputChange}
-                inputProps={{
-                  step: 5,
-                  min: min,
-                  max: max,
-                  type: "number",
-                  "aria-labelledby": "input-slider",
-                }}
-              />
-            </Grid>
-            <Grid item xs>
-              <Slider
-                getAriaLabel={() => "Temperature range"}
-                value={[minValue, maxValue]}
-                onChange={handleChange}
-                valueLabelDisplay="auto"
-                getAriaValueText={(value) => value.toString()}
-                min={min}
-                max={max}
-              />
-            </Grid>
-            <Grid item>
-              <Input
-                value={maxValue}
-                size="small"
-                onChange={handleInputChange}
-                inputProps={{
-                  step: 5,
-                  min: min,
-                  max: max,
-                  type: "number",
-                  "aria-labelledby": "input-slider",
-                }}
-              />
-            </Grid>
-          </Grid>
-        </Box>
+    const updateValue = (newMin: number, newMax: number) => {
+      setMinValue(newMin);
+      setMaxValue(newMax);
+      props.dispatchFn(
+        produce(props.data, (data) => {
+          data.min = newMin;
+          data.max = newMax;
+        })
       );
-    }
+    };
+
+    const handleChange = (event: Event, newValue: number | number[]) => {
+      newValue = newValue as number[];
+      const [newMin, newMax] = newValue;
+      setMinInputValue(newMin);
+      setMaxInputValue(newMax);
+      updateValue(newMin, newMax);
+    };
+
+    const handleLeftInputChange = (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      let newMin =
+        event.target.value === "" ? minBound : Number(event.target.value);
+      setMinInputValue(newMin);
+
+      newMin = newMin < minBound ? minBound : newMin;
+      newMin = newMin > maxValue ? maxValue : newMin;
+      updateValue(newMin, maxValue);
+    };
+    const handleLeftInputBlur = () => {
+      let newMin = minInputValue;
+      newMin = newMin < minBound ? minBound : newMin;
+      newMin = newMin > maxValue ? maxValue : newMin;
+      setMinInputValue(newMin);
+    };
+
+    const handleRightInputChange = (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      let newMax =
+        event.target.value === "" ? maxBound : Number(event.target.value);
+      setMaxInputValue(newMax);
+
+      newMax = newMax < minValue ? minValue : newMax;
+      newMax = newMax > maxBound ? maxBound : newMax;
+      updateValue(minValue, newMax);
+    };
+    const handleRightInputBlur = () => {
+      let newMax = maxInputValue;
+      newMax = newMax < minValue ? minValue : newMax;
+      newMax = newMax > maxBound ? maxBound : newMax;
+      setMaxInputValue(newMax);
+    };
+
+    return (
+      <Box sx={{ width: "30%", minWidth: 100 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
+            <Input
+              value={minInputValue}
+              size="small"
+              onChange={handleLeftInputChange}
+              onBlur={handleLeftInputBlur}
+              inputProps={{
+                step: ((maxBound - minBound) / 20) | 0,
+                min: minBound,
+                max: maxBound,
+                type: "number",
+                "aria-labelledby": "input-slider",
+              }}
+            />
+          </Grid>
+          <Grid item xs>
+            <Slider
+              getAriaLabel={() => "Year at birth range"}
+              value={[minValue, maxValue]}
+              onChange={handleChange}
+              valueLabelDisplay="auto"
+              getAriaValueText={(value) => value.toString()}
+              min={minBound}
+              max={maxBound}
+              disableSwap
+            />
+          </Grid>
+          <Grid item>
+            <Input
+              value={maxInputValue}
+              size="small"
+              onChange={handleRightInputChange}
+              onBlur={handleRightInputBlur}
+              inputProps={{
+                step: ((maxBound - minBound) / 20) | 0,
+                min: minBound,
+                max: maxBound,
+                type: "number",
+                "aria-labelledby": "input-slider",
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+    );
   }
 
   const selectionIndex = (hint: tanagra.EnumHintValue) =>
@@ -237,44 +284,35 @@ function AttributeEdit(props: AttributeEditProps) {
       (row) => row.id === hint.attributeValue?.int64Val
     );
 
-  if (attributeFilterHint?.enumHint?.enumHintValues?.length === 0) {
-    return (
-      <Typography>
-        No information for attribute {props.data.attribute}.
-      </Typography>
-    );
-  }
   return (
     <>
-      {attributeFilterHint?.enumHint?.enumHintValues?.map(
-        (hint: tanagra.EnumHintValue) => (
-          <ListItem key={hintDisplayName(hint)}>
-            <FormControlLabel
-              label={hintDisplayName(hint)}
-              control={
-                <Checkbox
-                  size="small"
-                  checked={selectionIndex(hint) > -1}
-                  onChange={() => {
-                    props.dispatchFn(
-                      produce(props.data, (data) => {
-                        if (selectionIndex(hint) > -1) {
-                          data.selected.splice(selectionIndex(hint), 1);
-                        } else {
-                          data.selected.push({
-                            id: hint.attributeValue?.int64Val || -1,
-                            name: hintDisplayName(hint),
-                          });
-                        }
-                      })
-                    );
-                  }}
-                />
-              }
-            />
-          </ListItem>
-        )
-      )}
+      {enumHintValues?.map((hint: tanagra.EnumHintValue) => (
+        <ListItem key={hintDisplayName(hint)}>
+          <FormControlLabel
+            label={hintDisplayName(hint)}
+            control={
+              <Checkbox
+                size="small"
+                checked={selectionIndex(hint) > -1}
+                onChange={() => {
+                  props.dispatchFn(
+                    produce(props.data, (data) => {
+                      if (selectionIndex(hint) > -1) {
+                        data.selected.splice(selectionIndex(hint), 1);
+                      } else {
+                        data.selected.push({
+                          id: hint.attributeValue?.int64Val || -1,
+                          name: hintDisplayName(hint),
+                        });
+                      }
+                    })
+                  );
+                }}
+              />
+            }
+          />
+        </ListItem>
+      ))}
     </>
   );
 }
@@ -293,9 +331,9 @@ function ConceptDetails(props: ConceptDetailsProps) {
       ) : isValid(props.data.min) && isValid(props.data.max) ? (
         <Stack direction="row" alignItems="baseline">
           <Typography variant="body1">
-            Current Age in Range &nbsp; {props.data.min}&nbsp;
+            Current {props.data.attribute} in Range {props.data.min} to{" "}
+            {props.data.max}
           </Typography>
-          <Typography variant="body2">to&nbsp; {props.data.max}</Typography>
         </Stack>
       ) : (
         props.data.selected.map(({ id, name }) => (

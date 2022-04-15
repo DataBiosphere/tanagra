@@ -4,7 +4,7 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { EntityInstancesApiContext } from "apiContext";
-import { CriteriaConfig, CriteriaPlugin, registerCriteriaPlugin } from "cohort";
+import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
 import { Search } from "components/search";
@@ -20,6 +20,7 @@ import { useUnderlay } from "hooks";
 import produce from "immer";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import * as tanagra from "tanagra-api";
+import { CriteriaConfig, Underlay } from "underlaysSlice";
 import { useImmer } from "use-immer";
 import { isValid } from "util/valid";
 
@@ -60,10 +61,13 @@ export interface Data extends Config {
   selected: Selection[];
 }
 
-@registerCriteriaPlugin("concept", (config: CriteriaConfig) => ({
-  ...(config.plugin as Config),
-  selected: [],
-}))
+@registerCriteriaPlugin(
+  "concept",
+  (underlay: Underlay, config: CriteriaConfig) => ({
+    ...(config.plugin as Config),
+    selected: [],
+  })
+)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;

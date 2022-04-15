@@ -147,7 +147,7 @@ export function Datasets() {
       <MenuItem
         key={config.title}
         onClick={() => {
-          onInsertConceptSet(createCriteria(config));
+          onInsertConceptSet(createCriteria(underlay, config));
         }}
       >
         {config.title}

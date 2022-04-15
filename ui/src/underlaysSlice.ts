@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { CriteriaConfig } from "cohort";
 import * as tanagra from "tanagra-api";
 
 export type PrepackagedConceptSet = {
@@ -16,6 +15,13 @@ export type Underlay = {
   criteriaConfigs: CriteriaConfig[];
   prepackagedConceptSets: PrepackagedConceptSet[];
 };
+
+export interface CriteriaConfig {
+  type: string;
+  title: string;
+  defaultName: string;
+  plugin: unknown;
+}
 
 const initialState: Underlay[] = [];
 

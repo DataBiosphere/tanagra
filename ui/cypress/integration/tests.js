@@ -18,7 +18,7 @@ describe("Basic tests", () => {
     cy.get("a[aria-label=back]").click();
 
     cy.get("button:Contains(Add Criteria)").first().click();
-    cy.get("li:Contains(Age)").click();
+    cy.get("li:Contains(Year at Birth)").click();
     cy.get("input").first().type("30");
     cy.get("a[aria-label=back]").click();
     cy.get("a[aria-label=back]").click();

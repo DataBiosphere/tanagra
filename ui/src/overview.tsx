@@ -93,7 +93,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       <MenuItem
         key={config.title}
         onClick={() => {
-          onAddCriteria(createCriteria(config));
+          onAddCriteria(createCriteria(underlay, config));
         }}
       >
         {config.title}

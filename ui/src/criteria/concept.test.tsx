@@ -138,23 +138,32 @@ beforeAll(() => {
     insertGroup(
       action.payload.id,
       GroupKind.Included,
-      createCriteria({
-        type: "concept",
-        title: "Conditions",
-        defaultName: "Contains Conditions Codes",
-        plugin: {
-          columns: [
-            { key: "concept_name", width: "100%", title: "Concept Name" },
-            { key: "concept_id", width: 120, title: "Concept ID" },
-            { key: "standard_concept", width: 180, title: "Source/Standard" },
-            { key: "vocabulary_id", width: 120, title: "Vocab" },
-            { key: "concept_code", width: 120, title: "Code" },
-          ],
-          entities: [
-            { name: "condition", selectable: true, hierarchical: true },
-          ],
+      createCriteria(
+        {
+          name: "test-underlay",
+          primaryEntity: "test-entity",
+          entities: [],
+          criteriaConfigs: [],
+          prepackagedConceptSets: [],
         },
-      })
+        {
+          type: "concept",
+          title: "Conditions",
+          defaultName: "Contains Conditions Codes",
+          plugin: {
+            columns: [
+              { key: "concept_name", width: "100%", title: "Concept Name" },
+              { key: "concept_id", width: 120, title: "Concept ID" },
+              { key: "standard_concept", width: 180, title: "Source/Standard" },
+              { key: "vocabulary_id", width: 120, title: "Vocab" },
+              { key: "concept_code", width: 120, title: "Code" },
+            ],
+            entities: [
+              { name: "condition", selectable: true, hierarchical: true },
+            ],
+          },
+        }
+      )
     )
   );
 });
