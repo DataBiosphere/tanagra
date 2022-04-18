@@ -142,10 +142,9 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
 
   const [renameDialog, showRenameCriteria] = useTextInputDialog({
     title: "Edit Criteria Name",
-    titleId: "rename-criteria-dialog-title",
     textLabel: "Criteria Name",
-    buttonHint: "Confirm",
-    callback: (name: string) => {
+    buttonLabel: "Confirm",
+    onConfirm: (name: string) => {
       dispatch(
         renameCriteria({
           cohortId: cohort.id,

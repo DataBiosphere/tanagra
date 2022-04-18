@@ -59,10 +59,9 @@ export function Datasets() {
 
   const [dialog, showNewCohort] = useTextInputDialog({
     title: "New Cohort",
-    titleId: "new-cohort-dialog-title",
     textLabel: "Cohort Name",
-    buttonHint: "Create",
-    callback: (name: string) => {
+    buttonLabel: "Create",
+    onConfirm: (name: string) => {
       const action = dispatch(
         insertCohort(
           name,

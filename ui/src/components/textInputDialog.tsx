@@ -8,28 +8,26 @@ import { ChangeEvent, ReactNode, useState } from "react";
 
 type textInputDialogProps = {
   title: string;
-  titleId: string;
   textLabel: string;
-  buttonHint: string;
-  callback: (name: string) => void;
+  buttonLabel: string;
+  onConfirm: (name: string) => void;
 };
 
+// Return a dialog and the callback function to show the dialog.
 export function useTextInputDialog(
   props: textInputDialogProps
 ): [ReactNode, () => void] {
   const [open, setOpen] = useState(false);
-  const show = () => {
-    setOpen(true);
-  };
+  const show = () => setOpen(true);
 
-  const [name, setName] = useState(props.title);
-  const onNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
+  const [text, setText] = useState(props.title);
+  const onTextChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setText(event.target.value);
   };
 
   const onConfirm = () => {
     setOpen(false);
-    props.callback(name);
+    props.onConfirm(text);
   };
 
   return [
@@ -49,21 +47,21 @@ export function useTextInputDialog(
         <TextField
           autoFocus
           margin="dense"
-          id="name"
+          id="text"
           label={props.textLabel}
           fullWidth
           variant="standard"
-          value={name}
-          onChange={onNameChange}
+          value={text}
+          onChange={onTextChange}
         />
       </DialogContent>
       <DialogActions>
         <Button
           variant="contained"
-          disabled={name.length === 0}
+          disabled={text.length === 0}
           onClick={onConfirm}
         >
-          {props.buttonHint}
+          {props.buttonLabel}
         </Button>
       </DialogActions>
     </Dialog>,
