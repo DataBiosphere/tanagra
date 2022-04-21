@@ -16,10 +16,15 @@ export type Underlay = {
   prepackagedConceptSets: PrepackagedConceptSet[];
 };
 
+// CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
+// possible criteria.
 export interface CriteriaConfig {
+  // The plugin type to use for this criteria.
   type: string;
   title: string;
   defaultName: string;
+
+  // Plugin specific config.
   plugin: unknown;
 }
 

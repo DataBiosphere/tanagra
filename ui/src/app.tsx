@@ -129,7 +129,7 @@ const criteriaConfigs = [
   {
     type: "attribute",
     title: "Year at Birth",
-    defaultName: "Contains Year at Birth Codes",
+    defaultName: "Contains Year at Birth Values",
     plugin: {
       attribute: "year_of_birth",
     },
