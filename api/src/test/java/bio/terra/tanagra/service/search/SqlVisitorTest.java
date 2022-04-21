@@ -133,7 +133,8 @@ public class SqlVisitorTest extends BaseSpringUnitTest {
             Filter.BinaryFunction.Operator.GREATER_THAN,
             Expression.Literal.create(DataType.INT64, "62"));
     assertEquals(
-        "s.rating > 62", greaterThanFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
+        "s.rating > 62",
+        greaterThanFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
 
     Filter.BinaryFunction equalsFilter =
         Filter.BinaryFunction.create(
