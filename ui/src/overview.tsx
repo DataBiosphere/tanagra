@@ -15,8 +15,14 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { deleteCriteria, insertCriteria, insertGroup } from "cohortsSlice";
+import {
+  deleteCriteria,
+  insertCriteria,
+  insertGroup,
+  renameCriteria,
+} from "cohortsSlice";
 import { useMenu } from "components/menu";
+import { useTextInputDialog } from "components/textInputDialog";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import React from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
@@ -134,6 +140,22 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
   const cohort = useCohort();
   const dispatch = useAppDispatch();
 
+  const [renameDialog, showRenameCriteria] = useTextInputDialog({
+    title: "Edit Criteria Name",
+    textLabel: "Criteria Name",
+    buttonLabel: "Confirm",
+    onConfirm: (name: string) => {
+      dispatch(
+        renameCriteria({
+          cohortId: cohort.id,
+          groupId: props.group.id,
+          criteriaId: props.criteria.id,
+          criteriaName: name,
+        })
+      );
+    },
+  });
+
   const [menu, show] = useMenu({
     children: [
       <MenuItem
@@ -150,6 +172,9 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
       >
         Delete Criteria
       </MenuItem>,
+      <MenuItem key="2" onClick={showRenameCriteria}>
+        Edit Criteria Name
+      </MenuItem>,
     ],
   });
 
@@ -160,6 +185,7 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
           <MoreVertIcon fontSize="small" />
         </IconButton>
         {menu}
+        {renameDialog}
       </Grid>
       <Grid item xs>
         <Accordion

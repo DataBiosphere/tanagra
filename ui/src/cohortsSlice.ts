@@ -90,6 +90,30 @@ const cohortsSlice = createSlice({
         }
       }
     },
+    renameCriteria: (
+      state,
+      action: PayloadAction<{
+        cohortId: string;
+        groupId: string;
+        criteriaId: string;
+        criteriaName: string;
+      }>
+    ) => {
+      const cohort = state.find((c) => c.id === action.payload.cohortId);
+      if (cohort) {
+        const group = cohort.groups.find(
+          (g) => g.id === action.payload.groupId
+        );
+        if (group) {
+          const criteria = group.criteria.find(
+            (c) => c.id === action.payload.criteriaId
+          );
+          if (criteria) {
+            criteria.name = action.payload.criteriaName;
+          }
+        }
+      }
+    },
     deleteCriteria: (
       state,
       action: PayloadAction<{
@@ -119,6 +143,7 @@ export const {
   insertGroup,
   insertCriteria,
   updateCriteriaData,
+  renameCriteria,
   deleteCriteria,
 } = cohortsSlice.actions;
 
