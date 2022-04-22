@@ -8,6 +8,7 @@ import { ChangeEvent, ReactNode, useState } from "react";
 
 type textInputDialogProps = {
   title: string;
+  text?: string;
   textLabel: string;
   buttonLabel: string;
   onConfirm: (name: string) => void;
@@ -20,7 +21,9 @@ export function useTextInputDialog(
   const [open, setOpen] = useState(false);
   const show = () => setOpen(true);
 
-  const [text, setText] = useState(props.title);
+  const [text, setText] = useState(
+    typeof props.text !== "undefined" ? props.text : props.title
+  );
   const onTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     setText(event.target.value);
   };
