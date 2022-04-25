@@ -6,6 +6,7 @@ describe("Basic tests", () => {
     cy.contains("Datasets");
 
     cy.get("button[id=insert-cohort]").click();
+    cy.get("#text").type("New Cohort");
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add Criteria)").click();
     cy.get("li:Contains(Conditions)").click();
