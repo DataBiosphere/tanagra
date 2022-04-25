@@ -48,9 +48,9 @@ export default function Overview() {
           <Stack spacing={0}>
             {cohort.groups
               .filter((g) => g.kind === GroupKind.Included)
-              .map((group) => (
+              .map((group, index) => (
                 <Box key={group.id}>
-                  <ParticipantsGroup group={group} />
+                  <ParticipantsGroup group={group} index={index} />
                   <Divider className="and-divider">
                     <Chip label="AND" />
                   </Divider>
@@ -83,12 +83,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       dispatch(insertCriteria({ cohortId: cohort.id, groupId, criteria }));
     } else {
       const action = dispatch(
-        insertGroup(
-          cohort.id,
-          "Group" + String(cohort.groups.length + 1),
-          props.group,
-          criteria
-        )
+        insertGroup(cohort.id, "", props.group, criteria)
       );
       groupId = action.payload.group.id;
     }
@@ -125,11 +120,15 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
   );
 }
 
-function ParticipantsGroup(props: { group: Group }) {
+function ParticipantsGroup(props: { group: Group; index: number }) {
   const dispatch = useAppDispatch();
   const cohort = useCohort();
   const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
     title: "Edit Group Name",
+    initialText:
+      props.group.name === ""
+        ? "Group " + String(props.index + 1)
+        : props.group.name,
     textLabel: "Group Name",
     buttonLabel: "Confirm",
     onConfirm: (name: string) => {
@@ -163,7 +162,9 @@ function ParticipantsGroup(props: { group: Group }) {
         </Grid>
         <Grid item>
           <Typography variant="h5" fontWeight="bolder">
-            {props.group.name}
+            {props.group.name === ""
+              ? "Group " + String(props.index + 1)
+              : props.group.name}
           </Typography>
         </Grid>
       </Grid>
