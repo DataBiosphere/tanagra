@@ -130,7 +130,9 @@ function apiForEnvironment<Real, Fake>(
       return new fake();
     }
 
-    const config: tanagra.ConfigurationParameters = { basePath: "" };
+    const config: tanagra.ConfigurationParameters = {
+      basePath: process.env.REACT_APP_BACKEND_HOST || "",
+    };
     return new real(new tanagra.Configuration(config));
   };
   return React.createContext(fn());
