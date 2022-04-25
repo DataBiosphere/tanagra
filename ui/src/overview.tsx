@@ -142,6 +142,7 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
 
   const [renameDialog, showRenameCriteria] = useTextInputDialog({
     title: "Edit Criteria Name",
+    initialText: props.criteria.name,
     textLabel: "Criteria Name",
     buttonLabel: "Confirm",
     onConfirm: (name: string) => {

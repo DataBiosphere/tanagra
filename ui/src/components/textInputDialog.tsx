@@ -6,8 +6,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import { ChangeEvent, ReactNode, useState } from "react";
 
-type textInputDialogProps = {
+type TextInputDialogProps = {
   title: string;
+  initialText?: string;
   textLabel: string;
   buttonLabel: string;
   onConfirm: (name: string) => void;
@@ -15,12 +16,12 @@ type textInputDialogProps = {
 
 // Return a dialog and the callback function to show the dialog.
 export function useTextInputDialog(
-  props: textInputDialogProps
+  props: TextInputDialogProps
 ): [ReactNode, () => void] {
   const [open, setOpen] = useState(false);
   const show = () => setOpen(true);
 
-  const [text, setText] = useState(props.title);
+  const [text, setText] = useState(props.initialText || "");
   const onTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     setText(event.target.value);
   };
