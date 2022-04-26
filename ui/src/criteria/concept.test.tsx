@@ -137,7 +137,6 @@ beforeAll(() => {
   store.dispatch(
     insertGroup(
       action.payload.id,
-      "group1",
       GroupKind.Included,
       createCriteria({
         type: "concept",

@@ -36,17 +36,12 @@ const cohortsSlice = createSlice({
           cohort.groups.push(action.payload.group);
         }
       },
-      prepare: (
-        cohortId: string,
-        name: string,
-        kind: GroupKind,
-        criteria: Criteria
-      ) => ({
+      prepare: (cohortId: string, kind: GroupKind, criteria: Criteria) => ({
         payload: {
           cohortId,
           group: {
             id: generateId(),
-            name,
+            name: "",
             kind,
             criteria: [criteria],
           },

@@ -82,9 +82,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
       groupId = props.group;
       dispatch(insertCriteria({ cohortId: cohort.id, groupId, criteria }));
     } else {
-      const action = dispatch(
-        insertGroup(cohort.id, "", props.group, criteria)
-      );
+      const action = dispatch(insertGroup(cohort.id, props.group, criteria));
       groupId = action.payload.group.id;
     }
     history.push(
@@ -123,14 +121,12 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
 function ParticipantsGroup(props: { group: Group; index: number }) {
   const dispatch = useAppDispatch();
   const cohort = useCohort();
+  const groupName = props.group.name || "Group " + String(props.index + 1);
   const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
     title: "Edit Group Name",
-    initialText:
-      props.group.name === ""
-        ? "Group " + String(props.index + 1)
-        : props.group.name,
+    initialText: groupName,
     textLabel: "Group Name",
-    buttonLabel: "Confirm",
+    buttonLabel: "Rename Group",
     onConfirm: (name: string) => {
       dispatch(
         renameGroup({
@@ -161,11 +157,7 @@ function ParticipantsGroup(props: { group: Group; index: number }) {
           {renameGroupDialog}
         </Grid>
         <Grid item>
-          <Typography variant="h5" fontWeight="bolder">
-            {props.group.name === ""
-              ? "Group " + String(props.index + 1)
-              : props.group.name}
-          </Typography>
+          <Typography variant="h5">{groupName}</Typography>
         </Grid>
       </Grid>
       <Stack spacing={0}>

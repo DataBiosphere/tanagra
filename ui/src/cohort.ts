@@ -39,7 +39,7 @@ export enum GroupKind {
 
 export interface Group {
   id: string;
-  name: string;
+  name?: string;
   kind: GroupKind;
   criteria: Criteria[];
 }
