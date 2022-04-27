@@ -20,6 +20,7 @@ import {
   insertCriteria,
   insertGroup,
   renameCriteria,
+  renameGroup,
 } from "cohortsSlice";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
@@ -47,9 +48,9 @@ export default function Overview() {
           <Stack spacing={0}>
             {cohort.groups
               .filter((g) => g.kind === GroupKind.Included)
-              .map((group) => (
+              .map((group, index) => (
                 <Box key={group.id}>
-                  <ParticipantsGroup group={group} />
+                  <ParticipantsGroup group={group} index={index} />
                   <Divider className="and-divider">
                     <Chip label="AND" />
                   </Divider>
@@ -117,9 +118,48 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
   );
 }
 
-function ParticipantsGroup(props: { group: Group }) {
+function ParticipantsGroup(props: { group: Group; index: number }) {
+  const dispatch = useAppDispatch();
+  const cohort = useCohort();
+  const groupName = props.group.name || "Group " + String(props.index + 1);
+  const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
+    title: "Edit Group Name",
+    initialText: groupName,
+    textLabel: "Group Name",
+    buttonLabel: "Rename Group",
+    onConfirm: (name: string) => {
+      dispatch(
+        renameGroup({
+          cohortId: cohort.id,
+          groupId: props.group.id,
+          groupName: name,
+        })
+      );
+    },
+  });
+
+  const [groupMenu, groupShow] = useMenu({
+    children: [
+      <MenuItem key="1" onClick={showRenameGroup}>
+        Edit Group Name
+      </MenuItem>,
+    ],
+  });
+
   return (
     <Paper className="participants-group">
+      <Grid container className="group-title">
+        <Grid item xs="auto">
+          <IconButton onClick={groupShow} component="span" size="small">
+            <MoreVertIcon fontSize="small" />
+          </IconButton>
+          {groupMenu}
+          {renameGroupDialog}
+        </Grid>
+        <Grid item>
+          <Typography variant="h5">{groupName}</Typography>
+        </Grid>
+      </Grid>
       <Stack spacing={0}>
         {props.group.criteria.map((criteria) => (
           <Box key={criteria.id}>

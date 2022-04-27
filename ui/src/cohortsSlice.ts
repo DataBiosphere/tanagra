@@ -41,11 +41,31 @@ const cohortsSlice = createSlice({
           cohortId,
           group: {
             id: generateId(),
+            name: "",
             kind,
             criteria: [criteria],
           },
         },
       }),
+    },
+
+    renameGroup: (
+      state,
+      action: PayloadAction<{
+        cohortId: string;
+        groupId: string;
+        groupName: string;
+      }>
+    ) => {
+      const cohort = state.find((c) => c.id === action.payload.cohortId);
+      if (cohort) {
+        const group = cohort.groups.find(
+          (g) => g.id === action.payload.groupId
+        );
+        if (group) {
+          group.name = action.payload.groupName;
+        }
+      }
     },
 
     insertCriteria: (
@@ -141,6 +161,7 @@ const cohortsSlice = createSlice({
 export const {
   insertCohort,
   insertGroup,
+  renameGroup,
   insertCriteria,
   updateCriteriaData,
   renameCriteria,
