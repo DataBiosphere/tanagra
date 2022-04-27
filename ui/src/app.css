@@ -38,6 +38,12 @@
   padding: 0.5em 0em;
 }
 
+.overview .group-title {
+  padding: 0.5em 0em;
+  background: #e2e6ea;
+  color: #262262;
+}
+
 .overview .criteria-accordion .MuiAccordionSummary-root {
   padding: 0em 0.5em 0em 0em;
   align-items: flex-start;
