@@ -19,13 +19,14 @@ type Selection = {
 
 interface Config extends CriteriaConfig {
   attribute: string;
+  name?: string;
 }
 
 interface Data extends Config {
-  //selected is valid for enum attributes
+  // Selected is valid for enum attributes.
   selected: Selection[];
 
-  //min/max are valid for integer attributes
+  // The min/max are valid for integer attributes.
   min: number | undefined;
   max: number | undefined;
 }
@@ -38,13 +39,12 @@ type AttributeEditProps = {
 @registerCriteriaPlugin(
   "attribute",
   (underlay: Underlay, config: CriteriaConfig) => {
-    const data = config.plugin as Config;
-    const attributeFilterHint = underlay.entities
+    const data = { ...(config.plugin as Config), name: config.title };
+
+    const integerBoundsHint = underlay.entities
       .find((g) => g.name === underlay.primaryEntity)
-      ?.attributes?.find(
-        (attribute) => attribute.name === data.attribute
-      )?.attributeFilterHint;
-    const integerBoundsHint = attributeFilterHint?.integerBoundsHint;
+      ?.attributes?.find((attribute) => attribute.name === data.attribute)
+      ?.attributeFilterHint?.integerBoundsHint;
 
     return {
       ...data,
@@ -70,7 +70,7 @@ class _ implements CriteriaPlugin<Data> {
     return <AttributeDetails data={this.data} />;
   }
 
-  generateFilter() {
+  generateFilter(entityVar: string) {
     if (isValid(this.data.min) && isValid(this.data.max)) {
       return {
         arrayFilter: {
@@ -78,7 +78,7 @@ class _ implements CriteriaPlugin<Data> {
             {
               binaryFilter: {
                 attributeVariable: {
-                  variable: "person",
+                  variable: entityVar,
                   name: this.data.attribute,
                 },
                 operator: tanagra.BinaryFilterOperator.LessThan,
@@ -90,7 +90,7 @@ class _ implements CriteriaPlugin<Data> {
             {
               binaryFilter: {
                 attributeVariable: {
-                  variable: "person",
+                  variable: entityVar,
                   name: this.data.attribute,
                 },
                 operator: tanagra.BinaryFilterOperator.GreaterThan,
@@ -109,7 +109,7 @@ class _ implements CriteriaPlugin<Data> {
           operands: this.data.selected.map(({ id }) => ({
             binaryFilter: {
               attributeVariable: {
-                variable: "person",
+                variable: entityVar,
                 name: this.data.attribute,
               },
               operator: tanagra.BinaryFilterOperator.Equals,
@@ -144,22 +144,27 @@ function AttributeEdit(props: AttributeEditProps) {
   const enumHintValues = attributeFilterHint?.enumHint?.enumHintValues;
   const integerBoundsHint = attributeFilterHint?.integerBoundsHint;
 
-  const hasValidIntegerBounds =
-    isValid(integerBoundsHint?.min) && isValid(integerBoundsHint?.max);
+  if (isValid(integerBoundsHint?.min) && isValid(integerBoundsHint?.max)) {
+    // TODO: The comments can be removed once isValid is fixed.
 
-  if (hasValidIntegerBounds) {
-    const minBound = integerBoundsHint?.min || 0; // This is to ensure the compiler won't complain the object might be undefined.
-    const maxBound = integerBoundsHint?.max || 0; // although we already know that min and max is valid.
+    // This is to ensure the compiler won't complain the object be undefined.
+    // Although we already know that min and max is valid.
+    const minBound = integerBoundsHint?.min || 0;
+    const maxBound = integerBoundsHint?.max || 0;
 
-    // two sets of values are needed due to the input box and slider is isolated.
-    const [minInputValue, setMinInputValue] = useState<number | string>(
-      props.data.min || minBound
+    // Two sets of values are needed due to the input box and slider is isolated.
+    const [minInputValue, setMinInputValue] = useState(
+      String(props.data.min || minBound)
     );
-    const [maxInputValue, setMaxInputValue] = useState<number | string>(
-      props.data.max || maxBound
+    const [maxInputValue, setMaxInputValue] = useState(
+      String(props.data.max || maxBound)
     );
+    const [minValue, setMinValue] = useState(props.data.min || minBound);
+    const [maxValue, setMaxValue] = useState(props.data.max || maxBound);
 
     const updateValue = (newMin: number, newMax: number) => {
+      setMinValue(newMin);
+      setMaxValue(newMax);
       props.dispatchFn(
         produce(props.data, (data) => {
           data.min = newMin;
@@ -169,51 +174,34 @@ function AttributeEdit(props: AttributeEditProps) {
     };
 
     const handleChange = (event: Event, newValue: number | number[]) => {
-      newValue = newValue as number[];
-      const [newMin, newMax] = newValue;
-      setMinInputValue(newMin);
-      setMaxInputValue(newMax);
+      const [newMin, newMax] = newValue as number[];
+      setMinInputValue(String(newMin));
+      setMaxInputValue(String(newMax));
       updateValue(newMin, newMax);
     };
+
+    // Make sure empty input won't get changed.
 
     const handleMinInputChange = (
       event: React.ChangeEvent<HTMLInputElement>
     ) => {
-      let newMin = event.target.value === "" ? "" : Number(event.target.value);
-      setMinInputValue(newMin); // Make sure empty input won't get changed.
-      newMin = typeof newMin === "number" ? newMin : 0;
-      const maxValue = props.data?.max || maxBound;
-
-      newMin = Math.max(minBound, newMin);
-      newMin = Math.min(maxValue, newMin);
-      updateValue(newMin, maxValue);
+      setMinInputValue(event.target.value);
+      const newMin = event.target.value === "" ? 0 : Number(event.target.value);
+      updateValue(Math.min(maxValue, Math.max(minBound, newMin)), maxValue);
     };
     const handleMinInputBlur = () => {
-      let newMin = typeof minInputValue === "number" ? minInputValue : 0;
-      const maxValue = props.data?.max || maxBound;
-      newMin = Math.max(newMin, minBound);
-      newMin = Math.min(newMin, maxValue);
-      setMinInputValue(newMin);
+      setMinInputValue(String(minValue));
     };
 
     const handleMaxInputChange = (
       event: React.ChangeEvent<HTMLInputElement>
     ) => {
-      let newMax = event.target.value === "" ? "" : Number(event.target.value);
-      setMaxInputValue(newMax); // Make sure empty input won't get changed.
-      newMax = typeof newMax === "number" ? newMax : 0;
-      const minValue = props.data?.min || minBound;
-
-      newMax = Math.max(minValue, newMax);
-      newMax = Math.min(newMax, maxBound);
-      updateValue(minValue, newMax);
+      setMaxInputValue(event.target.value);
+      const newMax = event.target.value === "" ? 0 : Number(event.target.value);
+      updateValue(Math.max(minValue, Math.min(maxBound, newMax)), minValue);
     };
     const handleMaxInputBlur = () => {
-      let newMax = typeof maxInputValue === "number" ? maxInputValue : 0;
-      const minValue = props.data?.min || minBound;
-      newMax = Math.max(minValue, newMax);
-      newMax = Math.min(newMax, maxBound);
-      setMaxInputValue(newMax);
+      setMaxInputValue(String(maxValue));
     };
 
     return (
@@ -236,7 +224,7 @@ function AttributeEdit(props: AttributeEditProps) {
           </Grid>
           <Grid item xs>
             <Slider
-              value={[props.data?.min || minBound, props.data?.max || maxBound]}
+              value={[minValue, maxValue]}
               onChange={handleChange}
               valueLabelDisplay="auto"
               getAriaValueText={(value) => value.toString()}
@@ -248,7 +236,6 @@ function AttributeEdit(props: AttributeEditProps) {
           <Grid item>
             <Input
               value={maxInputValue}
-              size="small"
               onChange={handleMaxInputChange}
               onBlur={handleMaxInputBlur}
               inputProps={{
@@ -316,10 +303,7 @@ type AttributeDetailsProps = {
 };
 
 function AttributeDetails(props: AttributeDetailsProps) {
-  if (
-    typeof props.data.selected !== "undefined" &&
-    props.data.selected.length !== 0
-  ) {
+  if (props.data.selected?.length) {
     return (
       <>
         {props.data.selected.map(({ id, name }) => (
@@ -335,7 +319,7 @@ function AttributeDetails(props: AttributeDetailsProps) {
       <>
         <Stack direction="row" alignItems="baseline">
           <Typography variant="body1">
-            Current {props.data.attribute} in Range {props.data.min} to{" "}
+            Current {props.data.name || ""} in Range {props.data.min} to{" "}
             {props.data.max}
           </Typography>
         </Stack>
