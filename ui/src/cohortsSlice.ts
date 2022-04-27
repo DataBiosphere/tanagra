@@ -41,7 +41,6 @@ const cohortsSlice = createSlice({
           cohortId,
           group: {
             id: generateId(),
-            name: "",
             kind,
             criteria: [criteria],
           },
