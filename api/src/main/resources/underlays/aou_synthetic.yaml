@@ -340,7 +340,7 @@ relationships:
 datasets:
   - name: aou_synthetic
     bigQueryDataset:
-      projectId: broad-tanagra-dev
+      projectId: verily-tanagra-dev
       datasetId: aou_synthetic_SR2019q4r4
     tables:
       - name: person
@@ -535,7 +535,7 @@ datasets:
             dataType: STRING
   - name: omop_indexes
     bigQueryDataset:
-      projectId: broad-tanagra-dev
+      projectId: verily-tanagra-dev
       datasetId: aou_synthetic_SR2019q4r4_indexes
     tables:
       - name: flatten_snomed_conditions_0
