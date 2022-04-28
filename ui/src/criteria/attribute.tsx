@@ -205,7 +205,7 @@ function AttributeEdit(props: AttributeEditProps) {
     };
 
     return (
-      <Box sx={{ width: "30%", minWidth: 300, margin: 2 }}>
+      <Box sx={{ width: "30%", minWidth: 300, margin: 5 }}>
         <Grid container spacing={2}>
           <Grid item>
             <Input
@@ -214,7 +214,7 @@ function AttributeEdit(props: AttributeEditProps) {
               onChange={handleMinInputChange}
               onBlur={handleMinInputBlur}
               inputProps={{
-                step: ((maxBound - minBound) / 20) | 0,
+                step: Math.ceil((maxBound - minBound) / 20),
                 min: minBound,
                 max: maxBound,
                 type: "number",
@@ -239,7 +239,7 @@ function AttributeEdit(props: AttributeEditProps) {
               onChange={handleMaxInputChange}
               onBlur={handleMaxInputBlur}
               inputProps={{
-                step: Math.floor((maxBound - minBound) / 20),
+                step: Math.ceil((maxBound - minBound) / 20),
                 min: minBound,
                 max: maxBound,
                 type: "number",
