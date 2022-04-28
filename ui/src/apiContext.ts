@@ -59,6 +59,16 @@ class FakeEntitiesApi {
                   },
                 },
               },
+              {
+                name: "year_of_birth",
+                dataType: tanagra.DataType.Int64,
+                attributeFilterHint: {
+                  integerBoundsHint: {
+                    min: 21,
+                    max: 79,
+                  },
+                },
+              },
             ],
           },
           {

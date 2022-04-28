@@ -1,5 +1,6 @@
 import { generate } from "randomstring";
 import * as tanagra from "./tanagra-api";
+import { CriteriaConfig, Underlay } from "./underlaysSlice";
 
 export function generateId(): string {
   return generate(8);
@@ -76,18 +77,6 @@ export interface Criteria {
   data: unknown;
 }
 
-// CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
-// possible criteria.
-export interface CriteriaConfig {
-  // The plugin type to use for this criteria.
-  type: string;
-  title: string;
-  defaultName: string;
-
-  // Plugin specific config.
-  plugin: unknown;
-}
-
 // Having typed data here allows the registry to treat all data as unknown while
 // plugins can use an actual type internally.
 export interface CriteriaPlugin<DataType> {
@@ -106,7 +95,7 @@ export interface CriteriaPlugin<DataType> {
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
   type: string,
-  initializeData: (config: CriteriaConfig) => unknown
+  initializeData: (underlay: Underlay, config: CriteriaConfig) => unknown
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
@@ -116,14 +105,17 @@ export function registerCriteriaPlugin(
   };
 }
 
-export function createCriteria(config: CriteriaConfig): Criteria {
+export function createCriteria(
+  underlay: Underlay,
+  config: CriteriaConfig
+): Criteria {
   const entry = getCriteriaEntry(config.type);
   return {
     id: generateId(),
     type: config.type,
     name: config.defaultName,
     count: 0,
-    data: entry.initializeData(config),
+    data: entry.initializeData(underlay, config),
   };
 }
 
@@ -147,7 +139,7 @@ interface CriteriaPluginConstructor {
 }
 
 type RegistryEntry = {
-  initializeData: (config: CriteriaConfig) => unknown;
+  initializeData: (underlay: Underlay, config: CriteriaConfig) => unknown;
   constructor: CriteriaPluginConstructor;
 };
 

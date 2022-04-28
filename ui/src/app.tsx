@@ -126,6 +126,14 @@ const criteriaConfigs = [
       attribute: "sex_at_birth_concept_id",
     },
   },
+  {
+    type: "attribute",
+    title: "Year at Birth",
+    defaultName: "Contains Year at Birth Values",
+    plugin: {
+      attribute: "year_of_birth",
+    },
+  },
 ];
 
 // Prepackaged concept sets use _ in the ids to ensure they can't conflict with
