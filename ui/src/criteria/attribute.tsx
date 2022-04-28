@@ -19,7 +19,7 @@ type Selection = {
 
 interface Config extends CriteriaConfig {
   attribute: string;
-  name?: string;
+  name: string;
 }
 
 interface Data extends Config {
@@ -319,7 +319,7 @@ function AttributeDetails(props: AttributeDetailsProps) {
       <>
         <Stack direction="row" alignItems="baseline">
           <Typography variant="body1">
-            Current {props.data.name || ""} in Range {props.data.min} to{" "}
+            Current {props.data.name} in Range {props.data.min} to{" "}
             {props.data.max}
           </Typography>
         </Stack>
