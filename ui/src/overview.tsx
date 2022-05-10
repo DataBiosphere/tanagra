@@ -21,6 +21,7 @@ import {
   insertGroup,
   renameCriteria,
   renameGroup,
+  deleteGroup,
 } from "cohortsSlice";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
@@ -142,6 +143,19 @@ function ParticipantsGroup(props: { group: Group; index: number }) {
     children: [
       <MenuItem key="1" onClick={showRenameGroup}>
         Edit Group Name
+      </MenuItem>,
+      <MenuItem
+        key="2"
+        onClick={() =>
+          dispatch(
+            deleteGroup({
+              cohortId: cohort.id,
+              groupId: props.group.id,
+            })
+          )
+        }
+      >
+        Delete Group
       </MenuItem>,
     ],
   });
