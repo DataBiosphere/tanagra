@@ -67,6 +67,19 @@ const cohortsSlice = createSlice({
       }
     },
 
+    deleteGroup: (
+      state,
+      action: PayloadAction<{
+        cohortId: string;
+        groupId: string;
+      }>
+    ) => {
+      const cohort = state.find((c) => c.id === action.payload.cohortId);
+      if (cohort) {
+        cohort.groups = cohort.groups.filter(group => group.id !== action.payload.groupId)
+      }
+    },
+
     insertCriteria: (
       state,
       action: PayloadAction<{
@@ -161,6 +174,7 @@ export const {
   insertCohort,
   insertGroup,
   renameGroup,
+  deleteGroup,
   insertCriteria,
   updateCriteriaData,
   renameCriteria,
