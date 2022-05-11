@@ -227,38 +227,42 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={1}>
-          <Stack direction="row" alignItems="baseline">
-            <Typography variant="h4">3. Values</Typography>
-            <Typography variant="h5">(Columns)</Typography>
-            <Checkbox
-              size="small"
-              fontSize="inherit"
-              name="select-all-values"
-              checked={selectAllChecked}
-              onChange={() =>
-                updateExcludedAttributes((selection) => {
-                  conceptSetEntities.map((entity) => {
-                    entity.attributes.map((attribute) => {
-                      if (!selection?.get(entity.name)) {
-                        selection?.set(entity.name, new Set<string>());
-                      }
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Stack direction="row" alignItems="center">
+              <Typography variant="h4" mr={1}>3. Values</Typography>
+              <Typography variant="h5">(Columns)</Typography>
+            </Stack>
+            <Stack direction="row">
+              <Checkbox
+                size="small"
+                fontSize="inherit"
+                name="select-all-values"
+                checked={selectAllChecked}
+                onChange={() =>
+                  updateExcludedAttributes((selection) => {
+                    conceptSetEntities.map((entity) => {
+                      entity.attributes.map((attribute) => {
+                        if (!selection?.get(entity.name)) {
+                          selection?.set(entity.name, new Set<string>());
+                        }
 
-                      const attributes = selection?.get(entity.name);
-                      if (!selectAllChecked && attributes?.has(attribute)) {
-                        attributes?.delete(attribute);
-                      } else if (
-                        selectAllChecked &&
-                        !attributes?.has(attribute)
-                      ) {
-                        attributes?.add(attribute);
-                      }
+                        const attributes = selection?.get(entity.name);
+                        if (!selectAllChecked && attributes?.has(attribute)) {
+                          attributes?.delete(attribute);
+                        } else if (
+                          selectAllChecked &&
+                          !attributes?.has(attribute)
+                        ) {
+                          attributes?.add(attribute);
+                        }
+                      });
                     });
-                  });
-                  setSelectAllChecked(!selectAllChecked);
-                })
-              }
-            />
-            <Typography variant="subtitle1">Select All</Typography>
+                    setSelectAllChecked(!selectAllChecked);
+                  })
+                }
+              />
+              <Typography variant="subtitle1">Select All</Typography>
+            </Stack>
           </Stack>
           <Paper
             sx={{ overflowY: "auto", display: "block" }}
