@@ -17,11 +17,11 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
   deleteCriteria,
+  deleteGroup,
   insertCriteria,
   insertGroup,
   renameCriteria,
   renameGroup,
-  deleteGroup,
 } from "cohortsSlice";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
