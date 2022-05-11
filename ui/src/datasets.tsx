@@ -227,9 +227,15 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={1}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             <Stack direction="row" alignItems="center">
-              <Typography variant="h4" mr={1}>3. Values</Typography>
+              <Typography variant="h4" mr={1}>
+                3. Values
+              </Typography>
               <Typography variant="h5">(Columns)</Typography>
             </Stack>
             <Stack direction="row">
