@@ -246,11 +246,14 @@ export function Datasets() {
                       const attributes = selection?.get(entity.name);
                       if (!selectAllChecked && attributes?.has(attribute)) {
                         attributes?.delete(attribute);
-                      } else if (selectAllChecked && !attributes?.has(attribute)) {
+                      } else if (
+                        selectAllChecked &&
+                        !attributes?.has(attribute)
+                      ) {
                         attributes?.add(attribute);
                       }
-                    })
-                  })
+                    });
+                  });
                   setSelectAllChecked(!selectAllChecked);
                 })
               }
