@@ -77,8 +77,8 @@ const cohortsSlice = createSlice({
       const cohort = state.find((c) => c.id === action.payload.cohortId);
       if (cohort) {
         cohort.groups = cohort.groups.filter(
-          group => group.id !== action.payload.groupId
-        )
+          (group) => group.id !== action.payload.groupId
+        );
       }
     },
 
