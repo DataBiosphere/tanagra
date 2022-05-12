@@ -151,7 +151,16 @@ export function Datasets() {
     )),
   });
 
-  const [selectAllChecked, setSelectAllChecked] = useState(true);
+  const allAttributesChecked = () => {
+    for (const entity of conceptSetEntities) {
+      for (const attribute of entity.attributes) {
+        if (excludedAttributes.get(entity.name)?.has(attribute)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
 
   return (
     <>
@@ -243,31 +252,24 @@ export function Datasets() {
                 size="small"
                 fontSize="inherit"
                 name="select-all-values"
-                checked={selectAllChecked}
+                checked={allAttributesChecked()}
                 onChange={() =>
                   updateExcludedAttributes((selection) => {
-                    conceptSetEntities.map((entity) => {
-                      entity.attributes.map((attribute) => {
-                        if (!selection?.get(entity.name)) {
-                          selection?.set(entity.name, new Set<string>());
-                        }
-
-                        const attributes = selection?.get(entity.name);
-                        if (!selectAllChecked && attributes?.has(attribute)) {
-                          attributes?.delete(attribute);
-                        } else if (
-                          selectAllChecked &&
-                          !attributes?.has(attribute)
-                        ) {
-                          attributes?.add(attribute);
-                        }
+                    selection.clear();
+                    if (allAttributesChecked()) {
+                      conceptSetEntities.forEach((entity) => {
+                        selection.set(entity.name, new Set<string>());
+                        entity.attributes.forEach((attribute) => {
+                          selection.get(entity.name)?.add(attribute);
+                        });
                       });
-                    });
-                    setSelectAllChecked(!selectAllChecked);
+                    }
                   })
                 }
               />
-              <Typography variant="subtitle1">Select All</Typography>
+              <Typography variant="subtitle1">
+                {allAttributesChecked() ? "Deselect All" : "Select All"}
+              </Typography>
             </Stack>
           </Stack>
           <Paper
