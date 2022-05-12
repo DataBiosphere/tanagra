@@ -258,10 +258,7 @@ export function Datasets() {
                     selection.clear();
                     if (allAttributesChecked()) {
                       conceptSetEntities.forEach((entity) => {
-                        selection.set(entity.name, new Set<string>());
-                        entity.attributes.forEach((attribute) => {
-                          selection.get(entity.name)?.add(attribute);
-                        });
+                        selection.set(entity.name, new Set<string>(entity.attributes));
                       });
                     }
                   })
