@@ -2602,3 +2602,12 @@ entityFiltersSchemas:
               int64Val: 2000000009
             - displayName: "Unknown"
               int64Val: 0
+entityIndexing:
+  - entity: condition
+    allNodesWorkflow:
+      outputTable: aou_synthetic_SR2019q4r4_indexes.condition_all_nodes
+      query: >-
+        SELECT c.concept_id AS node
+        FROM `verily-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c
+        WHERE c.domain_id = 'Condition'
+        AND c.valid_end_date > '2022-01-01';
