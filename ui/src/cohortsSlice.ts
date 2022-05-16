@@ -15,12 +15,11 @@ const cohortsSlice = createSlice({
       reducer: (state, action: PayloadAction<Cohort>) => {
         state.push(action.payload);
       },
-      prepare: (name: string, underlayName: string, attributes: string[]) => ({
+      prepare: (name: string, underlayName: string) => ({
         payload: {
           id: generateId(),
           name,
           underlayName,
-          attributes,
           groups: [],
         },
       }),

@@ -62,14 +62,7 @@ export function Datasets() {
     textLabel: "Cohort Name",
     buttonLabel: "Create",
     onConfirm: (name: string) => {
-      const action = dispatch(
-        insertCohort(
-          name,
-          underlay.name,
-          // TODO(tjennison): Populate from an actual source.
-          ["person_id"]
-        )
-      );
+      const action = dispatch(insertCohort(name, underlay.name));
       history.push(
         createUrl({
           underlayName: underlay.name,
