@@ -131,9 +131,7 @@ beforeAll(() => {
     ])
   );
 
-  const action = store.dispatch(
-    insertCohort("test-cohort", "test-underlay", ["test-entity"])
-  );
+  const action = store.dispatch(insertCohort("test-cohort", "test-underlay"));
   store.dispatch(
     insertGroup(
       action.payload.id,

@@ -10,7 +10,6 @@ export interface Cohort {
   id: string;
   name: string;
   underlayName: string;
-  attributes: string[];
   groups: Group[];
 }
 
