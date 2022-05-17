@@ -64,11 +64,8 @@ type AttributeEditProps = {
     };
 
     if (integerBoundsHint?.min && integerBoundsHint?.max) {
-      initialDataRange = {
-        ...initialDataRange,
-        min: integerBoundsHint.min,
-        max: integerBoundsHint.max,
-      };
+      initialDataRange.min = integerBoundsHint.min;
+      initialDataRange.max = integerBoundsHint.max;
     }
 
     return {
