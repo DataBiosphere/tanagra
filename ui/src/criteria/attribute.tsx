@@ -38,7 +38,7 @@ interface Data extends Config {
   // Selected is valid for enum attributes.
   selected: Selection[];
 
-  // The min/max are valid for integer attributes.
+  // DataRange is valid for pairs of integer attributes
   dataRanges: DataRange[];
 }
 
