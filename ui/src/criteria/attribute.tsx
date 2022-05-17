@@ -25,8 +25,8 @@ type Selection = {
 
 type DataRange = {
   id: string;
-  min: number | undefined;
-  max: number | undefined;
+  min: number;
+  max: number;
 };
 
 interface Config extends CriteriaConfig {
@@ -57,21 +57,14 @@ type AttributeEditProps = {
       ?.attributes?.find((attribute) => attribute.name === data.attribute)
       ?.attributeFilterHint?.integerBoundsHint;
 
-    const initialDataRange: DataRange = {
-      id: generateId(),
-      min: undefined,
-      max: undefined,
-    };
-
-    if (integerBoundsHint?.min && integerBoundsHint?.max) {
-      initialDataRange.min = integerBoundsHint.min;
-      initialDataRange.max = integerBoundsHint.max;
-    }
-
     return {
       ...data,
       selected: !integerBoundsHint ? [] : undefined,
-      dataRanges: [initialDataRange],
+      dataRanges: integerBoundsHint ? [{
+        id: generateId(),
+        min: integerBoundsHint.min || 0,
+        max: integerBoundsHint.max || 10000,
+      }] : undefined,
     };
   }
 )
