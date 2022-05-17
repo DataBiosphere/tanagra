@@ -57,7 +57,7 @@ type AttributeEditProps = {
       ?.attributes?.find((attribute) => attribute.name === data.attribute)
       ?.attributeFilterHint?.integerBoundsHint;
 
-    let initialDataRange: DataRange = {
+    const initialDataRange: DataRange = {
       id: generateId(),
       min: undefined,
       max: undefined,
