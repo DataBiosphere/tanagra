@@ -8,7 +8,7 @@ servers:
   - url: /
 
 paths:
-  '/status':
+  "/status":
     get:
       security: []
       summary: Returns the operational status of the service
@@ -20,38 +20,38 @@ paths:
         500:
           description: Service is broken
 
-  '/underlays':
+  "/underlays":
     get:
       parameters:
-        - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/PageToken'
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageToken"
       # TODO authorization
       security: []
       summary: Lists the underlays.
       operationId: listUnderlays
-      tags: [ Underlays ]
+      tags: [Underlays]
       responses:
         200:
-          $ref: '#/components/responses/ListUnderlaysResponse'
+          $ref: "#/components/responses/ListUnderlaysResponse"
 
-  '/underlays/{underlayName}':
+  "/underlays/{underlayName}":
     parameters:
-      - $ref: '#/components/parameters/Underlay'
+      - $ref: "#/components/parameters/Underlay"
     get:
       # TODO authorization
       security: []
       summary: Get info on an underlay.
       operationId: getUnderlay
-      tags: [ Underlays ]
+      tags: [Underlays]
       responses:
         200:
-          $ref: '#/components/responses/GetUnderlayResponse'
+          $ref: "#/components/responses/GetUnderlayResponse"
 
-  '/underlays/{underlayName}/entities':
+  "/underlays/{underlayName}/entities":
     parameters:
-      - $ref: '#/components/parameters/PageSize'
-      - $ref: '#/components/parameters/PageToken'
-      - $ref: '#/components/parameters/Underlay'
+      - $ref: "#/components/parameters/PageSize"
+      - $ref: "#/components/parameters/PageToken"
+      - $ref: "#/components/parameters/Underlay"
     get:
       # TODO authorization
       security: []
@@ -60,12 +60,12 @@ paths:
       tags: [Entities]
       responses:
         200:
-          $ref: '#/components/responses/ListEntitiesResponse'
+          $ref: "#/components/responses/ListEntitiesResponse"
 
-  '/underlays/{underlayName}/entities/{entityName}':
+  "/underlays/{underlayName}/entities/{entityName}":
     parameters:
-      - $ref: '#/components/parameters/Underlay'
-      - $ref: '#/components/parameters/Entity'
+      - $ref: "#/components/parameters/Underlay"
+      - $ref: "#/components/parameters/Entity"
     get:
       # TODO authorization
       security: []
@@ -74,13 +74,13 @@ paths:
       tags: [Entities]
       responses:
         200:
-          $ref: '#/components/responses/GetEntityResponse'
+          $ref: "#/components/responses/GetEntityResponse"
 
   # TODO implement "real" export endpoints
-  '/underlays/{underlayName}/entities/{entityName}/filters:generateSqlQuery':
+  "/underlays/{underlayName}/entities/{entityName}/filters:generateSqlQuery":
     parameters:
-      - $ref: '#/components/parameters/Underlay'
-      - $ref: '#/components/parameters/Entity'
+      - $ref: "#/components/parameters/Underlay"
+      - $ref: "#/components/parameters/Entity"
     post:
       # TODO authorization
       security: []
@@ -92,20 +92,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EntityFilter'
+              $ref: "#/components/schemas/EntityFilter"
       responses:
         200:
-          $ref: '#/components/responses/SqlQueryResponse'
-
+          $ref: "#/components/responses/SqlQueryResponse"
 
   # TODO implement "real" export endpoints
-  '/underlays/{underlayName}/entities/{entityName}/instances:generateSqlQuery':
+  "/underlays/{underlayName}/entities/{entityName}/instances:generateSqlQuery":
     parameters:
-      - $ref: '#/components/parameters/Underlay'
-      - $ref: '#/components/parameters/Entity'
+      - $ref: "#/components/parameters/Underlay"
+      - $ref: "#/components/parameters/Entity"
     post:
       # TODO authorization
-      security: [ ]
+      security: []
       summary: Returns an SQL query for selecting a dataset of entity instances.
       operationId: generateDatasetSqlQuery
       tags: [EntityInstances]
@@ -114,17 +113,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GenerateDatasetSqlQueryRequest'
+              $ref: "#/components/schemas/GenerateDatasetSqlQueryRequest"
       responses:
         200:
-          $ref: '#/components/responses/SqlQueryResponse'
+          $ref: "#/components/responses/SqlQueryResponse"
 
-  '/underlays/{underlayName}/entities/{entityName}/instances:search':
+  "/underlays/{underlayName}/entities/{entityName}/instances:search":
     parameters:
-      - $ref: '#/components/parameters/Entity'
-      - $ref: '#/components/parameters/PageSize'
-      - $ref: '#/components/parameters/PageToken'
-      - $ref: '#/components/parameters/Underlay'
+      - $ref: "#/components/parameters/Entity"
+      - $ref: "#/components/parameters/PageSize"
+      - $ref: "#/components/parameters/PageToken"
+      - $ref: "#/components/parameters/Underlay"
     post:
       # TODO authorization
       security: []
@@ -136,10 +135,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SearchEntityInstancesRequest'
+              $ref: "#/components/schemas/SearchEntityInstancesRequest"
       responses:
         200:
-          $ref: '#/components/responses/SearchEntityInstancesResponse'
+          $ref: "#/components/responses/SearchEntityInstancesResponse"
 
 components:
   parameters:
@@ -183,42 +182,42 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Entity'
+            $ref: "#/components/schemas/Entity"
 
     GetUnderlayResponse:
       description: Response to get an underlay.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Underlay'
+            $ref: "#/components/schemas/Underlay"
 
     ListEntitiesResponse:
       description: Response to list the entities.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ListEntitiesResponse'
+            $ref: "#/components/schemas/ListEntitiesResponse"
 
     ListUnderlaysResponse:
       description: Response to list the underlays.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ListUnderlaysResponse'
+            $ref: "#/components/schemas/ListUnderlaysResponse"
 
     SearchEntityInstancesResponse:
       description: Response to searching the entity instances.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/SearchEntityInstancesResponse'
+            $ref: "#/components/schemas/SearchEntityInstancesResponse"
 
     SqlQueryResponse:
       description: A raw SQL query.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/SqlQuery'
+            $ref: "#/components/schemas/SqlQuery"
 
   schemas:
     Attribute:
@@ -229,9 +228,9 @@ components:
           description: The name of the attribute
           type: string
         dataType:
-          $ref: '#/components/schemas/DataType'
+          $ref: "#/components/schemas/DataType"
         attributeFilterHint:
-          $ref: '#/components/schemas/AttributeFilterHint'
+          $ref: "#/components/schemas/AttributeFilterHint"
           nullable: true
 
     AttributeFilterHint:
@@ -241,11 +240,11 @@ components:
         should not be used in filter expressions.
       properties:
         entitySearchHint:
-          $ref: '#/components/schemas/EntitySearchHint'
+          $ref: "#/components/schemas/EntitySearchHint"
         enumHint:
-          $ref: '#/components/schemas/EnumHint'
+          $ref: "#/components/schemas/EnumHint"
         integerBoundsHint:
-          $ref: '#/components/schemas/IntegerBoundsHint'
+          $ref: "#/components/schemas/IntegerBoundsHint"
 
     # Attribute Filter Hints
 
@@ -268,7 +267,7 @@ components:
         enumHintValues:
           type: array
           items:
-            $ref: '#/components/schemas/EnumHintValue'
+            $ref: "#/components/schemas/EnumHintValue"
 
     EnumHintValue:
       type: object
@@ -283,11 +282,11 @@ components:
           nullable: true
         attributeValue:
           description: The value that the attribute takes.
-          $ref: '#/components/schemas/AttributeValue'
+          $ref: "#/components/schemas/AttributeValue"
 
     IntegerBoundsHint:
       type: object
-      description:  A hint for a attribute filter that the values are within certain bounds.
+      description: A hint for a attribute filter that the values are within certain bounds.
       properties:
         min:
           type: integer
@@ -331,7 +330,7 @@ components:
     DataType:
       description: Enum of data types
       type: string
-      enum: ['INT64', 'STRING', 'BOOL']
+      enum: ["INT64", "STRING", "BOOL"]
 
     Entity:
       type: object
@@ -345,12 +344,12 @@ components:
           description: The attributes that make up the entity.
           type: array
           items:
-            $ref: '#/components/schemas/Attribute'
+            $ref: "#/components/schemas/Attribute"
         relationships:
           description: The relationships that the entity is a part of.
           type: array
           items:
-            $ref: '#/components/schemas/Relationship'
+            $ref: "#/components/schemas/Relationship"
 
     EntityDataset:
       description: A selection of entity attributes and filters on them.
@@ -370,14 +369,14 @@ components:
         orderByDirection:
           description: The direction to order the results in. Defaults to ascending.
           nullable: true
-          $ref: '#/components/schemas/OrderByDirection'
+          $ref: "#/components/schemas/OrderByDirection"
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
 
     OrderByDirection:
       description: Enum for order by direction
       type: string
-      enum: ['ASC', 'DESC']
+      enum: ["ASC", "DESC"]
 
     EntityFilter:
       description: A filter to apply to the given entity.
@@ -387,7 +386,7 @@ components:
           description: The variable to use for the top level entity in the filter.
           type: string
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
 
     ListEntitiesResponse:
       type: object
@@ -396,9 +395,9 @@ components:
         entities:
           type: array
           items:
-            $ref: '#/components/schemas/Entity'
+            $ref: "#/components/schemas/Entity"
         nextPageToken:
-          $ref: '#/components/schemas/NextPageToken'
+          $ref: "#/components/schemas/NextPageToken"
 
     SqlQuery:
       type: object
@@ -420,13 +419,13 @@ components:
       nullable: true
       properties:
         arrayFilter:
-          $ref: '#/components/schemas/ArrayFilter'
+          $ref: "#/components/schemas/ArrayFilter"
         binaryFilter:
-          $ref: '#/components/schemas/BinaryFilter'
+          $ref: "#/components/schemas/BinaryFilter"
         relationshipFilter:
-          $ref: '#/components/schemas/RelationshipFilter'
+          $ref: "#/components/schemas/RelationshipFilter"
         textSearchFilter:
-          $ref: '#/components/schemas/TextSearchFilter'
+          $ref: "#/components/schemas/TextSearchFilter"
         # TODO allow aggregations in filters.
 
     ArrayFilter:
@@ -436,14 +435,14 @@ components:
         operands:
           type: array
           items:
-            $ref: '#/components/schemas/Filter'
+            $ref: "#/components/schemas/Filter"
         operator:
-          $ref: '#/components/schemas/ArrayFilterOperator'
+          $ref: "#/components/schemas/ArrayFilterOperator"
 
     ArrayFilterOperator:
       description: Enum for array function operators
       type: string
-      enum: ['AND', 'OR']
+      enum: ["AND", "OR"]
 
     BinaryFilter:
       type: object
@@ -452,16 +451,24 @@ components:
       # TODO allow comparing two AttributeVariables
       properties:
         attributeVariable:
-          $ref: '#/components/schemas/AttributeVariable'
+          $ref: "#/components/schemas/AttributeVariable"
         operator:
-          $ref: '#/components/schemas/BinaryFilterOperator'
+          $ref: "#/components/schemas/BinaryFilterOperator"
         attributeValue:
-          $ref: '#/components/schemas/AttributeValue'
+          $ref: "#/components/schemas/AttributeValue"
 
     BinaryFilterOperator:
       description: Enum for binary function operators
       type: string
-      enum: ['EQUALS', 'NOT_EQUALS', 'LESS_THAN', 'GREATER_THAN', 'DESCENDANT_OF_INCLUSIVE', 'CHILD_OF']
+      enum:
+        [
+          "EQUALS",
+          "NOT_EQUALS",
+          "LESS_THAN",
+          "GREATER_THAN",
+          "DESCENDANT_OF_INCLUSIVE",
+          "CHILD_OF",
+        ]
 
     RelationshipFilter:
       type: object
@@ -479,7 +486,7 @@ components:
           description: The name of the type of entity the newVariable is.
           type: string
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
 
     TextSearchFilter:
       type: object
@@ -511,7 +518,7 @@ components:
       type: object
       properties:
         entityDataset:
-          $ref: '#/components/schemas/EntityDataset'
+          $ref: "#/components/schemas/EntityDataset"
 
     NextPageToken:
       type: string
@@ -539,9 +546,9 @@ components:
         underlays:
           type: array
           items:
-            $ref: '#/components/schemas/Underlay'
+            $ref: "#/components/schemas/Underlay"
         nextPageToken:
-          $ref: '#/components/schemas/NextPageToken'
+          $ref: "#/components/schemas/NextPageToken"
 
     Relationship:
       type: object
@@ -565,7 +572,7 @@ components:
       description: A request for searching entity instances.
       properties:
         entityDataset:
-          $ref: '#/components/schemas/EntityDataset'
+          $ref: "#/components/schemas/EntityDataset"
 
     SearchEntityInstancesResponse:
       type: object
@@ -576,9 +583,9 @@ components:
           description: Repeated instances results of the search.
           nullable: true
           items:
-            $ref: '#/components/schemas/EntityInstanceStruct'
+            $ref: "#/components/schemas/EntityInstanceStruct"
         nextPageToken:
-          $ref: '#/components/schemas/NextPageToken'
+          $ref: "#/components/schemas/NextPageToken"
 
     EntityInstanceStruct:
       type: object
@@ -586,4 +593,118 @@ components:
       additionalProperties:
         type: object
         nullable: true
-        $ref: '#/components/schemas/AttributeValue'
+        $ref: "#/components/schemas/AttributeValue"
+
+    UserData:
+      type: object
+      description: The root container for user generated data.
+      properties:
+        version:
+          type: integer
+          description: The version of UserData to support forward and backward compatibility.
+        cohorts:
+          type: array
+          description: User generated cohorts.
+          items:
+            $ref: "#/components/schemas/Cohort"
+        conceptSets:
+          type: array
+          description: User generated concept sets.
+          items:
+            $ref: "#/components/schemas/ConceptSet"
+      required:
+        - version
+        - cohorts
+        - conceptSets
+
+    Cohort:
+      type: object
+      description: A user generated cohort.
+      properties:
+        id:
+          type: string
+          description: The unique id of this cohort.
+        name:
+          type: string
+          description: The name of this cohort.
+        underlayName:
+          type: string
+          description: The underlay this cohort is based on.
+        groups:
+          type: array
+          description: The criteria groups that make up this cohort.
+          items:
+            $ref: "#/components/schemas/Group"
+      required:
+        - id
+        - name
+        - underlayName
+        - groups
+
+    Group:
+      type: object
+      description: A group of criteria.
+      properties:
+        id:
+          type: string
+          description: The unique id of this group.
+        name:
+          type: string
+          description: The name of this group if customized.
+        kind:
+          type: string
+          description: The kind of this group.
+          enum: ["INCLUDED", "EXCLUDED"]
+        criteria:
+          type: array
+          description: The criteria that make of this group.
+          items:
+            $ref: "#/components/schemas/Criteria"
+      required:
+        - id
+        - kind
+        - underlayName
+        - criteria
+
+    ConceptSet:
+      type: object
+      description: A user generated concept set.
+      properties:
+        id:
+          type: string
+          description: The unique id of this concept set.
+        name:
+          type: string
+          description: The name of this concept set.
+        underlayName:
+          type: string
+          description: The underlay this concept set is based on.
+        criteria:
+          $ref: "#/components/schemas/Criteria"
+      required:
+        - id
+        - name
+        - underlayName
+        - criteria
+
+    Criteria:
+      type: object
+      description: A single criteria in a cohort or concept set.
+      properties:
+        id:
+          type: string
+          description: The unique id of this criteria.
+        name:
+          type: string
+          description: The name of this criteria.
+        type:
+          type: string
+          description: The plugin type used by this criteria.
+        data:
+          type: object
+          description: The plugin specific data that defines this criteria.
+      required:
+        - id
+        - name
+        - type
+        - data

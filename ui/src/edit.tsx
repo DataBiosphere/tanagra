@@ -12,7 +12,7 @@ export default function Edit() {
   return (
     <>
       <ActionBar title={criteria.name} />
-      {getCriteriaPlugin(criteria).renderEdit((data: unknown) => {
+      {getCriteriaPlugin(criteria).renderEdit((data: object) => {
         dispatch(
           updateCriteriaData({
             cohortId: cohort.id,

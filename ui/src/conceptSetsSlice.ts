@@ -1,25 +1,27 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Criteria, generateId } from "cohort";
+import { generateId } from "cohort";
+import * as tanagra from "tanagra-api";
 
 export type ConceptSet = {
   id: string;
   underlayName: string;
-  criteria: Criteria;
+  criteria: tanagra.Criteria;
 };
 
-const initialState: ConceptSet[] = [];
+const initialState: tanagra.ConceptSet[] = [];
 
 const conceptSetsSlice = createSlice({
   name: "conceptSets",
   initialState,
   reducers: {
     insertConceptSet: {
-      reducer: (state, action: PayloadAction<ConceptSet>) => {
+      reducer: (state, action: PayloadAction<tanagra.ConceptSet>) => {
         state.push(action.payload);
       },
-      prepare: (underlayName: string, criteria: Criteria) => ({
+      prepare: (underlayName: string, criteria: tanagra.Criteria) => ({
         payload: {
           id: generateId(),
+          name: criteria.name,
           underlayName,
           criteria,
         },
@@ -42,7 +44,7 @@ const conceptSetsSlice = createSlice({
       state,
       action: PayloadAction<{
         conceptSetId: string;
-        data: unknown;
+        data: object;
       }>
     ) => {
       const conceptSet = state.find(

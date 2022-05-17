@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Cohort, Criteria, generateId, Group, GroupKind } from "cohort";
+import { generateId } from "cohort";
+import * as tanagra from "tanagra-api";
 
-const initialState: Cohort[] = [];
+const initialState: tanagra.Cohort[] = [];
 
 // TODO(tjennison): Normalize groups and criteria to simplify a lot of this
 // nested code. This may require changing how the slices are arranged though,
@@ -12,7 +13,7 @@ const cohortsSlice = createSlice({
   initialState,
   reducers: {
     insertCohort: {
-      reducer: (state, action: PayloadAction<Cohort>) => {
+      reducer: (state, action: PayloadAction<tanagra.Cohort>) => {
         state.push(action.payload);
       },
       prepare: (name: string, underlayName: string) => ({
@@ -28,14 +29,18 @@ const cohortsSlice = createSlice({
     insertGroup: {
       reducer: (
         state,
-        action: PayloadAction<{ cohortId: string; group: Group }>
+        action: PayloadAction<{ cohortId: string; group: tanagra.Group }>
       ) => {
         const cohort = state.find((c) => c.id === action.payload.cohortId);
         if (cohort) {
           cohort.groups.push(action.payload.group);
         }
       },
-      prepare: (cohortId: string, kind: GroupKind, criteria: Criteria) => ({
+      prepare: (
+        cohortId: string,
+        kind: tanagra.GroupKindEnum,
+        criteria: tanagra.Criteria
+      ) => ({
         payload: {
           cohortId,
           group: {
@@ -86,7 +91,7 @@ const cohortsSlice = createSlice({
       action: PayloadAction<{
         cohortId: string;
         groupId: string;
-        criteria: Criteria;
+        criteria: tanagra.Criteria;
       }>
     ) => {
       const cohort = state.find((c) => c.id === action.payload.cohortId);
@@ -105,7 +110,7 @@ const cohortsSlice = createSlice({
         cohortId: string;
         groupId: string;
         criteriaId: string;
-        data: unknown;
+        data: object;
       }>
     ) => {
       const cohort = state.find((c) => c.id === action.payload.cohortId);
