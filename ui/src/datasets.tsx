@@ -151,6 +151,17 @@ export function Datasets() {
     )),
   });
 
+  const allAttributesChecked = () => {
+    for (const entity of conceptSetEntities) {
+      for (const attribute of entity.attributes) {
+        if (excludedAttributes.get(entity.name)?.has(attribute)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
   return (
     <>
       <ActionBar title="Datasets" />
@@ -225,9 +236,41 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={1}>
-          <Stack direction="row" alignItems="baseline">
-            <Typography variant="h4">3. Values</Typography>
-            <Typography variant="h5">(Columns)</Typography>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Stack direction="row" alignItems="center">
+              <Typography variant="h4" mr={1}>
+                3. Values
+              </Typography>
+              <Typography variant="h5">(Columns)</Typography>
+            </Stack>
+            <Stack direction="row">
+              <Checkbox
+                size="small"
+                fontSize="inherit"
+                name="select-all-values"
+                checked={allAttributesChecked()}
+                onChange={() =>
+                  updateExcludedAttributes((selection) => {
+                    selection.clear();
+                    if (allAttributesChecked()) {
+                      conceptSetEntities.forEach((entity) => {
+                        selection.set(
+                          entity.name,
+                          new Set<string>(entity.attributes)
+                        );
+                      });
+                    }
+                  })
+                }
+              />
+              <Typography variant="subtitle1">
+                {allAttributesChecked() ? "Deselect All" : "Select All"}
+              </Typography>
+            </Stack>
           </Stack>
           <Paper
             sx={{ overflowY: "auto", display: "block" }}
