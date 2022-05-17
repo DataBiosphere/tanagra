@@ -60,11 +60,15 @@ type AttributeEditProps = {
     return {
       ...data,
       selected: !integerBoundsHint ? [] : undefined,
-      dataRanges: integerBoundsHint ? [{
-        id: generateId(),
-        min: integerBoundsHint.min || 0,
-        max: integerBoundsHint.max || 10000,
-      }] : undefined,
+      dataRanges: integerBoundsHint
+        ? [
+            {
+              id: generateId(),
+              min: integerBoundsHint.min || 0,
+              max: integerBoundsHint.max || 10000,
+            },
+          ]
+        : undefined,
     };
   }
 )
