@@ -61,7 +61,7 @@ type AttributeEditProps = {
       id: generateId(),
       min: undefined,
       max: undefined,
-    }
+    };
 
     if (integerBoundsHint?.min && integerBoundsHint?.max) {
       initialDataRange = {
