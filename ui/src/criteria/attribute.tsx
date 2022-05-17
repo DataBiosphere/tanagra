@@ -295,9 +295,6 @@ function AttributeEdit(props: AttributeEditProps) {
     const handleAddRange = () => {
       props.dispatchFn(
         produce(props.data, (data) => {
-          // TODO: Ask about a more efficient way to handle non-null values
-          //       Without the guard, there is a type mismatch (number | null | undefined vs number | undefined)
-          //       Changing type to be number | null | undefined creates problems in other places in the code
           if (integerBoundsHint?.min && integerBoundsHint?.max) {
             data.dataRanges.push({
               id: generateId(),
