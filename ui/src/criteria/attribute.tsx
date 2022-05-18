@@ -401,18 +401,16 @@ function AttributeDetails(props: AttributeDetailsProps) {
         ))}
       </>
     );
-  } else if (
-    isValid(props.data.dataRanges[0].min) &&
-    isValid(props.data.dataRanges[0].max)
-  ) {
+  } else if (props.data.dataRanges?.length) {
     return (
       <>
-        <Stack direction="row" alignItems="baseline">
-          <Typography variant="body1">
-            Current {props.data.name} in Range {props.data.dataRanges[0].min} to{" "}
-            {props.data.dataRanges[0].max}
-          </Typography>
-        </Stack>
+        {props.data.dataRanges.map(({ id, min, max }) => (
+          <Stack direction="row" alignItems="baseline" key={id}>
+            <Typography variant="body1">
+              Current {props.data.name} in Range {min} to {max}
+            </Typography>
+          </Stack>
+        ))}
       </>
     );
   }
