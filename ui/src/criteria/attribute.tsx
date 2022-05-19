@@ -89,51 +89,54 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter(entityVar: string) {
+    console.log(this.data);
     const dataRangeFilter: tanagra.Filter = {
       arrayFilter: {
-        operands: this.data.dataRanges
-          .filter((range) => isValid(range.min) && isValid(range.max))
-          .map((range) => ({
-            arrayFilter: {
-              operands: [
-                {
-                  binaryFilter: {
-                    attributeVariable: {
-                      variable: entityVar,
-                      name: this.data.attribute,
+        operands: !this.data.dataRanges
+          ? []
+          : this.data.dataRanges
+              .filter((range) => isValid(range.min) && isValid(range.max))
+              .map((range) => ({
+                arrayFilter: {
+                  operands: [
+                    {
+                      binaryFilter: {
+                        attributeVariable: {
+                          variable: entityVar,
+                          name: this.data.attribute,
+                        },
+                        operator: tanagra.BinaryFilterOperator.GreaterThan,
+                        attributeValue: {
+                          int64Val: range.min,
+                        },
+                      },
                     },
-                    operator: tanagra.BinaryFilterOperator.GreaterThan,
-                    attributeValue: {
-                      int64Val: range.min,
+                    {
+                      binaryFilter: {
+                        attributeVariable: {
+                          variable: entityVar,
+                          name: this.data.attribute,
+                        },
+                        operator: tanagra.BinaryFilterOperator.GreaterThan,
+                        attributeValue: {
+                          int64Val: range.min,
+                        },
+                      },
                     },
-                  },
+                  ],
+                  operator: tanagra.ArrayFilterOperator.And,
                 },
-                {
-                  binaryFilter: {
-                    attributeVariable: {
-                      variable: entityVar,
-                      name: this.data.attribute,
-                    },
-                    operator: tanagra.BinaryFilterOperator.GreaterThan,
-                    attributeValue: {
-                      int64Val: range.min,
-                    },
-                  },
-                },
-              ],
-              operator: tanagra.ArrayFilterOperator.And,
-            },
-          })),
+              })),
         operator: tanagra.ArrayFilterOperator.Or,
       },
     };
 
     if (
       dataRangeFilter.arrayFilter?.operands &&
-      dataRangeFilter.arrayFilter?.operands.length > 0
+      dataRangeFilter.arrayFilter?.operands.length
     ) {
       return dataRangeFilter;
-    } else if (this.data.selected.length >= 0) {
+    } else if (this.data.selected && this.data.selected.length) {
       return {
         arrayFilter: {
           operands: this.data.selected.map(({ id }) => ({
