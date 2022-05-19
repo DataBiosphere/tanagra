@@ -92,9 +92,8 @@ class _ implements CriteriaPlugin<Data> {
     console.log(this.data);
     const dataRangeFilter: tanagra.Filter = {
       arrayFilter: {
-        operands: !this.data.dataRanges
-          ? []
-          : this.data.dataRanges
+        operands: this.data.dataRanges
+          ? this.data.dataRanges
               .filter((range) => isValid(range.min) && isValid(range.max))
               .map((range) => ({
                 arrayFilter: {
@@ -126,7 +125,8 @@ class _ implements CriteriaPlugin<Data> {
                   ],
                   operator: tanagra.ArrayFilterOperator.And,
                 },
-              })),
+              }))
+          : [],
         operator: tanagra.ArrayFilterOperator.Or,
       },
     };
@@ -136,7 +136,7 @@ class _ implements CriteriaPlugin<Data> {
       dataRangeFilter.arrayFilter?.operands.length
     ) {
       return dataRangeFilter;
-    } else if (this.data.selected && this.data.selected.length) {
+    } else if (this.data.selected && this.data.selected.length >= 0) {
       return {
         arrayFilter: {
           operands: this.data.selected.map(({ id }) => ({
