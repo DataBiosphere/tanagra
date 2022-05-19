@@ -1,3 +1,4 @@
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Button,
   Checkbox,
@@ -38,7 +39,7 @@ interface Data extends Config {
   // Selected is valid for enum attributes.
   selected: Selection[];
 
-  // DataRange is valid for pairs of integer attributes
+  // dataRanges is valid for integer attributes.
   dataRanges: DataRange[];
 }
 
@@ -89,54 +90,44 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter(entityVar: string) {
-    console.log(this.data);
-    const dataRangeFilter: tanagra.Filter = {
-      arrayFilter: {
-        operands: this.data.dataRanges
-          ? this.data.dataRanges
-              .filter((range) => isValid(range.min) && isValid(range.max))
-              .map((range) => ({
-                arrayFilter: {
-                  operands: [
-                    {
-                      binaryFilter: {
-                        attributeVariable: {
-                          variable: entityVar,
-                          name: this.data.attribute,
-                        },
-                        operator: tanagra.BinaryFilterOperator.GreaterThan,
-                        attributeValue: {
-                          int64Val: range.min,
-                        },
-                      },
+    if (this.data.dataRanges?.length) {
+      return {
+        arrayFilter: {
+          operands: this.data.dataRanges.map((range) => ({
+            arrayFilter: {
+              operands: [
+                {
+                  binaryFilter: {
+                    attributeVariable: {
+                      variable: entityVar,
+                      name: this.data.attribute,
                     },
-                    {
-                      binaryFilter: {
-                        attributeVariable: {
-                          variable: entityVar,
-                          name: this.data.attribute,
-                        },
-                        operator: tanagra.BinaryFilterOperator.GreaterThan,
-                        attributeValue: {
-                          int64Val: range.min,
-                        },
-                      },
+                    operator: tanagra.BinaryFilterOperator.LessThan,
+                    attributeValue: {
+                      int64Val: range.max,
                     },
-                  ],
-                  operator: tanagra.ArrayFilterOperator.And,
+                  },
                 },
-              }))
-          : [],
-        operator: tanagra.ArrayFilterOperator.Or,
-      },
-    };
-
-    if (
-      dataRangeFilter.arrayFilter?.operands &&
-      dataRangeFilter.arrayFilter?.operands.length
-    ) {
-      return dataRangeFilter;
-    } else if (this.data.selected && this.data.selected.length >= 0) {
+                {
+                  binaryFilter: {
+                    attributeVariable: {
+                      variable: entityVar,
+                      name: this.data.attribute,
+                    },
+                    operator: tanagra.BinaryFilterOperator.GreaterThan,
+                    attributeValue: {
+                      int64Val: range.min,
+                    },
+                  },
+                },
+              ],
+              operator: tanagra.ArrayFilterOperator.And,
+            },
+          })),
+          operator: tanagra.ArrayFilterOperator.Or,
+        },
+      };
+    } else if (this.data.selected.length >= 0) {
       return {
         arrayFilter: {
           operands: this.data.selected.map(({ id }) => ({
@@ -234,7 +225,7 @@ function AttributeSlider(props: SliderProps) {
 
   return (
     <Box sx={{ width: "30%", minWidth: 500, margin: 5 }}>
-      <Grid container spacing={2} direction="row">
+      <Grid container spacing={2} direction="row" alignItems="center">
         <Grid item>
           <Input
             value={minInputValue}
@@ -275,9 +266,11 @@ function AttributeSlider(props: SliderProps) {
             }}
           />
         </Grid>
-        <Button variant="outlined" sx={{ ml: 5 }} onClick={handleDeleteRange}>
-          Delete
-        </Button>
+        <DeleteIcon
+          onClick={handleDeleteRange}
+          fontSize="medium"
+          style={{ cursor: "pointer", marginLeft: 25 }}
+        />
       </Grid>
     </Box>
   );
@@ -299,16 +292,17 @@ function AttributeEdit(props: AttributeEditProps) {
   if (isValid(integerBoundsHint?.min) && isValid(integerBoundsHint?.max)) {
     // TODO: The comments can be removed once isValid is fixed.
 
+    const minBound = integerBoundsHint?.min || 0;
+    const maxBound = integerBoundsHint?.max || 0;
+
     const handleAddRange = () => {
       props.dispatchFn(
         produce(props.data, (data) => {
-          if (integerBoundsHint?.min && integerBoundsHint?.max) {
-            data.dataRanges.push({
-              id: generateId(),
-              min: integerBoundsHint.min,
-              max: integerBoundsHint.max,
-            });
-          }
+          data.dataRanges.push({
+            id: generateId(),
+            min: minBound,
+            max: maxBound,
+          });
         })
       );
     };
@@ -321,8 +315,8 @@ function AttributeEdit(props: AttributeEditProps) {
               <AttributeSlider
                 key={range.id}
                 index={index}
-                minBound={integerBoundsHint?.min || 0}
-                maxBound={integerBoundsHint?.max || 0}
+                minBound={minBound}
+                maxBound={maxBound}
                 range={range}
                 data={props.data}
                 dispatchFn={props.dispatchFn}
