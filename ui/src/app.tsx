@@ -7,6 +7,7 @@ import "plugins";
 import { useCallback, useContext } from "react";
 import { HashRouter } from "react-router-dom";
 import { AppRouter } from "router";
+import { LoadingUserData } from "storage/storage";
 import * as tanagra from "tanagra-api";
 import { setUnderlays } from "underlaysSlice";
 import "./app.css";
@@ -216,10 +217,12 @@ export default function App() {
   );
 
   return (
-    <Loading status={underlaysState}>
-      <HashRouter>
-        <AppRouter />
-      </HashRouter>
-    </Loading>
+    <LoadingUserData>
+      <Loading status={underlaysState}>
+        <HashRouter>
+          <AppRouter />
+        </HashRouter>
+      </Loading>
+    </LoadingUserData>
   );
 }
