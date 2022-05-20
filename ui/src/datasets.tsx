@@ -11,12 +11,7 @@ import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { EntityInstancesApiContext } from "apiContext";
-import {
-  createCriteria,
-  Criteria,
-  generateQueryFilter,
-  getCriteriaPlugin,
-} from "cohort";
+import { createCriteria, generateQueryFilter, getCriteriaPlugin } from "cohort";
 import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
@@ -119,7 +114,7 @@ export function Datasets() {
     ));
   };
 
-  const onInsertConceptSet = (criteria: Criteria) => {
+  const onInsertConceptSet = (criteria: tanagra.Criteria) => {
     const {
       payload: { id },
     } = dispatch(insertConceptSet(underlay.name, criteria));

@@ -29,13 +29,8 @@ import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import React from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import { createUrl } from "router";
-import {
-  createCriteria,
-  Criteria,
-  getCriteriaPlugin,
-  Group,
-  GroupKind,
-} from "./cohort";
+import * as tanagra from "tanagra-api";
+import { createCriteria, getCriteriaPlugin } from "./cohort";
 
 export default function Overview() {
   const cohort = useCohort();
@@ -48,7 +43,7 @@ export default function Overview() {
           <Typography variant="h4">Included Participants</Typography>
           <Stack spacing={0}>
             {cohort.groups
-              .filter((g) => g.kind === GroupKind.Included)
+              .filter((g) => g.kind === tanagra.GroupKindEnum.Included)
               .map((group, index) => (
                 <Box key={group.id}>
                   <ParticipantsGroup group={group} index={index} />
@@ -58,7 +53,7 @@ export default function Overview() {
                 </Box>
               ))}
             <Box key="">
-              <AddCriteriaButton group={GroupKind.Included} />
+              <AddCriteriaButton kind={tanagra.GroupKindEnum.Included} />
             </Box>
           </Stack>
         </Grid>
@@ -67,9 +62,10 @@ export default function Overview() {
   );
 }
 
-// If group is a string, the criteria is added to the group with that id. If
-// it's a GroupKind, a new group of that kind is added instead.
-function AddCriteriaButton(props: { group: string | GroupKind }) {
+function AddCriteriaButton(props: {
+  group?: string;
+  kind?: tanagra.GroupKindEnum;
+}) {
   const underlay = useUnderlay();
   const cohort = useCohort();
   const history = useHistory();
@@ -77,23 +73,25 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
 
   const configs = underlay.criteriaConfigs;
 
-  const onAddCriteria = (criteria: Criteria) => {
+  const onAddCriteria = (criteria: tanagra.Criteria) => {
     let groupId = "";
-    if (typeof props.group === "string") {
+    if (props.group) {
       groupId = props.group;
       dispatch(insertCriteria({ cohortId: cohort.id, groupId, criteria }));
-    } else {
-      const action = dispatch(insertGroup(cohort.id, props.group, criteria));
+    } else if (props.kind) {
+      const action = dispatch(insertGroup(cohort.id, props.kind, criteria));
       groupId = action.payload.group.id;
     }
-    history.push(
-      createUrl({
-        underlayName: underlay.name,
-        cohortId: cohort.id,
-        groupId,
-        criteriaId: criteria.id,
-      })
-    );
+    if (groupId) {
+      history.push(
+        createUrl({
+          underlayName: underlay.name,
+          cohortId: cohort.id,
+          groupId,
+          criteriaId: criteria.id,
+        })
+      );
+    }
   };
 
   const [menu, show] = useMenu({
@@ -119,7 +117,7 @@ function AddCriteriaButton(props: { group: string | GroupKind }) {
   );
 }
 
-function ParticipantsGroup(props: { group: Group; index: number }) {
+function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
   const dispatch = useAppDispatch();
   const cohort = useCohort();
   const groupName = props.group.name || "Group " + String(props.index + 1);
@@ -189,7 +187,10 @@ function ParticipantsGroup(props: { group: Group; index: number }) {
   );
 }
 
-function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
+function ParticipantCriteria(props: {
+  group: tanagra.Group;
+  criteria: tanagra.Criteria;
+}) {
   const underlay = useUnderlay();
   const cohort = useCohort();
   const dispatch = useAppDispatch();
@@ -265,7 +266,9 @@ function ParticipantCriteria(props: { group: Group; criteria: Criteria }) {
               {props.criteria.name}
             </Link>
             <Divider orientation="vertical" variant="middle" flexItem />
-            <Typography variant="body1">{props.criteria.count}</Typography>
+            <Typography variant="body1">
+              {0 /* TODO(tjennison): Fetch from backend. */}
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
             {getCriteriaPlugin(props.criteria).renderDetails()}

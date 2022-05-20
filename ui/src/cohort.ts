@@ -1,20 +1,13 @@
 import { generate } from "randomstring";
-import * as tanagra from "./tanagra-api";
+import * as tanagra from "tanagra-api";
 import { CriteriaConfig, Underlay } from "./underlaysSlice";
 
 export function generateId(): string {
   return generate(8);
 }
 
-export interface Cohort {
-  id: string;
-  name: string;
-  underlayName: string;
-  groups: Group[];
-}
-
 export function generateQueryFilter(
-  cohort: Cohort,
+  cohort: tanagra.Cohort,
   entityVar: string
 ): tanagra.Filter | null {
   const operands = cohort.groups
@@ -32,20 +25,8 @@ export function generateQueryFilter(
   };
 }
 
-export enum GroupKind {
-  Included = 1,
-  Excluded,
-}
-
-export interface Group {
-  id: string;
-  name?: string;
-  kind: GroupKind;
-  criteria: Criteria[];
-}
-
 function generateFilter(
-  group: Group,
+  group: tanagra.Group,
   entityVar: string
 ): tanagra.Filter | null {
   const operands = group.criteria
@@ -65,19 +46,8 @@ function generateFilter(
   };
 }
 
-// Since Redux doesn't allow classes in its data model, criteria specific data
-// is stored in an object that the criteria knows the contents of but is
-// otherwise opaque except for a set of common methods.
-export interface Criteria {
-  id: string;
-  type: string;
-  name: string;
-  count: number;
-  data: unknown;
-}
-
-// Having typed data here allows the registry to treat all data as unknown while
-// plugins can use an actual type internally.
+// Having typed data here allows the registry to treat all data generically
+// while plugins can use an actual type internally.
 export interface CriteriaPlugin<DataType> {
   id: string;
   data: DataType;
@@ -94,7 +64,7 @@ export interface CriteriaPlugin<DataType> {
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
   type: string,
-  initializeData: (underlay: Underlay, config: CriteriaConfig) => unknown
+  initializeData: (underlay: Underlay, config: CriteriaConfig) => object
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
@@ -107,18 +77,19 @@ export function registerCriteriaPlugin(
 export function createCriteria(
   underlay: Underlay,
   config: CriteriaConfig
-): Criteria {
+): tanagra.Criteria {
   const entry = getCriteriaEntry(config.type);
   return {
     id: generateId(),
     type: config.type,
     name: config.defaultName,
-    count: 0,
     data: entry.initializeData(underlay, config),
   };
 }
 
-export function getCriteriaPlugin(criteria: Criteria): CriteriaPlugin<unknown> {
+export function getCriteriaPlugin(
+  criteria: tanagra.Criteria
+): CriteriaPlugin<object> {
   return new (getCriteriaEntry(criteria.type).constructor)(
     criteria.id,
     criteria.data
@@ -134,11 +105,11 @@ function getCriteriaEntry(type: string): RegistryEntry {
 }
 
 interface CriteriaPluginConstructor {
-  new (id: string, data: unknown): CriteriaPlugin<unknown>;
+  new (id: string, data: object): CriteriaPlugin<object>;
 }
 
 type RegistryEntry = {
-  initializeData: (underlay: Underlay, config: CriteriaConfig) => unknown;
+  initializeData: (underlay: Underlay, config: CriteriaConfig) => object;
   constructor: CriteriaPluginConstructor;
 };
 

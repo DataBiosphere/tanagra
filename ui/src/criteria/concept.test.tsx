@@ -1,15 +1,15 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EntityInstancesApiContext } from "apiContext";
-import { createCriteria, GroupKind } from "cohort";
+import { createCriteria } from "cohort";
 import { insertCohort, insertGroup } from "cohortsSlice";
 import "criteria/concept";
 import { Provider } from "react-redux";
 import { StaticRouter } from "react-router-dom";
 import { AppRouter } from "router";
 import { store } from "store";
-import * as tanagra from "tanagra-api";
 import { setUnderlays } from "underlaysSlice";
+import * as tanagra from "tanagra-api";
 import { Data } from "./concept";
 
 // The Typescript compiler can't map the different parameters of the test cases
@@ -135,7 +135,7 @@ beforeAll(() => {
   store.dispatch(
     insertGroup(
       action.payload.id,
-      GroupKind.Included,
+      tanagra.GroupKindEnum.Included,
       createCriteria(
         {
           name: "test-underlay",

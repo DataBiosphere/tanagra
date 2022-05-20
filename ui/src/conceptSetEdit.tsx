@@ -11,7 +11,7 @@ export default function Edit() {
   return (
     <>
       <ActionBar title={conceptSet.criteria.name} />
-      {getCriteriaPlugin(conceptSet.criteria).renderEdit((data: unknown) => {
+      {getCriteriaPlugin(conceptSet.criteria).renderEdit((data: object) => {
         dispatch(
           updateConceptSetData({
             conceptSetId: conceptSet.id,
