@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  IconButton,
   ListItem,
   Slider,
 } from "@mui/material";
@@ -225,7 +226,7 @@ function AttributeSlider(props: SliderProps) {
 
   return (
     <Box sx={{ width: "30%", minWidth: 500, margin: 5 }}>
-      <Grid container spacing={2} direction="row" alignItems="center">
+      <Grid container spacing={2} direction="row">
         <Grid item>
           <Input
             value={minInputValue}
@@ -266,11 +267,14 @@ function AttributeSlider(props: SliderProps) {
             }}
           />
         </Grid>
-        <DeleteIcon
+        <IconButton
+          color="primary"
+          aria-label="delete"
           onClick={handleDeleteRange}
-          fontSize="medium"
-          style={{ cursor: "pointer", marginLeft: 25 }}
-        />
+          style={{ marginLeft: 25 }}
+        >
+          <DeleteIcon fontSize="medium" />
+        </IconButton>
       </Grid>
     </Box>
   );
@@ -292,6 +296,8 @@ function AttributeEdit(props: AttributeEditProps) {
   if (isValid(integerBoundsHint?.min) && isValid(integerBoundsHint?.max)) {
     // TODO: The comments can be removed once isValid is fixed.
 
+    // This is to ensure the compiler won't complain the object be undefined.
+    // Although we already know that min and max is valid.
     const minBound = integerBoundsHint?.min || 0;
     const maxBound = integerBoundsHint?.max || 0;
 
