@@ -7,6 +7,7 @@ import bio.terra.tanagra.service.search.Filter.BinaryFunction;
 import bio.terra.tanagra.service.search.Filter.NullFilter;
 import bio.terra.tanagra.service.search.Filter.RelationshipFilter;
 import bio.terra.tanagra.service.search.Filter.TextSearchFilter;
+import bio.terra.tanagra.service.search.Filter.UnaryFunction;
 import bio.terra.tanagra.service.search.Selection.PrimaryKey;
 import bio.terra.tanagra.service.search.utils.RandomNumberGenerator;
 import bio.terra.tanagra.service.underlay.ArrayColumnFilter;
@@ -152,6 +153,32 @@ public class SqlVisitor {
         default:
           throw new UnsupportedOperationException(
               String.format("Unable to convert ArrayFunction.Operator %s to SQL string", operator));
+      }
+    }
+
+    @Override
+    public String visitUnaryFunction(UnaryFunction unaryFunction) {
+      String operatorDelimiter = String.format(" %s ", convert(unaryFunction.operator()));
+      // e.g. NOT ((operator1) OR operator2))
+
+      return operatorDelimiter
+          .concat("(")
+          .concat(
+              unaryFunction.operands().stream()
+                  // Recursively evaluate each operand.
+                  .map(f -> f.accept(this))
+                  // Join with the operator delimiter.
+                  .collect(Collectors.joining("")))
+          .concat(")");
+    }
+
+    private static String convert(UnaryFunction.Operator operator) {
+      switch (operator) {
+        case NOT:
+          return "NOT";
+        default:
+          throw new UnsupportedOperationException(
+              String.format("Unable to convert UnaryFunction.Operator %s to SQL string", operator));
       }
     }
 

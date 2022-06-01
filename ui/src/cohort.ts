@@ -34,16 +34,26 @@ function generateFilter(
       getCriteriaPlugin(criteria).generateFilter(entityVar, false)
     )
     .filter((filter) => filter) as Array<tanagra.Filter>;
+
   if (operands.length === 0) {
     return null;
   }
 
-  return {
+  const filter = {
     arrayFilter: {
       operands: operands,
       operator: tanagra.ArrayFilterOperator.Or,
     },
   };
+
+  return group.kind === tanagra.GroupKindEnum.Included
+    ? filter
+    : {
+        unaryFilter: {
+          operands: [filter],
+          operator: tanagra.UnaryFilterOperator.Not,
+        },
+      };
 }
 
 // Having typed data here allows the registry to treat all data generically
