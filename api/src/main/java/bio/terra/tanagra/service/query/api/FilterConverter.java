@@ -166,8 +166,11 @@ class FilterConverter {
 
   @VisibleForTesting
   static Filter.UnaryFunction.Operator convert(ApiUnaryFilterOperator unaryOperator) {
-    if (unaryOperator == ApiUnaryFilterOperator.NOT) return Filter.UnaryFunction.Operator.NOT;
-    throw new BadRequestException("Unknown ArrayFilterOperator: " + unaryOperator.toString());
+    if (unaryOperator == ApiUnaryFilterOperator.NOT) {
+      return Filter.UnaryFunction.Operator.NOT;
+    } else {
+      throw new BadRequestException("Unknown ArrayFilterOperator: " + unaryOperator.toString());
+    }
   }
 
   @VisibleForTesting
