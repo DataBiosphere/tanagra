@@ -446,7 +446,6 @@ components:
       type: string
       enum: ["AND", "OR"]
 
-    # (Create Unary Filtery - operand is NOT and operator is a subfilter)
     UnaryFilter:
       type: object
       description: A filter function for operating on a single operand.
