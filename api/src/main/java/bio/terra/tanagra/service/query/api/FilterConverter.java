@@ -169,7 +169,7 @@ class FilterConverter {
     if (unaryOperator == ApiUnaryFilterOperator.NOT) {
       return Filter.UnaryFunction.Operator.NOT;
     } else {
-      throw new BadRequestException("Unknown ArrayFilterOperator: " + unaryOperator.toString());
+      throw new BadRequestException("Unknown UnaryFilterOperator: " + unaryOperator.toString());
     }
   }
 
