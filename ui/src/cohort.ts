@@ -50,7 +50,7 @@ function generateFilter(
     ? filter
     : {
         unaryFilter: {
-          operands: [filter],
+          operand: filter,
           operator: tanagra.UnaryFilterOperator.Not,
         },
       };

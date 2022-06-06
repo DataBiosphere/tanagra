@@ -450,10 +450,9 @@ components:
       type: object
       description: A filter function for operating on a single operand.
       properties:
-        operands:
-          type: array
-          items:
-            $ref: "#/components/schemas/Filter"
+        operand:
+          type: object
+          $ref: "#/components/schemas/Filter"
         operator:
           $ref: "#/components/schemas/UnaryFilterOperator"
 

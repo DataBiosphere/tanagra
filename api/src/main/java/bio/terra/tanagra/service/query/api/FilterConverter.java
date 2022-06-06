@@ -151,17 +151,12 @@ class FilterConverter {
 
   @VisibleForTesting
   Filter.UnaryFunction convert(ApiUnaryFilter apiUnary, VariableScope scope) {
-    if (apiUnary.getOperands() == null || apiUnary.getOperands().isEmpty()) {
-      throw new BadRequestException("UnaryFilter must have at least one operand.");
+    if (apiUnary.getOperand() == null) {
+      throw new BadRequestException("UnaryFilter must have a non-null operand.");
     }
-    if (apiUnary.getOperands().stream().anyMatch(Objects::isNull)) {
-      throw new BadRequestException("UnaryFilter must only have non-null operands.");
-    }
-    ImmutableList<Filter> filters =
-        apiUnary.getOperands().stream()
-            .map(operand -> convert(operand, scope))
-            .collect(ImmutableList.toImmutableList());
-    return Filter.UnaryFunction.create(filters, convert(apiUnary.getOperator()));
+
+    ImmutableList<Filter> filter = ImmutableList.of(convert(apiUnary.getOperand(), scope));
+    return Filter.UnaryFunction.create(filter, convert(apiUnary.getOperator()));
   }
 
   @VisibleForTesting

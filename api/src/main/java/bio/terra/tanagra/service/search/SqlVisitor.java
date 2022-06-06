@@ -177,7 +177,7 @@ public class SqlVisitor {
         return "NOT";
       } else {
         throw new UnsupportedOperationException(
-                String.format("Unable to convert UnaryFunction.Operator %s to SQL string", operator));
+            String.format("Unable to convert UnaryFunction.Operator %s to SQL string", operator));
       }
     }
 
