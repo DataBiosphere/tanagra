@@ -92,13 +92,13 @@ public interface Filter {
   /** A {@link Filter} that excludes provided {@link Filter}s. */
   @AutoValue
   abstract class UnaryFunction implements Filter {
-    public abstract ImmutableList<Filter> operands();
+    public abstract Filter operand();
 
     public abstract Operator operator();
 
-    public static UnaryFunction create(List<Filter> operands, Operator operator) {
-      Preconditions.checkArgument(!operands.isEmpty(), "UnaryFunction Operands must not be empty.");
-      return new AutoValue_Filter_UnaryFunction(ImmutableList.copyOf(operands), operator);
+    public static UnaryFunction create(Filter operand, Operator operator) {
+      Preconditions.checkArgument(operand != null, "UnaryFunction Operand must be non-null.");
+      return new AutoValue_Filter_UnaryFunction(operand, operator);
     }
 
     @Override

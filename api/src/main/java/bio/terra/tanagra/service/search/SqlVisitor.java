@@ -158,18 +158,10 @@ public class SqlVisitor {
 
     @Override
     public String visitUnaryFunction(UnaryFunction unaryFunction) {
-      String operatorDelimiter = String.format(" %s ", convert(unaryFunction.operator()));
+      String operatorDelimiter = String.format("%s ", convert(unaryFunction.operator()));
       // e.g. NOT ((operator1) OR operator2))
 
-      return operatorDelimiter
-          .concat("(")
-          .concat(
-              unaryFunction.operands().stream()
-                  // Recursively evaluate each operand.
-                  .map(f -> f.accept(this))
-                  // Join with the operator delimiter.
-                  .collect(Collectors.joining("")))
-          .concat(")");
+      return operatorDelimiter.concat("(").concat(unaryFunction.operand().accept(this)).concat(")");
     }
 
     private static String convert(UnaryFunction.Operator operator) {

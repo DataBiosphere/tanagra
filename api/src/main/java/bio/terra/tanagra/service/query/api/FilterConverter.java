@@ -155,7 +155,7 @@ class FilterConverter {
       throw new BadRequestException("UnaryFilter must have a non-null operand.");
     }
 
-    ImmutableList<Filter> filter = ImmutableList.of(convert(apiUnary.getOperand(), scope));
+    Filter filter = convert(apiUnary.getOperand(), scope);
     return Filter.UnaryFunction.create(filter, convert(apiUnary.getOperator()));
   }
 
