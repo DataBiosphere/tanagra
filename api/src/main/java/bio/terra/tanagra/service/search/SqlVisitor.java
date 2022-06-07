@@ -159,9 +159,8 @@ public class SqlVisitor {
     @Override
     public String visitUnaryFunction(UnaryFunction unaryFunction) {
       // e.g. NOT operand
-      return String.format("%s (%s)",
-              convert(unaryFunction.operator()),
-              unaryFunction.operand().accept(this));
+      return String.format(
+          "%s (%s)", convert(unaryFunction.operator()), unaryFunction.operand().accept(this));
     }
 
     private static String convert(UnaryFunction.Operator operator) {
