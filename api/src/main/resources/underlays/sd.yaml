@@ -20,10 +20,6 @@ entities:
         dataType: INT64
       - name: ethnicity
         dataType: STRING
-      - name: sex_at_birth_concept_id
-        dataType: INT64
-      - name: sex_at_birth
-        dataType: STRING
   - name: condition
     attributes:
       - name: concept_id
@@ -331,9 +327,6 @@ relationships:
   - name: concept_id_person_ethnicity
     entity1: concept
     entity2: person
-  - name: concept_id_person_sex_at_birth
-    entity1: concept
-    entity2: person
   - name: concept_id_condition
     entity1: concept
     entity2: condition_occurrence
@@ -354,8 +347,6 @@ datasets:
           - name: race_concept_id
             dataType: INT64
           - name: ethnicity_concept_id
-            dataType: INT64
-          - name: sex_at_birth_concept_id
             dataType: INT64
       - name: condition_occurrence
         columns:
@@ -1144,30 +1135,6 @@ attributeMappings:
         dataset: sd
         table: person
         column: ethnicity_concept_id
-      lookupTableKey:
-        dataset: sd
-        table: concept
-        column: concept_id
-      lookupColumn:
-        dataset: sd
-        table: concept
-        column: concept_name
-  - attribute:
-      entity: person
-      attribute: sex_at_birth_concept_id
-    simpleColumn:
-      columnId:
-        dataset: sd
-        table: person
-        column: sex_at_birth_concept_id
-  - attribute:
-      entity: person
-      attribute: sex_at_birth
-    lookupColumn:
-      primaryTableLookupKey:
-        dataset: sd
-        table: person
-        column: sex_at_birth_concept_id
       lookupTableKey:
         dataset: sd
         table: concept
@@ -2301,16 +2268,6 @@ relationshipMappings:
         dataset: sd
         table: person
         column: ethnicity_concept_id
-  - name: concept_id_person_sex_at_birth
-    foreignKey:
-      primaryKey:
-        dataset: sd
-        table: concept
-        column: concept_id
-      foreignKey:
-        dataset: sd
-        table: person
-        column: sex_at_birth_concept_id
   - name: concept_id_condition
     foreignKey:
       primaryKey:
@@ -2589,16 +2546,5 @@ entityFiltersSchemas:
               int64Val: 903096
             - displayName: "None of these"
               int64Val: 45882607
-            - displayName: "Unknown"
-              int64Val: 0
-      - attributeName: sex_at_birth_concept_id
-        enumHint:
-          enumHintValues:
-            - displayName: "Female"
-              int64Val: 45878463
-            - displayName: "Male"
-              int64Val: 45880669
-            - displayName: "Not male, not female, prefer not to answer, or skipped"
-              int64Val: 2000000009
             - displayName: "Unknown"
               int64Val: 0
