@@ -34,7 +34,6 @@ function generateFilter(
       getCriteriaPlugin(criteria).generateFilter(entityVar, false)
     )
     .filter((filter) => filter) as Array<tanagra.Filter>;
-
   if (operands.length === 0) {
     return null;
   }
