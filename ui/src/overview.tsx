@@ -53,9 +53,8 @@ function ParticipantsSelector(props: { kind?: tanagra.GroupKindEnum }) {
     <Grid item xs={1}>
       <Typography variant="h4">
         {props.kind === tanagra.GroupKindEnum.Included
-          ? "Included"
-          : "Excluded"}{" "}
-        Participants
+          ? "Included Participants"
+          : "Excluded Participants"}
       </Typography>
       <Stack spacing={0}>
         {cohort.groups
