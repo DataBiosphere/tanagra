@@ -8,7 +8,7 @@ describe("Basic tests", () => {
     cy.get("button[id=insert-cohort]").click();
     cy.get("#text").type("New Cohort");
     cy.get("button:Contains(Create)").click();
-    cy.get("button:Contains(Add Criteria)").click();
+    cy.get("button:Contains(Add Criteria)").first().click();
     cy.get("li:Contains(Conditions)").click();
     cy.get("button[role=checkbox]").click();
     cy.get("a[aria-label=back]").click();
@@ -20,7 +20,17 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add Criteria)").first().click();
     cy.get("li:Contains(Year at Birth)").click();
-    cy.get("input").first().type("30");
+    cy.get("input").first().clear().type("30");
+    cy.get("a[aria-label=back]").click();
+
+    cy.get("button:Contains(Add Criteria)").last().click();
+    cy.get("li:Contains(Observations)").click();
+    cy.get("button[role=checkbox]").click();
+    cy.get("a[aria-label=back]").click();
+
+    cy.get("button:Contains(Add Criteria)").last().click();
+    cy.get("li:Contains(Year at Birth)").click();
+    cy.get("input").first().clear().type("50");
     cy.get("a[aria-label=back]").click();
     cy.get("a[aria-label=back]").click();
 

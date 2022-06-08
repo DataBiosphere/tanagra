@@ -8,6 +8,8 @@ import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
+import bio.terra.tanagra.generated.model.ApiUnaryFilter;
+import bio.terra.tanagra.generated.model.ApiUnaryFilterOperator;
 import bio.terra.tanagra.service.search.Attribute;
 import bio.terra.tanagra.service.search.DataType;
 import bio.terra.tanagra.service.search.Entity;
@@ -41,16 +43,21 @@ class FilterConverter {
     if (apiFilter == null) {
       return Filter.NullFilter.INSTANCE;
     }
+
     if (!ConversionUtils.exactlyOneNonNull(
         apiFilter.getArrayFilter(),
+        apiFilter.getUnaryFilter(),
         apiFilter.getBinaryFilter(),
         apiFilter.getRelationshipFilter(),
         apiFilter.getTextSearchFilter())) {
       throw new BadRequestException(
           String.format("Filter must have exactly one non-null field.%n%s", apiFilter.toString()));
     }
+
     if (apiFilter.getArrayFilter() != null) {
       return convert(apiFilter.getArrayFilter(), scope);
+    } else if (apiFilter.getUnaryFilter() != null) {
+      return convert(apiFilter.getUnaryFilter(), scope);
     } else if (apiFilter.getBinaryFilter() != null) {
       return convert(apiFilter.getBinaryFilter(), scope);
     } else if (apiFilter.getRelationshipFilter() != null) {
@@ -139,6 +146,25 @@ class FilterConverter {
         return Filter.ArrayFunction.Operator.OR;
       default:
         throw new BadRequestException("Unknown ArrayFilterOperator: " + apiOperator.toString());
+    }
+  }
+
+  @VisibleForTesting
+  Filter.UnaryFunction convert(ApiUnaryFilter apiUnary, VariableScope scope) {
+    if (apiUnary.getOperand() == null) {
+      throw new BadRequestException("UnaryFilter must have a non-null operand.");
+    }
+
+    Filter filter = convert(apiUnary.getOperand(), scope);
+    return Filter.UnaryFunction.create(filter, convert(apiUnary.getOperator()));
+  }
+
+  @VisibleForTesting
+  static Filter.UnaryFunction.Operator convert(ApiUnaryFilterOperator unaryOperator) {
+    if (unaryOperator == ApiUnaryFilterOperator.NOT) {
+      return Filter.UnaryFunction.Operator.NOT;
+    } else {
+      throw new BadRequestException("Unknown UnaryFilterOperator: " + unaryOperator.toString());
     }
   }
 

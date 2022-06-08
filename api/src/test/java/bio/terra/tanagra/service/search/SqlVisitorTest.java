@@ -222,6 +222,34 @@ public class SqlVisitorTest extends BaseSpringUnitTest {
   }
 
   @Test
+  void filterUnaryFunction() {
+    ImmutableList<Filter> operands =
+        ImmutableList.of(
+            Filter.BinaryFunction.create(
+                Expression.AttributeExpression.create(S_RATING),
+                Filter.BinaryFunction.Operator.GREATER_THAN,
+                Expression.Literal.create(DataType.INT64, "40")),
+            Filter.BinaryFunction.create(
+                Expression.AttributeExpression.create(S_RATING),
+                Filter.BinaryFunction.Operator.LESS_THAN,
+                Expression.Literal.create(DataType.INT64, "45")));
+
+    Filter arrayFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.AND);
+    Filter unaryFilter =
+        Filter.UnaryFunction.create(arrayFilter, Filter.UnaryFunction.Operator.NOT);
+    assertEquals(
+        "NOT (s.rating > 40 AND s.rating < 45)",
+        unaryFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
+  }
+
+  @Test
+  void filterUnaryFunctionThrowsIfOperandEmpty() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> Filter.UnaryFunction.create(null, Filter.UnaryFunction.Operator.NOT));
+  }
+
+  @Test
   void filterRelationship() {
     assertEquals(
         "s.s_id IN (SELECT r.s_id FROM `my-project-id.nautical`.reservations AS r WHERE r.day = 'Tuesday')",

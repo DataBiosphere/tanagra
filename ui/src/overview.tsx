@@ -38,27 +38,40 @@ export default function Overview() {
   return (
     <>
       <ActionBar title={cohort.name} />
-      <Grid container columns={3} className="overview">
-        <Grid item xs={1}>
-          <Typography variant="h4">Included Participants</Typography>
-          <Stack spacing={0}>
-            {cohort.groups
-              .filter((g) => g.kind === tanagra.GroupKindEnum.Included)
-              .map((group, index) => (
-                <Box key={group.id}>
-                  <ParticipantsGroup group={group} index={index} />
-                  <Divider className="and-divider">
-                    <Chip label="AND" />
-                  </Divider>
-                </Box>
-              ))}
-            <Box key="">
-              <AddCriteriaButton kind={tanagra.GroupKindEnum.Included} />
-            </Box>
-          </Stack>
-        </Grid>
+      <Grid container columns={3} columnSpacing={5} className="overview">
+        <ParticipantsSelector kind={tanagra.GroupKindEnum.Included} />
+        <ParticipantsSelector kind={tanagra.GroupKindEnum.Excluded} />
       </Grid>
     </>
+  );
+}
+
+function ParticipantsSelector(props: { kind?: tanagra.GroupKindEnum }) {
+  const cohort = useCohort();
+
+  return (
+    <Grid item xs={1}>
+      <Typography variant="h4">
+        {props.kind === tanagra.GroupKindEnum.Included
+          ? "Included Participants"
+          : "Excluded Participants"}
+      </Typography>
+      <Stack spacing={0}>
+        {cohort.groups
+          .filter((g) => g.kind === props.kind)
+          .map((group, index) => (
+            <Box key={group.id}>
+              <ParticipantsGroup group={group} index={index} />
+              <Divider className="and-divider">
+                <Chip label="AND" />
+              </Divider>
+            </Box>
+          ))}
+        <Box key="">
+          <AddCriteriaButton kind={props.kind} />
+        </Box>
+      </Stack>
+    </Grid>
   );
 }
 

@@ -2,17 +2,10 @@ package bio.terra.tanagra.app.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.tanagra.generated.model.ApiAttributeValue;
-import bio.terra.tanagra.generated.model.ApiAttributeVariable;
-import bio.terra.tanagra.generated.model.ApiBinaryFilter;
-import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
-import bio.terra.tanagra.generated.model.ApiEntityFilter;
-import bio.terra.tanagra.generated.model.ApiFilter;
-import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
-import bio.terra.tanagra.generated.model.ApiSqlQuery;
-import bio.terra.tanagra.generated.model.ApiTextSearchFilter;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.underlay.NauticalUnderlayUtils;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,6 +230,55 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
         "SELECT sailor_alias.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor_alias "
             + "WHERE sailor_alias.s_id IN "
             + "(SELECT s_id FROM `my-project-id.nautical`.sailors WHERE CONTAINS_SUBSTR(s_name, 'george'))",
+        response.getBody().getQuery());
+  }
+
+  @Test
+  @DisplayName("correct SQL string for filtering entity instances based on a unary filter")
+  void generateSqlQueryUnaryFilter() {
+    // filter for "sailors" entity instances that do NOT have a rating between 40 and 45
+
+    List<ApiFilter> arrayFilterOperands =
+        List.of(
+            new ApiFilter()
+                .binaryFilter(
+                    new ApiBinaryFilter()
+                        .attributeVariable(
+                            new ApiAttributeVariable().variable("sailor").name("rating"))
+                        .operator(ApiBinaryFilterOperator.GREATER_THAN)
+                        .attributeValue(new ApiAttributeValue().int64Val(40L))),
+            new ApiFilter()
+                .binaryFilter(
+                    new ApiBinaryFilter()
+                        .attributeVariable(
+                            new ApiAttributeVariable().variable("sailor").name("rating"))
+                        .operator(ApiBinaryFilterOperator.LESS_THAN)
+                        .attributeValue(new ApiAttributeValue().int64Val(45L))));
+
+    ApiFilter unaryFilterOperand =
+        new ApiFilter()
+            .arrayFilter(
+                new ApiArrayFilter()
+                    .operator(ApiArrayFilterOperator.AND)
+                    .operands(arrayFilterOperands));
+
+    ApiEntityFilter apiEntityFilter =
+        new ApiEntityFilter()
+            .entityVariable("sailor")
+            .filter(
+                new ApiFilter()
+                    .unaryFilter(
+                        new ApiUnaryFilter()
+                            .operator(ApiUnaryFilterOperator.NOT)
+                            .operand(unaryFilterOperand)));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiController.generateSqlQuery(
+            NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityFilter);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT sailor.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor "
+            + "WHERE NOT (sailor.rating > 40 AND sailor.rating < 45)",
         response.getBody().getQuery());
   }
 }

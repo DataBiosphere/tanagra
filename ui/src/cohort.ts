@@ -38,12 +38,21 @@ function generateFilter(
     return null;
   }
 
-  return {
+  const filter = {
     arrayFilter: {
       operands: operands,
       operator: tanagra.ArrayFilterOperator.Or,
     },
   };
+
+  return group.kind === tanagra.GroupKindEnum.Included
+    ? filter
+    : {
+        unaryFilter: {
+          operand: filter,
+          operator: tanagra.UnaryFilterOperator.Not,
+        },
+      };
 }
 
 // Having typed data here allows the registry to treat all data generically

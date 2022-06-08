@@ -426,6 +426,8 @@ components:
           $ref: "#/components/schemas/RelationshipFilter"
         textSearchFilter:
           $ref: "#/components/schemas/TextSearchFilter"
+        unaryFilter:
+          $ref: "#/components/schemas/UnaryFilter"
         # TODO allow aggregations in filters.
 
     ArrayFilter:
@@ -443,6 +445,22 @@ components:
       description: Enum for array function operators
       type: string
       enum: ["AND", "OR"]
+
+    UnaryFilter:
+      type: object
+      description: A filter function for operating on a single operand.
+      properties:
+        operand:
+          type: object
+          $ref: "#/components/schemas/Filter"
+        operator:
+          $ref: "#/components/schemas/UnaryFilterOperator"
+
+    UnaryFilterOperator:
+      description: Enum for unary function operators
+      type: string
+      enum: ["NOT"]
+      
 
     BinaryFilter:
       type: object

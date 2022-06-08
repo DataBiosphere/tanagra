@@ -27,6 +27,8 @@ public interface Filter {
     R visitTextSearch(TextSearchFilter textSearchFilter);
 
     R visitNull(NullFilter nullFilter);
+
+    R visitUnaryFunction(UnaryFunction unaryFunction);
   }
 
   /** Accept the {@link Visitor} pattern. */
@@ -84,6 +86,28 @@ public interface Filter {
     public enum Operator {
       AND, // All of the operands must be true.
       OR // Any of the operands must be true.
+    }
+  }
+
+  /** A {@link Filter} that excludes provided {@link Filter}s. */
+  @AutoValue
+  abstract class UnaryFunction implements Filter {
+    public abstract Filter operand();
+
+    public abstract Operator operator();
+
+    public static UnaryFunction create(Filter operand, Operator operator) {
+      Preconditions.checkArgument(operand != null, "UnaryFunction Operand must be non-null.");
+      return new AutoValue_Filter_UnaryFunction(operand, operator);
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitUnaryFunction(this);
+    }
+
+    public enum Operator {
+      NOT
     }
   }
 
