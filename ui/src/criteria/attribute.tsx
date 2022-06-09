@@ -21,7 +21,7 @@ import { CriteriaConfig, Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 
 type Selection = {
-  id: number;
+  id: number | string | boolean;
   name: string;
 };
 
@@ -139,7 +139,9 @@ class _ implements CriteriaPlugin<Data> {
               },
               operator: tanagra.BinaryFilterOperator.Equals,
               attributeValue: {
-                int64Val: id,
+                int64Val: typeof id === "number" ? id : undefined,
+                stringVal: typeof id === "string" ? id : undefined,
+                boolVal: typeof id === "boolean" ? id : undefined,
               },
             },
           })),
@@ -345,8 +347,20 @@ function AttributeEdit(props: AttributeEditProps) {
   if (enumHintValues?.length && enumHintValues?.length > 0) {
     const selectionIndex = (hint: tanagra.EnumHintValue) =>
       props.data.selected.findIndex(
-        (row) => row.id === hint.attributeValue?.int64Val
+        (row) =>
+          row.id === hint.attributeValue?.int64Val ||
+          row.id === hint.attributeValue?.stringVal ||
+          row.id === hint.attributeValue?.boolVal
       );
+
+    const hintId = (hint: tanagra.EnumHintValue) => {
+      return (
+        hint.attributeValue?.int64Val ||
+        hint.attributeValue?.stringVal ||
+        hint.attributeValue?.boolVal ||
+        -1
+      );
+    };
 
     return (
       <>
@@ -365,7 +379,7 @@ function AttributeEdit(props: AttributeEditProps) {
                           data.selected.splice(selectionIndex(hint), 1);
                         } else {
                           data.selected.push({
-                            id: hint.attributeValue?.int64Val || -1,
+                            id: hintId(hint),
                             name: hintDisplayName(hint),
                           });
                         }
@@ -397,7 +411,7 @@ function AttributeDetails(props: AttributeDetailsProps) {
     return (
       <>
         {props.data.selected.map(({ id, name }) => (
-          <Stack direction="row" alignItems="baseline" key={id}>
+          <Stack direction="row" alignItems="baseline" key={Date.now()}>
             <Typography variant="body1">{id}</Typography>&nbsp;
             <Typography variant="body2">{name}</Typography>
           </Stack>
