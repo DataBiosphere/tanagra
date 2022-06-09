@@ -354,15 +354,12 @@ function AttributeEdit(props: AttributeEditProps) {
       );
 
     const hintId = (hint: tanagra.EnumHintValue) => {
-      if (hint.attributeValue?.int64Val) {
-        return hint.attributeValue?.int64Val;
-      } else if (hint.attributeValue?.stringVal) {
-        return hint.attributeValue?.stringVal;
-      } else if (hint.attributeValue?.boolVal) {
-        return hint.attributeValue?.boolVal;
-      } else {
-        return -1;
-      }
+      return (
+        hint.attributeValue?.int64Val ||
+        hint.attributeValue?.stringVal ||
+        hint.attributeValue?.boolVal ||
+        -1
+      );
     };
 
     return (
