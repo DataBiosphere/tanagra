@@ -21,7 +21,7 @@ import { CriteriaConfig, Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 
 type Selection = {
-  id: number;
+  id: number | string | boolean;
   name: string;
 };
 
@@ -129,7 +129,7 @@ class _ implements CriteriaPlugin<Data> {
         },
       };
     } else if (this.data.selected.length >= 0) {
-      return {
+      const retVal =  {
         arrayFilter: {
           operands: this.data.selected.map(({ id }) => ({
             binaryFilter: {
@@ -139,13 +139,17 @@ class _ implements CriteriaPlugin<Data> {
               },
               operator: tanagra.BinaryFilterOperator.Equals,
               attributeValue: {
-                int64Val: id,
+                int64Val: typeof id === "number" ? id : undefined,
+                stringVal: typeof id === "string" ? id : undefined,
+                boolVal: typeof id === "boolean" ? id : undefined,
               },
             },
           })),
           operator: tanagra.ArrayFilterOperator.Or,
         },
       };
+      console.log(retVal);
+      return retVal;
     } else {
       return null;
     }
@@ -397,7 +401,7 @@ function AttributeDetails(props: AttributeDetailsProps) {
     return (
       <>
         {props.data.selected.map(({ id, name }) => (
-          <Stack direction="row" alignItems="baseline" key={id}>
+          <Stack direction="row" alignItems="baseline" key={Date.now()}>
             <Typography variant="body1">{id}</Typography>&nbsp;
             <Typography variant="body2">{name}</Typography>
           </Stack>
