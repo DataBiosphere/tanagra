@@ -129,7 +129,7 @@ class _ implements CriteriaPlugin<Data> {
         },
       };
     } else if (this.data.selected.length >= 0) {
-      const retVal =  {
+      return {
         arrayFilter: {
           operands: this.data.selected.map(({ id }) => ({
             binaryFilter: {
@@ -148,8 +148,6 @@ class _ implements CriteriaPlugin<Data> {
           operator: tanagra.ArrayFilterOperator.Or,
         },
       };
-      console.log(retVal);
-      return retVal;
     } else {
       return null;
     }
