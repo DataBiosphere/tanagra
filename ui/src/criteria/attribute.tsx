@@ -347,8 +347,21 @@ function AttributeEdit(props: AttributeEditProps) {
   if (enumHintValues?.length && enumHintValues?.length > 0) {
     const selectionIndex = (hint: tanagra.EnumHintValue) =>
       props.data.selected.findIndex(
-        (row) => row.id === hint.attributeValue?.int64Val
+        (row) =>
+          row.id === hint.attributeValue?.int64Val ||
+          row.id === hint.attributeValue?.stringVal ||
+          row.id === hint.attributeValue?.boolVal
       );
+
+    const hintId = (hint: tanagra.EnumHintValue) => {
+      if (hint.attributeValue?.int64Val) {
+        return hint.attributeValue?.int64Val;
+      } else if (hint.attributeValue?.stringVal) {
+        return hint.attributeValue?.stringVal;
+      } else if (hint.attributeValue?.boolVal) {
+        return hint.attributeValue?.boolVal;
+      }
+    }
 
     return (
       <>
@@ -367,7 +380,7 @@ function AttributeEdit(props: AttributeEditProps) {
                           data.selected.splice(selectionIndex(hint), 1);
                         } else {
                           data.selected.push({
-                            id: hint.attributeValue?.int64Val || -1,
+                            id: hintId(hint) || -1,
                             name: hintDisplayName(hint),
                           });
                         }
