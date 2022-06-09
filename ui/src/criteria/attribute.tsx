@@ -360,8 +360,10 @@ function AttributeEdit(props: AttributeEditProps) {
         return hint.attributeValue?.stringVal;
       } else if (hint.attributeValue?.boolVal) {
         return hint.attributeValue?.boolVal;
+      } else {
+        return -1;
       }
-    }
+    };
 
     return (
       <>
@@ -380,7 +382,7 @@ function AttributeEdit(props: AttributeEditProps) {
                           data.selected.splice(selectionIndex(hint), 1);
                         } else {
                           data.selected.push({
-                            id: hintId(hint) || -1,
+                            id: hintId(hint),
                             name: hintDisplayName(hint),
                           });
                         }
