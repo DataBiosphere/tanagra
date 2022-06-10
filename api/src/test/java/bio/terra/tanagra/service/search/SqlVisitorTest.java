@@ -205,12 +205,12 @@ public class SqlVisitorTest extends BaseSpringUnitTest {
 
     Filter andFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.AND);
     assertEquals(
-        "s.rating < 62 AND s.s_name = 'John'",
+        "(s.rating < 62 AND s.s_name = 'John')",
         andFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
 
     Filter orFilter = Filter.ArrayFunction.create(operands, Filter.ArrayFunction.Operator.OR);
     assertEquals(
-        "s.rating < 62 OR s.s_name = 'John'",
+        "(s.rating < 62 OR s.s_name = 'John')",
         orFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
@@ -238,7 +238,7 @@ public class SqlVisitorTest extends BaseSpringUnitTest {
     Filter unaryFilter =
         Filter.UnaryFunction.create(arrayFilter, Filter.UnaryFunction.Operator.NOT);
     assertEquals(
-        "NOT (s.rating > 40 AND s.rating < 45)",
+        "NOT ((s.rating > 40 AND s.rating < 45))",
         unaryFilter.accept(new SqlVisitor.FilterVisitor(getSimpleContext())));
   }
 
