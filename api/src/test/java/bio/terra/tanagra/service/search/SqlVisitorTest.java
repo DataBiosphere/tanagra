@@ -270,8 +270,8 @@ public class SqlVisitorTest extends BaseSpringUnitTest {
     Variable r2 = Variable.create("r2");
     assertEquals(
         "s.s_id IN (SELECT r.s_id FROM `my-project-id.nautical`.reservations AS r WHERE "
-            + "r.day = 'Tuesday' AND s.s_id IN (SELECT r2.s_id FROM "
-            + "`my-project-id.nautical`.reservations AS r2 WHERE r2.day = 'Wednesday'))",
+            + "(r.day = 'Tuesday' AND s.s_id IN (SELECT r2.s_id FROM "
+            + "`my-project-id.nautical`.reservations AS r2 WHERE r2.day = 'Wednesday')))",
         Filter.RelationshipFilter.builder()
             .outerVariable(S_SAILOR)
             .newVariable(R_RESERVATION)
