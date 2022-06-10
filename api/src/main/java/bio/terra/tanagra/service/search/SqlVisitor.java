@@ -137,11 +137,13 @@ public class SqlVisitor {
     public String visitArrayFunction(ArrayFunction arrayFunction) {
       String operatorDelimiter = String.format(" %s ", convert(arrayFunction.operator()));
       // e.g. (operand0) OR (operand1)
-      return arrayFunction.operands().stream()
-          // Recursively evaluate each operand.
-          .map(f -> f.accept(this))
-          // Join with the operator delimiter.
-          .collect(Collectors.joining(operatorDelimiter));
+      return String.format(
+          "(%s)",
+          arrayFunction.operands().stream()
+              // Recursively evaluate each operand.
+              .map(f -> f.accept(this))
+              // Join with the operator delimiter.
+              .collect(Collectors.joining(operatorDelimiter)));
     }
 
     private static String convert(ArrayFunction.Operator operator) {
