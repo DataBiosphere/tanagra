@@ -278,7 +278,7 @@ public class EntitiesFilterApiControllerTest extends BaseSpringUnitTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(
         "SELECT sailor.s_id AS primary_key FROM `my-project-id.nautical`.sailors AS sailor "
-            + "WHERE NOT (sailor.rating > 40 AND sailor.rating < 45)",
+            + "WHERE NOT ((sailor.rating > 40 AND sailor.rating < 45))",
         response.getBody().getQuery());
   }
 }
