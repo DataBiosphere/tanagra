@@ -556,6 +556,9 @@ components:
           type: array
           items:
             type: string
+        criteriaConfigs:
+          description: <enter description here>
+          type: string
 
     ListUnderlaysResponse:
       type: object
