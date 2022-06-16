@@ -11,7 +11,7 @@ class FakeUnderlaysApi {
       { key: "vocabulary_id", width: 120, title: "Vocab" },
       { key: "concept_code", width: 120, title: "Code" },
     ];
-    
+
     const criteriaConfigs = [
       {
         type: "concept",
@@ -19,7 +19,9 @@ class FakeUnderlaysApi {
         defaultName: "Contains Conditions Codes",
         plugin: {
           columns,
-          entities: [{ name: "condition", selectable: true, hierarchical: true }],
+          entities: [
+            { name: "condition", selectable: true, hierarchical: true },
+          ],
         },
       },
       {
@@ -28,7 +30,9 @@ class FakeUnderlaysApi {
         defaultName: "Contains Procedures Codes",
         plugin: {
           columns,
-          entities: [{ name: "procedure", selectable: true, hierarchical: true }],
+          entities: [
+            { name: "procedure", selectable: true, hierarchical: true },
+          ],
         },
       },
       {
