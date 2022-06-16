@@ -26,14 +26,15 @@ public class UnderlaysApiControllerTest extends BaseSpringUnitTest {
 
   // The static string variables below are only included here because they are required
   // to pass the unit tests while criteriaConfigs is hard-coded on the backend.
-  static String columns = "[" +
+  private static String columns = "[" +
           "{\"key\":\"concept_name\",\"width\":\"100%\",\"title\":\"Concept Name\"}," +
           "{\"key\":\"concept_id\",\"width\":120,\"title\":\"Concept ID\"}," +
           "{\"key\":\"standard_concept\",\"width\":180,\"title\":\"Source/Standard\"}," +
           "{\"key\":\"vocabulary_id\",\"width\":120,\"title\":\"Vocab\"}," +
           "{\"key\":\"concept_code\",\"width\":120,\"title\":\"Code\"}" +
           "],";
-  static String criteriaConfigs = "[" +
+
+  private static String criteriaConfigs = "[" +
           "{\"type\":\"concept\",\"title\":\"Conditions\",\"defaultName\":\"Contains Conditions Codes\",\"plugin\":{\"columns\":" + columns + "\"entities\":[{\"name\":\"condition\",\"selectable\":true,\"hierarchical\":true}]}}," +
           "{\"type\":\"concept\",\"title\":\"Procedures\",\"defaultName\":\"Contains Procedures Codes\",\"plugin\":{\"columns\":" + columns + "\"entities\":[{\"name\":\"procedure\",\"selectable\":true,\"hierarchical\":true}]}}," +
           "{\"type\":\"concept\",\"title\":\"Observations\",\"defaultName\":\"Contains Observations Codes\",\"plugin\":{\"columns\":" + columns + "\"entities\":[{\"name\":\"observation\",\"selectable\":true}]}}," +
@@ -43,6 +44,7 @@ public class UnderlaysApiControllerTest extends BaseSpringUnitTest {
           "{\"type\":\"attribute\",\"title\":\"Race\",\"defaultName\":\"Contains Race Codes\",\"plugin\":{\"attribute\":\"race_concept_id\"}}," +
           "{\"type\":\"attribute\",\"title\":\"Sex Assigned at Birth\",\"defaultName\":\"Contains Sex Assigned at Birth Codes\",\"plugin\":{\"attribute\":\"sex_at_birth_concept_id\"}},{\"type\":\"attribute\",\"title\":\"Year at Birth\",\"defaultName\":\"Contains Year at Birth Values\",\"plugin\":{\"attribute\":\"year_of_birth\"}}" +
           "]";
+
 
   /** ApiUnderlay for the underlay specified by the nautical profile. */
   private static final ApiUnderlay NAUTICAL_API_UNDERLAY =
