@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 @AutoValue
 public abstract class Underlay {
   public abstract String name();
+
+  public abstract String criteriaConfigs();
   /** Map from entity names to entities. */
   public abstract ImmutableMap<String, Entity> entities();
   /** Table of entity and attribute names to attributes. */
@@ -104,6 +106,8 @@ public abstract class Underlay {
   public abstract static class Builder {
 
     public abstract Builder name(String name);
+
+    public abstract Builder criteriaConfigs(String criteriaConfigs);
 
     public abstract Builder entities(Map<String, Entity> entities);
 
