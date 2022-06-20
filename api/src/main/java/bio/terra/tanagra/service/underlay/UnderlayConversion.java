@@ -49,6 +49,7 @@ public final class UnderlayConversion {
         }
       }
     }
+
     Map<String, Relationship> relationships = buildRelationships(underlayProto, entities);
     Map<ColumnId, Column> columns = buildColumns(underlayProto);
     Map<Entity, Column> primaryKeys = buildPrimaryKeys(underlayProto, entities, columns);
@@ -67,6 +68,7 @@ public final class UnderlayConversion {
 
     return Underlay.builder()
         .name(underlayProto.getName())
+        .criteriaConfigs(underlayProto.getCriteriaConfigs())
         .entities(entities)
         .attributes(attributes)
         .relationships(relationships)
