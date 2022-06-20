@@ -6,10 +6,6 @@ class FakeUnderlaysApi {
   async listUnderlays(): Promise<tanagra.ListUnderlaysResponse> {
     const columns = [
       { key: "concept_name", width: "100%", title: "Concept Name" },
-      { key: "concept_id", width: 120, title: "Concept ID" },
-      { key: "standard_concept", width: 180, title: "Source/Standard" },
-      { key: "vocabulary_id", width: 120, title: "Vocab" },
-      { key: "concept_code", width: 120, title: "Code" },
     ];
 
     const criteriaConfigs = [
@@ -26,17 +22,6 @@ class FakeUnderlaysApi {
       },
       {
         type: "concept",
-        title: "Procedures",
-        defaultName: "Contains Procedures Codes",
-        plugin: {
-          columns,
-          entities: [
-            { name: "procedure", selectable: true, hierarchical: true },
-          ],
-        },
-      },
-      {
-        type: "concept",
         title: "Observations",
         defaultName: "Contains Observations Codes",
         plugin: {
@@ -45,79 +30,11 @@ class FakeUnderlaysApi {
         },
       },
       {
-        type: "concept",
-        title: "Drugs",
-        defaultName: "Contains Drugs Codes",
-        plugin: {
-          columns,
-          entities: [
-            { name: "ingredient", selectable: true, hierarchical: true },
-            {
-              name: "brand",
-              sourceConcepts: true,
-              attributes: [
-                "concept_name",
-                "concept_id",
-                "standard_concept",
-                "concept_code",
-              ],
-              listChildren: {
-                entity: "ingredient",
-                idPath: "relationshipFilter.filter.binaryFilter.attributeValue",
-                filter: {
-                  relationshipFilter: {
-                    outerVariable: "ingredient",
-                    newVariable: "brand",
-                    newEntity: "brand",
-                    filter: {
-                      binaryFilter: {
-                        attributeVariable: {
-                          variable: "brand",
-                          name: "concept_id",
-                        },
-                        operator: tanagra.BinaryFilterOperator.Equals,
-                        attributeValue: {
-                          int64Val: 0,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        },
-      },
-      {
-        type: "attribute",
-        title: "Ethnicity",
-        defaultName: "Contains Ethnicity Codes",
-        plugin: {
-          attribute: "ethnicity_concept_id",
-        },
-      },
-      {
-        type: "attribute",
-        title: "Gender Identity",
-        defaultName: "Contains Gender Identity Codes",
-        plugin: {
-          attribute: "gender_concept_id",
-        },
-      },
-      {
         type: "attribute",
         title: "Race",
         defaultName: "Contains Race Codes",
         plugin: {
           attribute: "race_concept_id",
-        },
-      },
-      {
-        type: "attribute",
-        title: "Sex Assigned at Birth",
-        defaultName: "Contains Sex Assigned at Birth Codes",
-        plugin: {
-          attribute: "sex_at_birth_concept_id",
         },
       },
       {
