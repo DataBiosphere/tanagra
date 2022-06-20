@@ -41,4 +41,6 @@ message Underlay {
 
   // The entity filters available on this underlay.
   repeated EntityFiltersSchema entity_filters_schemas = 8;
+
+  string criteria_configs = 11;
 }
