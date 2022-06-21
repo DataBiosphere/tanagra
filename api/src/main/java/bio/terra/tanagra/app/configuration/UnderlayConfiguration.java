@@ -2,9 +2,6 @@ package bio.terra.tanagra.app.configuration;
 
 import bio.terra.tanagra.proto.underlay.Underlay;
 import bio.terra.tanagra.underlay.UnderlayYamlParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
 import com.google.protobuf.TextFormat;
 import java.io.IOException;
