@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @AutoValue
 public abstract class Underlay {
   public abstract String name();
-
+  /** JSON string for criteria configs */
   public abstract String criteriaConfigs();
   /** Map from entity names to entities. */
   public abstract ImmutableMap<String, Entity> entities();
