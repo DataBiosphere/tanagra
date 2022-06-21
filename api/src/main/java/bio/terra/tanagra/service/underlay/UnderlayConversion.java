@@ -49,7 +49,6 @@ public final class UnderlayConversion {
         }
       }
     }
-
     Map<String, Relationship> relationships = buildRelationships(underlayProto, entities);
     Map<ColumnId, Column> columns = buildColumns(underlayProto);
     Map<Entity, Column> primaryKeys = buildPrimaryKeys(underlayProto, entities, columns);

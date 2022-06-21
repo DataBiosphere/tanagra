@@ -42,7 +42,6 @@ message Underlay {
 
   // The entity filters available on this underlay.
   repeated EntityFiltersSchema entity_filters_schemas = 8;
-  
   // The entity indexing in the underlay.
   repeated EntityIndexing entity_indexing = 11;
   
