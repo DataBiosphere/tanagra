@@ -1,0 +1,23 @@
+// Messages for underlay indexing.
+
+syntax = "proto3";
+
+package bio.terra.tanagra.underlay;
+option java_package = "bio.terra.tanagra.proto.underlay";
+option java_multiple_files = true;
+
+// A workflow that generates a table of all nodes for an entity.
+message AllNodesWorkflow {
+  // The table to store the computed output in.
+  string output_table = 1;
+
+  // The query used to generate the set of nodes.
+  string query = 2;
+}
+
+// The inddexing required for an entity.
+message EntityIndexing {
+  string entity = 1;
+
+  AllNodesWorkflow all_nodes_workflow = 2;
+}
