@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.util.List;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
-import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -22,13 +21,20 @@ public final class WriteAllNodes {
   private WriteAllNodes() {}
 
   /** Options supported by {@link WriteAllNodes}. */
-  public interface WriteAllNodesOptions extends BigQueryOptions {
+  public interface WriteAllNodesOptions extends RunUnderlayWorkflowsOptions {
     @Description(
         "Path to a BigQuery standard SQL query file to execute to retrieve all entity instances. "
             + "The result of the query should have one column, (node).")
     String getAllNodesQuery();
 
     void setAllNodesQuery(String query);
+
+    @Description(
+        "A BigQuery standard SQL query to execute to retrieve all entity instances. "
+            + "The result of the query should have one column, (node).")
+    String getAllNodesQueryText();
+
+    void setAllNodesQueryText(String query);
 
     @Description(
         "The  \"[project_id]:[dataset_id].[table_id]\" specification of the all-nodes table to create.")
@@ -46,14 +52,21 @@ public final class WriteAllNodes {
   public static void main(String[] args) throws IOException {
     WriteAllNodesOptions options =
         PipelineOptionsFactory.fromArgs(args).withValidation().as(WriteAllNodesOptions.class);
-    Pipeline pipeline = Pipeline.create(options);
 
     // read in the query from file
-    String allNodesQuery = Files.readString(Path.of(options.getAllNodesQuery()));
+    if (options.getAllNodesQueryText() == null) {
+      options.setAllNodesQueryText(Files.readString(Path.of(options.getAllNodesQuery())));
+    }
+
+    run(options);
+  }
+
+  public static void run(WriteAllNodesOptions options) {
+    Pipeline pipeline = Pipeline.create(options);
 
     // read in the nodes from BQ
     PCollection<Long> allNodesPC =
-        BigQueryUtils.readNodesFromBQ(pipeline, allNodesQuery, "allNodes");
+        BigQueryUtils.readNodesFromBQ(pipeline, options.getAllNodesQueryText(), "allNodes");
 
     // write the (node) rows to BQ
     writeAllNodesToBQ(allNodesPC, options.getOutputBigQueryTable(), allNodesSchema(options));

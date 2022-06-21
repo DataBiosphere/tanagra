@@ -1,12 +1,12 @@
 package bio.terra.tanagra.app.configuration;
 
 import bio.terra.tanagra.proto.underlay.Underlay;
+import bio.terra.tanagra.underlay.UnderlayYamlParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
 import com.google.protobuf.TextFormat;
-import com.google.protobuf.util.JsonFormat;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -47,10 +47,7 @@ public class UnderlayConfiguration {
   public List<Underlay> getUnderlays() throws IOException {
     List<Underlay> result = new ArrayList<>();
     for (String file : getUnderlayYamlFiles()) {
-      Underlay.Builder builder = Underlay.newBuilder();
-      String jsonUnderlay = yamlToJson(readFile(file));
-      JsonFormat.parser().merge(jsonUnderlay, builder);
-      result.add(builder.build());
+      result.add(UnderlayYamlParser.parse(readFile(file)));
     }
 
     for (String file : getUnderlayPrototextFiles()) {
@@ -63,12 +60,5 @@ public class UnderlayConfiguration {
 
   private static String readFile(String filePath) throws IOException {
     return Resources.toString(Resources.getResource(filePath), StandardCharsets.UTF_8);
-  }
-
-  /** Converts a yaml format string to a json format string. */
-  private static String yamlToJson(String contents) throws JsonProcessingException {
-    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-    ObjectMapper jsonMapper = new ObjectMapper();
-    return jsonMapper.writeValueAsString(yamlMapper.readValue(contents, Object.class));
   }
 }
