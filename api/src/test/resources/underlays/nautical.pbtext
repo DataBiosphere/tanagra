@@ -5,7 +5,7 @@
 # This should be equivalent to nautical.yaml
 
 name: "nautical_underlay"
-criteria_configs: "[{\"type\":\"attribute\",\"title\":\"Age\",\"defaultName\":\"Age\",\"plugin\":{\"attribute\":\"age\"}]"
+criteria_configs: '[{"type":"attribute","title":"Age","defaultName":"Age","plugin":{"attribute":"age"}]'
 entities: {
   name: "sailors"
   attributes: {
