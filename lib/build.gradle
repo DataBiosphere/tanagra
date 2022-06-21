@@ -6,7 +6,15 @@ plugins {
 }
 
 dependencies {
+    ext {
+        google_protobuf = "3.17.3"
+        jackson = "2.11.2"
+    }
+
     // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.protobuf", name: "protobuf-java"
     implementation group: "com.google.protobuf", name: "protobuf-java-util"
+
+    implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: jackson
+    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-jaxb-annotations", version: jackson
 }
