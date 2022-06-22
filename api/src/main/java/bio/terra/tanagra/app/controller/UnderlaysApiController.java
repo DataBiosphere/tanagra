@@ -66,6 +66,10 @@ public class UnderlaysApiController implements UnderlaysApi {
   private static ApiUnderlay convert(Underlay underlay) {
     List<String> entityNames =
         underlay.entities().keySet().stream().sorted().collect(Collectors.toList());
-    return new ApiUnderlay().name(underlay.name()).entityNames(entityNames);
+
+    return new ApiUnderlay()
+        .name(underlay.name())
+        .entityNames(entityNames)
+        .criteriaConfigs(underlay.criteriaConfigs());
   }
 }

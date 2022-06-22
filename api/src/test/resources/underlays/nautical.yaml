@@ -3,6 +3,8 @@
 # This should be equivalent to nautical.pbtext.
 
 name: nautical_underlay
+criteriaConfigs: >-
+  [{"type":"attribute","title":"Age","defaultName":"Age","plugin":{"attribute":"age"}]
 entities:
   - name: sailors
     attributes:

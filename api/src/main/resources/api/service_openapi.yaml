@@ -556,6 +556,9 @@ components:
           type: array
           items:
             type: string
+        criteriaConfigs:
+          description: The concepts and attributes that can be specified to create a cohort.
+          type: string
 
     ListUnderlaysResponse:
       type: object

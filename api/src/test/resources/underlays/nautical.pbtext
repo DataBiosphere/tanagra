@@ -2,9 +2,10 @@
 # proto-message: Underlay
 # An Underlay prototext file describing a fictional relational domain of sailors, boats and
 # reservations for testing.
-# This should be euivalent to nautical.yaml
+# This should be equivalent to nautical.yaml
 
 name: "nautical_underlay"
+criteria_configs: '[{"type":"attribute","title":"Age","defaultName":"Age","plugin":{"attribute":"age"}]'
 entities: {
   name: "sailors"
   attributes: {

@@ -4,12 +4,56 @@ import * as tanagra from "./tanagra-api";
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
 class FakeUnderlaysApi {
   async listUnderlays(): Promise<tanagra.ListUnderlaysResponse> {
+    const columns = [
+      { key: "concept_name", width: "100%", title: "Concept Name" },
+    ];
+
+    const criteriaConfigs = [
+      {
+        type: "concept",
+        title: "Conditions",
+        defaultName: "Contains Conditions Codes",
+        plugin: {
+          columns,
+          entities: [
+            { name: "condition", selectable: true, hierarchical: true },
+          ],
+        },
+      },
+      {
+        type: "concept",
+        title: "Observations",
+        defaultName: "Contains Observations Codes",
+        plugin: {
+          columns,
+          entities: [{ name: "observation", selectable: true }],
+        },
+      },
+      {
+        type: "attribute",
+        title: "Race",
+        defaultName: "Contains Race Codes",
+        plugin: {
+          attribute: "race_concept_id",
+        },
+      },
+      {
+        type: "attribute",
+        title: "Year at Birth",
+        defaultName: "Contains Year at Birth Values",
+        plugin: {
+          attribute: "year_of_birth",
+        },
+      },
+    ];
+
     return new Promise<tanagra.ListUnderlaysResponse>((resolve) => {
       resolve({
         underlays: [
           {
             name: "underlay_name",
             entityNames: ["person"],
+            criteriaConfigs: JSON.stringify(criteriaConfigs),
           },
         ],
       });
