@@ -1,4 +1,5 @@
 import { combineReducers, createAction } from "@reduxjs/toolkit";
+import undoable from 'redux-undo';
 import cohortsReducer from "cohortsSlice";
 import conceptSetsReducer from "conceptSetsSlice";
 import { AnyAction, Reducer } from "redux";
@@ -10,7 +11,10 @@ const slicesReducer = combineReducers({
   underlays: underlaysReducer,
   conceptSets: conceptSetsReducer,
 });
-export type RootState = ReturnType<typeof slicesReducer>;
+
+const undoableSlicesReducer = undoable(slicesReducer);
+
+export type RootState = ReturnType<typeof undoableSlicesReducer>;
 
 export const loadUserData = createAction<tanagra.UserData>("loadUserData");
 
@@ -22,5 +26,5 @@ export const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
       conceptSets: action.payload.conceptSets,
     };
   }
-  return slicesReducer(state, action);
+  return undoableSlicesReducer(state, action);
 };

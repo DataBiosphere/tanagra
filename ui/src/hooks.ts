@@ -10,9 +10,10 @@ export class PathError extends Error {}
 
 export function useUnderlay() {
   const { underlayName } = useParams<{ underlayName: string }>();
-  const underlay = useAppSelector((state) =>
-    state.underlays.find((underlay) => underlay.name === underlayName)
-  );
+  const underlay = useAppSelector((state) => {
+    console.log("STATE: ", state)
+    state.present.underlays.find((underlay) => underlay.name === underlayName)
+  });
   if (!underlay) {
     throw new PathError(`Unknown underlay "${underlayName}".`);
   }
@@ -22,7 +23,7 @@ export function useUnderlay() {
 export function useCohort() {
   const { cohortId } = useParams<{ cohortId: string }>();
   const cohort = useAppSelector((state) =>
-    state.cohorts.find((cohort) => cohort.id === cohortId)
+    state.present.cohorts.find((cohort) => cohort.id === cohortId)
   );
   if (!cohort) {
     throw new PathError(`Unknown cohort "${cohortId}".`);
@@ -48,7 +49,7 @@ export function useGroupAndCriteria() {
 export function useConceptSet() {
   const { conceptSetId } = useParams<{ conceptSetId: string }>();
   const conceptSet = useAppSelector((state) =>
-    state.conceptSets.find((conceptSet) => conceptSet.id === conceptSetId)
+    state.present.conceptSets.find((conceptSet) => conceptSet.id === conceptSetId)
   );
   if (!conceptSet) {
     throw new PathError(`Unknown concept set "${conceptSetId}".`);
