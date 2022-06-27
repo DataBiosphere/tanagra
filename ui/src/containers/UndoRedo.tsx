@@ -8,7 +8,6 @@ import { RootState } from "rootReducer";
 import { AppDispatch } from "store";
 
 const mapStateToProps = (state: RootState) => {
-    console.log(state);
     return {
         canUndo: state.past.length > 0,
         canRedo: state.future.length > 0,
