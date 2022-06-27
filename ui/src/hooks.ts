@@ -10,10 +10,9 @@ export class PathError extends Error {}
 
 export function useUnderlay() {
   const { underlayName } = useParams<{ underlayName: string }>();
-  const underlay = useAppSelector((state) => {
-    console.log("STATE: ", state)
+  const underlay = useAppSelector((state) =>
     state.present.underlays.find((underlay) => underlay.name === underlayName)
-  });
+  );
   if (!underlay) {
     throw new PathError(`Unknown underlay "${underlayName}".`);
   }

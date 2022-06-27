@@ -36,8 +36,8 @@ import { isValid } from "util/valid";
 
 export function Datasets() {
   const dispatch = useAppDispatch();
-  const cohorts = useAppSelector((state) => state.cohorts);
-  const workspaceConceptSets = useAppSelector((state) => state.conceptSets);
+  const cohorts = useAppSelector((state) => state.present.cohorts);
+  const workspaceConceptSets = useAppSelector((state) => state.present.conceptSets);
   const history = useHistory();
 
   const underlay = useUnderlay();
@@ -347,7 +347,7 @@ function useConceptSetEntities(
   });
 
   const workspaceConceptSets = useAppSelector((state) =>
-    state.conceptSets.filter((cs) => selectedConceptSets.has(cs.id))
+    state.present.conceptSets.filter((cs) => selectedConceptSets.has(cs.id))
   );
   workspaceConceptSets.forEach((conceptSet) => {
     const plugin = getCriteriaPlugin(conceptSet.criteria);
@@ -383,7 +383,7 @@ type PreviewProps = {
 function Preview(props: PreviewProps) {
   const underlay = useUnderlay();
   const cohorts = useAppSelector((state) =>
-    state.cohorts.filter((cohort) => props.selectedCohorts.has(cohort.id))
+    state.present.cohorts.filter((cohort) => props.selectedCohorts.has(cohort.id))
   );
   const api = useContext(EntityInstancesApiContext);
 
