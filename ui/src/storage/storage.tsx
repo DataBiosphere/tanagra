@@ -51,12 +51,8 @@ export function LoadingUserData(props: { children?: React.ReactNode }) {
           );
         }
 
-        console.log("LOADED BEFORE: ", data);
-
         data.cohorts = data.cohorts || [];
         data.conceptSets = data.conceptSets || [];
-
-        console.log("LOADED AFTER: ", data);
 
         dispatch(loadUserData(data));
       });
