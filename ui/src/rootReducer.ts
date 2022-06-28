@@ -22,8 +22,11 @@ export const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
   if (loadUserData.match(action)) {
     return {
       ...state,
-      cohorts: action.payload.cohorts,
-      conceptSets: action.payload.conceptSets,
+      present: {
+        ...state.present,
+        cohorts: action.payload.cohorts,
+        conceptSets: action.payload.conceptSets,
+      }
     };
   }
   return undoableSlicesReducer(state, action);
