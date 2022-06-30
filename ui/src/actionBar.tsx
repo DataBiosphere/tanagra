@@ -35,7 +35,7 @@ export default function ActionBar(props: ActionBarProps) {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h3" sx={{ flexGrow: 1 }}>
+          <Typography variant="h4" sx={{ flexGrow: 1 }}>
             {props.title}
           </Typography>
           <UndoRedo />
