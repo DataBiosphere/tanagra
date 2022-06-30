@@ -2,8 +2,7 @@ import { AnyAction, createSlice } from "@reduxjs/toolkit";
 
 const createUrlParams = (): string => {
   const baseUrl = "http://localhost:3000/#/"; // TODO: find solution for URL
-  const urlPath = window.location.href.slice(baseUrl.length);
-  return urlPath;
+  return "/".concat(window.location.href.slice(baseUrl.length));
 };
 
 function isUndoableAction(action: AnyAction): boolean {
