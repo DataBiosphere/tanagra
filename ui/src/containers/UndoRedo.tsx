@@ -11,7 +11,7 @@ import { AppDispatch } from "store";
 const mapStateToProps = (state: RootState) => {
   return {
     canUndo: state.past.length > 1,
-    canRedo: state.future.length > 0,
+    canRedo: state.future.length > 1,
   };
 };
 
