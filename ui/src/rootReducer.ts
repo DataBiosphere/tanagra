@@ -28,7 +28,7 @@ export const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
         ...state.present,
         cohorts: action.payload.cohorts,
         conceptSets: action.payload.conceptSets,
-      }
+      },
     };
   }
   return undoableSlicesReducer(state, action);

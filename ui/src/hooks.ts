@@ -48,7 +48,9 @@ export function useGroupAndCriteria() {
 export function useConceptSet() {
   const { conceptSetId } = useParams<{ conceptSetId: string }>();
   const conceptSet = useAppSelector((state) =>
-    state.present.conceptSets.find((conceptSet) => conceptSet.id === conceptSetId)
+    state.present.conceptSets.find(
+      (conceptSet) => conceptSet.id === conceptSetId
+    )
   );
   if (!conceptSet) {
     throw new PathError(`Unknown concept set "${conceptSetId}".`);
