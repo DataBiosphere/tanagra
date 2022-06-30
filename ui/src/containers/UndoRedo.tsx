@@ -10,8 +10,8 @@ import { AppDispatch } from "store";
 
 const mapStateToProps = (state: RootState) => {
   return {
-    canUndo: state.past.length > 1,
-    canRedo: state.future.length > 1,
+    canUndo: state.past.length > 0 && state.past[state.past.length - 1].urls !== "/",
+    canRedo: state.future.length > 0,
   };
 };
 
