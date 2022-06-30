@@ -96,3 +96,8 @@ function NotFound(props: { error: Error; resetErrorBoundary?: () => void }) {
     </>
   );
 }
+
+export const getCurrentPageUrl = (): string => {
+  const baseUrl = "http://localhost:3000/#"; // TODO: find solution for URL
+  return window.location.href.slice(baseUrl.length);
+}

@@ -17,7 +17,7 @@ type ActionBarProps = {
 export default function ActionBar(props: ActionBarProps) {
   const { underlayName } = useParams<{ underlayName: string }>();
   const underlay = useAppSelector((state) =>
-    state.present.underlays.find((underlay) => underlay.name === underlayName)
+    state.underlays.find((underlay) => underlay.name === underlayName)
   );
 
   const backUrl = useParentUrl();

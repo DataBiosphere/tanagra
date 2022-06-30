@@ -1,9 +1,5 @@
 import { AnyAction, createSlice } from "@reduxjs/toolkit";
-
-const createUrlParams = (): string => {
-  const baseUrl = "http://localhost:3000/#"; // TODO: find solution for URL
-  return window.location.href.slice(baseUrl.length);
-};
+import { getCurrentPageUrl } from "./router";
 
 function isUndoableAction(action: AnyAction): boolean {
   return (
@@ -19,7 +15,7 @@ const urlsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addMatcher(isUndoableAction, () => {
-      return createUrlParams();
+      return getCurrentPageUrl();
     });
   },
 });
