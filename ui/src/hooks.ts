@@ -55,3 +55,12 @@ export function useConceptSet() {
   }
   return conceptSet;
 }
+
+export function useUrl() {
+  const url = useAppSelector((state) => state.present.urls);
+
+  if (!url) {
+    throw new PathError(`Unable to return url "${url}".`);
+  }
+  return url;
+}
