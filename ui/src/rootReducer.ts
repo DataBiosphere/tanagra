@@ -1,15 +1,17 @@
 import { combineReducers, createAction } from "@reduxjs/toolkit";
-import undoable from 'redux-undo';
 import cohortsReducer from "cohortsSlice";
 import conceptSetsReducer from "conceptSetsSlice";
 import { AnyAction, Reducer } from "redux";
+import undoable from "redux-undo";
 import * as tanagra from "tanagra-api";
 import underlaysReducer from "underlaysSlice";
+import urlsSlice from "urlsSlice";
 
 const slicesReducer = combineReducers({
   cohorts: cohortsReducer,
   underlays: underlaysReducer,
   conceptSets: conceptSetsReducer,
+  urls: urlsSlice,
 });
 
 const undoableSlicesReducer = undoable(slicesReducer);
