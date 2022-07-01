@@ -52,9 +52,6 @@ public final class PrecomputeCounts {
 
     void setAllPrimaryNodesQuery(String query);
 
-    @Description(
-        "A BigQuery standard SQL query to execute to retrieve all primary entity instances. "
-            + "The result of the query should have one column, (node).")
     String getAllPrimaryNodesQueryText();
 
     void setAllPrimaryNodesQueryText(String query);
@@ -66,12 +63,20 @@ public final class PrecomputeCounts {
 
     void setAllAuxiliaryNodesQuery(String query);
 
-    @Description(
-        "Path to a BigQuery standard SQL query file to execute to retrieve all auxiliary entity instances. "
-            + "The result of the query should have two columns, (node, secondary).")
     String getAllAuxiliaryNodesQueryText();
 
     void setAllAuxiliaryNodesQueryText(String query);
+
+    @Description(
+        "Path to a BigQuery standard SQL query file to execute to retrieve all ancestor-descendant relationships for the primary entity. "
+            + "The result of the query should have two columns, (ancestor, descendant).")
+    String getAncestorDescendantRelationshipsQuery();
+
+    void setAncestorDescendantRelationshipsQuery(String query);
+
+    String getAncestorDescendantRelationshipsQueryText();
+
+    void setAncestorDescendantRelationshipsQueryText(String query);
 
     @Description(
         "The  \"[project_id]:[dataset_id].[table_id]\" specification of the precomputed-counts table to create.")
@@ -110,6 +115,21 @@ public final class PrecomputeCounts {
     // count the number of distinct auxiliary nodes per primary node
     PCollection<KV<Long, Long>> nodeCountKVsPC =
         CountUtils.countDistinct(primaryNodesPC, auxiliaryNodesPC);
+
+    // optionally handle a hierarchy for the primary nodes
+    boolean includesHierarchy = options.getAncestorDescendantRelationshipsQuery() != null;
+    if (includesHierarchy) {
+      // read in the ancestor-descendant relationships from BQ. build (descendant, ancestor) pairs
+      String ancestorDescendantRelationshipsQuery =
+          Files.readString(Path.of(options.getAncestorDescendantRelationshipsQuery()));
+      PCollection<KV<Long, Long>> descendantAncestorKVsPC =
+          BigQueryUtils.readAncestorDescendantRelationshipsFromBQ(
+              pipeline, ancestorDescendantRelationshipsQuery);
+
+      // aggregate the counts up the hierarchy
+      nodeCountKVsPC =
+          CountUtils.aggregateCountsInHierarchy(nodeCountKVsPC, descendantAncestorKVsPC);
+    }
 
     // write the (node, count) rows to BQ
     writePrecomputedCountsToBQ(

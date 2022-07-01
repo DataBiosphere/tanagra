@@ -46,6 +46,15 @@ public final class BigQueryUtils {
   }
 
   /**
+   * Read all the ancestor-descendant relationships from BQ and build a {@link PCollection} of
+   * {@link KV} pairs (descendant, ancestor).
+   */
+  public static PCollection<KV<Long, Long>> readAncestorDescendantRelationshipsFromBQ(
+      Pipeline pipeline, String sqlQuery) {
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, "descendant", "ancestor");
+  }
+
+  /**
    * Read all the two-field rows from BQ and build a {@link PCollection} of {@link KV} pairs
    * (field1, field2).
    */
