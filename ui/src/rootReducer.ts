@@ -19,17 +19,16 @@ export type RootState = ReturnType<typeof slicesReducer>;
 export const loadUserData = createAction<tanagra.UserData>("loadUserData");
 
 export const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
-  console.log(state)
   if (loadUserData.match(action)) {
     return {
       ...state,
       cohorts: {
         ...state.cohorts,
-        present: action.payload.cohorts
+        present: action.payload.cohorts,
       },
       conceptSets: {
         ...state.conceptSets,
-        present: action.payload.conceptSets
+        present: action.payload.conceptSets,
       },
     };
   }
