@@ -3,7 +3,7 @@ import UndoIcon from "@mui/icons-material/Undo";
 import { Box, Button } from "@mui/material";
 import { useUrl } from "hooks";
 import { connect, ConnectedProps } from "react-redux";
-import { Link as RouterLink } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { ActionCreators as UndoActionCreators } from "redux-undo";
 import { RootState } from "rootReducer";
 import { AppDispatch } from "store";
@@ -27,27 +27,28 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type propsFromRedux = ConnectedProps<typeof connector>;
 
 function UndoRedo({ canUndo, canRedo, onUndo, onRedo }: propsFromRedux) {
-  const url = useUrl();
+  const history = useHistory();
+  const urlHistory = useUrl();
+
+  const handleUndo = () => {
+    onUndo();
+    history.push(urlHistory.present);
+  };
+
+  const handleRedo = () => {
+    onRedo();
+    history.push(urlHistory.future[urlHistory.future.length - 1]);
+  };
 
   return (
     <Box>
-      <Button
-        onClick={onUndo}
-        disabled={!canUndo}
-        component={RouterLink}
-        to={url}
-      >
+      <Button onClick={handleUndo} disabled={!canUndo}>
         <UndoIcon
           fontSize="medium"
           sx={{ color: canUndo ? "white" : "gray" }}
         />
       </Button>
-      <Button
-        onClick={onRedo}
-        disabled={!canRedo}
-        component={RouterLink}
-        to={url}
-      >
+      <Button onClick={handleRedo} disabled={!canRedo}>
         <RedoIcon
           fontSize="medium"
           sx={{ color: canRedo ? "white" : "gray" }}
