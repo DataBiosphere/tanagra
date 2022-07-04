@@ -59,5 +59,5 @@ export function useConceptSet() {
 }
 
 export function useUrl() {
-  return useAppSelector((state) => state.url.present);
+  return useAppSelector((state) => state.url);
 }
