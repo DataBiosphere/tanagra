@@ -511,6 +511,7 @@ function searchRequest(
       entityDataset: {
         entityVariable: "c",
         selectedAttributes: attributesForEntity(entity, columns),
+        orderByAttribute: "concept_name",
         filter: {
           arrayFilter: {
             operands,
