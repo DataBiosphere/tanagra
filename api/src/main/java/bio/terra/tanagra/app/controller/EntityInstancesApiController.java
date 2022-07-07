@@ -34,7 +34,10 @@ public class EntityInstancesApiController implements EntityInstancesApi {
     // TODO authorization check.
     EntityDataset entityDataset =
         apiConversionService.convertEntityDataset(
-            underlayName, entityName, body.getEntityDataset());
+            underlayName,
+            entityName,
+            body.getEntityDataset(),
+            null); // <-- what should be the value here since a pageSize isn't provided
     String sql = queryService.generateSql(entityDataset);
     return ResponseEntity.ok(new ApiSqlQuery().query(sql));
   }
@@ -49,7 +52,7 @@ public class EntityInstancesApiController implements EntityInstancesApi {
     // TODO authorization check.
     EntityDataset entityDataset =
         apiConversionService.convertEntityDataset(
-            underlayName, entityName, body.getEntityDataset());
+            underlayName, entityName, body.getEntityDataset(), pageSize);
     QueryResult queryResult = queryService.retrieveResults(entityDataset);
 
     ApiSearchEntityInstancesResponse response =

@@ -45,7 +45,7 @@ public class ApiConversionService {
   }
 
   public EntityDataset convertEntityDataset(
-      String underlayName, String entityName, ApiEntityDataset apiEntityDataset) {
+      String underlayName, String entityName, ApiEntityDataset apiEntityDataset, Integer pageSize) {
     Underlay underlay = getUnderlay(underlayName);
     Entity primaryEntity = getEntity(entityName, underlay);
     EntityVariable primaryVariable =
@@ -72,6 +72,7 @@ public class ApiConversionService {
         .orderByAttribute(orderByAttribute)
         .orderByDirection(convertOrderByDirection(apiEntityDataset.getOrderByDirection()))
         .filter(filter)
+        .pageSize(pageSize)
         .build();
   }
 

@@ -124,6 +124,10 @@ public class QueryService {
       queryBuilder.orderBy(orderBy).orderByDirection(entityDataset.orderByDirection());
     }
 
+    if (entityDataset.pageSize() != null) {
+      queryBuilder.pageSize(entityDataset.pageSize());
+    }
+
     return queryBuilder.build();
   }
 
