@@ -39,6 +39,10 @@ public abstract class EntityDataset {
   /** The filter to apply to the primary entity. */
   public abstract Filter filter();
 
+  /** The number of results to return in a query */
+  @Nullable
+  public abstract Integer pageSize();
+
   public static Builder builder() {
     return new AutoValue_EntityDataset.Builder();
   }
@@ -64,6 +68,10 @@ public abstract class EntityDataset {
     public abstract OrderByDirection orderByDirection();
 
     public abstract Builder filter(Filter filter);
+
+    public abstract Builder pageSize(Integer value);
+
+    public abstract Integer pageSize();
 
     public EntityDataset build() {
       for (Attribute attribute : selectedAttributes()) {

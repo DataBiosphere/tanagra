@@ -27,6 +27,10 @@ public abstract class Query {
   /** The filter to apply to the primary entity, if there is a filter. */
   public abstract Optional<Filter> filter();
 
+  /** The number of results to return in a query */
+  @Nullable
+  public abstract Integer pageSize();
+
   public static Builder builder() {
     return new AutoValue_Query.Builder();
   }
@@ -46,6 +50,8 @@ public abstract class Query {
     public abstract Builder filter(Optional<Filter> filter);
 
     public abstract Builder filter(Filter filter);
+
+    public abstract Builder pageSize(Integer pageSize);
 
     public abstract Query build();
   }
