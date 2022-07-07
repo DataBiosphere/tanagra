@@ -49,7 +49,6 @@ public class SqlVisitor {
   }
 
   public String createSql(Query query) {
-    String sqlQuery = "";
     String selections =
         query.selections().stream()
             .map(selectField -> selectField.accept(new SelectionVisitor(searchContext)))
@@ -65,7 +64,7 @@ public class SqlVisitor {
             .put("filter", filterSql.orElse("TRUE"))
             .build();
 
-    sqlQuery = StringSubstitutor.replace(template, params);
+    String sqlQuery = StringSubstitutor.replace(template, params);
     if (query.orderBy() != null) {
       String orderByExpression = query.orderBy().accept(new SelectionVisitor(searchContext));
 
