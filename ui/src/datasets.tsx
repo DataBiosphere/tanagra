@@ -458,6 +458,7 @@ function Preview(props: PreviewProps) {
               const res = await api.searchEntityInstances({
                 entityName: entity.name,
                 underlayName: underlay.name,
+                pageSize: 50,
                 searchEntityInstancesRequest: {
                   entityDataset,
                 },
@@ -466,8 +467,8 @@ function Preview(props: PreviewProps) {
               const data: TreeGridData = {
                 root: { data: {}, children: [] },
               };
-              // TODO(tjennison): Use server side limits.
-              res?.instances?.slice(0, 100)?.forEach((instance, i) => {
+
+              res?.instances?.forEach((instance, i) => { 
                 const row: TreeGridRowData = {};
                 for (const k in instance) {
                   const v = instance[k];
