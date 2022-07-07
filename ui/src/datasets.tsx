@@ -468,7 +468,7 @@ function Preview(props: PreviewProps) {
                 root: { data: {}, children: [] },
               };
 
-              res?.instances?.forEach((instance, i) => { 
+              res?.instances?.forEach((instance, i) => {
                 const row: TreeGridRowData = {};
                 for (const k in instance) {
                   const v = instance[k];
