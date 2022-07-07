@@ -49,6 +49,7 @@ public class SqlVisitor {
   }
 
   public String createSql(Query query) {
+    String sqlQuery = "";
     String selections =
         query.selections().stream()
             .map(selectField -> selectField.accept(new SelectionVisitor(searchContext)))
@@ -63,22 +64,32 @@ public class SqlVisitor {
             .put("table", underlayResolver.resolveTable(query.primaryEntity()))
             .put("filter", filterSql.orElse("TRUE"))
             .build();
-    String sqlWithoutOrderBy = StringSubstitutor.replace(template, params);
 
+    sqlQuery = StringSubstitutor.replace(template, params);
     if (query.orderBy() != null) {
       String orderByExpression = query.orderBy().accept(new SelectionVisitor(searchContext));
 
-      String orderByTemplate = "${sqlWithoutOrderBy} ORDER BY ${orderBy} ${orderByDirection}";
+      String orderByTemplate = "${sqlQuery} ORDER BY ${orderBy} ${orderByDirection}";
       Map<String, String> orderByParams =
           ImmutableMap.<String, String>builder()
-              .put("sqlWithoutOrderBy", sqlWithoutOrderBy)
+              .put("sqlQuery", sqlQuery)
               .put("orderBy", orderByExpression)
               .put("orderByDirection", query.orderByDirection().name())
               .build();
-      return StringSubstitutor.replace(orderByTemplate, orderByParams);
-    } else {
-      return sqlWithoutOrderBy;
+      sqlQuery = StringSubstitutor.replace(orderByTemplate, orderByParams);
     }
+
+    if (query.pageSize() != null) {
+      String limitTemplate = "${sqlQuery} LIMIT ${pageSize}";
+      Map<String, String> limitParams =
+          ImmutableMap.<String, String>builder()
+              .put("sqlQuery", sqlQuery)
+              .put("pageSize", query.pageSize().toString())
+              .build();
+      sqlQuery = StringSubstitutor.replace(limitTemplate, limitParams);
+    }
+
+    return sqlQuery;
   }
 
   /** A {@link Selection.Visitor} for creating SQL for selections. */
