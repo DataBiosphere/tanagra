@@ -32,7 +32,7 @@ public final class UnderlayUtils {
           "sex_at_birth");
 
   public static final String CONDITION_ENTITY = "condition";
-  public static final String CONDITION_ENTITY_NAME_ATTRIBUTE = "concept_name";
+  public static final String CONDITION_ENTITY_PERSON_COUNT_ATTRIBUTE = "person_count";
   public static final List<String> ALL_CONDITION_ATTRIBUTES =
       ImmutableList.of(
           "concept_id",
