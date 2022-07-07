@@ -112,7 +112,7 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
                     Expression.Literal.create(DataType.INT64, "42")))
             .build(),
         apiConversionService.convertEntityDataset(
-            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
+            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset, null));
   }
 
   @Test
@@ -147,7 +147,7 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
                     Expression.Literal.create(DataType.INT64, "42")))
             .build(),
         apiConversionService.convertEntityDataset(
-            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
+            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset, null));
   }
 
   @Test
@@ -157,14 +157,14 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
             NotFoundException.class,
             () ->
                 apiConversionService.convertEntityDataset(
-                    "bogus_underlay", "sailors", new ApiEntityDataset()));
+                    "bogus_underlay", "sailors", new ApiEntityDataset(), null));
     assertThat(bogusUnderlay.getMessage(), Matchers.containsString("No known underlay with name"));
     NotFoundException bogusEntity =
         assertThrows(
             NotFoundException.class,
             () ->
                 apiConversionService.convertEntityDataset(
-                    NAUTICAL_UNDERLAY_NAME, "bogus_entity", new ApiEntityDataset()));
+                    NAUTICAL_UNDERLAY_NAME, "bogus_entity", new ApiEntityDataset(), null));
     assertThat(bogusEntity.getMessage(), Matchers.containsString("No known entity with name"));
   }
 }
