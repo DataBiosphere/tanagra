@@ -40,9 +40,9 @@ public final class BigQueryUtils {
    * Read all the auxiliary rows from BQ and build a {@link PCollection} of {@link KV} pairs (node,
    * secondary).
    */
-  public static PCollection<KV<Long, Long>> readAuxiliaryNodesFromBQ(
+  public static PCollection<KV<Long, Long>> readOccurrencesFromBQ(
       Pipeline pipeline, String sqlQuery) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, "node", "secondary");
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, "node", "what_to_count");
   }
 
   /**
