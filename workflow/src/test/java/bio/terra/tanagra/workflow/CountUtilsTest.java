@@ -25,12 +25,12 @@ public class CountUtilsTest {
 
   @Test
   public void allNodesHaveNonZeroCount() {
-    Multimap<Long, Long> auxiliaryNodes = MultimapBuilder.hashKeys().arrayListValues().build();
-    auxiliaryNodes.putAll(10L, List.of(20L));
-    auxiliaryNodes.putAll(11L, List.of(21L, 22L));
-    auxiliaryNodes.putAll(12L, List.of(22L));
-    auxiliaryNodes.putAll(13L, List.of(23L, 23L));
-    auxiliaryNodes.putAll(14L, List.of(24L, 25L, 26L));
+    Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
+    occurrences.putAll(10L, List.of(20L));
+    occurrences.putAll(11L, List.of(21L, 22L));
+    occurrences.putAll(12L, List.of(22L));
+    occurrences.putAll(13L, List.of(23L, 23L));
+    occurrences.putAll(14L, List.of(24L, 25L, 26L));
 
     Multimap<Long, Long> expectedCounts = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedCounts.put(10L, 1L);
@@ -39,16 +39,16 @@ public class CountUtilsTest {
     expectedCounts.put(13L, 1L);
     expectedCounts.put(14L, 3L);
 
-    runCountDistinctAndAssert(ALL_NODES_5, auxiliaryNodes, expectedCounts);
+    runCountDistinctAndAssert(ALL_NODES_5, occurrences, expectedCounts);
   }
 
   @Test
   public void someNodesHaveZeroCount() {
-    Multimap<Long, Long> auxiliaryNodes = MultimapBuilder.hashKeys().arrayListValues().build();
-    auxiliaryNodes.putAll(10L, List.of(20L));
-    auxiliaryNodes.putAll(11L, List.of(21L, 22L));
-    auxiliaryNodes.putAll(13L, List.of(23L, 23L));
-    auxiliaryNodes.putAll(14L, List.of(24L, 25L, 26L));
+    Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
+    occurrences.putAll(10L, List.of(20L));
+    occurrences.putAll(11L, List.of(21L, 22L));
+    occurrences.putAll(13L, List.of(23L, 23L));
+    occurrences.putAll(14L, List.of(24L, 25L, 26L));
 
     Multimap<Long, Long> expectedCounts = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedCounts.put(10L, 1L);
@@ -57,17 +57,17 @@ public class CountUtilsTest {
     expectedCounts.put(13L, 1L);
     expectedCounts.put(14L, 3L);
 
-    runCountDistinctAndAssert(ALL_NODES_5, auxiliaryNodes, expectedCounts);
+    runCountDistinctAndAssert(ALL_NODES_5, occurrences, expectedCounts);
   }
 
   @Test
-  public void someAuxiliaryNodesPointToNonExistentPrimaryNodes() {
-    Multimap<Long, Long> auxiliaryNodes = MultimapBuilder.hashKeys().arrayListValues().build();
-    auxiliaryNodes.putAll(10L, List.of(20L));
-    auxiliaryNodes.putAll(11L, List.of(21L, 22L));
-    auxiliaryNodes.putAll(13L, List.of(23L, 23L));
-    auxiliaryNodes.putAll(14L, List.of(24L, 25L, 26L));
-    auxiliaryNodes.putAll(15L, List.of(26L));
+  public void someOccurrencesPointToNonExistentPrimaryNodes() {
+    Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
+    occurrences.putAll(10L, List.of(20L));
+    occurrences.putAll(11L, List.of(21L, 22L));
+    occurrences.putAll(13L, List.of(23L, 23L));
+    occurrences.putAll(14L, List.of(24L, 25L, 26L));
+    occurrences.putAll(15L, List.of(26L));
 
     Multimap<Long, Long> expectedCounts = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedCounts.put(10L, 1L);
@@ -76,16 +76,16 @@ public class CountUtilsTest {
     expectedCounts.put(13L, 1L);
     expectedCounts.put(14L, 3L);
 
-    runCountDistinctAndAssert(ALL_NODES_5, auxiliaryNodes, expectedCounts);
+    runCountDistinctAndAssert(ALL_NODES_5, occurrences, expectedCounts);
   }
 
   @Test
   public void hierarchyWithOneLevelAndSelfReference() {
-    Multimap<Long, Long> auxiliaryNodes = MultimapBuilder.hashKeys().arrayListValues().build();
-    auxiliaryNodes.putAll(10L, List.of(20L)); // 1
-    auxiliaryNodes.putAll(11L, List.of(21L, 22L)); // 2
-    auxiliaryNodes.putAll(13L, List.of(23L, 23L)); // 1
-    auxiliaryNodes.putAll(14L, List.of(24L, 25L, 26L)); // 3
+    Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
+    occurrences.putAll(10L, List.of(20L)); // 1
+    occurrences.putAll(11L, List.of(21L, 22L)); // 2
+    occurrences.putAll(13L, List.of(23L, 23L)); // 1
+    occurrences.putAll(14L, List.of(24L, 25L, 26L)); // 3
 
     Multimap<Long, Long> descendantAncestor = MultimapBuilder.hashKeys().arrayListValues().build();
     descendantAncestor.putAll(10L, List.of(14L));
@@ -101,22 +101,22 @@ public class CountUtilsTest {
     expectedCounts.put(13L, 1L);
     expectedCounts.put(14L, 7L);
 
-    runCountDistinctAndAggregateForHierarchyAndAssert(
-        ALL_NODES_5, auxiliaryNodes, descendantAncestor, expectedCounts);
+    runCountDistinctWithHierarchyAndAssert(
+        ALL_NODES_5, occurrences, descendantAncestor, expectedCounts);
   }
 
   @Test
   public void hierarchyWithTwoLayersAndUnconnectedNodes() {
-    Multimap<Long, Long> auxiliaryNodes = MultimapBuilder.hashKeys().arrayListValues().build();
-    auxiliaryNodes.putAll(10L, List.of(20L)); // 1
-    auxiliaryNodes.putAll(11L, List.of(21L, 22L)); // 2
-    auxiliaryNodes.putAll(13L, List.of(23L, 23L)); // 1
-    auxiliaryNodes.putAll(14L, List.of(24L, 25L, 26L)); // 3
-    auxiliaryNodes.putAll(15L, List.of(26L)); // 1
-    auxiliaryNodes.putAll(16L, List.of(27L, 28L, 29L)); // 3
-    auxiliaryNodes.putAll(17L, List.of(27L, 27L, 27L, 24L)); // 2
-    auxiliaryNodes.putAll(18L, List.of(28L, 29L)); // 2
-    auxiliaryNodes.putAll(19L, List.of(28L)); // 1
+    Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
+    occurrences.putAll(10L, List.of(20L)); // 1
+    occurrences.putAll(11L, List.of(21L, 22L)); // 2
+    occurrences.putAll(13L, List.of(23L, 23L)); // 1
+    occurrences.putAll(14L, List.of(24L, 25L, 26L)); // 3
+    occurrences.putAll(15L, List.of(26L)); // 1
+    occurrences.putAll(16L, List.of(27L, 28L, 29L)); // 3
+    occurrences.putAll(17L, List.of(27L, 27L, 27L, 24L)); // 2
+    occurrences.putAll(18L, List.of(28L, 29L)); // 2
+    occurrences.putAll(19L, List.of(28L)); // 1
 
     Multimap<Long, Long> descendantAncestor = MultimapBuilder.hashKeys().arrayListValues().build();
     descendantAncestor.putAll(10L, List.of(13L, 14L));
@@ -137,56 +137,78 @@ public class CountUtilsTest {
     expectedCounts.put(18L, 2L);
     expectedCounts.put(19L, 1L);
 
-    runCountDistinctAndAggregateForHierarchyAndAssert(
-        ALL_NODES_10, auxiliaryNodes, descendantAncestor, expectedCounts);
+    runCountDistinctWithHierarchyAndAssert(
+        ALL_NODES_10, occurrences, descendantAncestor, expectedCounts);
+  }
+
+  @Test
+  public void hierarchyWithRepeatedValuesInDifferentChildren() {
+    Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
+    occurrences.putAll(10L, List.of(20L)); // 1
+    occurrences.putAll(11L, List.of(20L, 22L)); // 2
+    occurrences.putAll(13L, List.of(23L, 23L)); // 1
+    occurrences.putAll(14L, List.of(20L, 24L, 25L, 26L)); // 4
+
+    Multimap<Long, Long> descendantAncestor = MultimapBuilder.hashKeys().arrayListValues().build();
+    descendantAncestor.putAll(10L, List.of(14L));
+    descendantAncestor.putAll(11L, List.of(14L));
+    descendantAncestor.putAll(12L, List.of(14L));
+    descendantAncestor.putAll(13L, List.of(14L));
+    descendantAncestor.putAll(14L, List.of(14L)); // include a self-reference
+
+    Multimap<Long, Long> expectedCounts = MultimapBuilder.hashKeys().arrayListValues().build();
+    expectedCounts.put(10L, 1L);
+    expectedCounts.put(11L, 2L);
+    expectedCounts.put(12L, 0L);
+    expectedCounts.put(13L, 1L);
+    expectedCounts.put(14L, 6L);
+
+    runCountDistinctWithHierarchyAndAssert(
+        ALL_NODES_5, occurrences, descendantAncestor, expectedCounts);
   }
 
   /**
    * Run a test {@link CountUtils#countDistinct(PCollection, PCollection)} pipeline with the input
-   * primary and auxiliary nodes. Use this method for primary nodes that DO NOT have a hierarchy.
+   * primary nodes and occurrences. Use this method for primary nodes that DO NOT have a hierarchy.
    * Assert that the expected counts are returned.
    */
   void runCountDistinctAndAssert(
-      List<Long> allNodes,
-      Multimap<Long, Long> auxiliaryNodes,
+      List<Long> primaryNodes,
+      Multimap<Long, Long> occurrences,
       Multimap<Long, Long> expectedCounts) {
-    runCountDistinctAndAggregateForHierarchyAndAssert(
-        allNodes, auxiliaryNodes, null, expectedCounts);
+    runCountDistinctWithHierarchyAndAssert(primaryNodes, occurrences, null, expectedCounts);
   }
 
   /**
    * Run a test {@link CountUtils#countDistinct(PCollection, PCollection)} pipeline with the input
-   * primary and auxiliary nodes, and the descendant-ancestor pairs for the hierarchy on the primary
-   * node. Use this method for primary nodes that DO have a hierarchy. Assert that the expected
-   * counts are returned.
+   * primary nodes and occurrences, and the descendant-ancestor pairs for the hierarchy on the
+   * primary nodes. Use this method for primary nodes that DO have a hierarchy. Assert that the
+   * expected counts are returned.
    */
-  void runCountDistinctAndAggregateForHierarchyAndAssert(
-      List<Long> allNodes,
-      Multimap<Long, Long> auxiliaryNodes,
+  void runCountDistinctWithHierarchyAndAssert(
+      List<Long> primaryNodes,
+      Multimap<Long, Long> occurrences,
       @Nullable Multimap<Long, Long> descendantAncestors,
       Multimap<Long, Long> expectedCounts) {
     PCollection<Long> allNodesPC =
-        pipeline.apply("create all nodes pcollection", Create.of(allNodes));
-    PCollection<KV<Long, Long>> auxiliaryNodesPC =
+        pipeline.apply("create all nodes pcollection", Create.of(primaryNodes));
+    PCollection<KV<Long, Long>> occurrencesPC =
         pipeline.apply(
             "create node-secondary kv pairs pcollection",
-            Create.of(KVUtils.convertToKvs(auxiliaryNodes)));
+            Create.of(KVUtils.convertToKvs(occurrences)));
 
-    PCollection<KV<Long, Long>> nodeCounts = CountUtils.countDistinct(allNodesPC, auxiliaryNodesPC);
-
-    if (descendantAncestors == null) {
-      PAssert.that(nodeCounts).containsInAnyOrder(KVUtils.convertToKvs(expectedCounts));
-    } else {
+    if (descendantAncestors != null) {
       PCollection<KV<Long, Long>> descendantAncestorPC =
           pipeline.apply(
               "create descendant-ancestor kv pairs pcollection",
               Create.of(KVUtils.convertToKvs(descendantAncestors)));
 
-      PCollection<KV<Long, Long>> nodeCountsAggregated =
-          CountUtils.aggregateCountsInHierarchy(nodeCounts, descendantAncestorPC);
-
-      PAssert.that(nodeCountsAggregated).containsInAnyOrder(KVUtils.convertToKvs(expectedCounts));
+      occurrencesPC = CountUtils.repeatOccurrencesForHierarchy(occurrencesPC, descendantAncestorPC);
     }
+
+    PCollection<KV<Long, Long>> nodeCounts = CountUtils.countDistinct(allNodesPC, occurrencesPC);
+    PAssert.that(nodeCounts).containsInAnyOrder(KVUtils.convertToKvs(expectedCounts));
+
     pipeline.run().waitUntilFinish();
   }
 }

@@ -6,7 +6,6 @@ import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.Sum;
 import org.apache.beam.sdk.transforms.join.CoGbkResult;
 import org.apache.beam.sdk.transforms.join.CoGroupByKey;
 import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
@@ -19,142 +18,175 @@ public final class CountUtils {
   private CountUtils() {}
 
   /**
-   * Count the number of distinct auxiliary nodes that each primary node has.
+   * Count the number of distinct occurrences for each primary node.
    *
-   * @param primaryNodes a collection of the primary nodes that we want a count for
-   * @param auxiliaryNodes a collection of all auxiliary nodes that we want to count
+   * <p>For example, say we want to precompute the number of people that have >=1 occurrence of a
+   * particular condition.
+   *
+   * <p>primary node=condition, occurrence=condition_occurrence=(condition,person)
+   *
+   * @param primaryNodes a collection of the primary nodes that we want a count for: (node)
+   * @param occurrences a collection of all occurrences of primary nodes: (node, what_to_count)
    * @return a collection of (node, count) mappings
    */
   public static PCollection<KV<Long, Long>> countDistinct(
-      PCollection<Long> primaryNodes, PCollection<KV<Long, Long>> auxiliaryNodes) {
-    // remove duplicate auxiliary nodes
-    PCollection<KV<Long, Long>> distinctAuxiliaryNodes =
-        auxiliaryNodes.apply("remove duplicate auxiliary nodes", Distinct.create());
+      PCollection<Long> primaryNodes, PCollection<KV<Long, Long>> occurrences) {
+    // remove duplicate occurrences
+    PCollection<KV<Long, Long>> distinctOccurrences =
+        occurrences.apply("remove duplicate occurrences before counting", Distinct.create());
 
-    // count the number of auxiliary nodes per primary node
+    // count the number of occurrences per primary node
     // note that this will not include any zeros -- only primary nodes that have >=1 auxiliary node
     // will show up here
-    PCollection<KV<Long, Long>> nodeToNonZeroCountKVs =
-        distinctAuxiliaryNodes.apply(
-            "count the number of distinct auxiliary nodes per primary node", Count.perKey());
+    PCollection<KV<Long, Long>> nonZeroCountKVs =
+        distinctOccurrences.apply(
+            "count the number of distinct occurrences per primary node", Count.perKey());
 
     // build a collection of KV<node,count> where count=0
-    PCollection<KV<Long, Long>> nodeCountKVs =
+    PCollection<KV<Long, Long>> allZeroCountKVs =
         primaryNodes.apply(
-            "build (node,count) KV pairs",
+            "build initial (node,count) KV pairs",
             MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
                 .via(node -> KV.of(node, 0L)));
 
-    // define the CoGroupByKey tags
-    final TupleTag<Long> countTag = new TupleTag<>();
-    final TupleTag<Long> nonZeroCountTag = new TupleTag<>();
+    // JOIN nonZeroCount (node, count>0) x allZeroCount (node, count=0)
+    // ON nonZeroCount (node) = allZeroCount (node)
+    // RESULT = tuples of (node, count>0, count=0)
+    // for each RESULT tuple:
+    //   - if there is a count>0, then output (node, count>0)
+    //   - otherwise, output (node, count=0)
 
-    // do a CoGroupByKey join of the current node-count collection and the node-nonZeroCount
-    // collection
+    // define the CoGroupByKey tags
+    final TupleTag<Long> nonZeroCountTag = new TupleTag<>();
+    final TupleTag<Long> zeroCountTag = new TupleTag<>();
+
+    // do a CoGroupByKey join of the current nonZeroCount x allZeroCount collections
     PCollection<KV<Long, CoGbkResult>> nodeNonZeroCountJoin =
-        KeyedPCollectionTuple.of(countTag, nodeCountKVs)
-            .and(nonZeroCountTag, nodeToNonZeroCountKVs)
-            .apply("join node-count and node-nonZeroCount collections", CoGroupByKey.create());
+        KeyedPCollectionTuple.of(nonZeroCountTag, nonZeroCountKVs)
+            .and(zeroCountTag, allZeroCountKVs)
+            .apply("join nonZeroCount x allZeroCount collections", CoGroupByKey.create());
 
     // run a ParDo for each row of the join result
     return nodeNonZeroCountJoin.apply(
-        "run ParDo for each row of the node-count and node-nonZeroCount join result",
+        "run ParDo for each tuple of the  nonZeroCount x allZeroCount join result",
         ParDo.of(
             new DoFn<KV<Long, CoGbkResult>, KV<Long, Long>>() {
               @ProcessElement
               public void processElement(ProcessContext context) {
                 KV<Long, CoGbkResult> element = context.element();
                 Long node = element.getKey();
-                Iterator<Long> countTagIter = element.getValue().getAll(countTag).iterator();
                 Iterator<Long> nonZeroCountTagIter =
                     element.getValue().getAll(nonZeroCountTag).iterator();
+                Iterator<Long> zeroCountTagIter =
+                    element.getValue().getAll(zeroCountTag).iterator();
 
-                // if the auxiliary row contains a primary node that is not included in the
-                // collection of all primary nodes, then skip processing
-                if (!countTagIter.hasNext()) {
+                // if there is a primary node that exists in the occurrences collection,
+                // but not in the primary nodes collection, then skip processing it
+                if (!zeroCountTagIter.hasNext()) {
                   return;
                 }
 
                 // output a count for each primary node, including counts of zero
-                Long count =
-                    nonZeroCountTagIter.hasNext()
-                        ? nonZeroCountTagIter.next()
-                        : countTagIter.next();
-                context.output(KV.of(node, count));
+                if (nonZeroCountTagIter.hasNext()) {
+                  context.output(KV.of(node, nonZeroCountTagIter.next()));
+                } else {
+                  context.output(
+                      KV.of(node, zeroCountTagIter.next())); // equivalent to KV.of(node, 0L)
+                }
               }
             }));
   }
 
   /**
-   * Aggregate counts in a hierarchy, so that nodes have a count that includes all their
-   * descendants.
+   * For each occurrence (node, what_to_count), generate a new occurrence for each ancestor of the
+   * primary node (ancestor, what_to_count).
    *
-   * @param nodeDirectCount a collection of (node, count) mappings where the count is the direct
-   *     count for that node only, not including descendants
-   * @param descendantAncestor a collection of all (descendant, ancestor) pairs
-   * @return a collection of (node, count) mappings where the count for a node includes the counts
-   *     of all its descendants.
+   * <p>For example, say we want to precompute the number of people that have >=1 occurrence of a
+   * particular condition.
+   *
+   * <p>primary=condition, occurrence=condition_occurrence, condition hierarchy= medicalProblem -
+   * endocrineDisorder - diabetes
+   *
+   * <p>This method takes a condition_occurrence (diabetes, personA) and generates 2 more
+   * condition_occurrences (endocrineDisorder, personA), (medicalProblem, personA).
+   *
+   * <p>The reason to do this, instead of just counting the people that have diabetes, and then
+   * summing the counts of the children to get the count for each parent condition in the hierarchy,
+   * is that two child conditions' person counts may include the same person, and then we'd be
+   * counting that person twice for the parent condition. So we need to preserve the person
+   * information for each level of the hierarchy and sum them independently.
+   *
+   * <p>For example, say endocrineDisorder has 2 children: diabetes and hyperthyroidism. PersonB has
+   * an occurrence of each. The counts for both diabetes and hyperthyroidism will include PersonB.
+   * If we just sum the counts of the children to get the count for endocrineDisorder, then we will
+   * be counting PersonB twice.
+   *
+   * @param occurrences a collection of all occurrences that we want to count
+   * @param descendantAncestor a collection of (descendant, ancestor) pairs for the primary nodes
+   *     that we want a count for. note that this is the expanded set of all transitive
+   *     relationships in the hierarchy, not just the parent/child pairs
+   * @return an expanded collection of occurrences (node, what_to_count), where each occurrence has
+   *     been repeated for each ancestor of its primary node
    */
-  public static PCollection<KV<Long, Long>> aggregateCountsInHierarchy(
-      PCollection<KV<Long, Long>> nodeDirectCount, PCollection<KV<Long, Long>> descendantAncestor) {
+  public static PCollection<KV<Long, Long>> repeatOccurrencesForHierarchy(
+      PCollection<KV<Long, Long>> occurrences, PCollection<KV<Long, Long>> descendantAncestor) {
+    // remove duplicate occurrences
+    PCollection<KV<Long, Long>> distinctOccurrences =
+        occurrences.apply(
+            "remove duplicate occurrences before repeating for hierarchy", Distinct.create());
 
-    // join on node = descendant. for each item, output a pair (ancestor, directCount)
+    // JOIN occurrences (node, what_to_count) x descendantAncestor (descendant_node, ancestor_node)
+    // ON occurrences (node) = descendantAncestor (descendant_node)
+    // RESULT = tuples of (node, list of what_to_count, list of ancestor_nodes)
+    // for each RESULT tuple:
+    //   - iterate through the ancestor_nodes and output (ancestor_node, what_to_count)
+    //   - output (node, what_to_count)
+    // e.g. node = condition, what_to_count = person
 
     // define the CoGroupByKey tags
-    final TupleTag<Long> directCountTag = new TupleTag<>();
+    final TupleTag<Long> whatToCountTag = new TupleTag<>();
     final TupleTag<Long> ancestorTag = new TupleTag<>();
 
-    // do a CoGroupByKey join of the node-directCount collection and the descendant-ancestor
-    // collection
-    PCollection<KV<Long, CoGbkResult>> nodeDescendantJoin =
-        KeyedPCollectionTuple.of(directCountTag, nodeDirectCount)
+    // do a CoGroupByKey join of the occurrences and descendantAncestor collections
+    PCollection<KV<Long, CoGbkResult>> joinResultTuples =
+        KeyedPCollectionTuple.of(whatToCountTag, distinctOccurrences)
             .and(ancestorTag, descendantAncestor)
             .apply(
-                "join node-directCount and descendant-ancestor collections", CoGroupByKey.create());
+                "join distinctOccurrences and descendantAncestor collections",
+                CoGroupByKey.create());
 
-    // run a ParDo for each row of the join result
-    PCollection<KV<Long, Long>> ancestorDirectCounts =
-        nodeDescendantJoin.apply(
-            "run ParDo for each row of the node-directCount and descendant-ancestor join result",
-            ParDo.of(
-                new DoFn<KV<Long, CoGbkResult>, KV<Long, Long>>() {
-                  @ProcessElement
-                  public void processElement(ProcessContext context) {
-                    KV<Long, CoGbkResult> element = context.element();
-                    Long node = element.getKey();
-                    Iterator<Long> directCountTagIter =
-                        element.getValue().getAll(directCountTag).iterator();
-                    Iterator<Long> ancestorTagIter =
-                        element.getValue().getAll(ancestorTag).iterator();
+    // run a ParDo for each join result tuple
+    return joinResultTuples.apply(
+        "run ParDo for each tuple of the distinctOccurrences x descendantAncestor join result",
+        ParDo.of(
+            new DoFn<KV<Long, CoGbkResult>, KV<Long, Long>>() {
+              @ProcessElement
+              public void processElement(ProcessContext context) {
+                KV<Long, CoGbkResult> element = context.element();
+                Long descendantNode = element.getKey();
+                Iterator<Long> whatToCountTagIter =
+                    element.getValue().getAll(whatToCountTag).iterator();
 
-                    // if there is no direct count for this node, then skip processing
-                    if (!directCountTagIter.hasNext()) {
-                      return;
-                    }
+                // iterate through each of the occurrences for this node
+                while (whatToCountTagIter.hasNext()) {
+                  Long whatToCount = whatToCountTagIter.next();
 
-                    Long directCount = directCountTagIter.next();
+                  // output a pair for the original occurrence (node, what_to_count)
+                  context.output(KV.of(descendantNode, whatToCount));
 
-                    while (ancestorTagIter.hasNext()) {
-                      Long ancestor = ancestorTagIter.next();
+                  // get a new iterator through the ancestor nodes each loop, so we start from the
+                  // beginning each time
+                  Iterator<Long> ancestorTagIter =
+                      element.getValue().getAll(ancestorTag).iterator();
 
-                      // if this ancestor = descendant, then continue because we handle that case
-                      // explicitly after the loop. this way we can handle ancestor-descendant
-                      // tables that include self-relationships or not.
-                      if (ancestor.equals(node)) {
-                        continue;
-                      }
+                  // output a pair for each ancestor (ancestor_node, what_to_count)
+                  while (ancestorTagIter.hasNext()) {
+                    Long ancestorNode = ancestorTagIter.next();
 
-                      // output a pair (ancestor, directCount)
-                      context.output(KV.of(ancestor, directCount));
-                    }
-
-                    // output a pair for the descendant also
-                    context.output(KV.of(node, directCount));
+                    context.output(KV.of(ancestorNode, whatToCount));
                   }
-                }));
-
-    // sum the counts for each ancestor
-    return ancestorDirectCounts.apply(
-        "sum all the direct counts for each ancestor", Sum.longsPerKey());
+                }
+              }
+            }));
   }
 }
