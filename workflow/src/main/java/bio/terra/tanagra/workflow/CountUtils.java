@@ -32,24 +32,31 @@ public final class CountUtils {
   public static PCollection<KV<Long, Long>> countDistinct(
       PCollection<Long> primaryNodes, PCollection<KV<Long, Long>> occurrences) {
     // remove duplicate occurrences
+    // do this because there could be duplicate occurrences (i.e. 2 occurrences of diabetes for personA)
+    // in the original data. or, for concepts that include a hierarchy, there would be duplicates if e.g. a parent
+    // condition had two children, each with an occurrence for the same person. this distinct step is so we only
+    // count occurrences of a condition for each person once.
     PCollection<KV<Long, Long>> distinctOccurrences =
         occurrences.apply("remove duplicate occurrences before counting", Distinct.create());
 
     // count the number of occurrences per primary node
     // note that this will not include any zeros -- only primary nodes that have >=1 auxiliary node
     // will show up here
-    PCollection<KV<Long, Long>> nonZeroCountKVs =
+    PCollection<KV<Long, Long>> countKVs =
         distinctOccurrences.apply(
             "count the number of distinct occurrences per primary node", Count.perKey());
 
-    // build a collection of KV<node,count> where count=0
-    PCollection<KV<Long, Long>> allZeroCountKVs =
+    // build a collection of KV<node,[placeholder 0L]>. this is just a collection of the primary nodes,
+    // but here we expand it to a map where each primary node is mapped to 0L, just so we can do an
+    // outer join with the countKVs above. the 0L is just a placeholder value in the map, the actual count
+    // will be set in the join result
+    PCollection<KV<Long, Long>> primaryNodeInitialKVs =
         primaryNodes.apply(
-            "build initial (node,count) KV pairs",
+            "build initial (node,[placeholder 0L]) KV pairs",
             MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
                 .via(node -> KV.of(node, 0L)));
 
-    // JOIN nonZeroCount (node, count>0) x allZeroCount (node, count=0)
+    // JOIN countKVs (node, count>0) x primaryNodeInitialKVs (node, 0)
     // ON nonZeroCount (node) = allZeroCount (node)
     // RESULT = tuples of (node, count>0, count=0)
     // for each RESULT tuple:
@@ -57,41 +64,42 @@ public final class CountUtils {
     //   - otherwise, output (node, count=0)
 
     // define the CoGroupByKey tags
-    final TupleTag<Long> nonZeroCountTag = new TupleTag<>();
-    final TupleTag<Long> zeroCountTag = new TupleTag<>();
+    final TupleTag<Long> countTag = new TupleTag<>();
+    final TupleTag<Long> primaryNodeInitialTag = new TupleTag<>();
 
-    // do a CoGroupByKey join of the current nonZeroCount x allZeroCount collections
+    // do a CoGroupByKey join of the countKVs x primaryNodeInitialKVs collections
     PCollection<KV<Long, CoGbkResult>> nodeNonZeroCountJoin =
-        KeyedPCollectionTuple.of(nonZeroCountTag, nonZeroCountKVs)
-            .and(zeroCountTag, allZeroCountKVs)
-            .apply("join nonZeroCount x allZeroCount collections", CoGroupByKey.create());
+        KeyedPCollectionTuple.of(countTag, countKVs)
+            .and(primaryNodeInitialTag, primaryNodeInitialKVs)
+            .apply("join countKVs x primaryNodeInitialKVs collections", CoGroupByKey.create());
 
     // run a ParDo for each row of the join result
     return nodeNonZeroCountJoin.apply(
-        "run ParDo for each tuple of the  nonZeroCount x allZeroCount join result",
+        "run ParDo for each tuple of the countKVs x primaryNodeInitialKVs join result",
         ParDo.of(
             new DoFn<KV<Long, CoGbkResult>, KV<Long, Long>>() {
               @ProcessElement
               public void processElement(ProcessContext context) {
                 KV<Long, CoGbkResult> element = context.element();
                 Long node = element.getKey();
-                Iterator<Long> nonZeroCountTagIter =
-                    element.getValue().getAll(nonZeroCountTag).iterator();
-                Iterator<Long> zeroCountTagIter =
-                    element.getValue().getAll(zeroCountTag).iterator();
+                Iterator<Long> countTagIter =
+                    element.getValue().getAll(countTag).iterator();
+                Iterator<Long> primaryNodeInitialTagIter =
+                    element.getValue().getAll(primaryNodeInitialTag).iterator();
 
                 // if there is a primary node that exists in the occurrences collection,
                 // but not in the primary nodes collection, then skip processing it
-                if (!zeroCountTagIter.hasNext()) {
+                if (!primaryNodeInitialTagIter.hasNext()) {
                   return;
                 }
 
                 // output a count for each primary node, including counts of zero
-                if (nonZeroCountTagIter.hasNext()) {
-                  context.output(KV.of(node, nonZeroCountTagIter.next()));
+                if (countTagIter.hasNext()) {
+                  // there were occurrences for this primary node
+                  context.output(KV.of(node, countTagIter.next()));
                 } else {
-                  context.output(
-                      KV.of(node, zeroCountTagIter.next())); // equivalent to KV.of(node, 0L)
+                  // there were no occurrences for this primary node, so output zero
+                  context.output(KV.of(node, 0L));
                 }
               }
             }));
