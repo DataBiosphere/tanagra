@@ -37,7 +37,7 @@ public final class BigQueryUtils {
   }
 
   /**
-   * Read all the auxiliary rows from BQ and build a {@link PCollection} of {@link KV} pairs (node,
+   * Read all the occurrence rows from BQ and build a {@link PCollection} of {@link KV} pairs (node,
    * secondary).
    */
   public static PCollection<KV<Long, Long>> readOccurrencesFromBQ(

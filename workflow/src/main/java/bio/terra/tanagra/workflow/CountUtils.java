@@ -32,6 +32,10 @@ public final class CountUtils {
   public static PCollection<KV<Long, Long>> countDistinct(
       PCollection<Long> primaryNodes, PCollection<KV<Long, Long>> occurrences) {
     // remove duplicate occurrences
+    // do this because there could be duplicate occurrences (i.e. 2 occurrences of diabetes for personA)
+    // in the original data. or, for concepts that include a hierarchy, there would be duplicates if e.g. a parent
+    // condition had two children, each with an occurrence for the same person. this distinct step is so we only
+    // count occurrences of a condition for each person once.
     PCollection<KV<Long, Long>> distinctOccurrences =
         occurrences.apply("remove duplicate occurrences before counting", Distinct.create());
 
