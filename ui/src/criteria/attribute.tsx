@@ -410,8 +410,8 @@ function AttributeDetails(props: AttributeDetailsProps) {
   if (props.data.selected?.length) {
     return (
       <>
-        {props.data.selected.map(({ id, name }, index) => (
-          <Stack direction="row" alignItems="baseline" key={index}>
+        {props.data.selected.map(({ id, name }) => (
+          <Stack direction="row" alignItems="baseline" key={Date.now()}>
             <Typography variant="body1">{id}</Typography>&nbsp;
             <Typography variant="body2">{name}</Typography>
           </Stack>
