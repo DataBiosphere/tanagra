@@ -29,7 +29,7 @@ public class QueryResultConverterTest {
                     ColumnSchema.builder().name("b").dataType(DataType.INT64).build()))
             .build();
     List<ApiEntityInstanceStruct> structs =
-        QueryResultConverter.convert(
+        QueryResultConverter.convertToEntityInstances(
             QueryResult.builder()
                 .rowResults(
                     ImmutableList.of(

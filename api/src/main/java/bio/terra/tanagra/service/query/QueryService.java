@@ -15,6 +15,8 @@ import bio.terra.tanagra.service.underlay.UnderlayService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ public class QueryService {
   private final UnderlayService underlayService;
   private final QueryExecutor.Factory queryExecutorFactory;
   private final RandomNumberGenerator randomNumberGenerator;
+
+  public static final String COUNT_ALIAS = "count";
 
   @Autowired
   public QueryService(
@@ -76,9 +80,33 @@ public class QueryService {
         .createSql(query);
   }
 
+  /** Generate an SQL query for the set of entity counts. */
+  public String generateSql(EntityCounts entityCounts) {
+    Underlay underlay = getUnderlay(entityCounts.primaryEntity().entity().underlay());
+    Query query = createQuery(entityCounts);
+    return new SqlVisitor(
+            SearchContext.builder()
+                .underlay(underlay)
+                .randomNumberGenerator(randomNumberGenerator)
+                .build())
+        .createSql(query);
+  }
+
   public QueryResult retrieveResults(EntityDataset entityDataset) {
     Underlay underlay = getUnderlay(entityDataset.primaryEntity().entity().underlay());
     Query query = createQuery(entityDataset);
+    return new SearchEngine(queryExecutorFactory)
+        .execute(
+            query,
+            SearchContext.builder()
+                .underlay(underlay)
+                .randomNumberGenerator(randomNumberGenerator)
+                .build());
+  }
+
+  public QueryResult retrieveResults(EntityCounts entityCounts) {
+    Underlay underlay = getUnderlay(entityCounts.primaryEntity().entity().underlay());
+    Query query = createQuery(entityCounts);
     return new SearchEngine(queryExecutorFactory)
         .execute(
             query,
@@ -125,6 +153,62 @@ public class QueryService {
     }
 
     return queryBuilder.build();
+  }
+
+  @VisibleForTesting
+  Query createQuery(EntityCounts entityCounts) {
+    ImmutableList<Selection> groupByFields =
+        entityCounts.groupByAttributes().stream()
+            .map(
+                attribute ->
+                    Selection.SelectExpression.builder()
+                        .expression(
+                            AttributeExpression.create(
+                                AttributeVariable.create(
+                                    attribute, entityCounts.primaryEntity().variable())))
+                        // set the attribute alias to empty string, because we can't use the AS
+                        // keyword in a GROUP BY clause
+                        .name("")
+                        .build())
+            .collect(ImmutableList.toImmutableList());
+
+    // select fields for a count query include: COUNT(tableAlias), [group by attributes],
+    // [additional selected attributes]
+    List<Selection> selectFields = new ArrayList<>();
+    selectFields.add(
+        Selection.Count.builder()
+            .name(COUNT_ALIAS)
+            .entityVariable(entityCounts.primaryEntity())
+            .build());
+    entityCounts.groupByAttributes().stream()
+        .forEach(
+            attr ->
+                selectFields.add(
+                    Selection.SelectExpression.builder()
+                        .expression(
+                            AttributeExpression.create(
+                                AttributeVariable.create(
+                                    attr, entityCounts.primaryEntity().variable())))
+                        .name(attr.name())
+                        .build()));
+    entityCounts.additionalSelectedAttributes().stream()
+        .forEach(
+            attr ->
+                selectFields.add(
+                    Selection.SelectExpression.builder()
+                        .expression(
+                            AttributeExpression.create(
+                                AttributeVariable.create(
+                                    attr, entityCounts.primaryEntity().variable())))
+                        .name(attr.name())
+                        .build()));
+
+    return Query.builder()
+        .selections(selectFields)
+        .groupBy(groupByFields)
+        .primaryEntity(entityCounts.primaryEntity())
+        .filter(entityCounts.filter())
+        .build();
   }
 
   private Underlay getUnderlay(String underlayName) {

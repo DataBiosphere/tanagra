@@ -429,6 +429,11 @@ components:
         entityVariable:
           description: The variable to use for the primary entity in the filter.
           type: string
+        additionalSelectedAttributes:
+          description: The name of any additional attributes of the primary entity to select for the dataset, in addition to the group by attributes.
+          type: array
+          items:
+            type: string
         groupByAttributes:
           description: The names of the attributes to group by.
           type: array
@@ -697,7 +702,7 @@ components:
       type: object
       description: A view of entity counts for a search request.
       properties:
-        instances:
+        counts:
           type: array
           description: Repeated counts results of the search.
           nullable: true
