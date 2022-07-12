@@ -65,7 +65,7 @@ public class SqlVisitor {
             .build();
     String sql = StringSubstitutor.replace(template, params);
 
-    if (query.groupBy() != null) {
+    if (query.groupBy() != null && !query.groupBy().isEmpty()) {
       String groupByExpression =
           query.groupBy().stream()
               .map(groupByField -> groupByField.accept(new SelectionVisitor(searchContext)))

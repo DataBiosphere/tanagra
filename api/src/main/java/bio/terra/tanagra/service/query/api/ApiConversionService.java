@@ -89,19 +89,26 @@ public class ApiConversionService {
     VariableScope scope = new VariableScope().add(primaryVariable);
     Filter filter = new FilterConverter(underlay).convert(apiEntityCounts.getFilter(), scope);
 
-    ImmutableList<Attribute> additionalSelectedAttributes =
-        apiEntityCounts.getAdditionalSelectedAttributes().stream()
-            .map(attributeName -> getAttribute(attributeName, primaryEntity, underlay))
-            .collect(ImmutableList.toImmutableList());
-    ImmutableList<Attribute> groupByAttributes =
-        apiEntityCounts.getGroupByAttributes().stream()
-            .map(attributeName -> getAttribute(attributeName, primaryEntity, underlay))
-            .collect(ImmutableList.toImmutableList());
+    ImmutableList<Attribute> groupByAttributes = ImmutableList.of();
+    if (apiEntityCounts.getGroupByAttributes() != null) {
+      groupByAttributes =
+          apiEntityCounts.getGroupByAttributes().stream()
+              .map(attributeName -> getAttribute(attributeName, primaryEntity, underlay))
+              .collect(ImmutableList.toImmutableList());
+    }
+
+    ImmutableList<Attribute> additionalSelectedAttributes = ImmutableList.of();
+    if (apiEntityCounts.getAdditionalSelectedAttributes() != null) {
+      additionalSelectedAttributes =
+          apiEntityCounts.getAdditionalSelectedAttributes().stream()
+              .map(attributeName -> getAttribute(attributeName, primaryEntity, underlay))
+              .collect(ImmutableList.toImmutableList());
+    }
 
     return EntityCounts.builder()
         .primaryEntity(primaryVariable)
-        .additionalSelectedAttributes(additionalSelectedAttributes)
         .groupByAttributes(groupByAttributes)
+        .additionalSelectedAttributes(additionalSelectedAttributes)
         .filter(filter)
         .build();
   }

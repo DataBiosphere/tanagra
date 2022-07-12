@@ -33,7 +33,7 @@ public class QueryService {
   private final QueryExecutor.Factory queryExecutorFactory;
   private final RandomNumberGenerator randomNumberGenerator;
 
-  public static final String COUNT_ALIAS = "count";
+  public static final String COUNT_ALIAS = "t_count"; // use reserved prefix
 
   @Autowired
   public QueryService(

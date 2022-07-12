@@ -34,6 +34,34 @@ public class EntityCountsApiControllerTest extends BaseSpringUnitTest {
                     new ApiEntityCounts()
                         .entityVariable("b")
                         .additionalSelectedAttributes(ImmutableList.of("type_name"))
+                        .groupByAttributes(ImmutableList.of("type_id", "color"))
+                        .filter(
+                            new ApiFilter()
+                                .binaryFilter(
+                                    new ApiBinaryFilter()
+                                        .attributeVariable(
+                                            new ApiAttributeVariable().variable("b").name("id"))
+                                        .operator(ApiBinaryFilterOperator.GREATER_THAN)
+                                        .attributeValue(new ApiAttributeValue().int64Val(500L))))));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT COUNT(b) AS t_count, b.bt_id AS type_id, b.color AS color, "
+            + "(SELECT boat_types.bt_name FROM `my-project-id.nautical`.boat_types WHERE boat_types.bt_id = b.bt_id) AS type_name "
+            + "FROM `my-project-id.nautical`.boats AS b WHERE b.b_id > 500 "
+            + "GROUP BY b.bt_id, b.color",
+        response.getBody().getQuery());
+  }
+
+  @Test
+  void generateCountsSqlQueryWithNoAdditionalFields() {
+    ResponseEntity<ApiSqlQuery> response =
+        controller.generateCountsSqlQuery(
+            NAUTICAL_UNDERLAY_NAME,
+            "boats",
+            new ApiGenerateCountsSqlQueryRequest()
+                .entityCounts(
+                    new ApiEntityCounts()
+                        .entityVariable("b")
                         .groupByAttributes(ImmutableList.of("type_id"))
                         .filter(
                             new ApiFilter()
@@ -46,10 +74,23 @@ public class EntityCountsApiControllerTest extends BaseSpringUnitTest {
                                             new ApiAttributeValue().stringVal("green"))))));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(
-        "SELECT COUNT(b) AS count, b.bt_id AS type_id, "
-            + "(SELECT boat_types.bt_name FROM `my-project-id.nautical`.boat_types WHERE boat_types.bt_id = b.bt_id) AS type_name "
+        "SELECT COUNT(b) AS t_count, b.bt_id AS type_id "
             + "FROM `my-project-id.nautical`.boats AS b WHERE b.color = 'green' "
             + "GROUP BY b.bt_id",
+        response.getBody().getQuery());
+  }
+
+  @Test
+  void generateCountsSqlQueryWithNoGroupBy() {
+    ResponseEntity<ApiSqlQuery> response =
+        controller.generateCountsSqlQuery(
+            NAUTICAL_UNDERLAY_NAME,
+            "boats",
+            new ApiGenerateCountsSqlQueryRequest()
+                .entityCounts(new ApiEntityCounts().entityVariable("b")));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(
+        "SELECT COUNT(b) AS t_count " + "FROM `my-project-id.nautical`.boats AS b WHERE TRUE",
         response.getBody().getQuery());
   }
 }

@@ -7,10 +7,12 @@ import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * A query for counts of entity instances. Contains the number of entity instances in each group,
  * and a list of the attribute values that define each group.
+ *
  * <p>e.g. {20, [Male, American]}, {35, [Female, Japanese]}
  */
 @AutoValue
@@ -19,12 +21,14 @@ public abstract class EntityCounts {
   public abstract EntityVariable primaryEntity();
 
   /**
-   * Any additional attributes to return as columns of the dataset.
-   * These must be attributes of the primary entity.
+   * Any additional attributes to return as columns of the dataset. These must be attributes of the
+   * primary entity.
    */
+  @Nullable
   public abstract ImmutableList<Attribute> additionalSelectedAttributes();
 
   /** The attributes to group by. These must be attributes of the primary entity. */
+  @Nullable
   public abstract ImmutableList<Attribute> groupByAttributes();
 
   /** The filter to apply to the primary entity. */
@@ -53,21 +57,25 @@ public abstract class EntityCounts {
     public abstract Builder filter(Filter filter);
 
     public EntityCounts build() {
-      for (Attribute attribute : groupByAttributes()) {
-        Preconditions.checkArgument(
-            attribute.entity().equals(primaryEntity().entity()),
-            "Additional selected attribute's '%s' entity '%s' did not match primary entity '%s'.",
-            attribute.name(),
-            attribute.entity().name(),
-            primaryEntity().entity().name());
+      if (additionalSelectedAttributes() != null) {
+        for (Attribute attribute : additionalSelectedAttributes()) {
+          Preconditions.checkArgument(
+              attribute.entity().equals(primaryEntity().entity()),
+              "Additional selected attribute's '%s' entity '%s' did not match primary entity '%s'.",
+              attribute.name(),
+              attribute.entity().name(),
+              primaryEntity().entity().name());
+        }
       }
-      for (Attribute attribute : groupByAttributes()) {
-        Preconditions.checkArgument(
-            attribute.entity().equals(primaryEntity().entity()),
-            "Group by attribute's '%s' entity '%s' did not match primary entity '%s'.",
-            attribute.name(),
-            attribute.entity().name(),
-            primaryEntity().entity().name());
+      if (groupByAttributes() != null) {
+        for (Attribute attribute : groupByAttributes()) {
+          Preconditions.checkArgument(
+              attribute.entity().equals(primaryEntity().entity()),
+              "Group by attribute's '%s' entity '%s' did not match primary entity '%s'.",
+              attribute.name(),
+              attribute.entity().name(),
+              primaryEntity().entity().name());
+        }
       }
       return autoBuild();
     }
