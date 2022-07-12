@@ -33,21 +33,48 @@ public final class BigQueryUtils {
    */
   public static PCollection<KV<Long, Long>> readChildParentRelationshipsFromBQ(
       Pipeline pipeline, String sqlQuery) {
-    PCollection<TableRow> childParentBqRows =
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, "child", "parent");
+  }
+
+  /**
+   * Read all the occurrence rows from BQ and build a {@link PCollection} of {@link KV} pairs (node,
+   * secondary).
+   */
+  public static PCollection<KV<Long, Long>> readOccurrencesFromBQ(
+      Pipeline pipeline, String sqlQuery) {
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, "node", "what_to_count");
+  }
+
+  /**
+   * Read all the ancestor-descendant relationships from BQ and build a {@link PCollection} of
+   * {@link KV} pairs (descendant, ancestor).
+   */
+  public static PCollection<KV<Long, Long>> readAncestorDescendantRelationshipsFromBQ(
+      Pipeline pipeline, String sqlQuery) {
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, "descendant", "ancestor");
+  }
+
+  /**
+   * Read all the two-field rows from BQ and build a {@link PCollection} of {@link KV} pairs
+   * (field1, field2).
+   */
+  public static PCollection<KV<Long, Long>> readTwoFieldRowsFromBQ(
+      Pipeline pipeline, String sqlQuery, String field1Name, String field2Name) {
+    PCollection<TableRow> bqRows =
         pipeline.apply(
-            "read all (child, parent) rows",
+            "read all (" + field1Name + ", " + field2Name + ") rows",
             BigQueryIO.readTableRows()
                 .fromQuery(sqlQuery)
                 .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
                 .usingStandardSql());
-    return childParentBqRows.apply(
-        "build (child, parent) pcollection",
+    return bqRows.apply(
+        "build (" + field1Name + ", " + field2Name + ") pcollection",
         MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
             .via(
                 tableRow -> {
-                  Long parent = Long.parseLong((String) tableRow.get("parent"));
-                  Long child = Long.parseLong((String) tableRow.get("child"));
-                  return KV.of(child, parent);
+                  Long field1 = Long.parseLong((String) tableRow.get(field1Name));
+                  Long field2 = Long.parseLong((String) tableRow.get(field2Name));
+                  return KV.of(field1, field2);
                 }));
   }
 }

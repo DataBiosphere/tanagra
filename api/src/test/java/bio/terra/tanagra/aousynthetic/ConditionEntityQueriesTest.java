@@ -2,7 +2,7 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_CONDITION_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY;
-import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY_NAME_ATTRIBUTE;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_ENTITY_PERSON_COUNT_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_HIERARCHY_NUMCHILDREN_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.CONDITION_HIERARCHY_PATH_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
@@ -48,8 +48,8 @@ public class ConditionEntityQueriesTest extends BaseSpringUnitTest {
                     new ApiEntityDataset()
                         .entityVariable("condition_alias")
                         .selectedAttributes(ALL_CONDITION_ATTRIBUTES)
-                        .orderByAttribute(CONDITION_ENTITY_NAME_ATTRIBUTE)
-                        .orderByDirection(ApiOrderByDirection.ASC)));
+                        .orderByAttribute(CONDITION_ENTITY_PERSON_COUNT_ATTRIBUTE)
+                        .orderByDirection(ApiOrderByDirection.DESC)));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
