@@ -20,7 +20,6 @@ import { useUnderlay } from "hooks";
 import produce from "immer";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import * as tanagra from "tanagra-api";
-import { OrderByDirection } from "tanagra-api";
 import { CriteriaConfig, Underlay } from "underlaysSlice";
 import { useImmer } from "use-immer";
 import { isValid } from "util/valid";
@@ -46,7 +45,7 @@ type EntityConfig = {
   attributes?: string[];
 
   orderBy?: string;
-  orderDirection: OrderByDirection;
+  orderDirection?: string;
 
   // hierarchical indicates whether the entity supports a hierarchical view.
   hierarchical?: boolean;
@@ -515,11 +514,11 @@ function searchRequest(
       entityDataset: {
         entityVariable: "c",
         selectedAttributes: attributesForEntity(entity, columns),
-        orderByAttribute:
-          entity.orderBy == "Asc"
-            ? OrderByDirection.Asc
-            : OrderByDirection.Desc,
-        orderByDirection: entity.orderDirection,
+        orderByAttribute: entity.orderBy,
+        orderByDirection:
+          entity.orderDirection === "Asc"
+            ? tanagra.OrderByDirection.Asc
+            : tanagra.OrderByDirection.Desc,
         filter: {
           arrayFilter: {
             operands,
