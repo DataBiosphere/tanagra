@@ -10,7 +10,7 @@ function UndoRedo() {
   const dispatch = useAppDispatch();
 
   const canUndo = useAppSelector((state) => state.url.past.length > 0);
-  const canRedo = useAppSelector((state) => state.url.future.length > 0)
+  const canRedo = useAppSelector((state) => state.url.future.length > 0);
 
   return (
     <Box>
