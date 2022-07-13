@@ -10,7 +10,7 @@ const urlsSlice = createSlice({
   extraReducers: (builder) => {
     builder.addDefaultCase(() => {
       return getCurrentPageUrl();
-    })
+    });
   },
 });
 
