@@ -10,15 +10,12 @@ function UndoRedo() {
   const dispatch = useAppDispatch();
 
   const canUndo = useAppSelector((state) => state.url.past.length > 0);
-  const canRedo = useAppSelector((state) => state.url.future.length > 0);
-
-  const onUndo = () => dispatch(UndoActionCreators.undo());
-  const onRedo = () => dispatch(UndoActionCreators.redo());
+  const canRedo = useAppSelector((state) => state.url.future.length > 0)
 
   return (
     <Box>
       <Button
-        onClick={onUndo}
+        onClick={() => dispatch(UndoActionCreators.undo())}
         disabled={!canUndo}
         component={RouterLink}
         to={urlHistory.present}
@@ -29,7 +26,7 @@ function UndoRedo() {
         />
       </Button>
       <Button
-        onClick={onRedo}
+        onClick={() => dispatch(UndoActionCreators.redo())}
         disabled={!canRedo}
         component={RouterLink}
         to={urlHistory.future[0]}
