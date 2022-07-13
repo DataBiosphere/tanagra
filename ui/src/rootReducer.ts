@@ -2,21 +2,27 @@ import { combineReducers, createAction } from "@reduxjs/toolkit";
 import cohortsReducer from "cohortsSlice";
 import conceptSetsReducer from "conceptSetsSlice";
 import { AnyAction, Reducer } from "redux";
-import undoable from "redux-undo";
+import undoable, { excludeAction } from "redux-undo";
 import * as tanagra from "tanagra-api";
 import underlaysReducer from "underlaysSlice";
 import urlSlice from "urlSlice";
 
+export const loadUserData = createAction<tanagra.UserData>("loadUserData");
+
+const undoableConfigs = {
+  initTypes: ["loadUserData"],
+  filter: excludeAction([loadUserData, "underlays/setUnderlays"]),
+  debug: true,
+};
+
 const slicesReducer = combineReducers({
-  cohorts: undoable(cohortsReducer),
+  cohorts: undoable(cohortsReducer, undoableConfigs),
   underlays: underlaysReducer,
-  conceptSets: undoable(conceptSetsReducer),
-  url: undoable(urlSlice),
+  conceptSets: undoable(conceptSetsReducer, undoableConfigs),
+  url: undoable(urlSlice, undoableConfigs),
 });
 
 export type RootState = ReturnType<typeof slicesReducer>;
-
-export const loadUserData = createAction<tanagra.UserData>("loadUserData");
 
 export const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
   if (loadUserData.match(action)) {
