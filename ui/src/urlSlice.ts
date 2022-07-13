@@ -1,11 +1,5 @@
-import { AnyAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { getCurrentPageUrl } from "./router";
-
-function isUndoableAction(action: AnyAction): boolean {
-  return (
-    action.type.startsWith("cohorts") || action.type.startsWith("conceptSets")
-  );
-}
 
 const initialState = "/";
 
@@ -14,9 +8,9 @@ const urlsSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addMatcher(isUndoableAction, () => {
+    builder.addDefaultCase((state, action) => {
       return getCurrentPageUrl();
-    });
+    })
   },
 });
 
