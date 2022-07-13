@@ -8,7 +8,7 @@ const urlsSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addDefaultCase((state, action) => {
+    builder.addDefaultCase(() => {
       return getCurrentPageUrl();
     })
   },
