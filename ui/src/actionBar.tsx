@@ -8,7 +8,7 @@ import { useAppSelector } from "hooks";
 import * as React from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { useParentUrl } from "router";
-import UndoRedo from "./containers/UndoRedo";
+import UndoRedo from "./components/UndoRedo";
 
 type ActionBarProps = {
   title: string;
