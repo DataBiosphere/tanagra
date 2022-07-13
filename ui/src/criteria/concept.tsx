@@ -515,7 +515,7 @@ function searchRequest(
       entityDataset: {
         entityVariable: "c",
         selectedAttributes: attributesForEntity(entity, columns),
-        orderByAttribute: entity.orderBy,
+        orderByAttribute: entity.orderBy == "Asc" ? OrderByDirection.Asc : OrderByDirection.Desc,
         orderByDirection: entity.orderDirection,
         filter: {
           arrayFilter: {

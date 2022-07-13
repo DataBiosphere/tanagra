@@ -289,7 +289,7 @@ criteriaConfigs: >-
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"}],
       "entities":[
-        {"name":"condition","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"OrderByDirection.DESC"}
+        {"name":"condition","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"Desc"}
       ]
     }
   },
@@ -305,7 +305,7 @@ criteriaConfigs: >-
         {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"procedure","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"OrderByDirection.DESC"}
+        {"name":"procedure","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"Desc"}
       ]
     }
   },
@@ -322,7 +322,7 @@ criteriaConfigs: >-
         {"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"observation","selectable":true,"orderBy":"person_count","orderDirection":"OrderByDirection.DESC"}
+        {"name":"observation","selectable":true,"orderBy":"person_count","orderDirection":"Desc"}
       ]
     }
   },
@@ -339,7 +339,7 @@ criteriaConfigs: >-
         {"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"ingredient","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"OrderByDirection.DESC"},
+        {"name":"ingredient","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"Desc"},
         {
           "name":"brand",
           "sourceConcepts":true,
@@ -350,7 +350,7 @@ criteriaConfigs: >-
             "concept_code"
           ],
           "orderBy":"concept_name",
-          "orderDirection":"OrderByDirection.ASC",
+          "orderDirection":"Asc",
           "listChildren":{
             "entity":"ingredient",
             "idPath":"relationshipFilter.filter.binaryFilter.attributeValue",
