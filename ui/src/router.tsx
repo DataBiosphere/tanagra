@@ -97,7 +97,7 @@ function NotFound(props: { error: Error; resetErrorBoundary?: () => void }) {
   );
 }
 
-export const getCurrentPageUrl = (): string => {
-  const pathStartIndex = window.location.href.indexOf("#") + 1;
-  return window.location.href.slice(pathStartIndex);
-};
+export function getCurrentUrl(): string {
+  const url = window.location.href;
+  return url.slice(url.indexOf("#") + 1);
+}
