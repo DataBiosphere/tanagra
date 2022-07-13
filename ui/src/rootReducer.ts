@@ -10,9 +10,8 @@ import urlSlice from "urlSlice";
 export const loadUserData = createAction<tanagra.UserData>("loadUserData");
 
 const undoableConfigs = {
-  initTypes: ["loadUserData"],
-  filter: excludeAction([loadUserData, "underlays/setUnderlays"]),
-  debug: true,
+  initTypes: [loadUserData.type],
+  filter: excludeAction(["underlays/setUnderlays"]),
 };
 
 const slicesReducer = combineReducers({
