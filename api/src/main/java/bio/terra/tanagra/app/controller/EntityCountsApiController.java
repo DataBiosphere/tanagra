@@ -40,18 +40,13 @@ public class EntityCountsApiController implements EntityCountsApi {
 
   @Override
   public ResponseEntity<ApiSearchEntityCountsResponse> searchEntityCounts(
-      String underlayName,
-      String entityName,
-      ApiSearchEntityCountsRequest body,
-      Integer pageSize,
-      String pageToken) {
+      String underlayName, String entityName, ApiSearchEntityCountsRequest body) {
     // TODO authorization check.
     EntityCounts entityCounts =
         apiConversionService.convertEntityCounts(underlayName, entityName, body.getEntityCounts());
     QueryResult queryResult = queryService.retrieveResults(entityCounts);
-    ApiSearchEntityCountsResponse response =
+    return ResponseEntity.ok(
         new ApiSearchEntityCountsResponse()
-            .counts(QueryResultConverter.convertToEntityCounts(queryResult));
-    return ResponseEntity.ok(response);
+            .counts(QueryResultConverter.convertToEntityCounts(queryResult)));
   }
 }

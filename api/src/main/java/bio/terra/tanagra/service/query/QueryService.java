@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -180,28 +181,19 @@ public class QueryService {
             .name(COUNT_ALIAS)
             .entityVariable(entityCounts.primaryEntity())
             .build());
-    entityCounts.groupByAttributes().stream()
-        .forEach(
+    Stream.concat(
+            entityCounts.groupByAttributes().stream(),
+            entityCounts.additionalSelectedAttributes().stream())
+        .map(
             attr ->
-                selectFields.add(
-                    Selection.SelectExpression.builder()
-                        .expression(
-                            AttributeExpression.create(
-                                AttributeVariable.create(
-                                    attr, entityCounts.primaryEntity().variable())))
-                        .name(attr.name())
-                        .build()));
-    entityCounts.additionalSelectedAttributes().stream()
-        .forEach(
-            attr ->
-                selectFields.add(
-                    Selection.SelectExpression.builder()
-                        .expression(
-                            AttributeExpression.create(
-                                AttributeVariable.create(
-                                    attr, entityCounts.primaryEntity().variable())))
-                        .name(attr.name())
-                        .build()));
+                Selection.SelectExpression.builder()
+                    .expression(
+                        AttributeExpression.create(
+                            AttributeVariable.create(
+                                attr, entityCounts.primaryEntity().variable())))
+                    .name(attr.name())
+                    .build())
+        .forEach(selectFields::add);
 
     return Query.builder()
         .selections(selectFields)
