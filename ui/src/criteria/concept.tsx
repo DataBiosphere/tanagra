@@ -45,7 +45,7 @@ type EntityConfig = {
   attributes?: string[];
 
   orderBy?: string;
-  orderDirection?: string;
+  orderDirection?: tanagra.OrderByDirection;
 
   // hierarchical indicates whether the entity supports a hierarchical view.
   hierarchical?: boolean;
@@ -515,10 +515,7 @@ function searchRequest(
         entityVariable: "c",
         selectedAttributes: attributesForEntity(entity, columns),
         orderByAttribute: entity.orderBy,
-        orderByDirection:
-          entity.orderDirection === "Asc"
-            ? tanagra.OrderByDirection.Asc
-            : tanagra.OrderByDirection.Desc,
+        orderByDirection: entity.orderDirection,
         filter: {
           arrayFilter: {
             operands,
