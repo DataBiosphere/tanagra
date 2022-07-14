@@ -2,17 +2,24 @@ package bio.terra.tanagra.aousynthetic;
 
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.ALL_PERSON_ATTRIBUTES;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PERSON_ENTITY;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PERSON_GENDER_ATTRIBUTE;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PERSON_GENDER_NAME_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PERSON_ID_ATTRIBUTE;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PERSON_RACE_ATTRIBUTE;
+import static bio.terra.tanagra.aousynthetic.UnderlayUtils.PERSON_RACE_NAME_ATTRIBUTE;
 import static bio.terra.tanagra.aousynthetic.UnderlayUtils.UNDERLAY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.tanagra.app.controller.EntityCountsApiController;
 import bio.terra.tanagra.app.controller.EntityInstancesApiController;
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
 import bio.terra.tanagra.generated.model.ApiAttributeVariable;
 import bio.terra.tanagra.generated.model.ApiBinaryFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
+import bio.terra.tanagra.generated.model.ApiEntityCounts;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiFilter;
+import bio.terra.tanagra.generated.model.ApiGenerateCountsSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiGenerateDatasetSqlQueryRequest;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiSqlQuery;
@@ -31,13 +38,14 @@ import org.springframework.http.ResponseEntity;
  * active profile for this test, because we want to test the main application definition.
  */
 public class PersonEntityQueriesTest extends BaseSpringUnitTest {
-  @Autowired private EntityInstancesApiController apiController;
+  @Autowired private EntityInstancesApiController apiInstancesController;
+  @Autowired private EntityCountsApiController apiCountsController;
 
   @Test
   @DisplayName("correct SQL string for listing all person entity instances")
   void generateSqlForAllPersonEntities() throws IOException {
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -90,7 +98,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(occurrencesOfCoronavirusInfection));
 
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -144,7 +152,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(occurrencesOfMammography));
 
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -198,7 +206,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(occurrencesOfOutpatientVisit));
 
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -254,7 +262,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(occurrencesOfHematocrit));
 
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -308,7 +316,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(occurrencesOfIbuprofen));
 
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -362,7 +370,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(occurrencesOfVaccineRefusal));
 
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -416,7 +424,7 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
                     .filter(occurrencesOfLongLegCast));
 
     ResponseEntity<ApiSqlQuery> response =
-        apiController.generateDatasetSqlQuery(
+        apiInstancesController.generateDatasetSqlQuery(
             UNDERLAY_NAME,
             PERSON_ENTITY,
             new ApiGenerateDatasetSqlQueryRequest()
@@ -429,5 +437,79 @@ public class PersonEntityQueriesTest extends BaseSpringUnitTest {
     String generatedSql = response.getBody().getQuery();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         generatedSql, "aousynthetic/person-entities-related-to-a-device.sql");
+  }
+
+  @Test
+  @DisplayName("correct SQL string for counting all person entity instances")
+  void generateSqlForCountingAllPersonEntities() throws IOException {
+    ResponseEntity<ApiSqlQuery> response =
+        apiCountsController.generateCountsSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateCountsSqlQueryRequest()
+                .entityCounts(new ApiEntityCounts().entityVariable("person_alias")));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql, "aousynthetic/all-person-entities-count.sql");
+  }
+
+  @Test
+  @DisplayName("example cohort builder count query: size of cohort=people who've had covid")
+  void generateSqlForCountingPersonEntitiesWithACondition() throws IOException {
+    // filter for "condition" entity instances that have concept_id=439676
+    // i.e. the condition "Coronavirus infection"
+    ApiFilter coronavirusInfection =
+        new ApiFilter()
+            .binaryFilter(
+                new ApiBinaryFilter()
+                    .attributeVariable(
+                        new ApiAttributeVariable().variable("condition_alias").name("concept_id"))
+                    .operator(ApiBinaryFilterOperator.EQUALS)
+                    .attributeValue(new ApiAttributeValue().int64Val(439_676L)));
+
+    // filter for "condition_occurrence" entity instances that are related to "condition" entity
+    // instances that have concept_id=439676
+    // i.e. give me all the condition occurrences of "Coronavirus infection"
+    ApiFilter occurrencesOfCoronavirusInfection =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("condition_occurrence_alias")
+                    .newVariable("condition_alias")
+                    .newEntity("condition")
+                    .filter(coronavirusInfection));
+
+    // filter for "person" entity instances that are related to "condition_occurrence" entity
+    // instances that are related to "condition" entity instances that have concept_id=439676
+    // i.e. give me all the people with condition occurrences of "Coronavirus infection"
+    ApiFilter peopleWithOccurrencesOfCoronavirusInfection =
+        new ApiFilter()
+            .relationshipFilter(
+                new ApiRelationshipFilter()
+                    .outerVariable("person_alias")
+                    .newVariable("condition_occurrence_alias")
+                    .newEntity("condition_occurrence")
+                    .filter(occurrencesOfCoronavirusInfection));
+
+    ResponseEntity<ApiSqlQuery> response =
+        apiCountsController.generateCountsSqlQuery(
+            UNDERLAY_NAME,
+            PERSON_ENTITY,
+            new ApiGenerateCountsSqlQueryRequest()
+                .entityCounts(
+                    new ApiEntityCounts()
+                        .entityVariable("person_alias")
+                        .groupByAttributes(
+                            ImmutableList.of(PERSON_GENDER_ATTRIBUTE, PERSON_RACE_ATTRIBUTE))
+                        .additionalSelectedAttributes(
+                            ImmutableList.of(
+                                PERSON_GENDER_NAME_ATTRIBUTE, PERSON_RACE_NAME_ATTRIBUTE))
+                        .filter(peopleWithOccurrencesOfCoronavirusInfection)));
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String generatedSql = response.getBody().getQuery();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        generatedSql,
+        "aousynthetic/person-entities-related-to-a-condition-count-by-gender-race.sql");
   }
 }

@@ -53,7 +53,8 @@ public class EntityInstancesApiController implements EntityInstancesApi {
     QueryResult queryResult = queryService.retrieveResults(entityDataset);
 
     ApiSearchEntityInstancesResponse response =
-        new ApiSearchEntityInstancesResponse().instances(QueryResultConverter.convert(queryResult));
+        new ApiSearchEntityInstancesResponse()
+            .instances(QueryResultConverter.convertToEntityInstances(queryResult));
     return ResponseEntity.ok(response);
   }
 }

@@ -13,6 +13,10 @@ public abstract class Query {
   // TODO consider selections with a different entity than the primary entity.
   public abstract ImmutableList<Selection> selections();
 
+  /** What to group by for the query. */
+  @Nullable
+  public abstract ImmutableList<Selection> groupBy();
+
   /** What to order by for the query. */
   @Nullable
   public abstract Selection orderBy();
@@ -36,6 +40,8 @@ public abstract class Query {
   public abstract static class Builder {
 
     public abstract Builder selections(List<Selection> selections);
+
+    public abstract Builder groupBy(List<Selection> groupBy);
 
     public abstract Builder orderBy(Selection orderBy);
 

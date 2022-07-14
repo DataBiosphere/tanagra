@@ -63,7 +63,22 @@ public class SqlVisitor {
             .put("table", underlayResolver.resolveTable(query.primaryEntity()))
             .put("filter", filterSql.orElse("TRUE"))
             .build();
-    String sqlWithoutOrderBy = StringSubstitutor.replace(template, params);
+    String sql = StringSubstitutor.replace(template, params);
+
+    if (query.groupBy() != null && !query.groupBy().isEmpty()) {
+      String groupByExpression =
+          query.groupBy().stream()
+              .map(groupByField -> groupByField.accept(new SelectionVisitor(searchContext)))
+              .collect(Collectors.joining(", "));
+
+      String groupByTemplate = "${sqlWithoutGroupBy} GROUP BY ${groupBy}";
+      Map<String, String> orderByParams =
+          ImmutableMap.<String, String>builder()
+              .put("sqlWithoutGroupBy", sql)
+              .put("groupBy", groupByExpression)
+              .build();
+      sql = StringSubstitutor.replace(groupByTemplate, orderByParams);
+    }
 
     if (query.orderBy() != null) {
       String orderByExpression = query.orderBy().accept(new SelectionVisitor(searchContext));
@@ -71,14 +86,14 @@ public class SqlVisitor {
       String orderByTemplate = "${sqlWithoutOrderBy} ORDER BY ${orderBy} ${orderByDirection}";
       Map<String, String> orderByParams =
           ImmutableMap.<String, String>builder()
-              .put("sqlWithoutOrderBy", sqlWithoutOrderBy)
+              .put("sqlWithoutOrderBy", sql)
               .put("orderBy", orderByExpression)
               .put("orderByDirection", query.orderByDirection().name())
               .build();
-      return StringSubstitutor.replace(orderByTemplate, orderByParams);
-    } else {
-      return sqlWithoutOrderBy;
+      sql = StringSubstitutor.replace(orderByTemplate, orderByParams);
     }
+
+    return sql;
   }
 
   /** A {@link Selection.Visitor} for creating SQL for selections. */

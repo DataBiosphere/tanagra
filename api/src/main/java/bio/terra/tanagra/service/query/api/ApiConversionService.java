@@ -1,9 +1,11 @@
 package bio.terra.tanagra.service.query.api;
 
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.generated.model.ApiEntityCounts;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiEntityFilter;
 import bio.terra.tanagra.generated.model.ApiOrderByDirection;
+import bio.terra.tanagra.service.query.EntityCounts;
 import bio.terra.tanagra.service.query.EntityDataset;
 import bio.terra.tanagra.service.query.EntityFilter;
 import bio.terra.tanagra.service.search.Attribute;
@@ -71,6 +73,42 @@ public class ApiConversionService {
         .selectedAttributes(selectedAttributes)
         .orderByAttribute(orderByAttribute)
         .orderByDirection(convertOrderByDirection(apiEntityDataset.getOrderByDirection()))
+        .filter(filter)
+        .build();
+  }
+
+  public EntityCounts convertEntityCounts(
+      String underlayName, String entityName, ApiEntityCounts apiEntityCounts) {
+    Underlay underlay = getUnderlay(underlayName);
+    Entity primaryEntity = getEntity(entityName, underlay);
+    EntityVariable primaryVariable =
+        EntityVariable.create(
+            primaryEntity,
+            ConversionUtils.createAndValidateVariable(apiEntityCounts.getEntityVariable()));
+
+    VariableScope scope = new VariableScope().add(primaryVariable);
+    Filter filter = new FilterConverter(underlay).convert(apiEntityCounts.getFilter(), scope);
+
+    ImmutableList<Attribute> groupByAttributes = ImmutableList.of();
+    if (apiEntityCounts.getGroupByAttributes() != null) {
+      groupByAttributes =
+          apiEntityCounts.getGroupByAttributes().stream()
+              .map(attributeName -> getAttribute(attributeName, primaryEntity, underlay))
+              .collect(ImmutableList.toImmutableList());
+    }
+
+    ImmutableList<Attribute> additionalSelectedAttributes = ImmutableList.of();
+    if (apiEntityCounts.getAdditionalSelectedAttributes() != null) {
+      additionalSelectedAttributes =
+          apiEntityCounts.getAdditionalSelectedAttributes().stream()
+              .map(attributeName -> getAttribute(attributeName, primaryEntity, underlay))
+              .collect(ImmutableList.toImmutableList());
+    }
+
+    return EntityCounts.builder()
+        .primaryEntity(primaryVariable)
+        .groupByAttributes(groupByAttributes)
+        .additionalSelectedAttributes(additionalSelectedAttributes)
         .filter(filter)
         .build();
   }
