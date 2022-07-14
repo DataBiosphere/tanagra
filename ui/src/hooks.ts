@@ -22,7 +22,7 @@ export function useUnderlay() {
 export function useCohort() {
   const { cohortId } = useParams<{ cohortId: string }>();
   const cohort = useAppSelector((state) =>
-    state.cohorts.find((cohort) => cohort.id === cohortId)
+    state.cohorts.present.find((cohort) => cohort.id === cohortId)
   );
   if (!cohort) {
     throw new PathError(`Unknown cohort "${cohortId}".`);
@@ -48,10 +48,16 @@ export function useGroupAndCriteria() {
 export function useConceptSet() {
   const { conceptSetId } = useParams<{ conceptSetId: string }>();
   const conceptSet = useAppSelector((state) =>
-    state.conceptSets.find((conceptSet) => conceptSet.id === conceptSetId)
+    state.conceptSets.present.find(
+      (conceptSet) => conceptSet.id === conceptSetId
+    )
   );
   if (!conceptSet) {
     throw new PathError(`Unknown concept set "${conceptSetId}".`);
   }
   return conceptSet;
+}
+
+export function useUrl() {
+  return useAppSelector((state) => state.url);
 }
