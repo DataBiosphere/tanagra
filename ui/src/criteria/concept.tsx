@@ -44,6 +44,9 @@ type EntityConfig = {
   sourceConcepts?: boolean;
   attributes?: string[];
 
+  orderBy?: string;
+  orderDirection?: tanagra.OrderByDirection;
+
   // hierarchical indicates whether the entity supports a hierarchical view.
   hierarchical?: boolean;
   // listChildren indicates whether the entity can have children in the list
@@ -511,6 +514,8 @@ function searchRequest(
       entityDataset: {
         entityVariable: "c",
         selectedAttributes: attributesForEntity(entity, columns),
+        orderByAttribute: entity.orderBy,
+        orderByDirection: entity.orderDirection,
         filter: {
           arrayFilter: {
             operands,

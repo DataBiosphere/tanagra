@@ -303,7 +303,7 @@ criteriaConfigs: >-
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"}],
       "entities":[
-        {"name":"condition","selectable":true,"hierarchical":true}
+        {"name":"condition","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"}
       ]
     }
   },
@@ -319,7 +319,7 @@ criteriaConfigs: >-
         {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"procedure","selectable":true,"hierarchical":true}
+        {"name":"procedure","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"}
       ]
     }
   },
@@ -336,7 +336,7 @@ criteriaConfigs: >-
         {"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"observation","selectable":true}
+        {"name":"observation","selectable":true,"orderBy":"person_count","orderDirection":"DESC"}
       ]
     }
   },
@@ -349,10 +349,11 @@ criteriaConfigs: >-
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
         {"key":"standard_concept","width":180,"title":"SourceStandard"},
-        {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"ingredient","selectable":true,"hierarchical":true},
+        {"name":"ingredient","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"},
         {
           "name":"brand",
           "sourceConcepts":true,
@@ -362,6 +363,8 @@ criteriaConfigs: >-
             "standard_concept",
             "concept_code"
           ],
+          "orderBy":"concept_name",
+          "orderDirection":"ASC",
           "listChildren":{
             "entity":"ingredient",
             "idPath":"relationshipFilter.filter.binaryFilter.attributeValue",
