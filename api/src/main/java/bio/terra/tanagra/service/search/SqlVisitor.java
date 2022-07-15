@@ -64,31 +64,47 @@ public class SqlVisitor {
             .put("filter", filterSql.orElse("TRUE"))
             .build();
 
-    String sqlQuery = StringSubstitutor.replace(template, params);
+    String sql = StringSubstitutor.replace(template, params);
+
+    if (query.groupBy() != null && !query.groupBy().isEmpty()) {
+      String groupByExpression =
+          query.groupBy().stream()
+              .map(groupByField -> groupByField.accept(new SelectionVisitor(searchContext)))
+              .collect(Collectors.joining(", "));
+
+      String groupByTemplate = "${sqlWithoutGroupBy} GROUP BY ${groupBy}";
+      Map<String, String> orderByParams =
+          ImmutableMap.<String, String>builder()
+              .put("sqlWithoutGroupBy", sql)
+              .put("groupBy", groupByExpression)
+              .build();
+      sql = StringSubstitutor.replace(groupByTemplate, orderByParams);
+    }
+
     if (query.orderBy() != null) {
       String orderByExpression = query.orderBy().accept(new SelectionVisitor(searchContext));
 
-      String orderByTemplate = "${sqlQuery} ORDER BY ${orderBy} ${orderByDirection}";
+      String orderByTemplate = "${sqlWithoutOrderBy} ORDER BY ${orderBy} ${orderByDirection}";
       Map<String, String> orderByParams =
           ImmutableMap.<String, String>builder()
-              .put("sqlQuery", sqlQuery)
+              .put("sqlWithoutOrderBy", sql)
               .put("orderBy", orderByExpression)
               .put("orderByDirection", query.orderByDirection().name())
               .build();
-      sqlQuery = StringSubstitutor.replace(orderByTemplate, orderByParams);
+      sql = StringSubstitutor.replace(orderByTemplate, orderByParams);
     }
 
     if (query.limit() != null) {
-      String limitTemplate = "${sqlQuery} LIMIT ${limit}";
+      String limitTemplate = "${sqlWithoutLimit} LIMIT ${limit}";
       Map<String, String> limitParams =
           ImmutableMap.<String, String>builder()
-              .put("sqlQuery", sqlQuery)
+              .put("sqlWithoutLimit", sql)
               .put("limit", query.limit().toString())
               .build();
-      sqlQuery = StringSubstitutor.replace(limitTemplate, limitParams);
+      sql = StringSubstitutor.replace(limitTemplate, limitParams);
     }
 
-    return sqlQuery;
+    return sql;
   }
 
   /** A {@link Selection.Visitor} for creating SQL for selections. */

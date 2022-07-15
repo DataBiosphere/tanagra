@@ -140,6 +140,46 @@ paths:
         200:
           $ref: "#/components/responses/SearchEntityInstancesResponse"
 
+  "/underlays/{underlayName}/entities/{entityName}/counts:generateSqlQuery":
+    parameters:
+      - $ref: "#/components/parameters/Underlay"
+      - $ref: "#/components/parameters/Entity"
+    post:
+      # TODO authorization
+      security: []
+      summary: Returns an SQL query for counting a group of entity instances.
+      operationId: generateCountsSqlQuery
+      tags: [EntityCounts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateCountsSqlQueryRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/SqlQueryResponse"
+
+  "/underlays/{underlayName}/entities/{entityName}/counts:search":
+    parameters:
+      - $ref: "#/components/parameters/Underlay"
+      - $ref: "#/components/parameters/Entity"
+    post:
+      # TODO authorization
+      security: []
+      summary: Count the group of entity instances, defined by a set of attribute values.
+      operationId: searchEntityCounts
+      tags: [EntityCounts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchEntityCountsRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/SearchEntityCountsResponse"
+
 components:
   parameters:
     Underlay:
@@ -211,6 +251,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/SearchEntityInstancesResponse"
+
+    SearchEntityCountsResponse:
+      description: Response to searching the entity counts.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SearchEntityCountsResponse"
 
     SqlQueryResponse:
       description: A raw SQL query.
@@ -375,6 +422,26 @@ components:
         limit:
           description: The maximum number of results to return.
           type: integer
+
+    EntityCounts:
+      description: The definition and count for a group of entity instances.
+      type: object
+      properties:
+        entityVariable:
+          description: The variable to use for the primary entity in the filter.
+          type: string
+        additionalSelectedAttributes:
+          description: The name of any additional attributes of the primary entity to select for the dataset, in addition to the group by attributes.
+          type: array
+          items:
+            type: string
+        groupByAttributes:
+          description: The names of the attributes to group by.
+          type: array
+          items:
+            type: string
+        filter:
+          $ref: "#/components/schemas/Filter"
 
     OrderByDirection:
       description: Enum for order by direction
@@ -541,6 +608,12 @@ components:
         entityDataset:
           $ref: "#/components/schemas/EntityDataset"
 
+    GenerateCountsSqlQueryRequest:
+      type: object
+      properties:
+        entityCounts:
+          $ref: "#/components/schemas/EntityCounts"
+
     NextPageToken:
       type: string
       description: |
@@ -617,6 +690,38 @@ components:
       additionalProperties:
         type: object
         nullable: true
+        $ref: "#/components/schemas/AttributeValue"
+
+    SearchEntityCountsRequest:
+      type: object
+      description: A request for counting groups of entity instances.
+      properties:
+        entityCounts:
+          $ref: "#/components/schemas/EntityCounts"
+
+    SearchEntityCountsResponse:
+      type: object
+      description: A view of entity counts for a search request.
+      properties:
+        counts:
+          type: array
+          description: Repeated counts results of the search.
+          nullable: true
+          items:
+            $ref: "#/components/schemas/EntityCountStruct"
+        nextPageToken:
+          $ref: "#/components/schemas/NextPageToken"
+
+    EntityCountStruct:
+      type: object
+      description: The definition and count for a group of entity instances.
+      properties:
+        count:
+          type: integer
+          description: The number of entity instances in this group.
+      additionalProperties:
+        type: object
+        description: The set of attribute names and values that defines this group of entity instances.
         $ref: "#/components/schemas/AttributeValue"
 
     UserData:

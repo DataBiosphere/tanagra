@@ -96,3 +96,8 @@ function NotFound(props: { error: Error; resetErrorBoundary?: () => void }) {
     </>
   );
 }
+
+export function getCurrentUrl(): string {
+  const url = window.location.href;
+  return url.slice(url.indexOf("#") + 1);
+}

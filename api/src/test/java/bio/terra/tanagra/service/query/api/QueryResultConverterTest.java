@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
+import bio.terra.tanagra.generated.model.ApiEntityCountStruct;
 import bio.terra.tanagra.generated.model.ApiEntityInstanceStruct;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
 import bio.terra.tanagra.service.databaseaccess.ColumnSchema;
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class QueryResultConverterTest {
   @Test
-  void convertRowResult() {
+  void convertRowResultToEntityInstance() {
     ColumnHeaderSchema columnHeaderSchema =
         ColumnHeaderSchema.builder()
             .columnSchemas(
@@ -29,7 +30,7 @@ public class QueryResultConverterTest {
                     ColumnSchema.builder().name("b").dataType(DataType.INT64).build()))
             .build();
     List<ApiEntityInstanceStruct> structs =
-        QueryResultConverter.convert(
+        QueryResultConverter.convertToEntityInstances(
             QueryResult.builder()
                 .rowResults(
                     ImmutableList.of(
@@ -50,6 +51,52 @@ public class QueryResultConverterTest {
     struct0.put("a", new ApiAttributeValue().stringVal("foo"));
     struct0.put("b", new ApiAttributeValue().int64Val(42L));
     ApiEntityInstanceStruct struct1 = new ApiEntityInstanceStruct();
+    struct1.put("a", new ApiAttributeValue().stringVal("bar"));
+    struct1.put("b", new ApiAttributeValue().int64Val(43L));
+
+    assertThat(structs, Matchers.contains(struct0, struct1));
+  }
+
+  @Test
+  void convertRowResultToEntityCount() {
+    ColumnHeaderSchema columnHeaderSchema =
+        ColumnHeaderSchema.builder()
+            .columnSchemas(
+                ImmutableList.of(
+                    ColumnSchema.builder().name("t_count").dataType(DataType.INT64).build(),
+                    ColumnSchema.builder().name("a").dataType(DataType.STRING).build(),
+                    ColumnSchema.builder().name("b").dataType(DataType.INT64).build()))
+            .build();
+    final List<ApiEntityCountStruct> structs =
+        QueryResultConverter.convertToEntityCounts(
+            QueryResult.builder()
+                .rowResults(
+                    ImmutableList.of(
+                        EagerRowResult.builder()
+                            .columnHeaderSchema(columnHeaderSchema)
+                            .cellValues(
+                                ImmutableList.of(
+                                    EagerCellValue.of(5),
+                                    EagerCellValue.of("foo"),
+                                    EagerCellValue.of(42L)))
+                            .build(),
+                        EagerRowResult.builder()
+                            .columnHeaderSchema(columnHeaderSchema)
+                            .cellValues(
+                                ImmutableList.of(
+                                    EagerCellValue.of(106),
+                                    EagerCellValue.of("bar"),
+                                    EagerCellValue.of(43L)))
+                            .build()))
+                .columnHeaderSchema(columnHeaderSchema)
+                .build());
+
+    ApiEntityCountStruct struct0 = new ApiEntityCountStruct();
+    struct0.setCount(5);
+    struct0.put("a", new ApiAttributeValue().stringVal("foo"));
+    struct0.put("b", new ApiAttributeValue().int64Val(42L));
+    ApiEntityCountStruct struct1 = new ApiEntityCountStruct();
+    struct1.setCount(106);
     struct1.put("a", new ApiAttributeValue().stringVal("bar"));
     struct1.put("b", new ApiAttributeValue().int64Val(43L));
 

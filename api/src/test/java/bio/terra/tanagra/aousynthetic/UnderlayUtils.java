@@ -17,7 +17,9 @@ public final class UnderlayUtils {
   public static final String PERSON_YEAROFBIRTH_ATTRIBUTE = "year_of_birth";
   public static final String PERSON_ETHNICITY_ATTRIBUTE = "ethnicity_concept_id";
   public static final String PERSON_GENDER_ATTRIBUTE = "gender_concept_id";
+  public static final String PERSON_GENDER_NAME_ATTRIBUTE = "gender";
   public static final String PERSON_RACE_ATTRIBUTE = "race_concept_id";
+  public static final String PERSON_RACE_NAME_ATTRIBUTE = "race";
   public static final String PERSON_SEXATBIRTH_ATTRIBUTE = "sex_at_birth_concept_id";
   public static final List<String> ALL_PERSON_ATTRIBUTES =
       ImmutableList.of(
@@ -32,7 +34,7 @@ public final class UnderlayUtils {
           "sex_at_birth");
 
   public static final String CONDITION_ENTITY = "condition";
-  public static final String CONDITION_ENTITY_NAME_ATTRIBUTE = "concept_name";
+  public static final String CONDITION_ENTITY_PERSON_COUNT_ATTRIBUTE = "person_count";
   public static final List<String> ALL_CONDITION_ATTRIBUTES =
       ImmutableList.of(
           "concept_id",

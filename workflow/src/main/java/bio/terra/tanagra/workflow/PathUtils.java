@@ -174,6 +174,7 @@ public final class PathUtils {
   /**
    * Count the number of children that each node has.
    *
+   * @param allNodes a collection of all nodes in the hierarchy
    * @param childParentRelationships a collection of all child-parent relationships in the hierarchy
    * @return a collection of (node, numChildren) mappings
    */

@@ -38,6 +38,8 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+      - name: person_count
+        dataType: INT64
   - name: procedure
     attributes:
       - name: concept_id
@@ -52,6 +54,8 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+      - name: person_count
+        dataType: INT64
   - name: ingredient
     attributes:
       - name: concept_id
@@ -66,6 +70,8 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+      - name: person_count
+        dataType: INT64
   - name: brand
     attributes:
       - name: concept_id
@@ -90,12 +96,16 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+      - name: person_count
+        dataType: INT64
   - name: visit
     attributes:
       - name: concept_id
         dataType: INT64
       - name: concept_name
         dataType: STRING
+      - name: person_count
+        dataType: INT64
   - name: observation
     attributes:
       - name: concept_id
@@ -110,6 +120,8 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+      - name: person_count
+        dataType: INT64
   - name: device
     attributes:
       - name: concept_id
@@ -124,6 +136,8 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
+      - name: person_count
+        dataType: INT64
   - name: condition_occurrence
     attributes:
       - name: condition_occurrence_id
@@ -289,7 +303,7 @@ criteriaConfigs: >-
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"}],
       "entities":[
-        {"name":"condition","selectable":true,"hierarchical":true}
+        {"name":"condition","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"}
       ]
     }
   },
@@ -305,7 +319,7 @@ criteriaConfigs: >-
         {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"procedure","selectable":true,"hierarchical":true}
+        {"name":"procedure","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"}
       ]
     }
   },
@@ -322,7 +336,7 @@ criteriaConfigs: >-
         {"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"observation","selectable":true}
+        {"name":"observation","selectable":true,"orderBy":"person_count","orderDirection":"DESC"}
       ]
     }
   },
@@ -335,10 +349,11 @@ criteriaConfigs: >-
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
         {"key":"standard_concept","width":180,"title":"SourceStandard"},
-        {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"}
       ],
       "entities":[
-        {"name":"ingredient","selectable":true,"hierarchical":true},
+        {"name":"ingredient","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"},
         {
           "name":"brand",
           "sourceConcepts":true,
@@ -348,6 +363,8 @@ criteriaConfigs: >-
             "standard_concept",
             "concept_code"
           ],
+          "orderBy":"concept_name",
+          "orderDirection":"ASC",
           "listChildren":{
             "entity":"ingredient",
             "idPath":"relationshipFilter.filter.binaryFilter.attributeValue",
@@ -813,6 +830,48 @@ datasets:
             dataType: INT64
           - name: text
             dataType: STRING
+      - name: condition_person_counts_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: count
+            dataType: INT64
+      - name: procedure_person_counts_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: count
+            dataType: INT64
+      - name: measurement_person_counts_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: count
+            dataType: INT64
+      - name: ingredient_person_counts_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: count
+            dataType: INT64
+      - name: device_person_counts_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: count
+            dataType: INT64
+      - name: observation_person_counts_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: count
+            dataType: INT64
+      - name: visit_person_counts_2
+        columns:
+          - name: node
+            dataType: INT64
+          - name: count
+            dataType: INT64
 entityMappings:
   - entity: person
     primaryKey:
@@ -1362,6 +1421,22 @@ attributeMappings:
         table: concept
         column: concept_code
   - attribute:
+      entity: condition
+      attribute: person_count
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      lookupTableKey:
+        dataset: omop_indexes
+        table: condition_person_counts_2
+        column: node
+      lookupColumn:
+        dataset: omop_indexes
+        table: condition_person_counts_2
+        column: count
+  - attribute:
       entity: procedure
       attribute: concept_id
     simpleColumn:
@@ -1418,6 +1493,22 @@ attributeMappings:
         table: concept
         column: concept_code
   - attribute:
+      entity: procedure
+      attribute: person_count
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      lookupTableKey:
+        dataset: omop_indexes
+        table: procedure_person_counts_2
+        column: node
+      lookupColumn:
+        dataset: omop_indexes
+        table: procedure_person_counts_2
+        column: count
+  - attribute:
       entity: ingredient
       attribute: concept_id
     simpleColumn:
@@ -1474,6 +1565,22 @@ attributeMappings:
         table: concept
         column: concept_code
   - attribute:
+      entity: ingredient
+      attribute: person_count
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      lookupTableKey:
+        dataset: omop_indexes
+        table: ingredient_person_counts_2
+        column: node
+      lookupColumn:
+        dataset: omop_indexes
+        table: ingredient_person_counts_2
+        column: count
+  - attribute:
       entity: brand
       attribute: concept_id
     simpleColumn:
@@ -1561,6 +1668,22 @@ attributeMappings:
         dataset: aou_synthetic
         table: concept
         column: concept_code
+  - attribute:
+      entity: measurement
+      attribute: person_count
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      lookupTableKey:
+        dataset: omop_indexes
+        table: measurement_person_counts_2
+        column: node
+      lookupColumn:
+        dataset: omop_indexes
+        table: measurement_person_counts_2
+        column: count
   - attribute:
       entity: visit
       attribute: concept_id
@@ -1578,6 +1701,22 @@ attributeMappings:
         table: concept
         column: concept_name
   - attribute:
+      entity: visit
+      attribute: person_count
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      lookupTableKey:
+        dataset: omop_indexes
+        table: visit_person_counts_2
+        column: node
+      lookupColumn:
+        dataset: omop_indexes
+        table: visit_person_counts_2
+        column: count
+  - attribute:
       entity: observation
       attribute: concept_id
     simpleColumn:
@@ -1634,6 +1773,22 @@ attributeMappings:
         table: concept
         column: concept_code
   - attribute:
+      entity: observation
+      attribute: person_count
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      lookupTableKey:
+        dataset: omop_indexes
+        table: observation_person_counts_2
+        column: node
+      lookupColumn:
+        dataset: omop_indexes
+        table: observation_person_counts_2
+        column: count
+  - attribute:
       entity: device
       attribute: concept_id
     simpleColumn:
@@ -1689,6 +1844,22 @@ attributeMappings:
         dataset: aou_synthetic
         table: concept
         column: concept_code
+  - attribute:
+      entity: device
+      attribute: person_count
+    lookupColumn:
+      primaryTableLookupKey:
+        dataset: aou_synthetic
+        table: concept
+        column: concept_id
+      lookupTableKey:
+        dataset: omop_indexes
+        table: device_person_counts_2
+        column: node
+      lookupColumn:
+        dataset: omop_indexes
+        table: device_person_counts_2
+        column: count
   - attribute:
       entity: condition_occurrence
       attribute: condition_occurrence_id

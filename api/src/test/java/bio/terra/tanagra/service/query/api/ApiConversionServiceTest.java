@@ -1,5 +1,10 @@
 package bio.terra.tanagra.service.query.api;
 
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_COLOR;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_ID;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_NAME;
+import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.BOAT_TYPE_ID;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.NAUTICAL_UNDERLAY_NAME;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR;
 import static bio.terra.tanagra.service.underlay.NauticalUnderlayUtils.SAILOR_NAME;
@@ -13,10 +18,12 @@ import bio.terra.tanagra.generated.model.ApiAttributeValue;
 import bio.terra.tanagra.generated.model.ApiAttributeVariable;
 import bio.terra.tanagra.generated.model.ApiBinaryFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryFilterOperator;
+import bio.terra.tanagra.generated.model.ApiEntityCounts;
 import bio.terra.tanagra.generated.model.ApiEntityDataset;
 import bio.terra.tanagra.generated.model.ApiEntityFilter;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiOrderByDirection;
+import bio.terra.tanagra.service.query.EntityCounts;
 import bio.terra.tanagra.service.query.EntityDataset;
 import bio.terra.tanagra.service.query.EntityFilter;
 import bio.terra.tanagra.service.search.AttributeVariable;
@@ -169,60 +176,34 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
   }
 
   @Test
-  void entityDatasetNegativeLimitThrows() {
-    ApiEntityDataset apiEntityDataset =
-            new ApiEntityDataset()
-                    .entityVariable("s")
-                    .selectedAttributes(ImmutableList.of("name", "rating"))
-                    .limit(-1)
-                    .filter(
-                            new ApiFilter()
-                                    .binaryFilter(
-                                            new ApiBinaryFilter()
-                                                    .attributeVariable(
-                                                            new ApiAttributeVariable().variable("s").name("rating"))
-                                                    .operator(ApiBinaryFilterOperator.EQUALS)
-                                                    .attributeValue(new ApiAttributeValue().int64Val(42L))));
+  void entityCounts() {
+    ApiEntityCounts apiEntityCounts =
+        new ApiEntityCounts()
+            .entityVariable("b")
+            .additionalSelectedAttributes(ImmutableList.of("name", "id"))
+            .groupByAttributes(ImmutableList.of("color"))
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("b").name("type_id"))
+                            .operator(ApiBinaryFilterOperator.EQUALS)
+                            .attributeValue(new ApiAttributeValue().int64Val(5L))));
 
-    IllegalArgumentException invalidLimitException =
-            assertThrows(
-                    IllegalArgumentException.class,
-                    () ->
-                            apiConversionService.convertEntityDataset(
-                                    NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
-    assertThat(invalidLimitException.getMessage(), Matchers.containsString("The provided limit"));
-  }
-
-  @Test
-  void entityDatasetWithLimit() {
-    ApiEntityDataset apiEntityDataset =
-            new ApiEntityDataset()
-                    .entityVariable("s")
-                    .selectedAttributes(ImmutableList.of("name", "rating"))
-                    .limit(1)
-                    .filter(
-                            new ApiFilter()
-                                    .binaryFilter(
-                                            new ApiBinaryFilter()
-                                                    .attributeVariable(
-                                                            new ApiAttributeVariable().variable("s").name("rating"))
-                                                    .operator(ApiBinaryFilterOperator.EQUALS)
-                                                    .attributeValue(new ApiAttributeValue().int64Val(42L))));
-
-    Variable sVar = Variable.create("s");
+    Variable bVar = Variable.create("b");
     assertEquals(
-            EntityDataset.builder()
-                    .primaryEntity(EntityVariable.create(SAILOR, Variable.create("s")))
-                    .selectedAttributes(ImmutableList.of(SAILOR_NAME, SAILOR_RATING))
-                    .limit(1)
-                    .filter(
-                            Filter.BinaryFunction.create(
-                                    Expression.AttributeExpression.create(
-                                            AttributeVariable.create(SAILOR_RATING, sVar)),
-                                    Filter.BinaryFunction.Operator.EQUALS,
-                                    Expression.Literal.create(DataType.INT64, "42")))
-                    .build(),
-            apiConversionService.convertEntityDataset(
-                    NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
+        EntityCounts.builder()
+            .primaryEntity(EntityVariable.create(BOAT, bVar))
+            .additionalSelectedAttributes(ImmutableList.of(BOAT_NAME, BOAT_ID))
+            .groupByAttributes(ImmutableList.of(BOAT_COLOR))
+            .filter(
+                Filter.BinaryFunction.create(
+                    Expression.AttributeExpression.create(
+                        AttributeVariable.create(BOAT_TYPE_ID, bVar)),
+                    Filter.BinaryFunction.Operator.EQUALS,
+                    Expression.Literal.create(DataType.INT64, "5")))
+            .build(),
+        apiConversionService.convertEntityCounts(NAUTICAL_UNDERLAY_NAME, "boats", apiEntityCounts));
   }
 }

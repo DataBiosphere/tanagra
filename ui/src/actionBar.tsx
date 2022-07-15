@@ -8,6 +8,7 @@ import { useAppSelector } from "hooks";
 import * as React from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { useParentUrl } from "router";
+import UndoRedo from "./components/UndoRedo";
 
 type ActionBarProps = {
   title: string;
@@ -34,9 +35,10 @@ export default function ActionBar(props: ActionBarProps) {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h3" sx={{ flexGrow: 1 }}>
+          <Typography variant="h4" sx={{ flexGrow: 1 }}>
             {props.title}
           </Typography>
+          <UndoRedo />
           {underlay ? (
             <Typography variant="h6" className="underlay-name">
               Dataset: {underlay.name}
