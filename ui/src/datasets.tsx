@@ -437,6 +437,7 @@ function Preview(props: PreviewProps) {
             entityVariable: entity.name,
             selectedAttributes: entity.attributes,
             filter: filter,
+            limit: 50,
           };
 
           const dataParts = await Promise.all([

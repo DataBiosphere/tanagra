@@ -27,9 +27,9 @@ public abstract class Query {
   /** The filter to apply to the primary entity, if there is a filter. */
   public abstract Optional<Filter> filter();
 
-  /** The number of results to return in a query */
+  /** The maximum number of results to return */
   @Nullable
-  public abstract Integer pageSize();
+  public abstract Integer limit();
 
   public static Builder builder() {
     return new AutoValue_Query.Builder();
@@ -51,7 +51,7 @@ public abstract class Query {
 
     public abstract Builder filter(Filter filter);
 
-    public abstract Builder pageSize(Integer pageSize);
+    public abstract Builder limit(Integer limit);
 
     public abstract Query build();
   }

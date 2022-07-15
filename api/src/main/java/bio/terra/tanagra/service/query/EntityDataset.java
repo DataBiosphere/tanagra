@@ -41,7 +41,7 @@ public abstract class EntityDataset {
 
   /** The number of results to return in a query */
   @Nullable
-  public abstract Integer pageSize();
+  public abstract Integer limit();
 
   public static Builder builder() {
     return new AutoValue_EntityDataset.Builder();
@@ -69,9 +69,9 @@ public abstract class EntityDataset {
 
     public abstract Builder filter(Filter filter);
 
-    public abstract Builder pageSize(Integer value);
+    public abstract Builder limit(Integer value);
 
-    public abstract Integer pageSize();
+    public abstract Integer limit();
 
     public EntityDataset build() {
       for (Attribute attribute : selectedAttributes()) {

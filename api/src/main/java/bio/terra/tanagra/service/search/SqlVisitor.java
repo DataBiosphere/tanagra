@@ -78,12 +78,12 @@ public class SqlVisitor {
       sqlQuery = StringSubstitutor.replace(orderByTemplate, orderByParams);
     }
 
-    if (query.pageSize() != null) {
-      String limitTemplate = "${sqlQuery} LIMIT ${pageSize}";
+    if (query.limit() != null) {
+      String limitTemplate = "${sqlQuery} LIMIT ${limit}";
       Map<String, String> limitParams =
           ImmutableMap.<String, String>builder()
               .put("sqlQuery", sqlQuery)
-              .put("pageSize", query.pageSize().toString())
+              .put("limit", query.limit().toString())
               .build();
       sqlQuery = StringSubstitutor.replace(limitTemplate, limitParams);
     }

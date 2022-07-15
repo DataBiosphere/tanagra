@@ -112,7 +112,7 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
                     Expression.Literal.create(DataType.INT64, "42")))
             .build(),
         apiConversionService.convertEntityDataset(
-            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset, null));
+            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
   }
 
   @Test
@@ -147,7 +147,7 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
                     Expression.Literal.create(DataType.INT64, "42")))
             .build(),
         apiConversionService.convertEntityDataset(
-            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset, null));
+            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
   }
 
   @Test
@@ -157,14 +157,72 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
             NotFoundException.class,
             () ->
                 apiConversionService.convertEntityDataset(
-                    "bogus_underlay", "sailors", new ApiEntityDataset(), null));
+                    "bogus_underlay", "sailors", new ApiEntityDataset()));
     assertThat(bogusUnderlay.getMessage(), Matchers.containsString("No known underlay with name"));
     NotFoundException bogusEntity =
         assertThrows(
             NotFoundException.class,
             () ->
                 apiConversionService.convertEntityDataset(
-                    NAUTICAL_UNDERLAY_NAME, "bogus_entity", new ApiEntityDataset(), null));
+                    NAUTICAL_UNDERLAY_NAME, "bogus_entity", new ApiEntityDataset()));
     assertThat(bogusEntity.getMessage(), Matchers.containsString("No known entity with name"));
+  }
+
+  @Test
+  void entityDatasetNegativeLimitThrows() {
+    ApiEntityDataset apiEntityDataset =
+        new ApiEntityDataset()
+            .entityVariable("s")
+            .selectedAttributes(ImmutableList.of("name", "rating"))
+            .limit(-1)
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("s").name("rating"))
+                            .operator(ApiBinaryFilterOperator.EQUALS)
+                            .attributeValue(new ApiAttributeValue().int64Val(42L))));
+
+    IllegalArgumentException invalidLimitException =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                apiConversionService.convertEntityDataset(
+                    NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
+    assertThat(invalidLimitException.getMessage(), Matchers.containsString("The provided limit"));
+  }
+
+  @Test
+  void entityDatasetWithLimit() {
+    ApiEntityDataset apiEntityDataset =
+        new ApiEntityDataset()
+            .entityVariable("s")
+            .selectedAttributes(ImmutableList.of("name", "rating"))
+            .limit(1)
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("s").name("rating"))
+                            .operator(ApiBinaryFilterOperator.EQUALS)
+                            .attributeValue(new ApiAttributeValue().int64Val(42L))));
+
+    Variable sVar = Variable.create("s");
+    assertEquals(
+        EntityDataset.builder()
+            .primaryEntity(EntityVariable.create(SAILOR, Variable.create("s")))
+            .selectedAttributes(ImmutableList.of(SAILOR_NAME, SAILOR_RATING))
+            .limit(1)
+            .filter(
+                Filter.BinaryFunction.create(
+                    Expression.AttributeExpression.create(
+                        AttributeVariable.create(SAILOR_RATING, sVar)),
+                    Filter.BinaryFunction.Operator.EQUALS,
+                    Expression.Literal.create(DataType.INT64, "42")))
+            .build(),
+        apiConversionService.convertEntityDataset(
+            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
   }
 }

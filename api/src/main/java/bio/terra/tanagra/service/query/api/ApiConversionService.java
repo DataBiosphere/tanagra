@@ -45,7 +45,13 @@ public class ApiConversionService {
   }
 
   public EntityDataset convertEntityDataset(
-      String underlayName, String entityName, ApiEntityDataset apiEntityDataset, Integer pageSize) {
+      String underlayName, String entityName, ApiEntityDataset apiEntityDataset) {
+    if (apiEntityDataset.getLimit() != null && apiEntityDataset.getLimit() <= 0) {
+      throw new IllegalArgumentException(
+          String.format(
+              "The provided limit '%d' is not a positive integer", apiEntityDataset.getLimit()));
+    }
+
     Underlay underlay = getUnderlay(underlayName);
     Entity primaryEntity = getEntity(entityName, underlay);
     EntityVariable primaryVariable =
@@ -72,7 +78,7 @@ public class ApiConversionService {
         .orderByAttribute(orderByAttribute)
         .orderByDirection(convertOrderByDirection(apiEntityDataset.getOrderByDirection()))
         .filter(filter)
-        .pageSize(pageSize)
+        .limit(apiEntityDataset.getLimit())
         .build();
   }
 

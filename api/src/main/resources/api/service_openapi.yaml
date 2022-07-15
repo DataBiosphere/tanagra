@@ -372,6 +372,9 @@ components:
           $ref: "#/components/schemas/OrderByDirection"
         filter:
           $ref: "#/components/schemas/Filter"
+        limit:
+          description: The maximum number of results to return.
+          type: integer
 
     OrderByDirection:
       description: Enum for order by direction

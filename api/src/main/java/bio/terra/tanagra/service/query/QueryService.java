@@ -124,8 +124,8 @@ public class QueryService {
       queryBuilder.orderBy(orderBy).orderByDirection(entityDataset.orderByDirection());
     }
 
-    if (entityDataset.pageSize() != null) {
-      queryBuilder.pageSize(entityDataset.pageSize());
+    if (entityDataset.limit() != null) {
+      queryBuilder.limit(entityDataset.limit());
     }
 
     return queryBuilder.build();
