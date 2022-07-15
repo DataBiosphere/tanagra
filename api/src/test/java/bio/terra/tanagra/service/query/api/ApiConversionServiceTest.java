@@ -222,13 +222,13 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
                                                                 new ApiAttributeVariable().variable("s").name("rating"))
                                                         .operator(ApiBinaryFilterOperator.EQUALS)
                                                         .attributeValue(new ApiAttributeValue().int64Val(42L))));
-        InvalidArgumentException invalidLimitEntityDataset =
+        IllegalArgumentException illegalLimitEntityDataset =
                 assertThrows(
-                        InvalidArgumentException.class,
+                        IllegalArgumentException.class,
                         () ->
                                 apiConversionService.convertEntityDataset(
                                         "bogus_underlay", "sailors", apiEntityDataset));
-        assertThat(invalidLimitEntityDataset.getMessage(), Matchers.containsString("The provided limit"));
+        assertThat(illegalLimitEntityDataset.getMessage(), Matchers.containsString("The provided limit"));
     }
 
     @Test
