@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
+import bio.terra.tanagra.generated.model.ApiEntityCountGroupDefinitionStruct;
 import bio.terra.tanagra.generated.model.ApiEntityCountStruct;
 import bio.terra.tanagra.generated.model.ApiEntityInstanceStruct;
 import bio.terra.tanagra.service.databaseaccess.ColumnHeaderSchema;
@@ -93,12 +94,16 @@ public class QueryResultConverterTest {
 
     ApiEntityCountStruct struct0 = new ApiEntityCountStruct();
     struct0.setCount(5);
-    struct0.put("a", new ApiAttributeValue().stringVal("foo"));
-    struct0.put("b", new ApiAttributeValue().int64Val(42L));
+    ApiEntityCountGroupDefinitionStruct struct0d = new ApiEntityCountGroupDefinitionStruct();
+    struct0d.put("a", new ApiAttributeValue().stringVal("foo"));
+    struct0d.put("b", new ApiAttributeValue().int64Val(42L));
+    struct0.setDefinition(struct0d);
     ApiEntityCountStruct struct1 = new ApiEntityCountStruct();
     struct1.setCount(106);
-    struct1.put("a", new ApiAttributeValue().stringVal("bar"));
-    struct1.put("b", new ApiAttributeValue().int64Val(43L));
+    ApiEntityCountGroupDefinitionStruct struct1d = new ApiEntityCountGroupDefinitionStruct();
+    struct1d.put("a", new ApiAttributeValue().stringVal("bar"));
+    struct1d.put("b", new ApiAttributeValue().int64Val(43L));
+    struct1.setDefinition(struct1d);
 
     assertThat(structs, Matchers.contains(struct0, struct1));
   }

@@ -716,6 +716,14 @@ components:
         count:
           type: integer
           description: The number of entity instances in this group.
+        definition:
+          type: object
+          description: The set of attribute names and values that defines this group of entity instances.
+          $ref: "#/components/schemas/EntityCountGroupDefinitionStruct"
+
+    EntityCountGroupDefinitionStruct:
+      type: object
+      description: The definition of a group of entity instances.
       additionalProperties:
         type: object
         description: The set of attribute names and values that defines this group of entity instances.

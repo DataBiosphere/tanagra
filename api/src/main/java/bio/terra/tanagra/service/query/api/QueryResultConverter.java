@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.query.api;
 
 import bio.terra.tanagra.generated.model.ApiAttributeValue;
+import bio.terra.tanagra.generated.model.ApiEntityCountGroupDefinitionStruct;
 import bio.terra.tanagra.generated.model.ApiEntityCountStruct;
 import bio.terra.tanagra.generated.model.ApiEntityInstanceStruct;
 import bio.terra.tanagra.service.databaseaccess.CellValue;
@@ -48,7 +49,10 @@ public final class QueryResultConverter {
         convertRowToAttributeMap(rowResult, columnHeaderSchema);
     ApiAttributeValue count = attributeMap.remove(QueryService.COUNT_ALIAS);
     result.setCount(Math.toIntExact(count.getInt64Val()));
-    result.putAll(attributeMap);
+
+    ApiEntityCountGroupDefinitionStruct definition = new ApiEntityCountGroupDefinitionStruct();
+    definition.putAll(attributeMap);
+    result.setDefinition(definition);
     return result;
   }
 
