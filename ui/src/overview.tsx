@@ -15,6 +15,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
+import { EntityCountsApiContext } from "apiContext";
 import {
   deleteCriteria,
   deleteGroup,
@@ -23,17 +24,33 @@ import {
   renameCriteria,
   renameGroup,
 } from "cohortsSlice";
+import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
+import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
-import React from "react";
+import { useCallback, useContext } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
-import { createCriteria, getCriteriaPlugin } from "./cohort";
+import {
+  createCriteria,
+  generateQueryFilter,
+  getCriteriaPlugin,
+} from "./cohort";
 
 export default function Overview() {
   const cohort = useCohort();
+  const underlay = useUnderlay();
 
   return (
     <>
@@ -41,6 +58,7 @@ export default function Overview() {
       <Grid container columns={3} columnSpacing={5} className="overview">
         <ParticipantsSelector kind={tanagra.GroupKindEnum.Included} />
         <ParticipantsSelector kind={tanagra.GroupKindEnum.Excluded} />
+        <DemographicCharts cohort={cohort} underlayName={underlay.name} />
       </Grid>
     </>
   );
@@ -289,5 +307,206 @@ function ParticipantCriteria(props: {
         </Accordion>
       </Grid>
     </Grid>
+  );
+}
+
+type DemographicChartsProps = {
+  cohort: tanagra.Cohort;
+  underlayName: string;
+};
+
+function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
+  const api = useContext(EntityCountsApiContext);
+
+  const barColours = [
+    "#003f5c",
+    "#2f4b7c",
+    "#665191",
+    "#a05195",
+    "#d45087",
+    "#f95d6a",
+    "#ff7c43",
+    "#ffa600",
+  ];
+
+  const fetchDemographicData = useCallback(async () => {
+    const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
+      entityCounts: {
+        entityVariable: "p",
+        additionalSelectedAttributes: ["gender", "race"],
+        groupByAttributes: [
+          "gender_concept_id",
+          "race_concept_id",
+          "year_of_birth",
+        ],
+        filter: generateQueryFilter(cohort, "p"),
+      },
+    };
+
+    const data = await api.searchEntityCounts({
+      underlayName: underlayName,
+      entityName: "person",
+      searchEntityCountsRequest: searchEntityCountsRequest,
+    });
+
+    if (!data.counts) {
+      throw new Error(
+        "The counts property returned by the searchEntityCounts API is undefined."
+      );
+    }
+
+    const demographicData = data.counts;
+    let totalCount = 0;
+    const demographicsByGender = new Map();
+    const demographicsByGenderAgeRace = new Map();
+    const demographicRaces = new Set();
+
+    for (let i = 0; i < demographicData.length; i++) {
+      const count = demographicData[i].count ?? 0;
+      const gender = demographicData[i].definition?.gender.stringVal ?? "Other";
+      const race = demographicData[i].definition?.race.stringVal ?? "Other";
+      const currentYear = new Date().getFullYear();
+      const yob = demographicData[i].definition?.year_of_birth?.int64Val ?? 0;
+      const age = parseInt(currentYear.toString()) - yob;
+      let ageRange = "";
+      if (age >= 65) {
+        ageRange = "65+";
+      } else if (age >= 45 && age <= 64) {
+        ageRange = "45-64";
+      } else if (age <= 44) {
+        ageRange = "18-44";
+      }
+
+      // Accumulate total count for results
+      totalCount += count;
+
+      // Configure hash map to represent data for gender chart
+      if (!demographicsByGender.has(gender)) {
+        demographicsByGender.set(gender, 0);
+      }
+      demographicsByGender.set(
+        gender,
+        demographicsByGender.get(gender) + count
+      );
+
+      // Configure hash map to represent data for gender / age / race chart
+      if (!demographicsByGenderAgeRace.has(`${gender} ${ageRange}`)) {
+        demographicsByGenderAgeRace.set(`${gender} ${ageRange}`, new Map());
+      }
+
+      if (!demographicsByGenderAgeRace.get(`${gender} ${ageRange}`).has(race)) {
+        demographicsByGenderAgeRace.get(`${gender} ${ageRange}`).set(race, 0);
+      }
+
+      const currCountForRace = demographicsByGenderAgeRace
+        .get(`${gender} ${ageRange}`)
+        .get(race);
+
+      demographicsByGenderAgeRace
+        .get(`${gender} ${ageRange}`)
+        .set(race, currCountForRace + count);
+
+      // Configure set of races returned in results
+      if (!demographicRaces.has(race)) {
+        demographicRaces.add(race);
+      }
+    }
+
+    return {
+      totalCount,
+      demographicsByGender: Array.from(demographicsByGender, ([key, value]) => {
+        return {
+          name: key,
+          count: value,
+          color: barColours[0]
+        };
+      }),
+      demographicRaces: Array.from(demographicRaces),
+      demographicsByGenderAgeRace: Array.from(
+        demographicsByGenderAgeRace,
+        ([key, value]) => {
+          return {
+            ageRange: key,
+            ...Object.fromEntries(value),
+          };
+        }
+      ),
+    };
+  }, [cohort]);
+
+  const demographicData = useAsyncWithApi(fetchDemographicData);
+
+  const tickFormatter = (value: string, index: number) => {
+    return value.length > 15 ? value.substr(0, 15).concat("...") : value;
+  };
+
+  return (
+    <>
+      <Loading status={demographicData}>
+        <Grid item xs={1}>
+          <Stack>
+            <Typography variant="h4">{`Total Count: ${demographicData.data?.totalCount.toLocaleString()}`}</Typography>
+            <Typography>Gender Identity</Typography>
+            <ResponsiveContainer width="90%" height={250}>
+              <BarChart
+                data={demographicData.data?.demographicsByGender}
+                margin={{
+                  top: 10,
+                  right: 0,
+                  left: 20,
+                  bottom: 10,
+                }}
+                layout="vertical"
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  width={150}
+                  tickFormatter={tickFormatter}
+                  tickMargin={10}
+                />
+                <Tooltip />
+                <Bar dataKey={"count"} fill="#2f4b7c" maxBarSize={60} />
+              </BarChart>
+            </ResponsiveContainer>
+            <Typography>Gender Identity, Current Age, Race</Typography>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={demographicData.data?.demographicsByGenderAgeRace}
+                margin={{
+                  top: 10,
+                  right: 0,
+                  left: 20,
+                  bottom: 10,
+                }}
+                layout="vertical"
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis
+                  dataKey="ageRange"
+                  type="category"
+                  width={150}
+                  tickFormatter={tickFormatter}
+                  tickMargin={10}
+                />
+                <Tooltip />
+                {demographicData.data?.demographicRaces.map((race, index) => (
+                  <Bar
+                    key={index}
+                    dataKey={race as string}
+                    stackId="a"
+                    fill={barColours[index % barColours.length]}
+                    maxBarSize={100}
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </Stack>
+        </Grid>
+      </Loading>
+    </>
   );
 }

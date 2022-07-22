@@ -175,6 +175,38 @@ class FakeEntityInstancesApi {
   }
 }
 
+class FakeEntityCountsApi {
+  async searchEntityCounts(): Promise<tanagra.SearchEntityCountsResponse> {
+    return new Promise<tanagra.SearchEntityCountsResponse>((resolve) => {
+      resolve({
+        counts: [
+          {
+            count: 52,
+            definition: {
+              gender_concept_id: {
+                int64Val: 45880669,
+              },
+              gender: {
+                stringVal: "Female",
+              },
+              race: {
+                stringVal: "Black or African American",
+              },
+              race_concept_id: {
+                int64Val: 8516,
+              },
+              year_of_birth: {
+                int64Val: 2000,
+              },
+            },
+          },
+        ],
+        nextPageToken: undefined
+      });
+    });
+  }
+}
+
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
@@ -203,4 +235,8 @@ export const EntityInstancesApiContext = apiForEnvironment(
 export const EntitiesApiContext = apiForEnvironment(
   tanagra.EntitiesApi,
   FakeEntitiesApi
+);
+export const EntityCountsApiContext = apiForEnvironment(
+  tanagra.EntityCountsApi,
+  FakeEntityCountsApi
 );
