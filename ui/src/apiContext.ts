@@ -201,7 +201,7 @@ class FakeEntityCountsApi {
             },
           },
         ],
-        nextPageToken: undefined
+        nextPageToken: undefined,
       });
     });
   }

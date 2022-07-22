@@ -418,7 +418,7 @@ function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
         return {
           name: key,
           count: value,
-          color: barColours[0]
+          color: barColours[0],
         };
       }),
       demographicRaces: Array.from(demographicRaces),
