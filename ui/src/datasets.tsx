@@ -463,7 +463,6 @@ function Preview(props: PreviewProps) {
               const res = await api.searchEntityInstances({
                 entityName: entity.name,
                 underlayName: underlay.name,
-                pageSize: 50,
                 searchEntityInstancesRequest: {
                   entityDataset,
                 },
