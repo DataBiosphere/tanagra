@@ -436,7 +436,7 @@ function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
 
   const demographicData = useAsyncWithApi(fetchDemographicData);
 
-  const tickFormatter = (value: string, index: number) => {
+  const tickFormatter = (value: string) => {
     return value.length > 15 ? value.substr(0, 15).concat("...") : value;
   };
 
