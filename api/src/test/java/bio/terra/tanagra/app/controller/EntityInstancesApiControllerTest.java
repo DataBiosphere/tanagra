@@ -109,6 +109,7 @@ public class EntityInstancesApiControllerTest extends BaseSpringUnitTest {
         response.getBody().getQuery());
   }
 
+  @Test
   void generateDatasetSqlQueryWithLimit() {
     ResponseEntity<ApiSqlQuery> response =
             controller.generateDatasetSqlQuery(
@@ -131,7 +132,7 @@ public class EntityInstancesApiControllerTest extends BaseSpringUnitTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(
             "SELECT s.s_name AS name, s.rating AS rating "
-                    + "FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42 LIMIT = 1",
+                    + "FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42 LIMIT 1",
             response.getBody().getQuery());
   }
 }
