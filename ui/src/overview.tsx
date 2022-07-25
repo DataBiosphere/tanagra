@@ -50,7 +50,6 @@ import {
 
 export default function Overview() {
   const cohort = useCohort();
-  const underlay = useUnderlay();
 
   return (
     <>
@@ -58,7 +57,7 @@ export default function Overview() {
       <Grid container columns={3} columnSpacing={5} className="overview">
         <ParticipantsSelector kind={tanagra.GroupKindEnum.Included} />
         <ParticipantsSelector kind={tanagra.GroupKindEnum.Excluded} />
-        <DemographicCharts cohort={cohort} underlayName={underlay.name} />
+        <DemographicCharts cohort={cohort} />
       </Grid>
     </>
   );
@@ -312,10 +311,11 @@ function ParticipantCriteria(props: {
 
 type DemographicChartsProps = {
   cohort: tanagra.Cohort;
-  underlayName: string;
 };
 
-function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
+function DemographicCharts({ cohort }: DemographicChartsProps) {
+  const underlay = useUnderlay();
+
   const api = useContext(EntityCountsApiContext);
 
   const barColours = [
@@ -344,7 +344,7 @@ function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
     };
 
     const data = await api.searchEntityCounts({
-      underlayName: underlayName,
+      underlayName: underlay.name,
       entityName: "person",
       searchEntityCountsRequest: searchEntityCountsRequest,
     });
