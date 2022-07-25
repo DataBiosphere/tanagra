@@ -390,20 +390,22 @@ function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
       );
 
       // Configure hash map to represent data for gender / age / race chart
-      if (!demographicsByGenderAgeRace.has(`${gender} ${ageRange}`)) {
-        demographicsByGenderAgeRace.set(`${gender} ${ageRange}`, new Map());
+      const genderAgeRange = `${gender} ${ageRange}`;
+
+      if (!demographicsByGenderAgeRace.has(genderAgeRange)) {
+        demographicsByGenderAgeRace.set(genderAgeRange, new Map());
       }
 
-      if (!demographicsByGenderAgeRace.get(`${gender} ${ageRange}`).has(race)) {
-        demographicsByGenderAgeRace.get(`${gender} ${ageRange}`).set(race, 0);
+      if (!demographicsByGenderAgeRace.get(genderAgeRange).has(race)) {
+        demographicsByGenderAgeRace.get(genderAgeRange).set(race, 0);
       }
 
       const currCountForRace = demographicsByGenderAgeRace
-        .get(`${gender} ${ageRange}`)
+        .get(genderAgeRange)
         .get(race);
 
       demographicsByGenderAgeRace
-        .get(`${gender} ${ageRange}`)
+        .get(genderAgeRange)
         .set(race, currCountForRace + count);
 
       // Configure set of races returned in results
@@ -434,22 +436,22 @@ function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
     };
   }, [cohort]);
 
-  const demographicData = useAsyncWithApi(fetchDemographicData);
+  const demographicState = useAsyncWithApi(fetchDemographicData);
 
   const tickFormatter = (value: string) => {
-    return value.length > 15 ? value.substr(0, 15).concat("...") : value;
+    return value.length > 15 ? value.substr(0, 15).concat("…") : value;
   };
 
   return (
     <>
-      <Loading status={demographicData}>
+      <Loading status={demographicState}>
         <Grid item xs={1}>
           <Stack>
-            <Typography variant="h4">{`Total Count: ${demographicData.data?.totalCount.toLocaleString()}`}</Typography>
+            <Typography variant="h4">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
             <Typography>Gender Identity</Typography>
             <ResponsiveContainer width="90%" height={250}>
               <BarChart
-                data={demographicData.data?.demographicsByGender}
+                data={demographicState.data?.demographicsByGender}
                 margin={{
                   top: 10,
                   right: 0,
@@ -474,7 +476,7 @@ function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
             <Typography>Gender Identity, Current Age, Race</Typography>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
-                data={demographicData.data?.demographicsByGenderAgeRace}
+                data={demographicState.data?.demographicsByGenderAgeRace}
                 margin={{
                   top: 10,
                   right: 0,
@@ -493,7 +495,7 @@ function DemographicCharts({ cohort, underlayName }: DemographicChartsProps) {
                   tickMargin={10}
                 />
                 <Tooltip />
-                {demographicData.data?.demographicRaces.map((race, index) => (
+                {demographicState.data?.demographicRaces.map((race, index) => (
                   <Bar
                     key={index}
                     dataKey={race as string}
