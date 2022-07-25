@@ -31,6 +31,10 @@ public abstract class Query {
   /** The filter to apply to the primary entity, if there is a filter. */
   public abstract Optional<Filter> filter();
 
+  /** The maximum number of results to return */
+  @Nullable
+  public abstract Integer limit();
+
   public static Builder builder() {
     return new AutoValue_Query.Builder();
   }
@@ -52,6 +56,8 @@ public abstract class Query {
     public abstract Builder filter(Optional<Filter> filter);
 
     public abstract Builder filter(Filter filter);
+
+    public abstract Builder limit(Integer limit);
 
     public abstract Query build();
   }

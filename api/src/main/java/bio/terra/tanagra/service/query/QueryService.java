@@ -153,6 +153,10 @@ public class QueryService {
       queryBuilder.orderBy(orderBy).orderByDirection(entityDataset.orderByDirection());
     }
 
+    if (entityDataset.limit() != null) {
+      queryBuilder.limit(entityDataset.limit());
+    }
+
     return queryBuilder.build();
   }
 

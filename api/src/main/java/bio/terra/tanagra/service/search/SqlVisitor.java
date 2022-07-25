@@ -63,6 +63,7 @@ public class SqlVisitor {
             .put("table", underlayResolver.resolveTable(query.primaryEntity()))
             .put("filter", filterSql.orElse("TRUE"))
             .build();
+
     String sql = StringSubstitutor.replace(template, params);
 
     if (query.groupBy() != null && !query.groupBy().isEmpty()) {
@@ -91,6 +92,16 @@ public class SqlVisitor {
               .put("orderByDirection", query.orderByDirection().name())
               .build();
       sql = StringSubstitutor.replace(orderByTemplate, orderByParams);
+    }
+
+    if (query.limit() != null) {
+      String limitTemplate = "${sqlWithoutLimit} LIMIT ${limit}";
+      Map<String, String> limitParams =
+          ImmutableMap.<String, String>builder()
+              .put("sqlWithoutLimit", sql)
+              .put("limit", query.limit().toString())
+              .build();
+      sql = StringSubstitutor.replace(limitTemplate, limitParams);
     }
 
     return sql;
