@@ -112,27 +112,27 @@ public class EntityInstancesApiControllerTest extends BaseSpringUnitTest {
   @Test
   void generateDatasetSqlQueryWithLimit() {
     ResponseEntity<ApiSqlQuery> response =
-            controller.generateDatasetSqlQuery(
-                    NAUTICAL_UNDERLAY_NAME,
-                    "sailors",
-                    new ApiGenerateDatasetSqlQueryRequest()
-                            .entityDataset(
-                                    new ApiEntityDataset()
-                                            .entityVariable("s")
-                                            .selectedAttributes(ImmutableList.of("name", "rating"))
-                                            .limit(1)
-                                            .filter(
-                                                    new ApiFilter()
-                                                            .binaryFilter(
-                                                                    new ApiBinaryFilter()
-                                                                            .attributeVariable(
-                                                                                    new ApiAttributeVariable().variable("s").name("rating"))
-                                                                            .operator(ApiBinaryFilterOperator.EQUALS)
-                                                                            .attributeValue(new ApiAttributeValue().int64Val(42L))))));
+        controller.generateDatasetSqlQuery(
+            NAUTICAL_UNDERLAY_NAME,
+            "sailors",
+            new ApiGenerateDatasetSqlQueryRequest()
+                .entityDataset(
+                    new ApiEntityDataset()
+                        .entityVariable("s")
+                        .selectedAttributes(ImmutableList.of("name", "rating"))
+                        .limit(1)
+                        .filter(
+                            new ApiFilter()
+                                .binaryFilter(
+                                    new ApiBinaryFilter()
+                                        .attributeVariable(
+                                            new ApiAttributeVariable().variable("s").name("rating"))
+                                        .operator(ApiBinaryFilterOperator.EQUALS)
+                                        .attributeValue(new ApiAttributeValue().int64Val(42L))))));
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(
-            "SELECT s.s_name AS name, s.rating AS rating "
-                    + "FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42 LIMIT 1",
-            response.getBody().getQuery());
+        "SELECT s.s_name AS name, s.rating AS rating "
+            + "FROM `my-project-id.nautical`.sailors AS s WHERE s.rating = 42 LIMIT 1",
+        response.getBody().getQuery());
   }
 }

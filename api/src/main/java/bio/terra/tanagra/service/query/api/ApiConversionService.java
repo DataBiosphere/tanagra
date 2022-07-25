@@ -162,8 +162,8 @@ public class ApiConversionService {
   private void validateLimitSize(ApiEntityDataset apiEntityDataset) {
     if (apiEntityDataset.getLimit() != null && apiEntityDataset.getLimit() <= 0) {
       throw new IllegalArgumentException(
-              String.format(
-                      "The provided limit '%d' is not a positive integer", apiEntityDataset.getLimit()));
+          String.format(
+              "The provided limit '%d' is not a positive integer", apiEntityDataset.getLimit()));
     }
   }
 }

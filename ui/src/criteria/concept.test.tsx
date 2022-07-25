@@ -8,8 +8,8 @@ import { Provider } from "react-redux";
 import { StaticRouter } from "react-router-dom";
 import { AppRouter } from "router";
 import { store } from "store";
-import { setUnderlays } from "underlaysSlice";
 import * as tanagra from "tanagra-api";
+import { setUnderlays } from "underlaysSlice";
 import { Data } from "./concept";
 
 // The Typescript compiler can't map the different parameters of the test cases
@@ -96,7 +96,7 @@ test("selection", async () => {
   const getData = () => getCriteria().data as Data;
   expect(getData().selected.length).toBe(0);
 
-  const getSelected = () => getData().selected.map((row) => row.id);
+  const getSelected = () => getData().selected.map((row) => row.key);
 
   // Use act explicitly because DataGrid has a focus update that occurs after
   // the event (i.e. outside of act) which causes a warning.
@@ -119,13 +119,39 @@ test("selection", async () => {
 });
 
 beforeAll(() => {
+  const dataConfig = {
+    primaryEntity: {
+      entity: "person",
+      key: "person_id",
+    },
+    occurrences: [
+      {
+        id: "condition_occurrence",
+        entity: "condition_occurrence",
+        key: "concept_id",
+        classifications: [
+          {
+            id: "condition",
+            attribute: "condition_concept_id",
+            entity: "condition",
+            entityAttribute: "concept_id",
+            hierarchical: true,
+          },
+        ],
+      },
+    ],
+  };
+
   store.dispatch(
     setUnderlays([
       {
         name: "test-underlay",
         primaryEntity: "test-entity",
         entities: [],
-        criteriaConfigs: [],
+        uiConfiguration: {
+          dataConfig: dataConfig,
+          criteriaConfigs: [],
+        },
         prepackagedConceptSets: [],
       },
     ])
@@ -141,7 +167,10 @@ beforeAll(() => {
           name: "test-underlay",
           primaryEntity: "test-entity",
           entities: [],
-          criteriaConfigs: [],
+          uiConfiguration: {
+            dataConfig: dataConfig,
+            criteriaConfigs: [],
+          },
           prepackagedConceptSets: [],
         },
         {
@@ -156,9 +185,8 @@ beforeAll(() => {
               { key: "vocabulary_id", width: 120, title: "Vocab" },
               { key: "concept_code", width: 120, title: "Code" },
             ],
-            entities: [
-              { name: "condition", selectable: true, hierarchical: true },
-            ],
+            occurrence: "condition_occurrence",
+            classification: "condition",
           },
         }
       )
@@ -169,7 +197,8 @@ beforeAll(() => {
 async function renderCriteria(
   instances: Array<{ [key: string]: tanagra.AttributeValue | null }>
 ) {
-  const getCriteria = () => store.getState().cohorts.present[0].groups[0].criteria[0];
+  const getCriteria = () =>
+    store.getState().cohorts.present[0].groups[0].criteria[0];
 
   const api = {
     async searchEntityInstances(): Promise<tanagra.SearchEntityInstancesResponse> {
