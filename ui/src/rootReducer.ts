@@ -2,40 +2,46 @@ import { combineReducers, createAction } from "@reduxjs/toolkit";
 import cohortsReducer from "cohortsSlice";
 import conceptSetsReducer from "conceptSetsSlice";
 import { AnyAction, Reducer } from "redux";
-import undoable, { excludeAction } from "redux-undo";
+import undoable from "redux-undo";
 import * as tanagra from "tanagra-api";
-import underlaysReducer from "underlaysSlice";
+import underlaysReducer, { setUnderlays } from "underlaysSlice";
 import urlSlice from "urlSlice";
 
 export const loadUserData = createAction<tanagra.UserData>("loadUserData");
 
 const undoableConfigs = {
-  initTypes: [loadUserData.type],
-  filter: excludeAction(["underlays/setUnderlays"]),
+  initTypes: [loadUserData.type, setUnderlays.type],
 };
 
 const slicesReducer = combineReducers({
-  cohorts: undoable(cohortsReducer, undoableConfigs),
+  cohorts: cohortsReducer,
   underlays: underlaysReducer,
-  conceptSets: undoable(conceptSetsReducer, undoableConfigs),
-  url: undoable(urlSlice, undoableConfigs),
+  conceptSets: conceptSetsReducer,
+  url: urlSlice,
 });
 
-export type RootState = ReturnType<typeof slicesReducer>;
+const undoableSlicesReducer = undoable(slicesReducer, undoableConfigs);
+
+export type RootState = ReturnType<typeof undoableSlicesReducer>;
 
 export const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
   if (loadUserData.match(action)) {
     return {
       ...state,
-      cohorts: {
-        ...state.cohorts,
-        present: action.payload.cohorts,
+      present: {
+        ...state.present,
+        cohorts: action.payload.cohorts,
+        conceptSets: action.payload.conceptSets,
       },
-      conceptSets: {
-        ...state.conceptSets,
-        present: action.payload.conceptSets,
+    };
+  } else if (setUnderlays.match(action)) {
+    return {
+      ...state,
+      present: {
+        ...state.present,
+        underlays: action.payload,
       },
     };
   }
-  return slicesReducer(state, action);
+  return undoableSlicesReducer(state, action);
 };

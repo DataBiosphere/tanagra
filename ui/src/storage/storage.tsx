@@ -23,8 +23,8 @@ export const storeUserData: Middleware<unknown, RootState> =
 
       const data: tanagra.UserData = {
         version: currentVersion,
-        cohorts: state.cohorts.present,
-        conceptSets: state.conceptSets.present,
+        cohorts: state.present.cohorts,
+        conceptSets: state.present.conceptSets,
       };
 
       storagePlugin.store(data);
