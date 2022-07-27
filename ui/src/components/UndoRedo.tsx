@@ -6,11 +6,10 @@ import { Link as RouterLink } from "react-router-dom";
 import { ActionCreators as UndoActionCreators } from "redux-undo";
 
 function UndoRedo() {
-  const urlHistory = useUrl();
   const dispatch = useAppDispatch();
-
-  const canUndo = useAppSelector((state) => state.url.past.length > 0);
-  const canRedo = useAppSelector((state) => state.url.future.length > 0);
+  const canUndo = useAppSelector((state) => state.past.length > 0);
+  const canRedo = useAppSelector((state) => state.future.length > 0);
+  const [undoUrlPath, redoUrlPath] = useUrl();
 
   return (
     <Box>
@@ -18,7 +17,7 @@ function UndoRedo() {
         onClick={() => dispatch(UndoActionCreators.undo())}
         disabled={!canUndo}
         component={RouterLink}
-        to={urlHistory.present}
+        to={undoUrlPath}
       >
         <UndoIcon
           fontSize="medium"
@@ -29,7 +28,7 @@ function UndoRedo() {
         onClick={() => dispatch(UndoActionCreators.redo())}
         disabled={!canRedo}
         component={RouterLink}
-        to={urlHistory.future[0]}
+        to={redoUrlPath}
       >
         <RedoIcon
           fontSize="medium"

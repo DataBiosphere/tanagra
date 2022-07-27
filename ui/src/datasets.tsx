@@ -36,9 +36,9 @@ import { isValid } from "util/valid";
 
 export function Datasets() {
   const dispatch = useAppDispatch();
-  const cohorts = useAppSelector((state) => state.cohorts.present);
+  const cohorts = useAppSelector((state) => state.present.cohorts);
   const workspaceConceptSets = useAppSelector(
-    (state) => state.conceptSets.present
+    (state) => state.present.conceptSets
   );
   const history = useHistory();
 
@@ -349,7 +349,7 @@ function useConceptSetEntities(
   });
 
   const workspaceConceptSets = useAppSelector((state) =>
-    state.conceptSets.present.filter((cs) => selectedConceptSets.has(cs.id))
+    state.present.conceptSets.filter((cs) => selectedConceptSets.has(cs.id))
   );
   workspaceConceptSets.forEach((conceptSet) => {
     const plugin = getCriteriaPlugin(conceptSet.criteria);
@@ -385,7 +385,7 @@ type PreviewProps = {
 function Preview(props: PreviewProps) {
   const underlay = useUnderlay();
   const cohorts = useAppSelector((state) =>
-    state.cohorts.present.filter((cohort) =>
+    state.present.cohorts.filter((cohort) =>
       props.selectedCohorts.has(cohort.id)
     )
   );

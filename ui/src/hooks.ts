@@ -11,7 +11,7 @@ export class PathError extends Error {}
 export function useUnderlay() {
   const { underlayName } = useParams<{ underlayName: string }>();
   const underlay = useAppSelector((state) =>
-    state.underlays.find((underlay) => underlay.name === underlayName)
+    state.present.underlays.find((underlay) => underlay.name === underlayName)
   );
   if (!underlay) {
     throw new PathError(`Unknown underlay "${underlayName}".`);
@@ -22,7 +22,7 @@ export function useUnderlay() {
 export function useCohort() {
   const { cohortId } = useParams<{ cohortId: string }>();
   const cohort = useAppSelector((state) =>
-    state.cohorts.present.find((cohort) => cohort.id === cohortId)
+    state.present.cohorts.find((cohort) => cohort.id === cohortId)
   );
   if (!cohort) {
     throw new PathError(`Unknown cohort "${cohortId}".`);
@@ -48,7 +48,7 @@ export function useGroupAndCriteria() {
 export function useConceptSet() {
   const { conceptSetId } = useParams<{ conceptSetId: string }>();
   const conceptSet = useAppSelector((state) =>
-    state.conceptSets.present.find(
+    state.present.conceptSets.find(
       (conceptSet) => conceptSet.id === conceptSetId
     )
   );
@@ -59,5 +59,9 @@ export function useConceptSet() {
 }
 
 export function useUrl() {
-  return useAppSelector((state) => state.url);
+  const undoUrlPath = useAppSelector((state) => state.present.url);
+  const redoUrlPath = useAppSelector((state) =>
+    state.future.length > 0 ? state.future[0].url : ""
+  );
+  return [undoUrlPath, redoUrlPath];
 }
