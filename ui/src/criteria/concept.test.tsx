@@ -169,7 +169,7 @@ beforeAll(() => {
 async function renderCriteria(
   instances: Array<{ [key: string]: tanagra.AttributeValue | null }>
 ) {
-  const getCriteria = () => store.getState().cohorts.present[0].groups[0].criteria[0];
+  const getCriteria = () => store.getState().present.cohorts[0].groups[0].criteria[0];
 
   const api = {
     async searchEntityInstances(): Promise<tanagra.SearchEntityInstancesResponse> {
@@ -182,7 +182,7 @@ async function renderCriteria(
     generateDatasetSqlQuery: jest.fn(),
   };
 
-  const cohort = store.getState().cohorts.present[0];
+  const cohort = store.getState().present.cohorts[0];
   const group = cohort.groups[0];
   const criteria = group.criteria[0];
 
