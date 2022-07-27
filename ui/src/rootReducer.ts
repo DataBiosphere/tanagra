@@ -11,7 +11,6 @@ export const loadUserData = createAction<tanagra.UserData>("loadUserData");
 
 const undoableConfigs = {
   initTypes: [loadUserData.type, setUnderlays.type],
-  debug: true,
 };
 
 const slicesReducer = combineReducers({
