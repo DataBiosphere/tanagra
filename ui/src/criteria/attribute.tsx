@@ -169,8 +169,8 @@ type SliderProps = {
 
 function AttributeSlider(props: SliderProps) {
   const { minBound, maxBound, range, data, dispatchFn, index } = props;
-
   // Two sets of values are needed due to the input box and slider is isolated.
+  console.log(range.min, minBound, range.min || minBound)
   const [minInputValue, setMinInputValue] = useState(
     String(range.min || minBound)
   );
@@ -179,7 +179,7 @@ function AttributeSlider(props: SliderProps) {
   );
   const [minValue, setMinValue] = useState(range.min || minBound);
   const [maxValue, setMaxValue] = useState(range.max || maxBound);
-
+  
   const updateValue = (newMin: number, newMax: number) => {
     setMinValue(newMin);
     setMaxValue(newMax);
@@ -192,6 +192,17 @@ function AttributeSlider(props: SliderProps) {
   };
 
   const handleChange = (event: Event, newValue: number | number[]) => {
+    const [newMin, newMax] = newValue as number[];
+    setMinInputValue(String(newMin));
+    setMaxInputValue(String(newMax));
+    setMinValue(newMin);
+    setMaxValue(newMax);
+  };
+
+  const handleChangeCommitted = (
+    event: Event | React.SyntheticEvent,
+    newValue: number | number[]
+  ) => {
     const [newMin, newMax] = newValue as number[];
     setMinInputValue(String(newMin));
     setMaxInputValue(String(newMax));
@@ -248,6 +259,7 @@ function AttributeSlider(props: SliderProps) {
           <Slider
             value={[minValue, maxValue]}
             onChange={handleChange}
+            onChangeCommitted={handleChangeCommitted}
             valueLabelDisplay="auto"
             getAriaValueText={(value) => value.toString()}
             min={minBound}

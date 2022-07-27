@@ -58,7 +58,7 @@ export function useConceptSet() {
   return conceptSet;
 }
 
-export function useUrl() {
+export function useUndoRedoUrls() {
   const undoUrlPath = useAppSelector((state) => state.present.url);
   const redoUrlPath = useAppSelector((state) =>
     state.future.length > 0 ? state.future[0].url : ""
