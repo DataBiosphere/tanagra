@@ -80,16 +80,16 @@ export default function App() {
               throw new Error(`No entities in underlay ${name}`);
             }
 
-            const criteriaConfigs = res.underlays?.[i]?.criteriaConfigs;
-            if (!criteriaConfigs) {
-              throw new Error(`No criteria configs in underlay ${name}`);
+            const uiConfiguration = res.underlays?.[i]?.uiConfiguration;
+            if (!uiConfiguration) {
+              throw new Error(`No UI configuration in underlay ${name}`);
             }
 
             return {
               name,
               primaryEntity: "person",
               entities: entitiesRes.entities,
-              criteriaConfigs: JSON.parse(criteriaConfigs),
+              uiConfiguration: JSON.parse(uiConfiguration),
               prepackagedConceptSets,
             };
           })

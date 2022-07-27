@@ -101,7 +101,7 @@ function AddCriteriaButton(props: {
   const history = useHistory();
   const dispatch = useAppDispatch();
 
-  const configs = underlay.criteriaConfigs;
+  const configs = underlay.uiConfiguration.criteriaConfigs;
 
   const onAddCriteria = (criteria: tanagra.Criteria) => {
     let groupId = "";
@@ -339,7 +339,7 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
           "race_concept_id",
           "year_of_birth",
         ],
-        filter: generateQueryFilter(cohort, "p"),
+        filter: generateQueryFilter(underlay, cohort, "p"),
       },
     };
 
@@ -434,7 +434,7 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
         }
       ),
     };
-  }, [cohort]);
+  }, [underlay, cohort]);
 
   const demographicState = useAsyncWithApi(fetchDemographicData);
 

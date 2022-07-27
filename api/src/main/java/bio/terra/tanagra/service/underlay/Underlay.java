@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public abstract class Underlay {
   public abstract String name();
   /** JSON string for criteria configs */
-  public abstract String criteriaConfigs();
+  public abstract String uiConfiguration();
   /** Map from entity names to entities. */
   public abstract ImmutableMap<String, Entity> entities();
   /** Table of entity and attribute names to attributes. */
@@ -107,7 +107,7 @@ public abstract class Underlay {
 
     public abstract Builder name(String name);
 
-    public abstract Builder criteriaConfigs(String criteriaConfigs);
+    public abstract Builder uiConfiguration(String uiConfiguration);
 
     public abstract Builder entities(Map<String, Entity> entities);
 

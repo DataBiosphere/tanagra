@@ -44,7 +44,7 @@ message Underlay {
   repeated EntityFiltersSchema entity_filters_schemas = 8;
   // The entity indexing in the underlay.
   repeated EntityIndexing entity_indexing = 11;
-  
-  // The concepts and attributes in an underlay.
-  string criteria_configs = 12;
+
+  // The underlay specific UI configuration.
+  string ui_configuration = 12;
 }

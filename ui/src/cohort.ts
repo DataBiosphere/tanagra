@@ -7,11 +7,12 @@ export function generateId(): string {
 }
 
 export function generateQueryFilter(
+  underlay: Underlay,
   cohort: tanagra.Cohort,
   entityVar: string
 ): tanagra.Filter | null {
   const operands = cohort.groups
-    .map((group) => generateFilter(group, entityVar))
+    .map((group) => generateFilter(underlay, group, entityVar))
     .filter((filter) => filter) as Array<tanagra.Filter>;
   if (operands.length === 0) {
     return null;
@@ -26,12 +27,13 @@ export function generateQueryFilter(
 }
 
 function generateFilter(
+  underlay: Underlay,
   group: tanagra.Group,
   entityVar: string
 ): tanagra.Filter | null {
   const operands = group.criteria
     .map((criteria) =>
-      getCriteriaPlugin(criteria).generateFilter(entityVar, false)
+      getCriteriaPlugin(criteria).generateFilter(underlay, entityVar, false)
     )
     .filter((filter) => filter) as Array<tanagra.Filter>;
   if (operands.length === 0) {
@@ -63,10 +65,11 @@ export interface CriteriaPlugin<DataType> {
   renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
   renderDetails: () => JSX.Element;
   generateFilter: (
+    underlay: Underlay,
     entityVar: string,
     fromOccurrence: boolean
   ) => tanagra.Filter | null;
-  occurrenceEntities: () => string[];
+  occurrenceEntities: (underlay: Underlay) => string[];
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
