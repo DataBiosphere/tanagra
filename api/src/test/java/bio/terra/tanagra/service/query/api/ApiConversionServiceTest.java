@@ -227,7 +227,7 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
             IllegalArgumentException.class,
             () ->
                 apiConversionService.convertEntityDataset(
-                        NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
+                    NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
     assertThat(
         illegalLimitEntityDataset.getMessage(), Matchers.containsString("The provided limit"));
   }

@@ -129,7 +129,7 @@ export function Datasets() {
   };
 
   const [menu, showInsertConceptSet] = useMenu({
-    children: underlay.criteriaConfigs.map((config) => (
+    children: underlay.uiConfiguration.criteriaConfigs.map((config) => (
       <MenuItem
         key={config.title}
         onClick={() => {
@@ -353,12 +353,12 @@ function useConceptSetEntities(
   );
   workspaceConceptSets.forEach((conceptSet) => {
     const plugin = getCriteriaPlugin(conceptSet.criteria);
-    if (plugin.occurrenceEntities().length != 1) {
+    if (plugin.occurrenceEntities(underlay).length != 1) {
       throw new Error("Only one entity per concept set is supported.");
     }
 
-    const entity = plugin.occurrenceEntities()[0];
-    addFilter(entity, plugin.generateFilter(entity, true));
+    const entity = plugin.occurrenceEntities(underlay)[0];
+    addFilter(entity, plugin.generateFilter(underlay, entity, true));
   });
 
   return Array.from(entities)
@@ -402,7 +402,7 @@ function Preview(props: PreviewProps) {
             arrayFilter: {
               operands: cohorts
                 .map((cohort) =>
-                  generateQueryFilter(cohort, underlay.primaryEntity)
+                  generateQueryFilter(underlay, cohort, underlay.primaryEntity)
                 )
                 .filter((filter): filter is tanagra.Filter => !!filter),
               operator: tanagra.ArrayFilterOperator.Or,

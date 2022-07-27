@@ -70,6 +70,6 @@ public class UnderlaysApiController implements UnderlaysApi {
     return new ApiUnderlay()
         .name(underlay.name())
         .entityNames(entityNames)
-        .criteriaConfigs(underlay.criteriaConfigs());
+        .uiConfiguration(underlay.uiConfiguration());
   }
 }

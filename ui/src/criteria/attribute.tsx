@@ -90,7 +90,7 @@ class _ implements CriteriaPlugin<Data> {
     return <AttributeDetails data={this.data} />;
   }
 
-  generateFilter(entityVar: string) {
+  generateFilter(underlay: Underlay, entityVar: string) {
     if (this.data.dataRanges?.length) {
       return {
         arrayFilter: {

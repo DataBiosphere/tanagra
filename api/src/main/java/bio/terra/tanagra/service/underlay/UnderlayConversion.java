@@ -67,7 +67,7 @@ public final class UnderlayConversion {
 
     return Underlay.builder()
         .name(underlayProto.getName())
-        .criteriaConfigs(underlayProto.getCriteriaConfigs())
+        .uiConfiguration(underlayProto.getUiConfiguration())
         .entities(entities)
         .attributes(attributes)
         .relationships(relationships)
