@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Configuration } from "data/configuration";
 import * as tanagra from "tanagra-api";
 
 export type PrepackagedConceptSet = {
@@ -12,8 +13,13 @@ export type Underlay = {
   name: string;
   primaryEntity: string;
   entities: tanagra.Entity[];
-  criteriaConfigs: CriteriaConfig[];
+  uiConfiguration: UIConfiguration;
   prepackagedConceptSets: PrepackagedConceptSet[];
+};
+
+export type UIConfiguration = {
+  dataConfig: Configuration;
+  criteriaConfigs: CriteriaConfig[];
 };
 
 // CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
