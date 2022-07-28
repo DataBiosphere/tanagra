@@ -6,7 +6,7 @@ import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
 import { loadUserData, RootState } from "rootReducer";
 import * as tanagra from "tanagra-api";
 
-const currentVersion = 2;
+const currentVersion = 3;
 
 export interface StoragePlugin {
   store(data: tanagra.UserData): Promise<void>;

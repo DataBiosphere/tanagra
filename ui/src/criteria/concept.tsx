@@ -15,18 +15,18 @@ import {
   TreeGridItem,
   TreeGridRowData,
 } from "components/treegrid";
-import { DataKey, findByID } from "data/configuration";
+import { DataKey } from "data/configuration";
 import {
   ClassificationNode,
   SearchClassificationResult,
+  Source,
   useSource,
 } from "data/source";
 import { useAsyncWithApi } from "errors";
-import { useUnderlay } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo, useState } from "react";
 import * as tanagra from "tanagra-api";
-import { CriteriaConfig, Underlay } from "underlaysSlice";
+import { CriteriaConfig } from "underlaysSlice";
 import { useImmer } from "use-immer";
 
 type Selection = {
@@ -55,7 +55,7 @@ export interface Data extends Config {
 
 @registerCriteriaPlugin(
   "concept",
-  (underlay: Underlay, config: CriteriaConfig) => ({
+  (source: Source, config: CriteriaConfig) => ({
     ...(config.plugin as Config),
     selected: [],
   })
@@ -80,21 +80,11 @@ class _ implements CriteriaPlugin<Data> {
   // via an occurrence table (e.g. person -> condition_occurrence -> condition).
   // fromOccurrence causes entityVar to be treated as the occurrence instead
   // (e.g. condition_occurrence -> condition).
-  generateFilter(
-    underlay: Underlay,
-    entityVar: string,
-    fromOccurrence: boolean
-  ) {
-    // TODO(tjennison): Package the data config and helper functions into the
-    // source then pass that in instead of the underlay which is only being used
-    // to access the data config.
-    const occurrence = findByID(
+  generateFilter(source: Source, entityVar: string, fromOccurrence: boolean) {
+    const occurrence = source.lookupOccurrence(this.data.occurrence);
+    const classification = source.lookupClassification(
       this.data.occurrence,
-      underlay.uiConfiguration.dataConfig.occurrences
-    );
-    const classification = findByID(
-      this.data.classification,
-      occurrence.classifications
+      this.data.classification
     );
 
     const operands = this.data.selected.map(({ key }) => ({
@@ -146,13 +136,8 @@ class _ implements CriteriaPlugin<Data> {
   // TODO(tjennison): Split filter generation into separate paths for
   // occurrences and primary entities. This will allow occurrence logic to be
   // centralized and remove the limitation of having a single selectable entity.
-  occurrenceEntities(underlay: Underlay) {
-    return [
-      findByID(
-        this.data.occurrence,
-        underlay.uiConfiguration.dataConfig.occurrences
-      ).entity,
-    ];
+  occurrenceEntities(source: Source) {
+    return [source.lookupOccurrence(this.data.occurrence).entity];
   }
 }
 
@@ -170,21 +155,16 @@ type ConceptEditProps = {
 };
 
 function ConceptEdit(props: ConceptEditProps) {
-  const underlay = useUnderlay();
-
-  const occurrence = findByID(
+  const source = useSource();
+  const occurrence = source.lookupOccurrence(props.data.occurrence);
+  const classification = source.lookupClassification(
     props.data.occurrence,
-    underlay.uiConfiguration.dataConfig.occurrences
-  );
-  const classification = findByID(
-    props.data.classification,
-    occurrence.classifications
+    props.data.classification
   );
 
   const [hierarchy, setHierarchy] = useState<DataKey[] | undefined>();
   const [query, setQuery] = useState<string>("");
   const [data, updateData] = useImmer<TreeGridData>({});
-  const source = useSource();
 
   const processEntities = useCallback(
     (
