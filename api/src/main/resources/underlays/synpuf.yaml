@@ -288,7 +288,38 @@ uiConfiguration: >-
       "title":"Year at Birth",
       "defaultName":"Contains Year at Birth Values",
       "plugin":{"attribute":"year_of_birth"}
-    }]
+    }],
+    "demographicChartConfigs": [
+      {
+        "primaryProperties": [
+          { "key": "gender" }
+        ],
+        "secondaryProperties": []
+      },
+      {
+        "primaryProperties": [
+          { "key": "gender" },
+          { "key": "age",
+            "value": [
+              {
+                "min": 18,
+                "max": 44
+              },
+              {
+                "min": 45
+                "max": 64
+              },
+              {
+                "min": 65
+              }
+            ]
+          }
+        ],
+        "secondaryProperties": [
+          { "key": "race" }
+        ]
+      },
+    ]
   }
 relationships:
   - name: person_condition_occurrence

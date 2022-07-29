@@ -528,33 +528,33 @@ uiConfiguration: >-
     }],
     "demographicChartConfigs": [
       {
-        "primaryProperties": {
-          "gender": {
-            "strings": ["Female", "Male", 
-          },
-        },
-        "secondaryProperties": {}
+        "primaryProperties": [
+          { "key": "gender" }
+        ],
+        "secondaryProperties": []  
       },
       {
-        "primaryProperties": {
-          "gender": {},
-          "age": {
-            "ranges": [{
-              "min": 18,
-              "max": 44
-            },
-            {
-              "min": 45
-              "max": 64
-            },
-            {
-              "min": 65
-            }]
+        "primaryProperties": [
+          { "key": "gender" },
+          { "key": "age",
+            "value": [
+              {
+                "min": 18,
+                "max": 44
+              },
+              {
+                "min": 45
+                "max": 64
+              },
+              {
+                "min": 65
+              }
+            ]
           }
-        },
-        "secondaryProperties": {
-          "race": {}
-        }
+        ],
+        "secondaryProperties": [
+          { "key": "race" }
+        ]
       },
     ]
   }
