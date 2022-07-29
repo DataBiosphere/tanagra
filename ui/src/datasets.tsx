@@ -19,6 +19,7 @@ import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData, TreeGridRowData } from "components/treegrid";
 import { insertConceptSet } from "conceptSetsSlice";
+import { useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
 import React, {
@@ -43,6 +44,7 @@ export function Datasets() {
   const history = useHistory();
 
   const underlay = useUnderlay();
+  const source = useSource();
 
   const [selectedCohorts, updateSelectedCohorts] = useImmer(new Set<string>());
   const [selectedConceptSets, updateSelectedConceptSets] = useImmer(
@@ -133,7 +135,7 @@ export function Datasets() {
       <MenuItem
         key={config.title}
         onClick={() => {
-          onInsertConceptSet(createCriteria(underlay, config));
+          onInsertConceptSet(createCriteria(source, config));
         }}
       >
         {config.title}
@@ -331,6 +333,7 @@ function useConceptSetEntities(
   selectedConceptSets: Set<string>
 ): ConceptSetEntity[] {
   const underlay = useUnderlay();
+  const source = useSource();
 
   const entities = new Map<string, tanagra.Filter[]>();
   const addFilter = (entity: string, filter?: tanagra.Filter | null) => {
@@ -353,12 +356,12 @@ function useConceptSetEntities(
   );
   workspaceConceptSets.forEach((conceptSet) => {
     const plugin = getCriteriaPlugin(conceptSet.criteria);
-    if (plugin.occurrenceEntities(underlay).length != 1) {
+    if (plugin.occurrenceEntities(source).length != 1) {
       throw new Error("Only one entity per concept set is supported.");
     }
 
-    const entity = plugin.occurrenceEntities(underlay)[0];
-    addFilter(entity, plugin.generateFilter(underlay, entity, true));
+    const entity = plugin.occurrenceEntities(source)[0];
+    addFilter(entity, plugin.generateFilter(source, entity, true));
   });
 
   return Array.from(entities)
@@ -384,6 +387,7 @@ type PreviewProps = {
 
 function Preview(props: PreviewProps) {
   const underlay = useUnderlay();
+  const source = useSource();
   const cohorts = useAppSelector((state) =>
     state.present.cohorts.filter((cohort) =>
       props.selectedCohorts.has(cohort.id)
@@ -402,7 +406,7 @@ function Preview(props: PreviewProps) {
             arrayFilter: {
               operands: cohorts
                 .map((cohort) =>
-                  generateQueryFilter(underlay, cohort, underlay.primaryEntity)
+                  generateQueryFilter(source, cohort, underlay.primaryEntity)
                 )
                 .filter((filter): filter is tanagra.Filter => !!filter),
               operator: tanagra.ArrayFilterOperator.Or,

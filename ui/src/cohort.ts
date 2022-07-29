@@ -1,18 +1,19 @@
+import { Source } from "data/source";
 import { generate } from "randomstring";
 import * as tanagra from "tanagra-api";
-import { CriteriaConfig, Underlay } from "./underlaysSlice";
+import { CriteriaConfig } from "./underlaysSlice";
 
 export function generateId(): string {
   return generate(8);
 }
 
 export function generateQueryFilter(
-  underlay: Underlay,
+  source: Source,
   cohort: tanagra.Cohort,
   entityVar: string
 ): tanagra.Filter | null {
   const operands = cohort.groups
-    .map((group) => generateFilter(underlay, group, entityVar))
+    .map((group) => generateFilter(source, group, entityVar))
     .filter((filter) => filter) as Array<tanagra.Filter>;
   if (operands.length === 0) {
     return null;
@@ -27,13 +28,13 @@ export function generateQueryFilter(
 }
 
 function generateFilter(
-  underlay: Underlay,
+  source: Source,
   group: tanagra.Group,
   entityVar: string
 ): tanagra.Filter | null {
   const operands = group.criteria
     .map((criteria) =>
-      getCriteriaPlugin(criteria).generateFilter(underlay, entityVar, false)
+      getCriteriaPlugin(criteria).generateFilter(source, entityVar, false)
     )
     .filter((filter) => filter) as Array<tanagra.Filter>;
   if (operands.length === 0) {
@@ -65,18 +66,18 @@ export interface CriteriaPlugin<DataType> {
   renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
   renderDetails: () => JSX.Element;
   generateFilter: (
-    underlay: Underlay,
+    source: Source,
     entityVar: string,
     fromOccurrence: boolean
   ) => tanagra.Filter | null;
-  occurrenceEntities: (underlay: Underlay) => string[];
+  occurrenceEntities: (source: Source) => string[];
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
   type: string,
-  initializeData: (underlay: Underlay, config: CriteriaConfig) => object
+  initializeData: (source: Source, config: CriteriaConfig) => object
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
@@ -87,7 +88,7 @@ export function registerCriteriaPlugin(
 }
 
 export function createCriteria(
-  underlay: Underlay,
+  source: Source,
   config: CriteriaConfig
 ): tanagra.Criteria {
   const entry = getCriteriaEntry(config.type);
@@ -95,7 +96,7 @@ export function createCriteria(
     id: generateId(),
     type: config.type,
     name: config.defaultName,
-    data: entry.initializeData(underlay, config),
+    data: entry.initializeData(source, config),
   };
 }
 
@@ -121,7 +122,7 @@ interface CriteriaPluginConstructor {
 }
 
 type RegistryEntry = {
-  initializeData: (underlay: Underlay, config: CriteriaConfig) => object;
+  initializeData: (source: Source, config: CriteriaConfig) => object;
   constructor: CriteriaPluginConstructor;
 };
 

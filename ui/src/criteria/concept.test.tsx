@@ -4,10 +4,11 @@ import { EntityInstancesApiContext } from "apiContext";
 import { createCriteria } from "cohort";
 import { insertCohort, insertGroup } from "cohortsSlice";
 import "criteria/concept";
+import { BackendSource } from "data/source";
 import { Provider } from "react-redux";
 import { StaticRouter } from "react-router-dom";
 import { AppRouter } from "router";
-import { store } from "store";
+import { createStore } from "store";
 import * as tanagra from "tanagra-api";
 import { setUnderlays } from "underlaysSlice";
 import { Data } from "./concept";
@@ -118,7 +119,19 @@ test("selection", async () => {
   expect(getSelected()).toEqual([101]);
 });
 
-beforeAll(() => {
+async function renderCriteria(
+  instances: Array<{ [key: string]: tanagra.AttributeValue | null }>
+) {
+  const api = {
+    async searchEntityInstances(): Promise<tanagra.SearchEntityInstancesResponse> {
+      return new Promise<tanagra.SearchEntityInstancesResponse>((resolve) => {
+        resolve({
+          instances: instances,
+        });
+      });
+    },
+  } as unknown as tanagra.EntityInstancesApi;
+
   const dataConfig = {
     primaryEntity: {
       entity: "person",
@@ -142,73 +155,53 @@ beforeAll(() => {
     ],
   };
 
-  store.dispatch(
-    setUnderlays([
-      {
-        name: "test-underlay",
-        primaryEntity: "test-entity",
-        entities: [],
-        uiConfiguration: {
-          dataConfig: dataConfig,
-          criteriaConfigs: [],
-        },
-        prepackagedConceptSets: [],
-      },
-    ])
+  const underlay = {
+    name: "test-underlay",
+    primaryEntity: "test-entity",
+    entities: [],
+    uiConfiguration: {
+      dataConfig: dataConfig,
+      criteriaConfigs: [],
+    },
+    prepackagedConceptSets: [],
+  };
+
+  const source = new BackendSource(
+    api,
+    underlay,
+    underlay.uiConfiguration.dataConfig
   );
+
+  const store = createStore();
+
+  store.dispatch(setUnderlays([underlay]));
 
   const action = store.dispatch(insertCohort("test-cohort", "test-underlay"));
   store.dispatch(
     insertGroup(
       action.payload.id,
       tanagra.GroupKindEnum.Included,
-      createCriteria(
-        {
-          name: "test-underlay",
-          primaryEntity: "test-entity",
-          entities: [],
-          uiConfiguration: {
-            dataConfig: dataConfig,
-            criteriaConfigs: [],
-          },
-          prepackagedConceptSets: [],
+      createCriteria(source, {
+        type: "concept",
+        title: "Conditions",
+        defaultName: "Contains Conditions Codes",
+        plugin: {
+          columns: [
+            { key: "concept_name", width: "100%", title: "Concept Name" },
+            { key: "concept_id", width: 120, title: "Concept ID" },
+            { key: "standard_concept", width: 180, title: "Source/Standard" },
+            { key: "vocabulary_id", width: 120, title: "Vocab" },
+            { key: "concept_code", width: 120, title: "Code" },
+          ],
+          occurrence: "condition_occurrence",
+          classification: "condition",
         },
-        {
-          type: "concept",
-          title: "Conditions",
-          defaultName: "Contains Conditions Codes",
-          plugin: {
-            columns: [
-              { key: "concept_name", width: "100%", title: "Concept Name" },
-              { key: "concept_id", width: 120, title: "Concept ID" },
-              { key: "standard_concept", width: 180, title: "Source/Standard" },
-              { key: "vocabulary_id", width: 120, title: "Vocab" },
-              { key: "concept_code", width: 120, title: "Code" },
-            ],
-            occurrence: "condition_occurrence",
-            classification: "condition",
-          },
-        }
-      )
+      })
     )
   );
-});
 
-async function renderCriteria(
-  instances: Array<{ [key: string]: tanagra.AttributeValue | null }>
-) {
-  const getCriteria = () => store.getState().present.cohorts[0].groups[0].criteria[0];
-
-  const api = {
-    async searchEntityInstances(): Promise<tanagra.SearchEntityInstancesResponse> {
-      return new Promise<tanagra.SearchEntityInstancesResponse>((resolve) => {
-        resolve({
-          instances: instances,
-        });
-      });
-    },
-    generateDatasetSqlQuery: jest.fn(),
-  };
+  const getCriteria = () =>
+    store.getState().present.cohorts[0].groups[0].criteria[0];
 
   const cohort = store.getState().present.cohorts[0];
   const group = cohort.groups[0];

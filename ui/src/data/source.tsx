@@ -2,6 +2,7 @@ import { EntityInstancesApiContext } from "apiContext";
 import { useUnderlay } from "hooks";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
+import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 import {
   Classification,
@@ -11,6 +12,7 @@ import {
   DataValue,
   findByID,
   Grouping,
+  Occurrence,
 } from "./configuration";
 
 export type ClassificationNode = {
@@ -29,7 +31,28 @@ export type SearchClassificationResult = {
   nodes: ClassificationNode[];
 };
 
+export type IntegerHint = {
+  min: number;
+  max: number;
+};
+
+export type EnumHintOption = {
+  value: DataValue;
+  name: string;
+};
+
+export type HintData = {
+  integerHint?: IntegerHint;
+  enumHintOptions?: EnumHintOption[];
+};
+
 export interface Source {
+  lookupOccurrence(occurrenceID: string): Occurrence;
+  lookupClassification(
+    occurrenceID: string,
+    classificationID: string
+  ): Classification;
+
   searchClassification(
     requestedAttributes: string[],
     occurrenceID: string,
@@ -43,6 +66,11 @@ export interface Source {
     classificationID: string,
     root: ClassificationNode
   ): Promise<SearchClassificationResult>;
+
+  getHintData(
+    occurrenceID: string,
+    attributeID: string
+  ): Promise<HintData | undefined>;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -54,11 +82,7 @@ export function useSource(): Source {
   ) as tanagra.EntityInstancesApi;
   return useMemo(
     () =>
-      new BackendSource(
-        context,
-        underlay.name,
-        underlay.uiConfiguration.dataConfig
-      ),
+      new BackendSource(context, underlay, underlay.uiConfiguration.dataConfig),
     [underlay]
   );
 }
@@ -66,9 +90,23 @@ export function useSource(): Source {
 export class BackendSource implements Source {
   constructor(
     private entityInstancesApi: tanagra.EntityInstancesApi,
-    private underlay: string,
+    private underlay: Underlay,
     private config: Configuration
   ) {}
+
+  lookupOccurrence(occurrenceID: string): Occurrence {
+    return findByID(occurrenceID, this.config.occurrences);
+  }
+
+  lookupClassification(
+    occurrenceID: string,
+    classificationID: string
+  ): Classification {
+    return findByID(
+      classificationID,
+      this.lookupOccurrence(occurrenceID).classifications
+    );
+  }
 
   searchClassification(
     requestedAttributes: string[],
@@ -95,7 +133,7 @@ export class BackendSource implements Source {
       this.entityInstancesApi.searchEntityInstances(
         searchRequest(
           ra,
-          this.underlay,
+          this.underlay.name,
           classification,
           undefined,
           query,
@@ -106,7 +144,7 @@ export class BackendSource implements Source {
         this.entityInstancesApi.searchEntityInstances(
           searchRequest(
             ra,
-            this.underlay,
+            this.underlay.name,
             classification,
             grouping,
             query,
@@ -149,7 +187,7 @@ export class BackendSource implements Source {
     return this.entityInstancesApi
       .searchEntityInstances({
         entityName: classification.entity,
-        underlayName: this.underlay,
+        underlayName: this.underlay.name,
         searchEntityInstancesRequest: {
           entityDataset: {
             entityVariable: classification.entity,
@@ -178,6 +216,38 @@ export class BackendSource implements Source {
         nodes: processEntitiesResponse(classification.entityAttribute, res),
       }));
   }
+
+  getHintData(
+    occurrenceID: string,
+    attributeID: string
+  ): Promise<HintData | undefined> {
+    return new Promise((resolve) => {
+      if (occurrenceID) {
+        resolve(undefined);
+      }
+
+      const attributeHint = this.underlay.entities
+        .find((e) => e.name === this.config.primaryEntity.entity)
+        ?.attributes?.find(
+          (attribute) => attribute.name === attributeID
+        )?.attributeFilterHint;
+
+      resolve({
+        integerHint: attributeHint?.integerBoundsHint
+          ? {
+              min: attributeHint?.integerBoundsHint.min ?? 0,
+              max: attributeHint?.integerBoundsHint.max ?? 10000,
+            }
+          : undefined,
+        enumHintOptions: attributeHint?.enumHint?.enumHintValues?.map(
+          (hint) => ({
+            value: dataValueFromAttributeValue(hint.attributeValue),
+            name: hint.displayName ?? "Unknown Value",
+          })
+        ),
+      });
+    });
+  }
 }
 
 function makePathAttribute(attribute: string) {
@@ -188,22 +258,22 @@ function makeNumChildrenAttribute(attribute: string) {
   return "t_numChildren_" + attribute;
 }
 
-function attributeValueFromDataValue(value: DataValue): tanagra.AttributeValue {
-  switch (typeof value) {
-    case "string":
-      return {
-        stringVal: value,
-      };
-    case "number":
-      return {
-        int64Val: value,
-      };
-    case "boolean":
-      return {
-        boolVal: value,
-      };
-  }
-  throw new Error(`Unknown data value type ${typeof value}.`);
+// TODO(tjennison): Remove external uses of this function since they're not
+// actually generic.
+export function attributeValueFromDataValue(
+  value: DataValue
+): tanagra.AttributeValue {
+  return {
+    int64Val: typeof value === "number" ? value : undefined,
+    stringVal: typeof value === "string" ? value : undefined,
+    boolVal: typeof value === "boolean" ? value : undefined,
+  };
+}
+
+function dataValueFromAttributeValue(
+  value?: tanagra.AttributeValue | null
+): DataValue {
+  return value?.int64Val ?? value?.stringVal ?? value?.boolVal ?? -1;
 }
 
 function searchRequest(
