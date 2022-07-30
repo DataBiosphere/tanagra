@@ -15,7 +15,7 @@ public class InvalidEntityMappingTest {
 
   @BeforeAll
   static void readDataPointers() {
-    Underlay underlay = Underlay.fromJSON("config/underlay/AouSynthetic.json");
+    Underlay underlay = Underlay.fromJSON("config/underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
   }
 

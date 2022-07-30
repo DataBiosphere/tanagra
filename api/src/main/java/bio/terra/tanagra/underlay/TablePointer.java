@@ -37,4 +37,8 @@ public class TablePointer {
   public DataPointer getDataPointer() {
     return dataPointer;
   }
+
+  public String getSQL() {
+    return dataPointer.getTableSQL(tableName);
+  }
 }

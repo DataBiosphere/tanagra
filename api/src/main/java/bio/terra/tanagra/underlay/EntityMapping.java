@@ -66,4 +66,12 @@ public class EntityMapping {
 
     return new EntityMapping(tablePointer, attributeMappings, textSearchMapping);
   }
+
+  public TablePointer getTablePointer() {
+    return tablePointer;
+  }
+
+  public String selectAllQuery() {
+    return "select all attributes from " + tablePointer.getSQL();
+  }
 }

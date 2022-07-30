@@ -2,6 +2,9 @@ package bio.terra.tanagra.underlay.datapointer;
 
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.underlay.DataPointer;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import org.apache.commons.text.StringSubstitutor;
 
 public class BigQueryDataset extends DataPointer {
   private String projectId;
@@ -21,5 +24,16 @@ public class BigQueryDataset extends DataPointer {
       throw new IllegalArgumentException("No BigQuery dataset ID defined");
     }
     return new BigQueryDataset(serialized.name, serialized.projectId, serialized.datasetId);
+  }
+
+  public String getTableSQL(String tableName) {
+    String template = "`${projectId}.${datasetId}`.${tableName}";
+    Map<String, String> params =
+        ImmutableMap.<String, String>builder()
+            .put("projectId", projectId)
+            .put("datasetId", datasetId)
+            .put("tableName", tableName)
+            .build();
+    return StringSubstitutor.replace(template, params);
   }
 }

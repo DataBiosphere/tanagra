@@ -1,24 +1,30 @@
 package bio.terra.tanagra.indexing;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class WorkflowCommand {
+  private static String BASH_COMMENT_PREFIX = "// ";
 
-  /** The different Apache Beam workflows supported by Tanagra. */
-  public enum Type {
-    ALL_ATTRIBUTES,
-    TEXT_SEARCH, // for entity definintion
-    PARENT_CHILD,
-    ANCESTOR_DESCENDANT,
-    NODE_PATH, // for entity hierarchy
-    STATIC_COUNT; // for CriteriaOccurrence entity group
+  private String command;
+  private String description;
+  private Map<String, String> queryInputs; // name -> query string
+
+  protected WorkflowCommand(String command, String description, Map<String, String> queryInputs) {
+    this.command = command;
+    this.description = description;
+    this.queryInputs = queryInputs;
   }
 
-  private Type type;
-  private Map<String, String> descToInputStr;
+  public String getCommand() {
+    return command;
+  }
 
-  public WorkflowCommand(Type type, Map<String, String> descToInputStr) {
-    this.type = type;
-    this.descToInputStr = descToInputStr;
+  public String getComment() {
+    return BASH_COMMENT_PREFIX + description;
+  }
+
+  public Map<String, String> getQueryInputs() {
+    return Collections.unmodifiableMap(queryInputs);
   }
 }

@@ -1,10 +1,13 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Underlay {
@@ -40,14 +43,7 @@ public class Underlay {
       throw new IllegalArgumentException("No DataPointer defined");
     }
     Map<String, DataPointer> dataPointers = new HashMap<>();
-    serialized.dataPointers.forEach(
-        dps -> {
-          System.out.println("DataPointer name: " + dps.name);
-        });
-    serialized.dataPointers.forEach(
-        dps -> {
-          dataPointers.put(dps.name, dps.deserializeToInternal());
-        });
+    serialized.dataPointers.forEach(dps -> dataPointers.put(dps.name, dps.deserializeToInternal()));
 
     // read in entities
     if (serialized.entities == null || serialized.entities.size() == 0) {
@@ -69,8 +65,12 @@ public class Underlay {
     return new Underlay(serialized.name, dataPointers, entities, serialized.primaryEntity);
   }
 
-  public Entity getPrimaryEntity() {
-    return entities.get(primaryEntityName);
+  public List<WorkflowCommand> getIndexingCommands() {
+    List<WorkflowCommand> cmds = new ArrayList<>();
+    for (Entity entity : entities.values()) {
+      cmds.addAll(entity.getIndexingCommands());
+    }
+    return cmds;
   }
 
   public Map<String, DataPointer> getDataPointers() {

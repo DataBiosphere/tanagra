@@ -1,5 +1,5 @@
 {
-  "name": "aou_synthetic",
+  "name": "omop",
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",

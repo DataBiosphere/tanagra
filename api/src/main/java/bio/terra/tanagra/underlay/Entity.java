@@ -1,9 +1,12 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.indexing.WorkflowCommand;
+import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Entity {
@@ -67,7 +70,23 @@ public class Entity {
         serialized.name, serialized.idAttribute, attributes, sourceDataMapping, indexDataMapping);
   }
 
+  public List<WorkflowCommand> getIndexingCommands() {
+    return List.of(DenormalizeAllNodes.forEntity(this));
+  }
+
   public String getName() {
     return name;
+  }
+
+  public Attribute getIdAttribute() {
+    return attributes.get(idAttributeName);
+  }
+
+  public EntityMapping getSourceDataMapping() {
+    return sourceDataMapping;
+  }
+
+  public EntityMapping getIndexDataMapping() {
+    return indexDataMapping;
   }
 }

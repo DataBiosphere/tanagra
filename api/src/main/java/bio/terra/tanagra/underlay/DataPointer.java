@@ -16,4 +16,6 @@ public abstract class DataPointer {
   public String getName() {
     return name;
   }
+
+  public abstract String getTableSQL(String tableName);
 }

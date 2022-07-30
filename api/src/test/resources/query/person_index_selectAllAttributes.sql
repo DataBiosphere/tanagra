@@ -1,0 +1,1 @@
+select all attributes from `verily-tanagra-dev.aou_synthetic_index`.person
