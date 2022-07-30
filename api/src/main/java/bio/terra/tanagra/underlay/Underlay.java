@@ -40,7 +40,14 @@ public class Underlay {
       throw new IllegalArgumentException("No DataPointer defined");
     }
     Map<String, DataPointer> dataPointers = new HashMap<>();
-    serialized.dataPointers.forEach(dps -> dataPointers.put(dps.name, dps.deserializeToInternal()));
+    serialized.dataPointers.forEach(
+        dps -> {
+          System.out.println("DataPointer name: " + dps.name);
+        });
+    serialized.dataPointers.forEach(
+        dps -> {
+          dataPointers.put(dps.name, dps.deserializeToInternal());
+        });
 
     // read in entities
     if (serialized.entities == null || serialized.entities.size() == 0) {

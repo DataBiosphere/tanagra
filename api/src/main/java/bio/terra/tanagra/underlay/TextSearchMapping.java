@@ -7,23 +7,23 @@ import java.util.stream.Collectors;
 
 public class TextSearchMapping {
   private List<Attribute> attributes;
-  private FieldPointer searchStringField;
+  private FieldPointer searchString;
 
   private TextSearchMapping(List<Attribute> attributes) {
     this.attributes = attributes;
   }
 
-  private TextSearchMapping(FieldPointer searchStringField) {
-    this.searchStringField = searchStringField;
+  private TextSearchMapping(FieldPointer searchString) {
+    this.searchString = searchString;
   }
 
   public static TextSearchMapping fromSerialized(
       UFTextSearchMapping serialized,
       TablePointer tablePointer,
       Map<String, Attribute> entityAttributes) {
-    if (serialized.attributes != null && serialized.searchStringField != null) {
+    if (serialized.attributes != null && serialized.searchString != null) {
       throw new IllegalArgumentException(
-          "Text search mapping can be defined by either attributes or a search string field, not both");
+          "Text search mapping can be defined by either attributes or a search string, not both");
     }
 
     if (serialized.attributes != null) {
@@ -37,9 +37,9 @@ public class TextSearchMapping {
       return new TextSearchMapping(attributesForTextSearch);
     }
 
-    if (serialized.searchStringField != null) {
+    if (serialized.searchString != null) {
       FieldPointer searchStringField =
-          FieldPointer.fromSerialized(serialized.searchStringField, tablePointer);
+          FieldPointer.fromSerialized(serialized.searchString, tablePointer);
       return new TextSearchMapping(searchStringField);
     }
 

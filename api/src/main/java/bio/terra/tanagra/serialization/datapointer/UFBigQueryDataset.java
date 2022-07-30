@@ -1,7 +1,6 @@
 package bio.terra.tanagra.serialization.datapointer;
 
 import bio.terra.tanagra.serialization.UFDataPointer;
-import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -48,7 +47,7 @@ public class UFBigQueryDataset extends UFDataPointer {
   }
 
   /** Deserialize to the internal representation of the data pointer. */
-  public DataPointer deserializeToInternal() {
+  public BigQueryDataset deserializeToInternal() {
     return BigQueryDataset.fromSerialized(this);
   }
 }

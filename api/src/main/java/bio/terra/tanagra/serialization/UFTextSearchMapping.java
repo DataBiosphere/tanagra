@@ -13,26 +13,26 @@ import java.util.List;
 @JsonDeserialize(builder = UFTextSearchMapping.Builder.class)
 public class UFTextSearchMapping {
   public final List<String> attributes;
-  public final UFFieldPointer searchStringField;
+  public final UFFieldPointer searchString;
 
   /** Constructor for Jackson deserialization during testing. */
   private UFTextSearchMapping(Builder builder) {
     this.attributes = builder.attributes;
-    this.searchStringField = builder.searchStringField;
+    this.searchString = builder.searchString;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private List<String> attributes;
-    private UFFieldPointer searchStringField;
+    private UFFieldPointer searchString;
 
     public Builder attributes(List<String> attributes) {
       this.attributes = attributes;
       return this;
     }
 
-    public Builder searchStringField(UFFieldPointer searchStringField) {
-      this.searchStringField = searchStringField;
+    public Builder searchString(UFFieldPointer searchString) {
+      this.searchString = searchString;
       return this;
     }
 

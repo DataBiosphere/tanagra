@@ -49,9 +49,12 @@ public class EntityMapping {
       attributeMappings.put(attribute.getName(), attributeMapping);
     }
     serializedAttributeMappings.keySet().stream()
-            .forEach(serializedAttributeName -> {
+        .forEach(
+            serializedAttributeName -> {
               if (!attributes.containsKey(serializedAttributeName)) {
-                throw new IllegalArgumentException("A mapping is defined for a non-existent attribute: " + serializedAttributeName);
+                throw new IllegalArgumentException(
+                    "A mapping is defined for a non-existent attribute: "
+                        + serializedAttributeName);
               }
             });
 

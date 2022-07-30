@@ -6,7 +6,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class DeserializeUnderlayTest {
+public class InvalidUnderlayTest {
   @Test
   void invalidFilePath() {
     RuntimeException ex =

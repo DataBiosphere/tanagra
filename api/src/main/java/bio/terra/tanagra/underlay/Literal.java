@@ -32,7 +32,7 @@ public class Literal {
   }
 
   public static Literal fromSerialized(UFLiteral serialized) {
-    boolean stringValDefined = Strings.isNullOrEmpty(serialized.stringVal);
+    boolean stringValDefined = !Strings.isNullOrEmpty(serialized.stringVal);
     boolean int64ValDefined = serialized.int64Val != null;
     boolean booleanValDefined = serialized.booleanVal != null;
 

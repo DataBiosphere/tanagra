@@ -4,6 +4,10 @@
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "aou_synthetic" } ],
+      "datasetId": "aou_synthetic" },
+    { "type": "BQ_DATASET",
+      "name": "index_dataset",
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "aou_synthetic_index" } ],
   "entities": [ "config/entity/Person.json" ]
 }
