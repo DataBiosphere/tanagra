@@ -73,6 +73,10 @@ public class Underlay {
     return cmds;
   }
 
+  public String getName() {
+    return name;
+  }
+
   public Map<String, DataPointer> getDataPointers() {
     return Collections.unmodifiableMap(dataPointers);
   }

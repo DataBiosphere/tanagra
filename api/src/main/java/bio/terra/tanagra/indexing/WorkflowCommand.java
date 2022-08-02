@@ -1,14 +1,19 @@
 package bio.terra.tanagra.indexing;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class WorkflowCommand {
-  private static String BASH_COMMENT_PREFIX = "// ";
+  private static String BASH_COMMENT_PREFIX = "# ";
 
   private String command;
   private String description;
-  private Map<String, String> queryInputs; // name -> query string
+  private Map<String, String> queryInputs; // filename -> query string
 
   protected WorkflowCommand(String command, String description, Map<String, String> queryInputs) {
     this.command = command;
@@ -26,5 +31,14 @@ public class WorkflowCommand {
 
   public Map<String, String> getQueryInputs() {
     return Collections.unmodifiableMap(queryInputs);
+  }
+
+  public void writeInputsToDisk(Path outputDir) throws IOException {
+    for (Map.Entry<String, String> fileNameToContents : queryInputs.entrySet()) {
+      Files.write(
+          outputDir.resolve(fileNameToContents.getKey()),
+          List.of(fileNameToContents.getValue()),
+          StandardCharsets.UTF_8);
+    }
   }
 }

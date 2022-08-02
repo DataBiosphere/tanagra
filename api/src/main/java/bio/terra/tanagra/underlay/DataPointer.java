@@ -18,4 +18,6 @@ public abstract class DataPointer {
   }
 
   public abstract String getTableSQL(String tableName);
+
+  public abstract String getTablePathForIndexing(String tableName);
 }

@@ -53,4 +53,8 @@ public class TablePointer {
   public String getSQL() {
     return dataPointer.getTableSQL(tableName);
   }
+
+  public String getPathForIndexing() {
+    return dataPointer.getTablePathForIndexing(tableName);
+  }
 }

@@ -13,19 +13,23 @@ public class DenormalizeAllNodes extends WorkflowCommand {
   }
 
   public static DenormalizeAllNodes forEntity(Entity entity) {
+    String sqlFileSelectAll = entity.getName() + "_selectAll.sql";
+    Map<String, String> queryInputs =
+        Map.of(sqlFileSelectAll, entity.getSourceDataMapping().selectAllQuery());
+
     String template =
-        "WriteAllNodes bash command needs: ${indexMapping_TablePointer}, ${entity_name}";
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.WriteAllNodes "
+            + "-Dexec.args=\"--outputBigQueryTable=${outputTable} "
+            + "--allNodesQuery=${sqlFile_selectAll} "
+            + "--runner=dataflow --project=broad-tanagra-dev --region=us-central1 "
+            + "--serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
-            .put("entity_name", entity.getName())
-            .put(
-                "indexMapping_TablePointer",
-                entity.getIndexDataMapping().getTablePointer().getSQL())
+            .put("outputTable", entity.getIndexDataMapping().getTablePointer().getPathForIndexing())
+            .put("sqlFile_selectAll", sqlFileSelectAll)
             .build();
     String command = StringSubstitutor.replace(template, params);
-    String description = entity.getName() + ": " + DenormalizeAllNodes.class.getName();
-    Map<String, String> queryInputs =
-        Map.of("selectAllAttributes", entity.getSourceDataMapping().selectAllQuery());
+    String description = entity.getName() + ": DenormalizeAllNodes";
 
     return new DenormalizeAllNodes(command, description, queryInputs);
   }
