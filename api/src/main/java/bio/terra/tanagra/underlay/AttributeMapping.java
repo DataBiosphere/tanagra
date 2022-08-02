@@ -1,6 +1,9 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
+import java.util.List;
 import javax.annotation.Nullable;
 
 public class AttributeMapping {
@@ -44,5 +47,22 @@ public class AttributeMapping {
       default:
         throw new IllegalArgumentException("Attribute type is not defined");
     }
+  }
+
+  public List<FieldVariable> buildFieldVariables(
+      TableVariable primaryTable, List<TableVariable> tableVariables, String attributeName) {
+    FieldVariable valueVariable = value.buildVariable(primaryTable, tableVariables, attributeName);
+    if (!hasDisplay()) {
+      return List.of(valueVariable);
+    }
+
+    FieldVariable displayVariable =
+        display.buildVariable(
+            primaryTable, tableVariables, DEFAULT_DISPLAY_MAPPING_PREFIX + attributeName);
+    return List.of(valueVariable, displayVariable);
+  }
+
+  public boolean hasDisplay() {
+    return display != null;
   }
 }

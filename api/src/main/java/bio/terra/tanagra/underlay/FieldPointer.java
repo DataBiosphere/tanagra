@@ -1,7 +1,10 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFFieldPointer;
 import com.google.common.base.Strings;
+import java.util.List;
 
 public class FieldPointer {
   private TablePointer tablePointer;
@@ -38,9 +41,9 @@ public class FieldPointer {
   }
 
   public static FieldPointer fromSerialized(UFFieldPointer serialized, TablePointer tablePointer) {
-    boolean foreignTableDefined = Strings.isNullOrEmpty(serialized.foreignTable);
-    boolean foreignKeyColumnDefined = Strings.isNullOrEmpty(serialized.foreignKey);
-    boolean foreignColumnDefined = Strings.isNullOrEmpty(serialized.foreignColumn);
+    boolean foreignTableDefined = !Strings.isNullOrEmpty(serialized.foreignTable);
+    boolean foreignKeyColumnDefined = !Strings.isNullOrEmpty(serialized.foreignKey);
+    boolean foreignColumnDefined = !Strings.isNullOrEmpty(serialized.foreignColumn);
     boolean allForeignKeyFieldsDefined =
         foreignTableDefined && foreignKeyColumnDefined && foreignColumnDefined;
     boolean noForeignKeyFieldsDefined =
@@ -62,5 +65,36 @@ public class FieldPointer {
     } else {
       throw new IllegalArgumentException("Only some foreign key fields are defined");
     }
+  }
+
+  public FieldVariable buildVariable(
+      TableVariable primaryTable, List<TableVariable> tableVariables, String alias) {
+    if (isForeignKey()) {
+      FieldVariable primaryTableColumn =
+          new FieldVariable(new FieldPointer(tablePointer, columnName), primaryTable);
+      TableVariable foreignTable =
+          TableVariable.forJoined(foreignTablePointer, foreignKeyColumnName, primaryTableColumn);
+      tableVariables.add(foreignTable);
+      return new FieldVariable(
+          new FieldPointer(foreignTablePointer, foreignColumnName), foreignTable, alias);
+    } else {
+      return new FieldVariable(this, primaryTable, alias);
+    }
+  }
+
+  public boolean isForeignKey() {
+    return foreignTablePointer != null;
+  }
+
+  public String getColumnName() {
+    return columnName;
+  }
+
+  public boolean hasSqlFunctionWrapper() {
+    return sqlFunctionWrapper != null;
+  }
+
+  public String getSqlFunctionWrapper() {
+    return sqlFunctionWrapper;
   }
 }

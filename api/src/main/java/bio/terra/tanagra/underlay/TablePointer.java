@@ -38,6 +38,10 @@ public class TablePointer {
     return dataPointer;
   }
 
+  public String getTableName() {
+    return tableName;
+  }
+
   public String getSQL() {
     return dataPointer.getTableSQL(tableName);
   }

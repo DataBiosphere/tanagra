@@ -1,8 +1,13 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
 import bio.terra.tanagra.serialization.UFEntityMapping;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EntityMapping {
@@ -72,6 +77,17 @@ public class EntityMapping {
   }
 
   public String selectAllQuery() {
-    return "select all attributes from " + tablePointer.getSQL();
+    List<TableVariable> tables = new ArrayList<>();
+    TableVariable primaryTable = TableVariable.forPrimary(tablePointer);
+    tables.add(primaryTable);
+
+    List<FieldVariable> select = new ArrayList<>();
+    for (Map.Entry<String, AttributeMapping> attributeToMapping : attributeMappings.entrySet()) {
+      String attributeName = attributeToMapping.getKey();
+      select.addAll(
+          attributeToMapping.getValue().buildFieldVariables(primaryTable, tables, attributeName));
+    }
+
+    return new Query(select, tables, null, null, null).renderSQL();
   }
 }
