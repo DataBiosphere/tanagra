@@ -1,5 +1,7 @@
 package bio.terra.tanagra.underlay.tablefilter;
 
+import bio.terra.tanagra.query.ArrayFilterVariable;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.tablefilter.UFArrayFilter;
 import bio.terra.tanagra.underlay.TableFilter;
 import bio.terra.tanagra.underlay.TablePointer;
@@ -28,5 +30,14 @@ public class ArrayFilter extends TableFilter {
             .map(sf -> sf.deserializeToInternal(tablePointer))
             .collect(Collectors.toList());
     return new ArrayFilter(serialized.operator, subFilters);
+  }
+
+  @Override
+  public ArrayFilterVariable buildVariable(TableVariable primaryTable, List<TableVariable> tables) {
+    return new ArrayFilterVariable(
+        operator,
+        subfilters.stream()
+            .map(sf -> sf.buildVariable(primaryTable, tables))
+            .collect(Collectors.toList()));
   }
 }

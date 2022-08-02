@@ -1,10 +1,13 @@
 package bio.terra.tanagra.underlay.tablefilter;
 
+import bio.terra.tanagra.query.BinaryFilterVariable;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.tablefilter.UFBinaryFilter;
 import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.underlay.TableFilter;
 import bio.terra.tanagra.underlay.TablePointer;
+import java.util.List;
 
 public class BinaryFilter extends TableFilter {
   private FieldPointer field;
@@ -28,5 +31,11 @@ public class BinaryFilter extends TableFilter {
     Literal literal = Literal.fromSerialized(serialized.value);
 
     return new BinaryFilter(fieldPointer, serialized.operator, literal);
+  }
+
+  @Override
+  public BinaryFilterVariable buildVariable(
+      TableVariable primaryTable, List<TableVariable> tables) {
+    return new BinaryFilterVariable(field.buildVariable(primaryTable, tables), operator, value);
   }
 }

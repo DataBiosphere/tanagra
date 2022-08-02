@@ -42,6 +42,14 @@ public class TablePointer {
     return tableName;
   }
 
+  public boolean hasTableFilter() {
+    return tableFilter != null;
+  }
+
+  public TableFilter getTableFilter() {
+    return tableFilter;
+  }
+
   public String getSQL() {
     return dataPointer.getTableSQL(tableName);
   }

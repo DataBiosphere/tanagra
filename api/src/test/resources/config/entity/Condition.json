@@ -11,10 +11,17 @@
     "tablePointer": {
       "table": "concept",
       "filter": {
-        "type": "BINARY",
-        "field": { "column": "domain_id" },
-        "operator": "EQUALS",
-        "value": { "stringVal": "Condition" } } },
+          "type": "ARRAY",
+          "operator": "AND",
+          "subfilters": [
+            { "type": "BINARY",
+              "field": { "column": "domain_id" },
+              "operator": "EQUALS",
+              "value": { "stringVal": "Condition" } },
+            { "type": "BINARY",
+              "field": { "column": "valid_end_date" },
+              "operator": "GREATER_THAN",
+              "value": { "stringVal": "2022-01-01" } } ] } },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } },

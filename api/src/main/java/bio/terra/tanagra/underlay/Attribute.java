@@ -25,6 +25,7 @@ public class Attribute {
     if (Strings.isNullOrEmpty(serialized.name)) {
       throw new IllegalArgumentException("Attribute name is undefined");
     }
+    // TODO: populate datatype from BQ
     return new Attribute(serialized.name, serialized.type, serialized.dataType);
   }
 

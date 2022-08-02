@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
@@ -88,6 +89,11 @@ public class EntityMapping {
           attributeToMapping.getValue().buildFieldVariables(primaryTable, tables, attributeName));
     }
 
-    return new Query(select, tables, null, null, null).renderSQL();
+    FilterVariable where =
+        tablePointer.hasTableFilter()
+            ? tablePointer.getTableFilter().buildVariable(primaryTable, tables)
+            : null;
+
+    return new Query(select, tables, where).renderSQL();
   }
 }

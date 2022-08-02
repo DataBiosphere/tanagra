@@ -2,7 +2,10 @@ package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.underlay.TableFilter;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.text.StringSubstitutor;
 
 public class BinaryFilterVariable extends FilterVariable {
   private FieldVariable fieldVariable;
@@ -18,7 +21,14 @@ public class BinaryFilterVariable extends FilterVariable {
 
   @Override
   public String renderSQL() {
-    return "BinaryFilterVariable";
+    String template = "${fieldSQL} ${operator} ${value}";
+    Map<String, String> params =
+        ImmutableMap.<String, String>builder()
+            .put("fieldSQL", fieldVariable.renderSQL())
+            .put("operator", operator.renderSQL())
+            .put("value", value.renderSQL())
+            .build();
+    return StringSubstitutor.replace(template, params);
   }
 
   @Override

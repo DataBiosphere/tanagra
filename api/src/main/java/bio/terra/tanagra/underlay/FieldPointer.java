@@ -68,6 +68,11 @@ public class FieldPointer {
   }
 
   public FieldVariable buildVariable(
+      TableVariable primaryTable, List<TableVariable> tableVariables) {
+    return buildVariable(primaryTable, tableVariables, null);
+  }
+
+  public FieldVariable buildVariable(
       TableVariable primaryTable, List<TableVariable> tableVariables, String alias) {
     if (isForeignKey()) {
       FieldVariable primaryTableColumn =

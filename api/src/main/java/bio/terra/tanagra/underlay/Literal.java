@@ -1,9 +1,10 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.serialization.UFLiteral;
 import com.google.common.base.Strings;
 
-public class Literal {
+public class Literal implements SQLExpression {
   /** Enum for the data types supported by Tanagra. */
   public enum DataType {
     INT64,
@@ -54,5 +55,19 @@ public class Literal {
     }
 
     throw new IllegalArgumentException("No literal values defined");
+  }
+
+  @Override
+  public String renderSQL() {
+    switch (dataType) {
+      case STRING:
+        return "'" + stringVal + "'";
+      case INT64:
+        return String.valueOf(int64Val);
+      case BOOLEAN:
+        return String.valueOf(booleanVal);
+      default:
+        throw new RuntimeException("Unknown Literal data type");
+    }
   }
 }

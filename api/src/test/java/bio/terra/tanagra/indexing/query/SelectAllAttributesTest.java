@@ -28,4 +28,15 @@ public class SelectAllAttributesTest {
         person.getIndexDataMapping().selectAllQuery(),
         "query/person_index_selectAllAttributes.sql");
   }
+
+  @Test
+  void condition() throws IOException {
+    Entity person = Entity.fromJSON("config/entity/Condition.json", dataPointers);
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        person.getSourceDataMapping().selectAllQuery(),
+        "query/condition_source_selectAllAttributes.sql");
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        person.getIndexDataMapping().selectAllQuery(),
+        "query/condition_index_selectAllAttributes.sql");
+  }
 }
