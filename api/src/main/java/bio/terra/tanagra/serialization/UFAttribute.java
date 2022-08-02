@@ -16,7 +16,12 @@ public class UFAttribute {
   public final String name;
   public final Literal.DataType dataType;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFAttribute(Attribute attribute) {
+    this.type = attribute.getType();
+    this.name = attribute.getName();
+    this.dataType = attribute.getDataType();
+  }
+
   protected UFAttribute(Builder builder) {
     this.type = builder.type;
     this.name = builder.name;

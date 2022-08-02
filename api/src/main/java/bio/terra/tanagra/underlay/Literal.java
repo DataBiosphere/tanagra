@@ -70,4 +70,16 @@ public class Literal implements SQLExpression {
         throw new RuntimeException("Unknown Literal data type");
     }
   }
+
+  public String getStringVal() {
+    return dataType.equals(DataType.STRING) ? stringVal : null;
+  }
+
+  public Long getInt64Val() {
+    return dataType.equals(DataType.INT64) ? int64Val : null;
+  }
+
+  public Boolean getBooleanVal() {
+    return dataType.equals(DataType.BOOLEAN) ? booleanVal : null;
+  }
 }

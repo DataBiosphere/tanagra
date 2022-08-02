@@ -26,7 +26,10 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public abstract class UFTableFilter {
   public final TableFilter.Type type;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFTableFilter(TableFilter tableFilter) {
+    this.type = tableFilter.getType();
+  }
+
   protected UFTableFilter(Builder builder) {
     this.type = builder.type;
   }

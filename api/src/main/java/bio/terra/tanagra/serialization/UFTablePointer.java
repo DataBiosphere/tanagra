@@ -1,5 +1,7 @@
 package bio.terra.tanagra.serialization;
 
+import bio.terra.tanagra.underlay.TablePointer;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -9,11 +11,16 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFTablePointer.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFTablePointer {
   public final String table;
   public final UFTableFilter filter;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFTablePointer(TablePointer tablePointer) {
+    this.table = tablePointer.getTableName();
+    this.filter = tablePointer.hasTableFilter() ? tablePointer.getTableFilter().serialize() : null;
+  }
+
   protected UFTablePointer(Builder builder) {
     this.table = builder.table;
     this.filter = builder.filter;

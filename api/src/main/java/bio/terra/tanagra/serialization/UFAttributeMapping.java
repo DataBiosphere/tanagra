@@ -1,5 +1,7 @@
 package bio.terra.tanagra.serialization;
 
+import bio.terra.tanagra.underlay.AttributeMapping;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -9,11 +11,17 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFAttributeMapping.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFAttributeMapping {
   public final UFFieldPointer value;
   public final UFFieldPointer display;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFAttributeMapping(AttributeMapping attributeMapping) {
+    this.value = new UFFieldPointer(attributeMapping.getValue());
+    this.display =
+        attributeMapping.hasDisplay() ? new UFFieldPointer(attributeMapping.getDisplay()) : null;
+  }
+
   protected UFAttributeMapping(Builder builder) {
     this.value = builder.value;
     this.display = builder.display;

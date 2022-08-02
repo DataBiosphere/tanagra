@@ -34,8 +34,25 @@ public class BinaryFilter extends TableFilter {
   }
 
   @Override
+  public Type getType() {
+    return Type.BINARY;
+  }
+
+  @Override
   public BinaryFilterVariable buildVariable(
       TableVariable primaryTable, List<TableVariable> tables) {
     return new BinaryFilterVariable(field.buildVariable(primaryTable, tables), operator, value);
+  }
+
+  public FieldPointer getField() {
+    return field;
+  }
+
+  public BinaryOperator getOperator() {
+    return operator;
+  }
+
+  public Literal getValue() {
+    return value;
   }
 }

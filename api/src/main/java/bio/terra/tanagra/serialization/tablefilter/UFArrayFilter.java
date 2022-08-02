@@ -7,6 +7,7 @@ import bio.terra.tanagra.underlay.tablefilter.ArrayFilter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * External representation of an array table filter: subfilter1 operator subfilter2 operator ...
@@ -19,7 +20,13 @@ public class UFArrayFilter extends UFTableFilter {
   public final TableFilter.LogicalOperator operator;
   public final List<UFTableFilter> subfilters;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFArrayFilter(ArrayFilter arrayFilter) {
+    super(arrayFilter);
+    this.operator = arrayFilter.getOperator();
+    this.subfilters =
+        arrayFilter.getSubfilters().stream().map(sf -> sf.serialize()).collect(Collectors.toList());
+  }
+
   private UFArrayFilter(Builder builder) {
     super(builder);
     this.operator = builder.operator;

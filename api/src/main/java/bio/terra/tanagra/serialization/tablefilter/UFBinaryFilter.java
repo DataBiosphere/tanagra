@@ -21,7 +21,13 @@ public class UFBinaryFilter extends UFTableFilter {
   public final TableFilter.BinaryOperator operator;
   public final UFLiteral value;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFBinaryFilter(BinaryFilter binaryFilter) {
+    super(binaryFilter);
+    this.field = new UFFieldPointer(binaryFilter.getField());
+    this.operator = binaryFilter.getOperator();
+    this.value = new UFLiteral(binaryFilter.getValue());
+  }
+
   private UFBinaryFilter(Builder builder) {
     super(builder);
     this.field = builder.field;

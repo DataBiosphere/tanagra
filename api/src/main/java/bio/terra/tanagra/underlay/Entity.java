@@ -5,9 +5,11 @@ import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Entity {
   private String name;
@@ -80,6 +82,10 @@ public class Entity {
 
   public Attribute getIdAttribute() {
     return attributes.get(idAttributeName);
+  }
+
+  public List<Attribute> getAttributes() {
+    return Collections.unmodifiableList(attributes.values().stream().collect(Collectors.toList()));
   }
 
   public EntityMapping getSourceDataMapping() {

@@ -95,6 +95,18 @@ public class FieldPointer {
     return columnName;
   }
 
+  public TablePointer getForeignTablePointer() {
+    return foreignTablePointer;
+  }
+
+  public String getForeignKeyColumnName() {
+    return foreignKeyColumnName;
+  }
+
+  public String getForeignColumnName() {
+    return foreignColumnName;
+  }
+
   public boolean hasSqlFunctionWrapper() {
     return sqlFunctionWrapper != null;
   }

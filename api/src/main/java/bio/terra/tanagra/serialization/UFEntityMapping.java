@@ -1,7 +1,10 @@
 package bio.terra.tanagra.serialization;
 
+import bio.terra.tanagra.underlay.EntityMapping;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -10,13 +13,31 @@ import java.util.Map;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFEntityMapping.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFEntityMapping {
   public final String dataPointer;
   public final UFTablePointer tablePointer;
   public final Map<String, UFAttributeMapping> attributeMappings;
   public final UFTextSearchMapping textSearchMapping;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFEntityMapping(EntityMapping entityMapping) {
+    this.dataPointer = entityMapping.getTablePointer().getDataPointer().getName();
+    this.tablePointer = new UFTablePointer(entityMapping.getTablePointer());
+
+    Map<String, UFAttributeMapping> attributeMappings = new HashMap<>();
+    entityMapping.getAttributeMappings().entrySet().stream()
+        .forEach(
+            attrMpg -> {
+              attributeMappings.put(attrMpg.getKey(), new UFAttributeMapping(attrMpg.getValue()));
+            });
+    this.attributeMappings = attributeMappings;
+
+    this.textSearchMapping =
+        entityMapping.hasTextSearchMapping()
+            ? new UFTextSearchMapping(entityMapping.getTextSearchMapping())
+            : null;
+  }
+
   private UFEntityMapping(Builder builder) {
     this.dataPointer = builder.dataPointer;
     this.tablePointer = builder.tablePointer;

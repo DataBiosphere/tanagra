@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.serialization.UFTextSearchMapping;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,5 +45,21 @@ public class TextSearchMapping {
     }
 
     throw new IllegalArgumentException("Text search mapping is empty");
+  }
+
+  public boolean definedByAttributes() {
+    return attributes != null;
+  }
+
+  public boolean defiendBySearchString() {
+    return searchString != null;
+  }
+
+  public List<Attribute> getAttributes() {
+    return Collections.unmodifiableList(attributes);
+  }
+
+  public FieldPointer getSearchString() {
+    return searchString;
   }
 }

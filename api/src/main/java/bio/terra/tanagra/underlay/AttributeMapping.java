@@ -65,4 +65,12 @@ public class AttributeMapping {
   public boolean hasDisplay() {
     return display != null;
   }
+
+  public FieldPointer getValue() {
+    return value;
+  }
+
+  public FieldPointer getDisplay() {
+    return display;
+  }
 }

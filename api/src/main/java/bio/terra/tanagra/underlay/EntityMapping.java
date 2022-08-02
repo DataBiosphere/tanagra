@@ -7,6 +7,7 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
 import bio.terra.tanagra.serialization.UFEntityMapping;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,10 +74,6 @@ public class EntityMapping {
     return new EntityMapping(tablePointer, attributeMappings, textSearchMapping);
   }
 
-  public TablePointer getTablePointer() {
-    return tablePointer;
-  }
-
   public String selectAllQuery() {
     List<TableVariable> tables = new ArrayList<>();
     TableVariable primaryTable = TableVariable.forPrimary(tablePointer);
@@ -95,5 +92,21 @@ public class EntityMapping {
             : null;
 
     return new Query(select, tables, where).renderSQL();
+  }
+
+  public TablePointer getTablePointer() {
+    return tablePointer;
+  }
+
+  public Map<String, AttributeMapping> getAttributeMappings() {
+    return Collections.unmodifiableMap(attributeMappings);
+  }
+
+  public boolean hasTextSearchMapping() {
+    return textSearchMapping != null;
+  }
+
+  public TextSearchMapping getTextSearchMapping() {
+    return textSearchMapping;
   }
 }

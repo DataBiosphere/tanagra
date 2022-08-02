@@ -1,8 +1,10 @@
 package bio.terra.tanagra.serialization;
 
+import bio.terra.tanagra.underlay.Entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * External representation of an entity.
@@ -17,7 +19,17 @@ public class UFEntity {
   public final UFEntityMapping sourceDataMapping;
   public final UFEntityMapping indexDataMapping;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFEntity(Entity entity) {
+    this.name = entity.getName();
+    this.idAttribute = entity.getIdAttribute().getName();
+    this.attributes =
+        entity.getAttributes().stream()
+            .map(attr -> new UFAttribute(attr))
+            .collect(Collectors.toList());
+    this.sourceDataMapping = new UFEntityMapping(entity.getSourceDataMapping());
+    this.indexDataMapping = new UFEntityMapping(entity.getIndexDataMapping());
+  }
+
   private UFEntity(Builder builder) {
     this.name = builder.name;
     this.idAttribute = builder.idAttribute;

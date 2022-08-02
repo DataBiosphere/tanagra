@@ -1,8 +1,11 @@
 package bio.terra.tanagra.serialization;
 
+import bio.terra.tanagra.underlay.TextSearchMapping;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * External representation of a mapping between an entity attribute and the underlying data for a
@@ -11,11 +14,24 @@ import java.util.List;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFTextSearchMapping.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFTextSearchMapping {
   public final List<String> attributes;
   public final UFFieldPointer searchString;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFTextSearchMapping(TextSearchMapping textSearchMapping) {
+    this.attributes =
+        textSearchMapping.definedByAttributes()
+            ? textSearchMapping.getAttributes().stream()
+                .map(attr -> attr.getName())
+                .collect(Collectors.toList())
+            : null;
+    this.searchString =
+        textSearchMapping.defiendBySearchString()
+            ? new UFFieldPointer(textSearchMapping.getSearchString())
+            : null;
+  }
+
   private UFTextSearchMapping(Builder builder) {
     this.attributes = builder.attributes;
     this.searchString = builder.searchString;

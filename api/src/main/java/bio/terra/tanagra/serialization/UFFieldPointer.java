@@ -1,5 +1,7 @@
 package bio.terra.tanagra.serialization;
 
+import bio.terra.tanagra.underlay.FieldPointer;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -9,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFFieldPointer.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFFieldPointer {
   public final String column;
   public final String foreignTable;
@@ -16,7 +19,20 @@ public class UFFieldPointer {
   public final String foreignColumn;
   public final String sqlFunctionWrapper;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFFieldPointer(FieldPointer fieldPointer) {
+    this.column = fieldPointer.getColumnName();
+    if (fieldPointer.isForeignKey()) {
+      this.foreignTable = fieldPointer.getForeignTablePointer().getTableName();
+      this.foreignKey = fieldPointer.getForeignKeyColumnName();
+      this.foreignColumn = fieldPointer.getForeignColumnName();
+    } else {
+      this.foreignTable = null;
+      this.foreignKey = null;
+      this.foreignColumn = null;
+    }
+    this.sqlFunctionWrapper = fieldPointer.getSqlFunctionWrapper();
+  }
+
   protected UFFieldPointer(Builder builder) {
     this.column = builder.column;
     this.foreignTable = builder.foreignTable;

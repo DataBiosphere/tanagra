@@ -1,5 +1,6 @@
 package bio.terra.tanagra.indexing;
 
+import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.JacksonMapper;
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +36,19 @@ public class Indexer {
 
     // convert the internal objects, now expanded, back to POJOs
     UFUnderlay expandedUnderlay = new UFUnderlay(underlay);
-    //    List<UFEntity> expandedEntities = underlay.getEntities().stream().map(e -> new
-    // UFEntity(e)).collect(Collectors.toList());
+    List<UFEntity> expandedEntities =
+        underlay.getEntities().values().stream()
+            .map(e -> new UFEntity(e))
+            .collect(Collectors.toList());
 
     // write out the expanded POJOs
     JacksonMapper.writeJavaObjectToFile(
-        outputDir.toPath().resolve(underlay.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
+        outputDir.toPath().resolve(expandedUnderlay.name + OUTPUT_UNDERLAY_FILE_EXTENSION),
         expandedUnderlay);
+    for (UFEntity expandedEntity : expandedEntities) {
+      JacksonMapper.writeJavaObjectToFile(
+          outputDir.toPath().resolve(expandedEntity.name + OUTPUT_UNDERLAY_FILE_EXTENSION),
+          expandedEntity);
+    }
   }
 }

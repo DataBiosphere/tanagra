@@ -5,6 +5,7 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.tablefilter.UFArrayFilter;
 import bio.terra.tanagra.underlay.TableFilter;
 import bio.terra.tanagra.underlay.TablePointer;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +34,24 @@ public class ArrayFilter extends TableFilter {
   }
 
   @Override
+  public Type getType() {
+    return Type.ARRAY;
+  }
+
+  @Override
   public ArrayFilterVariable buildVariable(TableVariable primaryTable, List<TableVariable> tables) {
     return new ArrayFilterVariable(
         operator,
         subfilters.stream()
             .map(sf -> sf.buildVariable(primaryTable, tables))
             .collect(Collectors.toList()));
+  }
+
+  public LogicalOperator getOperator() {
+    return operator;
+  }
+
+  public List<TableFilter> getSubfilters() {
+    return Collections.unmodifiableList(subfilters);
   }
 }
