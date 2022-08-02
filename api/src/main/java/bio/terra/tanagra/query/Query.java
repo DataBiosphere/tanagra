@@ -71,9 +71,9 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
-    // render each ORDER BY FieldVariable and join them into a single string
+    // TODO: render each GROUP BY FieldVariable and join them into a single string
 
-    // render each GROUP BY FieldVariable and join them into a single string
+    // TODO: render each ORDER BY FieldVariable and join them into a single string
 
     return sql;
   }
