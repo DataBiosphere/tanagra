@@ -2,9 +2,14 @@ package bio.terra.tanagra.indexing.deserialization;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.tanagra.serialization.UFEntity;
+import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.utils.FileUtils;
+import bio.terra.tanagra.utils.JacksonMapper;
+import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,8 +19,11 @@ public class InvalidEntityMappingTest {
   static Map<String, DataPointer> dataPointers;
 
   @BeforeAll
-  static void readDataPointers() {
-    Underlay underlay = Underlay.fromJSON("config/underlay/Omop.json");
+  static void readDataPointers() throws IOException {
+    UFUnderlay serialized =
+        JacksonMapper.readFileIntoJavaObject(
+            FileUtils.getResourceFileStream("config/underlay/Omop.json"), UFUnderlay.class);
+    Underlay underlay = Underlay.deserialize(serialized, true);
     dataPointers = underlay.getDataPointers();
   }
 
@@ -24,7 +32,14 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () -> Entity.fromJSON("config/entity/MappingNonExistentAttribute.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream(
+                          "config/entity/MappingNonExistentAttribute.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertTrue(
         ex.getMessage().startsWith("A mapping is defined for a non-existent attribute"));
@@ -35,7 +50,13 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () -> Entity.fromJSON("config/entity/DoubleTextSearchMapping.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/DoubleTextSearchMapping.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertEquals(
         "Text search mapping can be defined by either attributes or a search string, not both",
@@ -47,7 +68,13 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () -> Entity.fromJSON("config/entity/EmptyTextSearchMapping.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/EmptyTextSearchMapping.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertEquals("Text search mapping is empty", ex.getMessage());
   }
@@ -57,9 +84,14 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () ->
-                Entity.fromJSON(
-                    "config/entity/EmptyAttributesListTextSearchMapping.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream(
+                          "config/entity/EmptyAttributesListTextSearchMapping.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertEquals("Text search mapping list of attributes is empty", ex.getMessage());
   }

@@ -16,9 +16,9 @@ public class FileUtils {
   private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
   /**
-   * Build a stream handle to a resource file.
+   * Build a stream to a resource file.
    *
-   * @return the new file handle
+   * @return the new file stream
    * @throws FileNotFoundException if the resource file doesn't exist
    */
   public static InputStream getResourceFileStream(String resourceFilePath)

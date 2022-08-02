@@ -48,23 +48,23 @@ public class JacksonMapper {
   }
 
   /**
-   * Read a JSON-formatted resource file into a Java object using the Jackson object mapper.
+   * Read a JSON-formatted file into a Java object using the Jackson object mapper.
    *
-   * @param resourceFilePath the resource file to read in
+   * @param inputStream the file to read in
    * @param javaObjectClass the Java object class
    * @param <T> the Java object class to map the file contents to
    * @return an instance of the Java object class
    * @throws IOException if the stream to read in does not exist or is not readable
    */
-  public static <T> T readFileIntoJavaObject(String resourceFilePath, Class<T> javaObjectClass)
+  public static <T> T readFileIntoJavaObject(InputStream inputStream, Class<T> javaObjectClass)
       throws IOException {
-    return readFileIntoJavaObject(resourceFilePath, javaObjectClass, Collections.emptyList());
+    return readFileIntoJavaObject(inputStream, javaObjectClass, Collections.emptyList());
   }
 
   /**
-   * Read a JSON-formatted resource file into a Java object using the Jackson object mapper.
+   * Read a JSON-formatted file into a Java object using the Jackson object mapper.
    *
-   * @param resourceFilePath the resource file to read in
+   * @param inputStream the file to read in
    * @param javaObjectClass the Java object class
    * @param mapperFeatures list of Jackson mapper features to enable
    * @param <T> the Java object class to map the file contents to
@@ -72,10 +72,8 @@ public class JacksonMapper {
    * @throws IOException if the stream to read in does not exist or is not readable
    */
   public static <T> T readFileIntoJavaObject(
-      String resourceFilePath, Class<T> javaObjectClass, List<MapperFeature> mapperFeatures)
+      InputStream inputStream, Class<T> javaObjectClass, List<MapperFeature> mapperFeatures)
       throws IOException {
-    InputStream inputStream = FileUtils.getResourceFileStream(resourceFilePath);
-
     // use Jackson to map the file contents to an instance of the specified class
     ObjectMapper objectMapper = getMapper(mapperFeatures);
 

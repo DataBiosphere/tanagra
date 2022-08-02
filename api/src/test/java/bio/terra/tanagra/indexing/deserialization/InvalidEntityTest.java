@@ -2,9 +2,14 @@ package bio.terra.tanagra.indexing.deserialization;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.tanagra.serialization.UFEntity;
+import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.utils.FileUtils;
+import bio.terra.tanagra.utils.JacksonMapper;
+import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,8 +19,11 @@ public class InvalidEntityTest {
   static Map<String, DataPointer> dataPointers;
 
   @BeforeAll
-  static void readDataPointers() {
-    Underlay underlay = Underlay.fromJSON("config/underlay/Omop.json");
+  static void readDataPointers() throws IOException {
+    UFUnderlay serialized =
+        JacksonMapper.readFileIntoJavaObject(
+            FileUtils.getResourceFileStream("config/underlay/Omop.json"), UFUnderlay.class);
+    Underlay underlay = Underlay.deserialize(serialized, true);
     dataPointers = underlay.getDataPointers();
   }
 
@@ -24,7 +32,13 @@ public class InvalidEntityTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () -> Entity.fromJSON("nonexistent_entity_file.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("nonexistent_entity_file.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertEquals("Error deserializing Entity from JSON", ex.getMessage());
   }
@@ -34,7 +48,13 @@ public class InvalidEntityTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Entity.fromJSON("config/entity/NoAttributes.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/NoAttributes.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertTrue(ex.getMessage().startsWith("No Attributes defined"));
   }
@@ -44,7 +64,13 @@ public class InvalidEntityTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Entity.fromJSON("config/entity/NoIdAttribute.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/NoIdAttribute.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertTrue(ex.getMessage().startsWith("No id Attribute defined"));
   }
@@ -54,7 +80,13 @@ public class InvalidEntityTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Entity.fromJSON("config/entity/IdAttributeNotFound.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/IdAttributeNotFound.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertTrue(
         ex.getMessage().startsWith("Id Attribute not found in the set of Attributes"));
@@ -65,7 +97,13 @@ public class InvalidEntityTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Entity.fromJSON("config/entity/NoSourceDataMapping.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/NoSourceDataMapping.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertTrue(ex.getMessage().startsWith("No source Data Mapping defined"));
   }
@@ -75,7 +113,13 @@ public class InvalidEntityTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Entity.fromJSON("config/entity/NoIndexDataMapping.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/NoIndexDataMapping.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertTrue(ex.getMessage().startsWith("No index Data Mapping defined"));
   }
@@ -85,7 +129,13 @@ public class InvalidEntityTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Entity.fromJSON("config/entity/AttributeWithoutName.json", dataPointers));
+            () -> {
+              UFEntity serialized =
+                  JacksonMapper.readFileIntoJavaObject(
+                      FileUtils.getResourceFileStream("config/entity/AttributeWithoutName.json"),
+                      UFEntity.class);
+              Entity.deserialize(serialized, dataPointers);
+            });
     ex.printStackTrace();
     Assertions.assertTrue(ex.getMessage().startsWith("Attribute name is undefined"));
   }

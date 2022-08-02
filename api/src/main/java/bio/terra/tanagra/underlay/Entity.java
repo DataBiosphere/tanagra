@@ -3,8 +3,6 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.serialization.UFEntity;
-import bio.terra.tanagra.utils.JacksonMapper;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,15 +29,7 @@ public class Entity {
     this.indexDataMapping = indexDataMapping;
   }
 
-  public static Entity fromJSON(String resourceFilePath, Map<String, DataPointer> dataPointers) {
-    // read in entity file
-    UFEntity serialized;
-    try {
-      serialized = JacksonMapper.readFileIntoJavaObject(resourceFilePath, UFEntity.class);
-    } catch (IOException ioEx) {
-      throw new RuntimeException("Error deserializing Entity from JSON", ioEx);
-    }
-
+  public static Entity deserialize(UFEntity serialized, Map<String, DataPointer> dataPointers) {
     // deserialize attributes
     if (serialized.attributes == null || serialized.attributes.size() == 0) {
       throw new IllegalArgumentException("No Attributes defined: " + serialized.name);

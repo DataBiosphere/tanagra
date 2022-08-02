@@ -1,9 +1,14 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
+import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFUnderlay;
+import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,15 +32,8 @@ public class Underlay {
     this.primaryEntityName = primaryEntityName;
   }
 
-  public static Underlay fromJSON(String resourceFilePath) {
-    // read in top-level underlay file
-    UFUnderlay serialized;
-    try {
-      serialized = JacksonMapper.readFileIntoJavaObject(resourceFilePath, UFUnderlay.class);
-    } catch (IOException ioEx) {
-      throw new RuntimeException("Error deserializing Underlay from JSON", ioEx);
-    }
-
+  public static Underlay deserialize(UFUnderlay serialized, boolean isFromResourceFile)
+      throws IOException {
     // deserialize data pointers
     if (serialized.dataPointers == null || serialized.dataPointers.size() == 0) {
       throw new IllegalArgumentException("No DataPointer defined");
@@ -49,7 +47,13 @@ public class Underlay {
     }
     Map<String, Entity> entities = new HashMap<>();
     for (String entityFile : serialized.entities) {
-      Entity entity = Entity.fromJSON(entityFile, dataPointers);
+      InputStream entityInputStream =
+          isFromResourceFile
+              ? FileUtils.getResourceFileStream(entityFile)
+              : new FileInputStream(Path.of(entityFile).toFile());
+      UFEntity serializedEntity =
+          JacksonMapper.readFileIntoJavaObject(entityInputStream, UFEntity.class);
+      Entity entity = Entity.deserialize(serializedEntity, dataPointers);
       entities.put(entity.getName(), entity);
     }
 
