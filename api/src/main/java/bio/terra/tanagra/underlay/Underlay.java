@@ -16,8 +16,6 @@ public class Underlay {
   private Map<String, Entity> entities;
   private String primaryEntityName;
 
-  private Map<String, EntityGroup> entityGroups;
-
   private Underlay(
       String name,
       Map<String, DataPointer> dataPointers,
@@ -79,5 +77,13 @@ public class Underlay {
 
   public Map<String, DataPointer> getDataPointers() {
     return Collections.unmodifiableMap(dataPointers);
+  }
+
+  public Map<String, Entity> getEntities() {
+    return Collections.unmodifiableMap(entities);
+  }
+
+  public Entity getPrimaryEntity() {
+    return entities.get(primaryEntityName);
   }
 }

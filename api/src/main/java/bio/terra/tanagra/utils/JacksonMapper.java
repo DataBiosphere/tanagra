@@ -3,9 +3,11 @@ package bio.terra.tanagra.utils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.FileNotFoundException;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
@@ -72,7 +74,7 @@ public class JacksonMapper {
   public static <T> T readFileIntoJavaObject(
       String resourceFilePath, Class<T> javaObjectClass, List<MapperFeature> mapperFeatures)
       throws IOException {
-    InputStream inputStream = getResourceFileStream(resourceFilePath);
+    InputStream inputStream = FileUtils.getResourceFileStream(resourceFilePath);
 
     // use Jackson to map the file contents to an instance of the specified class
     ObjectMapper objectMapper = getMapper(mapperFeatures);
@@ -90,18 +92,25 @@ public class JacksonMapper {
   }
 
   /**
-   * Build a stream to a resource file contents.
+   * Write a Java object to a JSON-formatted file using the Jackson object mapper.
    *
-   * @return the new file stream
-   * @throws FileNotFoundException if the resource file doesn't exist
+   * @param path the file path to write to
+   * @param javaObject the Java object to write
+   * @param <T> the Java object class to write
    */
-  private static InputStream getResourceFileStream(String resourceFilePath)
-      throws FileNotFoundException {
-    InputStream inputStream =
-        JacksonMapper.class.getClassLoader().getResourceAsStream(resourceFilePath);
-    if (inputStream == null) {
-      throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
-    }
-    return inputStream;
+  @SuppressFBWarnings(
+      value = "RV_RETURN_VALUE_IGNORED",
+      justification =
+          "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
+  public static <T> void writeJavaObjectToFile(Path path, T javaObject) throws IOException {
+    // use Jackson to map the object to a JSON-formatted text block
+    ObjectMapper objectMapper = getMapper();
+    ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+
+    // create the file and any parent directories if they don't already exist
+    FileUtils.createFile(path);
+
+    logger.debug("Serializing object with Jackson to file: {}", path);
+    objectWriter.writeValue(path.toFile(), javaObject);
   }
 }

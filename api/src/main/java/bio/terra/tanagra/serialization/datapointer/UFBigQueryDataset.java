@@ -15,6 +15,12 @@ public class UFBigQueryDataset extends UFDataPointer {
   public final String projectId;
   public final String datasetId;
 
+  public UFBigQueryDataset(BigQueryDataset dataPointer) {
+    super(dataPointer);
+    this.projectId = dataPointer.getProjectId();
+    this.datasetId = dataPointer.getDatasetId();
+  }
+
   /** Constructor for Jackson deserialization during testing. */
   private UFBigQueryDataset(Builder builder) {
     super(builder);

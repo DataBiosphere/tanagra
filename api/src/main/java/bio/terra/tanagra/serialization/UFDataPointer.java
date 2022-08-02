@@ -24,6 +24,11 @@ public abstract class UFDataPointer {
   public final DataPointer.Type type;
   public final String name;
 
+  protected UFDataPointer(DataPointer dataPointer) {
+    this.type = dataPointer.getType();
+    this.name = dataPointer.getName();
+  }
+
   /** Constructor for Jackson deserialization during testing. */
   protected UFDataPointer(Builder builder) {
     this.type = builder.type;

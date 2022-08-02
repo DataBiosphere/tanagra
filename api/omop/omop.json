@@ -1,0 +1,16 @@
+{
+  "name" : "omop",
+  "dataPointers" : [ {
+    "type" : "BQ_DATASET",
+    "name" : "index_dataset",
+    "projectId" : "verily-tanagra-dev",
+    "datasetId" : "aou_synthetic_SR2019q4r4_indexes"
+  }, {
+    "type" : "BQ_DATASET",
+    "name" : "omop_dataset",
+    "projectId" : "verily-tanagra-dev",
+    "datasetId" : "aou_synthetic_SR2019q4r4"
+  } ],
+  "entities" : [ "condition.json", "person.json" ],
+  "primaryEntity" : "person"
+}

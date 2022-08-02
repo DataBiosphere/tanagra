@@ -1,13 +1,20 @@
 package bio.terra.tanagra.indexing;
 
+import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.utils.JacksonMapper;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Indexer {
+  private static final Logger logger = LoggerFactory.getLogger(Indexer.class);
+
+  public static String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
+
   public Indexer() {}
 
   public static void indexUnderlay(String underlayResourceFilePath) throws IOException {
@@ -18,20 +25,21 @@ public class Indexer {
     List<WorkflowCommand> indexingCmds = underlay.getIndexingCommands();
 
     // write out all index input files and commands into a script
-    Path outputDir = Path.of(underlay.getName());
-    if (!outputDir.toFile().exists()) {
-      outputDir.toFile().mkdirs();
+    File outputDir = Path.of(underlay.getName()).toFile();
+    if (!outputDir.exists()) {
+      outputDir.mkdirs();
     }
-    List<String> script = new ArrayList<>();
-    for (WorkflowCommand cmd : indexingCmds) {
-      cmd.writeInputsToDisk(outputDir);
-      script.addAll(List.of(cmd.getComment(), cmd.getCommand(), ""));
-    }
-    Files.write(outputDir.resolve("indexing_script.sh"), script);
+    logger.info("Writing output to directory: {}", outputDir.getAbsolutePath());
+    WorkflowCommand.writeToDisk(indexingCmds, outputDir.toPath());
 
     // convert the internal objects, now expanded, back to POJOs
+    UFUnderlay expandedUnderlay = new UFUnderlay(underlay);
+    //    List<UFEntity> expandedEntities = underlay.getEntities().stream().map(e -> new
+    // UFEntity(e)).collect(Collectors.toList());
 
-    // write out the now expanded POJOs to a new file
-
+    // write out the expanded POJOs
+    JacksonMapper.writeJavaObjectToFile(
+        outputDir.toPath().resolve(underlay.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
+        expandedUnderlay);
   }
 }

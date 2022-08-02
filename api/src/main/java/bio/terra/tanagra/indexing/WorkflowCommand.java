@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class WorkflowCommand {
   private static String BASH_COMMENT_PREFIX = "# ";
+  private static String BASH_SCRIPT_FILENAME = "indexing_script.sh";
 
   private String command;
   private String description;
@@ -33,12 +35,21 @@ public class WorkflowCommand {
     return Collections.unmodifiableMap(queryInputs);
   }
 
-  public void writeInputsToDisk(Path outputDir) throws IOException {
+  private void writeInputsToDisk(Path outputDir) throws IOException {
     for (Map.Entry<String, String> fileNameToContents : queryInputs.entrySet()) {
       Files.write(
           outputDir.resolve(fileNameToContents.getKey()),
           List.of(fileNameToContents.getValue()),
           StandardCharsets.UTF_8);
     }
+  }
+
+  public static void writeToDisk(List<WorkflowCommand> cmds, Path outputDir) throws IOException {
+    List<String> script = new ArrayList<>();
+    for (WorkflowCommand cmd : cmds) {
+      cmd.writeInputsToDisk(outputDir);
+      script.addAll(List.of(cmd.getComment(), cmd.getCommand(), ""));
+    }
+    Files.write(outputDir.resolve(BASH_SCRIPT_FILENAME), script);
   }
 }

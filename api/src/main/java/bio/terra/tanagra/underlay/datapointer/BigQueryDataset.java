@@ -27,6 +27,11 @@ public class BigQueryDataset extends DataPointer {
   }
 
   @Override
+  public Type getType() {
+    return Type.BQ_DATASET;
+  }
+
+  @Override
   public String getTableSQL(String tableName) {
     String template = "`${projectId}.${datasetId}`.${tableName}";
     Map<String, String> params =
@@ -48,5 +53,13 @@ public class BigQueryDataset extends DataPointer {
             .put("tableName", tableName)
             .build();
     return StringSubstitutor.replace(template, params);
+  }
+
+  public String getProjectId() {
+    return projectId;
+  }
+
+  public String getDatasetId() {
+    return datasetId;
   }
 }
