@@ -106,3 +106,11 @@ test {
 apply from: "$rootDir/api/gradle/artifactory.gradle"
 apply from: "$rootDir/api/gradle/jib.gradle"
 apply from: "$rootDir/api/gradle/open-api.gradle"
+
+// e.g. ./gradlew api:index -Dexec.args="input_underlay.json output_dir"
+task index (type:JavaExec) {
+    main = "bio.terra.tanagra.indexing.Indexer"
+    classpath = sourceSets.main.runtimeClasspath
+    systemProperties System.getProperties()
+    args System.getProperty("exec.args", "").split()
+}
