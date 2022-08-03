@@ -1,11 +1,13 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
+import bio.terra.tanagra.indexing.command.BuildTextSearch;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +75,12 @@ public class Entity {
         EntityMapping.fromSerialized(
             serialized.getIndexDataMapping(), dataPointers, attributes, serialized.getName());
 
+    // if the source data mapping includes text search, then expand it in the index data mapping
+    if (sourceDataMapping.hasTextSearchMapping() && !indexDataMapping.hasTextSearchMapping()) {
+      indexDataMapping.setTextSearchMapping(
+          TextSearchMapping.getDefault(indexDataMapping.getTablePointer()));
+    }
+
     return new Entity(
         serialized.getName(),
         serialized.getIdAttribute(),
@@ -82,7 +90,12 @@ public class Entity {
   }
 
   public List<WorkflowCommand> getIndexingCommands() {
-    return List.of(DenormalizeAllNodes.forEntity(this));
+    List<WorkflowCommand> cmds = new ArrayList<>();
+    cmds.add(DenormalizeAllNodes.forEntity(this));
+    if (sourceDataMapping.hasTextSearchMapping()) {
+      cmds.add(BuildTextSearch.forEntity(this));
+    }
+    return cmds;
   }
 
   public String getName() {

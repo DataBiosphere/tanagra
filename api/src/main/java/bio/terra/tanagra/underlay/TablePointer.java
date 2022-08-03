@@ -1,7 +1,10 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFTablePointer;
 import com.google.common.base.Strings;
+import java.util.List;
 
 public class TablePointer {
   private DataPointer dataPointer;
@@ -56,5 +59,12 @@ public class TablePointer {
 
   public String getPathForIndexing() {
     return dataPointer.getTablePathForIndexing(tableName);
+  }
+
+  public FilterVariable getFilterVariable(TableVariable tableVariable, List<TableVariable> tables) {
+    if (!hasTableFilter()) {
+      return null;
+    }
+    return getTableFilter().buildVariable(tableVariable, tables);
   }
 }

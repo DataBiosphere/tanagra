@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.command;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
+import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.underlay.Entity;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
@@ -14,8 +15,9 @@ public class DenormalizeAllNodes extends WorkflowCommand {
 
   public static DenormalizeAllNodes forEntity(Entity entity) {
     String sqlFileSelectAll = entity.getName() + "_selectAll.sql";
-    Map<String, String> queryInputs =
-        Map.of(sqlFileSelectAll, entity.getSourceDataMapping().selectAllQuery());
+    Query selectAllAttributes =
+        entity.getSourceDataMapping().queryAttributes(entity.getAttributes());
+    Map<String, String> queryInputs = Map.of(sqlFileSelectAll, selectAllAttributes.renderSQL());
 
     String template =
         "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.WriteAllNodes "

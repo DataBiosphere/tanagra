@@ -27,7 +27,7 @@ public class UFTextSearchMapping {
                 .collect(Collectors.toList())
             : null;
     this.searchString =
-        textSearchMapping.defiendBySearchString()
+        textSearchMapping.definedBySearchString()
             ? new UFFieldPointer(textSearchMapping.getSearchString())
             : null;
   }

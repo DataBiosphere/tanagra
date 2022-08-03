@@ -3,7 +3,9 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.UnionQuery;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
 import bio.terra.tanagra.serialization.UFEntityMapping;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EntityMapping {
   private TablePointer tablePointer;
@@ -76,24 +79,53 @@ public class EntityMapping {
     return new EntityMapping(tablePointer, attributeMappings, textSearchMapping);
   }
 
-  public String selectAllQuery() {
+  public SQLExpression queryTextSearchStrings() {
+    if (!hasTextSearchMapping()) {
+      throw new UnsupportedOperationException("Text search mapping is undefined");
+    }
+
+    if (textSearchMapping.definedByAttributes()) {
+      return new UnionQuery(
+          textSearchMapping.getAttributes().stream()
+              .map(attr -> queryAttributes(List.of(attr)))
+              .collect(Collectors.toList()));
+    } else if (textSearchMapping.definedBySearchString()) {
+      return queryFields(List.of(textSearchMapping.getSearchString()));
+    } else {
+      throw new IllegalArgumentException("Unknown text search mapping type");
+    }
+  }
+
+  public Query queryAttributes(List<Attribute> selectedAttributes) {
+    return queryAttributesAndFields(selectedAttributes, null);
+  }
+
+  public Query queryFields(List<FieldPointer> selectedFields) {
+    return queryAttributesAndFields(null, selectedFields);
+  }
+
+  public Query queryAttributesAndFields(
+      List<Attribute> selectedAttributes, List<FieldPointer> selectedFields) {
     List<TableVariable> tables = new ArrayList<>();
     TableVariable primaryTable = TableVariable.forPrimary(tablePointer);
     tables.add(primaryTable);
 
     List<FieldVariable> select = new ArrayList<>();
-    for (Map.Entry<String, AttributeMapping> attributeToMapping : attributeMappings.entrySet()) {
-      String attributeName = attributeToMapping.getKey();
-      select.addAll(
-          attributeToMapping.getValue().buildFieldVariables(primaryTable, tables, attributeName));
+    if (selectedAttributes != null) {
+      selectedAttributes.stream()
+          .forEach(
+              attr ->
+                  select.addAll(
+                      attributeMappings
+                          .get(attr.getName())
+                          .buildFieldVariables(primaryTable, tables, attr.getName())));
+    }
+    if (selectedFields != null) {
+      selectedFields.stream().forEach(fp -> select.add(fp.buildVariable(primaryTable, tables)));
     }
 
-    FilterVariable where =
-        tablePointer.hasTableFilter()
-            ? tablePointer.getTableFilter().buildVariable(primaryTable, tables)
-            : null;
-
-    return new Query(select, tables, where).renderSQL();
+    FilterVariable where = tablePointer.getFilterVariable(primaryTable, tables);
+    return new Query(select, tables, where);
   }
 
   public TablePointer getTablePointer() {
@@ -110,5 +142,9 @@ public class EntityMapping {
 
   public TextSearchMapping getTextSearchMapping() {
     return textSearchMapping;
+  }
+
+  public void setTextSearchMapping(TextSearchMapping textSearchMapping) {
+    this.textSearchMapping = textSearchMapping;
   }
 }

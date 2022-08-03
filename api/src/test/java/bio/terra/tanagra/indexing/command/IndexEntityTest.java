@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.command;
 
 import static bio.terra.tanagra.indexing.Indexer.READ_RESOURCE_FILE_FUNCTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -10,6 +11,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -36,5 +38,30 @@ public class IndexEntityTest {
         "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.WriteAllNodes -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.person --allNodesQuery=person_selectAll.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
         cmd.getCommand());
     assertEquals(1, cmd.getQueryInputs().size(), "one query input generated");
+  }
+
+  @Test
+  void withTextMapping() throws IOException {
+    Entity condition =
+        Entity.fromJSON("config/entity/Condition.json", READ_RESOURCE_FILE_FUNCTION, dataPointers);
+    List<WorkflowCommand> cmds = condition.getIndexingCommands();
+
+    assertEquals(2, cmds.size(), "two indexing cmds generated");
+
+    Optional<WorkflowCommand> denormalizeAllNodes =
+        cmds.stream().filter(cmd -> cmd.getClass().equals(DenormalizeAllNodes.class)).findFirst();
+    assertTrue(denormalizeAllNodes.isPresent(), "DenormalizeAllNodes indexing cmd generated");
+    assertEquals(
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.WriteAllNodes -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition --allNodesQuery=condition_selectAll.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
+        denormalizeAllNodes.get().getCommand());
+    assertEquals(1, denormalizeAllNodes.get().getQueryInputs().size(), "one query input generated");
+
+    Optional<WorkflowCommand> buildTextSearch =
+        cmds.stream().filter(cmd -> cmd.getClass().equals(BuildTextSearch.class)).findFirst();
+    assertTrue(buildTextSearch.isPresent(), "BuildTextSearch indexing cmd generated");
+    assertEquals(
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildTextSearchInformation -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition --allNodesQuery=condition_selectIds.sql --searchStringsQuery=condition_textSearch.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
+        buildTextSearch.get().getCommand());
+    assertEquals(2, buildTextSearch.get().getQueryInputs().size(), "two query inputs generated");
   }
 }

@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TextSearchMapping {
+  private static final String TEXT_SEARCH_COLUMN_ALIAS = "t_text";
+
   private List<Attribute> attributes;
   private FieldPointer searchString;
 
@@ -47,11 +49,15 @@ public class TextSearchMapping {
     throw new IllegalArgumentException("Text search mapping is empty");
   }
 
+  public static TextSearchMapping getDefault(TablePointer tablePointer) {
+    return new TextSearchMapping(new FieldPointer(tablePointer, TEXT_SEARCH_COLUMN_ALIAS));
+  }
+
   public boolean definedByAttributes() {
     return attributes != null;
   }
 
-  public boolean defiendBySearchString() {
+  public boolean definedBySearchString() {
     return searchString != null;
   }
 
