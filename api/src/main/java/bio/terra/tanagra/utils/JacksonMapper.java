@@ -19,9 +19,11 @@ import org.slf4j.LoggerFactory;
  * CLI command.
  */
 public class JacksonMapper {
-  private static final Logger logger = LoggerFactory.getLogger(JacksonMapper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 
   private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+
+  private JacksonMapper() {}
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
   private static ObjectMapper getMapper() {
@@ -108,7 +110,7 @@ public class JacksonMapper {
     // create the file and any parent directories if they don't already exist
     FileUtils.createFile(path);
 
-    logger.debug("Serializing object with Jackson to file: {}", path);
+    LOGGER.debug("Serializing object with Jackson to file: {}", path);
     objectWriter.writeValue(path.toFile(), javaObject);
   }
 }

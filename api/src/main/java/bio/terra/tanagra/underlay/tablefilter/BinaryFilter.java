@@ -16,21 +16,22 @@ public class BinaryFilter extends TableFilter {
 
   private BinaryFilter(
       FieldPointer fieldPointer, TableFilter.BinaryOperator operator, Literal value) {
-    super();
     this.field = fieldPointer;
     this.operator = operator;
     this.value = value;
   }
 
   public static BinaryFilter fromSerialized(UFBinaryFilter serialized, TablePointer tablePointer) {
-    if (serialized.field == null || serialized.operator == null || serialized.value == null) {
+    if (serialized.getField() == null
+        || serialized.getOperator() == null
+        || serialized.getValue() == null) {
       throw new IllegalArgumentException("Only some table filter fields are defined");
     }
 
-    FieldPointer fieldPointer = FieldPointer.fromSerialized(serialized.field, tablePointer);
-    Literal literal = Literal.fromSerialized(serialized.value);
+    FieldPointer fieldPointer = FieldPointer.fromSerialized(serialized.getField(), tablePointer);
+    Literal literal = Literal.fromSerialized(serialized.getValue());
 
-    return new BinaryFilter(fieldPointer, serialized.operator, literal);
+    return new BinaryFilter(fieldPointer, serialized.getOperator(), literal);
   }
 
   @Override

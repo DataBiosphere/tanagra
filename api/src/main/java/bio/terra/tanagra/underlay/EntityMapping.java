@@ -31,23 +31,25 @@ public class EntityMapping {
       Map<String, DataPointer> dataPointers,
       Map<String, Attribute> attributes,
       String entityName) {
-    if (serialized.dataPointer == null || serialized.dataPointer.isEmpty()) {
+    if (serialized.getDataPointer() == null || serialized.getDataPointer().isEmpty()) {
       throw new IllegalArgumentException("No Data Pointer defined");
     }
-    if (!dataPointers.containsKey(serialized.dataPointer)) {
-      throw new IllegalArgumentException("Data Pointer not found: " + serialized.dataPointer);
+    if (!dataPointers.containsKey(serialized.getDataPointer())) {
+      throw new IllegalArgumentException("Data Pointer not found: " + serialized.getDataPointer());
     }
-    DataPointer dataPointer = dataPointers.get(serialized.dataPointer);
+    DataPointer dataPointer = dataPointers.get(serialized.getDataPointer());
 
     // if the table is defined, then deserialize it
     // otherwise generate a default table pointer: a table with the same name as the entity
     TablePointer tablePointer =
-        serialized.tablePointer != null
-            ? TablePointer.fromSerialized(serialized.tablePointer, dataPointer)
+        serialized.getTablePointer() != null
+            ? TablePointer.fromSerialized(serialized.getTablePointer(), dataPointer)
             : new TablePointer(entityName, dataPointer);
 
     Map<String, UFAttributeMapping> serializedAttributeMappings =
-        serialized.attributeMappings == null ? new HashMap<>() : serialized.attributeMappings;
+        serialized.getAttributeMappings() == null
+            ? new HashMap<>()
+            : serialized.getAttributeMappings();
     Map<String, AttributeMapping> attributeMappings = new HashMap<>();
     for (Attribute attribute : attributes.values()) {
       AttributeMapping attributeMapping =
@@ -66,10 +68,10 @@ public class EntityMapping {
             });
 
     TextSearchMapping textSearchMapping =
-        serialized.textSearchMapping == null
+        serialized.getTextSearchMapping() == null
             ? null
             : TextSearchMapping.fromSerialized(
-                serialized.textSearchMapping, tablePointer, attributes);
+                serialized.getTextSearchMapping(), tablePointer, attributes);
 
     return new EntityMapping(tablePointer, attributeMappings, textSearchMapping);
   }

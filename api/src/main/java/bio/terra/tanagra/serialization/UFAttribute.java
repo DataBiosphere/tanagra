@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFAttribute.Builder.class)
 public class UFAttribute {
-  public final Attribute.Type type;
-  public final String name;
-  public final Literal.DataType dataType;
+  private final Attribute.Type type;
+  private final String name;
+  private final Literal.DataType dataType;
 
   public UFAttribute(Attribute attribute) {
     this.type = attribute.getType();
@@ -56,5 +56,17 @@ public class UFAttribute {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public Attribute.Type getType() {
+    return type;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Literal.DataType getDataType() {
+    return dataType;
   }
 }

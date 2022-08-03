@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 @JsonDeserialize(builder = UFUnderlay.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFUnderlay {
-  public final String name;
-  public final List<UFDataPointer> dataPointers;
-  public final List<String> entities;
-  public final List<String> entityGroups;
-  public final String primaryEntity;
+  private final String name;
+  private final List<UFDataPointer> dataPointers;
+  private final List<String> entities;
+  private final List<String> entityGroups;
+  private final String primaryEntity;
 
   public UFUnderlay(Underlay underlay) {
     this.name = underlay.getName();
@@ -85,5 +85,25 @@ public class UFUnderlay {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public List<UFDataPointer> getDataPointers() {
+    return dataPointers;
+  }
+
+  public List<String> getEntities() {
+    return entities;
+  }
+
+  public List<String> getEntityGroups() {
+    return entityGroups;
+  }
+
+  public String getPrimaryEntity() {
+    return primaryEntity;
   }
 }

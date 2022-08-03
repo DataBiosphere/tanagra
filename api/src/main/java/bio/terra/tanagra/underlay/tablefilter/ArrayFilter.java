@@ -14,23 +14,22 @@ public class ArrayFilter extends TableFilter {
   private List<TableFilter> subfilters;
 
   private ArrayFilter(LogicalOperator operator, List<TableFilter> subfilters) {
-    super();
     this.operator = operator;
     this.subfilters = subfilters;
   }
 
   public static ArrayFilter fromSerialized(UFArrayFilter serialized, TablePointer tablePointer) {
-    if (serialized.operator == null) {
+    if (serialized.getOperator() == null) {
       throw new IllegalArgumentException("Array filter operator is undefined");
     }
-    if (serialized.subfilters == null || serialized.subfilters.size() == 0) {
+    if (serialized.getSubfilters() == null || serialized.getSubfilters().size() == 0) {
       throw new IllegalArgumentException("Array filter has no sub-filters defined");
     }
     List<TableFilter> subFilters =
-        serialized.subfilters.stream()
+        serialized.getSubfilters().stream()
             .map(sf -> sf.deserializeToInternal(tablePointer))
             .collect(Collectors.toList());
-    return new ArrayFilter(serialized.operator, subFilters);
+    return new ArrayFilter(serialized.getOperator(), subFilters);
   }
 
   @Override

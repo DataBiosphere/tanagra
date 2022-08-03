@@ -17,9 +17,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFBinaryFilter.Builder.class)
 public class UFBinaryFilter extends UFTableFilter {
-  public final UFFieldPointer field;
-  public final TableFilter.BinaryOperator operator;
-  public final UFLiteral value;
+  private final UFFieldPointer field;
+  private final TableFilter.BinaryOperator operator;
+  private final UFLiteral value;
 
   public UFBinaryFilter(BinaryFilter binaryFilter) {
     super(binaryFilter);
@@ -68,5 +68,17 @@ public class UFBinaryFilter extends UFTableFilter {
   /** Deserialize to the internal representation of the table filter. */
   public BinaryFilter deserializeToInternal(TablePointer tablePointer) {
     return BinaryFilter.fromSerialized(this, tablePointer);
+  }
+
+  public UFFieldPointer getField() {
+    return field;
+  }
+
+  public TableFilter.BinaryOperator getOperator() {
+    return operator;
+  }
+
+  public UFLiteral getValue() {
+    return value;
   }
 }

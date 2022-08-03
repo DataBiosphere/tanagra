@@ -15,10 +15,10 @@ import java.util.Map;
 @JsonDeserialize(builder = UFEntityMapping.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFEntityMapping {
-  public final String dataPointer;
-  public final UFTablePointer tablePointer;
-  public final Map<String, UFAttributeMapping> attributeMappings;
-  public final UFTextSearchMapping textSearchMapping;
+  private final String dataPointer;
+  private final UFTablePointer tablePointer;
+  private final Map<String, UFAttributeMapping> attributeMappings;
+  private final UFTextSearchMapping textSearchMapping;
 
   public UFEntityMapping(EntityMapping entityMapping) {
     this.dataPointer = entityMapping.getTablePointer().getDataPointer().getName();
@@ -79,5 +79,21 @@ public class UFEntityMapping {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getDataPointer() {
+    return dataPointer;
+  }
+
+  public UFTablePointer getTablePointer() {
+    return tablePointer;
+  }
+
+  public Map<String, UFAttributeMapping> getAttributeMappings() {
+    return attributeMappings;
+  }
+
+  public UFTextSearchMapping getTextSearchMapping() {
+    return textSearchMapping;
   }
 }

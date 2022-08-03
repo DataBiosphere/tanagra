@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public class WorkflowCommand {
-  private static String BASH_COMMENT_PREFIX = "# ";
-  private static String BASH_SCRIPT_FILENAME = "indexing_script.sh";
+  private static final String BASH_COMMENT_PREFIX = "# ";
+  private static final String BASH_SCRIPT_FILENAME = "indexing_script.sh";
 
   private String command;
   private String description;

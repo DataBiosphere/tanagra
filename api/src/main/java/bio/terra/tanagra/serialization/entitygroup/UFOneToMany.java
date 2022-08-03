@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFOneToMany.Builder.class)
 public class UFOneToMany extends UFEntityGroup {
-  public final String entity1;
-  public final String entityM;
-  public final UFRelationshipMapping relationship;
+  private final String entity1;
+  private final String entityM;
+  private final UFRelationshipMapping relationship;
 
   /** Constructor for Jackson deserialization during testing. */
   private UFOneToMany(Builder builder) {
@@ -52,5 +52,17 @@ public class UFOneToMany extends UFEntityGroup {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getEntity1() {
+    return entity1;
+  }
+
+  public String getEntityM() {
+    return entityM;
+  }
+
+  public UFRelationshipMapping getRelationship() {
+    return relationship;
   }
 }

@@ -20,11 +20,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
     property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = UFBinaryFilter.class, name = "BINARY"),
-  @JsonSubTypes.Type(value = UFArrayFilter.class, name = "ARRAY"),
+  @JsonSubTypes.Type(value = UFArrayFilter.class, name = "ARRAY")
 })
 @JsonDeserialize(builder = UFTableFilter.Builder.class)
 public abstract class UFTableFilter {
-  public final TableFilter.Type type;
+  private final TableFilter.Type type;
 
   public UFTableFilter(TableFilter tableFilter) {
     this.type = tableFilter.getType();
@@ -52,4 +52,8 @@ public abstract class UFTableFilter {
 
   /** Deserialize to the internal representation of the table filter. */
   public abstract TableFilter deserializeToInternal(TablePointer tablePointer);
+
+  public TableFilter.Type getType() {
+    return type;
+  }
 }

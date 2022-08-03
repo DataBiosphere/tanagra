@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @JsonDeserialize(builder = UFTextSearchMapping.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFTextSearchMapping {
-  public final List<String> attributes;
-  public final UFFieldPointer searchString;
+  private final List<String> attributes;
+  private final UFFieldPointer searchString;
 
   public UFTextSearchMapping(TextSearchMapping textSearchMapping) {
     this.attributes =
@@ -59,5 +59,13 @@ public class UFTextSearchMapping {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public List<String> getAttributes() {
+    return attributes;
+  }
+
+  public UFFieldPointer getSearchString() {
+    return searchString;
   }
 }

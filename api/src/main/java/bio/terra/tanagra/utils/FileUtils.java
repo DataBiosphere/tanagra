@@ -2,6 +2,7 @@ package bio.terra.tanagra.utils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,22 +14,37 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for manipulating files on disk. */
 public class FileUtils {
-  private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+
+  private FileUtils() {}
 
   /**
    * Build a stream to a resource file.
    *
    * @return the new file stream
-   * @throws FileNotFoundException if the resource file doesn't exist
+   * @throws RuntimeException if the resource file doesn't exist
    */
-  public static InputStream getResourceFileStream(String resourceFilePath)
-      throws FileNotFoundException {
+  public static InputStream getResourceFileStream(String resourceFilePath) {
     InputStream inputStream =
         FileUtils.class.getClassLoader().getResourceAsStream(resourceFilePath);
     if (inputStream == null) {
-      throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
+      throw new RuntimeException("Resource file not found: " + resourceFilePath);
     }
     return inputStream;
+  }
+
+  /**
+   * Build a stream to a file on disk.
+   *
+   * @return the new file stream
+   * @throws RuntimeException if the file doesn't exist
+   */
+  public static InputStream getFileStream(String filePath) {
+    try {
+      return new FileInputStream(Path.of(filePath).toFile());
+    } catch (FileNotFoundException fnfEx) {
+      throw new RuntimeException("File not found: " + filePath, fnfEx);
+    }
   }
 
   /** Create the file and any parent directories if they don't already exist. */
@@ -56,7 +72,7 @@ public class FileUtils {
       justification =
           "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
   public static Path writeStringToFile(Path path, String fileContents) throws IOException {
-    logger.debug("Writing to file: {}", path);
+    LOGGER.debug("Writing to file: {}", path);
 
     // create the file and any parent directories if they don't already exist
     createFile(path);

@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFForeignKey.Builder.class)
 public class UFForeignKey extends UFRelationshipMapping {
-  public final String column;
-  public final String foreignTable;
-  public final String foreignKey;
+  private final String column;
+  private final String foreignTable;
+  private final String foreignKey;
 
   /** Constructor for Jackson deserialization during testing. */
   protected UFForeignKey(Builder builder) {
@@ -51,5 +51,17 @@ public class UFForeignKey extends UFRelationshipMapping {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getColumn() {
+    return column;
+  }
+
+  public String getForeignTable() {
+    return foreignTable;
+  }
+
+  public String getForeignKey() {
+    return foreignKey;
   }
 }

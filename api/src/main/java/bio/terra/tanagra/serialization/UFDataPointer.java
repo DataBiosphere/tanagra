@@ -16,13 +16,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
     property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = UFBigQueryDataset.class, name = "BQ_DATASET"),
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = UFBigQueryDataset.class, name = "BQ_DATASET")})
 @JsonDeserialize(builder = UFDataPointer.Builder.class)
 public abstract class UFDataPointer {
-  public final DataPointer.Type type;
-  public final String name;
+  private final DataPointer.Type type;
+  private final String name;
 
   protected UFDataPointer(DataPointer dataPointer) {
     this.type = dataPointer.getType();
@@ -59,4 +57,12 @@ public abstract class UFDataPointer {
 
   /** Deserialize to the internal representation of the data pointer. */
   public abstract DataPointer deserializeToInternal();
+
+  public DataPointer.Type getType() {
+    return type;
+  }
+
+  public String getName() {
+    return name;
+  }
 }

@@ -9,7 +9,7 @@ public class Literal implements SQLExpression {
   public enum DataType {
     INT64,
     STRING,
-    BOOLEAN;
+    BOOLEAN
   }
 
   private Literal.DataType dataType;
@@ -33,25 +33,25 @@ public class Literal implements SQLExpression {
   }
 
   public static Literal fromSerialized(UFLiteral serialized) {
-    boolean stringValDefined = !Strings.isNullOrEmpty(serialized.stringVal);
-    boolean int64ValDefined = serialized.int64Val != null;
-    boolean booleanValDefined = serialized.booleanVal != null;
+    boolean stringValDefined = !Strings.isNullOrEmpty(serialized.getStringVal());
+    boolean int64ValDefined = serialized.getInt64Val() != null;
+    boolean booleanValDefined = serialized.getBooleanVal() != null;
 
     if (stringValDefined) {
       if (int64ValDefined || booleanValDefined) {
         throw new IllegalArgumentException("More than one literal value defined");
       }
-      return new Literal(serialized.stringVal);
+      return new Literal(serialized.getStringVal());
     } else if (int64ValDefined) {
       if (stringValDefined || booleanValDefined) {
         throw new IllegalArgumentException("More than one literal value defined");
       }
-      return new Literal(serialized.int64Val);
+      return new Literal(serialized.getInt64Val());
     } else if (booleanValDefined) {
       if (stringValDefined || int64ValDefined) {
         throw new IllegalArgumentException("More than one literal value defined");
       }
-      return new Literal(serialized.booleanVal);
+      return new Literal(serialized.getBooleanVal());
     }
 
     throw new IllegalArgumentException("No literal values defined");

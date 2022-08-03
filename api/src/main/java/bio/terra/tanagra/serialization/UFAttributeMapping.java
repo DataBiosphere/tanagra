@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = UFAttributeMapping.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFAttributeMapping {
-  public final UFFieldPointer value;
-  public final UFFieldPointer display;
+  private final UFFieldPointer value;
+  private final UFFieldPointer display;
 
   public UFAttributeMapping(AttributeMapping attributeMapping) {
     this.value = new UFFieldPointer(attributeMapping.getValue());
@@ -49,5 +49,13 @@ public class UFAttributeMapping {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public UFFieldPointer getValue() {
+    return value;
+  }
+
+  public UFFieldPointer getDisplay() {
+    return display;
   }
 }

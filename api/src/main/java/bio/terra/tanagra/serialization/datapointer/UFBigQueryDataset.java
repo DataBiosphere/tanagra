@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFBigQueryDataset.Builder.class)
 public class UFBigQueryDataset extends UFDataPointer {
-  public final String projectId;
-  public final String datasetId;
+  private final String projectId;
+  private final String datasetId;
 
   public UFBigQueryDataset(BigQueryDataset dataPointer) {
     super(dataPointer);
@@ -55,5 +55,13 @@ public class UFBigQueryDataset extends UFDataPointer {
   /** Deserialize to the internal representation of the data pointer. */
   public BigQueryDataset deserializeToInternal() {
     return BigQueryDataset.fromSerialized(this);
+  }
+
+  public String getProjectId() {
+    return projectId;
+  }
+
+  public String getDatasetId() {
+    return datasetId;
   }
 }

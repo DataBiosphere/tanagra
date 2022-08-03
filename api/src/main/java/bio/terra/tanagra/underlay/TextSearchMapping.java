@@ -22,25 +22,25 @@ public class TextSearchMapping {
       UFTextSearchMapping serialized,
       TablePointer tablePointer,
       Map<String, Attribute> entityAttributes) {
-    if (serialized.attributes != null && serialized.searchString != null) {
+    if (serialized.getAttributes() != null && serialized.getSearchString() != null) {
       throw new IllegalArgumentException(
           "Text search mapping can be defined by either attributes or a search string, not both");
     }
 
-    if (serialized.attributes != null) {
-      if (serialized.attributes.size() == 0) {
+    if (serialized.getAttributes() != null) {
+      if (serialized.getAttributes().size() == 0) {
         throw new IllegalArgumentException("Text search mapping list of attributes is empty");
       }
       List<Attribute> attributesForTextSearch =
-          serialized.attributes.stream()
+          serialized.getAttributes().stream()
               .map(a -> entityAttributes.get(a))
               .collect(Collectors.toList());
       return new TextSearchMapping(attributesForTextSearch);
     }
 
-    if (serialized.searchString != null) {
+    if (serialized.getSearchString() != null) {
       FieldPointer searchStringField =
-          FieldPointer.fromSerialized(serialized.searchString, tablePointer);
+          FieldPointer.fromSerialized(serialized.getSearchString(), tablePointer);
       return new TextSearchMapping(searchStringField);
     }
 

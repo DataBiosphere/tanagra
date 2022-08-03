@@ -7,7 +7,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class AttributeMapping {
-  private static String DEFAULT_DISPLAY_MAPPING_PREFIX = "t_display_";
+  private static final String DEFAULT_DISPLAY_MAPPING_PREFIX = "t_display_";
 
   private FieldPointer value;
   private FieldPointer display;
@@ -27,8 +27,8 @@ public class AttributeMapping {
     // if the value is defined, then deserialize it
     // otherwise generate a default attribute mapping: a column with the same name as the attribute
     FieldPointer value =
-        (serialized != null && serialized.value != null)
-            ? FieldPointer.fromSerialized(serialized.value, tablePointer)
+        (serialized != null && serialized.getValue() != null)
+            ? FieldPointer.fromSerialized(serialized.getValue(), tablePointer)
             : new FieldPointer(tablePointer, attribute.getName());
 
     switch (attribute.getType()) {
@@ -39,8 +39,8 @@ public class AttributeMapping {
         // otherwise, generate a default attribute display mapping: a column with the same name as
         // the attribute with a prefix
         FieldPointer display =
-            (serialized != null && serialized.display != null)
-                ? FieldPointer.fromSerialized(serialized.display, tablePointer)
+            (serialized != null && serialized.getDisplay() != null)
+                ? FieldPointer.fromSerialized(serialized.getDisplay(), tablePointer)
                 : new FieldPointer(
                     tablePointer, DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName());
         return new AttributeMapping(value, display);

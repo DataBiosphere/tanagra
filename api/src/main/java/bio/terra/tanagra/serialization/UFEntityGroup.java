@@ -19,12 +19,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
     property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = UFOneToMany.class, name = "ONE_TO_MANY"),
-  @JsonSubTypes.Type(value = UFCriteriaOccurrence.class, name = "CRITERIA_OCCURRENCE"),
+  @JsonSubTypes.Type(value = UFCriteriaOccurrence.class, name = "CRITERIA_OCCURRENCE")
 })
 @JsonDeserialize(builder = UFEntityGroup.Builder.class)
 public abstract class UFEntityGroup {
-  public final EntityGroup.Type type;
-  public final String name;
+  private final EntityGroup.Type type;
+  private final String name;
 
   /** Constructor for Jackson deserialization during testing. */
   protected UFEntityGroup(Builder builder) {
@@ -52,5 +52,13 @@ public abstract class UFEntityGroup {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public EntityGroup.Type getType() {
+    return type;
+  }
+
+  public String getName() {
+    return name;
   }
 }

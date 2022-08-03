@@ -5,46 +5,47 @@ import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Indexer {
-  private static final Logger logger = LoggerFactory.getLogger(Indexer.class);
-  public static String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
+  private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
+  public static final String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
+  public static final Function<String, InputStream> READ_RESOURCE_FILE_FUNCTION =
+      filePath -> FileUtils.getResourceFileStream(filePath);
+  public static final Function<String, InputStream> READ_FILE_FUNCTION =
+      filePath -> FileUtils.getFileStream(filePath);
 
-  private boolean isFromResourceFile;
-  private InputStream underlayInputStream;
+  private String underlayPath;
+  private Function<String, InputStream> getFileInputStreamFunction;
 
   private Underlay underlay;
   private List<WorkflowCommand> indexingCmds;
   private UFUnderlay expandedUnderlay;
   private List<UFEntity> expandedEntities;
 
-  private Indexer(InputStream underlayInputStream, boolean isFromResourceFile) {
-    this.isFromResourceFile = isFromResourceFile;
-    this.underlayInputStream = underlayInputStream;
+  private Indexer(String underlayPath, Function<String, InputStream> getFileInputStreamFunction) {
+    this.underlayPath = underlayPath;
+    this.getFileInputStreamFunction = getFileInputStreamFunction;
   }
 
-  public static Indexer fromResourceFile(String underlayResourceFilePath) throws IOException {
-    return new Indexer(FileUtils.getResourceFileStream(underlayResourceFilePath), true);
+  public static Indexer fromResourceFile(String underlayResourceFilePath) {
+    return new Indexer(underlayResourceFilePath, READ_RESOURCE_FILE_FUNCTION);
   }
 
-  public static Indexer fromFile(Path underlayFilePath) throws FileNotFoundException {
-    return new Indexer(new FileInputStream(underlayFilePath.toFile()), false);
+  public static Indexer fromFile(String underlayFilePath) {
+    return new Indexer(underlayFilePath, READ_FILE_FUNCTION);
   }
 
   public void indexUnderlay() throws IOException {
     // deserialize the POJOs to the internal objects and expand all defaults
-    UFUnderlay serialized =
-        JacksonMapper.readFileIntoJavaObject(underlayInputStream, UFUnderlay.class);
-    underlay = Underlay.deserialize(serialized, isFromResourceFile);
+    underlay = Underlay.fromJSON(underlayPath, getFileInputStreamFunction);
 
     // build a list of indexing commands, including their associated input queries
     indexingCmds = underlay.getIndexingCommands();
@@ -57,27 +58,29 @@ public class Indexer {
             .collect(Collectors.toList());
   }
 
-  public void writeOutIndexFiles(Path outputDir) throws IOException {
+  public void writeOutIndexFiles(String outputDir) throws IOException {
     // write out all index input files and commands into a script
-    if (!outputDir.toFile().exists()) {
-      outputDir.toFile().mkdirs();
+    Path outputDirPath = Path.of(outputDir);
+    if (!outputDirPath.toFile().exists()) {
+      outputDirPath.toFile().mkdirs();
     }
-    logger.info("Writing output to directory: {}", outputDir.toAbsolutePath());
-    WorkflowCommand.writeToDisk(indexingCmds, outputDir);
+    LOGGER.info("Writing output to directory: {}", outputDirPath.toAbsolutePath());
+    WorkflowCommand.writeToDisk(indexingCmds, outputDirPath);
 
     // write out the expanded POJOs
     JacksonMapper.writeJavaObjectToFile(
-        outputDir.resolve(expandedUnderlay.name + OUTPUT_UNDERLAY_FILE_EXTENSION),
+        outputDirPath.resolve(expandedUnderlay.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
         expandedUnderlay);
     for (UFEntity expandedEntity : expandedEntities) {
       JacksonMapper.writeJavaObjectToFile(
-          outputDir.resolve(expandedEntity.name + OUTPUT_UNDERLAY_FILE_EXTENSION), expandedEntity);
+          outputDirPath.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
+          expandedEntity);
     }
   }
 
   public static void main(String... args) throws Exception {
-    Path underlayFilePath = Path.of(args[0]);
-    Path outputDirPath = Path.of(args[1]);
+    String underlayFilePath = args[0];
+    String outputDirPath = args[1];
 
     Indexer indexer = Indexer.fromFile(underlayFilePath);
     indexer.indexUnderlay();

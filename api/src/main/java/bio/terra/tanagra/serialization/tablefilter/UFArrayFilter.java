@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
  */
 @JsonDeserialize(builder = UFArrayFilter.Builder.class)
 public class UFArrayFilter extends UFTableFilter {
-  public final TableFilter.LogicalOperator operator;
-  public final List<UFTableFilter> subfilters;
+  private final TableFilter.LogicalOperator operator;
+  private final List<UFTableFilter> subfilters;
 
   public UFArrayFilter(ArrayFilter arrayFilter) {
     super(arrayFilter);
@@ -60,5 +60,13 @@ public class UFArrayFilter extends UFTableFilter {
   @Override
   public TableFilter deserializeToInternal(TablePointer tablePointer) {
     return ArrayFilter.fromSerialized(this, tablePointer);
+  }
+
+  public TableFilter.LogicalOperator getOperator() {
+    return operator;
+  }
+
+  public List<UFTableFilter> getSubfilters() {
+    return subfilters;
   }
 }

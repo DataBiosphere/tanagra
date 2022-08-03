@@ -19,12 +19,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
     property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = UFForeignKey.class, name = "FOREIGN_KEY"),
-  @JsonSubTypes.Type(value = UFIntermediateTable.class, name = "INTERMEDIATE_TABLE"),
+  @JsonSubTypes.Type(value = UFIntermediateTable.class, name = "INTERMEDIATE_TABLE")
 })
 @JsonDeserialize(builder = UFRelationshipMapping.Builder.class)
 public abstract class UFRelationshipMapping {
-  public final Relationship.Type type;
-  public final String name;
+  private final Relationship.Type type;
+  private final String name;
 
   /** Constructor for Jackson deserialization during testing. */
   protected UFRelationshipMapping(Builder builder) {
@@ -52,5 +52,13 @@ public abstract class UFRelationshipMapping {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public Relationship.Type getType() {
+    return type;
+  }
+
+  public String getName() {
+    return name;
   }
 }

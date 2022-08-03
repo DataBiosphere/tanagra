@@ -14,11 +14,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFCriteriaOccurrence.Builder.class)
 public class UFCriteriaOccurrence extends UFEntityGroup {
-  public final String criteriaEntity;
-  public final String occurrenceEntity;
-  public final UFRelationshipMapping occurrenceCriteriaRelationship;
-  public final UFRelationshipMapping occurrencePrimaryRelationship;
-  public final UFTablePointer staticCountTablePointer;
+  private final String criteriaEntity;
+  private final String occurrenceEntity;
+  private final UFRelationshipMapping occurrenceCriteriaRelationship;
+  private final UFRelationshipMapping occurrencePrimaryRelationship;
+  private final UFTablePointer staticCountTablePointer;
 
   /** Constructor for Jackson deserialization during testing. */
   private UFCriteriaOccurrence(Builder builder) {
@@ -72,5 +72,25 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getCriteriaEntity() {
+    return criteriaEntity;
+  }
+
+  public String getOccurrenceEntity() {
+    return occurrenceEntity;
+  }
+
+  public UFRelationshipMapping getOccurrenceCriteriaRelationship() {
+    return occurrenceCriteriaRelationship;
+  }
+
+  public UFRelationshipMapping getOccurrencePrimaryRelationship() {
+    return occurrencePrimaryRelationship;
+  }
+
+  public UFTablePointer getStaticCountTablePointer() {
+    return staticCountTablePointer;
   }
 }

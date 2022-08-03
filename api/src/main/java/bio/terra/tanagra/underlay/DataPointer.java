@@ -8,7 +8,7 @@ public abstract class DataPointer {
 
   /** Enum for the types of external data pointers supported by Tanagra. */
   public enum Type {
-    BQ_DATASET;
+    BQ_DATASET
   }
 
   private String name;

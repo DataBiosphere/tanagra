@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
  */
 @JsonDeserialize(builder = UFEntity.Builder.class)
 public class UFEntity {
-  public final String name;
-  public final String idAttribute;
-  public final List<UFAttribute> attributes;
-  public final UFEntityMapping sourceDataMapping;
-  public final UFEntityMapping indexDataMapping;
+  private final String name;
+  private final String idAttribute;
+  private final List<UFAttribute> attributes;
+  private final UFEntityMapping sourceDataMapping;
+  private final UFEntityMapping indexDataMapping;
 
   public UFEntity(Entity entity) {
     this.name = entity.getName();
@@ -78,5 +78,25 @@ public class UFEntity {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getIdAttribute() {
+    return idAttribute;
+  }
+
+  public List<UFAttribute> getAttributes() {
+    return attributes;
+  }
+
+  public UFEntityMapping getSourceDataMapping() {
+    return sourceDataMapping;
+  }
+
+  public UFEntityMapping getIndexDataMapping() {
+    return indexDataMapping;
   }
 }

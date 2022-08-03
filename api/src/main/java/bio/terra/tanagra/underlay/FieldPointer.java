@@ -41,27 +41,28 @@ public class FieldPointer {
   }
 
   public static FieldPointer fromSerialized(UFFieldPointer serialized, TablePointer tablePointer) {
-    boolean foreignTableDefined = !Strings.isNullOrEmpty(serialized.foreignTable);
-    boolean foreignKeyColumnDefined = !Strings.isNullOrEmpty(serialized.foreignKey);
-    boolean foreignColumnDefined = !Strings.isNullOrEmpty(serialized.foreignColumn);
+    boolean foreignTableDefined = !Strings.isNullOrEmpty(serialized.getForeignTable());
+    boolean foreignKeyColumnDefined = !Strings.isNullOrEmpty(serialized.getForeignKey());
+    boolean foreignColumnDefined = !Strings.isNullOrEmpty(serialized.getForeignColumn());
     boolean allForeignKeyFieldsDefined =
         foreignTableDefined && foreignKeyColumnDefined && foreignColumnDefined;
     boolean noForeignKeyFieldsDefined =
         !foreignTableDefined && !foreignKeyColumnDefined && !foreignColumnDefined;
 
     if (noForeignKeyFieldsDefined) {
-      return new FieldPointer(tablePointer, serialized.column, serialized.sqlFunctionWrapper);
+      return new FieldPointer(
+          tablePointer, serialized.getColumn(), serialized.getSqlFunctionWrapper());
     } else if (allForeignKeyFieldsDefined) {
       // assume the foreign table is part of the same data pointer as the original table
       TablePointer foreignTablePointer =
-          new TablePointer(serialized.foreignTable, tablePointer.getDataPointer());
+          new TablePointer(serialized.getForeignTable(), tablePointer.getDataPointer());
       return new FieldPointer(
           tablePointer,
-          serialized.column,
-          serialized.sqlFunctionWrapper,
+          serialized.getColumn(),
+          serialized.getSqlFunctionWrapper(),
           foreignTablePointer,
-          serialized.foreignKey,
-          serialized.foreignColumn);
+          serialized.getForeignKey(),
+          serialized.getForeignColumn());
     } else {
       throw new IllegalArgumentException("Only some foreign key fields are defined");
     }

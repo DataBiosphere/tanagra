@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFForeignKey.Builder.class)
 public class UFIntermediateTable extends UFRelationshipMapping {
-  public final String intermediateTable;
-  public final String entity1Column;
-  public final String entity1ForeignKey;
-  public final String entityMColumn;
-  public final String entityMForeignKey;
+  private final String intermediateTable;
+  private final String entity1Column;
+  private final String entity1ForeignKey;
+  private final String entityMColumn;
+  private final String entityMForeignKey;
 
   /** Constructor for Jackson deserialization during testing. */
   protected UFIntermediateTable(Builder builder) {
@@ -67,5 +67,25 @@ public class UFIntermediateTable extends UFRelationshipMapping {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getIntermediateTable() {
+    return intermediateTable;
+  }
+
+  public String getEntity1Column() {
+    return entity1Column;
+  }
+
+  public String getEntity1ForeignKey() {
+    return entity1ForeignKey;
+  }
+
+  public String getEntityMColumn() {
+    return entityMColumn;
+  }
+
+  public String getEntityMForeignKey() {
+    return entityMForeignKey;
   }
 }

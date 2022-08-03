@@ -3,10 +3,14 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.serialization.UFEntity;
+import bio.terra.tanagra.utils.JacksonMapper;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Entity {
@@ -29,37 +33,52 @@ public class Entity {
     this.indexDataMapping = indexDataMapping;
   }
 
-  public static Entity deserialize(UFEntity serialized, Map<String, DataPointer> dataPointers) {
+  public static Entity fromJSON(
+      String entityFilePath,
+      Function<String, InputStream> getFileInputStreamFunction,
+      Map<String, DataPointer> dataPointers)
+      throws IOException {
+    // read in entity file
+    UFEntity serialized =
+        JacksonMapper.readFileIntoJavaObject(
+            getFileInputStreamFunction.apply(entityFilePath), UFEntity.class);
+
     // deserialize attributes
-    if (serialized.attributes == null || serialized.attributes.size() == 0) {
-      throw new IllegalArgumentException("No Attributes defined: " + serialized.name);
+    if (serialized.getAttributes() == null || serialized.getAttributes().size() == 0) {
+      throw new IllegalArgumentException("No Attributes defined: " + serialized.getName());
     }
     Map<String, Attribute> attributes = new HashMap<>();
-    serialized.attributes.forEach(as -> attributes.put(as.name, Attribute.fromSerialized(as)));
+    serialized
+        .getAttributes()
+        .forEach(as -> attributes.put(as.getName(), Attribute.fromSerialized(as)));
 
-    if (serialized.idAttribute == null || serialized.idAttribute.isEmpty()) {
+    if (serialized.getIdAttribute() == null || serialized.getIdAttribute().isEmpty()) {
       throw new IllegalArgumentException("No id Attribute defined");
     }
-    if (!attributes.containsKey(serialized.idAttribute)) {
+    if (!attributes.containsKey(serialized.getIdAttribute())) {
       throw new IllegalArgumentException("Id Attribute not found in the set of Attributes");
     }
 
-    if (serialized.sourceDataMapping == null) {
+    if (serialized.getSourceDataMapping() == null) {
       throw new IllegalArgumentException("No source Data Mapping defined");
     }
     EntityMapping sourceDataMapping =
         EntityMapping.fromSerialized(
-            serialized.sourceDataMapping, dataPointers, attributes, serialized.name);
+            serialized.getSourceDataMapping(), dataPointers, attributes, serialized.getName());
 
-    if (serialized.indexDataMapping == null) {
+    if (serialized.getIndexDataMapping() == null) {
       throw new IllegalArgumentException("No index Data Mapping defined");
     }
     EntityMapping indexDataMapping =
         EntityMapping.fromSerialized(
-            serialized.indexDataMapping, dataPointers, attributes, serialized.name);
+            serialized.getIndexDataMapping(), dataPointers, attributes, serialized.getName());
 
     return new Entity(
-        serialized.name, serialized.idAttribute, attributes, sourceDataMapping, indexDataMapping);
+        serialized.getName(),
+        serialized.getIdAttribute(),
+        attributes,
+        sourceDataMapping,
+        indexDataMapping);
   }
 
   public List<WorkflowCommand> getIndexingCommands() {

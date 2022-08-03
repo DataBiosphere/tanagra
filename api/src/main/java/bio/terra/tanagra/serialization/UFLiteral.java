@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = UFLiteral.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFLiteral {
-  public final String stringVal;
-  public final Long int64Val;
-  public final Boolean booleanVal;
+  private final String stringVal;
+  private final Long int64Val;
+  private final Boolean booleanVal;
 
   public UFLiteral(Literal literal) {
     this.stringVal = literal.getStringVal();
@@ -57,5 +57,17 @@ public class UFLiteral {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getStringVal() {
+    return stringVal;
+  }
+
+  public Long getInt64Val() {
+    return int64Val;
+  }
+
+  public Boolean getBooleanVal() {
+    return booleanVal;
   }
 }

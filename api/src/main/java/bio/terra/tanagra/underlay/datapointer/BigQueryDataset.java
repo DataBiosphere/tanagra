@@ -17,13 +17,14 @@ public class BigQueryDataset extends DataPointer {
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
-    if (serialized.projectId == null || serialized.projectId.isEmpty()) {
+    if (serialized.getProjectId() == null || serialized.getProjectId().isEmpty()) {
       throw new IllegalArgumentException("No BigQuery project ID defined");
     }
-    if (serialized.datasetId == null || serialized.datasetId.isEmpty()) {
+    if (serialized.getDatasetId() == null || serialized.getDatasetId().isEmpty()) {
       throw new IllegalArgumentException("No BigQuery dataset ID defined");
     }
-    return new BigQueryDataset(serialized.name, serialized.projectId, serialized.datasetId);
+    return new BigQueryDataset(
+        serialized.getName(), serialized.getProjectId(), serialized.getDatasetId());
   }
 
   @Override

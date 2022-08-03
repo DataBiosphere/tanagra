@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = UFTablePointer.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFTablePointer {
-  public final String table;
-  public final UFTableFilter filter;
+  private final String table;
+  private final UFTableFilter filter;
 
   public UFTablePointer(TablePointer tablePointer) {
     this.table = tablePointer.getTableName();
@@ -48,5 +48,13 @@ public class UFTablePointer {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getTable() {
+    return table;
+  }
+
+  public UFTableFilter getFilter() {
+    return filter;
   }
 }

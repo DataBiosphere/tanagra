@@ -13,11 +13,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = UFFieldPointer.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFFieldPointer {
-  public final String column;
-  public final String foreignTable;
-  public final String foreignKey;
-  public final String foreignColumn;
-  public final String sqlFunctionWrapper;
+  private final String column;
+  private final String foreignTable;
+  private final String foreignKey;
+  private final String foreignColumn;
+  private final String sqlFunctionWrapper;
 
   public UFFieldPointer(FieldPointer fieldPointer) {
     this.column = fieldPointer.getColumnName();
@@ -81,5 +81,25 @@ public class UFFieldPointer {
 
     /** Default constructor for Jackson. */
     public Builder() {}
+  }
+
+  public String getColumn() {
+    return column;
+  }
+
+  public String getForeignTable() {
+    return foreignTable;
+  }
+
+  public String getForeignKey() {
+    return foreignKey;
+  }
+
+  public String getForeignColumn() {
+    return foreignColumn;
+  }
+
+  public String getSqlFunctionWrapper() {
+    return sqlFunctionWrapper;
   }
 }

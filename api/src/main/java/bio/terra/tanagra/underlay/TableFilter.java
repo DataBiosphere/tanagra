@@ -14,7 +14,7 @@ public abstract class TableFilter {
   /** Enum for the types of table filters supported by Tanagra. */
   public enum Type {
     BINARY,
-    ARRAY;
+    ARRAY
   }
 
   public enum BinaryOperator implements SQLExpression {

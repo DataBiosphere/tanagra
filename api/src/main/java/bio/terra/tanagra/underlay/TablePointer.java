@@ -21,16 +21,16 @@ public class TablePointer {
   }
 
   public static TablePointer fromSerialized(UFTablePointer serialized, DataPointer dataPointer) {
-    if (Strings.isNullOrEmpty(serialized.table)) {
+    if (Strings.isNullOrEmpty(serialized.getTable())) {
       throw new IllegalArgumentException("Table name not defined");
     }
 
-    TablePointer tablePointer = new TablePointer(serialized.table, dataPointer);
-    if (serialized.filter == null) {
+    TablePointer tablePointer = new TablePointer(serialized.getTable(), dataPointer);
+    if (serialized.getFilter() == null) {
       return tablePointer;
     } else {
-      TableFilter tableFilter = serialized.filter.deserializeToInternal(tablePointer);
-      return new TablePointer(serialized.table, dataPointer, tableFilter);
+      TableFilter tableFilter = serialized.getFilter().deserializeToInternal(tablePointer);
+      return new TablePointer(serialized.getTable(), dataPointer, tableFilter);
     }
   }
 

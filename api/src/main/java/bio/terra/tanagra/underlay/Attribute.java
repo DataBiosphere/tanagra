@@ -8,7 +8,7 @@ public class Attribute {
   /** Enum for the types of attributes supported by Tanagra. */
   public enum Type {
     SIMPLE,
-    KEY_AND_DISPLAY;
+    KEY_AND_DISPLAY
   }
 
   private String name;
@@ -22,11 +22,11 @@ public class Attribute {
   }
 
   public static Attribute fromSerialized(UFAttribute serialized) {
-    if (Strings.isNullOrEmpty(serialized.name)) {
+    if (Strings.isNullOrEmpty(serialized.getName())) {
       throw new IllegalArgumentException("Attribute name is undefined");
     }
     // TODO: populate datatype from BQ
-    return new Attribute(serialized.name, serialized.type, serialized.dataType);
+    return new Attribute(serialized.getName(), serialized.getType(), serialized.getDataType());
   }
 
   // getters

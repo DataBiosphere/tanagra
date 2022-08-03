@@ -1,11 +1,9 @@
 package bio.terra.tanagra.indexing.deserialization;
 
+import static bio.terra.tanagra.indexing.Indexer.READ_RESOURCE_FILE_FUNCTION;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.utils.FileUtils;
-import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,15 +14,9 @@ public class InvalidUnderlayTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () -> {
-              UFUnderlay serialized =
-                  JacksonMapper.readFileIntoJavaObject(
-                      FileUtils.getResourceFileStream("nonexistent_file_path.json"),
-                      UFUnderlay.class);
-              Underlay.deserialize(serialized, true);
-            });
+            () -> Underlay.fromJSON("nonexistent_file_path.json", READ_RESOURCE_FILE_FUNCTION));
     ex.printStackTrace();
-    Assertions.assertEquals("Error deserializing Underlay from JSON", ex.getMessage());
+    Assertions.assertEquals("Resource file not found: nonexistent_file_path.json", ex.getMessage());
   }
 
   @Test
@@ -32,13 +24,9 @@ public class InvalidUnderlayTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> {
-              UFUnderlay serialized =
-                  JacksonMapper.readFileIntoJavaObject(
-                      FileUtils.getResourceFileStream("config/underlay/NoDataPointers.json"),
-                      UFUnderlay.class);
-              Underlay.deserialize(serialized, true);
-            });
+            () ->
+                Underlay.fromJSON(
+                    "config/underlay/NoDataPointers.json", READ_RESOURCE_FILE_FUNCTION));
     ex.printStackTrace();
     Assertions.assertEquals("No DataPointer defined", ex.getMessage());
   }
@@ -48,13 +36,8 @@ public class InvalidUnderlayTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> {
-              UFUnderlay serialized =
-                  JacksonMapper.readFileIntoJavaObject(
-                      FileUtils.getResourceFileStream("config/underlay/NoEntities.json"),
-                      UFUnderlay.class);
-              Underlay.deserialize(serialized, true);
-            });
+            () ->
+                Underlay.fromJSON("config/underlay/NoEntities.json", READ_RESOURCE_FILE_FUNCTION));
     ex.printStackTrace();
     Assertions.assertEquals("No Entity defined", ex.getMessage());
   }
@@ -64,13 +47,9 @@ public class InvalidUnderlayTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> {
-              UFUnderlay serialized =
-                  JacksonMapper.readFileIntoJavaObject(
-                      FileUtils.getResourceFileStream("config/underlay/NoPrimaryEntity.json"),
-                      UFUnderlay.class);
-              Underlay.deserialize(serialized, true);
-            });
+            () ->
+                Underlay.fromJSON(
+                    "config/underlay/NoPrimaryEntity.json", READ_RESOURCE_FILE_FUNCTION));
     ex.printStackTrace();
     Assertions.assertEquals("No primary Entity defined", ex.getMessage());
   }
@@ -80,13 +59,9 @@ public class InvalidUnderlayTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> {
-              UFUnderlay serialized =
-                  JacksonMapper.readFileIntoJavaObject(
-                      FileUtils.getResourceFileStream("config/underlay/PrimaryEntityNotFound.json"),
-                      UFUnderlay.class);
-              Underlay.deserialize(serialized, true);
-            });
+            () ->
+                Underlay.fromJSON(
+                    "config/underlay/PrimaryEntityNotFound.json", READ_RESOURCE_FILE_FUNCTION));
     ex.printStackTrace();
     Assertions.assertEquals("Primary Entity not found in the set of Entities", ex.getMessage());
   }
@@ -96,13 +71,9 @@ public class InvalidUnderlayTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> {
-              UFUnderlay serialized =
-                  JacksonMapper.readFileIntoJavaObject(
-                      FileUtils.getResourceFileStream("config/underlay/NoBQProjectId.json"),
-                      UFUnderlay.class);
-              Underlay.deserialize(serialized, true);
-            });
+            () ->
+                Underlay.fromJSON(
+                    "config/underlay/NoBQProjectId.json", READ_RESOURCE_FILE_FUNCTION));
     ex.printStackTrace();
     Assertions.assertEquals("No BigQuery project ID defined", ex.getMessage());
   }
