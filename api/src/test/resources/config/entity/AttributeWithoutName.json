@@ -1,0 +1,25 @@
+{
+  "name": "person",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE" },
+    { "type": "KEY_AND_DISPLAY", "name": "gender" } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "table": "person" },
+    "attributeMappings": {
+      "id": { "value": { "column": "person_id" } },
+      "gender": {
+        "value": { "column": "gender_concept_id" },
+        "display": {
+          "column": "gender_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } } } },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

@@ -48,7 +48,8 @@ dependencyManagement {
 dependencies {
     ext {
         google_protobuf = "3.17.3"
-        jackson = "2.11.2"
+        jackson = "2.12.3"
+        jacksonYaml = "2.11.2"
     }
     implementation project(":lib")
 
@@ -70,8 +71,10 @@ dependencies {
     implementation group: "org.springframework.boot", name: "spring-boot-starter-data-jdbc"
 
     // OpenApi(Swagger) dependencies
-    implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: jackson
-    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-jaxb-annotations", version: jackson
+    implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: jacksonYaml
+    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-jaxb-annotations", version: jacksonYaml
+    implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
     implementation group: "io.swagger.core.v3", name: "swagger-annotations"
     implementation group: "io.swagger", name: "swagger-annotations", version: "1.6.2"
     implementation group: "org.webjars", name: "webjars-locator-core", version: "0.46"

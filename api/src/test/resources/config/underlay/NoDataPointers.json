@@ -1,0 +1,6 @@
+{
+  "name": "aou_synthetic",
+  "dataPointers": [ ],
+  "entities": [ "Person.json" ],
+  "primaryEntity": "Person"
+}
