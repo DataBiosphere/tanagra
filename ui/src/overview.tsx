@@ -27,6 +27,7 @@ import {
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
+import { useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import { useCallback, useContext } from "react";
@@ -97,6 +98,7 @@ function AddCriteriaButton(props: {
   kind?: tanagra.GroupKindEnum;
 }) {
   const underlay = useUnderlay();
+  const source = useSource();
   const cohort = useCohort();
   const history = useHistory();
   const dispatch = useAppDispatch();
@@ -129,7 +131,7 @@ function AddCriteriaButton(props: {
       <MenuItem
         key={config.title}
         onClick={() => {
-          onAddCriteria(createCriteria(underlay, config));
+          onAddCriteria(createCriteria(source, config));
         }}
       >
         {config.title}
@@ -382,6 +384,7 @@ type DemographicChartsProps = {
 
 function DemographicCharts({ cohort }: DemographicChartsProps) {
   const underlay = useUnderlay();
+  const source = useSource();
 
   const api = useContext(EntityCountsApiContext);
 

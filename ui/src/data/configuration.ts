@@ -43,11 +43,6 @@ export type Grouping = {
   defaultSort?: SortOrder;
 };
 
-export type Attribute = {
-  id: string;
-  attribute: string;
-};
-
 export type PrimaryEntity = {
   entity: string;
   key: string;
