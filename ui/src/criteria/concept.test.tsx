@@ -151,6 +151,20 @@ beforeAll(() => {
         uiConfiguration: {
           dataConfig: dataConfig,
           criteriaConfigs: [],
+          demographicChartConfigs: {
+            additionalSelectedAttributes: ["gender", "race"],
+            groupByAttributes: [
+              "gender_concept_id",
+              "race_concept_id",
+              "year_of_birth",
+            ],
+            chartConfigs: [
+              {
+                title: "Graph 1",
+                primaryProperties: [{ key: "gender" }],
+              },
+            ],
+          },
         },
         prepackagedConceptSets: [],
       },
@@ -170,6 +184,20 @@ beforeAll(() => {
           uiConfiguration: {
             dataConfig: dataConfig,
             criteriaConfigs: [],
+            demographicChartConfigs: {
+              additionalSelectedAttributes: ["gender", "race"],
+              groupByAttributes: [
+                "gender_concept_id",
+                "race_concept_id",
+                "year_of_birth",
+              ],
+              chartConfigs: [
+                {
+                  title: "Graph 2",
+                  primaryProperties: [{ key: "gender" }],
+                },
+              ],
+            },
           },
           prepackagedConceptSets: [],
         },
@@ -197,7 +225,8 @@ beforeAll(() => {
 async function renderCriteria(
   instances: Array<{ [key: string]: tanagra.AttributeValue | null }>
 ) {
-  const getCriteria = () => store.getState().present.cohorts[0].groups[0].criteria[0];
+  const getCriteria = () =>
+    store.getState().present.cohorts[0].groups[0].criteria[0];
 
   const api = {
     async searchEntityInstances(): Promise<tanagra.SearchEntityInstancesResponse> {
