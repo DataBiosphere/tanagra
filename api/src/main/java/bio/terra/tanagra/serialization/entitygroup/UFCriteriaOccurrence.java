@@ -2,13 +2,16 @@ package bio.terra.tanagra.serialization.entitygroup;
 
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
-import bio.terra.tanagra.serialization.UFTablePointer;
+import bio.terra.tanagra.underlay.DataPointer;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Map;
 
 /**
- * External representation of a criteria occurrence entity group (e.g.
- * condition-condition_occurrence-person).
+ * External representation of a criteria-occurrence entity group (e.g.
+ * condition-person-condition_occurrence).
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
@@ -16,27 +19,37 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class UFCriteriaOccurrence extends UFEntityGroup {
   private final String criteriaEntity;
   private final String occurrenceEntity;
-  private final UFRelationshipMapping occurrenceCriteriaRelationship;
-  private final UFRelationshipMapping occurrencePrimaryRelationship;
-  private final UFTablePointer staticCountTablePointer;
+  private final UFRelationshipMapping occurrenceToCriteriaRelationship;
+  private final UFRelationshipMapping occurrenceToPrimaryRelationship;
+  private final String rollupCountTablePointer;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFCriteriaOccurrence(CriteriaOccurrence entityGroup) {
+    super(entityGroup);
+    this.criteriaEntity = entityGroup.getCriteriaEntity().getName();
+    this.occurrenceEntity = entityGroup.getOccurrenceEntity().getName();
+    this.occurrenceToCriteriaRelationship =
+        entityGroup.getOccurrenceToCriteriaRelationship().serialize();
+    this.occurrenceToPrimaryRelationship =
+        entityGroup.getOccurrenceToPrimaryRelationship().serialize();
+    this.rollupCountTablePointer = entityGroup.getRollupCountTablePointer().getTableName();
+  }
+
   private UFCriteriaOccurrence(Builder builder) {
     super(builder);
     this.criteriaEntity = builder.criteriaEntity;
     this.occurrenceEntity = builder.occurrenceEntity;
-    this.occurrenceCriteriaRelationship = builder.occurrenceCriteriaRelationship;
-    this.occurrencePrimaryRelationship = builder.occurrencePrimaryRelationship;
-    this.staticCountTablePointer = builder.staticCountTablePointer;
+    this.occurrenceToCriteriaRelationship = builder.occurrenceToCriteriaRelationship;
+    this.occurrenceToPrimaryRelationship = builder.occurrenceToPrimaryRelationship;
+    this.rollupCountTablePointer = builder.rollupCountTablePointer;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFEntityGroup.Builder {
     private String criteriaEntity;
     private String occurrenceEntity;
-    private UFRelationshipMapping occurrenceCriteriaRelationship;
-    private UFRelationshipMapping occurrencePrimaryRelationship;
-    private UFTablePointer staticCountTablePointer;
+    private UFRelationshipMapping occurrenceToCriteriaRelationship;
+    private UFRelationshipMapping occurrenceToPrimaryRelationship;
+    private String rollupCountTablePointer;
 
     public Builder criteriaEntity(String criteriaEntity) {
       this.criteriaEntity = criteriaEntity;
@@ -48,20 +61,20 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
       return this;
     }
 
-    public Builder occurrenceCriteriaRelationship(
-        UFRelationshipMapping occurrenceCriteriaRelationship) {
-      this.occurrenceCriteriaRelationship = occurrenceCriteriaRelationship;
+    public Builder occurrenceToCriteriaRelationship(
+        UFRelationshipMapping occurrenceToCriteriaRelationship) {
+      this.occurrenceToCriteriaRelationship = occurrenceToCriteriaRelationship;
       return this;
     }
 
-    public Builder occurrencePrimaryRelationship(
-        UFRelationshipMapping occurrencePrimaryRelationship) {
-      this.occurrencePrimaryRelationship = occurrencePrimaryRelationship;
+    public Builder occurrenceToPrimaryRelationship(
+        UFRelationshipMapping occurrenceToPrimaryRelationship) {
+      this.occurrenceToPrimaryRelationship = occurrenceToPrimaryRelationship;
       return this;
     }
 
-    public Builder staticCountTablePointer(UFTablePointer staticCountTablePointer) {
-      this.staticCountTablePointer = staticCountTablePointer;
+    public Builder rollupCountTablePointer(String rollupCountTablePointer) {
+      this.rollupCountTablePointer = rollupCountTablePointer;
       return this;
     }
 
@@ -74,6 +87,14 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
     public Builder() {}
   }
 
+  @Override
+  public CriteriaOccurrence deserializeToInternal(
+      Map<String, DataPointer> dataPointers,
+      Map<String, Entity> entities,
+      String primaryEntityName) {
+    return CriteriaOccurrence.fromSerialized(this, dataPointers, entities, primaryEntityName);
+  }
+
   public String getCriteriaEntity() {
     return criteriaEntity;
   }
@@ -82,15 +103,15 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
     return occurrenceEntity;
   }
 
-  public UFRelationshipMapping getOccurrenceCriteriaRelationship() {
-    return occurrenceCriteriaRelationship;
+  public UFRelationshipMapping getOccurrenceToCriteriaRelationship() {
+    return occurrenceToCriteriaRelationship;
   }
 
-  public UFRelationshipMapping getOccurrencePrimaryRelationship() {
-    return occurrencePrimaryRelationship;
+  public UFRelationshipMapping getOccurrenceToPrimaryRelationship() {
+    return occurrenceToPrimaryRelationship;
   }
 
-  public UFTablePointer getStaticCountTablePointer() {
-    return staticCountTablePointer;
+  public String getRollupCountTablePointer() {
+    return rollupCountTablePointer;
   }
 }

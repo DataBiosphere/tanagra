@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.serialization.UFEntity;
+import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.FileUtils;
@@ -29,6 +30,7 @@ public class Indexer {
   private List<WorkflowCommand> indexingCmds;
   private UFUnderlay expandedUnderlay;
   private List<UFEntity> expandedEntities;
+  private List<UFEntityGroup> expandedEntityGroups;
 
   private Indexer(String underlayPath, Function<String, InputStream> getFileInputStreamFunction) {
     this.underlayPath = underlayPath;
@@ -56,6 +58,10 @@ public class Indexer {
         underlay.getEntities().values().stream()
             .map(e -> new UFEntity(e))
             .collect(Collectors.toList());
+    expandedEntityGroups =
+        underlay.getEntityGroups().values().stream()
+            .map(eg -> eg.serialize())
+            .collect(Collectors.toList());
   }
 
   public void writeOutIndexFiles(String outputDir) throws IOException {
@@ -75,6 +81,11 @@ public class Indexer {
       JacksonMapper.writeJavaObjectToFile(
           outputDirPath.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
           expandedEntity);
+    }
+    for (UFEntityGroup expandedEntityGroup : expandedEntityGroups) {
+      JacksonMapper.writeJavaObjectToFile(
+          outputDirPath.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
+          expandedEntityGroup);
     }
   }
 

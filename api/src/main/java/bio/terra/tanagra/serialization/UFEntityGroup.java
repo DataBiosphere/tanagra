@@ -2,11 +2,14 @@ package bio.terra.tanagra.serialization;
 
 import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
 import bio.terra.tanagra.serialization.entitygroup.UFOneToMany;
+import bio.terra.tanagra.underlay.DataPointer;
+import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Map;
 
 /**
  * External representation of a data pointer configuration.
@@ -25,17 +28,25 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public abstract class UFEntityGroup {
   private final EntityGroup.Type type;
   private final String name;
+  private final String indexDataPointer;
 
-  /** Constructor for Jackson deserialization during testing. */
+  protected UFEntityGroup(EntityGroup entityGroup) {
+    this.type = entityGroup.getType();
+    this.name = entityGroup.getName();
+    this.indexDataPointer = entityGroup.getIndexDataPointer().getName();
+  }
+
   protected UFEntityGroup(Builder builder) {
     this.type = builder.type;
     this.name = builder.name;
+    this.indexDataPointer = builder.indexDataPointer;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public abstract static class Builder {
     private EntityGroup.Type type;
     private String name;
+    private String indexDataPointer;
 
     public Builder type(EntityGroup.Type type) {
       this.type = type;
@@ -47,6 +58,11 @@ public abstract class UFEntityGroup {
       return this;
     }
 
+    public Builder indexDataPointer(String indexDataPointer) {
+      this.indexDataPointer = indexDataPointer;
+      return this;
+    }
+
     /** Call the private constructor. */
     public abstract UFEntityGroup build();
 
@@ -54,11 +70,21 @@ public abstract class UFEntityGroup {
     public Builder() {}
   }
 
+  /** Deserialize to the internal representation of the entity group. */
+  public abstract EntityGroup deserializeToInternal(
+      Map<String, DataPointer> dataPointers,
+      Map<String, Entity> entities,
+      String primaryEntityName);
+
   public EntityGroup.Type getType() {
     return type;
   }
 
   public String getName() {
     return name;
+  }
+
+  public String getIndexDataPointer() {
+    return indexDataPointer;
   }
 }

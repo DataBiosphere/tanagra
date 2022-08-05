@@ -115,4 +115,8 @@ public class FieldPointer {
   public String getSqlFunctionWrapper() {
     return sqlFunctionWrapper;
   }
+
+  public TablePointer getTablePointer() {
+    return tablePointer;
+  }
 }

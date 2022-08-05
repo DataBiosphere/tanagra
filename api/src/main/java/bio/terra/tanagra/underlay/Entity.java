@@ -66,14 +66,22 @@ public class Entity {
     }
     EntityMapping sourceDataMapping =
         EntityMapping.fromSerialized(
-            serialized.getSourceDataMapping(), dataPointers, attributes, serialized.getName());
+            serialized.getSourceDataMapping(),
+            dataPointers,
+            attributes,
+            serialized.getName(),
+            serialized.getIdAttribute());
 
     if (serialized.getIndexDataMapping() == null) {
       throw new IllegalArgumentException("No index Data Mapping defined");
     }
     EntityMapping indexDataMapping =
         EntityMapping.fromSerialized(
-            serialized.getIndexDataMapping(), dataPointers, attributes, serialized.getName());
+            serialized.getIndexDataMapping(),
+            dataPointers,
+            attributes,
+            serialized.getName(),
+            serialized.getIdAttribute());
 
     // if the source data mapping includes text search, then expand it in the index data mapping
     if (sourceDataMapping.hasTextSearchMapping() && !indexDataMapping.hasTextSearchMapping()) {
@@ -104,6 +112,10 @@ public class Entity {
 
   public Attribute getIdAttribute() {
     return attributes.get(idAttributeName);
+  }
+
+  public Attribute getAttribute(String name) {
+    return attributes.get(name);
   }
 
   public List<Attribute> getAttributes() {

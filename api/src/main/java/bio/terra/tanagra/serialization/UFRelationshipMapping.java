@@ -2,11 +2,14 @@ package bio.terra.tanagra.serialization;
 
 import bio.terra.tanagra.serialization.relationshipmapping.UFForeignKey;
 import bio.terra.tanagra.serialization.relationshipmapping.UFIntermediateTable;
-import bio.terra.tanagra.underlay.Relationship;
+import bio.terra.tanagra.underlay.DataPointer;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.RelationshipMapping;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Map;
 
 /**
  * External representation of a data pointer configuration.
@@ -23,27 +26,22 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 })
 @JsonDeserialize(builder = UFRelationshipMapping.Builder.class)
 public abstract class UFRelationshipMapping {
-  private final Relationship.Type type;
-  private final String name;
+  private final RelationshipMapping.Type type;
 
-  /** Constructor for Jackson deserialization during testing. */
+  protected UFRelationshipMapping(RelationshipMapping relationshipMapping) {
+    this.type = relationshipMapping.getType();
+  }
+
   protected UFRelationshipMapping(Builder builder) {
     this.type = builder.type;
-    this.name = builder.name;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public abstract static class Builder {
-    private Relationship.Type type;
-    private String name;
+    private RelationshipMapping.Type type;
 
-    public Builder type(Relationship.Type type) {
+    public Builder type(RelationshipMapping.Type type) {
       this.type = type;
-      return this;
-    }
-
-    public Builder name(String name) {
-      this.name = name;
       return this;
     }
 
@@ -54,11 +52,11 @@ public abstract class UFRelationshipMapping {
     public Builder() {}
   }
 
-  public Relationship.Type getType() {
-    return type;
-  }
+  /** Deserialize to the internal representation of the relationship mapping. */
+  public abstract RelationshipMapping deserializeToInternal(
+      Entity entityA, Entity entityB, Map<String, DataPointer> dataPointers);
 
-  public String getName() {
-    return name;
+  public RelationshipMapping.Type getType() {
+    return type;
   }
 }

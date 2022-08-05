@@ -1,46 +1,45 @@
 package bio.terra.tanagra.serialization.relationshipmapping;
 
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
+import bio.terra.tanagra.underlay.DataPointer;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.relationshipmapping.ForeignKey;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Map;
 
 /**
- * External representation of a pointer to a column via foreign keyß.
+ * External representation of a relationship defined by an intermediate table.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFForeignKey.Builder.class)
 public class UFForeignKey extends UFRelationshipMapping {
-  private final String column;
-  private final String foreignTable;
-  private final String foreignKey;
+  private final String keyAttribute;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFForeignKey(ForeignKey relationshipMapping) {
+    super(relationshipMapping);
+    this.keyAttribute = relationshipMapping.getKeyAttributeA().getName();
+  }
+
   protected UFForeignKey(Builder builder) {
     super(builder);
-    this.column = builder.column;
-    this.foreignTable = builder.foreignTable;
-    this.foreignKey = builder.foreignKey;
+    this.keyAttribute = builder.keyAttribute;
+  }
+
+  @Override
+  public RelationshipMapping deserializeToInternal(
+      Entity entityA, Entity entityB, Map<String, DataPointer> dataPointers) {
+    return ForeignKey.fromSerialized(this, entityA, entityB);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFRelationshipMapping.Builder {
-    private String column;
-    private String foreignTable;
-    private String foreignKey;
+    private String keyAttribute;
 
-    public Builder column(String column) {
-      this.column = column;
-      return this;
-    }
-
-    public Builder foreignTable(String foreignTable) {
-      this.foreignTable = foreignTable;
-      return this;
-    }
-
-    public Builder foreignKey(String foreignKey) {
-      this.foreignKey = foreignKey;
+    public Builder keyAttribute(String keyAttribute) {
+      this.keyAttribute = keyAttribute;
       return this;
     }
 
@@ -53,15 +52,7 @@ public class UFForeignKey extends UFRelationshipMapping {
     public Builder() {}
   }
 
-  public String getColumn() {
-    return column;
-  }
-
-  public String getForeignTable() {
-    return foreignTable;
-  }
-
-  public String getForeignKey() {
-    return foreignKey;
+  public String getKeyAttribute() {
+    return keyAttribute;
   }
 }

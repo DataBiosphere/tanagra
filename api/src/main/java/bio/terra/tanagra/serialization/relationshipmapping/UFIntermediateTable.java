@@ -1,62 +1,72 @@
 package bio.terra.tanagra.serialization.relationshipmapping;
 
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
+import bio.terra.tanagra.underlay.DataPointer;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.relationshipmapping.IntermediateTable;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Map;
 
 /**
- * External representation of a pointer to a column via foreign keyß.
+ * External representation of a relationship defined by an intermediate table.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
-@JsonDeserialize(builder = UFForeignKey.Builder.class)
+@JsonDeserialize(builder = UFIntermediateTable.Builder.class)
 public class UFIntermediateTable extends UFRelationshipMapping {
-  private final String intermediateTable;
-  private final String entity1Column;
-  private final String entity1ForeignKey;
-  private final String entityMColumn;
-  private final String entityMForeignKey;
+  private final String dataPointer;
+  private final String tablePointer;
+  private final String entityKeyFieldA;
+  private final String entityKeyFieldB;
 
-  /** Constructor for Jackson deserialization during testing. */
+  public UFIntermediateTable(IntermediateTable relationshipMapping) {
+    super(relationshipMapping);
+    this.dataPointer = relationshipMapping.getDataPointer().getName();
+    this.tablePointer = relationshipMapping.getTablePointer().getTableName();
+    this.entityKeyFieldA = relationshipMapping.getEntityKeyA().getColumnName();
+    this.entityKeyFieldB = relationshipMapping.getEntityKeyB().getColumnName();
+  }
+
   protected UFIntermediateTable(Builder builder) {
     super(builder);
-    this.intermediateTable = builder.intermediateTable;
-    this.entity1Column = builder.entity1Column;
-    this.entity1ForeignKey = builder.entity1ForeignKey;
-    this.entityMColumn = builder.entityMColumn;
-    this.entityMForeignKey = builder.entityMForeignKey;
+    this.dataPointer = builder.dataPointer;
+    this.tablePointer = builder.tablePointer;
+    this.entityKeyFieldA = builder.entityKeyFieldA;
+    this.entityKeyFieldB = builder.entityKeyFieldB;
+  }
+
+  @Override
+  public RelationshipMapping deserializeToInternal(
+      Entity entityA, Entity entityB, Map<String, DataPointer> dataPointers) {
+    return IntermediateTable.fromSerialized(this, entityA, entityB, dataPointers);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFRelationshipMapping.Builder {
-    private String intermediateTable;
-    private String entity1Column;
-    private String entity1ForeignKey;
-    private String entityMColumn;
-    private String entityMForeignKey;
+    private String dataPointer;
+    private String tablePointer;
+    private String entityKeyFieldA;
+    private String entityKeyFieldB;
 
-    public Builder intermediateTable(String intermediateTable) {
-      this.intermediateTable = intermediateTable;
+    public Builder dataPointer(String dataPointer) {
+      this.dataPointer = dataPointer;
       return this;
     }
 
-    public Builder entity1Column(String entity1Column) {
-      this.entity1Column = entity1Column;
+    public Builder tablePointer(String tablePointer) {
+      this.tablePointer = tablePointer;
       return this;
     }
 
-    public Builder entity1ForeignKey(String entity1ForeignKey) {
-      this.entity1ForeignKey = entity1ForeignKey;
+    public Builder entityKeyFieldA(String entityKeyFieldA) {
+      this.entityKeyFieldA = entityKeyFieldA;
       return this;
     }
 
-    public Builder entityMColumn(String entityMColumn) {
-      this.entityMColumn = entityMColumn;
-      return this;
-    }
-
-    public Builder entityMForeignKey(String entityMForeignKey) {
-      this.entityMForeignKey = entityMForeignKey;
+    public Builder entityKeyFieldB(String entityKeyFieldB) {
+      this.entityKeyFieldB = entityKeyFieldB;
       return this;
     }
 
@@ -69,23 +79,19 @@ public class UFIntermediateTable extends UFRelationshipMapping {
     public Builder() {}
   }
 
-  public String getIntermediateTable() {
-    return intermediateTable;
+  public String getDataPointer() {
+    return dataPointer;
   }
 
-  public String getEntity1Column() {
-    return entity1Column;
+  public String getTablePointer() {
+    return tablePointer;
   }
 
-  public String getEntity1ForeignKey() {
-    return entity1ForeignKey;
+  public String getEntityKeyFieldA() {
+    return entityKeyFieldA;
   }
 
-  public String getEntityMColumn() {
-    return entityMColumn;
-  }
-
-  public String getEntityMForeignKey() {
-    return entityMForeignKey;
+  public String getEntityKeyFieldB() {
+    return entityKeyFieldB;
   }
 }

@@ -17,16 +17,19 @@ public class Underlay {
   private Map<String, DataPointer> dataPointers;
   private Map<String, Entity> entities;
   private String primaryEntityName;
+  private Map<String, EntityGroup> entityGroups;
 
   private Underlay(
       String name,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
-      String primaryEntityName) {
+      String primaryEntityName,
+      Map<String, EntityGroup> entityGroups) {
     this.name = name;
     this.dataPointers = dataPointers;
     this.entities = entities;
     this.primaryEntityName = primaryEntityName;
+    this.entityGroups = entityGroups;
   }
 
   public static Underlay fromJSON(
@@ -46,7 +49,7 @@ public class Underlay {
         .getDataPointers()
         .forEach(dps -> dataPointers.put(dps.getName(), dps.deserializeToInternal()));
 
-    // read in entities
+    // deserialize entities
     if (serialized.getEntities() == null || serialized.getEntities().size() == 0) {
       throw new IllegalArgumentException("No Entity defined");
     }
@@ -56,21 +59,35 @@ public class Underlay {
       entities.put(entity.getName(), entity);
     }
 
-    if (serialized.getPrimaryEntity() == null || serialized.getPrimaryEntity().isEmpty()) {
+    String primaryEntity = serialized.getPrimaryEntity();
+    if (primaryEntity == null || primaryEntity.isEmpty()) {
       throw new IllegalArgumentException("No primary Entity defined");
     }
-    if (!entities.containsKey(serialized.getPrimaryEntity())) {
+    if (!entities.containsKey(primaryEntity)) {
       throw new IllegalArgumentException("Primary Entity not found in the set of Entities");
     }
 
-    return new Underlay(
-        serialized.getName(), dataPointers, entities, serialized.getPrimaryEntity());
+    // deserialize entity groups
+    Map<String, EntityGroup> entityGroups = new HashMap<>();
+    if (serialized.getEntityGroups() != null) {
+      for (String entityGroupFile : serialized.getEntityGroups()) {
+        EntityGroup entityGroup =
+            EntityGroup.fromJSON(
+                entityGroupFile, getFileInputStreamFunction, dataPointers, entities, primaryEntity);
+        entityGroups.put(entityGroup.getName(), entityGroup);
+      }
+    }
+
+    return new Underlay(serialized.getName(), dataPointers, entities, primaryEntity, entityGroups);
   }
 
   public List<WorkflowCommand> getIndexingCommands() {
     List<WorkflowCommand> cmds = new ArrayList<>();
     for (Entity entity : entities.values()) {
       cmds.addAll(entity.getIndexingCommands());
+    }
+    for (EntityGroup entityGroup : entityGroups.values()) {
+      cmds.addAll(entityGroup.getIndexingCommands());
     }
     return cmds;
   }
@@ -89,5 +106,9 @@ public class Underlay {
 
   public Entity getPrimaryEntity() {
     return entities.get(primaryEntityName);
+  }
+
+  public Map<String, EntityGroup> getEntityGroups() {
+    return Collections.unmodifiableMap(entityGroups);
   }
 }

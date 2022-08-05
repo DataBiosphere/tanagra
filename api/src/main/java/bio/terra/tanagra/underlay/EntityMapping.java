@@ -19,21 +19,25 @@ public class EntityMapping {
   private TablePointer tablePointer;
   private Map<String, AttributeMapping> attributeMappings;
   private TextSearchMapping textSearchMapping;
+  private String idAttributeName;
 
   private EntityMapping(
       TablePointer tablePointer,
       Map<String, AttributeMapping> attributeMappings,
-      TextSearchMapping textSearchMapping) {
+      TextSearchMapping textSearchMapping,
+      String idAttributeName) {
     this.tablePointer = tablePointer;
     this.attributeMappings = attributeMappings;
     this.textSearchMapping = textSearchMapping;
+    this.idAttributeName = idAttributeName;
   }
 
   public static EntityMapping fromSerialized(
       UFEntityMapping serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Attribute> attributes,
-      String entityName) {
+      String entityName,
+      String idAttributeName) {
     if (serialized.getDataPointer() == null || serialized.getDataPointer().isEmpty()) {
       throw new IllegalArgumentException("No Data Pointer defined");
     }
@@ -76,7 +80,7 @@ public class EntityMapping {
             : TextSearchMapping.fromSerialized(
                 serialized.getTextSearchMapping(), tablePointer, attributes);
 
-    return new EntityMapping(tablePointer, attributeMappings, textSearchMapping);
+    return new EntityMapping(tablePointer, attributeMappings, textSearchMapping, idAttributeName);
   }
 
   public SQLExpression queryTextSearchStrings() {
@@ -134,6 +138,10 @@ public class EntityMapping {
 
   public Map<String, AttributeMapping> getAttributeMappings() {
     return Collections.unmodifiableMap(attributeMappings);
+  }
+
+  public AttributeMapping getIdAttributeMapping() {
+    return attributeMappings.get(idAttributeName);
   }
 
   public boolean hasTextSearchMapping() {

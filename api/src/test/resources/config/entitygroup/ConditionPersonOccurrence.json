@@ -1,0 +1,19 @@
+{
+  "name": "condition_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "indexDataPointer": "index_dataset",
+
+  "criteriaEntity": "condition",
+  "occurrenceEntity": "condition_occurrence",
+
+  "occurrenceToCriteriaRelationship": {
+    "type": "FOREIGN_KEY",
+    "keyAttribute": "condition_id"
+  },
+  "occurrenceToPrimaryRelationship": {
+    "type": "FOREIGN_KEY",
+    "keyAttribute": "person_id"
+  },
+
+  "rollupCountTablePointer": "condition_person_rollup_count"
+}

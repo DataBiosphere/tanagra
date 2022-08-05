@@ -27,7 +27,6 @@ public abstract class UFDataPointer {
     this.name = dataPointer.getName();
   }
 
-  /** Constructor for Jackson deserialization during testing. */
   protected UFDataPointer(Builder builder) {
     this.type = builder.type;
     this.name = builder.name;
