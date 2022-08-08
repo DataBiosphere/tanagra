@@ -101,7 +101,7 @@ class _ implements CriteriaPlugin<Data> {
       },
     }));
 
-    if (!operands) {
+    if (!operands?.length) {
       return null;
     }
 
@@ -233,6 +233,7 @@ function ConceptEdit(props: ConceptEditProps) {
     return source
       .searchClassification(attributes, occurrence.id, classification.id, {
         query: !hierarchy ? query : undefined,
+        includeGroupings: !hierarchy,
       })
       .then((res) => processEntities(res, hierarchy));
   }, [source, attributes, processEntities, hierarchy, query]);

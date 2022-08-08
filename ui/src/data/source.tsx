@@ -25,6 +25,7 @@ export type ClassificationNode = {
 export type SearchClassificationOptions = {
   query?: string;
   parent?: DataKey;
+  includeGroupings?: boolean;
 };
 
 export type SearchClassificationResult = {
@@ -129,7 +130,7 @@ export class BackendSource implements Source {
     }
 
     const query = !options?.parent ? options?.query || "" : undefined;
-    return Promise.all([
+    const promises = [
       this.entityInstancesApi.searchEntityInstances(
         searchRequest(
           ra,
@@ -140,19 +141,26 @@ export class BackendSource implements Source {
           options?.parent
         )
       ),
-      ...(classification.groupings?.map((grouping) =>
-        this.entityInstancesApi.searchEntityInstances(
-          searchRequest(
-            ra,
-            this.underlay.name,
-            classification,
-            grouping,
-            query,
-            options?.parent
+    ];
+
+    if (options?.includeGroupings) {
+      promises.push(
+        ...(classification.groupings?.map((grouping) =>
+          this.entityInstancesApi.searchEntityInstances(
+            searchRequest(
+              ra,
+              this.underlay.name,
+              classification,
+              grouping,
+              query,
+              options?.parent
+            )
           )
-        )
-      ) || []),
-    ]).then((res) => {
+        ) || [])
+      );
+    }
+
+    return Promise.all(promises).then((res) => {
       const result: SearchClassificationResult = { nodes: [] };
       res?.forEach((r, i) => {
         result.nodes.push(
