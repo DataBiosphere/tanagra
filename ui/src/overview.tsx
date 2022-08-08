@@ -322,10 +322,15 @@ const barColours = [
   "#ffa600",
 ];
 
+type ChartData = {
+  name: string;
+  counts: Map<string, number>;
+};
+
 type StackedBarChartProps = {
   title: string;
-  data: any[];
   stackProperties: string[];
+  data: ChartData[];
   tickFormatter: (label: string) => string;
 };
 
@@ -335,12 +340,18 @@ function StackedBarChart({
   stackProperties,
   tickFormatter,
 }: StackedBarChartProps) {
+  const dataForChart = data.map((d) => {
+    return {
+      name: d.name,
+      ...Object.fromEntries(d.counts),
+    };
+  });
   return (
     <>
       <Typography>{title}</Typography>
       <ResponsiveContainer width="100%" height={400}>
         <BarChart
-          data={data}
+          data={dataForChart}
           margin={{
             top: 10,
             right: 0,
@@ -533,18 +544,16 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
         if (stackedProperties[index].size > 0) {
           return Array.from(chart, ([key, value]) => ({
             name: key,
-            ...Object.fromEntries(value),
+            counts: value,
           }));
         } else {
           return Array.from(chart, ([key, value]) => ({
             name: key,
-            count: value,
+            counts: new Map([["count", value]]),
           }));
         }
       }),
-      stackedProperties: stackedProperties.map((stack) => {
-        return Array.from(stack);
-      }),
+      stackedProperties: stackedProperties.map((stacks) => Array.from(stacks)),
       titles: chartConfigs.map((config) => config.title),
     };
   }, [underlay, cohort]);
@@ -555,8 +564,6 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
     return value.length > 15 ? value.substr(0, 15).concat("…") : value;
   };
 
-  console.log(demographicState.data);
-
   return (
     <>
       <Loading status={demographicState}>
@@ -564,15 +571,18 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
           <Stack>
             <Typography variant="h4">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
             {demographicState.data?.chartsData.map((data, index) => {
-              const stack = demographicState.data?.stackedProperties[index];
+              const stacksForChart =
+                demographicState.data?.stackedProperties[index];
               return (
                 <StackedBarChart
                   key={index}
                   title={
                     demographicState.data?.titles[index] ?? "Unknown Title"
                   }
-                  data={data}
-                  stackProperties={stack ? (stack as string[]) : []}
+                  stackProperties={
+                    stacksForChart ? (stacksForChart as string[]) : []
+                  }
+                  data={data as ChartData[]}
                   tickFormatter={tickFormatter}
                 />
               );
