@@ -155,6 +155,20 @@ async function renderCriteria(
     ],
   };
 
+  const demographicChartConfigs = {
+    additionalSelectedAttributes: ["gender", "race"],
+    groupByAttributes: [
+      "gender_concept_id",
+      "race_concept_id",
+      "year_of_birth",
+    ],
+    chartConfigs: [
+      {
+        title: "Graph 1",
+        primaryProperties: [{ key: "gender" }],
+      },
+    ],
+  };
 
   const underlay = {
     name: "test-underlay",
@@ -163,20 +177,7 @@ async function renderCriteria(
     uiConfiguration: {
       dataConfig: dataConfig,
       criteriaConfigs: [],
-      demographicChartConfigs: {
-        additionalSelectedAttributes: ["gender", "race"],
-        groupByAttributes: [
-          "gender_concept_id",
-          "race_concept_id",
-          "year_of_birth",
-        ],
-        chartConfigs: [
-          {
-            title: "Graph 1",
-            primaryProperties: [{ key: "gender" }],
-          },
-        ],
-      },
+      demographicChartConfigs: demographicChartConfigs,
     },
     prepackagedConceptSets: [],
   };
@@ -214,11 +215,7 @@ async function renderCriteria(
       })
     )
   );
-});
 
-async function renderCriteria(
-  instances: Array<{ [key: string]: tanagra.AttributeValue | null }>
-) {
   const getCriteria = () =>
     store.getState().present.cohorts[0].groups[0].criteria[0];
 

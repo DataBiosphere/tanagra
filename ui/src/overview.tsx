@@ -401,7 +401,7 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
         entityVariable: "p",
         additionalSelectedAttributes: additionalSelectedAttributes,
         groupByAttributes: groupByAttributes,
-        filter: generateQueryFilter(underlay, cohort, "p"),
+        filter: generateQueryFilter(source, cohort, "p"),
       },
     };
 
@@ -422,28 +422,32 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
       underlay.uiConfiguration.demographicChartConfigs.chartConfigs;
 
     let totalCount = 0;
-    const demographicCharts = chartConfigs.map(() => new Map());
-    const stacks = chartConfigs.map(() => new Set());
+    const chartsData = chartConfigs.map(() => new Map());
+    const stackedProperties = chartConfigs.map(() => new Set());
 
     for (let i = 0; i < demographicData.length; i++) {
       const count = demographicData[i].count ?? 0;
       totalCount += count;
 
       chartConfigs.forEach((config, index) => {
-        const primaryProperty: string[] = [];
+        // Determine the primary data groupings for the chart.
+        const primaryPropertyComponents: string[] = [];
         config.primaryProperties.forEach((property) => {
+          // Temporarily check if property is age since API only supports year of birth.
           const propertyName =
             property.key === "age" ? "year_of_birth" : property.key;
-          const dataValue = Object.entries(
-            demographicData[i].definition ?? {}
+          const propertyValues = Object.entries(
+            demographicData[i]?.definition ?? {}
           ).find((data) => data[0] === propertyName);
 
-          if (dataValue) {
-            const dataIntegerVal = dataValue[1].int64Val;
-            const dataStringVal = dataValue[1].stringVal;
-            const dataBoolVal = dataValue[1].boolVal;
+          if (propertyValues) {
+            const dataIntegerVal = propertyValues[1].int64Val;
+            const dataStringVal = propertyValues[1].stringVal;
+            const dataBoolVal = propertyValues[1].boolVal;
+            // The UI currently assumes that property.value represents an age bucket if defined.
             if (property.value) {
               if (dataIntegerVal) {
+                // Temporarily calculating ages while the backend provides years of birth.
                 const currentYear = new Date().getFullYear();
                 const yob = dataIntegerVal;
                 const age = parseInt(currentYear.toString()) - yob;
@@ -451,87 +455,82 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
                   const min = range.min;
                   const max = range.max;
                   if (min && max && min <= age && age <= max) {
-                    primaryProperty.push(`${min}-${max}`);
+                    primaryPropertyComponents.push(`${min}-${max}`);
                   } else if (min && !max && min <= age) {
-                    primaryProperty.push(`>${min}`);
+                    primaryPropertyComponents.push(`>${min}`);
                   } else if (!min && max && age <= max) {
-                    primaryProperty.push(`<${max}`);
+                    primaryPropertyComponents.push(`<${max}`);
                   }
                 });
               }
             } else if (dataIntegerVal) {
-              primaryProperty.push(`${dataIntegerVal}`);
+              primaryPropertyComponents.push(`${dataIntegerVal}`);
             } else if (dataStringVal) {
-              primaryProperty.push(dataStringVal);
+              primaryPropertyComponents.push(dataStringVal);
             } else if (dataBoolVal) {
-              primaryProperty.push(`${dataBoolVal}`);
+              primaryPropertyComponents.push(`${dataBoolVal}`);
             }
           }
         });
 
-        const primaryPropertyString = primaryProperty.join(" ");
-        if (!demographicCharts[index].has(primaryPropertyString)) {
+        // Add the primary property grouping to the chart data if it hasn't already
+        const primaryPropertyString = primaryPropertyComponents.join(" ");
+        if (!chartsData[index].has(primaryPropertyString)) {
           if (config.stackedProperty) {
-            demographicCharts[index].set(primaryPropertyString, new Map());
+            chartsData[index].set(primaryPropertyString, new Map());
           } else {
-            demographicCharts[index].set(primaryPropertyString, 0);
+            chartsData[index].set(primaryPropertyString, 0);
           }
         }
 
+        // Determine the counts for the chart's stacked property if it exists
         const stackedProperty = config.stackedProperty;
         if (stackedProperty) {
-          const stackedPropertyVal = Object.entries(
+          const stackedPropertyValues = Object.entries(
             demographicData[i].definition ?? {}
           ).find((data) => data[0] === stackedProperty.key);
 
-          if (stackedPropertyVal) {
-            const stackedIntegerVal = stackedPropertyVal[1].int64Val;
-            const stackedStringVal = stackedPropertyVal[1].stringVal;
-            const stackedBoolVal = stackedPropertyVal[1].boolVal;
-            let demographicChartStackedKey;
+          if (stackedPropertyValues) {
+            const stackedIntegerVal = stackedPropertyValues[1].int64Val;
+            const stackedStringVal = stackedPropertyValues[1].stringVal;
+            const stackedBoolVal = stackedPropertyValues[1].boolVal;
+            let stackValue;
             if (stackedIntegerVal) {
-              demographicChartStackedKey = stackedIntegerVal.toString();
+              stackValue = stackedIntegerVal.toString();
             } else if (stackedStringVal) {
-              demographicChartStackedKey = stackedStringVal;
+              stackValue = stackedStringVal;
             } else if (stackedBoolVal) {
-              demographicChartStackedKey = stackedBoolVal.toString();
+              stackValue = stackedBoolVal.toString();
             }
 
-            if (demographicChartStackedKey) {
+            if (stackValue) {
               if (
-                !demographicCharts[index]
-                  .get(primaryPropertyString)
-                  .has(demographicChartStackedKey)
+                !chartsData[index].get(primaryPropertyString).has(stackValue)
               ) {
-                demographicCharts[index]
-                  .get(primaryPropertyString)
-                  .set(demographicChartStackedKey, 0);
+                chartsData[index].get(primaryPropertyString).set(stackValue, 0);
               }
 
-              const prevCount = demographicCharts[index]
+              const prevCount = chartsData[index]
                 .get(primaryPropertyString)
-                .get(demographicChartStackedKey);
-              demographicCharts[index]
+                .get(stackValue);
+              chartsData[index]
                 .get(primaryPropertyString)
-                .set(demographicChartStackedKey, prevCount + count);
+                .set(stackValue, prevCount + count);
             }
 
-            stacks[index].add(demographicChartStackedKey);
+            stackedProperties[index].add(stackValue);
           }
         } else {
-          const prevCount = demographicCharts[index].get(primaryPropertyString);
-          demographicCharts[index].set(
-            primaryPropertyString,
-            prevCount + count
-          );
+          const prevCount = chartsData[index].get(primaryPropertyString);
+          chartsData[index].set(primaryPropertyString, prevCount + count);
         }
       });
     }
 
     return {
       totalCount,
-      charts: demographicCharts.map((chart, index) => {
-        if (stacks[index].size > 0) {
+      chartsData: chartsData.map((chart, index) => {
+        if (stackedProperties[index].size > 0) {
           return Array.from(chart, ([key, value]) => ({
             name: key,
             ...Object.fromEntries(value),
@@ -543,7 +542,7 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
           }));
         }
       }),
-      stacks: stacks.map((stack) => {
+      stackedProperties: stackedProperties.map((stack) => {
         return Array.from(stack);
       }),
       titles: chartConfigs.map((config) => config.title),
@@ -564,15 +563,15 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
         <Grid item xs={1}>
           <Stack>
             <Typography variant="h4">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
-            {demographicState.data?.charts.map((chart, index) => {
-              const stack = demographicState.data?.stacks[index];
+            {demographicState.data?.chartsData.map((data, index) => {
+              const stack = demographicState.data?.stackedProperties[index];
               return (
                 <StackedBarChart
                   key={index}
                   title={
                     demographicState.data?.titles[index] ?? "Unknown Title"
                   }
-                  data={chart}
+                  data={data}
                   stackProperties={stack ? (stack as string[]) : []}
                   tickFormatter={tickFormatter}
                 />
