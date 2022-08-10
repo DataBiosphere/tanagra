@@ -527,7 +527,6 @@ uiConfiguration: >-
       "plugin":{"attribute":"year_of_birth"}
     }],
     "demographicChartConfigs": {
-      "additionalSelectedAttributes": ["gender", "race"],
       "groupByAttributes": ["gender_concept_id", "race_concept_id", "year_of_birth"],
       "chartConfigs": [{
         "title": "Gender",
@@ -540,16 +539,19 @@ uiConfiguration: >-
         "primaryProperties": [
           { "key": "gender" },
           { "key": "age",
-            "value": [{
+            "buckets": [{
               "min": 18,
-              "max": 44
+              "max": 45,
+              "displayName": "18-44"
             },
             {
               "min": 45,
-              "max": 64
+              "max": 65,
+              "displayName": "45-64"
             },
             {
-              "min": 65
+              "min": 65,
+              "displayName": "65+"
             }]
           }
         ],

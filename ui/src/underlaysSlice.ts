@@ -37,12 +37,13 @@ export type ChartProperties = {
 
 export type ChartConfigProperty = {
   key: string;
-  value?: Range[];
+  buckets?: Range[];
 };
 
 export type Range = {
   min?: number;
   max?: number;
+  displayName: string;
 };
 
 // CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
