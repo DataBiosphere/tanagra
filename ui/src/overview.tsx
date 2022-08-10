@@ -43,7 +43,6 @@ import {
 } from "recharts";
 import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
-import { EntityCountStruct } from "tanagra-api";
 import { ChartConfigProperty } from "underlaysSlice";
 import {
   createCriteria,
@@ -341,7 +340,7 @@ type StackedBarChartProps = {
 };
 
 function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
-  const dataForChart = chart.bars.map((bar) => {
+  const barData = chart.bars.map((bar) => {
     return {
       name: bar.name,
       ...Object.fromEntries(bar.counts),
@@ -352,7 +351,7 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
       <Typography>{chart.title}</Typography>
       <ResponsiveContainer width="100%" height={400}>
         <BarChart
-          data={dataForChart}
+          data={barData}
           margin={{
             top: 10,
             right: 0,
@@ -402,7 +401,7 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
 
   const generatePropertyString = (
     property: ChartConfigProperty,
-    entityCountStruct: EntityCountStruct
+    entityCountStruct: tanagra.EntityCountStruct
   ) => {
     let propertyString = "";
     // TODO(neelismail): Remove property key check once API supports age.
