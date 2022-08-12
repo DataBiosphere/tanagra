@@ -445,27 +445,33 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
   };
 
   const fetchDemographicData = useCallback(async () => {
+    const groupByAttributes =
+      underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
     const additionalSelectedAttributes = new Set<string>();
     underlay.uiConfiguration.demographicChartConfigs.chartConfigs.forEach(
       (config) => {
         config.primaryProperties.forEach((property) => {
-          if (!additionalSelectedAttributes.has(property.key)) {
-            // Temporary guard for testing
-            if (property.key !== "age")
+          if (
+            !additionalSelectedAttributes.has(property.key) &&
+            !groupByAttributes.includes(property.key)
+          ) {
+            // TODO(neelismail): Remove guard for age property key when API provides age support
+            if (property.key !== "age") {
               additionalSelectedAttributes.add(property.key);
+            }
           }
         });
         if (
           config.stackedProperty &&
-          !additionalSelectedAttributes.has(config.stackedProperty.key)
+          !additionalSelectedAttributes.has(config.stackedProperty.key) &&
+          !groupByAttributes.includes(config.stackedProperty.key)
         ) {
-          additionalSelectedAttributes.add(config.stackedProperty.key);
+          if (config.stackedProperty.key !== "age") {
+            additionalSelectedAttributes.add(config.stackedProperty.key);
+          }
         }
       }
     );
-
-    const groupByAttributes =
-      underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
 
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
       entityCounts: {
