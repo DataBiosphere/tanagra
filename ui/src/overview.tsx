@@ -195,15 +195,16 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
   });
 
   const fetchGroupCount = useCallback(async () => {
-
     const cohortForFilter: tanagra.Cohort = {
       id: cohort.id,
       name: cohort.name,
       underlayName: cohort.underlayName,
-      groups: [{
-        ...props.group,
-        kind: tanagra.GroupKindEnum.Included,
-      }],
+      groups: [
+        {
+          ...props.group,
+          kind: tanagra.GroupKindEnum.Included,
+        },
+      ],
     };
 
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
@@ -319,11 +320,13 @@ function ParticipantCriteria(props: {
       id: cohort.id,
       name: cohort.name,
       underlayName: cohort.underlayName,
-      groups: [{
-        id: props.group.id,
-        kind: tanagra.GroupKindEnum.Included,
-        criteria: [props.criteria],
-      }],
+      groups: [
+        {
+          id: props.group.id,
+          kind: tanagra.GroupKindEnum.Included,
+          criteria: [props.criteria],
+        },
+      ],
     };
 
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
