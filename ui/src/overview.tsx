@@ -195,24 +195,20 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
   });
 
   const fetchGroupCount = useCallback(async () => {
-    const groupForFilter: tanagra.Group = {
-      id: props.group.id,
-      kind: tanagra.GroupKindEnum.Included,
-      criteria: props.group.criteria,
-    };
 
     const cohortForFilter: tanagra.Cohort = {
       id: cohort.id,
       name: cohort.name,
       underlayName: cohort.underlayName,
-      groups: [groupForFilter],
+      groups: [{
+        ...props.group,
+        kind: tanagra.GroupKindEnum.Included,
+      }],
     };
 
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
       entityCounts: {
         entityVariable: "p",
-        additionalSelectedAttributes: [],
-        groupByAttributes: [],
         filter: generateQueryFilter(source, cohortForFilter, "p"),
       },
     };
@@ -250,15 +246,15 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
         ))}
         <Box
           key=""
-          display={"flex"}
-          flexDirection={"row"}
-          justifyContent={"space-between"}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
           alignItems="center"
         >
           <AddCriteriaButton group={props.group.id} />
           {
             <Loading status={groupCountState}>
-              <Typography variant={"body1"} fontWeight={"bold"}>
+              <Typography variant="body1" fontWeight="bold">
                 Group Count: {groupCountState.data?.toLocaleString()}
               </Typography>
             </Loading>
@@ -319,17 +315,15 @@ function ParticipantCriteria(props: {
   });
 
   const fetchCriteriaCount = useCallback(async () => {
-    const groupForFilter: tanagra.Group = {
-      id: props.group.id,
-      kind: tanagra.GroupKindEnum.Included,
-      criteria: [props.criteria],
-    };
-
     const cohortForFilter: tanagra.Cohort = {
       id: cohort.id,
       name: cohort.name,
       underlayName: cohort.underlayName,
-      groups: [groupForFilter],
+      groups: [{
+        id: props.group.id,
+        kind: tanagra.GroupKindEnum.Included,
+        criteria: [props.criteria],
+      }],
     };
 
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
