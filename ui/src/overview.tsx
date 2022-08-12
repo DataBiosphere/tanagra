@@ -458,7 +458,8 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
               (property.key === "age" &&
                 !groupByAttributes.includes("year_of_birth")))
           ) {
-            const propertyName = property.key === "age" ? "year_of_birth" : property.key;
+            const propertyName =
+              property.key === "age" ? "year_of_birth" : property.key;
             additionalSelectedAttributes.add(propertyName);
           }
         });
