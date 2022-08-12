@@ -451,24 +451,31 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
     underlay.uiConfiguration.demographicChartConfigs.chartConfigs.forEach(
       (config) => {
         config.primaryProperties.forEach((property) => {
+          // TODO(neelismail): Remove guard for age property key when API provides age support
           if (
             !additionalSelectedAttributes.has(property.key) &&
-            !groupByAttributes.includes(property.key)
+            (!groupByAttributes.includes(property.key) ||
+              (property.key === "age" &&
+                !groupByAttributes.includes("year_of_birth")))
           ) {
-            // TODO(neelismail): Remove guard for age property key when API provides age support
-            if (property.key !== "age") {
-              additionalSelectedAttributes.add(property.key);
-            }
+            const propertyName = property.key === "age" ? "year_of_birth" : property.key;
+            additionalSelectedAttributes.add(propertyName);
           }
         });
+
+        // TODO(neelismail): Remove guard for age property key when API provides age support
         if (
           config.stackedProperty &&
           !additionalSelectedAttributes.has(config.stackedProperty.key) &&
-          !groupByAttributes.includes(config.stackedProperty.key)
+          (!groupByAttributes.includes(config.stackedProperty.key) ||
+            (config.stackedProperty.key === "age" &&
+              !groupByAttributes.includes("year_of_birth")))
         ) {
-          if (config.stackedProperty.key !== "age") {
-            additionalSelectedAttributes.add(config.stackedProperty.key);
-          }
+          const propertyName =
+            config.stackedProperty.key === "age"
+              ? "year_of_birth"
+              : config.stackedProperty.key;
+          additionalSelectedAttributes.add(propertyName);
         }
       }
     );
