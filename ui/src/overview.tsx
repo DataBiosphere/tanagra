@@ -258,7 +258,7 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
           <AddCriteriaButton group={props.group.id} />
           {
             <Loading status={groupCountState}>
-              <Typography fontWeight={"bold"}>
+              <Typography variant={"body1"} fontWeight={"bold"}>
                 Group Count: {groupCountState.data?.toLocaleString()}
               </Typography>
             </Loading>
