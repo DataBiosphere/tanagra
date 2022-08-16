@@ -155,6 +155,21 @@ async function renderCriteria(
     ],
   };
 
+  const demographicChartConfigs = {
+    additionalSelectedAttributes: ["gender", "race"],
+    groupByAttributes: [
+      "gender_concept_id",
+      "race_concept_id",
+      "year_of_birth",
+    ],
+    chartConfigs: [
+      {
+        title: "Graph 1",
+        primaryProperties: [{ key: "gender" }],
+      },
+    ],
+  };
+
   const underlay = {
     name: "test-underlay",
     primaryEntity: "test-entity",
@@ -162,6 +177,7 @@ async function renderCriteria(
     uiConfiguration: {
       dataConfig: dataConfig,
       criteriaConfigs: [],
+      demographicChartConfigs: demographicChartConfigs,
     },
     prepackagedConceptSets: [],
   };

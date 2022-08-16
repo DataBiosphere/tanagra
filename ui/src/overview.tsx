@@ -43,6 +43,8 @@ import {
 } from "recharts";
 import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
+import { ChartConfigProperty } from "underlaysSlice";
+import { isValid } from "util/valid";
 import {
   createCriteria,
   generateQueryFilter,
@@ -311,6 +313,83 @@ function ParticipantCriteria(props: {
   );
 }
 
+const barColours = [
+  "#003f5c",
+  "#2f4b7c",
+  "#665191",
+  "#a05195",
+  "#d45087",
+  "#f95d6a",
+  "#ff7c43",
+  "#ffa600",
+];
+
+type BarData = {
+  name: string;
+  counts: Map<string, number>;
+};
+
+type ChartData = {
+  title: string;
+  stackedProperties: string[];
+  bars: BarData[];
+};
+
+type StackedBarChartProps = {
+  chart: ChartData;
+  tickFormatter: (label: string) => string;
+};
+
+function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
+  const barData = chart.bars.map((bar) => {
+    return {
+      name: bar.name,
+      ...Object.fromEntries(bar.counts),
+    };
+  });
+  return (
+    <>
+      <Typography>{chart.title}</Typography>
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart
+          data={barData}
+          margin={{
+            top: 10,
+            right: 0,
+            left: 20,
+            bottom: 10,
+          }}
+          layout="vertical"
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis type="number" />
+          <YAxis
+            dataKey="name"
+            type="category"
+            width={150}
+            tickFormatter={tickFormatter}
+            tickMargin={10}
+          />
+          <Tooltip />
+          {chart.stackedProperties.length > 0 ? (
+            chart.stackedProperties.map((property, index) => (
+              <Bar
+                key={index}
+                dataKey={property as string}
+                stackId="a"
+                fill={barColours[index % barColours.length]}
+                maxBarSize={100}
+              />
+            ))
+          ) : (
+            <Bar dataKey="count" fill={barColours[0]} maxBarSize={60} />
+          )}
+        </BarChart>
+      </ResponsiveContainer>
+    </>
+  );
+}
+
 type DemographicChartsProps = {
   cohort: tanagra.Cohort;
 };
@@ -321,27 +400,87 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
 
   const api = useContext(EntityCountsApiContext);
 
-  const barColours = [
-    "#003f5c",
-    "#2f4b7c",
-    "#665191",
-    "#a05195",
-    "#d45087",
-    "#f95d6a",
-    "#ff7c43",
-    "#ffa600",
-  ];
+  const generatePropertyString = (
+    property: ChartConfigProperty,
+    entityCountStruct: tanagra.EntityCountStruct
+  ) => {
+    let propertyString = "";
+    // TODO(neelismail): Remove property key check once API supports age.
+    const entityCountPropertyValue =
+      entityCountStruct.definition?.[
+        property.key === "age" ? "year_of_birth" : property.key
+      ];
+
+    if (entityCountPropertyValue) {
+      let value =
+        entityCountPropertyValue.int64Val ??
+        entityCountPropertyValue.stringVal ??
+        entityCountPropertyValue.boolVal;
+
+      // TODO(neelismail): Remove age handling once the API supports them.
+      if (
+        isValid(value) &&
+        property.key === "age" &&
+        typeof value === "number"
+      ) {
+        value = new Date().getFullYear() - value;
+      }
+
+      if (isValid(value) && property.buckets) {
+        property.buckets.forEach((range) => {
+          const min = range.min;
+          const max = range.max;
+          const displayName = range.displayName;
+          if (
+            isValid(value) &&
+            ((min && max && min <= value && value < max) ||
+              (min && !max && min <= value) ||
+              (!min && max && value < max))
+          ) {
+            propertyString = displayName;
+          }
+        });
+      } else {
+        propertyString = isValid(value) ? value.toString() : "Unknown";
+      }
+    }
+    return propertyString;
+  };
 
   const fetchDemographicData = useCallback(async () => {
+    const groupByAttributes =
+      underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
+    const additionalSelectedAttributes = new Set<string>();
+    underlay.uiConfiguration.demographicChartConfigs.chartConfigs.forEach(
+      (config) => {
+        config.primaryProperties.forEach((property) => {
+          if (!groupByAttributes.includes(property.key)) {
+            additionalSelectedAttributes.add(property.key);
+          }
+        });
+
+        if (
+          config.stackedProperty &&
+          !groupByAttributes.includes(config.stackedProperty.key)
+        ) {
+          additionalSelectedAttributes.add(config.stackedProperty.key);
+        }
+      }
+    );
+
+    // TODO(neelismail): Remove guard for age property key when API provides age support
+    if (additionalSelectedAttributes.has("age")) {
+      additionalSelectedAttributes.delete("age");
+      if (!groupByAttributes.includes("year_of_birth")) {
+        additionalSelectedAttributes.add("year_of_birth");
+      }
+    }
+
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
       entityCounts: {
         entityVariable: "p",
-        additionalSelectedAttributes: ["gender", "race"],
-        groupByAttributes: [
-          "gender_concept_id",
-          "race_concept_id",
-          "year_of_birth",
-        ],
+        additionalSelectedAttributes: Array.from(additionalSelectedAttributes),
+        groupByAttributes: groupByAttributes,
         filter: generateQueryFilter(source, cohort, "p"),
       },
     };
@@ -359,83 +498,75 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
     }
 
     const demographicData = data.counts;
+    const chartConfigs =
+      underlay.uiConfiguration.demographicChartConfigs.chartConfigs;
+
     let totalCount = 0;
-    const demographicsByGender = new Map();
-    const demographicsByGenderAgeRace = new Map();
-    const demographicRaces = new Set();
+    const chartsData: ChartData[] = chartConfigs.map((config) => ({
+      title: config.title,
+      stackedProperties: [],
+      bars: [],
+    }));
 
     for (let i = 0; i < demographicData.length; i++) {
       const count = demographicData[i].count ?? 0;
-      const gender = demographicData[i].definition?.gender.stringVal ?? "Other";
-      const race = demographicData[i].definition?.race.stringVal ?? "Other";
-      const currentYear = new Date().getFullYear();
-      const yob = demographicData[i].definition?.year_of_birth?.int64Val ?? 0;
-      const age = parseInt(currentYear.toString()) - yob;
-      let ageRange = "";
-      if (age >= 65) {
-        ageRange = "65+";
-      } else if (age >= 45 && age <= 64) {
-        ageRange = "45-64";
-      } else if (age <= 44) {
-        ageRange = "18-44";
-      }
-
-      // Accumulate total count for results
       totalCount += count;
+      chartConfigs.forEach((config, chartIndex) => {
+        const currChart = chartsData[chartIndex];
+        const primaryPropertyComponents: string[] = [];
+        config.primaryProperties.forEach((property) => {
+          primaryPropertyComponents.push(
+            generatePropertyString(property, demographicData[i])
+          );
+        });
 
-      // Configure hash map to represent data for gender chart
-      if (!demographicsByGender.has(gender)) {
-        demographicsByGender.set(gender, 0);
-      }
-      demographicsByGender.set(
-        gender,
-        demographicsByGender.get(gender) + count
-      );
+        const primaryPropertyString = primaryPropertyComponents.join(" ");
+        let barIndex = currChart.bars.findIndex(
+          (bar) => bar.name === primaryPropertyString
+        );
 
-      // Configure hash map to represent data for gender / age / race chart
-      const genderAgeRange = `${gender} ${ageRange}`;
+        if (barIndex === -1) {
+          currChart.bars.push({
+            name: primaryPropertyString,
+            counts: new Map(),
+          });
+          barIndex = currChart.bars.length - 1;
+        }
 
-      if (!demographicsByGenderAgeRace.has(genderAgeRange)) {
-        demographicsByGenderAgeRace.set(genderAgeRange, new Map());
-      }
+        if (config.stackedProperty) {
+          const stackPropertyString = generatePropertyString(
+            config.stackedProperty,
+            demographicData[i]
+          );
 
-      if (!demographicsByGenderAgeRace.get(genderAgeRange).has(race)) {
-        demographicsByGenderAgeRace.get(genderAgeRange).set(race, 0);
-      }
+          if (!currChart.stackedProperties.includes(stackPropertyString)) {
+            currChart.stackedProperties.push(stackPropertyString);
+          }
 
-      const currCountForRace = demographicsByGenderAgeRace
-        .get(genderAgeRange)
-        .get(race);
+          if (!currChart.bars[barIndex].counts.has(stackPropertyString)) {
+            currChart.bars[barIndex].counts.set(stackPropertyString, 0);
+          }
 
-      demographicsByGenderAgeRace
-        .get(genderAgeRange)
-        .set(race, currCountForRace + count);
-
-      // Configure set of races returned in results
-      if (!demographicRaces.has(race)) {
-        demographicRaces.add(race);
-      }
+          const prevCount =
+            currChart.bars[barIndex].counts.get(stackPropertyString) ?? 0;
+          currChart.bars[barIndex].counts.set(
+            stackPropertyString,
+            prevCount + count
+          );
+        } else {
+          const prevCount = currChart.bars[barIndex].counts.get("count") ?? 0;
+          currChart.bars[barIndex].counts.set("count", prevCount + count);
+        }
+      });
     }
+
+    chartsData.forEach((chart) =>
+      chart.bars.sort((a, b) => (a.name > b.name ? 1 : -1))
+    );
 
     return {
       totalCount,
-      demographicsByGender: Array.from(demographicsByGender, ([key, value]) => {
-        return {
-          name: key,
-          count: value,
-          color: barColours[0],
-        };
-      }),
-      demographicRaces: Array.from(demographicRaces),
-      demographicsByGenderAgeRace: Array.from(
-        demographicsByGenderAgeRace,
-        ([key, value]) => {
-          return {
-            ageRange: key,
-            ...Object.fromEntries(value),
-          };
-        }
-      ),
+      chartsData,
     };
   }, [underlay, cohort]);
 
@@ -451,64 +582,15 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
         <Grid item xs={1}>
           <Stack>
             <Typography variant="h4">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
-            <Typography>Gender Identity</Typography>
-            <ResponsiveContainer width="90%" height={250}>
-              <BarChart
-                data={demographicState.data?.demographicsByGender}
-                margin={{
-                  top: 10,
-                  right: 0,
-                  left: 20,
-                  bottom: 10,
-                }}
-                layout="vertical"
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  width={150}
+            {demographicState.data?.chartsData.map((chart, index) => {
+              return (
+                <StackedBarChart
+                  key={index}
+                  chart={chart as ChartData}
                   tickFormatter={tickFormatter}
-                  tickMargin={10}
                 />
-                <Tooltip />
-                <Bar dataKey={"count"} fill="#2f4b7c" maxBarSize={60} />
-              </BarChart>
-            </ResponsiveContainer>
-            <Typography>Gender Identity, Current Age, Race</Typography>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={demographicState.data?.demographicsByGenderAgeRace}
-                margin={{
-                  top: 10,
-                  right: 0,
-                  left: 20,
-                  bottom: 10,
-                }}
-                layout="vertical"
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis
-                  dataKey="ageRange"
-                  type="category"
-                  width={150}
-                  tickFormatter={tickFormatter}
-                  tickMargin={10}
-                />
-                <Tooltip />
-                {demographicState.data?.demographicRaces.map((race, index) => (
-                  <Bar
-                    key={index}
-                    dataKey={race as string}
-                    stackId="a"
-                    fill={barColours[index % barColours.length]}
-                    maxBarSize={100}
-                  />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
+              );
+            })}
           </Stack>
         </Grid>
       </Loading>
