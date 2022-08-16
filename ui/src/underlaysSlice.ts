@@ -37,10 +37,10 @@ export type ChartProperties = {
 
 export type ChartConfigProperty = {
   key: string;
-  buckets?: Range[];
+  buckets?: Bucket[];
 };
 
-export type Range = {
+export type Bucket = {
   min?: number;
   max?: number;
   displayName: string;

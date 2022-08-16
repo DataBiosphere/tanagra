@@ -470,9 +470,9 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
 
     // TODO(neelismail): Remove guard for age property key when API provides age support
     if (additionalSelectedAttributes.has("age")) {
-      additionalSelectedAttributes.delete("age")
+      additionalSelectedAttributes.delete("age");
       if (!groupByAttributes.includes("year_of_birth")) {
-        additionalSelectedAttributes.add("year_of_birth")
+        additionalSelectedAttributes.add("year_of_birth");
       }
     }
 
