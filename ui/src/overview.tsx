@@ -44,6 +44,7 @@ import {
 import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
 import { ChartConfigProperty } from "underlaysSlice";
+import { isValid } from "util/valid";
 import {
   createCriteria,
   generateQueryFilter,
@@ -416,29 +417,31 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
         entityCountPropertyValue.stringVal ??
         entityCountPropertyValue.boolVal;
 
-      if (value) {
-        // TODO(neelismail): Remove age handling once the API supports them.
-        if (property.key === "age" && typeof value === "number") {
-          value = new Date().getFullYear() - value;
-        }
+      // TODO(neelismail): Remove age handling once the API supports them.
+      if (
+        isValid(value) &&
+        property.key === "age" &&
+        typeof value === "number"
+      ) {
+        value = new Date().getFullYear() - value;
+      }
 
-        const definedValue = value;
-        if (property.buckets) {
-          property.buckets.forEach((range) => {
-            const min = range.min;
-            const max = range.max;
-            const displayName = range.displayName;
-            if (
-              (min && max && min <= definedValue && definedValue < max) ||
-              (min && !max && min <= definedValue) ||
-              (!min && max && definedValue < max)
-            ) {
-              propertyString = displayName;
-            }
-          });
-        } else {
-          propertyString = value.toString();
-        }
+      if (isValid(value) && property.buckets) {
+        property.buckets.forEach((range) => {
+          const min = range.min;
+          const max = range.max;
+          const displayName = range.displayName;
+          if (
+            isValid(value) &&
+            ((min && max && min <= value && value < max) ||
+              (min && !max && min <= value) ||
+              (!min && max && value < max))
+          ) {
+            propertyString = displayName;
+          }
+        });
+      } else {
+        propertyString = isValid(value) ? value.toString() : "Unknown";
       }
     }
     return propertyString;
@@ -451,35 +454,27 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
     underlay.uiConfiguration.demographicChartConfigs.chartConfigs.forEach(
       (config) => {
         config.primaryProperties.forEach((property) => {
-          // TODO(neelismail): Remove guard for age property key when API provides age support
-          if (
-            !additionalSelectedAttributes.has(property.key) &&
-            (!groupByAttributes.includes(property.key) ||
-              (property.key === "age" &&
-                !groupByAttributes.includes("year_of_birth")))
-          ) {
-            const propertyName =
-              property.key === "age" ? "year_of_birth" : property.key;
-            additionalSelectedAttributes.add(propertyName);
+          if (!groupByAttributes.includes(property.key)) {
+            additionalSelectedAttributes.add(property.key);
           }
         });
 
-        // TODO(neelismail): Remove guard for age property key when API provides age support
         if (
           config.stackedProperty &&
-          !additionalSelectedAttributes.has(config.stackedProperty.key) &&
-          (!groupByAttributes.includes(config.stackedProperty.key) ||
-            (config.stackedProperty.key === "age" &&
-              !groupByAttributes.includes("year_of_birth")))
+          !groupByAttributes.includes(config.stackedProperty.key)
         ) {
-          const propertyName =
-            config.stackedProperty.key === "age"
-              ? "year_of_birth"
-              : config.stackedProperty.key;
-          additionalSelectedAttributes.add(propertyName);
+          additionalSelectedAttributes.add(config.stackedProperty.key);
         }
       }
     );
+
+    // TODO(neelismail): Remove guard for age property key when API provides age support
+    if (additionalSelectedAttributes.has("age")) {
+      additionalSelectedAttributes.delete("age")
+      if (!groupByAttributes.includes("year_of_birth")) {
+        additionalSelectedAttributes.add("year_of_birth")
+      }
+    }
 
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
       entityCounts: {
