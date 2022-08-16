@@ -254,7 +254,7 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
         >
           <AddCriteriaButton group={props.group.id} />
           {
-            <Loading status={groupCountState}>
+            <Loading status={groupCountState} size="small">
               <Typography variant="body1" fontWeight="bold">
                 Group Count: {groupCountState.data?.toLocaleString()}
               </Typography>
@@ -381,7 +381,7 @@ function ParticipantCriteria(props: {
             </Link>
             <Divider orientation="vertical" variant="middle" flexItem />
             {
-              <Loading status={criteriaCountState}>
+              <Loading status={criteriaCountState} size="small">
                 <Typography variant="body1">
                   {criteriaCountState.data?.toLocaleString()}
                 </Typography>

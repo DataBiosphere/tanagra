@@ -1,6 +1,8 @@
+import ErrorIcon from "@mui/icons-material/Error";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
@@ -11,6 +13,7 @@ type Status = {
 };
 
 type Props = {
+  size?: string;
   status?: Status;
   children?: React.ReactNode;
 };
@@ -38,12 +41,24 @@ export default function Loading(props: Props) {
     return <>{props.children}</>;
   }
 
-  return <Box className="loading">{showStatus(visible, props.status)}</Box>;
+  return (
+    <Box className={props.size === "small" ? "" : "loading"}>
+      {showStatus(visible, props.status, props.size)}
+    </Box>
+  );
 }
 
-function showStatus(visible: boolean, status?: Status): ReactNode {
+function showStatus(
+  visible: boolean,
+  status?: Status,
+  size?: string
+): ReactNode {
   if (status?.error && !status?.isPending) {
-    return (
+    return size === "small" ? (
+      <Tooltip title={status.error?.message} arrow={true}>
+        <ErrorIcon />
+      </Tooltip>
+    ) : (
       <>
         <Typography variant="h2">Error</Typography>
         {status.error?.message ? (
@@ -61,5 +76,9 @@ function showStatus(visible: boolean, status?: Status): ReactNode {
       </>
     );
   }
-  return visible ? <CircularProgress /> : null;
+  return visible ? (
+    <CircularProgress
+      style={size === "small" ? { width: "1em", height: "1em" } : {}}
+    />
+  ) : null;
 }
