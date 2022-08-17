@@ -55,7 +55,7 @@ function showStatus(
 ): ReactNode {
   if (status?.error && !status?.isPending) {
     const errorMessage = status.error
-      ? "An error has occurred: " + status.error.message
+      ? `An error has occurred: ${status.error.message}`
       : "An unknown error has occurred.";
     if (size === "small") {
       return (
