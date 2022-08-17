@@ -16,7 +16,8 @@ test("loading", async () => {
   rerender(
     <Loading status={{ error: new Error("test-error"), reload: reload }} />
   );
-  await screen.findByText("test-error");
+  await screen.findByRole("paragraph", { name: /test-error/ });
+  // await screen.findByText("test-error");
 
   userEvent.click(screen.getByText("Reload"));
   expect(reload).toHaveBeenCalled();

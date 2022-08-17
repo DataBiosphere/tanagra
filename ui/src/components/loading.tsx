@@ -68,9 +68,7 @@ function showStatus(
     return (
       <>
         <Typography variant="h2">Error</Typography>
-        <Typography paragraph>
-          <b>{errorMessage}</b>
-        </Typography>
+        <Typography paragraph>{errorMessage}</Typography>
         <div>
           <Button onClick={status?.reload} variant="contained">
             Reload
