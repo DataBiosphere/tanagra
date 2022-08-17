@@ -42,7 +42,7 @@ export default function Loading(props: Props) {
   }
 
   return (
-    <Box className={props.size === "small" ? "" : "loading"}>
+    <Box className={props.size === "small" ? "loading-small" : "loading"}>
       {showStatus(visible, props.status, props.size)}
     </Box>
   );
@@ -54,20 +54,23 @@ function showStatus(
   size?: string
 ): ReactNode {
   if (status?.error && !status?.isPending) {
-    return size === "small" ? (
-      <Tooltip title={status.error?.message} arrow={true}>
-        <ErrorIcon />
-      </Tooltip>
-    ) : (
+    const errorMessage = status.error
+      ? "An error has occurred: " + status.error.message
+      : "An unknown error has occurred.";
+    if (size === "small") {
+      return (
+        <Tooltip title={errorMessage} arrow={true}>
+          <ErrorIcon />
+        </Tooltip>
+      );
+    }
+
+    return (
       <>
         <Typography variant="h2">Error</Typography>
-        {status.error?.message ? (
-          <Typography paragraph>
-            An error has occurred: <b>{status.error.message}</b>
-          </Typography>
-        ) : (
-          <Typography paragraph>An unknown error has occurred.</Typography>
-        )}
+        <Typography paragraph>
+          <b>{errorMessage}</b>
+        </Typography>
         <div>
           <Button onClick={status?.reload} variant="contained">
             Reload
