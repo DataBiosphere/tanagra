@@ -153,8 +153,12 @@ function AddCriteriaButton(props: {
 
 function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
   const dispatch = useAppDispatch();
+  const source = useSource();
+  const underlay = useUnderlay();
   const cohort = useCohort();
   const groupName = props.group.name || "Group " + String(props.index + 1);
+  const api = useContext(EntityCountsApiContext);
+
   const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
     title: "Edit Group Name",
     initialText: groupName,
@@ -192,6 +196,36 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
     ],
   });
 
+  const fetchGroupCount = useCallback(async () => {
+    const cohortForFilter: tanagra.Cohort = {
+      id: cohort.id,
+      name: cohort.name,
+      underlayName: cohort.underlayName,
+      groups: [
+        {
+          ...props.group,
+          kind: tanagra.GroupKindEnum.Included,
+        },
+      ],
+    };
+
+    const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
+      entityCounts: {
+        entityVariable: "p",
+        filter: generateQueryFilter(source, cohortForFilter, "p"),
+      },
+    };
+
+    const data = await api.searchEntityCounts({
+      underlayName: underlay.name,
+      entityName: "person",
+      searchEntityCountsRequest: searchEntityCountsRequest,
+    });
+    return data.counts?.[0].count;
+  }, [underlay, cohort]);
+
+  const groupCountState = useAsyncWithApi(fetchGroupCount);
+
   return (
     <Paper className="participants-group">
       <Grid container className="group-title">
@@ -213,8 +247,21 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
             <Divider>OR</Divider>
           </Box>
         ))}
-        <Box key="">
+        <Box
+          key=""
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <AddCriteriaButton group={props.group.id} />
+          {
+            <Loading status={groupCountState} size="small">
+              <Typography variant="body1" fontWeight="bold">
+                Group Count: {groupCountState.data?.toLocaleString()}
+              </Typography>
+            </Loading>
+          }
         </Box>
       </Stack>
     </Paper>
@@ -225,9 +272,11 @@ function ParticipantCriteria(props: {
   group: tanagra.Group;
   criteria: tanagra.Criteria;
 }) {
+  const source = useSource();
   const underlay = useUnderlay();
   const cohort = useCohort();
   const dispatch = useAppDispatch();
+  const api = useContext(EntityCountsApiContext);
 
   const [renameDialog, showRenameCriteria] = useTextInputDialog({
     title: "Edit Criteria Name",
@@ -268,6 +317,39 @@ function ParticipantCriteria(props: {
     ],
   });
 
+  const fetchCriteriaCount = useCallback(async () => {
+    const cohortForFilter: tanagra.Cohort = {
+      id: cohort.id,
+      name: cohort.name,
+      underlayName: cohort.underlayName,
+      groups: [
+        {
+          id: props.group.id,
+          kind: tanagra.GroupKindEnum.Included,
+          criteria: [props.criteria],
+        },
+      ],
+    };
+
+    const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
+      entityCounts: {
+        entityVariable: "p",
+        additionalSelectedAttributes: [],
+        groupByAttributes: [],
+        filter: generateQueryFilter(source, cohortForFilter, "p"),
+      },
+    };
+
+    const data = await api.searchEntityCounts({
+      underlayName: underlay.name,
+      entityName: "person",
+      searchEntityCountsRequest: searchEntityCountsRequest,
+    });
+    return data.counts?.[0].count;
+  }, [underlay, cohort]);
+
+  const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
+
   return (
     <Grid container>
       <Grid item xs="auto">
@@ -300,9 +382,13 @@ function ParticipantCriteria(props: {
               {props.criteria.name}
             </Link>
             <Divider orientation="vertical" variant="middle" flexItem />
-            <Typography variant="body1">
-              {0 /* TODO(tjennison): Fetch from backend. */}
-            </Typography>
+            {
+              <Loading status={criteriaCountState} size="small">
+                <Typography variant="body1">
+                  {criteriaCountState.data?.toLocaleString()}
+                </Typography>
+              </Loading>
+            }
           </AccordionSummary>
           <AccordionDetails>
             {getCriteriaPlugin(props.criteria).renderDetails()}
