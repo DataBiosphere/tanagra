@@ -16,8 +16,16 @@ test("loading", async () => {
   rerender(
     <Loading status={{ error: new Error("test-error"), reload: reload }} />
   );
-  await screen.findByRole("paragraph", { name: /test-error/ });
-  // await screen.findByText("test-error");
+  screen.findByText((_, node) => {
+    const hasText = (node: Element | null) =>
+      node?.textContent === "test_error";
+    const nodeHasText = hasText(node);
+    const childrenDontHaveText = node
+      ? Array.from(node.children).every((child) => !hasText(child))
+      : true;
+
+    return nodeHasText && childrenDontHaveText;
+  });
 
   userEvent.click(screen.getByText("Reload"));
   expect(reload).toHaveBeenCalled();
