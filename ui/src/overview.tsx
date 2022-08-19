@@ -1,5 +1,6 @@
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { FormControl, Select, SelectChangeEvent } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -30,7 +31,7 @@ import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import {
   Bar,
@@ -476,6 +477,29 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
   );
 }
 
+type PrimaryPropertyDropDownProps = {
+  propertyOptions: string[];
+};
+
+function PrimaryPropertyDropDown({
+  propertyOptions,
+}: PrimaryPropertyDropDownProps) {
+  console.log(propertyOptions[0])
+  const [value, setValue] = useState<string>(propertyOptions[0]);
+  const handleChange = (event: SelectChangeEvent) => {
+    setValue(event.target.value as string);
+  };
+  return (
+    <FormControl>
+      <Select value={value} onChange={handleChange}>
+        {propertyOptions.map((option, index) => (
+          <MenuItem key={index} value={option}>{option}</MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+}
+
 type DemographicChartsProps = {
   cohort: tanagra.Cohort;
 };
@@ -668,6 +692,14 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
         <Grid item xs={1}>
           <Stack>
             <Typography variant="h4">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
+            {underlay.uiConfiguration.demographicChartConfigs.primaryPropertyOptions.map(
+              (propertyOptions, index) => (
+                <PrimaryPropertyDropDown
+                  key={index}
+                  propertyOptions={propertyOptions}
+                />
+              )
+            )}
             {demographicState.data?.chartsData.map((chart, index) => {
               return (
                 <StackedBarChart
