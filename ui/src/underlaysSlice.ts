@@ -25,6 +25,7 @@ export type UIConfiguration = {
 
 export type DemographicChartConfig = {
   additionalSelectedAttributes: string[];
+  primaryPropertyOptions: string[][]
   groupByAttributes: string[];
   chartConfigs: ChartProperties[];
 };
