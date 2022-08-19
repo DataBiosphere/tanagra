@@ -157,7 +157,7 @@ async function renderCriteria(
 
   const demographicChartConfigs = {
     additionalSelectedAttributes: ["gender", "race"],
-    primaryPropertyOptions: [],
+    primaryPropertyOptions: ["gender", "sex_at_birth"],
     groupByAttributes: [
       "gender_concept_id",
       "race_concept_id",
