@@ -303,7 +303,7 @@ uiConfiguration: >-
           "id": "condition_occurrence",
           "displayName": "Condition Occurrences",
           "entity": "condition_occurrence",
-          "key": "concept_id",
+          "key": "condition_concept_id",
           "classifications": [
             {
               "id": "condition",
@@ -331,7 +331,7 @@ uiConfiguration: >-
           "id": "procedure_occurrence",
           "displayName": "Procedure Occurrences",
           "entity": "procedure_occurrence",
-          "key": "concept_id",
+          "key": "procedure_concept_id",
           "classifications": [
             {
               "id": "procedure",
@@ -359,7 +359,7 @@ uiConfiguration: >-
           "id": "observation_occurrence",
           "displayName": "Observation Occurrence",
           "entity": "observation_occurrence",
-          "key": "concept_id",
+          "key": "observation_concept_id",
           "classifications": [
             {
               "id": "observation",
@@ -386,11 +386,11 @@ uiConfiguration: >-
           "id": "ingredient_occurrence",
           "displayName": "Drug Occurrence",
           "entity": "ingredient_occurrence",
-          "key": "concept_id",
+          "key": "drug_concept_id",
           "classifications": [
             {
               "id": "ingredient",
-              "attribute": "ingredient_concept_id",
+              "attribute": "drug_concept_id",
               "entity": "ingredient",
               "entityAttribute": "concept_id",
               "hierarchical": true,

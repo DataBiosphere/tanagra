@@ -1,12 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Configuration } from "data/configuration";
+import { Filter } from "data/filter";
 import * as tanagra from "tanagra-api";
 
 export type PrepackagedConceptSet = {
   id: string;
   name: string;
-  entity: string;
-  filter?: tanagra.Filter;
+  occurrence: string;
+  filter?: Filter;
 };
 
 export type Underlay = {

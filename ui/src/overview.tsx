@@ -27,7 +27,7 @@ import {
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
-import { useSource } from "data/source";
+import { generateFilter, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import { useCallback, useContext } from "react";
@@ -47,7 +47,7 @@ import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
 import {
   createCriteria,
-  generateQueryFilter,
+  generateCohortFilter,
   getCriteriaPlugin,
 } from "./cohort";
 
@@ -209,10 +209,15 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
       ],
     };
 
+    const filter = generateCohortFilter(cohortForFilter);
+    if (!filter) {
+      throw new Error("Group is empty.");
+    }
+
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
       entityCounts: {
-        entityVariable: "p",
-        filter: generateQueryFilter(source, cohortForFilter, "p"),
+        entityVariable: "person",
+        filter: generateFilter(source, filter, true),
       },
     };
 
@@ -331,12 +336,17 @@ function ParticipantCriteria(props: {
       ],
     };
 
+    const filter = generateCohortFilter(cohortForFilter);
+    if (!filter) {
+      throw new Error("Criteria is empty.");
+    }
+
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
       entityCounts: {
-        entityVariable: "p",
+        entityVariable: "person",
         additionalSelectedAttributes: [],
         groupByAttributes: [],
-        filter: generateQueryFilter(source, cohortForFilter, "p"),
+        filter: generateFilter(source, filter, true),
       },
     };
 
@@ -562,12 +572,18 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
       }
     }
 
+    const filter = generateCohortFilter(cohort);
+    if (!filter) {
+      // TODO(tjennison): Add non-error UI for this case.
+      throw new Error("Cohort is empty.");
+    }
+
     const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
       entityCounts: {
-        entityVariable: "p",
+        entityVariable: "person",
         additionalSelectedAttributes: Array.from(additionalSelectedAttributes),
         groupByAttributes: groupByAttributes,
-        filter: generateQueryFilter(source, cohort, "p"),
+        filter: generateFilter(source, filter, true),
       },
     };
 

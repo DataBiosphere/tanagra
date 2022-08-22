@@ -1,61 +1,42 @@
+import {
+  Filter,
+  FilterType,
+  makeArrayFilter,
+  UnaryFilterOperator,
+} from "data/filter";
 import { Source } from "data/source";
 import { generate } from "randomstring";
 import * as tanagra from "tanagra-api";
+import { isValid } from "util/valid";
 import { CriteriaConfig } from "./underlaysSlice";
 
 export function generateId(): string {
   return generate(8);
 }
 
-export function generateQueryFilter(
-  source: Source,
-  cohort: tanagra.Cohort,
-  entityVar: string
-): tanagra.Filter | null {
-  const operands = cohort.groups
-    .map((group) => generateFilter(source, group, entityVar))
-    .filter((filter) => filter) as Array<tanagra.Filter>;
-  if (operands.length === 0) {
-    return null;
-  }
-
-  return {
-    arrayFilter: {
-      operands: operands,
-      operator: tanagra.ArrayFilterOperator.And,
-    },
-  };
+export function generateCohortFilter(cohort: tanagra.Cohort): Filter | null {
+  return makeArrayFilter(
+    {},
+    cohort.groups.map((group) => generateFilter(group)).filter(isValid)
+  );
 }
 
-function generateFilter(
-  source: Source,
-  group: tanagra.Group,
-  entityVar: string
-): tanagra.Filter | null {
-  const operands = group.criteria
-    .map((criteria) =>
-      getCriteriaPlugin(criteria).generateFilter(source, entityVar, false)
-    )
-    .filter((filter) => filter) as Array<tanagra.Filter>;
-  if (operands.length === 0) {
-    return null;
+function generateFilter(group: tanagra.Group): Filter | null {
+  const filter = makeArrayFilter(
+    { min: 1 },
+    group.criteria
+      .map((criteria) => getCriteriaPlugin(criteria).generateFilter())
+      .filter(isValid)
+  );
+
+  if (!filter || group.kind === tanagra.GroupKindEnum.Included) {
+    return filter;
   }
-
-  const filter = {
-    arrayFilter: {
-      operands: operands,
-      operator: tanagra.ArrayFilterOperator.Or,
-    },
+  return {
+    type: FilterType.Unary,
+    operator: UnaryFilterOperator.Not,
+    operand: filter,
   };
-
-  return group.kind === tanagra.GroupKindEnum.Included
-    ? filter
-    : {
-        unaryFilter: {
-          operand: filter,
-          operator: tanagra.UnaryFilterOperator.Not,
-        },
-      };
 }
 
 // Having typed data here allows the registry to treat all data generically
@@ -65,12 +46,8 @@ export interface CriteriaPlugin<DataType> {
   data: DataType;
   renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
   renderDetails: () => JSX.Element;
-  generateFilter: (
-    source: Source,
-    entityVar: string,
-    fromOccurrence: boolean
-  ) => tanagra.Filter | null;
-  occurrenceEntities: (source: Source) => string[];
+  generateFilter: () => Filter | null;
+  occurrenceID: () => string;
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically

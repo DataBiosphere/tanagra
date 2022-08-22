@@ -11,9 +11,18 @@ import {
   DataKey,
   DataValue,
   findByID,
+  findEntity,
   Grouping,
   Occurrence,
 } from "./configuration";
+import {
+  ArrayFilter,
+  Filter,
+  isArrayFilter,
+  isAttributeFilter,
+  isClassificationFilter,
+  isUnaryFilter,
+} from "./filter";
 
 export type ClassificationNode = {
   data: DataEntry;
@@ -32,6 +41,10 @@ export type SearchClassificationResult = {
   nodes: ClassificationNode[];
 };
 
+export type ListDataResponse = {
+  data: DataEntry[];
+};
+
 export type IntegerHint = {
   min: number;
   max: number;
@@ -48,6 +61,8 @@ export type HintData = {
 };
 
 export interface Source {
+  config: Configuration;
+
   lookupOccurrence(occurrenceID: string): Occurrence;
   lookupClassification(
     occurrenceID: string,
@@ -67,6 +82,22 @@ export interface Source {
     classificationID: string,
     root: ClassificationNode
   ): Promise<SearchClassificationResult>;
+
+  listAttributes(occurrenceID: string): string[];
+
+  listData(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null
+  ): Promise<ListDataResponse>;
+
+  generateSQLQuery(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null
+  ): Promise<string>;
 
   getHintData(
     occurrenceID: string,
@@ -92,7 +123,7 @@ export class BackendSource implements Source {
   constructor(
     private entityInstancesApi: tanagra.EntityInstancesApi,
     private underlay: Underlay,
-    private config: Configuration
+    public config: Configuration
   ) {}
 
   lookupOccurrence(occurrenceID: string): Occurrence {
@@ -225,6 +256,79 @@ export class BackendSource implements Source {
       }));
   }
 
+  listAttributes(occurrenceID: string): string[] {
+    let entity = this.config.primaryEntity.entity;
+    if (occurrenceID) {
+      entity = findByID(occurrenceID, this.config.occurrences).entity;
+    }
+
+    return (
+      this.underlay.entities
+        .find((e) => e.name === entity)
+        ?.attributes?.map((a) => a.name)
+        .filter(isValid)
+        .filter((n) => !isInternalAttribute(n)) || []
+    );
+  }
+
+  async listData(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null
+  ): Promise<ListDataResponse> {
+    const entity = findEntity(occurrenceID, this.config);
+
+    const res = await this.entityInstancesApi.searchEntityInstances({
+      entityName: entity.entity,
+      underlayName: this.underlay.name,
+      searchEntityInstancesRequest: {
+        entityDataset: this.makeEntityDataset(
+          requestedAttributes,
+          occurrenceID,
+          cohort,
+          conceptSet
+        ),
+      },
+    });
+
+    const data = res.instances?.map((instance) =>
+      processEntityInstance(entity.key, instance, (key: string) =>
+        isInternalAttribute(key)
+      )
+    );
+    return {
+      data: data ?? [],
+    };
+  }
+
+  async generateSQLQuery(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null
+  ): Promise<string> {
+    const entity = findEntity(occurrenceID, this.config);
+
+    const res = await this.entityInstancesApi.generateDatasetSqlQuery({
+      entityName: entity.entity,
+      underlayName: this.underlay.name,
+      generateDatasetSqlQueryRequest: {
+        entityDataset: this.makeEntityDataset(
+          requestedAttributes,
+          occurrenceID,
+          cohort,
+          conceptSet
+        ),
+      },
+    });
+
+    if (!res.query) {
+      throw new Error("Service returned an empty query.");
+    }
+    return res.query;
+  }
+
   getHintData(
     occurrenceID: string,
     attributeID: string
@@ -256,6 +360,53 @@ export class BackendSource implements Source {
       });
     });
   }
+
+  private makeEntityDataset(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null
+  ): tanagra.EntityDataset {
+    const entity = findEntity(occurrenceID, this.config);
+    let cohortFilter = generateFilter(this, cohort, true);
+    if (!cohortFilter) {
+      throw new Error("Cohort filter is empty.");
+    }
+
+    if (occurrenceID) {
+      const primaryEntity = this.config.primaryEntity.entity;
+      cohortFilter = {
+        relationshipFilter: {
+          outerVariable: entity.entity,
+          newVariable: primaryEntity,
+          newEntity: primaryEntity,
+          filter: cohortFilter,
+        },
+      };
+    }
+
+    let filter = cohortFilter;
+    const conceptSetFilter = generateFilter(this, conceptSet, false);
+    if (conceptSetFilter) {
+      filter = {
+        arrayFilter: {
+          operator: tanagra.ArrayFilterOperator.And,
+          operands: [cohortFilter, conceptSetFilter],
+        },
+      };
+    }
+
+    return {
+      entityVariable: entity.entity,
+      selectedAttributes: requestedAttributes,
+      filter,
+      limit: 50,
+    };
+  }
+}
+
+function isInternalAttribute(attribute: string): boolean {
+  return attribute.startsWith("t_");
 }
 
 function makePathAttribute(attribute: string) {
@@ -266,11 +417,7 @@ function makeNumChildrenAttribute(attribute: string) {
   return "t_numChildren_" + attribute;
 }
 
-// TODO(tjennison): Remove external uses of this function since they're not
-// actually generic.
-export function attributeValueFromDataValue(
-  value: DataValue
-): tanagra.AttributeValue {
+function attributeValueFromDataValue(value: DataValue): tanagra.AttributeValue {
   return {
     int64Val: typeof value === "number" ? value : undefined,
     stringVal: typeof value === "string" ? value : undefined,
@@ -391,43 +538,29 @@ function processEntitiesResponse(
     response.instances.slice(0, 100).forEach((instance) => {
       let ancestors: DataKey[] | undefined;
       let childCount: number | undefined;
-      const data: DataEntry = {
-        key: 0,
-      };
 
-      for (const k in instance) {
-        const v = instance[k];
-        // TODO(tjennison): Add support for computed columns.
-        if (k === "standard_concept") {
-          data[k] = v ? "Standard" : "Source";
-        } else if (!v) {
-          data[k] = "";
-        } else if (k === pathAttribute) {
-          if (v.stringVal) {
-            // TODO(tjennison): There's no way to tell if the IDs should
-            // be numbers or strings and getting it wrong will cause
-            // queries using them to fail because the types don't match.
-            // Figure out a way to handle this generically.
-            ancestors = v.stringVal.split(".").map((id) => +id);
-          } else if (v.stringVal === "") {
-            ancestors = [];
+      const data = processEntityInstance(
+        attributeID,
+        instance,
+        (key, value) => {
+          if (key === pathAttribute) {
+            if (value?.stringVal) {
+              // TODO(tjennison): There's no way to tell if the IDs should
+              // be numbers or strings and getting it wrong will cause
+              // queries using them to fail because the types don't match.
+              // Figure out a way to handle this generically.
+              ancestors = value.stringVal.split(".").map((id) => +id);
+            } else if (value?.stringVal === "") {
+              ancestors = [];
+            }
+          } else if (key === numChildrenAttribute) {
+            childCount = value?.int64Val;
+          } else {
+            return false;
           }
-        } else if (k === numChildrenAttribute) {
-          childCount = v.int64Val;
-        } else if (isValid(v.int64Val)) {
-          data[k] = v.int64Val;
-        } else if (isValid(v.boolVal)) {
-          data[k] = v.boolVal;
-        } else if (isValid(v.stringVal)) {
-          data[k] = v.stringVal;
+          return true;
         }
-      }
-
-      const key = data[attributeID];
-      if (!key || typeof key === "boolean") {
-        return;
-      }
-      data.key = key;
+      );
 
       nodes.push({
         data: data,
@@ -438,4 +571,231 @@ function processEntitiesResponse(
     });
   }
   return nodes;
+}
+
+type EntityInstance = { [key: string]: tanagra.AttributeValue | null };
+
+function processEntityInstance(
+  attributeID: string,
+  instance: EntityInstance,
+  attributeHandler: (
+    key: string,
+    value: tanagra.AttributeValue | null
+  ) => boolean
+): DataEntry {
+  const data: DataEntry = {
+    key: 0,
+  };
+
+  for (const k in instance) {
+    const v = instance[k];
+    // TODO(tjennison): Add support for computed columns.
+    if (k === "standard_concept") {
+      data[k] = v ? "Standard" : "Source";
+    } else if (attributeHandler(k, v)) {
+      continue;
+    } else if (!v) {
+      data[k] = "";
+    } else if (isValid(v.int64Val)) {
+      data[k] = v.int64Val;
+    } else if (isValid(v.boolVal)) {
+      data[k] = v.boolVal;
+    } else if (isValid(v.stringVal)) {
+      data[k] = v.stringVal;
+    }
+  }
+
+  const key = data[attributeID];
+  if (!key || typeof key === "boolean") {
+    throw new Error(
+      `Key attribute "${attributeID}" not found in entity instance ${data}`
+    );
+  }
+  data.key = key;
+  return data;
+}
+
+// TODO(tjennison): Move this to BackendSource and make it private once the
+// count API uses have been converted.
+export function generateFilter(
+  source: Source,
+  filter: Filter | null,
+  fromPrimary: boolean
+): tanagra.Filter | null {
+  if (!filter) {
+    return null;
+  }
+
+  if (isArrayFilter(filter)) {
+    const operands = filter.operands
+      .map((o) => generateFilter(source, o, fromPrimary))
+      .filter(isValid);
+    if (operands.length === 0) {
+      return null;
+    }
+
+    return {
+      arrayFilter: {
+        operator: arrayFilterOperator(filter),
+        operands: operands,
+      },
+    };
+  }
+  if (isUnaryFilter(filter)) {
+    const operand = generateFilter(source, filter.operand, fromPrimary);
+    if (!operand) {
+      return null;
+    }
+
+    return {
+      unaryFilter: {
+        operator: tanagra.UnaryFilterOperator.Not,
+        operand: operand,
+      },
+    };
+  }
+
+  // Cohort filters need to be related to the primary entity but concept sets
+  // filters don't because they're tied to particular occurrences.
+  const [occurrenceFilter, entity] = generateOccurrenceFilter(source, filter);
+  if (
+    occurrenceFilter &&
+    fromPrimary &&
+    entity !== source.config.primaryEntity.entity
+  ) {
+    return {
+      relationshipFilter: {
+        outerVariable: source.config.primaryEntity.entity,
+        newVariable: entity,
+        newEntity: entity,
+        filter: occurrenceFilter,
+      },
+    };
+  }
+  return occurrenceFilter;
+}
+
+function arrayFilterOperator(filter: ArrayFilter): tanagra.ArrayFilterOperator {
+  if (!isValid(filter.operator.min) && !isValid(filter.operator.max)) {
+    return tanagra.ArrayFilterOperator.And;
+  }
+  if (filter.operator.min === 1 && !isValid(filter.operator.max)) {
+    return tanagra.ArrayFilterOperator.Or;
+  }
+
+  throw new Error("Only AND and OR equivalent operators are supported.");
+}
+
+function generateOccurrenceFilter(
+  source: Source,
+  filter: Filter
+): [tanagra.Filter | null, string] {
+  if (isClassificationFilter(filter)) {
+    const entity = findEntity(filter.occurrenceID, source.config);
+    const classification = findByID(
+      filter.classificationID,
+      entity.classifications
+    );
+
+    const operands = filter.keys.map((key) => ({
+      binaryFilter: {
+        attributeVariable: {
+          variable: classification.entity,
+          name: classification.entityAttribute,
+        },
+        operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
+        attributeValue: {
+          // TODO(tjennison): Handle other key types.
+          int64Val: key as number,
+        },
+      },
+    }));
+
+    if (operands.length === 0) {
+      return [null, ""];
+    }
+
+    return [
+      {
+        relationshipFilter: {
+          outerVariable: entity.entity,
+          newVariable: classification.entity,
+          newEntity: classification.entity,
+          filter: {
+            arrayFilter: {
+              operands: operands,
+              operator: tanagra.ArrayFilterOperator.Or,
+            },
+          },
+        },
+      },
+      entity.entity,
+    ];
+  }
+  if (isAttributeFilter(filter)) {
+    const entity = findEntity(filter.occurrenceID, source.config);
+    if (filter.ranges?.length) {
+      return [
+        {
+          arrayFilter: {
+            operands: filter.ranges.map(({ min, max }) => ({
+              arrayFilter: {
+                operands: [
+                  {
+                    binaryFilter: {
+                      attributeVariable: {
+                        variable: entity.entity,
+                        name: filter.attribute,
+                      },
+                      operator: tanagra.BinaryFilterOperator.LessThan,
+                      attributeValue: {
+                        int64Val: max,
+                      },
+                    },
+                  },
+                  {
+                    binaryFilter: {
+                      attributeVariable: {
+                        variable: entity.entity,
+                        name: filter.attribute,
+                      },
+                      operator: tanagra.BinaryFilterOperator.GreaterThan,
+                      attributeValue: {
+                        int64Val: min,
+                      },
+                    },
+                  },
+                ],
+                operator: tanagra.ArrayFilterOperator.And,
+              },
+            })),
+            operator: tanagra.ArrayFilterOperator.Or,
+          },
+        },
+        entity.entity,
+      ];
+    }
+    if (filter.values?.length) {
+      return [
+        {
+          arrayFilter: {
+            operands: filter.values.map((value) => ({
+              binaryFilter: {
+                attributeVariable: {
+                  variable: entity.entity,
+                  name: filter.attribute,
+                },
+                operator: tanagra.BinaryFilterOperator.Equals,
+                attributeValue: attributeValueFromDataValue(value),
+              },
+            })),
+            operator: tanagra.ArrayFilterOperator.Or,
+          },
+        },
+        entity.entity,
+      ];
+    }
+    return [null, ""];
+  }
+  throw new Error(`Unknown filter type: ${JSON.stringify(filter)}`);
 }

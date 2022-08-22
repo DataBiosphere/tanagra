@@ -1,5 +1,6 @@
 import { EntitiesApiContext, UnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
+import { FilterType } from "data/filter";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch } from "hooks";
 import { enableMapSet } from "immer";
@@ -8,7 +9,6 @@ import { useCallback, useContext } from "react";
 import { HashRouter } from "react-router-dom";
 import { AppRouter } from "router";
 import { LoadingUserData } from "storage/storage";
-import * as tanagra from "tanagra-api";
 import { setUnderlays } from "underlaysSlice";
 import "./app.css";
 
@@ -20,30 +20,17 @@ const prepackagedConceptSets = [
   {
     id: "_demographics",
     name: "Demographics",
-    entity: "person",
+    occurrence: "",
   },
   {
     id: "_analgesics",
     name: "Analgesics",
-    entity: "ingredient_occurrence",
+    occurrence: "ingredient_occurrence",
     filter: {
-      relationshipFilter: {
-        outerVariable: "ingredient_occurrence",
-        newVariable: "concept",
-        newEntity: "ingredient",
-        filter: {
-          binaryFilter: {
-            attributeVariable: {
-              variable: "concept",
-              name: "concept_id",
-            },
-            operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
-            attributeValue: {
-              int64Val: 21604253,
-            },
-          },
-        },
-      },
+      type: FilterType.Classification,
+      occurrenceID: "ingredient_occurrence",
+      classificationID: "ingredient",
+      keys: [21604253],
     },
   },
 ];
