@@ -54,15 +54,6 @@ const testCases: TestCase[] = [
     },
     matches: ["test-concept", "1234", "Standard"],
   },
-  {
-    name: "missing concept_id",
-    instance: {
-      concept_name: {
-        stringVal: "test-concept",
-      },
-    },
-    notMatches: ["test-concept"],
-  },
 ];
 
 test.each(testCases)(

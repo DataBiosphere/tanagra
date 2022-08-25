@@ -15,17 +15,11 @@ import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
 import Loading from "components/loading";
 import { DataValue } from "data/configuration";
-import {
-  attributeValueFromDataValue,
-  EnumHintOption,
-  IntegerHint,
-  Source,
-  useSource,
-} from "data/source";
+import { FilterType } from "data/filter";
+import { EnumHintOption, IntegerHint, Source, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import produce from "immer";
 import React, { useCallback, useState } from "react";
-import * as tanagra from "tanagra-api";
 import { CriteriaConfig } from "underlaysSlice";
 
 type Selection = {
@@ -84,75 +78,18 @@ class _ implements CriteriaPlugin<Data> {
     return <AttributeDetails data={this.data} />;
   }
 
-  generateFilter(source: Source, entityVar: string) {
-    if (this.data.dataRanges.length > 0) {
-      return {
-        arrayFilter: {
-          operands: this.data.dataRanges.map((range) => ({
-            arrayFilter: {
-              operands: [
-                {
-                  binaryFilter: {
-                    attributeVariable: {
-                      variable: entityVar,
-                      name: this.data.attribute,
-                    },
-                    operator: tanagra.BinaryFilterOperator.LessThan,
-                    attributeValue: {
-                      int64Val: range.max,
-                    },
-                  },
-                },
-                {
-                  binaryFilter: {
-                    attributeVariable: {
-                      variable: entityVar,
-                      name: this.data.attribute,
-                    },
-                    operator: tanagra.BinaryFilterOperator.GreaterThan,
-                    attributeValue: {
-                      int64Val: range.min,
-                    },
-                  },
-                },
-              ],
-              operator: tanagra.ArrayFilterOperator.And,
-            },
-          })),
-          operator: tanagra.ArrayFilterOperator.Or,
-        },
-      };
-    } else if (this.data.selected.length > 0) {
-      return {
-        arrayFilter: {
-          operands: this.data.selected.map(({ value }) => ({
-            binaryFilter: {
-              attributeVariable: {
-                variable: entityVar,
-                name: this.data.attribute,
-              },
-              operator: tanagra.BinaryFilterOperator.Equals,
-              attributeValue: attributeValueFromDataValue(value),
-            },
-          })),
-          operator: tanagra.ArrayFilterOperator.Or,
-        },
-      };
-    }
-
+  generateFilter() {
     return {
-      binaryFilter: {
-        attributeVariable: {
-          variable: entityVar,
-          name: this.data.attribute,
-        },
-        operator: tanagra.BinaryFilterOperator.NotEquals,
-      },
+      type: FilterType.Attribute,
+      occurrenceID: "",
+      attribute: this.data.attribute,
+      values: this.data.selected?.map(({ value }) => value),
+      ranges: this.data.dataRanges,
     };
   }
 
-  occurrenceEntities() {
-    return [];
+  occurrenceID() {
+    return "";
   }
 }
 

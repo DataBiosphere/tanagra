@@ -16,6 +16,7 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { DataKey } from "data/configuration";
+import { FilterType } from "data/filter";
 import {
   ClassificationNode,
   SearchClassificationResult,
@@ -25,7 +26,6 @@ import {
 import { useAsyncWithApi } from "errors";
 import produce from "immer";
 import React, { useCallback, useMemo, useState } from "react";
-import * as tanagra from "tanagra-api";
 import { CriteriaConfig } from "underlaysSlice";
 import { useImmer } from "use-immer";
 
@@ -76,68 +76,17 @@ class _ implements CriteriaPlugin<Data> {
     return <ConceptDetails data={this.data} />;
   }
 
-  // Normally, filter generation assumes the concepts are liked to the entityVar
-  // via an occurrence table (e.g. person -> condition_occurrence -> condition).
-  // fromOccurrence causes entityVar to be treated as the occurrence instead
-  // (e.g. condition_occurrence -> condition).
-  generateFilter(source: Source, entityVar: string, fromOccurrence: boolean) {
-    const occurrence = source.lookupOccurrence(this.data.occurrence);
-    const classification = source.lookupClassification(
-      this.data.occurrence,
-      this.data.classification
-    );
-
-    const operands = this.data.selected.map(({ key }) => ({
-      binaryFilter: {
-        attributeVariable: {
-          variable: classification.entity,
-          name: classification.entityAttribute,
-        },
-        operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
-        attributeValue: {
-          // TODO(tjennison): Handle other key types.
-          int64Val: key as number,
-        },
-      },
-    }));
-
-    if (!operands?.length) {
-      return null;
-    }
-
-    const filter = {
-      relationshipFilter: {
-        outerVariable: fromOccurrence ? entityVar : occurrence.entity,
-        newVariable: classification.entity,
-        newEntity: classification.entity,
-        filter: {
-          arrayFilter: {
-            operands: operands,
-            operator: tanagra.ArrayFilterOperator.Or,
-          },
-        },
-      },
-    };
-
-    if (fromOccurrence) {
-      return filter;
-    }
-
+  generateFilter() {
     return {
-      relationshipFilter: {
-        outerVariable: entityVar,
-        newVariable: occurrence.entity,
-        newEntity: occurrence.entity,
-        filter: filter,
-      },
+      type: FilterType.Classification,
+      occurrenceID: this.data.occurrence,
+      classificationID: this.data.classification,
+      keys: this.data.selected.map(({ key }) => key),
     };
   }
 
-  // TODO(tjennison): Split filter generation into separate paths for
-  // occurrences and primary entities. This will allow occurrence logic to be
-  // centralized and remove the limitation of having a single selectable entity.
-  occurrenceEntities(source: Source) {
-    return [source.lookupOccurrence(this.data.occurrence).entity];
+  occurrenceID() {
+    return this.data.occurrence;
   }
 }
 

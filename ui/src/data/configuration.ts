@@ -18,6 +18,10 @@ export type SortOrder = {
   direction: SortDirection;
 };
 
+// Classifications allow occurrences to be filtered using an attribute that
+// refers to another table. An example of this is how OMOP data stores the
+// condition associated with a condition occurrence as a concept_id that
+// references a concept table.
 export type Classification = {
   id: string;
   attribute: string;
@@ -43,17 +47,17 @@ export type Grouping = {
   defaultSort?: SortOrder;
 };
 
-export type PrimaryEntity = {
-  entity: string;
-  key: string;
-};
-
-export type Occurrence = {
-  id: string;
+export type Entity = {
   entity: string;
   key: string;
 
   classifications?: Classification[];
+};
+
+export type PrimaryEntity = Entity;
+
+export type Occurrence = Entity & {
+  id: string;
 };
 
 export type Configuration = {
@@ -67,4 +71,14 @@ export function findByID<T extends { id: string }>(id: string, list?: T[]): T {
     throw new Error(`Unknown item "${id}" in ${JSON.stringify(list)}.`);
   }
   return item;
+}
+
+export function findEntity(
+  occurrenceID: string,
+  config: Configuration
+): Entity {
+  if (occurrenceID) {
+    return findByID(occurrenceID, config.occurrences);
+  }
+  return config.primaryEntity;
 }
