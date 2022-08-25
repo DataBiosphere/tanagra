@@ -1,4 +1,4 @@
-import { EntityInstancesApiContext } from "apiContext";
+import { EntityCountsApiContext, EntityInstancesApiContext } from "apiContext";
 import { useUnderlay } from "hooks";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
@@ -60,6 +60,11 @@ export type HintData = {
   enumHintOptions?: EnumHintOption[];
 };
 
+export type FilterCountValue = {
+  count: number;
+  [x: string]: DataValue;
+};
+
 export interface Source {
   config: Configuration;
 
@@ -103,18 +108,32 @@ export interface Source {
     occurrenceID: string,
     attributeID: string
   ): Promise<HintData | undefined>;
+
+  filterCount(
+    filter: Filter | null,
+    groupByAttributes?: string[],
+    additionalAttributes?: string[]
+  ): Promise<FilterCountValue[]>;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
 // of recreating it. Move "fake" logic into a separate source instead of APIs.
 export function useSource(): Source {
   const underlay = useUnderlay();
-  const context = useContext(
+  const instancesApi = useContext(
     EntityInstancesApiContext
   ) as tanagra.EntityInstancesApi;
+  const countsApi = useContext(
+    EntityCountsApiContext
+  ) as tanagra.EntityCountsApi;
   return useMemo(
     () =>
-      new BackendSource(context, underlay, underlay.uiConfiguration.dataConfig),
+      new BackendSource(
+        instancesApi,
+        countsApi,
+        underlay,
+        underlay.uiConfiguration.dataConfig
+      ),
     [underlay]
   );
 }
@@ -122,6 +141,7 @@ export function useSource(): Source {
 export class BackendSource implements Source {
   constructor(
     private entityInstancesApi: tanagra.EntityInstancesApi,
+    private entityCountsApi: tanagra.EntityCountsApi,
     private underlay: Underlay,
     public config: Configuration
   ) {}
@@ -358,6 +378,41 @@ export class BackendSource implements Source {
           })
         ),
       });
+    });
+  }
+
+  async filterCount(
+    filter: Filter | null,
+    groupByAttributes?: string[],
+    additionalAttributes?: string[]
+  ): Promise<FilterCountValue[]> {
+    const data = await this.entityCountsApi.searchEntityCounts({
+      underlayName: this.underlay.name,
+      entityName: this.config.primaryEntity.entity,
+      searchEntityCountsRequest: {
+        entityCounts: {
+          entityVariable: this.config.primaryEntity.entity,
+          additionalSelectedAttributes: additionalAttributes,
+          groupByAttributes: groupByAttributes,
+          filter: generateFilter(this, filter, true),
+        },
+      },
+    });
+
+    if (!data.counts) {
+      throw new Error("Count API returned no counts.");
+    }
+
+    return data.counts.map((count) => {
+      const value: FilterCountValue = {
+        count: count.count ?? 0,
+      };
+      for (const attribute in count.definition) {
+        value[attribute] = dataValueFromAttributeValue(
+          count.definition[attribute]
+        );
+      }
+      return value;
     });
   }
 
