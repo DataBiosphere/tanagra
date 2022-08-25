@@ -15,7 +15,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { EntityCountsApiContext } from "apiContext";
 import {
   deleteCriteria,
   deleteGroup,
@@ -27,10 +26,10 @@ import {
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
-import { generateFilter, useSource } from "data/source";
+import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import {
   Bar,
@@ -157,7 +156,6 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
   const underlay = useUnderlay();
   const cohort = useCohort();
   const groupName = props.group.name || "Group " + String(props.index + 1);
-  const api = useContext(EntityCountsApiContext);
 
   const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
     title: "Edit Group Name",
@@ -214,19 +212,7 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
       throw new Error("Group is empty.");
     }
 
-    const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
-      entityCounts: {
-        entityVariable: "person",
-        filter: generateFilter(source, filter, true),
-      },
-    };
-
-    const data = await api.searchEntityCounts({
-      underlayName: underlay.name,
-      entityName: "person",
-      searchEntityCountsRequest: searchEntityCountsRequest,
-    });
-    return data.counts?.[0].count;
+    return (await source.filterCount(filter))[0].count;
   }, [underlay, cohort]);
 
   const groupCountState = useAsyncWithApi(fetchGroupCount);
@@ -281,7 +267,6 @@ function ParticipantCriteria(props: {
   const underlay = useUnderlay();
   const cohort = useCohort();
   const dispatch = useAppDispatch();
-  const api = useContext(EntityCountsApiContext);
 
   const [renameDialog, showRenameCriteria] = useTextInputDialog({
     title: "Edit Criteria Name",
@@ -341,21 +326,7 @@ function ParticipantCriteria(props: {
       throw new Error("Criteria is empty.");
     }
 
-    const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
-      entityCounts: {
-        entityVariable: "person",
-        additionalSelectedAttributes: [],
-        groupByAttributes: [],
-        filter: generateFilter(source, filter, true),
-      },
-    };
-
-    const data = await api.searchEntityCounts({
-      underlayName: underlay.name,
-      entityName: "person",
-      searchEntityCountsRequest: searchEntityCountsRequest,
-    });
-    return data.counts?.[0].count;
+    return (await source.filterCount(filter))[0].count;
   }, [underlay, cohort]);
 
   const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
@@ -494,51 +465,36 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
   const underlay = useUnderlay();
   const source = useSource();
 
-  const api = useContext(EntityCountsApiContext);
-
   const generatePropertyString = (
     property: ChartConfigProperty,
-    entityCountStruct: tanagra.EntityCountStruct
+    filterCountValue: FilterCountValue
   ) => {
     let propertyString = "";
     // TODO(neelismail): Remove property key check once API supports age.
-    const entityCountPropertyValue =
-      entityCountStruct.definition?.[
-        property.key === "age" ? "year_of_birth" : property.key
-      ];
+    let value =
+      filterCountValue[property.key === "age" ? "year_of_birth" : property.key];
 
-    if (entityCountPropertyValue) {
-      let value =
-        entityCountPropertyValue.int64Val ??
-        entityCountPropertyValue.stringVal ??
-        entityCountPropertyValue.boolVal;
+    // TODO(neelismail): Remove age handling once the API supports them.
+    if (isValid(value) && property.key === "age" && typeof value === "number") {
+      value = new Date().getFullYear() - value;
+    }
 
-      // TODO(neelismail): Remove age handling once the API supports them.
-      if (
-        isValid(value) &&
-        property.key === "age" &&
-        typeof value === "number"
-      ) {
-        value = new Date().getFullYear() - value;
-      }
-
-      if (isValid(value) && property.buckets) {
-        property.buckets.forEach((range) => {
-          const min = range.min;
-          const max = range.max;
-          const displayName = range.displayName;
-          if (
-            isValid(value) &&
-            ((min && max && min <= value && value < max) ||
-              (min && !max && min <= value) ||
-              (!min && max && value < max))
-          ) {
-            propertyString = displayName;
-          }
-        });
-      } else {
-        propertyString = isValid(value) ? value.toString() : "Unknown";
-      }
+    if (isValid(value) && property.buckets) {
+      property.buckets.forEach((range) => {
+        const min = range.min;
+        const max = range.max;
+        const displayName = range.displayName;
+        if (
+          isValid(value) &&
+          ((min && max && min <= value && value < max) ||
+            (min && !max && min <= value) ||
+            (!min && max && value < max))
+        ) {
+          propertyString = displayName;
+        }
+      });
+    } else {
+      propertyString = isValid(value) ? value.toString() : "Unknown";
     }
     return propertyString;
   };
@@ -572,34 +528,12 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
       }
     }
 
-    const filter = generateCohortFilter(cohort);
-    if (!filter) {
-      // TODO(tjennison): Add non-error UI for this case.
-      throw new Error("Cohort is empty.");
-    }
+    const demographicData = await source.filterCount(
+      generateCohortFilter(cohort),
+      groupByAttributes,
+      Array.from(additionalSelectedAttributes)
+    );
 
-    const searchEntityCountsRequest: tanagra.SearchEntityCountsRequest = {
-      entityCounts: {
-        entityVariable: "person",
-        additionalSelectedAttributes: Array.from(additionalSelectedAttributes),
-        groupByAttributes: groupByAttributes,
-        filter: generateFilter(source, filter, true),
-      },
-    };
-
-    const data = await api.searchEntityCounts({
-      underlayName: underlay.name,
-      entityName: "person",
-      searchEntityCountsRequest: searchEntityCountsRequest,
-    });
-
-    if (!data.counts) {
-      throw new Error(
-        "The counts property returned by the searchEntityCounts API is undefined."
-      );
-    }
-
-    const demographicData = data.counts;
     const chartConfigs =
       underlay.uiConfiguration.demographicChartConfigs.chartConfigs;
 

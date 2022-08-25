@@ -175,6 +175,7 @@ async function renderCriteria(
 
   const source = new BackendSource(
     api,
+    {} as unknown as tanagra.EntityCountsApi,
     underlay,
     underlay.uiConfiguration.dataConfig
   );
