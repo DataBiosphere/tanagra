@@ -251,6 +251,7 @@ export class BackendSource implements Source {
           entityDataset: {
             entityVariable: classification.entity,
             selectedAttributes: requestedAttributes,
+            limit: 100,
             filter: {
               relationshipFilter: {
                 outerVariable: classification.entity,
@@ -568,6 +569,7 @@ function searchRequest(
       entityDataset: {
         entityVariable: entity,
         selectedAttributes: requestedAttributes,
+        limit: 100,
         orderByAttribute: orderByAttribute,
         orderByDirection: orderByDirection as
           | tanagra.OrderByDirection
@@ -589,8 +591,7 @@ function processEntitiesResponse(
 
   const nodes: ClassificationNode[] = [];
   if (response.instances) {
-    // TODO(tjennison): Use server side limits.
-    response.instances.slice(0, 100).forEach((instance) => {
+    response.instances.forEach((instance) => {
       let ancestors: DataKey[] | undefined;
       let childCount: number | undefined;
 
