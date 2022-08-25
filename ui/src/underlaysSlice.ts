@@ -15,13 +15,13 @@ export type Underlay = {
   primaryEntity: string;
   entities: tanagra.Entity[];
   uiConfiguration: UIConfiguration;
-  prepackagedConceptSets: PrepackagedConceptSet[];
 };
 
 export type UIConfiguration = {
   dataConfig: Configuration;
   criteriaConfigs: CriteriaConfig[];
   demographicChartConfigs: DemographicChartConfig;
+  prepackagedConceptSets: PrepackagedConceptSet[];
 };
 
 export type DemographicChartConfig = {
