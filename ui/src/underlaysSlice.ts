@@ -1,19 +1,50 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Configuration } from "data/configuration";
+import { Filter } from "data/filter";
 import * as tanagra from "tanagra-api";
 
 export type PrepackagedConceptSet = {
   id: string;
   name: string;
-  entity: string;
-  filter?: tanagra.Filter;
+  occurrence: string;
+  filter?: Filter;
 };
 
 export type Underlay = {
   name: string;
   primaryEntity: string;
   entities: tanagra.Entity[];
-  criteriaConfigs: CriteriaConfig[];
+  uiConfiguration: UIConfiguration;
   prepackagedConceptSets: PrepackagedConceptSet[];
+};
+
+export type UIConfiguration = {
+  dataConfig: Configuration;
+  criteriaConfigs: CriteriaConfig[];
+  demographicChartConfigs: DemographicChartConfig;
+};
+
+export type DemographicChartConfig = {
+  additionalSelectedAttributes: string[];
+  groupByAttributes: string[];
+  chartConfigs: ChartProperties[];
+};
+
+export type ChartProperties = {
+  title: string;
+  primaryProperties: ChartConfigProperty[];
+  stackedProperty?: ChartConfigProperty;
+};
+
+export type ChartConfigProperty = {
+  key: string;
+  buckets?: Bucket[];
+};
+
+export type Bucket = {
+  min?: number;
+  max?: number;
+  displayName: string;
 };
 
 // CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of

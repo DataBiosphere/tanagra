@@ -13,15 +13,17 @@ import Input from "@mui/material/Input";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
-import { useUnderlay } from "hooks";
+import Loading from "components/loading";
+import { DataValue } from "data/configuration";
+import { FilterType } from "data/filter";
+import { EnumHintOption, IntegerHint, Source, useSource } from "data/source";
+import { useAsyncWithApi } from "errors";
 import produce from "immer";
-import React, { useState } from "react";
-import * as tanagra from "tanagra-api";
-import { CriteriaConfig, Underlay } from "underlaysSlice";
-import { isValid } from "util/valid";
+import React, { useCallback, useState } from "react";
+import { CriteriaConfig } from "underlaysSlice";
 
 type Selection = {
-  id: number | string | boolean;
+  value: DataValue;
   name: string;
 };
 
@@ -51,26 +53,12 @@ type AttributeEditProps = {
 
 @registerCriteriaPlugin(
   "attribute",
-  (underlay: Underlay, config: CriteriaConfig) => {
-    const data = { ...(config.plugin as Config), name: config.title };
-
-    const integerBoundsHint = underlay.entities
-      .find((g) => g.name === underlay.primaryEntity)
-      ?.attributes?.find((attribute) => attribute.name === data.attribute)
-      ?.attributeFilterHint?.integerBoundsHint;
-
+  (source: Source, config: CriteriaConfig) => {
     return {
-      ...data,
-      selected: !integerBoundsHint ? [] : undefined,
-      dataRanges: integerBoundsHint
-        ? [
-            {
-              id: generateId(),
-              min: integerBoundsHint.min || 0,
-              max: integerBoundsHint.max || 10000,
-            },
-          ]
-        : undefined,
+      ...(config.plugin as Config),
+      name: config.title,
+      selected: [],
+      dataRanges: [],
     };
   }
 )
@@ -90,71 +78,18 @@ class _ implements CriteriaPlugin<Data> {
     return <AttributeDetails data={this.data} />;
   }
 
-  generateFilter(entityVar: string) {
-    if (this.data.dataRanges?.length) {
-      return {
-        arrayFilter: {
-          operands: this.data.dataRanges.map((range) => ({
-            arrayFilter: {
-              operands: [
-                {
-                  binaryFilter: {
-                    attributeVariable: {
-                      variable: entityVar,
-                      name: this.data.attribute,
-                    },
-                    operator: tanagra.BinaryFilterOperator.LessThan,
-                    attributeValue: {
-                      int64Val: range.max,
-                    },
-                  },
-                },
-                {
-                  binaryFilter: {
-                    attributeVariable: {
-                      variable: entityVar,
-                      name: this.data.attribute,
-                    },
-                    operator: tanagra.BinaryFilterOperator.GreaterThan,
-                    attributeValue: {
-                      int64Val: range.min,
-                    },
-                  },
-                },
-              ],
-              operator: tanagra.ArrayFilterOperator.And,
-            },
-          })),
-          operator: tanagra.ArrayFilterOperator.Or,
-        },
-      };
-    } else if (this.data.selected.length >= 0) {
-      return {
-        arrayFilter: {
-          operands: this.data.selected.map(({ id }) => ({
-            binaryFilter: {
-              attributeVariable: {
-                variable: entityVar,
-                name: this.data.attribute,
-              },
-              operator: tanagra.BinaryFilterOperator.Equals,
-              attributeValue: {
-                int64Val: typeof id === "number" ? id : undefined,
-                stringVal: typeof id === "string" ? id : undefined,
-                boolVal: typeof id === "boolean" ? id : undefined,
-              },
-            },
-          })),
-          operator: tanagra.ArrayFilterOperator.Or,
-        },
-      };
-    } else {
-      return null;
-    }
+  generateFilter() {
+    return {
+      type: FilterType.Attribute,
+      occurrenceID: "",
+      attribute: this.data.attribute,
+      values: this.data.selected?.map(({ value }) => value),
+      ranges: this.data.dataRanges,
+    };
   }
 
-  occurrenceEntities() {
-    return [];
+  occurrenceID() {
+    return "";
   }
 }
 
@@ -283,122 +218,99 @@ function AttributeSlider(props: SliderProps) {
 }
 
 function AttributeEdit(props: AttributeEditProps) {
-  const underlay = useUnderlay();
-  const hintDisplayName = (hint: tanagra.EnumHintValue) =>
-    hint.displayName || "Unknown Value";
+  const source = useSource();
 
-  const attributeFilterHint = underlay.entities
-    .find((g) => g.name === underlay.primaryEntity)
-    ?.attributes?.find(
-      (attribute) => attribute.name === props.data.attribute
-    )?.attributeFilterHint;
-  const enumHintValues = attributeFilterHint?.enumHint?.enumHintValues;
-  const integerBoundsHint = attributeFilterHint?.integerBoundsHint;
+  const fetchHintData = useCallback(() => {
+    return source.getHintData("", props.data.attribute);
+  }, [props.data.attribute]);
+  const hintDataState = useAsyncWithApi(fetchHintData);
 
-  if (isValid(integerBoundsHint?.min) && isValid(integerBoundsHint?.max)) {
-    // TODO: The comments can be removed once isValid is fixed.
-
-    // This is to ensure the compiler won't complain the object be undefined.
-    // Although we already know that min and max is valid.
-    const minBound = integerBoundsHint?.min || 0;
-    const maxBound = integerBoundsHint?.max || 0;
-
-    const handleAddRange = () => {
+  const handleAddRange = useCallback(
+    (hint: IntegerHint) => {
       props.dispatchFn(
         produce(props.data, (data) => {
           data.dataRanges.push({
             id: generateId(),
-            min: minBound,
-            max: maxBound,
+            ...hint,
           });
         })
       );
-    };
+    },
+    [props.data]
+  );
 
-    return (
-      <Box>
-        <Grid container spacing={2} direction="column">
-          {props.data.dataRanges.map((range, index) => {
-            return (
-              <AttributeSlider
-                key={range.id}
-                index={index}
-                minBound={minBound}
-                maxBound={maxBound}
-                range={range}
-                data={props.data}
-                dispatchFn={props.dispatchFn}
-              />
-            );
-          })}
-        </Grid>
-        <Button
-          variant="contained"
-          size="large"
-          sx={{ mt: 5 }}
-          onClick={handleAddRange}
-        >
-          Add Range
-        </Button>
-      </Box>
-    );
-  }
-
-  if (enumHintValues?.length && enumHintValues?.length > 0) {
-    const selectionIndex = (hint: tanagra.EnumHintValue) =>
-      props.data.selected.findIndex(
-        (row) =>
-          row.id === hint.attributeValue?.int64Val ||
-          row.id === hint.attributeValue?.stringVal ||
-          row.id === hint.attributeValue?.boolVal
-      );
-
-    const hintId = (hint: tanagra.EnumHintValue) => {
-      return (
-        hint.attributeValue?.int64Val ||
-        hint.attributeValue?.stringVal ||
-        hint.attributeValue?.boolVal ||
-        -1
-      );
-    };
-
-    return (
-      <>
-        {enumHintValues?.map((hint: tanagra.EnumHintValue) => (
-          <ListItem key={hintDisplayName(hint)}>
-            <FormControlLabel
-              label={hintDisplayName(hint)}
-              control={
-                <Checkbox
-                  size="small"
-                  checked={selectionIndex(hint) > -1}
-                  onChange={() => {
-                    props.dispatchFn(
-                      produce(props.data, (data) => {
-                        if (selectionIndex(hint) > -1) {
-                          data.selected.splice(selectionIndex(hint), 1);
-                        } else {
-                          data.selected.push({
-                            id: hintId(hint),
-                            name: hintDisplayName(hint),
-                          });
-                        }
-                      })
-                    );
-                  }}
-                />
-              }
-            />
-          </ListItem>
-        ))}
-      </>
-    );
-  }
+  const selectionIndex = useCallback(
+    (hint: EnumHintOption) =>
+      props.data.selected.findIndex((sel) => sel.value === hint.value) ?? -1,
+    [props.data.selected]
+  );
 
   return (
-    <Typography>
-      No information for attribute {props.data.attribute}.
-    </Typography>
+    <Loading status={hintDataState}>
+      {hintDataState.data?.integerHint && (
+        <Box>
+          <Grid container spacing={2} direction="column">
+            {props.data?.dataRanges?.map(
+              (range, index) =>
+                hintDataState.data?.integerHint && (
+                  <AttributeSlider
+                    key={range.id}
+                    index={index}
+                    minBound={hintDataState.data.integerHint.min}
+                    maxBound={hintDataState.data.integerHint.max}
+                    range={range}
+                    data={props.data}
+                    dispatchFn={props.dispatchFn}
+                  />
+                )
+            )}
+          </Grid>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{ mt: 5 }}
+            onClick={() =>
+              hintDataState.data?.integerHint &&
+              handleAddRange(hintDataState.data.integerHint)
+            }
+          >
+            Add Range
+          </Button>
+        </Box>
+      )}
+      {hintDataState.data?.enumHintOptions?.map((hint: EnumHintOption) => (
+        <ListItem key={hint.name}>
+          <FormControlLabel
+            label={hint.name}
+            control={
+              <Checkbox
+                size="small"
+                checked={selectionIndex(hint) > -1}
+                onChange={() => {
+                  props.dispatchFn(
+                    produce(props.data, (data) => {
+                      if (selectionIndex(hint) > -1) {
+                        data.selected.splice(selectionIndex(hint), 1);
+                      } else {
+                        data.selected.push({
+                          value: hint.value,
+                          name: hint.name,
+                        });
+                      }
+                    })
+                  );
+                }}
+              />
+            }
+          />
+        </ListItem>
+      ))}
+      {!hintDataState.data && (
+        <Typography>
+          No information for attribute {props.data.attribute}.
+        </Typography>
+      )}
+    </Loading>
   );
 }
 
@@ -407,18 +319,20 @@ type AttributeDetailsProps = {
 };
 
 function AttributeDetails(props: AttributeDetailsProps) {
-  if (props.data.selected?.length) {
+  if (props.data.selected.length > 0) {
     return (
       <>
-        {props.data.selected.map(({ id, name }) => (
+        {props.data.selected.map(({ value, name }) => (
           <Stack direction="row" alignItems="baseline" key={Date.now()}>
-            <Typography variant="body1">{id}</Typography>&nbsp;
+            <Typography variant="body1">{value}</Typography>&nbsp;
             <Typography variant="body2">{name}</Typography>
           </Stack>
         ))}
       </>
     );
-  } else if (props.data.dataRanges?.length) {
+  }
+
+  if (props.data.dataRanges.length > 0) {
     return (
       <>
         {props.data.dataRanges.map(({ id, min, max }) => (

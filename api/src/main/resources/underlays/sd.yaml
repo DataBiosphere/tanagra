@@ -272,131 +272,274 @@ entities:
         dataType: STRING
       - name: concept_code
         dataType: STRING
-criteriaConfigs: >-
-  [{
-    "type":"concept",
-    "title":"Conditions",
-    "defaultName":"Contains Conditions Codes",
-    "plugin": {
-      "columns":
-        [{"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
-        {"key":"vocabulary_id","width":120,"title":"Vocab"},
-        {"key":"concept_code","width":120,"title":"Code"}],
-      "entities":[
-        {"name":"condition","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"}
-      ]
-    }
-  },
+uiConfiguration: >-
   {
-    "type":"concept",
-    "title":"Procedures",
-    "defaultName":"Contains Procedures Codes",
-    "plugin":{
-      "columns":[
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
-        {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
-      ],
-      "entities":[
-        {"name":"procedure","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"}
-      ]
-    }
-  },
-  {
-    "type":"concept",
-    "title":"Observations",
-    "defaultName":"Contains Observations Codes",
-    "plugin":{
-      "columns":[
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
-        {"key":"vocabulary_id","width":120,"title":"Vocab"},
-        {"key":"concept_code","width":120,"title":"Code"}
-      ],
-      "entities":[
-        {"name":"observation","selectable":true,"orderBy":"person_count","orderDirection":"DESC"}
-      ]
-    }
-  },
-  {
-    "type":"concept",
-    "title":"Drugs",
-    "defaultName":"Contains Drugs Codes",
-    "plugin":{
-      "columns":[
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
-        {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
-      ],
-      "entities":[
-        {"name":"ingredient","selectable":true,"hierarchical":true,"orderBy":"person_count","orderDirection":"DESC"},
+    "dataConfig": {
+      "primaryEntity": {
+        "displayName": "Person",
+        "entity": "person",
+        "key": "person_id"
+      },
+      "occurrences": [
         {
-          "name":"brand",
-          "sourceConcepts":true,
-          "attributes":[
-            "concept_name",
-            "concept_id",
-            "standard_concept",
-            "concept_code"
-          ],
-          "orderBy":"concept_name",
-          "orderDirection":"ASC",
-          "listChildren":{
-            "entity":"ingredient",
-            "idPath":"relationshipFilter.filter.binaryFilter.attributeValue",
-            "filter":{
-              "relationshipFilter":{
-                "outerVariable":"ingredient",
-                "newVariable":"brand",
-                "newEntity":"brand",
-                "filter":{
-                  "binaryFilter":{
-                    "attributeVariable":{
-                      "variable":"brand",
-                      "name":"concept_id"
-                    },
-                    "operator":"EQUALS",
-                    "attributeValue":{
-                      "int64Val":0
-                    }
-                  }
+          "id": "condition_occurrence",
+          "displayName": "Condition Occurrences",
+          "entity": "condition_occurrence",
+          "key": "condition_concept_id",
+          "classifications": [
+            {
+              "id": "condition",
+              "name": "Conditions",
+              "attribute": "condition_concept_id",
+              "entity": "condition",
+              "entityAttribute": "concept_id",
+              "hierarchical": true,
+              "defaultSort": {
+                "attribute": "person_count",
+                "direction": "DESC"
+              },
+              "filter": {
+                "binaryFilter": {
+                  "attributeVariable": {
+                    "name": "standard_concept",
+                    "variable": "condition"
+                  },
+                  "operator": "NOT_EQUALS"
                 }
               }
             }
-          }
+          ]
+        },
+        {
+          "id": "procedure_occurrence",
+          "displayName": "Procedure Occurrences",
+          "entity": "procedure_occurrence",
+          "key": "procedure_concept_id",
+          "classifications": [
+            {
+              "id": "procedure",
+              "name": "Procedures",
+              "attribute": "procedure_concept_id",
+              "entity": "procedure",
+              "entityAttribute": "concept_id",
+              "hierarchical": true,
+              "defaultSort": {
+                "attribute": "person_count",
+                "direction": "DESC"
+              },
+              "filter": {
+                "binaryFilter": {
+                  "attributeVariable": {
+                    "name": "standard_concept",
+                    "variable": "procedure"
+                  },
+                  "operator": "NOT_EQUALS"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "observation_occurrence",
+          "displayName": "Observation Occurrence",
+          "entity": "observation_occurrence",
+          "key": "observation_concept_id",
+          "classifications": [
+            {
+              "id": "observation",
+              "name": "Observation",
+              "attribute": "observation_concept_id",
+              "entity": "observation",
+              "entityAttribute": "concept_id",
+              "defaultSort": {
+                "attribute": "person_count",
+                "direction": "DESC"
+              },
+              "filter": {
+                "binaryFilter": {
+                  "attributeVariable": {
+                    "name": "standard_concept",
+                    "variable": "observation"
+                  },
+                  "operator": "NOT_EQUALS"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "ingredient_occurrence",
+          "displayName": "Drug Occurrence",
+          "entity": "ingredient_occurrence",
+          "key": "drug_concept_id",
+          "classifications": [
+            {
+              "id": "ingredient",
+              "name": "Ingredient",
+              "attribute": "drug_concept_id",
+              "entity": "ingredient",
+              "entityAttribute": "concept_id",
+              "hierarchical": true,
+              "defaultSort": {
+                "attribute": "person_count",
+                "direction": "DESC"
+              },
+              "filter": {
+                "binaryFilter": {
+                  "attributeVariable": {
+                    "name": "standard_concept",
+                    "variable": "ingredient"
+                  },
+                  "operator": "NOT_EQUALS"
+                }
+              },
+              "groupings": [
+                {
+                  "id": "brand",
+                  "name": "Brand",
+                  "entity": "brand",
+                  "defaultSort": {
+                    "attribute": "concept_name",
+                    "direction": "ASC"
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
+    },
+    "criteriaConfigs": [{
+      "type":"concept",
+      "title":"Conditions",
+      "defaultName":"Contains Conditions Codes",
+      "plugin": {
+        "columns":
+          [{"key":"concept_name","width":"100%","title":"Concept Name"},
+          {"key":"concept_id","width":120,"title":"Concept ID"},
+          {"key":"standard_concept","width":180,"title":"SourceStandard"},
+          {"key":"vocabulary_id","width":120,"title":"Vocab"},
+          {"key":"concept_code","width":120,"title":"Code"}],
+        "hierarchyColumns": [
+          {"key": "concept_name", "width": "100%", "title": "Condition"},
+          {"key": "concept_id", "width": 120, "title": "Concept ID"}
+        ],
+        "occurrence": "condition_occurrence",
+        "classification": "condition"
+      }
+    },
+    {
+      "type":"concept",
+      "title":"Procedures",
+      "defaultName":"Contains Procedures Codes",
+      "plugin":{
+        "columns":[
+          {"key":"concept_name","width":"100%","title":"Concept Name"},
+          {"key":"concept_id","width":120,"title":"Concept ID"},
+          {"key":"standard_concept","width":180,"title":"SourceStandard"},
+          {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
+        ],
+        "hierarchyColumns": [
+          {"key": "concept_name", "width": "100%", "title": "Procedure"},
+          {"key": "concept_id", "width": 120, "title": "Concept ID"}
+        ],
+        "occurrence": "procedure_occurrence",
+        "classification": "procedure"
+      }
+    },
+    {
+      "type":"concept",
+      "title":"Observations",
+      "defaultName":"Contains Observations Codes",
+      "plugin":{
+        "columns":[
+          {"key":"concept_name","width":"100%","title":"Concept Name"},
+          {"key":"concept_id","width":120,"title":"Concept ID"},
+          {"key":"standard_concept","width":180,"title":"SourceStandard"},
+          {"key":"vocabulary_id","width":120,"title":"Vocab"},
+          {"key":"concept_code","width":120,"title":"Code"}
+        ],
+        "occurrence": "observation_occurrence",
+        "classification": "observation"
+      }
+    },
+    {
+      "type":"concept",
+      "title":"Drugs",
+      "defaultName":"Contains Drugs Codes",
+      "plugin":{
+        "columns":[
+          {"key":"concept_name","width":"100%","title":"Concept Name"},
+          {"key":"concept_id","width":120,"title":"Concept ID"},
+          {"key":"standard_concept","width":180,"title":"SourceStandard"},
+          {"key":"vocabulary_id","width":120,"title":"Vocab"},
+          {"key":"concept_code","width":120,"title":"Code"}
+        ],
+        "hierarchyColumns": [
+          {"key": "concept_name", "width": "100%", "title": "Drug"},
+          {"key": "concept_id", "width": 120, "title": "Concept ID"}
+        ],
+        "occurrence": "ingredient_occurrence",
+        "classification": "ingredient"
+      }
+    },
+    {
+      "type":"attribute",
+      "title":"Ethnicity",
+      "defaultName":"Contains Ethnicity Codes",
+      "plugin":{"attribute":"ethnicity_concept_id"}
+    },
+    {
+      "type":"attribute",
+      "title":"Gender Identity",
+      "defaultName":"Contains Gender Identity Codes",
+      "plugin":{"attribute":"gender_concept_id"}
+    },
+    {
+      "type":"attribute",
+      "title":"Race",
+      "defaultName":"Contains Race Codes",
+      "plugin":{"attribute":"race_concept_id"}
+    },
+    {
+      "type":"attribute",
+      "title":"Year at Birth",
+      "defaultName":"Contains Year at Birth Values",
+      "plugin":{"attribute":"year_of_birth"}
+    }],
+    "demographicChartConfigs": {
+      "groupByAttributes": ["gender_concept_id", "race_concept_id", "year_of_birth"],
+      "chartConfigs": [{
+        "title": "Gender",
+        "primaryProperties": [
+          { "key": "gender" }
+        ]
+      },
+      {
+        "title": "Gender Identity, Current Age, Race",
+        "primaryProperties": [
+          { "key": "gender" },
+          { "key": "age",
+            "buckets": [{
+              "min": 18,
+              "max": 45,
+              "displayName": "18-44"
+            },
+            {
+              "min": 45,
+              "max": 65,
+              "displayName": "45-64"
+            },
+            {
+              "min": 65,
+              "displayName": "65+"
+            }]
+          }
+        ],
+        "stackedProperty": { "key": "race" }
+      }]
     }
-  },
-  {
-    "type":"attribute",
-    "title":"Ethnicity",
-    "defaultName":"Contains Ethnicity Codes",
-    "plugin":{"attribute":"ethnicity_concept_id"}
-  },
-  {
-    "type":"attribute",
-    "title":"Gender Identity",
-    "defaultName":"Contains Gender Identity Codes",
-    "plugin":{"attribute":"gender_concept_id"}
-  },
-  {
-    "type":"attribute",
-    "title":"Race",
-    "defaultName":"Contains Race Codes",
-    "plugin":{"attribute":"race_concept_id"}
-  },
-  {
-    "type":"attribute",
-    "title":"Year at Birth",
-    "defaultName":"Contains Year at Birth Values",
-    "plugin":{"attribute":"year_of_birth"}
-  }]
+  }
 relationships:
   - name: brand_ingredient
     entity1: brand

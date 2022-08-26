@@ -10,39 +10,39 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { EntityInstancesApiContext } from "apiContext";
-import { createCriteria, generateQueryFilter, getCriteriaPlugin } from "cohort";
+import {
+  createCriteria,
+  generateCohortFilter,
+  getCriteriaPlugin,
+} from "cohort";
 import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
-import { TreeGrid, TreeGridData, TreeGridRowData } from "components/treegrid";
+import { TreeGrid, TreeGridData } from "components/treegrid";
 import { insertConceptSet } from "conceptSetsSlice";
+import { findEntity } from "data/configuration";
+import { Filter, makeArrayFilter } from "data/filter";
+import { useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
-import React, {
-  Fragment,
-  SyntheticEvent,
-  useCallback,
-  useContext,
-  useState,
-} from "react";
+import React, { Fragment, SyntheticEvent, useCallback, useState } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import { createUrl } from "router";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
-import { isValid } from "util/valid";
 
 export function Datasets() {
   const dispatch = useAppDispatch();
-  const cohorts = useAppSelector((state) => state.cohorts.present);
+  const cohorts = useAppSelector((state) => state.present.cohorts);
   const workspaceConceptSets = useAppSelector(
-    (state) => state.conceptSets.present
+    (state) => state.present.conceptSets
   );
   const history = useHistory();
 
   const underlay = useUnderlay();
+  const source = useSource();
 
   const [selectedCohorts, updateSelectedCohorts] = useImmer(new Set<string>());
   const [selectedConceptSets, updateSelectedConceptSets] = useImmer(
@@ -52,7 +52,7 @@ export function Datasets() {
     new Map<string, Set<string>>()
   );
 
-  const conceptSetEntities = useConceptSetEntities(selectedConceptSets);
+  const conceptSetOccurrences = useConceptSetOccurrences(selectedConceptSets);
 
   const [dialog, showNewCohort] = useTextInputDialog({
     title: "New Cohort",
@@ -129,11 +129,11 @@ export function Datasets() {
   };
 
   const [menu, showInsertConceptSet] = useMenu({
-    children: underlay.criteriaConfigs.map((config) => (
+    children: underlay.uiConfiguration.criteriaConfigs.map((config) => (
       <MenuItem
         key={config.title}
         onClick={() => {
-          onInsertConceptSet(createCriteria(underlay, config));
+          onInsertConceptSet(createCriteria(source, config));
         }}
       >
         {config.title}
@@ -142,9 +142,9 @@ export function Datasets() {
   });
 
   const allAttributesChecked = () => {
-    for (const entity of conceptSetEntities) {
-      for (const attribute of entity.attributes) {
-        if (excludedAttributes.get(entity.name)?.has(attribute)) {
+    for (const occurrence of conceptSetOccurrences) {
+      for (const attribute of occurrence.attributes) {
+        if (excludedAttributes.get(occurrence.id)?.has(attribute)) {
           return false;
         }
       }
@@ -247,10 +247,10 @@ export function Datasets() {
                   updateExcludedAttributes((selection) => {
                     selection.clear();
                     if (allAttributesChecked()) {
-                      conceptSetEntities.forEach((entity) => {
+                      conceptSetOccurrences.forEach((occurrence) => {
                         selection.set(
-                          entity.name,
-                          new Set<string>(entity.attributes)
+                          occurrence.id,
+                          new Set<string>(occurrence.attributes)
                         );
                       });
                     }
@@ -266,25 +266,25 @@ export function Datasets() {
             sx={{ overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
-            {conceptSetEntities.map((entity) => (
-              <Fragment key={entity.name}>
-                <Typography variant="h5">{entity.name}</Typography>
-                {entity.attributes.map((attribute) => (
+            {conceptSetOccurrences.map((occurrence) => (
+              <Fragment key={occurrence.id}>
+                <Typography variant="h5">{occurrence.name}</Typography>
+                {occurrence.attributes.map((attribute) => (
                   <Stack key={attribute} direction="row" alignItems="center">
                     <Checkbox
                       size="small"
                       fontSize="inherit"
-                      name={entity + "-" + attribute}
+                      name={occurrence.id + "-" + attribute}
                       checked={
-                        !excludedAttributes.get(entity.name)?.has(attribute)
+                        !excludedAttributes.get(occurrence.id)?.has(attribute)
                       }
                       onChange={() =>
                         updateExcludedAttributes((selection) => {
-                          if (!selection?.get(entity.name)) {
-                            selection?.set(entity.name, new Set<string>());
+                          if (!selection?.get(occurrence.id)) {
+                            selection?.set(occurrence.id, new Set<string>());
                           }
 
-                          const attributes = selection?.get(entity.name);
+                          const attributes = selection?.get(occurrence.id);
                           if (attributes?.has(attribute)) {
                             attributes?.delete(attribute);
                           } else {
@@ -306,7 +306,8 @@ export function Datasets() {
               <Preview
                 selectedCohorts={selectedCohorts}
                 selectedConceptSets={selectedConceptSets}
-                conceptSetEntities={conceptSetEntities}
+                conceptSetOccurrences={conceptSetOccurrences}
+                excludedAttributes={excludedAttributes}
               />
             ) : (
               <Typography variant="h5">
@@ -321,56 +322,50 @@ export function Datasets() {
   );
 }
 
-type ConceptSetEntity = {
+type ConceptSetOccurrence = {
+  id: string;
   name: string;
   attributes: string[];
-  filters: tanagra.Filter[];
+  filters: Filter[];
 };
 
-function useConceptSetEntities(
+function useConceptSetOccurrences(
   selectedConceptSets: Set<string>
-): ConceptSetEntity[] {
+): ConceptSetOccurrence[] {
   const underlay = useUnderlay();
+  const source = useSource();
 
-  const entities = new Map<string, tanagra.Filter[]>();
-  const addFilter = (entity: string, filter?: tanagra.Filter | null) => {
-    if (!entities.has(entity)) {
-      entities.set(entity, []);
+  const occurrences = new Map<string, Filter[]>();
+  const addFilter = (occurrence: string, filter?: Filter | null) => {
+    if (!occurrences.has(occurrence)) {
+      occurrences.set(occurrence, []);
     }
     if (filter) {
-      entities.get(entity)?.push(filter);
+      occurrences.get(occurrence)?.push(filter);
     }
   };
 
   underlay.prepackagedConceptSets.forEach((conceptSet) => {
     if (selectedConceptSets.has(conceptSet.id)) {
-      addFilter(conceptSet.entity, conceptSet.filter);
+      addFilter(conceptSet.occurrence, conceptSet.filter);
     }
   });
 
   const workspaceConceptSets = useAppSelector((state) =>
-    state.conceptSets.present.filter((cs) => selectedConceptSets.has(cs.id))
+    state.present.conceptSets.filter((cs) => selectedConceptSets.has(cs.id))
   );
   workspaceConceptSets.forEach((conceptSet) => {
     const plugin = getCriteriaPlugin(conceptSet.criteria);
-    if (plugin.occurrenceEntities().length != 1) {
-      throw new Error("Only one entity per concept set is supported.");
-    }
-
-    const entity = plugin.occurrenceEntities()[0];
-    addFilter(entity, plugin.generateFilter(entity, true));
+    addFilter(plugin.occurrenceID(), plugin.generateFilter());
   });
 
-  return Array.from(entities)
+  return Array.from(occurrences)
     .sort()
-    .map(([entityName, filters]) => {
-      const attributes = underlay.entities
-        .find((entity) => entity.name === entityName)
-        ?.attributes?.map((attribute) => attribute.name || "unknown")
-        ?.filter((attribute) => !attribute.startsWith("t_"));
+    .map(([id, filters]) => {
       return {
-        name: entityName,
-        attributes: attributes || [],
+        id,
+        name: findEntity(id, source.config).entity,
+        attributes: source.listAttributes(id),
         filters,
       };
     });
@@ -379,17 +374,17 @@ function useConceptSetEntities(
 type PreviewProps = {
   selectedCohorts: Set<string>;
   selectedConceptSets: Set<string>;
-  conceptSetEntities: ConceptSetEntity[];
+  conceptSetOccurrences: ConceptSetOccurrence[];
+  excludedAttributes: Map<string, Set<string>>;
 };
 
 function Preview(props: PreviewProps) {
-  const underlay = useUnderlay();
+  const source = useSource();
   const cohorts = useAppSelector((state) =>
-    state.cohorts.present.filter((cohort) =>
+    state.present.cohorts.filter((cohort) =>
       props.selectedCohorts.has(cohort.id)
     )
   );
-  const api = useContext(EntityInstancesApiContext);
 
   const [tab, setTab] = useState(0);
   const [queriesMode, setQueriesMode] = useState(false);
@@ -397,103 +392,55 @@ function Preview(props: PreviewProps) {
   const tabDataState = useAsyncWithApi<PreviewTabData[]>(
     useCallback(async () => {
       return Promise.all(
-        props.conceptSetEntities.map(async (entity) => {
-          let filter: tanagra.Filter = {
-            arrayFilter: {
-              operands: cohorts
-                .map((cohort) =>
-                  generateQueryFilter(cohort, underlay.primaryEntity)
-                )
-                .filter((filter): filter is tanagra.Filter => !!filter),
-              operator: tanagra.ArrayFilterOperator.Or,
-            },
-          };
-
-          if (entity.name !== underlay.primaryEntity) {
-            filter = {
-              arrayFilter: {
-                operator: tanagra.ArrayFilterOperator.And,
-                operands: [
-                  {
-                    relationshipFilter: {
-                      outerVariable: entity.name,
-                      newVariable: underlay.primaryEntity,
-                      newEntity: underlay.primaryEntity,
-                      filter: filter,
-                    },
-                  },
-                  ...(entity.filters.length > 0
-                    ? [
-                        {
-                          arrayFilter: {
-                            operator: tanagra.ArrayFilterOperator.Or,
-                            operands: entity.filters,
-                          },
-                        },
-                      ]
-                    : []),
-                ],
-              },
-            };
+        props.conceptSetOccurrences.map(async (occurrence) => {
+          const cohortsFilter = makeArrayFilter(
+            { min: 1 },
+            cohorts.map((cohort) => generateCohortFilter(cohort))
+          );
+          if (!cohortsFilter) {
+            throw new Error("All selected cohorts are empty.");
           }
 
-          const entityDataset = {
-            entityVariable: entity.name,
-            selectedAttributes: entity.attributes,
-            filter: filter,
-          };
+          const conceptSetsFilter = makeArrayFilter(
+            { min: 1 },
+            occurrence.filters
+          );
+
+          const filteredAttributes = occurrence.attributes.filter(
+            (a) => !props.excludedAttributes.get(occurrence.id)?.has(a)
+          );
 
           const dataParts = await Promise.all([
             (async () => {
-              const res = await api.generateDatasetSqlQuery({
-                entityName: entity.name,
-                underlayName: underlay.name,
-                generateDatasetSqlQueryRequest: {
-                  entityDataset,
-                },
-              });
-
-              if (!res?.query) {
-                throw new Error("Service returned an empty query.");
-              }
-              return res.query;
+              return await source.generateSQLQuery(
+                filteredAttributes,
+                occurrence.id,
+                cohortsFilter,
+                conceptSetsFilter
+              );
             })(),
             (async () => {
-              const res = await api.searchEntityInstances({
-                entityName: entity.name,
-                underlayName: underlay.name,
-                searchEntityInstancesRequest: {
-                  entityDataset,
-                },
-              });
+              const res = await source.listData(
+                occurrence.attributes,
+                occurrence.id,
+                cohortsFilter,
+                conceptSetsFilter
+              );
 
               const data: TreeGridData = {
                 root: { data: {}, children: [] },
               };
-              // TODO(tjennison): Use server side limits.
-              res?.instances?.slice(0, 100)?.forEach((instance, i) => {
-                const row: TreeGridRowData = {};
-                for (const k in instance) {
-                  const v = instance[k];
-                  if (!v) {
-                    row[k] = "";
-                  } else if (isValid(v.int64Val)) {
-                    row[k] = v.int64Val;
-                  } else if (isValid(v.boolVal)) {
-                    row[k] = v.boolVal;
-                  } else {
-                    row[k] = v.stringVal;
-                  }
-                }
 
-                data[i] = { data: row };
+              res.data.forEach((entry, i) => {
+                data[i] = { data: entry };
                 data.root?.children?.push(i);
               });
               return data;
             })(),
           ]);
+
           return {
-            entity: entity.name,
+            name: occurrence.name,
             sql: dataParts[0],
             data: dataParts[1],
           };
@@ -520,7 +467,7 @@ function Preview(props: PreviewProps) {
         >
           <Tabs value={tab} onChange={onTabChange} sx={{ flexGrow: 1 }}>
             {tabDataState.data?.map((data) => (
-              <Tab key={data.entity} label={data.entity} />
+              <Tab key={data.name} label={data.name} />
             ))}
           </Tabs>
           <Typography variant="button">Data</Typography>
@@ -540,13 +487,18 @@ function Preview(props: PreviewProps) {
           >
             <TreeGrid
               data={tabDataState.data?.[tab]?.data}
-              columns={props.conceptSetEntities[tab]?.attributes.map(
-                (attribute) => ({
+              columns={props.conceptSetOccurrences[tab]?.attributes
+                .filter(
+                  (a) =>
+                    !props.excludedAttributes
+                      .get(props.conceptSetOccurrences[tab]?.id)
+                      ?.has(a)
+                )
+                .map((attribute) => ({
                   key: attribute,
                   width: 120,
                   title: attribute,
-                })
-              )}
+                }))}
               variableWidth
               wrapBodyText
             />
@@ -558,7 +510,7 @@ function Preview(props: PreviewProps) {
 }
 
 type PreviewTabData = {
-  entity: string;
+  name: string;
   sql: string;
   data: TreeGridData;
 };

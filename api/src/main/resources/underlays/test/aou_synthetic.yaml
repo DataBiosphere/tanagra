@@ -1,6 +1,6 @@
 # An initial OMOP underlay schema for development.
 
-name: aou_synthetic
+name: aou_synthetic_TEST_ENV
 entities:
   - name: person
     attributes:
@@ -525,39 +525,7 @@ uiConfiguration: >-
       "title":"Year at Birth",
       "defaultName":"Contains Year at Birth Values",
       "plugin":{"attribute":"year_of_birth"}
-    }],
-    "demographicChartConfigs": {
-      "groupByAttributes": ["gender_concept_id", "race_concept_id", "year_of_birth"],
-      "chartConfigs": [{
-        "title": "Gender",
-        "primaryProperties": [
-          { "key": "gender" }
-        ]
-      },
-      {
-        "title": "Gender Identity, Current Age, Race",
-        "primaryProperties": [
-          { "key": "gender" },
-          { "key": "age",
-            "buckets": [{
-              "min": 18,
-              "max": 45,
-              "displayName": "18-44"
-            },
-            {
-              "min": 45,
-              "max": 65,
-              "displayName": "45-64"
-            },
-            {
-              "min": 65,
-              "displayName": "65+"
-            }]
-          }
-        ],
-        "stackedProperty": { "key": "race" }
-      }]
-    }
+    }]
   }
 relationships:
   - name: brand_ingredient
@@ -623,7 +591,7 @@ relationships:
 datasets:
   - name: aou_synthetic
     bigQueryDataset:
-      projectId: verily-tanagra-dev
+      projectId: verily-tanagra-test
       datasetId: aou_synthetic_SR2019q4r4
     tables:
       - name: person
@@ -818,7 +786,7 @@ datasets:
             dataType: STRING
   - name: omop_indexes
     bigQueryDataset:
-      projectId: verily-tanagra-dev
+      projectId: verily-tanagra-test
       datasetId: aou_synthetic_SR2019q4r4_indexes
     tables:
       - name: flatten_snomed_conditions_0
@@ -3045,6 +3013,6 @@ entityIndexing:
       outputTable: aou_synthetic_SR2019q4r4_indexes.condition_all_nodes
       query: >-
         SELECT c.concept_id AS node
-        FROM `verily-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c
+        FROM `verily-tanagra-test.aou_synthetic_SR2019q4r4.concept` c
         WHERE c.domain_id = 'Condition'
         AND c.valid_end_date > '2022-01-01';

@@ -1,58 +1,42 @@
+import {
+  Filter,
+  FilterType,
+  makeArrayFilter,
+  UnaryFilterOperator,
+} from "data/filter";
+import { Source } from "data/source";
 import { generate } from "randomstring";
 import * as tanagra from "tanagra-api";
-import { CriteriaConfig, Underlay } from "./underlaysSlice";
+import { isValid } from "util/valid";
+import { CriteriaConfig } from "./underlaysSlice";
 
 export function generateId(): string {
   return generate(8);
 }
 
-export function generateQueryFilter(
-  cohort: tanagra.Cohort,
-  entityVar: string
-): tanagra.Filter | null {
-  const operands = cohort.groups
-    .map((group) => generateFilter(group, entityVar))
-    .filter((filter) => filter) as Array<tanagra.Filter>;
-  if (operands.length === 0) {
-    return null;
-  }
-
-  return {
-    arrayFilter: {
-      operands: operands,
-      operator: tanagra.ArrayFilterOperator.And,
-    },
-  };
+export function generateCohortFilter(cohort: tanagra.Cohort): Filter | null {
+  return makeArrayFilter(
+    {},
+    cohort.groups.map((group) => generateFilter(group)).filter(isValid)
+  );
 }
 
-function generateFilter(
-  group: tanagra.Group,
-  entityVar: string
-): tanagra.Filter | null {
-  const operands = group.criteria
-    .map((criteria) =>
-      getCriteriaPlugin(criteria).generateFilter(entityVar, false)
-    )
-    .filter((filter) => filter) as Array<tanagra.Filter>;
-  if (operands.length === 0) {
-    return null;
+function generateFilter(group: tanagra.Group): Filter | null {
+  const filter = makeArrayFilter(
+    { min: 1 },
+    group.criteria
+      .map((criteria) => getCriteriaPlugin(criteria).generateFilter())
+      .filter(isValid)
+  );
+
+  if (!filter || group.kind === tanagra.GroupKindEnum.Included) {
+    return filter;
   }
-
-  const filter = {
-    arrayFilter: {
-      operands: operands,
-      operator: tanagra.ArrayFilterOperator.Or,
-    },
+  return {
+    type: FilterType.Unary,
+    operator: UnaryFilterOperator.Not,
+    operand: filter,
   };
-
-  return group.kind === tanagra.GroupKindEnum.Included
-    ? filter
-    : {
-        unaryFilter: {
-          operand: filter,
-          operator: tanagra.UnaryFilterOperator.Not,
-        },
-      };
 }
 
 // Having typed data here allows the registry to treat all data generically
@@ -62,18 +46,15 @@ export interface CriteriaPlugin<DataType> {
   data: DataType;
   renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
   renderDetails: () => JSX.Element;
-  generateFilter: (
-    entityVar: string,
-    fromOccurrence: boolean
-  ) => tanagra.Filter | null;
-  occurrenceEntities: () => string[];
+  generateFilter: () => Filter | null;
+  occurrenceID: () => string;
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
   type: string,
-  initializeData: (underlay: Underlay, config: CriteriaConfig) => object
+  initializeData: (source: Source, config: CriteriaConfig) => object
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
@@ -84,7 +65,7 @@ export function registerCriteriaPlugin(
 }
 
 export function createCriteria(
-  underlay: Underlay,
+  source: Source,
   config: CriteriaConfig
 ): tanagra.Criteria {
   const entry = getCriteriaEntry(config.type);
@@ -92,7 +73,7 @@ export function createCriteria(
     id: generateId(),
     type: config.type,
     name: config.defaultName,
-    data: entry.initializeData(underlay, config),
+    data: entry.initializeData(source, config),
   };
 }
 
@@ -118,7 +99,7 @@ interface CriteriaPluginConstructor {
 }
 
 type RegistryEntry = {
-  initializeData: (underlay: Underlay, config: CriteriaConfig) => object;
+  initializeData: (source: Source, config: CriteriaConfig) => object;
   constructor: CriteriaPluginConstructor;
 };
 

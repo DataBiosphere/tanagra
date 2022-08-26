@@ -8,44 +8,81 @@ class FakeUnderlaysApi {
       { key: "concept_name", width: "100%", title: "Concept Name" },
     ];
 
-    const criteriaConfigs = [
-      {
-        type: "concept",
-        title: "Conditions",
-        defaultName: "Contains Conditions Codes",
-        plugin: {
-          columns,
-          entities: [
-            { name: "condition", selectable: true, hierarchical: true },
-          ],
+    const uiConfiguration = {
+      dataConfig: {
+        primaryEntity: {
+          entity: "person",
+          key: "person_id",
         },
+        occurrences: [
+          {
+            id: "condition_occurrence",
+            entity: "condition_occurrence",
+            key: "concept_id",
+            classifications: [
+              {
+                id: "condition",
+                attribute: "condition_concept_id",
+                entity: "condition",
+                entityAttribute: "concept_id",
+                hierarchical: true,
+              },
+            ],
+          },
+          {
+            id: "observation_occurrence",
+            entity: "observation_occurrence",
+            key: "concept_id",
+            classifications: [
+              {
+                id: "observation",
+                attribute: "observation_concept_id",
+                entity: "observation",
+                entityAttribute: "concept_id",
+              },
+            ],
+          },
+        ],
       },
-      {
-        type: "concept",
-        title: "Observations",
-        defaultName: "Contains Observations Codes",
-        plugin: {
-          columns,
-          entities: [{ name: "observation", selectable: true }],
+      criteriaConfigs: [
+        {
+          type: "concept",
+          title: "Conditions",
+          defaultName: "Contains Conditions Codes",
+          plugin: {
+            columns,
+            occurrence: "condition_occurrence",
+            classification: "condition",
+          },
         },
-      },
-      {
-        type: "attribute",
-        title: "Race",
-        defaultName: "Contains Race Codes",
-        plugin: {
-          attribute: "race_concept_id",
+        {
+          type: "concept",
+          title: "Observations",
+          defaultName: "Contains Observations Codes",
+          plugin: {
+            columns,
+            occurrence: "observation_occurrence",
+            classification: "observation",
+          },
         },
-      },
-      {
-        type: "attribute",
-        title: "Year at Birth",
-        defaultName: "Contains Year at Birth Values",
-        plugin: {
-          attribute: "year_of_birth",
+        {
+          type: "attribute",
+          title: "Race",
+          defaultName: "Contains Race Codes",
+          plugin: {
+            attribute: "race_concept_id",
+          },
         },
-      },
-    ];
+        {
+          type: "attribute",
+          title: "Year at Birth",
+          defaultName: "Contains Year at Birth Values",
+          plugin: {
+            attribute: "year_of_birth",
+          },
+        },
+      ],
+    };
 
     return new Promise<tanagra.ListUnderlaysResponse>((resolve) => {
       resolve({
@@ -53,7 +90,7 @@ class FakeUnderlaysApi {
           {
             name: "underlay_name",
             entityNames: ["person"],
-            criteriaConfigs: JSON.stringify(criteriaConfigs),
+            uiConfiguration: JSON.stringify(uiConfiguration),
           },
         ],
       });
@@ -175,6 +212,37 @@ class FakeEntityInstancesApi {
   }
 }
 
+class FakeEntityCountsApi {
+  async searchEntityCounts(): Promise<tanagra.SearchEntityCountsResponse> {
+    return new Promise<tanagra.SearchEntityCountsResponse>((resolve) => {
+      resolve({
+        counts: [
+          {
+            count: 52,
+            definition: {
+              gender_concept_id: {
+                int64Val: 45880669,
+              },
+              gender: {
+                stringVal: "Female",
+              },
+              race: {
+                stringVal: "Black or African American",
+              },
+              race_concept_id: {
+                int64Val: 8516,
+              },
+              year_of_birth: {
+                int64Val: 2000,
+              },
+            },
+          },
+        ],
+      });
+    });
+  }
+}
+
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
@@ -203,4 +271,8 @@ export const EntityInstancesApiContext = apiForEnvironment(
 export const EntitiesApiContext = apiForEnvironment(
   tanagra.EntitiesApi,
   FakeEntitiesApi
+);
+export const EntityCountsApiContext = apiForEnvironment(
+  tanagra.EntityCountsApi,
+  FakeEntityCountsApi
 );

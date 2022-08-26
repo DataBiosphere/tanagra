@@ -6,7 +6,7 @@ import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
 import { loadUserData, RootState } from "rootReducer";
 import * as tanagra from "tanagra-api";
 
-const currentVersion = 1;
+const currentVersion = 3;
 
 export interface StoragePlugin {
   store(data: tanagra.UserData): Promise<void>;
@@ -23,8 +23,8 @@ export const storeUserData: Middleware<unknown, RootState> =
 
       const data: tanagra.UserData = {
         version: currentVersion,
-        cohorts: state.cohorts.present,
-        conceptSets: state.conceptSets.present,
+        cohorts: state.present.cohorts,
+        conceptSets: state.present.conceptSets,
       };
 
       storagePlugin.store(data);
@@ -49,6 +49,13 @@ export function LoadingUserData(props: { children?: React.ReactNode }) {
           throw new Error(
             `Unable to load newer data: verson ${data.version} > current version ${currentVersion}`
           );
+        }
+
+        // TODO(tjennison): Handle backwards compatability when we're closer to
+        // launch.
+        if (data.version != currentVersion) {
+          data.cohorts = [];
+          data.conceptSets = [];
         }
 
         data.cohorts = data.cohorts || [];

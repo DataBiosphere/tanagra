@@ -35,8 +35,7 @@ public final class NauticalUnderlayUtils {
   }
 
   public static final String NAUTICAL_UNDERLAY_NAME = "nautical_underlay";
-  public static final String NAUTICAL_CRITERIA_CONFIGS =
-      "[{\"type\":\"attribute\",\"title\":\"Age\",\"defaultName\":\"Age\",\"plugin\":{\"attribute\":\"age\"}]";
+  public static final String NAUTICAL_UI_CONFIGURATION = "test-ui-configuration";
   public static final Entity SAILOR =
       Entity.builder().underlay(NAUTICAL_UNDERLAY_NAME).name("sailors").build();
   public static final Entity BOAT =

@@ -206,4 +206,62 @@ public class ApiConversionServiceTest extends BaseSpringUnitTest {
             .build(),
         apiConversionService.convertEntityCounts(NAUTICAL_UNDERLAY_NAME, "boats", apiEntityCounts));
   }
+
+  @Test
+  void entityDatasetWithNegativeLimitThrows() {
+    ApiEntityDataset apiEntityDataset =
+        new ApiEntityDataset()
+            .entityVariable("s")
+            .selectedAttributes(ImmutableList.of("name", "rating"))
+            .limit(-1)
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("s").name("rating"))
+                            .operator(ApiBinaryFilterOperator.EQUALS)
+                            .attributeValue(new ApiAttributeValue().int64Val(42L))));
+    IllegalArgumentException illegalLimitEntityDataset =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                apiConversionService.convertEntityDataset(
+                    NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
+    assertThat(
+        illegalLimitEntityDataset.getMessage(), Matchers.containsString("The provided limit"));
+  }
+
+  @Test
+  void entityDatasetWithLimit() {
+    ApiEntityDataset apiEntityDataset =
+        new ApiEntityDataset()
+            .entityVariable("s")
+            .selectedAttributes(ImmutableList.of("name", "rating"))
+            .limit(1)
+            .filter(
+                new ApiFilter()
+                    .binaryFilter(
+                        new ApiBinaryFilter()
+                            .attributeVariable(
+                                new ApiAttributeVariable().variable("s").name("rating"))
+                            .operator(ApiBinaryFilterOperator.EQUALS)
+                            .attributeValue(new ApiAttributeValue().int64Val(42L))));
+
+    Variable sVar = Variable.create("s");
+    assertEquals(
+        EntityDataset.builder()
+            .primaryEntity(EntityVariable.create(SAILOR, Variable.create("s")))
+            .selectedAttributes(ImmutableList.of(SAILOR_NAME, SAILOR_RATING))
+            .limit(1)
+            .filter(
+                Filter.BinaryFunction.create(
+                    Expression.AttributeExpression.create(
+                        AttributeVariable.create(SAILOR_RATING, sVar)),
+                    Filter.BinaryFunction.Operator.EQUALS,
+                    Expression.Literal.create(DataType.INT64, "42")))
+            .build(),
+        apiConversionService.convertEntityDataset(
+            NAUTICAL_UNDERLAY_NAME, "sailors", apiEntityDataset));
+  }
 }
