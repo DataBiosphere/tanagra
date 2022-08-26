@@ -169,8 +169,8 @@ async function renderCriteria(
       dataConfig: dataConfig,
       criteriaConfigs: [],
       demographicChartConfigs: demographicChartConfigs,
+      prepackagedConceptSets: [],
     },
-    prepackagedConceptSets: [],
   };
 
   const source = new BackendSource(

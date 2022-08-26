@@ -1,6 +1,5 @@
 import { EntitiesApiContext, UnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
-import { FilterType } from "data/filter";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch } from "hooks";
 import { enableMapSet } from "immer";
@@ -13,27 +12,6 @@ import { setUnderlays } from "underlaysSlice";
 import "./app.css";
 
 enableMapSet();
-
-// Prepackaged concept sets use _ in the ids to ensure they can't conflict with
-// user generated ones.
-const prepackagedConceptSets = [
-  {
-    id: "_demographics",
-    name: "Demographics",
-    occurrence: "",
-  },
-  {
-    id: "_analgesics",
-    name: "Analgesics",
-    occurrence: "ingredient_occurrence",
-    filter: {
-      type: FilterType.Classification,
-      occurrenceID: "ingredient_occurrence",
-      classificationID: "ingredient",
-      keys: [21604253],
-    },
-  },
-];
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -77,7 +55,6 @@ export default function App() {
               primaryEntity: "person",
               entities: entitiesRes.entities,
               uiConfiguration: JSON.parse(uiConfiguration),
-              prepackagedConceptSets,
             };
           })
         )

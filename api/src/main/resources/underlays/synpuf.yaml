@@ -320,7 +320,25 @@ uiConfiguration: >-
         ],
         "stackedProperty": { "key": "race" }
       }]
-    }
+    },
+    "prepackagedConceptSets": [
+      {
+        "id": "_demographics",
+        "name": "Demographics",
+        "occurrence": ""
+      },
+      {
+        "id": "_analgesics",
+        "name": "Analgesics",
+        "occurrence": "ingredient_occurrence",
+        "filter": {
+          "type": "CLASSIFICATION",
+          "occurrenceID": "ingredient_occurrence",
+          "classificationID": "ingredient",
+          "keys": [21604253]
+        }
+      }
+    ]
   }
 relationships:
   - name: person_condition_occurrence

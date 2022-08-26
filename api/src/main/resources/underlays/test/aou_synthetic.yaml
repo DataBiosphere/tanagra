@@ -525,7 +525,57 @@ uiConfiguration: >-
       "title":"Year at Birth",
       "defaultName":"Contains Year at Birth Values",
       "plugin":{"attribute":"year_of_birth"}
-    }]
+    }],
+    "demographicChartConfigs": {
+      "groupByAttributes": ["gender_concept_id", "race_concept_id", "year_of_birth"],
+      "chartConfigs": [{
+        "title": "Gender",
+        "primaryProperties": [
+          { "key": "gender" }
+        ]
+      },
+      {
+        "title": "Gender Identity, Current Age, Race",
+        "primaryProperties": [
+          { "key": "gender" },
+          { "key": "age",
+            "buckets": [{
+              "min": 18,
+              "max": 45,
+              "displayName": "18-44"
+            },
+            {
+              "min": 45,
+              "max": 65,
+              "displayName": "45-64"
+            },
+            {
+              "min": 65,
+              "displayName": "65+"
+            }]
+          }
+        ],
+        "stackedProperty": { "key": "race" }
+      }]
+    },
+    "prepackagedConceptSets": [
+      {
+        "id": "_demographics",
+        "name": "Demographics",
+        "occurrence": ""
+      },
+      {
+        "id": "_analgesics",
+        "name": "Analgesics",
+        "occurrence": "ingredient_occurrence",
+        "filter": {
+          "type": "CLASSIFICATION",
+          "occurrenceID": "ingredient_occurrence",
+          "classificationID": "ingredient",
+          "keys": [21604253]
+        }
+      }
+    ]
   }
 relationships:
   - name: brand_ingredient

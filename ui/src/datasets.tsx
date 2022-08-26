@@ -211,8 +211,15 @@ export function Datasets() {
             sx={{ overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
-            <Typography variant="h5">Prepackaged</Typography>
-            {listConceptSets(false, underlay.prepackagedConceptSets)}
+            {underlay.uiConfiguration.prepackagedConceptSets && (
+              <>
+                <Typography variant="h5">Prepackaged</Typography>
+                {listConceptSets(
+                  false,
+                  underlay.uiConfiguration.prepackagedConceptSets
+                )}
+              </>
+            )}
             <Typography variant="h5">Workspace</Typography>
             {listConceptSets(
               true,
@@ -345,7 +352,7 @@ function useConceptSetOccurrences(
     }
   };
 
-  underlay.prepackagedConceptSets.forEach((conceptSet) => {
+  underlay.uiConfiguration.prepackagedConceptSets?.forEach((conceptSet) => {
     if (selectedConceptSets.has(conceptSet.id)) {
       addFilter(conceptSet.occurrence, conceptSet.filter);
     }
