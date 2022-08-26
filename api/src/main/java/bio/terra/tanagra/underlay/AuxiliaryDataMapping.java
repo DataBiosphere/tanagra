@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuxiliaryDataMapping {
-  private TablePointer tablePointer;
-  private Map<String, FieldPointer> fieldPointers;
+public final class AuxiliaryDataMapping {
+  private final TablePointer tablePointer;
+  private final Map<String, FieldPointer> fieldPointers;
 
   private AuxiliaryDataMapping(TablePointer tablePointer, Map<String, FieldPointer> fieldPointers) {
     this.tablePointer = tablePointer;

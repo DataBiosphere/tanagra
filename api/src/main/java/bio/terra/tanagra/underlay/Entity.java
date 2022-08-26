@@ -15,12 +15,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class Entity {
-  private String name;
-  private String idAttributeName;
-  private Map<String, Attribute> attributes;
-  private EntityMapping sourceDataMapping;
-  private EntityMapping indexDataMapping;
+public final class Entity {
+  private final String name;
+  private final String idAttributeName;
+  private final Map<String, Attribute> attributes;
+  private final EntityMapping sourceDataMapping;
+  private final EntityMapping indexDataMapping;
 
   private Entity(
       String name,

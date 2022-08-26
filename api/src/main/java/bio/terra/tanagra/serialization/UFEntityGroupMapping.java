@@ -72,9 +72,6 @@ public class UFEntityGroupMapping {
     public UFEntityGroupMapping build() {
       return new UFEntityGroupMapping(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public String getDataPointer() {

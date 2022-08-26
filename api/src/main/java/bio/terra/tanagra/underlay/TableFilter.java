@@ -46,8 +46,6 @@ public abstract class TableFilter {
     }
   }
 
-  public TableFilter() {}
-
   public abstract Type getType();
 
   public abstract FilterVariable buildVariable(
@@ -60,7 +58,7 @@ public abstract class TableFilter {
       case ARRAY:
         return new UFArrayFilter((ArrayFilter) this);
       default:
-        throw new RuntimeException("Unknown table filter type: " + getType());
+        throw new IllegalArgumentException("Unknown table filter type: " + getType());
     }
   }
 }

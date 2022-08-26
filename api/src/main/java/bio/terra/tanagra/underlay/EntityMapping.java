@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class EntityMapping {
-  private TablePointer tablePointer;
-  private Map<String, AttributeMapping> attributeMappings;
+public final class EntityMapping {
+  private final TablePointer tablePointer;
+  private final Map<String, AttributeMapping> attributeMappings;
   private TextSearchMapping textSearchMapping;
-  private String idAttributeName;
+  private final String idAttributeName;
 
   private EntityMapping(
       TablePointer tablePointer,

@@ -75,9 +75,6 @@ public class UFEntityGroup {
     public UFEntityGroup build() {
       return new UFEntityGroup(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public EntityGroup.Type getType() {

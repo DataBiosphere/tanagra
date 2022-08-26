@@ -7,9 +7,9 @@ import com.google.common.base.Strings;
 import java.util.List;
 
 public class TablePointer {
-  private DataPointer dataPointer;
-  private String tableName;
-  private TableFilter tableFilter;
+  private final DataPointer dataPointer;
+  private final String tableName;
+  private final TableFilter tableFilter;
 
   public TablePointer(String tableName, DataPointer dataPointer) {
     this.dataPointer = dataPointer;

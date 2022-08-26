@@ -6,11 +6,11 @@ import bio.terra.tanagra.serialization.UFAttributeMapping;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class AttributeMapping {
+public final class AttributeMapping {
   private static final String DEFAULT_DISPLAY_MAPPING_PREFIX = "t_display_";
 
-  private FieldPointer value;
-  private FieldPointer display;
+  private final FieldPointer value;
+  private final FieldPointer display;
 
   private AttributeMapping(FieldPointer value) {
     this.value = value;

@@ -54,9 +54,6 @@ public class UFLiteral {
     public UFLiteral build() {
       return new UFLiteral(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public String getStringVal() {

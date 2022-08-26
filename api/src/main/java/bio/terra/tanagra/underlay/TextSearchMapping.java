@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TextSearchMapping {
+public final class TextSearchMapping {
   private static final String TEXT_SEARCH_COLUMN_ALIAS = "t_text";
 
   private List<Attribute> attributes;

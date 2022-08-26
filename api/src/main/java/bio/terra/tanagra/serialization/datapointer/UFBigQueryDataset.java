@@ -43,15 +43,14 @@ public class UFBigQueryDataset extends UFDataPointer {
     }
 
     /** Call the private constructor. */
+    @Override
     public UFBigQueryDataset build() {
       return new UFBigQueryDataset(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   /** Deserialize to the internal representation of the data pointer. */
+  @Override
   public BigQueryDataset deserializeToInternal() {
     return BigQueryDataset.fromSerialized(this);
   }

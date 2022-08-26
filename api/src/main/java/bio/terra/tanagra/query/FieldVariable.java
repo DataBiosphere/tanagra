@@ -6,8 +6,8 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public class FieldVariable implements SQLExpression {
-  private FieldPointer fieldPointer;
-  private TableVariable tableVariable;
+  private final FieldPointer fieldPointer;
+  private final TableVariable tableVariable;
   private String alias;
 
   public FieldVariable(FieldPointer fieldPointer, TableVariable tableVariable) {

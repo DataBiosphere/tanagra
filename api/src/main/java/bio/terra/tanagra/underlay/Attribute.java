@@ -3,7 +3,7 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.serialization.UFAttribute;
 import com.google.common.base.Strings;
 
-public class Attribute {
+public final class Attribute {
 
   /** Enum for the types of attributes supported by Tanagra. */
   public enum Type {
@@ -11,9 +11,9 @@ public class Attribute {
     KEY_AND_DISPLAY
   }
 
-  private String name;
-  private Type type;
-  private Literal.DataType dataType;
+  private final String name;
+  private final Type type;
+  private final Literal.DataType dataType;
 
   private Attribute(String name, Type type, Literal.DataType dataType) {
     this.name = name;

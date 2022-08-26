@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
-public class BuildTextSearch extends WorkflowCommand {
+public final class BuildTextSearch extends WorkflowCommand {
 
   private BuildTextSearch(String command, String description, Map<String, String> queryInputs) {
     super(command, description, queryInputs);

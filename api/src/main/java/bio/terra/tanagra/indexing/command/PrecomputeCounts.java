@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
-public class PrecomputeCounts extends WorkflowCommand {
+public final class PrecomputeCounts extends WorkflowCommand {
 
   private PrecomputeCounts(String command, String description, Map<String, String> queryInputs) {
     super(command, description, queryInputs);

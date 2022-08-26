@@ -12,7 +12,7 @@ public class Literal implements SQLExpression {
     BOOLEAN
   }
 
-  private Literal.DataType dataType;
+  private final Literal.DataType dataType;
   private String stringVal;
   private long int64Val;
   private boolean booleanVal;
@@ -67,7 +67,7 @@ public class Literal implements SQLExpression {
       case BOOLEAN:
         return String.valueOf(booleanVal);
       default:
-        throw new RuntimeException("Unknown Literal data type");
+        throw new IllegalArgumentException("Unknown Literal data type");
     }
   }
 
@@ -79,6 +79,10 @@ public class Literal implements SQLExpression {
     return dataType.equals(DataType.INT64) ? int64Val : null;
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+      value = "NP_BOOLEAN_RETURN_NULL",
+      justification =
+          "This value will be used in constructing a SQL string, not used directly in a Java conditional")
   public Boolean getBooleanVal() {
     return dataType.equals(DataType.BOOLEAN) ? booleanVal : null;
   }

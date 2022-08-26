@@ -57,15 +57,14 @@ public class UFBinaryFilter extends UFTableFilter {
     }
 
     /** Call the private constructor. */
+    @Override
     public UFBinaryFilter build() {
       return new UFBinaryFilter(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   /** Deserialize to the internal representation of the table filter. */
+  @Override
   public BinaryFilter deserializeToInternal(TablePointer tablePointer) {
     return BinaryFilter.fromSerialized(this, tablePointer);
   }

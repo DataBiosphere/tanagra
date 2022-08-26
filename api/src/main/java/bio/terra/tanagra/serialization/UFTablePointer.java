@@ -45,9 +45,6 @@ public class UFTablePointer {
     public UFTablePointer build() {
       return new UFTablePointer(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public String getTable() {

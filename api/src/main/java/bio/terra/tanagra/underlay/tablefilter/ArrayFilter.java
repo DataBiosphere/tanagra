@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ArrayFilter extends TableFilter {
-  private TableFilter.LogicalOperator operator;
-  private List<TableFilter> subfilters;
+public final class ArrayFilter extends TableFilter {
+  private final TableFilter.LogicalOperator operator;
+  private final List<TableFilter> subfilters;
 
   private ArrayFilter(LogicalOperator operator, List<TableFilter> subfilters) {
     this.operator = operator;

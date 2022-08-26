@@ -7,10 +7,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EntityGroupMapping {
-  private DataPointer dataPointer;
-  private Map<String, RelationshipMapping> relationshipMappings;
-  private Map<String, AuxiliaryDataMapping> auxiliaryDataMappings;
+public final class EntityGroupMapping {
+  private final DataPointer dataPointer;
+  private final Map<String, RelationshipMapping> relationshipMappings;
+  private final Map<String, AuxiliaryDataMapping> auxiliaryDataMappings;
 
   private EntityGroupMapping(
       DataPointer dataPointer,

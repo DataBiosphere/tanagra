@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
-public class DenormalizeAllNodes extends WorkflowCommand {
+public final class DenormalizeAllNodes extends WorkflowCommand {
 
   private DenormalizeAllNodes(String command, String description, Map<String, String> queryInputs) {
     super(command, description, queryInputs);

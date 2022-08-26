@@ -13,9 +13,9 @@ public class WorkflowCommand {
   private static final String BASH_COMMENT_PREFIX = "# ";
   private static final String BASH_SCRIPT_FILENAME = "indexing_script.sh";
 
-  private String command;
-  private String description;
-  private Map<String, String> queryInputs; // filename -> query string
+  private final String command;
+  private final String description;
+  private final Map<String, String> queryInputs; // filename -> query string
 
   protected WorkflowCommand(String command, String description, Map<String, String> queryInputs) {
     this.command = command;

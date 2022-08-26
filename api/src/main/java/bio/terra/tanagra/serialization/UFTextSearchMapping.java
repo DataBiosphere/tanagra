@@ -56,9 +56,6 @@ public class UFTextSearchMapping {
     public UFTextSearchMapping build() {
       return new UFTextSearchMapping(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public List<String> getAttributes() {

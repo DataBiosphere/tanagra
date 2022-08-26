@@ -7,8 +7,8 @@ import com.google.common.base.Strings;
 import java.util.List;
 
 public class FieldPointer {
-  private TablePointer tablePointer;
-  private String columnName;
+  private final TablePointer tablePointer;
+  private final String columnName;
   private TablePointer foreignTablePointer;
   private String foreignKeyColumnName;
   private String foreignColumnName;

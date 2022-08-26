@@ -9,10 +9,10 @@ import bio.terra.tanagra.underlay.TableFilter;
 import bio.terra.tanagra.underlay.TablePointer;
 import java.util.List;
 
-public class BinaryFilter extends TableFilter {
-  private FieldPointer field;
-  private TableFilter.BinaryOperator operator;
-  private Literal value;
+public final class BinaryFilter extends TableFilter {
+  private final FieldPointer field;
+  private final TableFilter.BinaryOperator operator;
+  private final Literal value;
 
   private BinaryFilter(
       FieldPointer fieldPointer, TableFilter.BinaryOperator operator, Literal value) {

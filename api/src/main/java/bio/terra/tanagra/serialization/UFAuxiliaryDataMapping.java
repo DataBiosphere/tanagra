@@ -51,9 +51,6 @@ public class UFAuxiliaryDataMapping {
     public UFAuxiliaryDataMapping build() {
       return new UFAuxiliaryDataMapping(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public UFTablePointer getTablePointer() {

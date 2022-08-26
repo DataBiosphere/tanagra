@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Indexer {
+public final class Indexer {
   private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
   public static final String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
   public static final Function<String, InputStream> READ_RESOURCE_FILE_FUNCTION =
@@ -23,10 +23,9 @@ public class Indexer {
   public static final Function<String, InputStream> READ_FILE_FUNCTION =
       filePath -> FileUtils.getFileStream(filePath);
 
-  private String underlayPath;
-  private Function<String, InputStream> getFileInputStreamFunction;
+  private final String underlayPath;
+  private final Function<String, InputStream> getFileInputStreamFunction;
 
-  private Underlay underlay;
   private List<WorkflowCommand> indexingCmds;
   private UFUnderlay expandedUnderlay;
   private List<UFEntity> expandedEntities;
@@ -47,7 +46,7 @@ public class Indexer {
 
   public void indexUnderlay() throws IOException {
     // deserialize the POJOs to the internal objects and expand all defaults
-    underlay = Underlay.fromJSON(underlayPath, getFileInputStreamFunction);
+    Underlay underlay = Underlay.fromJSON(underlayPath, getFileInputStreamFunction);
 
     // build a list of indexing commands, including their associated input queries
     indexingCmds = underlay.getIndexingCommands();
@@ -68,7 +67,10 @@ public class Indexer {
     // write out all index input files and commands into a script
     Path outputDirPath = Path.of(outputDir);
     if (!outputDirPath.toFile().exists()) {
-      outputDirPath.toFile().mkdirs();
+      boolean mkdirsSuccess = outputDirPath.toFile().mkdirs();
+      if (!mkdirsSuccess) {
+        throw new IOException("mkdirs failed for output dir: " + outputDirPath);
+      }
     }
     LOGGER.info("Writing output to directory: {}", outputDirPath.toAbsolutePath());
     WorkflowCommand.writeToDisk(indexingCmds, outputDirPath);

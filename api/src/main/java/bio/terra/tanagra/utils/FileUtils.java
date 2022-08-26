@@ -2,8 +2,6 @@ package bio.terra.tanagra.utils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -13,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for manipulating files on disk. */
-public class FileUtils {
+public final class FileUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
   private FileUtils() {}
@@ -28,7 +26,7 @@ public class FileUtils {
     InputStream inputStream =
         FileUtils.class.getClassLoader().getResourceAsStream(resourceFilePath);
     if (inputStream == null) {
-      throw new RuntimeException("Resource file not found: " + resourceFilePath);
+      throw new IllegalArgumentException("Resource file not found: " + resourceFilePath);
     }
     return inputStream;
   }
@@ -41,9 +39,9 @@ public class FileUtils {
    */
   public static InputStream getFileStream(String filePath) {
     try {
-      return new FileInputStream(Path.of(filePath).toFile());
-    } catch (FileNotFoundException fnfEx) {
-      throw new RuntimeException("File not found: " + filePath, fnfEx);
+      return Files.newInputStream(Path.of(filePath));
+    } catch (IOException ioEx) {
+      throw new IllegalArgumentException("Error opening file stream: " + filePath, ioEx);
     }
   }
 

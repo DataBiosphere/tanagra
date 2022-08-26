@@ -49,9 +49,6 @@ public abstract class UFDataPointer {
 
     /** Call the private constructor. */
     public abstract UFDataPointer build();
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   /** Deserialize to the internal representation of the data pointer. */

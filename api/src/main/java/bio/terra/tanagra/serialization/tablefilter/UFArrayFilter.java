@@ -49,14 +49,13 @@ public class UFArrayFilter extends UFTableFilter {
     }
 
     /** Call the private constructor. */
+    @Override
     public UFArrayFilter build() {
       return new UFArrayFilter(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
+  /** Deserialize to the internal representation of the table filter. */
   @Override
   public TableFilter deserializeToInternal(TablePointer tablePointer) {
     return ArrayFilter.fromSerialized(this, tablePointer);

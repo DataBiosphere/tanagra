@@ -82,9 +82,6 @@ public class UFUnderlay {
     public UFUnderlay build() {
       return new UFUnderlay(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public String getName() {

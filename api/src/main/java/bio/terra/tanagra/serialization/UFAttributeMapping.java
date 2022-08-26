@@ -46,9 +46,6 @@ public class UFAttributeMapping {
     public UFAttributeMapping build() {
       return new UFAttributeMapping(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public UFFieldPointer getValue() {

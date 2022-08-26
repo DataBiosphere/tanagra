@@ -27,9 +27,9 @@ public class CriteriaOccurrence extends EntityGroup {
       new AuxiliaryData(
           CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME, List.of("criteriaId", "primaryCount"));
 
-  private Entity criteriaEntity;
-  private Entity occurrenceEntity;
-  private Entity primaryEntity;
+  private final Entity criteriaEntity;
+  private final Entity occurrenceEntity;
+  private final Entity primaryEntity;
 
   private CriteriaOccurrence(Builder builder) {
     super(builder);
@@ -145,6 +145,7 @@ public class CriteriaOccurrence extends EntityGroup {
       return this;
     }
 
+    @Override
     public CriteriaOccurrence build() {
       return new CriteriaOccurrence(this);
     }

@@ -7,8 +7,8 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public class BigQueryDataset extends DataPointer {
-  private String projectId;
-  private String datasetId;
+  private final String projectId;
+  private final String datasetId;
 
   public BigQueryDataset(String name, String projectId, String datasetId) {
     super(name);

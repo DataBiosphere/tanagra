@@ -52,9 +52,6 @@ public class UFRelationshipMapping {
     public UFRelationshipMapping build() {
       return new UFRelationshipMapping(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public UFTablePointer getTablePointer() {

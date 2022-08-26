@@ -11,7 +11,7 @@ public abstract class DataPointer {
     BQ_DATASET
   }
 
-  private String name;
+  private final String name;
 
   public DataPointer(String name) {
     this.name = name;
@@ -28,11 +28,10 @@ public abstract class DataPointer {
   public abstract String getTablePathForIndexing(String tableName);
 
   public UFDataPointer serialize() {
-    switch (getType()) {
-      case BQ_DATASET:
-        return new UFBigQueryDataset((BigQueryDataset) this);
-      default:
-        throw new RuntimeException("Unknown data pointer type: " + getType());
+    if (getType().equals(Type.BQ_DATASET)) {
+      return new UFBigQueryDataset((BigQueryDataset) this);
+    } else {
+      throw new IllegalArgumentException("Unknown data pointer type: " + getType());
     }
   }
 }

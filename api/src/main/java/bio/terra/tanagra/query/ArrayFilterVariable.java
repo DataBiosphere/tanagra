@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArrayFilterVariable extends FilterVariable {
-  private TableFilter.LogicalOperator operator;
-  private List<FilterVariable> subfilters;
+  private final TableFilter.LogicalOperator operator;
+  private final List<FilterVariable> subfilters;
 
   public ArrayFilterVariable(
       TableFilter.LogicalOperator operator, List<FilterVariable> subfilters) {

@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class Underlay {
-  private String name;
-  private Map<String, DataPointer> dataPointers;
-  private Map<String, Entity> entities;
-  private String primaryEntityName;
-  private Map<String, EntityGroup> entityGroups;
+public final class Underlay {
+  private final String name;
+  private final Map<String, DataPointer> dataPointers;
+  private final Map<String, Entity> entities;
+  private final String primaryEntityName;
+  private final Map<String, EntityGroup> entityGroups;
 
   private Underlay(
       String name,

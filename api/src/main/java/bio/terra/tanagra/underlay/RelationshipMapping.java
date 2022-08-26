@@ -6,10 +6,10 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
 import java.util.List;
 
-public class RelationshipMapping {
-  private TablePointer tablePointer;
-  private FieldPointer fromEntityId;
-  private FieldPointer toEntityId;
+public final class RelationshipMapping {
+  private final TablePointer tablePointer;
+  private final FieldPointer fromEntityId;
+  private final FieldPointer toEntityId;
 
   private RelationshipMapping(
       TablePointer tablePointer, FieldPointer fromEntityId, FieldPointer toEntityId) {

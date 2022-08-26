@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class UnionQuery implements SQLExpression {
-  private List<Query> subqueries;
+  private final List<Query> subqueries;
 
   public UnionQuery(List<Query> subqueries) {
     this.subqueries = subqueries;
@@ -12,7 +12,7 @@ public class UnionQuery implements SQLExpression {
 
   @Override
   public String renderSQL() {
-    if (subqueries == null || subqueries.size() == 0) {
+    if (subqueries == null || subqueries.isEmpty()) {
       throw new IllegalArgumentException("Union query must have at least one sub query");
     }
 

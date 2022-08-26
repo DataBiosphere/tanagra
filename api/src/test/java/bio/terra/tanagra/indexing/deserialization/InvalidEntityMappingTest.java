@@ -11,8 +11,11 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InvalidEntityMappingTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(InvalidEntityMappingTest.class);
   private static Map<String, DataPointer> dataPointers;
 
   @BeforeAll
@@ -31,7 +34,7 @@ public class InvalidEntityMappingTest {
                     "config/entity/MappingNonExistentAttribute.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertTrue(
         ex.getMessage().startsWith("A mapping is defined for a non-existent attribute"));
   }
@@ -46,7 +49,7 @@ public class InvalidEntityMappingTest {
                     "config/entity/DoubleTextSearchMapping.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertEquals(
         "Text search mapping can be defined by either attributes or a search string, not both",
         ex.getMessage());
@@ -62,7 +65,7 @@ public class InvalidEntityMappingTest {
                     "config/entity/EmptyTextSearchMapping.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertEquals("Text search mapping is empty", ex.getMessage());
   }
 
@@ -76,7 +79,7 @@ public class InvalidEntityMappingTest {
                     "config/entity/EmptyAttributesListTextSearchMapping.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertEquals("Text search mapping list of attributes is empty", ex.getMessage());
   }
 }

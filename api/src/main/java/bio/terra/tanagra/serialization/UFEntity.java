@@ -75,9 +75,6 @@ public class UFEntity {
     public UFEntity build() {
       return new UFEntity(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public String getName() {

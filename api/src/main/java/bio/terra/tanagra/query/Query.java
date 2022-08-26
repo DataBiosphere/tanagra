@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
 public class Query implements SQLExpression {
-  private List<FieldVariable> select;
-  private List<TableVariable> tables;
+  private final List<FieldVariable> select;
+  private final List<TableVariable> tables;
   private FilterVariable where;
   private List<FieldVariable> orderBy;
   private List<FieldVariable> groupBy;
@@ -62,18 +62,44 @@ public class Query implements SQLExpression {
 
     // render the FilterVariable
     if (where != null) {
-      template = "${selectFromSQL} WHERE ${whereSQL}";
+      template = "${sql} WHERE ${whereSQL}";
       params =
           ImmutableMap.<String, String>builder()
-              .put("selectFromSQL", sql)
+              .put("sql", sql)
               .put("whereSQL", where.renderSQL())
               .build();
       sql = StringSubstitutor.replace(template, params);
     }
 
-    // TODO: render each GROUP BY FieldVariable and join them into a single string
+    // render each GROUP BY FieldVariable and join them into a single string
+    if (groupBy != null) {
+      // render each GROUP BY FieldVariable and join them into a single string
+      String groupBySQL =
+          groupBy.stream().map(fv -> fv.renderSQL()).collect(Collectors.joining(", "));
 
-    // TODO: render each ORDER BY FieldVariable and join them into a single string
+      template = "${sql} GROUP BY ${groupBySQL}";
+      params =
+          ImmutableMap.<String, String>builder()
+              .put("sql", sql)
+              .put("groupBySQL", groupBySQL)
+              .build();
+      sql = StringSubstitutor.replace(template, params);
+    }
+
+    // render each ORDER BY FieldVariable and join them into a single string
+    if (orderBy != null) {
+      // render each ORDER BY FieldVariable and join them into a single string
+      String orderBySQL =
+          orderBy.stream().map(fv -> fv.renderSQL()).collect(Collectors.joining(", "));
+
+      template = "${sql} ORDER BY ${orderBySQL}";
+      params =
+          ImmutableMap.<String, String>builder()
+              .put("sql", sql)
+              .put("orderBySQL", orderBySQL)
+              .build();
+      sql = StringSubstitutor.replace(template, params);
+    }
 
     return sql;
   }

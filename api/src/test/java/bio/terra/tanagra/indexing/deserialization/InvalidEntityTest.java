@@ -11,8 +11,11 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InvalidEntityTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(InvalidEntityTest.class);
   private static Map<String, DataPointer> dataPointers;
 
   @BeforeAll
@@ -29,7 +32,7 @@ public class InvalidEntityTest {
             () ->
                 Entity.fromJSON(
                     "nonexistent_entity_file.json", READ_RESOURCE_FILE_FUNCTION, dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertEquals(
         "Resource file not found: nonexistent_entity_file.json", ex.getMessage());
   }
@@ -42,7 +45,7 @@ public class InvalidEntityTest {
             () ->
                 Entity.fromJSON(
                     "config/entity/NoAttributes.json", READ_RESOURCE_FILE_FUNCTION, dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No Attributes defined"));
   }
 
@@ -54,7 +57,7 @@ public class InvalidEntityTest {
             () ->
                 Entity.fromJSON(
                     "config/entity/NoIdAttribute.json", READ_RESOURCE_FILE_FUNCTION, dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No id Attribute defined"));
   }
 
@@ -68,7 +71,7 @@ public class InvalidEntityTest {
                     "config/entity/IdAttributeNotFound.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertTrue(
         ex.getMessage().startsWith("Id Attribute not found in the set of Attributes"));
   }
@@ -83,7 +86,7 @@ public class InvalidEntityTest {
                     "config/entity/NoSourceDataMapping.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No source Data Mapping defined"));
   }
 
@@ -97,7 +100,7 @@ public class InvalidEntityTest {
                     "config/entity/NoIndexDataMapping.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No index Data Mapping defined"));
   }
 
@@ -111,7 +114,7 @@ public class InvalidEntityTest {
                     "config/entity/AttributeWithoutName.json",
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
-    ex.printStackTrace();
+    LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("Attribute name is undefined"));
   }
 }

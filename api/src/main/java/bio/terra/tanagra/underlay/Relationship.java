@@ -1,9 +1,9 @@
 package bio.terra.tanagra.underlay;
 
 public class Relationship {
-  private String name;
-  private Entity entityA;
-  private Entity entityB;
+  private final String name;
+  private final Entity entityA;
+  private final Entity entityB;
 
   public Relationship(String name, Entity entityA, Entity entityB) {
     this.name = name;

@@ -8,11 +8,11 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.text.StringSubstitutor;
 
-public class TableVariable implements SQLExpression {
+public final class TableVariable implements SQLExpression {
   private String alias;
-  private TablePointer tablePointer;
-  private String joinField;
-  private FieldVariable joinFieldOnParent;
+  private final TablePointer tablePointer;
+  private final String joinField;
+  private final FieldVariable joinFieldOnParent;
 
   private TableVariable(
       TablePointer tablePointer,

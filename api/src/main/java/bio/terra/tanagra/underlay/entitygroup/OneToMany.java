@@ -19,8 +19,8 @@ public class OneToMany extends EntityGroup {
   private static final String MANY_ENTITY_NAME = "many";
   private static final String ONE_TO_MANY_RELATIONSHIP_NAME = "oneToMany";
 
-  private Entity entity1;
-  private Entity entityM;
+  private final Entity entity1;
+  private final Entity entityM;
 
   private OneToMany(Builder builder) {
     super(builder);
@@ -87,6 +87,7 @@ public class OneToMany extends EntityGroup {
       return this;
     }
 
+    @Override
     public OneToMany build() {
       return new OneToMany(this);
     }

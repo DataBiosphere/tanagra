@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * of the Jackson {@link ObjectMapper}, to avoid re-loading the modules multiple times for a single
  * CLI command.
  */
-public class JacksonMapper {
+public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 
   private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
@@ -37,7 +37,7 @@ public class JacksonMapper {
    */
   private static ObjectMapper getMapper(List<MapperFeature> mapperFeatures) {
     // if no Jackson features are specified, just return the default mapper object
-    if (mapperFeatures.size() == 0) {
+    if (mapperFeatures.isEmpty()) {
       return getMapper();
     }
 
@@ -84,10 +84,8 @@ public class JacksonMapper {
       objectMapper.enable(mapperFeature);
     }
 
-    try {
+    try (inputStream) {
       return objectMapper.readValue(inputStream, javaObjectClass);
-    } finally {
-      inputStream.close();
     }
   }
 

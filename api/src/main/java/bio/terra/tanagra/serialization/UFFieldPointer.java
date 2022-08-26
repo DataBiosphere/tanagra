@@ -78,9 +78,6 @@ public class UFFieldPointer {
     public UFFieldPointer build() {
       return new UFFieldPointer(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public String getColumn() {

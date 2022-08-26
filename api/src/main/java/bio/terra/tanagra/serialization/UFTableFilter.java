@@ -45,9 +45,6 @@ public abstract class UFTableFilter {
 
     /** Call the private constructor. */
     public abstract UFTableFilter build();
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   /** Deserialize to the internal representation of the table filter. */

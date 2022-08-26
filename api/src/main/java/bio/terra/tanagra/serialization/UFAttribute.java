@@ -53,9 +53,6 @@ public class UFAttribute {
     public UFAttribute build() {
       return new UFAttribute(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 
   public Attribute.Type getType() {

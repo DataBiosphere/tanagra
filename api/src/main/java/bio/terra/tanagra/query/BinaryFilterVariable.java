@@ -8,9 +8,9 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public class BinaryFilterVariable extends FilterVariable {
-  private FieldVariable fieldVariable;
-  private TableFilter.BinaryOperator operator;
-  private Literal value;
+  private final FieldVariable fieldVariable;
+  private final TableFilter.BinaryOperator operator;
+  private final Literal value;
 
   public BinaryFilterVariable(
       FieldVariable fieldVariable, TableFilter.BinaryOperator operator, Literal value) {
