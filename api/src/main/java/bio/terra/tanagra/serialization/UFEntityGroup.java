@@ -1,52 +1,50 @@
 package bio.terra.tanagra.serialization;
 
-import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
-import bio.terra.tanagra.serialization.entitygroup.UFOneToMany;
-import bio.terra.tanagra.underlay.DataPointer;
-import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * External representation of a data pointer configuration.
+ * External representation of an entity group configuration.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = UFOneToMany.class, name = "ONE_TO_MANY"),
-  @JsonSubTypes.Type(value = UFCriteriaOccurrence.class, name = "CRITERIA_OCCURRENCE")
-})
 @JsonDeserialize(builder = UFEntityGroup.Builder.class)
-public abstract class UFEntityGroup {
+public class UFEntityGroup {
   private final EntityGroup.Type type;
   private final String name;
-  private final String indexDataPointer;
+  private final Map<String, String> entities;
+  private final UFEntityGroupMapping sourceDataMapping;
+  private final UFEntityGroupMapping indexDataMapping;
 
-  protected UFEntityGroup(EntityGroup entityGroup) {
+  public UFEntityGroup(EntityGroup entityGroup) {
     this.type = entityGroup.getType();
     this.name = entityGroup.getName();
-    this.indexDataPointer = entityGroup.getIndexDataPointer().getName();
+    Map<String, String> entities = new HashMap<>();
+    entityGroup.getEntities().entrySet().stream()
+        .forEach(e -> entities.put(e.getKey(), e.getValue().getName()));
+    this.entities = entities;
+    this.sourceDataMapping = new UFEntityGroupMapping(entityGroup.getSourceDataMapping());
+    this.indexDataMapping = new UFEntityGroupMapping(entityGroup.getIndexDataMapping());
   }
 
-  protected UFEntityGroup(Builder builder) {
+  private UFEntityGroup(Builder builder) {
     this.type = builder.type;
     this.name = builder.name;
-    this.indexDataPointer = builder.indexDataPointer;
+    this.entities = builder.entities;
+    this.sourceDataMapping = builder.sourceDataMapping;
+    this.indexDataMapping = builder.indexDataMapping;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public abstract static class Builder {
+  public static class Builder {
     private EntityGroup.Type type;
     private String name;
-    private String indexDataPointer;
+    private Map<String, String> entities;
+    private UFEntityGroupMapping sourceDataMapping;
+    private UFEntityGroupMapping indexDataMapping;
 
     public Builder type(EntityGroup.Type type) {
       this.type = type;
@@ -58,23 +56,29 @@ public abstract class UFEntityGroup {
       return this;
     }
 
-    public Builder indexDataPointer(String indexDataPointer) {
-      this.indexDataPointer = indexDataPointer;
+    public Builder entities(Map<String, String> entities) {
+      this.entities = entities;
+      return this;
+    }
+
+    public Builder sourceDataMapping(UFEntityGroupMapping sourceDataMapping) {
+      this.sourceDataMapping = sourceDataMapping;
+      return this;
+    }
+
+    public Builder indexDataMapping(UFEntityGroupMapping indexDataMapping) {
+      this.indexDataMapping = indexDataMapping;
       return this;
     }
 
     /** Call the private constructor. */
-    public abstract UFEntityGroup build();
+    public UFEntityGroup build() {
+      return new UFEntityGroup(this);
+    }
 
     /** Default constructor for Jackson. */
     public Builder() {}
   }
-
-  /** Deserialize to the internal representation of the entity group. */
-  public abstract EntityGroup deserializeToInternal(
-      Map<String, DataPointer> dataPointers,
-      Map<String, Entity> entities,
-      String primaryEntityName);
 
   public EntityGroup.Type getType() {
     return type;
@@ -84,7 +88,15 @@ public abstract class UFEntityGroup {
     return name;
   }
 
-  public String getIndexDataPointer() {
-    return indexDataPointer;
+  public Map<String, String> getEntities() {
+    return entities;
+  }
+
+  public UFEntityGroupMapping getSourceDataMapping() {
+    return sourceDataMapping;
+  }
+
+  public UFEntityGroupMapping getIndexDataMapping() {
+    return indexDataMapping;
   }
 }

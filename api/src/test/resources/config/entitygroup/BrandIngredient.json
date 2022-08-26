@@ -1,16 +1,21 @@
 {
   "name": "brand_ingredient",
   "type": "ONE_TO_MANY",
-  "indexDataPointer": "index_dataset",
-
-  "entity1": "brand",
-  "entityM": "ingredient",
-
-  "oneToManyRelationship": {
-    "type": "INTERMEDIATE_TABLE",
+  "entities": {
+    "one": "brand",
+    "many": "ingredient"
+  },
+  "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": "concept_relationship",
-    "entityKeyFieldA": "concept_id_1",
-    "entityKeyFieldB": "concept_id_2"
+    "relationshipMappings": {
+      "oneToMany": {
+        "tablePointer": { "table": "concept_relationship" },
+        "fromEntityId": { "column": "concept_id_1" },
+        "toEntityId":  { "column": "concept_id_2" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
   }
 }

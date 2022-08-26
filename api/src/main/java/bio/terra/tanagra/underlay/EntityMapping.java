@@ -83,7 +83,7 @@ public class EntityMapping {
     return new EntityMapping(tablePointer, attributeMappings, textSearchMapping, idAttributeName);
   }
 
-  public SQLExpression queryTextSearchStrings() {
+  public SQLExpression queryTextSearchInformation() {
     if (!hasTextSearchMapping()) {
       throw new UnsupportedOperationException("Text search mapping is undefined");
     }

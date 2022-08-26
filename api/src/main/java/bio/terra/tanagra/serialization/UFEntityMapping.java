@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * External representation of the source data mapped to an entity.
+ * External representation of the data mapped to an entity.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */

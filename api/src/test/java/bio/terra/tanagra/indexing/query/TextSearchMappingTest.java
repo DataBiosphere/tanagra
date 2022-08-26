@@ -25,10 +25,10 @@ public class TextSearchMappingTest {
     Entity condition =
         Entity.fromJSON("config/entity/Condition.json", READ_RESOURCE_FILE_FUNCTION, dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        condition.getSourceDataMapping().queryTextSearchStrings().renderSQL(),
+        condition.getSourceDataMapping().queryTextSearchInformation().renderSQL(),
         "query/condition_source_textSearch.sql");
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        condition.getIndexDataMapping().queryTextSearchStrings().renderSQL(),
+        condition.getIndexDataMapping().queryTextSearchInformation().renderSQL(),
         "query/condition_index_textSearch.sql");
   }
 }

@@ -1,66 +1,61 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
-import bio.terra.tanagra.serialization.entitygroup.UFOneToMany;
+import bio.terra.tanagra.serialization.UFEntityGroup;
+import bio.terra.tanagra.underlay.AuxiliaryData;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
-import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.EntityGroupMapping;
+import bio.terra.tanagra.underlay.Relationship;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class OneToMany extends EntityGroup {
+  private static final String ONE_ENTITY_NAME = "one";
+  private static final String MANY_ENTITY_NAME = "many";
+  private static final String ONE_TO_MANY_RELATIONSHIP_NAME = "oneToMany";
+
   private Entity entity1;
   private Entity entityM;
-  private RelationshipMapping oneToManyRelationship;
 
-  private OneToMany(
-      String name,
-      DataPointer indexDataPointer,
-      Entity entity1,
-      Entity entityM,
-      RelationshipMapping oneToManyRelationship) {
-    super(name, indexDataPointer);
-    this.entity1 = entity1;
-    this.entityM = entityM;
-    this.oneToManyRelationship = oneToManyRelationship;
+  private OneToMany(Builder builder) {
+    super(builder);
+    this.entity1 = builder.entity1;
+    this.entityM = builder.entityM;
   }
 
   public static OneToMany fromSerialized(
-      UFOneToMany serialized, Map<String, DataPointer> dataPointers, Map<String, Entity> entities) {
-    if (serialized.getIndexDataPointer() == null || serialized.getIndexDataPointer().isEmpty()) {
-      throw new IllegalArgumentException("Index data pointer is undefined");
-    }
-    DataPointer indexDataPointer = dataPointers.get(serialized.getIndexDataPointer());
-    if (indexDataPointer == null) {
-      throw new IllegalArgumentException("Index data pointer not found in set of data pointers");
-    }
+      UFEntityGroup serialized,
+      Map<String, DataPointer> dataPointers,
+      Map<String, Entity> entities) {
+    Entity entity1 = deserializeEntity(serialized, ONE_ENTITY_NAME, entities);
+    Entity entityM = deserializeEntity(serialized, MANY_ENTITY_NAME, entities);
 
-    if (serialized.getEntity1() == null || serialized.getEntity1().isEmpty()) {
-      throw new IllegalArgumentException("No entity1 defined");
-    }
-    Entity entity1 = entities.get(serialized.getEntity1());
-    if (entity1 == null) {
-      throw new IllegalArgumentException("Entity1 not found in set of entities");
-    }
+    Map<String, Relationship> relationships =
+        Map.of(
+            ONE_TO_MANY_RELATIONSHIP_NAME,
+            new Relationship(ONE_TO_MANY_RELATIONSHIP_NAME, entity1, entityM));
+    Map<String, AuxiliaryData> auxiliaryData = Collections.emptyMap();
 
-    if (serialized.getEntityM() == null || serialized.getEntityM().isEmpty()) {
-      throw new IllegalArgumentException("No entityM defined");
-    }
-    Entity entityM = entities.get(serialized.getEntityM());
-    if (entityM == null) {
-      throw new IllegalArgumentException("EntityM not found in set of entities");
-    }
+    EntityGroupMapping sourceDataMapping =
+        EntityGroupMapping.fromSerializedForSourceData(
+            serialized.getSourceDataMapping(), dataPointers, relationships, auxiliaryData);
+    EntityGroupMapping indexDataMapping =
+        EntityGroupMapping.fromSerializedForIndexData(
+            serialized.getIndexDataMapping(), dataPointers, relationships, auxiliaryData);
 
-    if (serialized.getOneToManyRelationship() == null) {
-      throw new IllegalArgumentException("No one-to-many relationship defined");
-    }
-    RelationshipMapping oneToManyRelationship =
-        serialized.getOneToManyRelationship().deserializeToInternal(entity1, entityM, dataPointers);
-
-    return new OneToMany(
-        serialized.getName(), indexDataPointer, entity1, entityM, oneToManyRelationship);
+    Builder builder = new Builder();
+    builder
+        .name(serialized.getName())
+        .relationships(relationships)
+        .auxiliaryData(auxiliaryData)
+        .sourceDataMapping(sourceDataMapping)
+        .indexDataMapping(indexDataMapping);
+    return builder.entity1(entity1).entityM(entityM).build();
   }
 
   @Override
@@ -69,19 +64,31 @@ public class OneToMany extends EntityGroup {
   }
 
   @Override
+  public Map<String, Entity> getEntities() {
+    return ImmutableMap.of(ONE_ENTITY_NAME, entity1, MANY_ENTITY_NAME, entityM);
+  }
+
+  @Override
   public List<WorkflowCommand> getIndexingCommands() {
-    return Collections.emptyList(); // no indexing workflows for one-to-many relationships, yet
+    return ImmutableList.of(); // no indexing workflows for one-to-many relationships
   }
 
-  public Entity getEntity1() {
-    return entity1;
-  }
+  private static class Builder extends EntityGroup.Builder {
+    private Entity entity1;
+    private Entity entityM;
 
-  public Entity getEntityM() {
-    return entityM;
-  }
+    public Builder entity1(Entity entity1) {
+      this.entity1 = entity1;
+      return this;
+    }
 
-  public RelationshipMapping getOneToManyRelationship() {
-    return oneToManyRelationship;
+    public Builder entityM(Entity entityM) {
+      this.entityM = entityM;
+      return this;
+    }
+
+    public OneToMany build() {
+      return new OneToMany(this);
+    }
   }
 }

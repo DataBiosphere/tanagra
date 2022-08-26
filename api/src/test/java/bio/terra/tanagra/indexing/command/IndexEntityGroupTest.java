@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.command;
 
 import static bio.terra.tanagra.indexing.Indexer.READ_RESOURCE_FILE_FUNCTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -11,6 +12,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -52,6 +54,14 @@ public class IndexEntityGroupTest {
             primaryEntityName);
     List<WorkflowCommand> cmds = conditionPersonOccurrence.getIndexingCommands();
 
-    assertEquals(0, cmds.size(), "no indexing cmds generated");
+    assertEquals(1, cmds.size(), "one indexing cmd generated");
+
+    Optional<WorkflowCommand> precomputeCounts =
+        cmds.stream().filter(cmd -> cmd.getClass().equals(PrecomputeCounts.class)).findFirst();
+    assertTrue(precomputeCounts.isPresent(), "PrecomputeCounts indexing cmd generated");
+    assertEquals(
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.PrecomputeCounts -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.criteriaPrimaryRollupCount --allPrimaryNodesQuery=condition_person_occurrence_selectPrimaryIds.sql --occurrencesQuery=condition_person_occurrence_selectOccurrences.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
+        precomputeCounts.get().getCommand());
+    assertEquals(2, precomputeCounts.get().getQueryInputs().size(), "two query inputs generated");
   }
 }

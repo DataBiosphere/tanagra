@@ -1,97 +1,83 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
-import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
+import bio.terra.tanagra.indexing.command.PrecomputeCounts;
+import bio.terra.tanagra.serialization.UFEntityGroup;
+import bio.terra.tanagra.underlay.AuxiliaryData;
+import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
+import bio.terra.tanagra.underlay.EntityGroupMapping;
+import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.RelationshipMapping;
-import bio.terra.tanagra.underlay.TablePointer;
-import java.util.Collections;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 
 public class CriteriaOccurrence extends EntityGroup {
-  private static final String DEFAULT_ROLLUP_COUNT_TABLE_PREFIX = "t_rollup_";
+  private static final String CRITERIA_ENTITY_NAME = "criteria";
+  private static final String OCCURRENCE_ENTITY_NAME = "occurrence";
+  private static final String OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME = "occurrenceToCriteria";
+  private static final String OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME = "occurrenceToPrimary";
+
+  private static final String CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME =
+      "criteriaPrimaryRollupCount";
+  private static final AuxiliaryData CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA =
+      new AuxiliaryData(
+          CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME, List.of("criteriaId", "primaryCount"));
 
   private Entity criteriaEntity;
   private Entity occurrenceEntity;
   private Entity primaryEntity;
-  private RelationshipMapping occurrenceToCriteriaRelationship;
-  private RelationshipMapping occurrenceToPrimaryRelationship;
-  private TablePointer rollupCountTablePointer;
 
   private CriteriaOccurrence(Builder builder) {
-    super(builder.name, builder.indexDataPointer);
+    super(builder);
     this.criteriaEntity = builder.criteriaEntity;
     this.occurrenceEntity = builder.occurrenceEntity;
     this.primaryEntity = builder.primaryEntity;
-    this.occurrenceToCriteriaRelationship = builder.occurrenceToCriteriaRelationship;
-    this.occurrenceToPrimaryRelationship = builder.occurrenceToPrimaryRelationship;
-    this.rollupCountTablePointer = builder.rollupCountTablePointer;
   }
 
   public static CriteriaOccurrence fromSerialized(
-      UFCriteriaOccurrence serialized,
+      UFEntityGroup serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
       String primaryEntityName) {
-    if (serialized.getIndexDataPointer() == null || serialized.getIndexDataPointer().isEmpty()) {
-      throw new IllegalArgumentException("Index data pointer is undefined");
-    }
-    DataPointer indexDataPointer = dataPointers.get(serialized.getIndexDataPointer());
-    if (indexDataPointer == null) {
-      throw new IllegalArgumentException("Index data pointer not found in set of data pointers");
-    }
-
-    if (serialized.getCriteriaEntity() == null || serialized.getCriteriaEntity().isEmpty()) {
-      throw new IllegalArgumentException("No criteria entity defined");
-    }
-    Entity criteriaEntity = entities.get(serialized.getCriteriaEntity());
-    if (criteriaEntity == null) {
-      throw new IllegalArgumentException("Criteria entity not found in set of entities");
-    }
-
-    if (serialized.getOccurrenceEntity() == null || serialized.getOccurrenceEntity().isEmpty()) {
-      throw new IllegalArgumentException("No occurrence entity defined");
-    }
-    Entity occurrenceEntity = entities.get(serialized.getOccurrenceEntity());
-    if (occurrenceEntity == null) {
-      throw new IllegalArgumentException("Occurrence entity not found in set of entities");
-    }
+    Entity criteriaEntity = deserializeEntity(serialized, CRITERIA_ENTITY_NAME, entities);
+    Entity occurrenceEntity = deserializeEntity(serialized, OCCURRENCE_ENTITY_NAME, entities);
     Entity primaryEntity = entities.get(primaryEntityName);
 
-    if (serialized.getOccurrenceToCriteriaRelationship() == null) {
-      throw new IllegalArgumentException("No occurrence-criteria relationship defined");
-    }
-    RelationshipMapping occurrenceToCriteriaRelationship =
-        serialized
-            .getOccurrenceToCriteriaRelationship()
-            .deserializeToInternal(occurrenceEntity, criteriaEntity, dataPointers);
+    Map<String, Relationship> relationships =
+        Map.of(
+            OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
+                new Relationship(
+                    OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME, occurrenceEntity, criteriaEntity),
+            OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
+                new Relationship(
+                    OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME, occurrenceEntity, primaryEntity));
+    Map<String, AuxiliaryData> auxiliaryData =
+        Map.of(
+            CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME,
+            CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA);
 
-    if (serialized.getOccurrenceToPrimaryRelationship() == null) {
-      throw new IllegalArgumentException("No occurrence-primary relationship defined");
-    }
-    RelationshipMapping occurrenceToPrimaryRelationship =
-        serialized
-            .getOccurrenceToPrimaryRelationship()
-            .deserializeToInternal(occurrenceEntity, primaryEntity, dataPointers);
+    EntityGroupMapping sourceDataMapping =
+        EntityGroupMapping.fromSerializedForSourceData(
+            serialized.getSourceDataMapping(), dataPointers, relationships, auxiliaryData);
+    EntityGroupMapping indexDataMapping =
+        EntityGroupMapping.fromSerializedForIndexData(
+            serialized.getIndexDataMapping(), dataPointers, relationships, auxiliaryData);
 
-    TablePointer rollupCountTablePointer =
-        serialized.getRollupCountTablePointer() != null
-            ? new TablePointer(serialized.getRollupCountTablePointer(), indexDataPointer)
-            : new TablePointer(
-                DEFAULT_ROLLUP_COUNT_TABLE_PREFIX + serialized.getName(), indexDataPointer);
-
-    return new Builder()
-        .setName(serialized.getName())
-        .setIndexDataPointer(indexDataPointer)
-        .setCriteriaEntity(criteriaEntity)
-        .setOccurrenceEntity(occurrenceEntity)
-        .setPrimaryEntity(primaryEntity)
-        .setOccurrenceToCriteriaRelationship(occurrenceToCriteriaRelationship)
-        .setOccurrenceToPrimaryRelationship(occurrenceToPrimaryRelationship)
-        .setRollupCountTablePointer(rollupCountTablePointer)
+    Builder builder = new Builder();
+    builder
+        .name(serialized.getName())
+        .relationships(relationships)
+        .auxiliaryData(auxiliaryData)
+        .sourceDataMapping(sourceDataMapping)
+        .indexDataMapping(indexDataMapping);
+    return builder
+        .criteriaEntity(criteriaEntity)
+        .occurrenceEntity(occurrenceEntity)
+        .primaryEntity(primaryEntity)
         .build();
   }
 
@@ -101,9 +87,14 @@ public class CriteriaOccurrence extends EntityGroup {
   }
 
   @Override
+  public Map<String, Entity> getEntities() {
+    return ImmutableMap.of(
+        CRITERIA_ENTITY_NAME, criteriaEntity, OCCURRENCE_ENTITY_NAME, occurrenceEntity);
+  }
+
+  @Override
   public List<WorkflowCommand> getIndexingCommands() {
-    return Collections
-        .emptyList(); // no indexing workflows for criteria-occurrence relationships, yet
+    return List.of(PrecomputeCounts.forEntityGroup(this));
   }
 
   public Entity getCriteriaEntity() {
@@ -114,67 +105,43 @@ public class CriteriaOccurrence extends EntityGroup {
     return occurrenceEntity;
   }
 
-  public RelationshipMapping getOccurrenceToCriteriaRelationship() {
-    return occurrenceToCriteriaRelationship;
+  public Entity getPrimaryEntity() {
+    return primaryEntity;
   }
 
-  public RelationshipMapping getOccurrenceToPrimaryRelationship() {
-    return occurrenceToPrimaryRelationship;
+  public RelationshipMapping getOccurrenceToCriteriaRelationshipMapping() {
+    return sourceDataMapping
+        .getRelationshipMappings()
+        .get(OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME);
   }
 
-  public TablePointer getRollupCountTablePointer() {
-    return rollupCountTablePointer;
+  public RelationshipMapping getOccurrenceToPrimaryRelationshipMapping() {
+    return sourceDataMapping.getRelationshipMappings().get(OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME);
   }
 
-  public static class Builder {
-    private String name;
-    private DataPointer indexDataPointer;
+  public AuxiliaryDataMapping getCriteriaPrimaryRollupCountAuxiliaryDataMapping() {
+    return indexDataMapping
+        .getAuxiliaryDataMappings()
+        .get(CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME);
+  }
+
+  private static class Builder extends EntityGroup.Builder {
     private Entity criteriaEntity;
     private Entity occurrenceEntity;
     private Entity primaryEntity;
-    private RelationshipMapping occurrenceToCriteriaRelationship;
-    private RelationshipMapping occurrenceToPrimaryRelationship;
-    private TablePointer rollupCountTablePointer;
 
-    public Builder setName(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder setIndexDataPointer(DataPointer indexDataPointer) {
-      this.indexDataPointer = indexDataPointer;
-      return this;
-    }
-
-    public Builder setCriteriaEntity(Entity criteriaEntity) {
+    public Builder criteriaEntity(Entity criteriaEntity) {
       this.criteriaEntity = criteriaEntity;
       return this;
     }
 
-    public Builder setOccurrenceEntity(Entity occurrenceEntity) {
+    public Builder occurrenceEntity(Entity occurrenceEntity) {
       this.occurrenceEntity = occurrenceEntity;
       return this;
     }
 
-    public Builder setPrimaryEntity(Entity primaryEntity) {
+    public Builder primaryEntity(Entity primaryEntity) {
       this.primaryEntity = primaryEntity;
-      return this;
-    }
-
-    public Builder setOccurrenceToCriteriaRelationship(
-        RelationshipMapping occurrenceToCriteriaRelationship) {
-      this.occurrenceToCriteriaRelationship = occurrenceToCriteriaRelationship;
-      return this;
-    }
-
-    public Builder setOccurrenceToPrimaryRelationship(
-        RelationshipMapping occurrenceToPrimaryRelationship) {
-      this.occurrenceToPrimaryRelationship = occurrenceToPrimaryRelationship;
-      return this;
-    }
-
-    public Builder setRollupCountTablePointer(TablePointer rollupCountTablePointer) {
-      this.rollupCountTablePointer = rollupCountTablePointer;
       return this;
     }
 

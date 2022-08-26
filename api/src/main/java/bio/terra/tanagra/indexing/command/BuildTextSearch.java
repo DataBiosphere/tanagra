@@ -25,7 +25,7 @@ public class BuildTextSearch extends WorkflowCommand {
             .queryAttributes(List.of(entity.getIdAttribute()))
             .renderSQL());
     queryInputs.put(
-        sqlFileTextSearch, entity.getSourceDataMapping().queryTextSearchStrings().renderSQL());
+        sqlFileTextSearch, entity.getSourceDataMapping().queryTextSearchInformation().renderSQL());
 
     String template =
         "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildTextSearchInformation "

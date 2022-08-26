@@ -1,44 +1,52 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
-import bio.terra.tanagra.serialization.relationshipmapping.UFForeignKey;
-import bio.terra.tanagra.serialization.relationshipmapping.UFIntermediateTable;
-import bio.terra.tanagra.underlay.relationshipmapping.ForeignKey;
-import bio.terra.tanagra.underlay.relationshipmapping.IntermediateTable;
+import java.util.List;
 
-public abstract class RelationshipMapping {
-  /** Enum for the types of entity relationships supported by Tanagra. */
-  public enum Type {
-    FOREIGN_KEY,
-    INTERMEDIATE_TABLE
+public class RelationshipMapping {
+  private TablePointer tablePointer;
+  private FieldPointer fromEntityId;
+  private FieldPointer toEntityId;
+
+  private RelationshipMapping(
+      TablePointer tablePointer, FieldPointer fromEntityId, FieldPointer toEntityId) {
+    this.tablePointer = tablePointer;
+    this.fromEntityId = fromEntityId;
+    this.toEntityId = toEntityId;
   }
 
-  private Attribute idAttributeA;
-  private Attribute idAttributeB;
-
-  protected RelationshipMapping(Attribute idAttributeA, Attribute idAttributeB) {
-    this.idAttributeA = idAttributeA;
-    this.idAttributeB = idAttributeB;
+  public static RelationshipMapping fromSerialized(
+      UFRelationshipMapping serialized, DataPointer dataPointer) {
+    TablePointer tablePointer =
+        TablePointer.fromSerialized(serialized.getTablePointer(), dataPointer);
+    FieldPointer fromEntityId =
+        FieldPointer.fromSerialized(serialized.getFromEntityId(), tablePointer);
+    FieldPointer toEntityId = FieldPointer.fromSerialized(serialized.getToEntityId(), tablePointer);
+    return new RelationshipMapping(tablePointer, fromEntityId, toEntityId);
   }
 
-  public UFRelationshipMapping serialize() {
-    switch (getType()) {
-      case FOREIGN_KEY:
-        return new UFForeignKey((ForeignKey) this);
-      case INTERMEDIATE_TABLE:
-        return new UFIntermediateTable((IntermediateTable) this);
-      default:
-        throw new RuntimeException("Unknown relationship mapping type: " + getType());
-    }
+  public Query queryIdPairs(String fromEntityAlias, String toEntityAlias) {
+    TableVariable tableVariable = TableVariable.forPrimary(tablePointer);
+    FieldVariable fromEntityIdFieldVariable =
+        new FieldVariable(fromEntityId, tableVariable, fromEntityAlias);
+    FieldVariable toEntityIdFieldVariable =
+        new FieldVariable(toEntityId, tableVariable, toEntityAlias);
+    return new Query(
+        List.of(fromEntityIdFieldVariable, toEntityIdFieldVariable), List.of(tableVariable));
   }
 
-  public abstract Type getType();
-
-  public Attribute getIdAttributeA() {
-    return idAttributeA;
+  public TablePointer getTablePointer() {
+    return tablePointer;
   }
 
-  public Attribute getIdAttributeB() {
-    return idAttributeB;
+  public FieldPointer getFromEntityId() {
+    return fromEntityId;
+  }
+
+  public FieldPointer getToEntityId() {
+    return toEntityId;
   }
 }
