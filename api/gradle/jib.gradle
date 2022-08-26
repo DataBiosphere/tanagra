@@ -2,4 +2,7 @@ jib {
     from {
         image = "adoptopenjdk:11-jre-hotspot"
     }
+    container {
+        mainClass = "bio.terra.tanagra.app.Main"
+    }
 }
