@@ -21,6 +21,7 @@ import java.util.OptionalLong;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
