@@ -34,7 +34,7 @@ public class PostgresExecutorTest extends BaseSpringUnitTest {
         new NamedParameterJdbcTemplate(dataSourceFactory.getDataSource(JdbcTestUtils.TEST_ID)));
   }
 
-  // @Test
+  @Test
   void executeAllDataTypes() {
     PostgresExecutor postgresExecutor = createExecutor();
     String sql =
