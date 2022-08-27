@@ -57,4 +57,8 @@ public class FieldVariable implements SQLExpression {
 
     return sql;
   }
+
+  public String getAlias() {
+    return alias;
+  }
 }

@@ -21,7 +21,6 @@ import java.util.OptionalLong;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,7 +34,7 @@ public class PostgresExecutorTest extends BaseSpringUnitTest {
         new NamedParameterJdbcTemplate(dataSourceFactory.getDataSource(JdbcTestUtils.TEST_ID)));
   }
 
-  @Test
+  // @Test
   void executeAllDataTypes() {
     PostgresExecutor postgresExecutor = createExecutor();
     String sql =

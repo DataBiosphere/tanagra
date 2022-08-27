@@ -67,4 +67,26 @@ public class TablePointer {
     }
     return getTableFilter().buildVariable(tableVariable, tables);
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof TablePointer)) {
+      return false;
+    }
+
+    TablePointer objTP = (TablePointer) obj;
+    return objTP.getDataPointer().equals(getDataPointer())
+        && objTP.getTableName().equals(getTableName())
+        && ((!objTP.hasTableFilter() && !hasTableFilter())
+            || (objTP.hasTableFilter()) && objTP.getTableFilter().equals(getTableFilter()));
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 5;
+    hash = 37 * hash + (this.dataPointer != null ? this.dataPointer.hashCode() : 0);
+    hash = 37 * hash + (this.tableName != null ? this.tableName.hashCode() : 0);
+    hash = 37 * hash + (this.tableFilter != null ? this.tableFilter.hashCode() : 0);
+    return hash;
+  }
 }

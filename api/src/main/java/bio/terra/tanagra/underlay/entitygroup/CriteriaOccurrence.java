@@ -2,6 +2,9 @@ package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.PrecomputeCounts;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.AuxiliaryData;
 import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
@@ -123,6 +126,44 @@ public class CriteriaOccurrence extends EntityGroup {
     return indexDataMapping
         .getAuxiliaryDataMappings()
         .get(CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME);
+  }
+
+  public Query queryCriteriaPrimaryPairs(String occurrenceIdAlias, String criteriaIdAlias) {
+    RelationshipMapping occToPriRelationshipMapping = getOccurrenceToPrimaryRelationshipMapping();
+    RelationshipMapping occToCriRelationshipMapping = getOccurrenceToCriteriaRelationshipMapping();
+
+    TableVariable occToPriTableVar =
+        TableVariable.forPrimary(occToPriRelationshipMapping.getTablePointer());
+    FieldVariable occIdFieldVar =
+        new FieldVariable(
+            occToPriRelationshipMapping.getFromEntityId(), occToPriTableVar, occurrenceIdAlias);
+
+    if (occToPriRelationshipMapping
+        .getTablePointer()
+        .equals(occToCriRelationshipMapping.getTablePointer())) {
+      // if the two relationship mappings are in the same table, then just select from a single
+      // table
+      FieldVariable criIdFieldVar =
+          new FieldVariable(
+              occToCriRelationshipMapping.getToEntityId(), occToPriTableVar, criteriaIdAlias);
+      return new Query(List.of(occIdFieldVar, criIdFieldVar), List.of(occToPriTableVar));
+    } else {
+      // otherwise, join the two tables
+      // SELECT primaryId, criteriaId FROM occurrencePrimaryTable
+      // JOIN occurrenceCriteriaTable ON occurrenceCriteriaTable.occurrenceId =
+      // occurrencePrimaryTable.occurrenceId
+      TableVariable occToCriTableVar =
+          TableVariable.forJoined(
+              occToCriRelationshipMapping.getTablePointer(),
+              getOccurrenceToCriteriaRelationshipMapping().getFromEntityId().getColumnName(),
+              new FieldVariable(
+                  getOccurrenceToPrimaryRelationshipMapping().getFromEntityId(), occToPriTableVar));
+      FieldVariable criIdFieldVar =
+          new FieldVariable(
+              occToCriRelationshipMapping.getToEntityId(), occToCriTableVar, criteriaIdAlias);
+      return new Query(
+          List.of(occIdFieldVar, criIdFieldVar), List.of(occToPriTableVar, occToCriTableVar));
+    }
   }
 
   private static class Builder extends EntityGroup.Builder {

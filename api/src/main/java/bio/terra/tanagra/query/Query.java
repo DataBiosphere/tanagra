@@ -1,6 +1,7 @@
 package bio.terra.tanagra.query;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,7 +48,11 @@ public class Query implements SQLExpression {
     TableVariable.generateAliases(tables);
 
     // render each SELECT FieldVariable and join them into a single string
-    String selectSQL = select.stream().map(fv -> fv.renderSQL()).collect(Collectors.joining(", "));
+    String selectSQL =
+        select.stream()
+            .sorted(Comparator.comparing(FieldVariable::getAlias))
+            .map(fv -> fv.renderSQL())
+            .collect(Collectors.joining(", "));
 
     // render each TableVariable and join them into a single string
     String fromSQL = tables.stream().map(tv -> tv.renderSQL()).collect(Collectors.joining(" "));

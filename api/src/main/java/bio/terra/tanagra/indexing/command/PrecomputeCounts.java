@@ -5,7 +5,6 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -17,29 +16,27 @@ public final class PrecomputeCounts extends WorkflowCommand {
 
   public static PrecomputeCounts forEntityGroup(CriteriaOccurrence entityGroup) {
     Map<String, String> queryInputs = new HashMap<>();
-    String sqlFileSelectPrimaryIds = entityGroup.getName() + "_selectPrimaryIds.sql";
-    Entity primaryEntity = entityGroup.getPrimaryEntity();
+    String sqlFileSelectCriteriaIds = entityGroup.getName() + "_selectCriteriaIds.sql";
+    Entity criteriaEntity = entityGroup.getCriteriaEntity();
     queryInputs.put(
-        sqlFileSelectPrimaryIds,
-        primaryEntity
+        sqlFileSelectCriteriaIds,
+        criteriaEntity
             .getSourceDataMapping()
-            .queryAttributes(List.of(primaryEntity.getIdAttribute()))
+            .queryAttributes(Map.of("node", criteriaEntity.getIdAttribute()))
             .renderSQL());
 
-    String sqlFileSelectOccurrences = entityGroup.getName() + "_selectOccurrences.sql";
+    String sqlFileSelectCriteriaPrimaryPairs =
+        entityGroup.getName() + "_selectCriteriaPrimaryPairs.sql";
     queryInputs.put(
-        sqlFileSelectOccurrences,
-        entityGroup
-            .getOccurrenceToPrimaryRelationshipMapping()
-            .queryIdPairs("node", "what_to_count")
-            .renderSQL());
+        sqlFileSelectCriteriaPrimaryPairs,
+        entityGroup.queryCriteriaPrimaryPairs("node", "what_to_count").renderSQL());
 
     String template =
         "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.PrecomputeCounts "
             + "-Dexec.args=\"--outputBigQueryTable=${outputTable} "
-            + "--allPrimaryNodesQuery=${sqlFile_selectPrimaryIds} "
-            + "--occurrencesQuery=${sqlFile_selectOccurrences} "
-            // --ancestorDescendantRelationshipsQuery=${sqlFile_criteriaAncestorDescendent}
+            + "--allPrimaryNodesQuery=${sqlFile_selectCriteriaIds} "
+            + "--occurrencesQuery=${sqlFile_selectCriteriaPrimaryPairs} "
+            // --ancestorDescendantRelationshipsQuery=${sqlFile_criteriaAncestorDescendant}
             + "--runner=dataflow --project=broad-tanagra-dev --region=us-central1 "
             + "--serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"";
     Map<String, String> params =
@@ -50,8 +47,8 @@ public final class PrecomputeCounts extends WorkflowCommand {
                     .getCriteriaPrimaryRollupCountAuxiliaryDataMapping()
                     .getTablePointer()
                     .getPathForIndexing())
-            .put("sqlFile_selectPrimaryIds", sqlFileSelectPrimaryIds)
-            .put("sqlFile_selectOccurrences", sqlFileSelectOccurrences)
+            .put("sqlFile_selectCriteriaIds", sqlFileSelectCriteriaIds)
+            .put("sqlFile_selectCriteriaPrimaryPairs", sqlFileSelectCriteriaPrimaryPairs)
             .build();
     String command = StringSubstitutor.replace(template, params);
     String description = entityGroup.getName() + ": PrecomputeCounts";

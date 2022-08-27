@@ -4,7 +4,6 @@ import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.underlay.Entity;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -22,7 +21,7 @@ public final class BuildTextSearch extends WorkflowCommand {
         sqlFileSelectIds,
         entity
             .getSourceDataMapping()
-            .queryAttributes(List.of(entity.getIdAttribute()))
+            .queryAttributes(Map.of("node", entity.getIdAttribute()))
             .renderSQL());
     queryInputs.put(
         sqlFileTextSearch, entity.getSourceDataMapping().queryTextSearchInformation().renderSQL());

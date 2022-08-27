@@ -13,23 +13,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class EntityMapping {
   private final TablePointer tablePointer;
   private final Map<String, AttributeMapping> attributeMappings;
   private TextSearchMapping textSearchMapping;
-  private final String idAttributeName;
+  private final Attribute idAttribute;
 
   private EntityMapping(
       TablePointer tablePointer,
       Map<String, AttributeMapping> attributeMappings,
       TextSearchMapping textSearchMapping,
-      String idAttributeName) {
+      Attribute idAttribute) {
     this.tablePointer = tablePointer;
     this.attributeMappings = attributeMappings;
     this.textSearchMapping = textSearchMapping;
-    this.idAttributeName = idAttributeName;
+    this.idAttribute = idAttribute;
   }
 
   public static EntityMapping fromSerialized(
@@ -80,7 +81,8 @@ public final class EntityMapping {
             : TextSearchMapping.fromSerialized(
                 serialized.getTextSearchMapping(), tablePointer, attributes);
 
-    return new EntityMapping(tablePointer, attributeMappings, textSearchMapping, idAttributeName);
+    return new EntityMapping(
+        tablePointer, attributeMappings, textSearchMapping, attributes.get(idAttributeName));
   }
 
   public SQLExpression queryTextSearchInformation() {
@@ -91,10 +93,11 @@ public final class EntityMapping {
     if (textSearchMapping.definedByAttributes()) {
       return new UnionQuery(
           textSearchMapping.getAttributes().stream()
-              .map(attr -> queryAttributes(List.of(attr)))
+              .map(attr -> queryAttributes(Map.of("node", idAttribute, "text", attr)))
               .collect(Collectors.toList()));
     } else if (textSearchMapping.definedBySearchString()) {
-      return queryFields(List.of(textSearchMapping.getSearchString()));
+      return queryAttributesAndFields(
+          Map.of("node", idAttribute), Map.of("text", textSearchMapping.getSearchString()));
     } else {
       throw new IllegalArgumentException("Unknown text search mapping type");
     }
@@ -104,28 +107,55 @@ public final class EntityMapping {
     return queryAttributesAndFields(selectedAttributes, null);
   }
 
+  public Query queryAttributes(Map<String, Attribute> selectedAttributes) {
+    return queryAttributesAndFields(selectedAttributes, null);
+  }
+
   public Query queryFields(List<FieldPointer> selectedFields) {
+    return queryAttributesAndFields(null, selectedFields);
+  }
+
+  public Query queryFields(Map<String, FieldPointer> selectedFields) {
     return queryAttributesAndFields(null, selectedFields);
   }
 
   public Query queryAttributesAndFields(
       List<Attribute> selectedAttributes, List<FieldPointer> selectedFields) {
+    Map<String, Attribute> nameToAttribute =
+        selectedAttributes == null
+            ? null
+            : selectedAttributes.stream()
+                .collect(Collectors.toMap(Attribute::getName, Function.identity()));
+    Map<String, FieldPointer> nameToFieldPointer =
+        selectedFields == null
+            ? null
+            : selectedFields.stream()
+                .collect(Collectors.toMap(FieldPointer::getColumnName, Function.identity()));
+    return queryAttributesAndFields(nameToAttribute, nameToFieldPointer);
+  }
+
+  public Query queryAttributesAndFields(
+      Map<String, Attribute> selectedAttributes, Map<String, FieldPointer> selectedFields) {
     List<TableVariable> tables = new ArrayList<>();
     TableVariable primaryTable = TableVariable.forPrimary(tablePointer);
     tables.add(primaryTable);
 
     List<FieldVariable> select = new ArrayList<>();
     if (selectedAttributes != null) {
-      selectedAttributes.stream()
+      selectedAttributes.entrySet().stream()
           .forEach(
-              attr ->
+              nameToAttr ->
                   select.addAll(
                       attributeMappings
-                          .get(attr.getName())
-                          .buildFieldVariables(primaryTable, tables, attr.getName())));
+                          .get(nameToAttr.getValue().getName())
+                          .buildFieldVariables(primaryTable, tables, nameToAttr.getKey())));
     }
     if (selectedFields != null) {
-      selectedFields.stream().forEach(fp -> select.add(fp.buildVariable(primaryTable, tables)));
+      selectedFields.entrySet().stream()
+          .forEach(
+              nameToFP ->
+                  select.add(
+                      nameToFP.getValue().buildVariable(primaryTable, tables, nameToFP.getKey())));
     }
 
     FilterVariable where = tablePointer.getFilterVariable(primaryTable, tables);
@@ -141,7 +171,7 @@ public final class EntityMapping {
   }
 
   public AttributeMapping getIdAttributeMapping() {
-    return attributeMappings.get(idAttributeName);
+    return attributeMappings.get(idAttribute.getName());
   }
 
   public boolean hasTextSearchMapping() {
