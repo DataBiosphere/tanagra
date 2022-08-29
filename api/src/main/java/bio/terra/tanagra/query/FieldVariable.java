@@ -59,6 +59,6 @@ public class FieldVariable implements SQLExpression {
   }
 
   public String getAlias() {
-    return alias;
+    return alias == null ? "" : alias;
   }
 }

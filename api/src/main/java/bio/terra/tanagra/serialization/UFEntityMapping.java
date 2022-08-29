@@ -19,6 +19,7 @@ public class UFEntityMapping {
   private final UFTablePointer tablePointer;
   private final Map<String, UFAttributeMapping> attributeMappings;
   private final UFTextSearchMapping textSearchMapping;
+  private final Map<String, UFHierarchyMapping> hierarchyMappings;
 
   public UFEntityMapping(EntityMapping entityMapping) {
     this.dataPointer = entityMapping.getTablePointer().getDataPointer().getName();
@@ -36,6 +37,14 @@ public class UFEntityMapping {
         entityMapping.hasTextSearchMapping()
             ? new UFTextSearchMapping(entityMapping.getTextSearchMapping())
             : null;
+
+    Map<String, UFHierarchyMapping> hierarchyMappings = new HashMap<>();
+    entityMapping.getHierarchyMappings().entrySet().stream()
+        .forEach(
+            hierMpg -> {
+              hierarchyMappings.put(hierMpg.getKey(), new UFHierarchyMapping(hierMpg.getValue()));
+            });
+    this.hierarchyMappings = hierarchyMappings;
   }
 
   private UFEntityMapping(Builder builder) {
@@ -43,6 +52,7 @@ public class UFEntityMapping {
     this.tablePointer = builder.tablePointer;
     this.attributeMappings = builder.attributeMappings;
     this.textSearchMapping = builder.textSearchMapping;
+    this.hierarchyMappings = builder.hierarchyMappings;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -51,6 +61,7 @@ public class UFEntityMapping {
     private UFTablePointer tablePointer;
     private Map<String, UFAttributeMapping> attributeMappings;
     private UFTextSearchMapping textSearchMapping;
+    private Map<String, UFHierarchyMapping> hierarchyMappings;
 
     public Builder dataPointer(String dataPointer) {
       this.dataPointer = dataPointer;
@@ -69,6 +80,11 @@ public class UFEntityMapping {
 
     public Builder textSearchMapping(UFTextSearchMapping textSearchMapping) {
       this.textSearchMapping = textSearchMapping;
+      return this;
+    }
+
+    public Builder hierarchyMappings(Map<String, UFHierarchyMapping> hierarchyMappings) {
+      this.hierarchyMappings = hierarchyMappings;
       return this;
     }
 
@@ -92,5 +108,9 @@ public class UFEntityMapping {
 
   public UFTextSearchMapping getTextSearchMapping() {
     return textSearchMapping;
+  }
+
+  public Map<String, UFHierarchyMapping> getHierarchyMappings() {
+    return hierarchyMappings;
   }
 }

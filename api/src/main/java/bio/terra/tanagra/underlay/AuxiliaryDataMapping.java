@@ -10,7 +10,7 @@ public final class AuxiliaryDataMapping {
   private final TablePointer tablePointer;
   private final Map<String, FieldPointer> fieldPointers;
 
-  private AuxiliaryDataMapping(TablePointer tablePointer, Map<String, FieldPointer> fieldPointers) {
+  public AuxiliaryDataMapping(TablePointer tablePointer, Map<String, FieldPointer> fieldPointers) {
     this.tablePointer = tablePointer;
     this.fieldPointers = fieldPointers;
   }

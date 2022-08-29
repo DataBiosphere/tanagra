@@ -33,7 +33,7 @@ public class UFAuxiliaryDataMapping {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public abstract static class Builder {
+  public static class Builder {
     private UFTablePointer tablePointer;
     private Map<String, UFFieldPointer> fieldPointers;
 

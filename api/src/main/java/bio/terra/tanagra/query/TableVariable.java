@@ -37,7 +37,7 @@ public final class TableVariable implements SQLExpression {
     String template = "${tablePath} AS ${tableAlias}";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
-            .put("tablePath", tablePointer.getSQL())
+            .put("tablePath", tablePointer.renderSQL())
             .put("tableAlias", alias)
             .build();
     String sql = StringSubstitutor.replace(template, params);

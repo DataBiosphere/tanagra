@@ -2,7 +2,10 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.BuildTextSearch;
+import bio.terra.tanagra.indexing.command.ComputeAncestorDescendant;
+import bio.terra.tanagra.indexing.command.ComputePathNumChildren;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
+import bio.terra.tanagra.indexing.command.WriteParentChild;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
@@ -86,7 +89,22 @@ public final class Entity {
     // if the source data mapping includes text search, then expand it in the index data mapping
     if (sourceDataMapping.hasTextSearchMapping() && !indexDataMapping.hasTextSearchMapping()) {
       indexDataMapping.setTextSearchMapping(
-          TextSearchMapping.getDefault(indexDataMapping.getTablePointer()));
+          TextSearchMapping.defaultIndexMapping(indexDataMapping.getTablePointer()));
+    }
+
+    // if the source data mapping includes hierarchies, then expand them in the index data mapping
+    if (sourceDataMapping.hasHierarchyMappings() && !indexDataMapping.hasHierarchyMappings()) {
+      indexDataMapping.setHierarchyMappings(
+          sourceDataMapping.getHierarchyMappings().keySet().stream()
+              .collect(
+                  Collectors.toMap(
+                      Function.identity(),
+                      hierarchyName ->
+                          HierarchyMapping.defaultIndexMapping(
+                              serialized.getName(),
+                              hierarchyName,
+                              indexDataMapping.getTablePointer(),
+                              indexDataMapping.getIdAttributeMapping().getValue()))));
     }
 
     return new Entity(
@@ -102,6 +120,15 @@ public final class Entity {
     cmds.add(DenormalizeAllNodes.forEntity(this));
     if (sourceDataMapping.hasTextSearchMapping()) {
       cmds.add(BuildTextSearch.forEntity(this));
+    }
+    if (sourceDataMapping.hasHierarchyMappings()) {
+      sourceDataMapping.getHierarchyMappings().keySet().stream()
+          .forEach(
+              hierarchyName -> {
+                cmds.add(WriteParentChild.forHierarchy(this, hierarchyName));
+                cmds.add(ComputeAncestorDescendant.forHierarchy(this, hierarchyName));
+                cmds.add(ComputePathNumChildren.forHierarchy(this, hierarchyName));
+              });
     }
     return cmds;
   }

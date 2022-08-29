@@ -1,12 +1,15 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFTablePointer;
 import com.google.common.base.Strings;
 import java.util.List;
 
-public class TablePointer {
+public class TablePointer implements SQLExpression {
   private final DataPointer dataPointer;
   private final String tableName;
   private final TableFilter tableFilter;
@@ -53,8 +56,19 @@ public class TablePointer {
     return tableFilter;
   }
 
-  public String getSQL() {
-    return dataPointer.getTableSQL(tableName);
+  @Override
+  public String renderSQL() {
+    if (!hasTableFilter()) {
+      return dataPointer.getTableSQL(tableName);
+    } else {
+      TablePointer tablePointerWithoutFilter = new TablePointer(tableName, dataPointer);
+      TableVariable tableVar = TableVariable.forPrimary(tablePointerWithoutFilter);
+      FieldVariable fieldVar =
+          new FieldVariable(FieldPointer.allFields(tablePointerWithoutFilter), tableVar);
+      FilterVariable filterVar = getTableFilter().buildVariable(tableVar, List.of(tableVar));
+
+      return "(" + new Query(List.of(fieldVar), List.of(tableVar), filterVar).renderSQL() + ")";
+    }
   }
 
   public String getPathForIndexing() {

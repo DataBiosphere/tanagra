@@ -25,7 +25,7 @@ public class IndexEntityTest {
   }
 
   @Test
-  void simple() throws IOException {
+  void person() throws IOException {
     Entity person =
         Entity.fromJSON("config/entity/Person.json", READ_RESOURCE_FILE_FUNCTION, dataPointers);
     List<WorkflowCommand> cmds = person.getIndexingCommands();
@@ -41,12 +41,12 @@ public class IndexEntityTest {
   }
 
   @Test
-  void withTextMapping() throws IOException {
+  void condition() throws IOException {
     Entity condition =
         Entity.fromJSON("config/entity/Condition.json", READ_RESOURCE_FILE_FUNCTION, dataPointers);
     List<WorkflowCommand> cmds = condition.getIndexingCommands();
 
-    assertEquals(2, cmds.size(), "two indexing cmds generated");
+    assertEquals(5, cmds.size(), "five indexing cmds generated");
 
     Optional<WorkflowCommand> denormalizeAllNodes =
         cmds.stream().filter(cmd -> cmd.getClass().equals(DenormalizeAllNodes.class)).findFirst();
@@ -63,5 +63,36 @@ public class IndexEntityTest {
         "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildTextSearchInformation -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition --allNodesQuery=condition_selectIds.sql --searchStringsQuery=condition_textSearch.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
         buildTextSearch.get().getCommand());
     assertEquals(2, buildTextSearch.get().getQueryInputs().size(), "two query inputs generated");
+
+    Optional<WorkflowCommand> writeParentChild =
+        cmds.stream().filter(cmd -> cmd.getClass().equals(WriteParentChild.class)).findFirst();
+    assertTrue(writeParentChild.isPresent(), "WriteParentChild indexing cmd generated");
+    assertEquals(
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.WriteParentChildRelationships -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_standard_childParent --parentChildQuery=condition_standard_selectParentChildPairs.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
+        writeParentChild.get().getCommand());
+    assertEquals(1, writeParentChild.get().getQueryInputs().size(), "one query input generated");
+
+    Optional<WorkflowCommand> computeAncestorDescendant =
+        cmds.stream()
+            .filter(cmd -> cmd.getClass().equals(ComputeAncestorDescendant.class))
+            .findFirst();
+    assertTrue(
+        computeAncestorDescendant.isPresent(), "ComputeAncestorDescendant indexing cmd generated");
+    assertEquals(
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.FlattenHierarchy -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_standard_ancestorDescendant --parentChildQuery=condition_standard_selectParentChildPairs.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
+        computeAncestorDescendant.get().getCommand());
+    assertEquals(
+        1, computeAncestorDescendant.get().getQueryInputs().size(), "one query input generated");
+
+    Optional<WorkflowCommand> computePathNumChildren =
+        cmds.stream()
+            .filter(cmd -> cmd.getClass().equals(ComputePathNumChildren.class))
+            .findFirst();
+    assertTrue(computePathNumChildren.isPresent(), "ComputePathNumChildren indexing cmd generated");
+    assertEquals(
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildPathsForHierarchy -Dexec.args=\"--outputBigQueryTable=verily-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition --allNodesQuery=condition_standard_selectIds.sql --parentChildQuery=condition_standard_selectParentChildPairs.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
+        computePathNumChildren.get().getCommand());
+    assertEquals(
+        2, computePathNumChildren.get().getQueryInputs().size(), "two query inputs generated");
   }
 }

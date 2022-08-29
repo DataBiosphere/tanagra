@@ -7,6 +7,8 @@ import com.google.common.base.Strings;
 import java.util.List;
 
 public class FieldPointer {
+  private static final String ALL_FIELDS_COLUMN_NAME = "*";
+
   private final TablePointer tablePointer;
   private final String columnName;
   private TablePointer foreignTablePointer;
@@ -38,6 +40,10 @@ public class FieldPointer {
     this.foreignTablePointer = foreignTablePointer;
     this.foreignKeyColumnName = foreignKeyColumnName;
     this.foreignColumnName = foreignColumnName;
+  }
+
+  public static FieldPointer allFields(TablePointer tablePointer) {
+    return new FieldPointer(tablePointer, ALL_FIELDS_COLUMN_NAME);
   }
 
   public static FieldPointer fromSerialized(UFFieldPointer serialized, TablePointer tablePointer) {
@@ -118,5 +124,9 @@ public class FieldPointer {
 
   public TablePointer getTablePointer() {
     return tablePointer;
+  }
+
+  public boolean isAllFields() {
+    return ALL_FIELDS_COLUMN_NAME.equals(columnName);
   }
 }

@@ -1,7 +1,6 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
@@ -20,16 +19,19 @@ public final class EntityMapping {
   private final TablePointer tablePointer;
   private final Map<String, AttributeMapping> attributeMappings;
   private TextSearchMapping textSearchMapping;
+  private Map<String, HierarchyMapping> hierarchyMappings;
   private final Attribute idAttribute;
 
   private EntityMapping(
       TablePointer tablePointer,
       Map<String, AttributeMapping> attributeMappings,
       TextSearchMapping textSearchMapping,
+      Map<String, HierarchyMapping> hierarchyMappings,
       Attribute idAttribute) {
     this.tablePointer = tablePointer;
     this.attributeMappings = attributeMappings;
     this.textSearchMapping = textSearchMapping;
+    this.hierarchyMappings = hierarchyMappings;
     this.idAttribute = idAttribute;
   }
 
@@ -81,26 +83,23 @@ public final class EntityMapping {
             : TextSearchMapping.fromSerialized(
                 serialized.getTextSearchMapping(), tablePointer, attributes);
 
+    Map<String, HierarchyMapping> hierarchyMappings =
+        serialized.getHierarchyMappings() == null
+            ? new HashMap<>()
+            : serialized.getHierarchyMappings().entrySet().stream()
+                .collect(
+                    Collectors.toMap(
+                        shm -> shm.getKey(),
+                        shm ->
+                            HierarchyMapping.fromSerialized(
+                                shm.getValue(), shm.getKey(), dataPointer)));
+
     return new EntityMapping(
-        tablePointer, attributeMappings, textSearchMapping, attributes.get(idAttributeName));
-  }
-
-  public SQLExpression queryTextSearchInformation() {
-    if (!hasTextSearchMapping()) {
-      throw new UnsupportedOperationException("Text search mapping is undefined");
-    }
-
-    if (textSearchMapping.definedByAttributes()) {
-      return new UnionQuery(
-          textSearchMapping.getAttributes().stream()
-              .map(attr -> queryAttributes(Map.of("node", idAttribute, "text", attr)))
-              .collect(Collectors.toList()));
-    } else if (textSearchMapping.definedBySearchString()) {
-      return queryAttributesAndFields(
-          Map.of("node", idAttribute), Map.of("text", textSearchMapping.getSearchString()));
-    } else {
-      throw new IllegalArgumentException("Unknown text search mapping type");
-    }
+        tablePointer,
+        attributeMappings,
+        textSearchMapping,
+        hierarchyMappings,
+        attributes.get(idAttributeName));
   }
 
   public Query queryAttributes(List<Attribute> selectedAttributes) {
@@ -158,8 +157,32 @@ public final class EntityMapping {
                       nameToFP.getValue().buildVariable(primaryTable, tables, nameToFP.getKey())));
     }
 
-    FilterVariable where = tablePointer.getFilterVariable(primaryTable, tables);
-    return new Query(select, tables, where);
+    return new Query(select, tables);
+  }
+
+  public SQLExpression queryTextSearchInformation() {
+    if (!hasTextSearchMapping()) {
+      throw new UnsupportedOperationException("Text search mapping is undefined");
+    }
+
+    if (textSearchMapping.definedByAttributes()) {
+      return new UnionQuery(
+          textSearchMapping.getAttributes().stream()
+              .map(attr -> queryAttributes(Map.of("node", idAttribute, "text", attr)))
+              .collect(Collectors.toList()));
+    } else if (textSearchMapping.definedBySearchString()) {
+      return queryAttributesAndFields(
+          Map.of("node", idAttribute), Map.of("text", textSearchMapping.getSearchString()));
+    } else {
+      throw new IllegalArgumentException("Unknown text search mapping type");
+    }
+  }
+
+  public HierarchyMapping getHierarchyMapping(String hierarchyName) {
+    if (!hasHierarchyMappings() || !hierarchyMappings.containsKey(hierarchyName)) {
+      throw new UnsupportedOperationException("Hierarchy mapping is undefined: " + hierarchyName);
+    }
+    return hierarchyMappings.get(hierarchyName);
   }
 
   public TablePointer getTablePointer() {
@@ -184,5 +207,17 @@ public final class EntityMapping {
 
   public void setTextSearchMapping(TextSearchMapping textSearchMapping) {
     this.textSearchMapping = textSearchMapping;
+  }
+
+  public boolean hasHierarchyMappings() {
+    return hierarchyMappings != null && !hierarchyMappings.isEmpty();
+  }
+
+  public Map<String, HierarchyMapping> getHierarchyMappings() {
+    return Collections.unmodifiableMap(hierarchyMappings);
+  }
+
+  public void setHierarchyMappings(Map<String, HierarchyMapping> hierarchyMappings) {
+    this.hierarchyMappings = hierarchyMappings;
   }
 }

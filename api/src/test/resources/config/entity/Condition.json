@@ -36,6 +36,19 @@
           "foreignColumn": "vocabulary_name" } } },
     "textSearchMapping": {
       "attributes": [ "id", "name" ]
+    },
+    "hierarchyMappings": {
+      "standard": {
+        "childParent": {
+          "tablePointer": {
+            "table": "concept_relationship",
+            "filter": { "type": "BINARY",  "field": { "column": "relationship_id" }, "operator": "EQUALS", "value": { "stringVal": "Subsumes" } } },
+          "fieldPointers": {
+            "parent": { "column": "concept_id_1" },
+            "child": { "column": "concept_id_2" }
+          }
+        }
+      }
     }
   },
 

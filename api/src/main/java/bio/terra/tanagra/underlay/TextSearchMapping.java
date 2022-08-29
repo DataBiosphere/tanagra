@@ -49,7 +49,7 @@ public final class TextSearchMapping {
     throw new IllegalArgumentException("Text search mapping is empty");
   }
 
-  public static TextSearchMapping getDefault(TablePointer tablePointer) {
+  public static TextSearchMapping defaultIndexMapping(TablePointer tablePointer) {
     return new TextSearchMapping(new FieldPointer(tablePointer, TEXT_SEARCH_COLUMN_ALIAS));
   }
 
