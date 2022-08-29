@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.command;
 
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
@@ -31,12 +32,29 @@ public final class PrecomputeCounts extends WorkflowCommand {
         sqlFileSelectCriteriaPrimaryPairs,
         entityGroup.queryCriteriaPrimaryPairs("node", "what_to_count").renderSQL());
 
+    String sqlFileSelectCriteriaAncestorDescendantPairs =
+        entityGroup.getName() + "_selectCriteriaAncestorDescendantPairs.sql";
+    if (criteriaEntity.getIndexDataMapping().hasHierarchyMappings()) {
+      Map<String, HierarchyMapping> hierarchyMappings =
+          criteriaEntity.getIndexDataMapping().getHierarchyMappings();
+      if (hierarchyMappings.size() != 1) {
+        throw new UnsupportedOperationException(
+            "PrecomputeCounts workflow can only handle one hierarchy");
+      }
+      HierarchyMapping hierarchyMapping = hierarchyMappings.values().stream().findFirst().get();
+      queryInputs.put(
+          sqlFileSelectCriteriaAncestorDescendantPairs,
+          hierarchyMapping.queryAncestorDescendantPairs("ancestor", "descendant").renderSQL());
+    }
+
     String template =
         "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.PrecomputeCounts "
             + "-Dexec.args=\"--outputBigQueryTable=${outputTable} "
             + "--allPrimaryNodesQuery=${sqlFile_selectCriteriaIds} "
             + "--occurrencesQuery=${sqlFile_selectCriteriaPrimaryPairs} "
-            // --ancestorDescendantRelationshipsQuery=${sqlFile_criteriaAncestorDescendant}
+            + (criteriaEntity.getIndexDataMapping().hasHierarchyMappings()
+                ? "--ancestorDescendantRelationshipsQuery=${sqlFile_selectCriteriaAncestorDescendantPairs} "
+                : "")
             + "--runner=dataflow --project=broad-tanagra-dev --region=us-central1 "
             + "--serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"";
     Map<String, String> params =
@@ -49,6 +67,9 @@ public final class PrecomputeCounts extends WorkflowCommand {
                     .getPathForIndexing())
             .put("sqlFile_selectCriteriaIds", sqlFileSelectCriteriaIds)
             .put("sqlFile_selectCriteriaPrimaryPairs", sqlFileSelectCriteriaPrimaryPairs)
+            .put(
+                "sqlFile_selectCriteriaAncestorDescendantPairs",
+                sqlFileSelectCriteriaAncestorDescendantPairs)
             .build();
     String command = StringSubstitutor.replace(template, params);
     String description = entityGroup.getName() + ": PrecomputeCounts";

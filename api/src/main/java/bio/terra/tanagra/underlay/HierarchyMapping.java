@@ -133,6 +133,24 @@ public final class HierarchyMapping {
     return new Query(List.of(idFieldVar), List.of(possibleRootNodesTableVar));
   }
 
+  public SQLExpression queryAncestorDescendantPairs(
+      String ancestorFieldAlias, String descendantFieldAlias) {
+    TableVariable ancestorDescendantTableVar =
+        TableVariable.forPrimary(ancestorDescendant.getTablePointer());
+    FieldVariable ancestorFieldVar =
+        new FieldVariable(
+            ancestorDescendant.getFieldPointers().get("ancestor"),
+            ancestorDescendantTableVar,
+            ancestorFieldAlias);
+    FieldVariable descendantFieldVar =
+        new FieldVariable(
+            ancestorDescendant.getFieldPointers().get("descendant"),
+            ancestorDescendantTableVar,
+            descendantFieldAlias);
+    return new Query(
+        List.of(ancestorFieldVar, descendantFieldVar), List.of(ancestorDescendantTableVar));
+  }
+
   public AuxiliaryDataMapping getChildParent() {
     return childParent;
   }

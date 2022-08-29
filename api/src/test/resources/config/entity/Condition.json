@@ -47,6 +47,14 @@
             "parent": { "column": "concept_id_1" },
             "child": { "column": "concept_id_2" }
           }
+        },
+        "rootNodesFilter": {
+          "tablePointer": {
+            "table": "concept",
+            "filter": { "type": "BINARY",  "field": { "column": "concept_id" }, "operator": "EQUALS", "value": { "int64Val": 441840 } } },
+          "fieldPointers": {
+            "node": { "column": "concept_id" }
+          }
         }
       }
     }
