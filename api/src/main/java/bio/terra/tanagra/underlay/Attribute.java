@@ -13,7 +13,7 @@ public final class Attribute {
 
   private final String name;
   private final Type type;
-  private final Literal.DataType dataType;
+  private Literal.DataType dataType;
 
   private Attribute(String name, Type type, Literal.DataType dataType) {
     this.name = name;
@@ -40,5 +40,9 @@ public final class Attribute {
 
   public Literal.DataType getDataType() {
     return dataType;
+  }
+
+  public void setDataType(Literal.DataType dataType) {
+    this.dataType = dataType;
   }
 }

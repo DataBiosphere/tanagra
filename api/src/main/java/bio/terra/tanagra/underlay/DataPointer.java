@@ -34,4 +34,6 @@ public abstract class DataPointer {
       throw new IllegalArgumentException("Unknown data pointer type: " + getType());
     }
   }
+
+  public abstract Literal.DataType lookupDatatype(FieldPointer fieldPointer);
 }

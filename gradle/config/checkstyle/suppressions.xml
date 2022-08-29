@@ -8,6 +8,7 @@
   <suppress files="build/*" checks="[a-zA-Z0-9]*"/>
 
   <suppress checks="AnonInnerLength"/>
+  <suppress checks="BooleanExpressionComplexity"/>
   <suppress checks="ClassFanOutComplexity"/>
   <suppress checks="ClassDataAbstractionCoupling"/>
   <suppress checks="CyclomaticComplexity"/>

@@ -178,13 +178,6 @@ public final class EntityMapping {
     }
   }
 
-  public HierarchyMapping getHierarchyMapping(String hierarchyName) {
-    if (!hasHierarchyMappings() || !hierarchyMappings.containsKey(hierarchyName)) {
-      throw new UnsupportedOperationException("Hierarchy mapping is undefined: " + hierarchyName);
-    }
-    return hierarchyMappings.get(hierarchyName);
-  }
-
   public TablePointer getTablePointer() {
     return tablePointer;
   }
@@ -195,6 +188,10 @@ public final class EntityMapping {
 
   public AttributeMapping getIdAttributeMapping() {
     return attributeMappings.get(idAttribute.getName());
+  }
+
+  public AttributeMapping getAttributeMapping(String attributeName) {
+    return attributeMappings.get(attributeName);
   }
 
   public boolean hasTextSearchMapping() {
@@ -219,5 +216,12 @@ public final class EntityMapping {
 
   public void setHierarchyMappings(Map<String, HierarchyMapping> hierarchyMappings) {
     this.hierarchyMappings = hierarchyMappings;
+  }
+
+  public HierarchyMapping getHierarchyMapping(String hierarchyName) {
+    if (!hasHierarchyMappings() || !hierarchyMappings.containsKey(hierarchyName)) {
+      throw new UnsupportedOperationException("Hierarchy mapping is undefined: " + hierarchyName);
+    }
+    return hierarchyMappings.get(hierarchyName);
   }
 }

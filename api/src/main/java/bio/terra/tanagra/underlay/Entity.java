@@ -115,6 +115,20 @@ public final class Entity {
         indexDataMapping);
   }
 
+  public void scanSourceData() {
+    // lookup the data type for each attribute
+    DataPointer sourceDataPointer = sourceDataMapping.getTablePointer().getDataPointer();
+    attributes.values().stream()
+        .forEach(
+            attribute -> {
+              AttributeMapping attributeMapping =
+                  sourceDataMapping.getAttributeMapping(attribute.getName());
+              Literal.DataType dataType =
+                  sourceDataPointer.lookupDatatype(attributeMapping.getValue());
+              attribute.setDataType(dataType);
+            });
+  }
+
   public List<WorkflowCommand> getIndexingCommands() {
     List<WorkflowCommand> cmds = new ArrayList<>();
     cmds.add(DenormalizeAllNodes.forEntity(this));

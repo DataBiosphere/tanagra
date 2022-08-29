@@ -3,6 +3,7 @@ package bio.terra.tanagra.indexing;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
+import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
@@ -47,6 +48,9 @@ public final class Indexer {
   public void indexUnderlay() throws IOException {
     // deserialize the POJOs to the internal objects and expand all defaults
     Underlay underlay = Underlay.fromJSON(underlayPath, getFileInputStreamFunction);
+
+    // scan the source data to lookup data types, generate UI hints, etc.
+    underlay.getEntities().values().forEach(Entity::scanSourceData);
 
     // build a list of indexing commands, including their associated input queries
     indexingCmds = underlay.getIndexingCommands();
