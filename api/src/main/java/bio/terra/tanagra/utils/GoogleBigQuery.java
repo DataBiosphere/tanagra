@@ -2,6 +2,7 @@ package bio.terra.tanagra.utils;
 
 import bio.terra.tanagra.exception.SystemException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.Dataset;
@@ -29,21 +30,17 @@ public final class GoogleBigQuery {
   // default value for the maximum number of times to retry HTTP requests to BQ
   public static final int BQ_MAXIMUM_RETRIES = 5;
 
-  private static class SingletonHolder {
-    static final GoogleBigQuery INSTANCE = new GoogleBigQuery();
-  }
-
   private final BigQuery bigQuery;
   private final Map<String, Schema> tableSchemasCache;
 
-  private GoogleBigQuery() {
-    this.bigQuery = BigQueryOptions.getDefaultInstance().getService();
+  public GoogleBigQuery(GoogleCredentials credentials, String projectId) {
+    this.bigQuery =
+        BigQueryOptions.newBuilder()
+            .setCredentials(credentials)
+            .setProjectId(projectId)
+            .build()
+            .getService();
     this.tableSchemasCache = new HashMap<>();
-  }
-
-  /** Getter for the singleton instance of this class. */
-  public static GoogleBigQuery getDefault() {
-    return SingletonHolder.INSTANCE;
   }
 
   public Schema getTableSchemaWithCaching(String projectId, String datasetId, String tableId) {

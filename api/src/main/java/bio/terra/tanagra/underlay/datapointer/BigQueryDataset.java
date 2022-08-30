@@ -1,25 +1,35 @@
 package bio.terra.tanagra.underlay.datapointer;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.utils.GoogleBigQuery;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
-public class BigQueryDataset extends DataPointer {
+public final class BigQueryDataset extends DataPointer {
   private final String projectId;
   private final String datasetId;
+  private final Path serviceAccountKeyFile;
+  private ServiceAccountCredentials serviceAccountCredentials;
+  private GoogleBigQuery bigQueryService;
 
-  public BigQueryDataset(String name, String projectId, String datasetId) {
+  private BigQueryDataset(
+      String name, String projectId, String datasetId, Path serviceAccountKeyFile) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
+    this.serviceAccountKeyFile = serviceAccountKeyFile;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -29,8 +39,22 @@ public class BigQueryDataset extends DataPointer {
     if (serialized.getDatasetId() == null || serialized.getDatasetId().isEmpty()) {
       throw new IllegalArgumentException("No BigQuery dataset ID defined");
     }
+    if (serialized.getServiceAccountKeyFile() == null
+        || serialized.getServiceAccountKeyFile().isEmpty()) {
+      throw new IllegalArgumentException(
+          "No service account key file defined for BigQuery dataset");
+    }
+    Path serviceAccountKeyFile = Path.of(serialized.getServiceAccountKeyFile());
+    if (!serviceAccountKeyFile.toFile().exists()) {
+      throw new IllegalArgumentException(
+          "Service account key file does not point to a valid path: "
+              + serviceAccountKeyFile.toAbsolutePath());
+    }
     return new BigQueryDataset(
-        serialized.getName(), serialized.getProjectId(), serialized.getDatasetId());
+        serialized.getName(),
+        serialized.getProjectId(),
+        serialized.getDatasetId(),
+        serviceAccountKeyFile);
   }
 
   @Override
@@ -76,9 +100,10 @@ public class BigQueryDataset extends DataPointer {
             : fieldPointer.getColumnName();
 
     Schema tableSchema =
-        GoogleBigQuery.getDefault().getTableSchemaWithCaching(projectId, datasetId, tableName);
+        getBigQueryService().getTableSchemaWithCaching(projectId, datasetId, tableName);
     Field field = tableSchema.getFields().get(columnName);
-    if (LegacySQLTypeName.STRING.equals(field.getType())) {
+    if (LegacySQLTypeName.STRING.equals(field.getType())
+        || LegacySQLTypeName.DATE.equals(field.getType())) {
       return Literal.DataType.STRING;
     } else if (LegacySQLTypeName.INTEGER.equals(field.getType())) {
       return Literal.DataType.INT64;
@@ -90,11 +115,29 @@ public class BigQueryDataset extends DataPointer {
     }
   }
 
+  public GoogleBigQuery getBigQueryService() {
+    if (bigQueryService == null) {
+      try {
+        serviceAccountCredentials =
+            ServiceAccountCredentials.fromStream(Files.newInputStream(serviceAccountKeyFile));
+      } catch (IOException ioEx) {
+        throw new SystemException(
+            "Error reading service account key file: " + serviceAccountKeyFile, ioEx);
+      }
+      bigQueryService = new GoogleBigQuery(serviceAccountCredentials, projectId);
+    }
+    return bigQueryService;
+  }
+
   public String getProjectId() {
     return projectId;
   }
 
   public String getDatasetId() {
     return datasetId;
+  }
+
+  public Path getServiceAccountKeyFile() {
+    return serviceAccountKeyFile;
   }
 }

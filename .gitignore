@@ -1,5 +1,6 @@
 .gradle
 build/
+rendered/
 workflow/rendered/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**

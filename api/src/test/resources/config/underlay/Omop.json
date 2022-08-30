@@ -3,12 +3,14 @@
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
-      "projectId": "verily-tanagra-dev",
-      "datasetId": "aou_synthetic_SR2019q4r4" },
+      "projectId": "broad-tanagra-dev",
+      "datasetId": "aou_synthetic_SR2019q4r4",
+      "serviceAccountKeyFile": "../rendered/tanagra_sa.json" },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
-      "projectId": "verily-tanagra-dev",
-      "datasetId": "aou_synthetic_SR2019q4r4_indexes" } ],
+      "projectId": "broad-tanagra-dev",
+      "datasetId": "aou_synthetic_SR2019q4r4_indexes",
+      "serviceAccountKeyFile": "../rendered/tanagra_sa.json" } ],
   "entities": [ "config/entity/Person.json", "config/entity/Condition.json", "config/entity/Ingredient.json", "config/entity/Brand.json", "config/entity/ConditionOccurrence.json" ],
   "primaryEntity": "person",
   "entityGroups": [ "config/entitygroup/BrandIngredient.json", "config/entitygroup/ConditionPersonOccurrence.json" ]

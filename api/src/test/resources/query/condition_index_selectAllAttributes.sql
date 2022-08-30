@@ -1,1 +1,1 @@
-SELECT c.concept_code AS concept_code, c.id AS id, c.name AS name, c.standard_concept AS standard_concept, c.t_display_vocabulary AS t_display_vocabulary, c.vocabulary AS vocabulary FROM `verily-tanagra-dev.aou_synthetic_SR2019q4r4_indexes`.condition AS c
+SELECT c.concept_code AS concept_code, c.id AS id, c.name AS name, c.standard_concept AS standard_concept, c.t_display_vocabulary AS t_display_vocabulary, c.vocabulary AS vocabulary FROM `broad-tanagra-dev.aou_synthetic_SR2019q4r4_indexes`.condition AS c

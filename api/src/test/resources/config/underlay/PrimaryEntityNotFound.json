@@ -4,11 +4,13 @@
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "aou_synthetic" },
+      "datasetId": "aou_synthetic",
+      "serviceAccountKeyFile": "../rendered/tanagra_sa.json" },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "aou_synthetic_index" } ],
+      "datasetId": "aou_synthetic_index",
+      "serviceAccountKeyFile": "../rendered/tanagra_sa.json" } ],
   "entities": [ "config/entity/Person.json" ],
   "primaryEntity": "NonExistentEntityName"
 }

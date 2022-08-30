@@ -42,6 +42,19 @@ jobs:
             ~/.gradle/wrapper
           key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
           restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+      - name: Pull credentials
+        id: pull_credentials
+        run: |
+          # For security reasons, Broad prefers we read GHA secrets instead of reading from vault.
+          # this step does the equivalent of the pull-credentials.sh script.
+          # on local machines, the script fetches a SA from Vault.
+          # in GH actions, the SA key is stored in a GH repo secret.
+          # regardless of how it was fetched, tests and scripts expect these
+          # keys to be stored in rendered/
+          mkdir -p rendered/broad/
+          echo "$TEST_PROJECT_SA_KEY" > rendered/tanagra_sa.json
+        env:
+          TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Gradle Build API
         # The build task includes the test and some quality static analysis tasks.
         run: ./gradlew api:build
