@@ -759,7 +759,9 @@ function generateOccurrenceFilter(
           variable: classification.entity,
           name: classification.entityAttribute,
         },
-        operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
+        operator: classification.hierarchical
+          ? tanagra.BinaryFilterOperator.DescendantOfInclusive
+          : tanagra.BinaryFilterOperator.Equals,
         attributeValue: {
           // TODO(tjennison): Handle other key types.
           int64Val: key as number,
