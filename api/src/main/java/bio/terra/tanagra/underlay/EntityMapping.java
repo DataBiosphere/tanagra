@@ -192,12 +192,12 @@ public final class EntityMapping {
       return null;
     }
 
-    // only do integer ranges for now
-    if (!attribute.getDataType().equals(Literal.DataType.INT64)) {
-      return null;
+    if (attribute.getDataType().equals(Literal.DataType.INT64)) {
+      return attributeMapping.computeNumericRangeHint(dataPointer);
+    } else if (attribute.getDataType().equals(Literal.DataType.STRING)) {
+      return attributeMapping.computeEnumValsHint(dataPointer);
     }
-
-    return attributeMapping.computeNumericRangeHint(dataPointer);
+    return null;
   }
 
   public TablePointer getTablePointer() {

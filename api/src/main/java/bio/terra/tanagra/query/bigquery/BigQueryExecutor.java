@@ -8,9 +8,13 @@ import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** A {@link QueryExecutor} for Google BigQuery. */
 public class BigQueryExecutor implements QueryExecutor {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BigQueryExecutor.class);
+
   /** The BigQuery client to use for executing queries. */
   private final GoogleBigQuery bigQuery;
 
@@ -20,7 +24,9 @@ public class BigQueryExecutor implements QueryExecutor {
 
   @Override
   public QueryResult execute(QueryRequest queryRequest) {
-    TableResult tableResult = bigQuery.queryBigQuery(queryRequest.getSql());
+    String sql = queryRequest.getSql();
+    LOGGER.info("Running SQL against BigQuery: {}", sql);
+    TableResult tableResult = bigQuery.queryBigQuery(sql);
 
     Iterable<RowResult> rowResults =
         Iterables.transform(

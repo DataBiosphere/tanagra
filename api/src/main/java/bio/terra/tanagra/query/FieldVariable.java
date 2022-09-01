@@ -23,6 +23,14 @@ public class FieldVariable implements SQLExpression {
 
   @Override
   public String renderSQL() {
+    return renderSQL(true);
+  }
+
+  public String renderSqlWithoutAlias() {
+    return renderSQL(false);
+  }
+
+  private String renderSQL(boolean useAlias) {
     String template = "${tableAlias}.${columnName}";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
@@ -45,7 +53,7 @@ public class FieldVariable implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
-    if (alias != null) {
+    if (alias != null && useAlias) {
       template = "${fieldSql} AS ${fieldAlias}";
       params =
           ImmutableMap.<String, String>builder()

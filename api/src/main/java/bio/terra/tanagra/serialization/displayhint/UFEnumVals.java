@@ -1,12 +1,11 @@
 package bio.terra.tanagra.serialization.displayhint;
 
 import bio.terra.tanagra.serialization.UFDisplayHint;
-import bio.terra.tanagra.serialization.UFLiteral;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * External representation of an enum display hint.
@@ -15,26 +14,26 @@ import java.util.Map;
  */
 @JsonDeserialize(builder = UFEnumVals.Builder.class)
 public class UFEnumVals extends UFDisplayHint {
-  private final Map<UFLiteral, String> enumVals;
+  private final List<UFValueDisplay> valueDisplays;
 
   public UFEnumVals(EnumVals displayHint) {
     super(displayHint);
-    Map<UFLiteral, String> enumValsMap = new HashMap<>();
-    displayHint.getEnumValToDisplayName().entrySet().stream()
-        .forEach(ev -> enumValsMap.put(new UFLiteral(ev.getKey()), ev.getValue()));
-    this.enumVals = enumValsMap;
+    this.valueDisplays =
+        displayHint.getValueDisplays().stream()
+            .map(vd -> new UFValueDisplay(vd))
+            .collect(Collectors.toList());
   }
 
   private UFEnumVals(Builder builder) {
     super(builder);
-    this.enumVals = builder.enumVals;
+    this.valueDisplays = builder.enumVals;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFDisplayHint.Builder {
-    private Map<UFLiteral, String> enumVals;
+    private List<UFValueDisplay> enumVals;
 
-    public Builder enumVals(Map<UFLiteral, String> enumVals) {
+    public Builder enumVals(List<UFValueDisplay> enumVals) {
       this.enumVals = enumVals;
       return this;
     }
@@ -52,7 +51,7 @@ public class UFEnumVals extends UFDisplayHint {
     return EnumVals.fromSerialized(this);
   }
 
-  public Map<UFLiteral, String> getEnumVals() {
-    return enumVals;
+  public List<UFValueDisplay> getValueDisplays() {
+    return valueDisplays;
   }
 }

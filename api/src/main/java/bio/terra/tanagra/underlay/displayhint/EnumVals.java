@@ -2,26 +2,26 @@ package bio.terra.tanagra.underlay.displayhint;
 
 import bio.terra.tanagra.serialization.displayhint.UFEnumVals;
 import bio.terra.tanagra.underlay.DisplayHint;
-import bio.terra.tanagra.underlay.Literal;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public final class EnumVals extends DisplayHint {
-  private final Map<Literal, String> enumValToDisplayName; // value -> display name
+  private final List<ValueDisplay> valueDisplays;
 
-  public EnumVals(Map<Literal, String> enumValToDisplayName) {
-    this.enumValToDisplayName = enumValToDisplayName;
+  public EnumVals(List<ValueDisplay> valueDisplays) {
+    this.valueDisplays = valueDisplays;
   }
 
   public static EnumVals fromSerialized(UFEnumVals serialized) {
-    if (serialized.getEnumVals() == null) {
+    if (serialized.getValueDisplays() == null) {
       throw new IllegalArgumentException("Enum values map is undefined");
     }
-    Map<Literal, String> enumVals = new HashMap<>();
-    serialized.getEnumVals().entrySet().stream()
-        .forEach(ev -> enumVals.put(Literal.fromSerialized(ev.getKey()), ev.getValue()));
-    return new EnumVals(enumVals);
+    List<ValueDisplay> valueDisplays =
+        serialized.getValueDisplays().stream()
+            .map(vd -> ValueDisplay.fromSerialized(vd))
+            .collect(Collectors.toList());
+    return new EnumVals(valueDisplays);
   }
 
   @Override
@@ -29,7 +29,7 @@ public final class EnumVals extends DisplayHint {
     return Type.ENUM;
   }
 
-  public Map<Literal, String> getEnumValToDisplayName() {
-    return Collections.unmodifiableMap(enumValToDisplayName);
+  public List<ValueDisplay> getValueDisplays() {
+    return Collections.unmodifiableList(valueDisplays);
   }
 }
