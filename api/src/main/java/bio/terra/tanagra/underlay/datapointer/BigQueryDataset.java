@@ -1,6 +1,8 @@
 package bio.terra.tanagra.underlay.datapointer;
 
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.QueryExecutor;
+import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.FieldPointer;
@@ -23,6 +25,7 @@ public final class BigQueryDataset extends DataPointer {
   private final Path serviceAccountKeyFile;
   private ServiceAccountCredentials serviceAccountCredentials;
   private GoogleBigQuery bigQueryService;
+  private BigQueryExecutor queryExecutor;
 
   private BigQueryDataset(
       String name, String projectId, String datasetId, Path serviceAccountKeyFile) {
@@ -60,6 +63,14 @@ public final class BigQueryDataset extends DataPointer {
   @Override
   public Type getType() {
     return Type.BQ_DATASET;
+  }
+
+  @Override
+  public QueryExecutor getQueryExecutor() {
+    if (queryExecutor == null) {
+      queryExecutor = new BigQueryExecutor(getBigQueryService());
+    }
+    return queryExecutor;
   }
 
   @Override
@@ -115,7 +126,7 @@ public final class BigQueryDataset extends DataPointer {
     }
   }
 
-  public GoogleBigQuery getBigQueryService() {
+  private GoogleBigQuery getBigQueryService() {
     if (bigQueryService == null) {
       try {
         serviceAccountCredentials =

@@ -128,15 +128,15 @@ public class CriteriaOccurrence extends EntityGroup {
         .get(CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME);
   }
 
-  public Query queryCriteriaPrimaryPairs(String occurrenceIdAlias, String criteriaIdAlias) {
+  public Query queryCriteriaPrimaryPairs(String criteriaIdAlias, String primaryIdAlias) {
     RelationshipMapping occToPriRelationshipMapping = getOccurrenceToPrimaryRelationshipMapping();
     RelationshipMapping occToCriRelationshipMapping = getOccurrenceToCriteriaRelationshipMapping();
 
     TableVariable occToPriTableVar =
         TableVariable.forPrimary(occToPriRelationshipMapping.getTablePointer());
-    FieldVariable occIdFieldVar =
+    FieldVariable priIdFieldVar =
         new FieldVariable(
-            occToPriRelationshipMapping.getFromEntityId(), occToPriTableVar, occurrenceIdAlias);
+            occToPriRelationshipMapping.getToEntityId(), occToPriTableVar, primaryIdAlias);
 
     if (occToPriRelationshipMapping
         .getTablePointer()
@@ -146,7 +146,7 @@ public class CriteriaOccurrence extends EntityGroup {
       FieldVariable criIdFieldVar =
           new FieldVariable(
               occToCriRelationshipMapping.getToEntityId(), occToPriTableVar, criteriaIdAlias);
-      return new Query(List.of(occIdFieldVar, criIdFieldVar), List.of(occToPriTableVar));
+      return new Query(List.of(criIdFieldVar, priIdFieldVar), List.of(occToPriTableVar));
     } else {
       // otherwise, join the two tables
       // SELECT primaryId, criteriaId FROM occurrencePrimaryTable
@@ -162,7 +162,7 @@ public class CriteriaOccurrence extends EntityGroup {
           new FieldVariable(
               occToCriRelationshipMapping.getToEntityId(), occToCriTableVar, criteriaIdAlias);
       return new Query(
-          List.of(occIdFieldVar, criIdFieldVar), List.of(occToPriTableVar, occToCriTableVar));
+          List.of(criIdFieldVar, priIdFieldVar), List.of(occToPriTableVar, occToCriTableVar));
     }
   }
 

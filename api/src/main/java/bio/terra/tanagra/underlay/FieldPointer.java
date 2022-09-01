@@ -27,6 +27,15 @@ public class FieldPointer {
     this.sqlFunctionWrapper = sqlFunctionWrapper;
   }
 
+  public FieldPointer(FieldPointer fieldPointer) {
+    this.tablePointer = fieldPointer.getTablePointer();
+    this.columnName = fieldPointer.getColumnName();
+    this.foreignTablePointer = fieldPointer.getForeignTablePointer();
+    this.foreignKeyColumnName = fieldPointer.getForeignKeyColumnName();
+    this.foreignColumnName = fieldPointer.getForeignColumnName();
+    this.sqlFunctionWrapper = fieldPointer.getSqlFunctionWrapper();
+  }
+
   private FieldPointer(
       TablePointer tablePointer,
       String columnName,
@@ -120,6 +129,11 @@ public class FieldPointer {
 
   public String getSqlFunctionWrapper() {
     return sqlFunctionWrapper;
+  }
+
+  public FieldPointer setSqlFunctionWrapper(String sqlFunctionWrapper) {
+    this.sqlFunctionWrapper = sqlFunctionWrapper;
+    return this;
   }
 
   public TablePointer getTablePointer() {

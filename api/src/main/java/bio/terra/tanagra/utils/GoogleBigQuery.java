@@ -1,17 +1,22 @@
 package bio.terra.tanagra.utils;
 
 import bio.terra.tanagra.exception.SystemException;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryException;
 import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
+import com.google.cloud.bigquery.Job;
+import com.google.cloud.bigquery.JobInfo;
+import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.TableResult;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +34,7 @@ public final class GoogleBigQuery {
 
   // default value for the maximum number of times to retry HTTP requests to BQ
   public static final int BQ_MAXIMUM_RETRIES = 5;
+  private static final Duration MAX_QUERY_WAIT_TIME = Duration.ofSeconds(60);
 
   private final BigQuery bigQuery;
   private final Map<String, Schema> tableSchemasCache;
@@ -93,6 +99,24 @@ public final class GoogleBigQuery {
   }
 
   /**
+   * Execute a query.
+   *
+   * @param query the query to run
+   * @return the result of the BQ query
+   * @throws InterruptedException from the bigQuery.query() method
+   */
+  public TableResult queryBigQuery(String query) {
+    QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+    Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
+    // TODO add pagination. Right now we always only return the first page of results.
+    return callWithRetries(
+        () ->
+            job.getQueryResults(
+                BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis())),
+        "Error running BigQuery query: " + query);
+  }
+
+  /**
    * Utility method that checks if an exception thrown by the BQ client is retryable.
    *
    * @param ex exception to test
@@ -102,11 +126,11 @@ public final class GoogleBigQuery {
     if (ex instanceof SocketTimeoutException) {
       return true;
     }
-    if (!(ex instanceof GoogleJsonResponseException)) {
+    if (!(ex instanceof BigQueryException)) {
       return false;
     }
     LOGGER.error("Caught a BQ error.", ex);
-    int statusCode = ((GoogleJsonResponseException) ex).getStatusCode();
+    int statusCode = ((BigQueryException) ex).getCode();
 
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY

@@ -61,4 +61,8 @@ public class FieldVariable implements SQLExpression {
   public String getAlias() {
     return alias == null ? "" : alias;
   }
+
+  public FieldPointer getFieldPointer() {
+    return fieldPointer;
+  }
 }

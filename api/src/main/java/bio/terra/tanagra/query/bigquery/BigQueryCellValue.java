@@ -1,0 +1,53 @@
+package bio.terra.tanagra.query.bigquery;
+
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnSchema;
+import com.google.cloud.bigquery.FieldValue;
+import java.util.Optional;
+import java.util.OptionalLong;
+
+/** A {@link CellValue} for BigQuery's {@link FieldValue}. */
+class BigQueryCellValue implements CellValue {
+  private final FieldValue fieldValue;
+  private final ColumnSchema columnSchema;
+
+  BigQueryCellValue(FieldValue fieldValue, ColumnSchema columnSchema) {
+    this.fieldValue = fieldValue;
+    this.columnSchema = columnSchema;
+  }
+
+  @Override
+  public SQLDataType dataType() {
+    return columnSchema.getSqlDataType();
+  }
+
+  @Override
+  @SuppressWarnings("PMD.PreserveStackTrace")
+  public OptionalLong getLong() {
+    assertDataTypeIs(SQLDataType.INT64);
+    try {
+      return fieldValue.isNull()
+          ? OptionalLong.empty()
+          : OptionalLong.of(fieldValue.getLongValue());
+    } catch (NumberFormatException e) {
+      throw new ClassCastException("Unable to format as number");
+    }
+  }
+
+  @Override
+  public Optional<String> getString() {
+    assertDataTypeIs(SQLDataType.STRING);
+    return fieldValue.isNull() ? Optional.empty() : Optional.of(fieldValue.getStringValue());
+  }
+
+  /**
+   * Checks that the {@link #dataType()} is what's expected, or else throws a {@link
+   * ClassCastException}.
+   */
+  private void assertDataTypeIs(SQLDataType expected) {
+    if (!dataType().equals(expected)) {
+      throw new ClassCastException(
+          String.format("SQLDataType is %s, not the expected %s", dataType(), expected));
+    }
+  }
+}

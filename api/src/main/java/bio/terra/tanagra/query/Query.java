@@ -1,6 +1,7 @@
 package bio.terra.tanagra.query;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -107,5 +108,9 @@ public class Query implements SQLExpression {
     }
 
     return sql;
+  }
+
+  public List<FieldVariable> getSelect() {
+    return Collections.unmodifiableList(select);
   }
 }

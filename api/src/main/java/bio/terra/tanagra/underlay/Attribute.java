@@ -14,19 +14,25 @@ public final class Attribute {
   private final String name;
   private final Type type;
   private Literal.DataType dataType;
+  private DisplayHint displayHint;
 
-  private Attribute(String name, Type type, Literal.DataType dataType) {
+  private Attribute(String name, Type type, Literal.DataType dataType, DisplayHint displayHint) {
     this.name = name;
     this.type = type;
     this.dataType = dataType;
+    this.displayHint = displayHint;
   }
 
   public static Attribute fromSerialized(UFAttribute serialized) {
     if (Strings.isNullOrEmpty(serialized.getName())) {
       throw new IllegalArgumentException("Attribute name is undefined");
     }
-    // TODO: populate datatype from BQ
-    return new Attribute(serialized.getName(), serialized.getType(), serialized.getDataType());
+    DisplayHint displayHint =
+        serialized.getDisplayHint() == null
+            ? null
+            : serialized.getDisplayHint().deserializeToInternal();
+    return new Attribute(
+        serialized.getName(), serialized.getType(), serialized.getDataType(), displayHint);
   }
 
   // getters
@@ -44,5 +50,17 @@ public final class Attribute {
 
   public void setDataType(Literal.DataType dataType) {
     this.dataType = dataType;
+  }
+
+  public DisplayHint getDisplayHint() {
+    return displayHint;
+  }
+
+  public void setDisplayHint(DisplayHint displayHint) {
+    this.displayHint = displayHint;
+  }
+
+  public boolean hasDisplayHint() {
+    return displayHint != null;
   }
 }

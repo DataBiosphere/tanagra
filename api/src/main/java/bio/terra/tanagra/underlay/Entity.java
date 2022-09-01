@@ -116,16 +116,21 @@ public final class Entity {
   }
 
   public void scanSourceData() {
-    // lookup the data type for each attribute
+    // lookup the data type and calculate a display hint for each attribute
     DataPointer sourceDataPointer = sourceDataMapping.getTablePointer().getDataPointer();
     attributes.values().stream()
         .forEach(
             attribute -> {
               AttributeMapping attributeMapping =
                   sourceDataMapping.getAttributeMapping(attribute.getName());
-              Literal.DataType dataType =
-                  sourceDataPointer.lookupDatatype(attributeMapping.getValue());
-              attribute.setDataType(dataType);
+              attribute.setDataType(sourceDataPointer.lookupDatatype(attributeMapping.getValue()));
+
+              // don't generate a hint for the id attribute
+              if (isIdAttribute(attribute)) {
+                return;
+              }
+
+              attribute.setDisplayHint(sourceDataMapping.computeDisplayHint(attribute));
             });
   }
 
@@ -153,6 +158,10 @@ public final class Entity {
 
   public Attribute getIdAttribute() {
     return attributes.get(idAttributeName);
+  }
+
+  public boolean isIdAttribute(Attribute attribute) {
+    return attribute.getName().equals(idAttributeName);
   }
 
   public Attribute getAttribute(String name) {

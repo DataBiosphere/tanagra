@@ -178,6 +178,28 @@ public final class EntityMapping {
     }
   }
 
+  public DisplayHint computeDisplayHint(Attribute attribute) {
+    // skip key_and_display attributes for now
+    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
+      return null;
+    }
+
+    AttributeMapping attributeMapping = getAttributeMapping(attribute.getName());
+    DataPointer dataPointer = tablePointer.getDataPointer();
+
+    // skip attributes that have sql function wrappers for now
+    if (attributeMapping.getValue().hasSqlFunctionWrapper()) {
+      return null;
+    }
+
+    // only do integer ranges for now
+    if (!attribute.getDataType().equals(Literal.DataType.INT64)) {
+      return null;
+    }
+
+    return attributeMapping.computeNumericRangeHint(dataPointer);
+  }
+
   public TablePointer getTablePointer() {
     return tablePointer;
   }

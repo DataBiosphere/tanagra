@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.serialization.UFDataPointer;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
@@ -18,6 +19,8 @@ public abstract class DataPointer {
   }
 
   public abstract Type getType();
+
+  public abstract QueryExecutor getQueryExecutor();
 
   public String getName() {
     return name;
