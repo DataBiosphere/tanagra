@@ -1,3 +1,5 @@
+import BarChartIcon from "@mui/icons-material/BarChart";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Accordion from "@mui/material/Accordion";
@@ -7,12 +9,15 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
+import Drawer from "@mui/material/Drawer";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import { CSSObject, styled, Theme } from "@mui/material/styles";
+import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -29,7 +34,7 @@ import { useTextInputDialog } from "components/textInputDialog";
 import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import {
   Bar,
@@ -50,17 +55,77 @@ import {
   getCriteriaPlugin,
 } from "./cohort";
 
+const drawerWidth = 400;
+
+// This drawer customization is taken directly from the MUI docs.
+const openedMixin = (theme: Theme): CSSObject => ({
+  width: drawerWidth,
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: "hidden",
+});
+
+const closedMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: "hidden",
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up("sm")]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const MiniDrawer = styled(Drawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  ...(open && {
+    ...openedMixin(theme),
+    "& .MuiDrawer-paper": openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    "& .MuiDrawer-paper": closedMixin(theme),
+  }),
+}));
+
 export default function Overview() {
   const cohort = useCohort();
+
+  const [showDemographics, setShowDemographics] = useState(false);
 
   return (
     <>
       <ActionBar title={cohort.name} />
-      <Grid container columns={3} columnSpacing={5} className="overview">
-        <ParticipantsSelector kind={tanagra.GroupKindEnum.Included} />
-        <ParticipantsSelector kind={tanagra.GroupKindEnum.Excluded} />
-        <DemographicCharts cohort={cohort} />
-      </Grid>
+      <Box sx={{ display: "flex" }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <Grid container columns={2} columnSpacing={5} className="overview">
+            <ParticipantsSelector kind={tanagra.GroupKindEnum.Included} />
+            <ParticipantsSelector kind={tanagra.GroupKindEnum.Excluded} />
+          </Grid>
+        </Box>
+        <MiniDrawer variant="permanent" open={showDemographics} anchor="right">
+          <Box sx={{ m: 1 }}>
+            <Toolbar />
+            <Box sx={{ float: "right" }}>
+              <IconButton
+                size="large"
+                onClick={() => setShowDemographics(!showDemographics)}
+              >
+                {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
+              </IconButton>
+            </Box>
+            <DemographicCharts cohort={cohort} open={showDemographics} />
+          </Box>
+        </MiniDrawer>
+      </Box>
     </>
   );
 }
@@ -459,9 +524,10 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
 
 type DemographicChartsProps = {
   cohort: tanagra.Cohort;
+  open: boolean;
 };
 
-function DemographicCharts({ cohort }: DemographicChartsProps) {
+function DemographicCharts({ cohort, open }: DemographicChartsProps) {
   const underlay = useUnderlay();
   const source = useSource();
 
@@ -611,6 +677,12 @@ function DemographicCharts({ cohort }: DemographicChartsProps) {
   const tickFormatter = (value: string) => {
     return value.length > 15 ? value.substr(0, 15).concat("…") : value;
   };
+
+  if (!open) {
+    // Keep the component in the hierarchy when hidden so the chart data stays
+    // loaded. We may also display a mini version here instead.
+    return null;
+  }
 
   return (
     <>

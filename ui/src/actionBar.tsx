@@ -24,7 +24,10 @@ export default function ActionBar(props: ActionBarProps) {
 
   return (
     <Box sx={{ flexGrow: 1 }} className="action-bar">
-      <AppBar position="fixed">
+      <AppBar
+        position="fixed"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
         <Toolbar>
           <IconButton
             color="inherit"
