@@ -76,7 +76,8 @@ public final class HierarchyMapping {
     DataPointer dataPointer = tablePointer.getDataPointer();
 
     TablePointer childParentTable =
-        new TablePointer(tablePrefix + CHILD_PARENT_AUXILIARY_DATA.getName(), dataPointer);
+        TablePointer.fromTableName(
+            tablePrefix + CHILD_PARENT_AUXILIARY_DATA.getName(), dataPointer);
     AuxiliaryDataMapping childParent =
         new AuxiliaryDataMapping(
             childParentTable,
@@ -87,7 +88,8 @@ public final class HierarchyMapping {
                         fieldName -> new FieldPointer(childParentTable, fieldName))));
 
     TablePointer ancestorDescendantTable =
-        new TablePointer(tablePrefix + ANCESTOR_DESCENDANT_AUXILIARY_DATA.getName(), dataPointer);
+        TablePointer.fromTableName(
+            tablePrefix + ANCESTOR_DESCENDANT_AUXILIARY_DATA.getName(), dataPointer);
     AuxiliaryDataMapping ancestorDescendant =
         new AuxiliaryDataMapping(
             ancestorDescendantTable,

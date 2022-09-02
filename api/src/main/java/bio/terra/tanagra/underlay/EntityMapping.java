@@ -54,7 +54,7 @@ public final class EntityMapping {
     TablePointer tablePointer =
         serialized.getTablePointer() != null
             ? TablePointer.fromSerialized(serialized.getTablePointer(), dataPointer)
-            : new TablePointer(entityName, dataPointer);
+            : TablePointer.fromTableName(entityName, dataPointer);
 
     Map<String, UFAttributeMapping> serializedAttributeMappings =
         serialized.getAttributeMappings() == null
@@ -176,28 +176,6 @@ public final class EntityMapping {
     } else {
       throw new IllegalArgumentException("Unknown text search mapping type");
     }
-  }
-
-  public DisplayHint computeDisplayHint(Attribute attribute) {
-    // skip key_and_display attributes for now
-    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
-      return null;
-    }
-
-    AttributeMapping attributeMapping = getAttributeMapping(attribute.getName());
-    DataPointer dataPointer = tablePointer.getDataPointer();
-
-    // skip attributes that have sql function wrappers for now
-    if (attributeMapping.getValue().hasSqlFunctionWrapper()) {
-      return null;
-    }
-
-    if (attribute.getDataType().equals(Literal.DataType.INT64)) {
-      return attributeMapping.computeNumericRangeHint(dataPointer);
-    } else if (attribute.getDataType().equals(Literal.DataType.STRING)) {
-      return attributeMapping.computeEnumValsHint(dataPointer);
-    }
-    return null;
   }
 
   public TablePointer getTablePointer() {

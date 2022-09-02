@@ -21,7 +21,7 @@ public final class AuxiliaryDataMapping {
     // otherwise generate a default table pointer: a table with the same name as the entity
     TablePointer tablePointer =
         (serialized == null || serialized.getTablePointer() == null)
-            ? new TablePointer(auxiliaryData.getName(), dataPointer)
+            ? TablePointer.fromTableName(auxiliaryData.getName(), dataPointer)
             : TablePointer.fromSerialized(serialized.getTablePointer(), dataPointer);
 
     Map<String, UFFieldPointer> serializedFieldPointers =

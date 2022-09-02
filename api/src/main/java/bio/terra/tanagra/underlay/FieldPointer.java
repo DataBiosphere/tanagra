@@ -70,7 +70,7 @@ public class FieldPointer {
     } else if (allForeignKeyFieldsDefined) {
       // assume the foreign table is part of the same data pointer as the original table
       TablePointer foreignTablePointer =
-          new TablePointer(serialized.getForeignTable(), tablePointer.getDataPointer());
+          TablePointer.fromTableName(serialized.getForeignTable(), tablePointer.getDataPointer());
       return new FieldPointer(
           tablePointer,
           serialized.getColumn(),

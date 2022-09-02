@@ -117,20 +117,19 @@ public final class Entity {
 
   public void scanSourceData() {
     // lookup the data type and calculate a display hint for each attribute
-    DataPointer sourceDataPointer = sourceDataMapping.getTablePointer().getDataPointer();
     attributes.values().stream()
         .forEach(
             attribute -> {
               AttributeMapping attributeMapping =
                   sourceDataMapping.getAttributeMapping(attribute.getName());
-              attribute.setDataType(sourceDataPointer.lookupDatatype(attributeMapping.getValue()));
 
-              // don't generate a hint for the id attribute
-              if (isIdAttribute(attribute)) {
-                return;
+              // lookup the datatype
+              attribute.setDataType(attributeMapping.computeDataType());
+
+              // generate the display hint
+              if (!isIdAttribute(attribute)) {
+                attribute.setDisplayHint(attributeMapping.computeDisplayHint(attribute));
               }
-
-              attribute.setDisplayHint(sourceDataMapping.computeDisplayHint(attribute));
             });
   }
 

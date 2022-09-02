@@ -1,7 +1,20 @@
 package bio.terra.tanagra.underlay.displayhint;
 
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.QueryResult;
+import bio.terra.tanagra.query.RowResult;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.displayhint.UFNumericRange;
+import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
+import bio.terra.tanagra.underlay.FieldPointer;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class NumericRange extends DisplayHint {
   private final Long minVal;
@@ -33,5 +46,35 @@ public final class NumericRange extends DisplayHint {
 
   public Long getMaxVal() {
     return maxVal;
+  }
+
+  public static NumericRange computeForField(FieldPointer value) {
+    List<TableVariable> tables = new ArrayList<>();
+    TableVariable primaryTable = TableVariable.forPrimary(value.getTablePointer());
+    tables.add(primaryTable);
+
+    final String minValAlias = "minVal";
+    final String maxValAlias = "maxVal";
+
+    List<FieldVariable> select = new ArrayList<>();
+    FieldPointer minVal = new FieldPointer(value).setSqlFunctionWrapper("MIN");
+    select.add(minVal.buildVariable(primaryTable, tables, minValAlias));
+    FieldPointer maxVal = new FieldPointer(value).setSqlFunctionWrapper("MAX");
+    select.add(maxVal.buildVariable(primaryTable, tables, maxValAlias));
+    Query query = new Query(select, tables);
+
+    List<ColumnSchema> columnSchemas =
+        List.of(
+            new ColumnSchema(minValAlias, CellValue.SQLDataType.INT64),
+            new ColumnSchema(maxValAlias, CellValue.SQLDataType.INT64));
+
+    DataPointer dataPointer = value.getTablePointer().getDataPointer();
+    QueryRequest queryRequest =
+        new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
+    QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
+    RowResult rowResult = queryResult.getSingleRowResult();
+    return new NumericRange(
+        rowResult.get(minValAlias).getLong().getAsLong(),
+        rowResult.get(maxValAlias).getLong().getAsLong());
   }
 }

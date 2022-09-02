@@ -9,21 +9,32 @@ import bio.terra.tanagra.serialization.UFTablePointer;
 import com.google.common.base.Strings;
 import java.util.List;
 
-public class TablePointer implements SQLExpression {
+public final class TablePointer implements SQLExpression {
   private final DataPointer dataPointer;
   private final String tableName;
   private final TableFilter tableFilter;
+  private final String sql;
 
-  public TablePointer(String tableName, DataPointer dataPointer) {
-    this.dataPointer = dataPointer;
-    this.tableName = tableName;
-    this.tableFilter = null;
-  }
-
-  public TablePointer(String tableName, DataPointer dataPointer, TableFilter tableFilter) {
+  private TablePointer(String tableName, DataPointer dataPointer, TableFilter tableFilter) {
     this.dataPointer = dataPointer;
     this.tableName = tableName;
     this.tableFilter = tableFilter;
+    this.sql = null;
+  }
+
+  private TablePointer(String sql, DataPointer dataPointer) {
+    this.dataPointer = dataPointer;
+    this.tableName = null;
+    this.tableFilter = null;
+    this.sql = sql;
+  }
+
+  public static TablePointer fromTableName(String tableName, DataPointer dataPointer) {
+    return new TablePointer(tableName, dataPointer, null);
+  }
+
+  public static TablePointer fromRawSql(String sql, DataPointer dataPointer) {
+    return new TablePointer(sql, dataPointer);
   }
 
   public static TablePointer fromSerialized(UFTablePointer serialized, DataPointer dataPointer) {
@@ -31,7 +42,7 @@ public class TablePointer implements SQLExpression {
       throw new IllegalArgumentException("Table name not defined");
     }
 
-    TablePointer tablePointer = new TablePointer(serialized.getTable(), dataPointer);
+    TablePointer tablePointer = TablePointer.fromTableName(serialized.getTable(), dataPointer);
     if (serialized.getFilter() == null) {
       return tablePointer;
     } else {
@@ -56,12 +67,22 @@ public class TablePointer implements SQLExpression {
     return tableFilter;
   }
 
+  public boolean isRawSql() {
+    return sql != null;
+  }
+
+  public String getSql() {
+    return sql;
+  }
+
   @Override
   public String renderSQL() {
-    if (!hasTableFilter()) {
+    if (isRawSql()) {
+      return sql;
+    } else if (!hasTableFilter()) {
       return dataPointer.getTableSQL(tableName);
     } else {
-      TablePointer tablePointerWithoutFilter = new TablePointer(tableName, dataPointer);
+      TablePointer tablePointerWithoutFilter = TablePointer.fromTableName(tableName, dataPointer);
       TableVariable tableVar = TableVariable.forPrimary(tablePointerWithoutFilter);
       FieldVariable fieldVar =
           new FieldVariable(FieldPointer.allFields(tablePointerWithoutFilter), tableVar);
