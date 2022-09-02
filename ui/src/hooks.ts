@@ -30,6 +30,17 @@ export function useCohort() {
   return cohort;
 }
 
+export function useCohortAndGroup() {
+  const cohort = useCohort();
+
+  const { groupId } = useParams<{ groupId: string }>();
+  const groupIndex = cohort.groups.findIndex((g) => g.id === groupId);
+  if (groupIndex === -1) {
+    throw new PathError(`Unknown group "${groupId}".`);
+  }
+  return { cohort, groupIndex, group: cohort.groups[groupIndex] };
+}
+
 export function useGroupAndCriteria() {
   const cohort = useCohort();
 

@@ -323,7 +323,7 @@ function AttributeDetails(props: AttributeDetailsProps) {
     return (
       <>
         {props.data.selected.map(({ value, name }) => (
-          <Stack direction="row" alignItems="baseline" key={Date.now()}>
+          <Stack direction="row" alignItems="baseline" key={String(value)}>
             <Typography variant="body1">{value}</Typography>&nbsp;
             <Typography variant="body2">{name}</Typography>
           </Stack>

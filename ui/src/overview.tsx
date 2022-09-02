@@ -1,41 +1,33 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
+import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
+import ClearIcon from "@mui/icons-material/Clear";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
-import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
-import MenuItem from "@mui/material/MenuItem";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import { CSSObject, styled, Theme } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import ActionBar from "actionBar";
-import {
-  deleteCriteria,
-  deleteGroup,
-  insertCriteria,
-  insertGroup,
-  renameCriteria,
-  renameGroup,
-} from "cohortsSlice";
+import { insertGroup } from "cohortsSlice";
 import Loading from "components/loading";
-import { useMenu } from "components/menu";
-import { useTextInputDialog } from "components/textInputDialog";
 import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
-import { useAppDispatch, useCohort, useUnderlay } from "hooks";
+import {
+  useAppDispatch,
+  useCohort,
+  useCohortAndGroup,
+  useUnderlay,
+} from "hooks";
 import { useCallback, useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Bar,
   BarChart,
@@ -45,15 +37,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { criteriaURL } from "router";
+import { cohortURL, criteriaURL } from "router";
 import * as tanagra from "tanagra-api";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
-import {
-  createCriteria,
-  generateCohortFilter,
-  getCriteriaPlugin,
-} from "./cohort";
+import { generateCohortFilter, getCriteriaPlugin, groupName } from "./cohort";
 
 const drawerWidth = 400;
 
@@ -96,161 +84,112 @@ const MiniDrawer = styled(Drawer, {
   }),
 }));
 
-export default function Overview() {
+export function Overview() {
   const cohort = useCohort();
 
   const [showDemographics, setShowDemographics] = useState(false);
 
   return (
-    <>
-      <ActionBar title={cohort.name} />
-      <Box sx={{ display: "flex" }}>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container columns={2} columnSpacing={5} className="overview">
-            <ParticipantsSelector kind={tanagra.GroupKindEnum.Included} />
-            <ParticipantsSelector kind={tanagra.GroupKindEnum.Excluded} />
-          </Grid>
+    <Box sx={{ display: "flex" }}>
+      <Drawer
+        variant="permanent"
+        anchor="left"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ mx: 1 }}>
+          <Outline />
         </Box>
-        <MiniDrawer variant="permanent" open={showDemographics} anchor="right">
-          <Box sx={{ m: 1 }}>
-            <Toolbar />
-            <Box sx={{ float: "right" }}>
-              <IconButton
-                size="large"
-                onClick={() => setShowDemographics(!showDemographics)}
-              >
-                {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
-              </IconButton>
-            </Box>
-            <DemographicCharts cohort={cohort} open={showDemographics} />
-          </Box>
-        </MiniDrawer>
+      </Drawer>
+      <Box sx={{ flexGrow: 1 }}>
+        <Toolbar />
+        <Outlet />
       </Box>
-    </>
+      <MiniDrawer variant="permanent" open={showDemographics} anchor="right">
+        <Box sx={{ m: 1 }}>
+          <Toolbar />
+          <Box sx={{ float: "right" }}>
+            <IconButton
+              size="large"
+              onClick={() => setShowDemographics(!showDemographics)}
+            >
+              {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
+            </IconButton>
+          </Box>
+          <DemographicCharts cohort={cohort} open={showDemographics} />
+        </Box>
+      </MiniDrawer>
+    </Box>
   );
 }
 
-function ParticipantsSelector(props: { kind?: tanagra.GroupKindEnum }) {
-  const cohort = useCohort();
+function Outline() {
+  const { cohort, group } = useCohortAndGroup();
 
   return (
-    <Grid item xs={1}>
-      <Typography variant="h4">
-        {props.kind === tanagra.GroupKindEnum.Included
-          ? "Included Participants"
-          : "Excluded Participants"}
-      </Typography>
-      <Stack spacing={0}>
-        {cohort.groups
-          .filter((g) => g.kind === props.kind)
-          .map((group, index) => (
-            <Box key={group.id}>
-              <ParticipantsGroup group={group} index={index} />
-              <Divider className="and-divider">
-                <Chip label="AND" />
-              </Divider>
-            </Box>
-          ))}
-        <Box key="">
-          <AddCriteriaButton kind={props.kind} />
-        </Box>
-      </Stack>
-    </Grid>
+    <Box className="outline">
+      <List>
+        {cohort.groups.map((g, index) => (
+          <ListItemButton
+            sx={{ p: 0, mb: 1 }}
+            component={RouterLink}
+            key={g.id}
+            to={"../" + cohortURL(cohort.id, g.id)}
+          >
+            <ParticipantsGroup
+              group={g}
+              index={index}
+              selected={group.id === g.id}
+            />
+          </ListItemButton>
+        ))}
+        <ListItem disableGutters key="">
+          <AddGroupButton />
+        </ListItem>
+      </List>
+    </Box>
   );
 }
 
-function AddCriteriaButton(props: {
-  group?: string;
-  kind?: tanagra.GroupKindEnum;
-}) {
-  const underlay = useUnderlay();
-  const source = useSource();
+function AddGroupButton() {
   const cohort = useCohort();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const configs = underlay.uiConfiguration.criteriaConfigs;
-
-  const onAddCriteria = (criteria: tanagra.Criteria) => {
-    let groupId = "";
-    if (props.group) {
-      groupId = props.group;
-      dispatch(insertCriteria({ cohortId: cohort.id, groupId, criteria }));
-    } else if (props.kind) {
-      const action = dispatch(insertGroup(cohort.id, props.kind, criteria));
-      groupId = action.payload.group.id;
-    }
+  const onAddGroup = () => {
+    const action = dispatch(
+      insertGroup(cohort.id, tanagra.GroupKindEnum.Included)
+    );
+    const groupId = action.payload.group.id;
     if (groupId) {
-      navigate(criteriaURL(groupId, criteria.id));
+      navigate("../" + cohortURL(cohort.id, groupId));
     }
   };
 
-  const [menu, show] = useMenu({
-    children: configs.map((config) => (
-      <MenuItem
-        key={config.title}
-        onClick={() => {
-          onAddCriteria(createCriteria(source, config));
-        }}
-      >
-        {config.title}
-      </MenuItem>
-    )),
-  });
-
   return (
     <>
-      <Button onClick={show} variant="contained" className="add-criteria">
-        Add Criteria
+      <Button onClick={onAddGroup} variant="contained" className="add-group">
+        Add Group
       </Button>
-      {menu}
     </>
   );
 }
 
-function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
-  const dispatch = useAppDispatch();
+function ParticipantsGroup(props: {
+  group: tanagra.Group;
+  index: number;
+  selected: boolean;
+}) {
   const source = useSource();
   const underlay = useUnderlay();
   const cohort = useCohort();
-  const groupName = props.group.name || "Group " + String(props.index + 1);
-
-  const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
-    title: "Edit Group Name",
-    initialText: groupName,
-    textLabel: "Group Name",
-    buttonLabel: "Rename Group",
-    onConfirm: (name: string) => {
-      dispatch(
-        renameGroup({
-          cohortId: cohort.id,
-          groupId: props.group.id,
-          groupName: name,
-        })
-      );
-    },
-  });
-
-  const [groupMenu, groupShow] = useMenu({
-    children: [
-      <MenuItem key="1" onClick={showRenameGroup}>
-        Edit Group Name
-      </MenuItem>,
-      <MenuItem
-        key="2"
-        onClick={() =>
-          dispatch(
-            deleteGroup({
-              cohortId: cohort.id,
-              groupId: props.group.id,
-            })
-          )
-        }
-      >
-        Delete Group
-      </MenuItem>,
-    ],
-  });
 
   const fetchGroupCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
@@ -267,7 +206,7 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
 
     const filter = generateCohortFilter(cohortForFilter);
     if (!filter) {
-      throw new Error("Group is empty.");
+      return 0;
     }
 
     return (await source.filterCount(filter))[0].count;
@@ -276,41 +215,43 @@ function ParticipantsGroup(props: { group: tanagra.Group; index: number }) {
   const groupCountState = useAsyncWithApi(fetchGroupCount);
 
   return (
-    <Paper className="participants-group">
-      <Grid container className="group-title">
-        <Grid item xs="auto">
-          <IconButton onClick={groupShow} component="span" size="small">
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
-          {groupMenu}
-          {renameGroupDialog}
-        </Grid>
-        <Grid item>
-          <Typography variant="h5">{groupName}</Typography>
-        </Grid>
-      </Grid>
+    <Paper elevation={props.selected ? 8 : 1} sx={{ width: "100%" }}>
       <Stack spacing={0}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          className="group-title"
+          sx={{ px: 0.5 }}
+        >
+          <Typography variant="h5">
+            {groupName(props.group, props.index)}
+          </Typography>
+          {props.group.kind === tanagra.GroupKindEnum.Included ? (
+            <CheckIcon />
+          ) : (
+            <ClearIcon />
+          )}
+        </Stack>
         {props.group.criteria.map((criteria) => (
-          <Box key={criteria.id}>
+          <Box key={criteria.id} sx={{ px: 0.5 }}>
             <ParticipantCriteria group={props.group} criteria={criteria} />
-            <Divider>OR</Divider>
           </Box>
         ))}
         <Box
-          key=""
+          key="footer"
           display="flex"
           flexDirection="row"
-          justifyContent="space-between"
+          justifyContent="right"
           alignItems="center"
+          className="group-title"
+          sx={{ px: 0.5 }}
         >
-          <AddCriteriaButton group={props.group.id} />
-          {
-            <Loading status={groupCountState} size="small">
-              <Typography variant="body1" fontWeight="bold">
-                Group Count: {groupCountState.data?.toLocaleString()}
-              </Typography>
-            </Loading>
-          }
+          <Loading status={groupCountState} size="small">
+            <Typography variant="body1" fontWeight="bold">
+              Group Count: {groupCountState.data?.toLocaleString()}
+            </Typography>
+          </Loading>
         </Box>
       </Stack>
     </Paper>
@@ -324,46 +265,6 @@ function ParticipantCriteria(props: {
   const source = useSource();
   const underlay = useUnderlay();
   const cohort = useCohort();
-  const dispatch = useAppDispatch();
-
-  const [renameDialog, showRenameCriteria] = useTextInputDialog({
-    title: "Edit Criteria Name",
-    initialText: props.criteria.name,
-    textLabel: "Criteria Name",
-    buttonLabel: "Confirm",
-    onConfirm: (name: string) => {
-      dispatch(
-        renameCriteria({
-          cohortId: cohort.id,
-          groupId: props.group.id,
-          criteriaId: props.criteria.id,
-          criteriaName: name,
-        })
-      );
-    },
-  });
-
-  const [menu, show] = useMenu({
-    children: [
-      <MenuItem
-        key="1"
-        onClick={() => {
-          dispatch(
-            deleteCriteria({
-              cohortId: cohort.id,
-              groupId: props.group.id,
-              criteriaId: props.criteria.id,
-            })
-          );
-        }}
-      >
-        Delete Criteria
-      </MenuItem>,
-      <MenuItem key="2" onClick={showRenameCriteria}>
-        Edit Criteria Name
-      </MenuItem>,
-    ],
-  });
 
   const fetchCriteriaCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
@@ -381,7 +282,7 @@ function ParticipantCriteria(props: {
 
     const filter = generateCohortFilter(cohortForFilter);
     if (!filter) {
-      throw new Error("Criteria is empty.");
+      return 0;
     }
 
     return (await source.filterCount(filter))[0].count;
@@ -390,46 +291,32 @@ function ParticipantCriteria(props: {
   const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
 
   return (
-    <Grid container>
-      <Grid item xs="auto">
-        <IconButton onClick={show} component="span" size="small">
-          <MoreVertIcon fontSize="small" />
-        </IconButton>
-        {menu}
-        {renameDialog}
-      </Grid>
-      <Grid item xs>
-        <Accordion
-          disableGutters={true}
-          square={true}
-          sx={{ boxShadow: 0 }}
-          className="criteria-accordion"
+    <>
+      <Box
+        display="flex"
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Link
+          variant="h6"
+          color="inherit"
+          underline="hover"
+          component={RouterLink}
+          to={criteriaURL(props.criteria.id)}
         >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Link
-              variant="h6"
-              color="inherit"
-              underline="hover"
-              component={RouterLink}
-              to={criteriaURL(props.group.id, props.criteria.id)}
-            >
-              {props.criteria.name}
-            </Link>
-            <Divider orientation="vertical" variant="middle" flexItem />
-            {
-              <Loading status={criteriaCountState} size="small">
-                <Typography variant="body1">
-                  {criteriaCountState.data?.toLocaleString()}
-                </Typography>
-              </Loading>
-            }
-          </AccordionSummary>
-          <AccordionDetails>
-            {getCriteriaPlugin(props.criteria).renderDetails()}
-          </AccordionDetails>
-        </Accordion>
-      </Grid>
-    </Grid>
+          {props.criteria.name}
+        </Link>
+        <Loading status={criteriaCountState} size="small">
+          <Typography variant="body1">
+            {criteriaCountState.data?.toLocaleString()}
+          </Typography>
+        </Loading>
+      </Box>
+      <Box sx={{ pl: 1 }}>
+        {getCriteriaPlugin(props.criteria).renderDetails()}
+      </Box>
+    </>
   );
 }
 

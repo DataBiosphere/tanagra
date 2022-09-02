@@ -8,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
+import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -60,7 +61,7 @@ export function Datasets() {
     buttonLabel: "Create",
     onConfirm: (name: string) => {
       const action = dispatch(insertCohort(name, underlay.name));
-      navigate(cohortURL(action.payload.id));
+      navigate(cohortURL(action.payload.id, action.payload.groups[0].id));
     },
   });
 
@@ -142,6 +143,7 @@ export function Datasets() {
   return (
     <>
       <ActionBar title="Datasets" />
+      <Toolbar />
       <Grid container columns={3} className="datasets">
         <Grid item xs={1}>
           <Stack direction="row" alignItems="baseline">
@@ -173,7 +175,7 @@ export function Datasets() {
                     color="inherit"
                     underline="hover"
                     component={RouterLink}
-                    to={cohortURL(cohort.id)}
+                    to={cohortURL(cohort.id, cohort.groups[0].id)}
                   >
                     {cohort.name}
                   </Link>

@@ -21,7 +21,13 @@ const cohortsSlice = createSlice({
           id: generateId(),
           name,
           underlayName,
-          groups: [],
+          groups: [
+            {
+              id: generateId(),
+              kind: tanagra.GroupKindEnum.Included,
+              criteria: [],
+            },
+          ],
         },
       }),
     },
@@ -39,14 +45,14 @@ const cohortsSlice = createSlice({
       prepare: (
         cohortId: string,
         kind: tanagra.GroupKindEnum,
-        criteria: tanagra.Criteria
+        criteria?: tanagra.Criteria
       ) => ({
         payload: {
           cohortId,
           group: {
             id: generateId(),
             kind,
-            criteria: [criteria],
+            criteria: criteria ? [criteria] : [],
           },
         },
       }),
@@ -84,6 +90,38 @@ const cohortsSlice = createSlice({
           (group) => group.id !== action.payload.groupId
         );
       }
+    },
+
+    setGroupKind: {
+      reducer: (
+        state,
+        action: PayloadAction<{
+          cohortId: string;
+          groupId: string;
+          kind: tanagra.GroupKindEnum;
+        }>
+      ) => {
+        const cohort = state.find((c) => c.id === action.payload.cohortId);
+        if (cohort) {
+          const group = cohort.groups.find(
+            (g) => g.id === action.payload.groupId
+          );
+          if (group) {
+            group.kind = action.payload.kind;
+          }
+        }
+      },
+      prepare: (
+        cohortId: string,
+        groupId: string,
+        kind: tanagra.GroupKindEnum
+      ) => ({
+        payload: {
+          cohortId,
+          groupId,
+          kind,
+        },
+      }),
     },
 
     insertCriteria: (
@@ -181,6 +219,7 @@ export const {
   insertGroup,
   renameGroup,
   deleteGroup,
+  setGroupKind,
   insertCriteria,
   updateCriteriaData,
   renameCriteria,
