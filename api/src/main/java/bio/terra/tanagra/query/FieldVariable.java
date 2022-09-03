@@ -26,11 +26,11 @@ public class FieldVariable implements SQLExpression {
     return renderSQL(true);
   }
 
-  public String renderSqlWithoutAlias() {
+  public String renderSqlForOrderBy() {
     return renderSQL(false);
   }
 
-  private String renderSQL(boolean useAlias) {
+  private String renderSQL(boolean useAliasAndFunctionWrapper) {
     String template = "${tableAlias}.${columnName}";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
@@ -43,17 +43,23 @@ public class FieldVariable implements SQLExpression {
       throw new UnsupportedOperationException("TODO: implement embedded selects " + sql);
     }
 
-    if (fieldPointer.hasSqlFunctionWrapper()) {
-      template = "${functionName}(${fieldSql})";
-      params =
-          ImmutableMap.<String, String>builder()
-              .put("functionName", fieldPointer.getSqlFunctionWrapper())
-              .put("fieldSql", sql)
-              .build();
+    if (fieldPointer.hasSqlFunctionWrapper() && useAliasAndFunctionWrapper) {
+      final String substitutionVar = "${fieldSql}";
+      if (fieldPointer.getSqlFunctionWrapper().contains(substitutionVar)) {
+        template = fieldPointer.getSqlFunctionWrapper();
+        params = ImmutableMap.<String, String>builder().put("fieldSql", sql).build();
+      } else {
+        template = "${functionName}(${fieldSql})";
+        params =
+            ImmutableMap.<String, String>builder()
+                .put("functionName", fieldPointer.getSqlFunctionWrapper())
+                .put("fieldSql", sql)
+                .build();
+      }
       sql = StringSubstitutor.replace(template, params);
     }
 
-    if (alias != null && useAlias) {
+    if (alias != null && useAliasAndFunctionWrapper) {
       template = "${fieldSql} AS ${fieldAlias}";
       params =
           ImmutableMap.<String, String>builder()

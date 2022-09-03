@@ -48,7 +48,7 @@ class BigQueryCellValue implements CellValue {
       case INT64:
         return new Literal(fieldValue.getLongValue());
       case STRING:
-        return new Literal(fieldValue.getStringValue());
+        return new Literal(fieldValue.isNull() ? null : fieldValue.getStringValue());
       case BOOLEAN:
         return new Literal(fieldValue.getBooleanValue());
       default:

@@ -70,11 +70,6 @@ public final class AttributeMapping {
   }
 
   public DisplayHint computeDisplayHint(Attribute attribute) {
-    // skip attributes that have sql function wrappers for now
-    if (value.hasSqlFunctionWrapper()) {
-      return null;
-    }
-
     if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
       return EnumVals.computeForField(attribute.getDataType(), value, display);
     }

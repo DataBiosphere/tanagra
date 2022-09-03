@@ -13,6 +13,7 @@ import bio.terra.tanagra.serialization.displayhint.UFNumericRange;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.FieldPointer;
+import bio.terra.tanagra.underlay.TablePointer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,17 +50,33 @@ public final class NumericRange extends DisplayHint {
   }
 
   public static NumericRange computeForField(FieldPointer value) {
+    // build the nested query for the possible values
+    List<TableVariable> nestedQueryTables = new ArrayList<>();
+    TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
+    nestedQueryTables.add(nestedPrimaryTable);
+
+    final String possibleValAlias = "possibleVal";
+    FieldVariable nestedValueFieldVar =
+        value.buildVariable(nestedPrimaryTable, nestedQueryTables, possibleValAlias);
+    Query possibleValuesQuery =
+        new Query.Builder().select(List.of(nestedValueFieldVar)).tables(nestedQueryTables).build();
+
+    DataPointer dataPointer = value.getTablePointer().getDataPointer();
+    TablePointer possibleValsTable =
+        TablePointer.fromRawSql(possibleValuesQuery.renderSQL(), dataPointer);
+
+    // build the outer query for the list of (possible value, display) pairs
     List<TableVariable> tables = new ArrayList<>();
-    TableVariable primaryTable = TableVariable.forPrimary(value.getTablePointer());
+    TableVariable primaryTable = TableVariable.forPrimary(possibleValsTable);
     tables.add(primaryTable);
 
     final String minValAlias = "minVal";
     final String maxValAlias = "maxVal";
 
     List<FieldVariable> select = new ArrayList<>();
-    FieldPointer minVal = new FieldPointer(value).setSqlFunctionWrapper("MIN");
+    FieldPointer minVal = new FieldPointer(possibleValsTable, possibleValAlias, "MIN");
     select.add(minVal.buildVariable(primaryTable, tables, minValAlias));
-    FieldPointer maxVal = new FieldPointer(value).setSqlFunctionWrapper("MAX");
+    FieldPointer maxVal = new FieldPointer(possibleValsTable, possibleValAlias, "MAX");
     select.add(maxVal.buildVariable(primaryTable, tables, maxValAlias));
     Query query = new Query.Builder().select(select).tables(tables).build();
 
@@ -68,7 +85,6 @@ public final class NumericRange extends DisplayHint {
             new ColumnSchema(minValAlias, CellValue.SQLDataType.INT64),
             new ColumnSchema(maxValAlias, CellValue.SQLDataType.INT64));
 
-    DataPointer dataPointer = value.getTablePointer().getDataPointer();
     QueryRequest queryRequest =
         new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);

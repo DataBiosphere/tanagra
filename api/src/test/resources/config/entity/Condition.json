@@ -5,7 +5,7 @@
     { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "name", "dataType": "STRING" },
     { "type": "KEY_AND_DISPLAY", "name": "vocabulary", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "standard_concept", "dataType": "STRING" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept", "dataType": "STRING" },
     { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING" } ],
 
   "sourceDataMapping": {
@@ -33,7 +33,12 @@
           "column": "vocabulary_id",
           "foreignTable": "vocabulary",
           "foreignKey": "vocabulary_id",
-          "foreignColumn": "vocabulary_name" } } },
+          "foreignColumn": "vocabulary_name" } },
+      "standard_concept": {
+        "value": { "column": "standard_concept" },
+        "display": {
+          "column": "standard_concept",
+          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
     "textSearchMapping": {
       "attributes": [ "id", "name" ]
     },

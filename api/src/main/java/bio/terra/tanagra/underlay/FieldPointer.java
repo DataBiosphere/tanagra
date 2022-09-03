@@ -36,7 +36,7 @@ public class FieldPointer {
     this.sqlFunctionWrapper = fieldPointer.getSqlFunctionWrapper();
   }
 
-  private FieldPointer(
+  public FieldPointer(
       TablePointer tablePointer,
       String columnName,
       String sqlFunctionWrapper,
@@ -131,7 +131,7 @@ public class FieldPointer {
     return sqlFunctionWrapper;
   }
 
-  public FieldPointer setSqlFunctionWrapper(String sqlFunctionWrapper) {
+  public FieldPointer sqlFunctionWrapper(String sqlFunctionWrapper) {
     this.sqlFunctionWrapper = sqlFunctionWrapper;
     return this;
   }

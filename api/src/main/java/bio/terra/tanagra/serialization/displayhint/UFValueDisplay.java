@@ -2,7 +2,6 @@ package bio.terra.tanagra.serialization.displayhint;
 
 import bio.terra.tanagra.serialization.UFLiteral;
 import bio.terra.tanagra.underlay.displayhint.ValueDisplay;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -12,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFValueDisplay.Builder.class)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFValueDisplay {
   private final UFLiteral value;
   private final String display;

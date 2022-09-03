@@ -17,7 +17,8 @@ public class UFFieldPointer {
   private final String foreignTable;
   private final String foreignKey;
   private final String foreignColumn;
-  private final String sqlFunctionWrapper;
+  private final String
+      sqlFunctionWrapper; // can include ${fieldSql} for wrappers that are not just ___(field)
 
   public UFFieldPointer(FieldPointer fieldPointer) {
     this.column = fieldPointer.getColumnName();

@@ -104,7 +104,9 @@ public final class EnumVals extends DisplayHint {
     TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
     nestedQueryTables.add(nestedPrimaryTable);
 
-    FieldVariable nestedValueFieldVar = value.buildVariable(nestedPrimaryTable, nestedQueryTables);
+    final String possibleValAlias = "possibleVal";
+    FieldVariable nestedValueFieldVar =
+        value.buildVariable(nestedPrimaryTable, nestedQueryTables, possibleValAlias);
     Query possibleValuesQuery =
         new Query.Builder()
             .select(List.of(nestedValueFieldVar))
@@ -116,10 +118,15 @@ public final class EnumVals extends DisplayHint {
     DataPointer dataPointer = value.getTablePointer().getDataPointer();
     TablePointer possibleValsTable =
         TablePointer.fromRawSql(possibleValuesQuery.renderSQL(), dataPointer);
-    FieldPointer possibleValField =
+    FieldPointer possibleValField = new FieldPointer(possibleValsTable, possibleValAlias);
+    FieldPointer possibleDisplayField =
         new FieldPointer(
             possibleValsTable,
-            value.getColumnName()); // ?? value.getColumnName() what if has an alias
+            possibleValAlias,
+            display.getSqlFunctionWrapper(),
+            display.getForeignTablePointer(),
+            display.getForeignKeyColumnName(),
+            display.getForeignColumnName());
 
     // build the outer query for the list of (possible value, display) pairs
     List<TableVariable> tables = new ArrayList<>();
@@ -130,7 +137,7 @@ public final class EnumVals extends DisplayHint {
     FieldVariable valueFieldVar =
         possibleValField.buildVariable(primaryTable, tables, ENUM_VALUE_COLUMN_ALIAS);
     FieldVariable displayFieldVar =
-        display.buildVariable(primaryTable, tables, enumDisplayColumnAlias);
+        possibleDisplayField.buildVariable(primaryTable, tables, enumDisplayColumnAlias);
     Query query =
         new Query.Builder()
             .select(List.of(valueFieldVar, displayFieldVar))
