@@ -78,7 +78,7 @@ public final class TablePointer implements SQLExpression {
   @Override
   public String renderSQL() {
     if (isRawSql()) {
-      return sql;
+      return "(" + sql + ")";
     } else if (!hasTableFilter()) {
       return dataPointer.getTableSQL(tableName);
     } else {
@@ -88,7 +88,13 @@ public final class TablePointer implements SQLExpression {
           new FieldVariable(FieldPointer.allFields(tablePointerWithoutFilter), tableVar);
       FilterVariable filterVar = getTableFilter().buildVariable(tableVar, List.of(tableVar));
 
-      return "(" + new Query(List.of(fieldVar), List.of(tableVar), filterVar).renderSQL() + ")";
+      Query query =
+          new Query.Builder()
+              .select(List.of(fieldVar))
+              .tables(List.of(tableVar))
+              .where(filterVar)
+              .build();
+      return "(" + query.renderSQL() + ")";
     }
   }
 

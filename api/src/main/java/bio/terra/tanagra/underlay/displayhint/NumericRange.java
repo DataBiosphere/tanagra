@@ -61,7 +61,7 @@ public final class NumericRange extends DisplayHint {
     select.add(minVal.buildVariable(primaryTable, tables, minValAlias));
     FieldPointer maxVal = new FieldPointer(value).setSqlFunctionWrapper("MAX");
     select.add(maxVal.buildVariable(primaryTable, tables, maxValAlias));
-    Query query = new Query(select, tables);
+    Query query = new Query.Builder().select(select).tables(tables).build();
 
     List<ColumnSchema> columnSchemas =
         List.of(

@@ -2,6 +2,7 @@ package bio.terra.tanagra.query.bigquery;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.underlay.Literal;
 import com.google.cloud.bigquery.FieldValue;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -38,6 +39,21 @@ class BigQueryCellValue implements CellValue {
   public Optional<String> getString() {
     assertDataTypeIs(SQLDataType.STRING);
     return fieldValue.isNull() ? Optional.empty() : Optional.of(fieldValue.getStringValue());
+  }
+
+  @Override
+  public Literal getLiteral() {
+    Literal.DataType dataType = dataType().toUnderlayDataType();
+    switch (dataType) {
+      case INT64:
+        return new Literal(fieldValue.getLongValue());
+      case STRING:
+        return new Literal(fieldValue.getStringValue());
+      case BOOLEAN:
+        return new Literal(fieldValue.getBooleanValue());
+      default:
+        throw new IllegalArgumentException("Unknown data type: " + dataType);
+    }
   }
 
   /**

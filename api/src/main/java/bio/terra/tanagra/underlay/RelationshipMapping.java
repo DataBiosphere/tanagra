@@ -34,8 +34,10 @@ public final class RelationshipMapping {
         new FieldVariable(fromEntityId, tableVariable, fromEntityAlias);
     FieldVariable toEntityIdFieldVariable =
         new FieldVariable(toEntityId, tableVariable, toEntityAlias);
-    return new Query(
-        List.of(fromEntityIdFieldVariable, toEntityIdFieldVariable), List.of(tableVariable));
+    return new Query.Builder()
+        .select(List.of(fromEntityIdFieldVariable, toEntityIdFieldVariable))
+        .tables(List.of(tableVariable))
+        .build();
   }
 
   public TablePointer getTablePointer() {

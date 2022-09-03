@@ -1,14 +1,19 @@
 package bio.terra.tanagra.query;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** The schema of the columns in {@link RowResult}s. */
 public class ColumnHeaderSchema {
   private final List<ColumnSchema> columnSchemas;
 
   public ColumnHeaderSchema(List<ColumnSchema> columnSchemas) {
-    this.columnSchemas = columnSchemas;
+    this.columnSchemas =
+        columnSchemas.stream()
+            .sorted(Comparator.comparing(ColumnSchema::getColumnName))
+            .collect(Collectors.toList());
   }
 
   public int getIndex(String columnName) {

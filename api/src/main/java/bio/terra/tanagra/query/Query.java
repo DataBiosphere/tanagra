@@ -11,51 +11,22 @@ import org.apache.commons.text.StringSubstitutor;
 public class Query implements SQLExpression {
   private final List<FieldVariable> select;
   private final List<TableVariable> tables;
-  private FilterVariable where;
-  private List<FieldVariable> orderBy;
-  private List<FieldVariable> groupBy;
+  private final FilterVariable where;
+  private final List<FieldVariable> orderBy;
+  private final List<FieldVariable> groupBy;
+  private final Integer limit;
 
-  public Query(List<FieldVariable> select, List<TableVariable> tables) {
-    this.select = select;
-    this.tables = tables;
-  }
-
-  public Query(List<FieldVariable> select, List<TableVariable> tables, FilterVariable where) {
-    this.select = select;
-    this.tables = tables;
-    this.where = where;
-  }
-
-  public Query(
-      List<FieldVariable> select,
-      List<TableVariable> tables,
-      List<FieldVariable> orderBy,
-      List<FieldVariable> groupBy) {
-    this.select = select;
-    this.tables = tables;
-    this.orderBy = orderBy;
-    this.groupBy = groupBy;
-  }
-
-  public Query(
-      List<FieldVariable> select,
-      List<TableVariable> tables,
-      FilterVariable where,
-      List<FieldVariable> orderBy,
-      List<FieldVariable> groupBy) {
-    this.select = select;
-    this.tables = tables;
-    this.where = where;
-    this.orderBy = orderBy;
-    this.groupBy = groupBy;
+  private Query(Builder builder) {
+    this.select = builder.select;
+    this.tables = builder.tables;
+    this.where = builder.where;
+    this.orderBy = builder.orderBy;
+    this.groupBy = builder.groupBy;
+    this.limit = builder.limit;
   }
 
   @Override
   public String renderSQL() {
-    // TODO: we should be able to build list of distinct TableVariables, by iterating through all
-    // the FieldVariables and FilterVariable. then no need to pass in the list of TableVariables or
-    // pass it around when building the lists of FieldVariables
-
     // generate a unique alias for each TableVariable
     TableVariable.generateAliases(tables);
 
@@ -118,10 +89,63 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
+    if (limit != null) {
+      template = "${sql} LIMIT ${limit}";
+      params =
+          ImmutableMap.<String, String>builder()
+              .put("sql", sql)
+              .put("limit", String.valueOf(limit))
+              .build();
+      sql = StringSubstitutor.replace(template, params);
+    }
+
     return sql;
   }
 
   public List<FieldVariable> getSelect() {
     return Collections.unmodifiableList(select);
+  }
+
+  public static class Builder {
+    private List<FieldVariable> select;
+    private List<TableVariable> tables;
+    private FilterVariable where;
+    private List<FieldVariable> orderBy;
+    private List<FieldVariable> groupBy;
+    private Integer limit;
+
+    public Builder select(List<FieldVariable> select) {
+      this.select = select;
+      return this;
+    }
+
+    public Builder tables(List<TableVariable> tables) {
+      this.tables = tables;
+      return this;
+    }
+
+    public Builder where(FilterVariable where) {
+      this.where = where;
+      return this;
+    }
+
+    public Builder orderBy(List<FieldVariable> orderBy) {
+      this.orderBy = orderBy;
+      return this;
+    }
+
+    public Builder groupBy(List<FieldVariable> groupBy) {
+      this.groupBy = groupBy;
+      return this;
+    }
+
+    public Builder limit(Integer limit) {
+      this.limit = limit;
+      return this;
+    }
+
+    public Query build() {
+      return new Query(this);
+    }
   }
 }

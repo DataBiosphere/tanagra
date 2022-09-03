@@ -7,8 +7,6 @@ import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class AttributeMapping {
   private static final String DEFAULT_DISPLAY_MAPPING_PREFIX = "t_display_";
@@ -72,14 +70,13 @@ public final class AttributeMapping {
   }
 
   public DisplayHint computeDisplayHint(Attribute attribute) {
-    // skip key_and_display attributes for now
-    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
-      return null;
-    }
-
     // skip attributes that have sql function wrappers for now
     if (value.hasSqlFunctionWrapper()) {
       return null;
+    }
+
+    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
+      return EnumVals.computeForField(attribute.getDataType(), value, display);
     }
 
     switch (attribute.getDataType()) {
@@ -88,7 +85,7 @@ public final class AttributeMapping {
       case INT64:
         return NumericRange.computeForField(value);
       case STRING:
-        return EnumVals.computeForField(value);
+        return EnumVals.computeForField(attribute.getDataType(), value);
       default:
         throw new IllegalArgumentException(
             "Unknown attribute data type: " + attribute.getDataType());

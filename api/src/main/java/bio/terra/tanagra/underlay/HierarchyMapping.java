@@ -121,7 +121,10 @@ public final class HierarchyMapping {
     FieldVariable parentFieldVar =
         new FieldVariable(
             childParent.getFieldPointers().get("parent"), childParentTableVar, parentFieldAlias);
-    return new Query(List.of(childFieldVar, parentFieldVar), List.of(childParentTableVar));
+    return new Query.Builder()
+        .select(List.of(childFieldVar, parentFieldVar))
+        .tables(List.of(childParentTableVar))
+        .build();
   }
 
   public SQLExpression queryPossibleRootNodes(String idFieldAlias) {
@@ -132,7 +135,10 @@ public final class HierarchyMapping {
             rootNodesFilter.getFieldPointers().get("node"),
             possibleRootNodesTableVar,
             idFieldAlias);
-    return new Query(List.of(idFieldVar), List.of(possibleRootNodesTableVar));
+    return new Query.Builder()
+        .select(List.of(idFieldVar))
+        .tables(List.of(possibleRootNodesTableVar))
+        .build();
   }
 
   public SQLExpression queryAncestorDescendantPairs(
@@ -149,8 +155,10 @@ public final class HierarchyMapping {
             ancestorDescendant.getFieldPointers().get("descendant"),
             ancestorDescendantTableVar,
             descendantFieldAlias);
-    return new Query(
-        List.of(ancestorFieldVar, descendantFieldVar), List.of(ancestorDescendantTableVar));
+    return new Query.Builder()
+        .select(List.of(ancestorFieldVar, descendantFieldVar))
+        .tables(List.of(ancestorDescendantTableVar))
+        .build();
   }
 
   public AuxiliaryDataMapping getChildParent() {

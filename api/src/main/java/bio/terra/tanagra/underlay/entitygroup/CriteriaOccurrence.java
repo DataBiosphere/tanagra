@@ -146,7 +146,10 @@ public class CriteriaOccurrence extends EntityGroup {
       FieldVariable criIdFieldVar =
           new FieldVariable(
               occToCriRelationshipMapping.getToEntityId(), occToPriTableVar, criteriaIdAlias);
-      return new Query(List.of(criIdFieldVar, priIdFieldVar), List.of(occToPriTableVar));
+      return new Query.Builder()
+          .select(List.of(criIdFieldVar, priIdFieldVar))
+          .tables(List.of(occToPriTableVar))
+          .build();
     } else {
       // otherwise, join the two tables
       // SELECT primaryId, criteriaId FROM occurrencePrimaryTable
@@ -161,8 +164,10 @@ public class CriteriaOccurrence extends EntityGroup {
       FieldVariable criIdFieldVar =
           new FieldVariable(
               occToCriRelationshipMapping.getToEntityId(), occToCriTableVar, criteriaIdAlias);
-      return new Query(
-          List.of(criIdFieldVar, priIdFieldVar), List.of(occToPriTableVar, occToCriTableVar));
+      return new Query.Builder()
+          .select(List.of(criIdFieldVar, priIdFieldVar))
+          .tables(List.of(occToPriTableVar, occToCriTableVar))
+          .build();
     }
   }
 

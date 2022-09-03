@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query;
 
+import bio.terra.tanagra.underlay.Literal;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -14,7 +15,33 @@ public interface CellValue {
   enum SQLDataType {
     INT64,
     STRING,
-    BOOLEAN
+    BOOLEAN;
+
+    public static SQLDataType fromUnderlayDataType(Literal.DataType underlayDataType) {
+      switch (underlayDataType) {
+        case INT64:
+          return INT64;
+        case STRING:
+          return STRING;
+        case BOOLEAN:
+          return BOOLEAN;
+        default:
+          throw new IllegalArgumentException("Unknown underlay data type: " + underlayDataType);
+      }
+    }
+
+    public Literal.DataType toUnderlayDataType() {
+      switch (this) {
+        case INT64:
+          return Literal.DataType.INT64;
+        case STRING:
+          return Literal.DataType.STRING;
+        case BOOLEAN:
+          return Literal.DataType.BOOLEAN;
+        default:
+          throw new IllegalArgumentException("Unknown SQL data type: " + this);
+      }
+    }
   }
 
   /** The type of data in this cell. */
@@ -33,4 +60,6 @@ public interface CellValue {
    * @throws ClassCastException if the cell's value is not a string
    */
   Optional<String> getString();
+
+  Literal getLiteral();
 }

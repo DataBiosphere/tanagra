@@ -157,7 +157,7 @@ public final class EntityMapping {
                       nameToFP.getValue().buildVariable(primaryTable, tables, nameToFP.getKey())));
     }
 
-    return new Query(select, tables);
+    return new Query.Builder().select(select).tables(tables).build();
   }
 
   public SQLExpression queryTextSearchInformation() {

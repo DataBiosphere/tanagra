@@ -2,6 +2,7 @@ package bio.terra.tanagra.serialization;
 
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Literal;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFAttribute.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFAttribute {
   private final Attribute.Type type;
   private final String name;
