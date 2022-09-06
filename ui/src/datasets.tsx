@@ -28,8 +28,8 @@ import { useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
 import React, { Fragment, SyntheticEvent, useCallback, useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
-import { createUrl } from "router";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { cohortURL, conceptSetURL } from "router";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 
@@ -39,7 +39,7 @@ export function Datasets() {
   const workspaceConceptSets = useAppSelector(
     (state) => state.present.conceptSets
   );
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const underlay = useUnderlay();
   const source = useSource();
@@ -60,12 +60,7 @@ export function Datasets() {
     buttonLabel: "Create",
     onConfirm: (name: string) => {
       const action = dispatch(insertCohort(name, underlay.name));
-      history.push(
-        createUrl({
-          underlayName: underlay.name,
-          cohortId: action.payload.id,
-        })
-      );
+      navigate(cohortURL(action.payload.id));
     },
   });
 
@@ -102,10 +97,7 @@ export function Datasets() {
             color="inherit"
             underline="hover"
             component={RouterLink}
-            to={createUrl({
-              underlayName: underlay.name,
-              conceptSetId: conceptSet.id,
-            })}
+            to={conceptSetURL(conceptSet.id)}
           >
             {conceptSet.name}
           </Link>
@@ -120,12 +112,7 @@ export function Datasets() {
     const {
       payload: { id },
     } = dispatch(insertConceptSet(underlay.name, criteria));
-    history.push(
-      createUrl({
-        underlayName: underlay.name,
-        conceptSetId: id,
-      })
-    );
+    navigate(conceptSetURL(id));
   };
 
   const [menu, showInsertConceptSet] = useMenu({
@@ -186,10 +173,7 @@ export function Datasets() {
                     color="inherit"
                     underline="hover"
                     component={RouterLink}
-                    to={createUrl({
-                      underlayName: underlay.name,
-                      cohortId: cohort.id,
-                    })}
+                    to={cohortURL(cohort.id)}
                   >
                     {cohort.name}
                   </Link>

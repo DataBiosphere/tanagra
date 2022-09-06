@@ -6,8 +6,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useAppSelector } from "hooks";
 import * as React from "react";
-import { Link as RouterLink, useParams } from "react-router-dom";
-import { useParentUrl } from "router";
+import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
 import UndoRedo from "./components/UndoRedo";
 
 type ActionBarProps = {
@@ -20,7 +19,7 @@ export default function ActionBar(props: ActionBarProps) {
     state.present.underlays.find((underlay) => underlay.name === underlayName)
   );
 
-  const backUrl = useParentUrl();
+  const location = useLocation();
 
   return (
     <Box sx={{ flexGrow: 1 }} className="action-bar">
@@ -33,8 +32,10 @@ export default function ActionBar(props: ActionBarProps) {
             color="inherit"
             aria-label="back"
             component={RouterLink}
-            to={backUrl || "/"}
-            sx={{ visibility: backUrl ? "visible" : "hidden" }}
+            to={".."}
+            sx={{
+              visibility: location.pathname === "/" ? "hidden" : "visible",
+            }}
           >
             <ArrowBackIcon />
           </IconButton>

@@ -35,7 +35,7 @@ import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort, useUnderlay } from "hooks";
 import { useCallback, useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   Bar,
   BarChart,
@@ -45,7 +45,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { createUrl } from "router";
+import { criteriaURL } from "router";
 import * as tanagra from "tanagra-api";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
@@ -166,7 +166,7 @@ function AddCriteriaButton(props: {
   const underlay = useUnderlay();
   const source = useSource();
   const cohort = useCohort();
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const configs = underlay.uiConfiguration.criteriaConfigs;
@@ -181,14 +181,7 @@ function AddCriteriaButton(props: {
       groupId = action.payload.group.id;
     }
     if (groupId) {
-      history.push(
-        createUrl({
-          underlayName: underlay.name,
-          cohortId: cohort.id,
-          groupId,
-          criteriaId: criteria.id,
-        })
-      );
+      navigate(criteriaURL(groupId, criteria.id));
     }
   };
 
@@ -418,12 +411,7 @@ function ParticipantCriteria(props: {
               color="inherit"
               underline="hover"
               component={RouterLink}
-              to={createUrl({
-                underlayName: underlay.name,
-                cohortId: cohort.id,
-                groupId: props.group.id,
-                criteriaId: props.criteria.id,
-              })}
+              to={criteriaURL(props.group.id, props.criteria.id)}
             >
               {props.criteria.name}
             </Link>
