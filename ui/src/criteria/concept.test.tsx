@@ -6,7 +6,7 @@ import { insertCohort, insertGroup } from "cohortsSlice";
 import "criteria/concept";
 import { BackendSource } from "data/source";
 import { Provider } from "react-redux";
-import { StaticRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { AppRouter } from "router";
 import { createStore } from "store";
 import * as tanagra from "tanagra-api";
@@ -218,11 +218,13 @@ async function renderCriteria(
   const components = () => (
     <Provider store={store}>
       <EntityInstancesApiContext.Provider value={api}>
-        <StaticRouter
-          location={`/test-underlay/cohorts/${cohort.id}/edit/${group.id}/${criteria.id}`}
+        <MemoryRouter
+          initialEntries={[
+            `/test-underlay/cohorts/${cohort.id}/edit/${group.id}/${criteria.id}`,
+          ]}
         >
           <AppRouter />
-        </StaticRouter>
+        </MemoryRouter>
       </EntityInstancesApiContext.Provider>
     </Provider>
   );
