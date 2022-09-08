@@ -10,8 +10,7 @@ describe("Basic tests", () => {
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add Criteria)").first().click();
     cy.get("li:Contains(Conditions)").click();
-    cy.get("button[role=checkbox]").click();
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(test concept)").click();
 
     cy.get("button:Contains(Add Criteria)").first().click();
     cy.get("li:Contains(Race)").click();
@@ -26,8 +25,7 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add Criteria)").last().click();
     cy.get("li:Contains(Observations)").click();
-    cy.get("button[role=checkbox]").click();
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(test concept)").click();
 
     cy.get("button:Contains(Add Criteria)").last().click();
     cy.get("li:Contains(Year at Birth)").click();
@@ -38,8 +36,7 @@ describe("Basic tests", () => {
 
     cy.get("button[id=insert-concept-set]").click();
     cy.get("li:Contains(Condition)").click();
-    cy.get("button[role=checkbox]").click();
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(test concept)").click();
 
     cy.get("button[name='New Cohort']").click();
     cy.get("button[name='Contains Conditions Codes']").click();
