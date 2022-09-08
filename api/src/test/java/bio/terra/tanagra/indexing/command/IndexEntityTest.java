@@ -9,6 +9,7 @@ import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,14 +21,16 @@ public class IndexEntityTest {
 
   @BeforeAll
   static void readDataPointers() throws IOException {
-    Underlay underlay = Underlay.fromJSON("config/underlay/Omop.json", READ_RESOURCE_FILE_FUNCTION);
+    Underlay underlay =
+        Underlay.fromJSON(Path.of("config/underlay/Omop.json"), READ_RESOURCE_FILE_FUNCTION);
     dataPointers = underlay.getDataPointers();
   }
 
   @Test
   void person() throws IOException {
     Entity person =
-        Entity.fromJSON("config/entity/Person.json", READ_RESOURCE_FILE_FUNCTION, dataPointers);
+        Entity.fromJSON(
+            Path.of("config/entity/Person.json"), READ_RESOURCE_FILE_FUNCTION, dataPointers);
     List<WorkflowCommand> cmds = person.getIndexingCommands();
 
     assertEquals(1, cmds.size(), "one indexing cmd generated");
@@ -43,7 +46,8 @@ public class IndexEntityTest {
   @Test
   void condition() throws IOException {
     Entity condition =
-        Entity.fromJSON("config/entity/Condition.json", READ_RESOURCE_FILE_FUNCTION, dataPointers);
+        Entity.fromJSON(
+            Path.of("config/entity/Condition.json"), READ_RESOURCE_FILE_FUNCTION, dataPointers);
     List<WorkflowCommand> cmds = condition.getIndexingCommands();
 
     assertEquals(5, cmds.size(), "five indexing cmds generated");

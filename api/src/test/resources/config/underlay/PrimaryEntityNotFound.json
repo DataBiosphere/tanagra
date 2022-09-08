@@ -11,6 +11,6 @@
       "projectId": "verily-tanagra-dev",
       "datasetId": "aou_synthetic_index",
       "serviceAccountKeyFile": "../rendered/tanagra_sa.json" } ],
-  "entities": [ "config/entity/Person.json" ],
+  "entities": [ "../entity/Person.json" ],
   "primaryEntity": "NonExistentEntityName"
 }

@@ -5,6 +5,7 @@ import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public final class Underlay {
   }
 
   public static Underlay fromJSON(
-      String underlayFilePath, Function<String, InputStream> getFileInputStreamFunction)
+      Path underlayFilePath, Function<Path, InputStream> getFileInputStreamFunction)
       throws IOException {
     // read in the top-level underlay file
     UFUnderlay serialized =
@@ -49,13 +50,17 @@ public final class Underlay {
         .getDataPointers()
         .forEach(dps -> dataPointers.put(dps.getName(), dps.deserializeToInternal()));
 
+    // entity and entity group file paths are relative to the underlay file path
+    Path parentDir = underlayFilePath.getParent();
+
     // deserialize entities
     if (serialized.getEntities() == null || serialized.getEntities().size() == 0) {
       throw new IllegalArgumentException("No Entity defined");
     }
     Map<String, Entity> entities = new HashMap<>();
     for (String entityFile : serialized.getEntities()) {
-      Entity entity = Entity.fromJSON(entityFile, getFileInputStreamFunction, dataPointers);
+      Entity entity =
+          Entity.fromJSON(parentDir.resolve(entityFile), getFileInputStreamFunction, dataPointers);
       entities.put(entity.getName(), entity);
     }
 
@@ -73,7 +78,11 @@ public final class Underlay {
       for (String entityGroupFile : serialized.getEntityGroups()) {
         EntityGroup entityGroup =
             EntityGroup.fromJSON(
-                entityGroupFile, getFileInputStreamFunction, dataPointers, entities, primaryEntity);
+                parentDir.resolve(entityGroupFile),
+                getFileInputStreamFunction,
+                dataPointers,
+                entities,
+                primaryEntity);
         entityGroups.put(entityGroup.getName(), entityGroup);
       }
     }

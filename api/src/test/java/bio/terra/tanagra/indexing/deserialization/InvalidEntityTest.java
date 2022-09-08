@@ -7,6 +7,7 @@ import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +21,8 @@ public class InvalidEntityTest {
 
   @BeforeAll
   static void readDataPointers() throws IOException {
-    Underlay underlay = Underlay.fromJSON("config/underlay/Omop.json", READ_RESOURCE_FILE_FUNCTION);
+    Underlay underlay =
+        Underlay.fromJSON(Path.of("config/underlay/Omop.json"), READ_RESOURCE_FILE_FUNCTION);
     dataPointers = underlay.getDataPointers();
   }
 
@@ -31,7 +33,9 @@ public class InvalidEntityTest {
             RuntimeException.class,
             () ->
                 Entity.fromJSON(
-                    "nonexistent_entity_file.json", READ_RESOURCE_FILE_FUNCTION, dataPointers));
+                    Path.of("nonexistent_entity_file.json"),
+                    READ_RESOURCE_FILE_FUNCTION,
+                    dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals(
         "Resource file not found: nonexistent_entity_file.json", ex.getMessage());
@@ -44,7 +48,9 @@ public class InvalidEntityTest {
             IllegalArgumentException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/NoAttributes.json", READ_RESOURCE_FILE_FUNCTION, dataPointers));
+                    Path.of("config/entity/NoAttributes.json"),
+                    READ_RESOURCE_FILE_FUNCTION,
+                    dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No Attributes defined"));
   }
@@ -56,7 +62,9 @@ public class InvalidEntityTest {
             IllegalArgumentException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/NoIdAttribute.json", READ_RESOURCE_FILE_FUNCTION, dataPointers));
+                    Path.of("config/entity/NoIdAttribute.json"),
+                    READ_RESOURCE_FILE_FUNCTION,
+                    dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No id Attribute defined"));
   }
@@ -68,7 +76,7 @@ public class InvalidEntityTest {
             IllegalArgumentException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/IdAttributeNotFound.json",
+                    Path.of("config/entity/IdAttributeNotFound.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);
@@ -83,7 +91,7 @@ public class InvalidEntityTest {
             IllegalArgumentException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/NoSourceDataMapping.json",
+                    Path.of("config/entity/NoSourceDataMapping.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);
@@ -97,7 +105,7 @@ public class InvalidEntityTest {
             IllegalArgumentException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/NoIndexDataMapping.json",
+                    Path.of("config/entity/NoIndexDataMapping.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);
@@ -111,7 +119,7 @@ public class InvalidEntityTest {
             IllegalArgumentException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/AttributeWithoutName.json",
+                    Path.of("config/entity/AttributeWithoutName.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);

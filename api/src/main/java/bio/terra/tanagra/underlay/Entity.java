@@ -10,6 +10,7 @@ import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,8 +40,8 @@ public final class Entity {
   }
 
   public static Entity fromJSON(
-      String entityFilePath,
-      Function<String, InputStream> getFileInputStreamFunction,
+      Path entityFilePath,
+      Function<Path, InputStream> getFileInputStreamFunction,
       Map<String, DataPointer> dataPointers)
       throws IOException {
     // read in entity file

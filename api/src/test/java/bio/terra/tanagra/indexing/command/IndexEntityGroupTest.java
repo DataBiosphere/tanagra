@@ -10,6 +10,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +24,8 @@ public class IndexEntityGroupTest {
 
   @BeforeAll
   static void readDataPointers() throws IOException {
-    Underlay underlay = Underlay.fromJSON("config/underlay/Omop.json", READ_RESOURCE_FILE_FUNCTION);
+    Underlay underlay =
+        Underlay.fromJSON(Path.of("config/underlay/Omop.json"), READ_RESOURCE_FILE_FUNCTION);
     dataPointers = underlay.getDataPointers();
     entities = underlay.getEntities();
     primaryEntityName = underlay.getPrimaryEntity().getName();
@@ -33,7 +35,7 @@ public class IndexEntityGroupTest {
   void oneToMany() throws IOException {
     EntityGroup brandIngredient =
         EntityGroup.fromJSON(
-            "config/entitygroup/BrandIngredient.json",
+            Path.of("config/entitygroup/BrandIngredient.json"),
             READ_RESOURCE_FILE_FUNCTION,
             dataPointers,
             entities,
@@ -47,7 +49,7 @@ public class IndexEntityGroupTest {
   void criteriaOccurrenceWithHierarchy() throws IOException {
     EntityGroup conditionPersonOccurrence =
         EntityGroup.fromJSON(
-            "config/entitygroup/ConditionPersonOccurrence.json",
+            Path.of("config/entitygroup/ConditionPersonOccurrence.json"),
             READ_RESOURCE_FILE_FUNCTION,
             dataPointers,
             entities,

@@ -22,9 +22,9 @@ public final class FileUtils {
    * @return the new file stream
    * @throws RuntimeException if the resource file doesn't exist
    */
-  public static InputStream getResourceFileStream(String resourceFilePath) {
+  public static InputStream getResourceFileStream(Path resourceFilePath) {
     InputStream inputStream =
-        FileUtils.class.getClassLoader().getResourceAsStream(resourceFilePath);
+        FileUtils.class.getClassLoader().getResourceAsStream(resourceFilePath.toString());
     if (inputStream == null) {
       throw new IllegalArgumentException("Resource file not found: " + resourceFilePath);
     }
@@ -37,9 +37,9 @@ public final class FileUtils {
    * @return the new file stream
    * @throws RuntimeException if the file doesn't exist
    */
-  public static InputStream getFileStream(String filePath) {
+  public static InputStream getFileStream(Path filePath) {
     try {
-      return Files.newInputStream(Path.of(filePath));
+      return Files.newInputStream(Path.of(filePath.toAbsolutePath().toString()));
     } catch (IOException ioEx) {
       throw new IllegalArgumentException("Error opening file stream: " + filePath, ioEx);
     }

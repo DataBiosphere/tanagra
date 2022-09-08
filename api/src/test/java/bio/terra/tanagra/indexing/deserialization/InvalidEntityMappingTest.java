@@ -7,6 +7,7 @@ import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +21,8 @@ public class InvalidEntityMappingTest {
 
   @BeforeAll
   static void readDataPointers() throws IOException {
-    Underlay underlay = Underlay.fromJSON("config/underlay/Omop.json", READ_RESOURCE_FILE_FUNCTION);
+    Underlay underlay =
+        Underlay.fromJSON(Path.of("config/underlay/Omop.json"), READ_RESOURCE_FILE_FUNCTION);
     dataPointers = underlay.getDataPointers();
   }
 
@@ -31,7 +33,7 @@ public class InvalidEntityMappingTest {
             RuntimeException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/MappingNonExistentAttribute.json",
+                    Path.of("config/entity/MappingNonExistentAttribute.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);
@@ -46,7 +48,7 @@ public class InvalidEntityMappingTest {
             RuntimeException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/DoubleTextSearchMapping.json",
+                    Path.of("config/entity/DoubleTextSearchMapping.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);
@@ -62,7 +64,7 @@ public class InvalidEntityMappingTest {
             RuntimeException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/EmptyTextSearchMapping.json",
+                    Path.of("config/entity/EmptyTextSearchMapping.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);
@@ -76,7 +78,7 @@ public class InvalidEntityMappingTest {
             RuntimeException.class,
             () ->
                 Entity.fromJSON(
-                    "config/entity/EmptyAttributesListTextSearchMapping.json",
+                    Path.of("config/entity/EmptyAttributesListTextSearchMapping.json"),
                     READ_RESOURCE_FILE_FUNCTION,
                     dataPointers));
     LOGGER.info("expected exception", ex);

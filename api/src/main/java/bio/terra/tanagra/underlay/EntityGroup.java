@@ -7,6 +7,7 @@ import bio.terra.tanagra.underlay.entitygroup.OneToMany;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +36,8 @@ public abstract class EntityGroup {
   }
 
   public static EntityGroup fromJSON(
-      String entityGroupFilePath,
-      Function<String, InputStream> getFileInputStreamFunction,
+      Path entityGroupFilePath,
+      Function<Path, InputStream> getFileInputStreamFunction,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
       String primaryEntityName)

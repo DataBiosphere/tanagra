@@ -11,7 +11,7 @@
       "projectId": "broad-tanagra-dev",
       "datasetId": "aou_synthetic_SR2019q4r4_indexes",
       "serviceAccountKeyFile": "../rendered/tanagra_sa.json" } ],
-  "entities": [ "config/entity/Person.json", "config/entity/Condition.json", "config/entity/Ingredient.json", "config/entity/Brand.json", "config/entity/ConditionOccurrence.json" ],
+  "entities": [ "../entity/Person.json", "../entity/Condition.json", "../entity/Ingredient.json", "../entity/Brand.json", "../entity/ConditionOccurrence.json" ],
   "primaryEntity": "person",
-  "entityGroups": [ "config/entitygroup/BrandIngredient.json", "config/entitygroup/ConditionPersonOccurrence.json" ]
+  "entityGroups": [ "../entitygroup/BrandIngredient.json", "../entitygroup/ConditionPersonOccurrence.json" ]
 }

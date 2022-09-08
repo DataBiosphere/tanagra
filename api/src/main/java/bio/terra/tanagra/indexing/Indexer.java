@@ -19,20 +19,20 @@ import org.slf4j.LoggerFactory;
 public final class Indexer {
   private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
   public static final String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
-  public static final Function<String, InputStream> READ_RESOURCE_FILE_FUNCTION =
+  public static final Function<Path, InputStream> READ_RESOURCE_FILE_FUNCTION =
       filePath -> FileUtils.getResourceFileStream(filePath);
-  public static final Function<String, InputStream> READ_FILE_FUNCTION =
+  public static final Function<Path, InputStream> READ_FILE_FUNCTION =
       filePath -> FileUtils.getFileStream(filePath);
 
   private final String underlayPath;
-  private final Function<String, InputStream> getFileInputStreamFunction;
+  private final Function<Path, InputStream> getFileInputStreamFunction;
 
   private List<WorkflowCommand> indexingCmds;
   private UFUnderlay expandedUnderlay;
   private List<UFEntity> expandedEntities;
   private List<UFEntityGroup> expandedEntityGroups;
 
-  private Indexer(String underlayPath, Function<String, InputStream> getFileInputStreamFunction) {
+  private Indexer(String underlayPath, Function<Path, InputStream> getFileInputStreamFunction) {
     this.underlayPath = underlayPath;
     this.getFileInputStreamFunction = getFileInputStreamFunction;
   }
@@ -47,7 +47,7 @@ public final class Indexer {
 
   public void indexUnderlay() throws IOException {
     // deserialize the POJOs to the internal objects and expand all defaults
-    Underlay underlay = Underlay.fromJSON(underlayPath, getFileInputStreamFunction);
+    Underlay underlay = Underlay.fromJSON(Path.of(underlayPath), getFileInputStreamFunction);
 
     // scan the source data to lookup data types, generate UI hints, etc.
     underlay.getEntities().values().forEach(Entity::scanSourceData);
