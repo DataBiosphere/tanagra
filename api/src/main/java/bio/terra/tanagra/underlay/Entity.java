@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.BuildTextSearch;
 import bio.terra.tanagra.indexing.command.ComputeAncestorDescendant;
@@ -9,7 +10,6 @@ import bio.terra.tanagra.indexing.command.WriteParentChild;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,15 +39,12 @@ public final class Entity {
     this.indexDataMapping = indexDataMapping;
   }
 
-  public static Entity fromJSON(
-      Path entityFilePath,
-      Function<Path, InputStream> getFileInputStreamFunction,
-      Map<String, DataPointer> dataPointers)
+  public static Entity fromJSON(Path entityFilePath, Map<String, DataPointer> dataPointers)
       throws IOException {
     // read in entity file
     UFEntity serialized =
         JacksonMapper.readFileIntoJavaObject(
-            getFileInputStreamFunction.apply(entityFilePath), UFEntity.class);
+            FileIO.getGetFileInputStreamFunction().apply(entityFilePath), UFEntity.class);
 
     // deserialize attributes
     if (serialized.getAttributes() == null || serialized.getAttributes().size() == 0) {

@@ -1,9 +1,9 @@
 package bio.terra.tanagra.indexing.command;
 
-import static bio.terra.tanagra.indexing.Indexer.READ_RESOURCE_FILE_FUNCTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -24,8 +24,8 @@ public class IndexEntityGroupTest {
 
   @BeforeAll
   static void readDataPointers() throws IOException {
-    Underlay underlay =
-        Underlay.fromJSON(Path.of("config/underlay/Omop.json"), READ_RESOURCE_FILE_FUNCTION);
+    FileIO.setToReadResourceFiles();
+    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
     dataPointers = underlay.getDataPointers();
     entities = underlay.getEntities();
     primaryEntityName = underlay.getPrimaryEntity().getName();
@@ -36,7 +36,6 @@ public class IndexEntityGroupTest {
     EntityGroup brandIngredient =
         EntityGroup.fromJSON(
             Path.of("config/entitygroup/BrandIngredient.json"),
-            READ_RESOURCE_FILE_FUNCTION,
             dataPointers,
             entities,
             primaryEntityName);
@@ -50,7 +49,6 @@ public class IndexEntityGroupTest {
     EntityGroup conditionPersonOccurrence =
         EntityGroup.fromJSON(
             Path.of("config/entitygroup/ConditionPersonOccurrence.json"),
-            READ_RESOURCE_FILE_FUNCTION,
             dataPointers,
             entities,
             primaryEntityName);

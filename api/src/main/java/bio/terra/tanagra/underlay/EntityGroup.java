@@ -1,18 +1,17 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.OneToMany;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public abstract class EntityGroup {
   /** Enum for the types of entity groups supported by Tanagra. */
@@ -37,7 +36,6 @@ public abstract class EntityGroup {
 
   public static EntityGroup fromJSON(
       Path entityGroupFilePath,
-      Function<Path, InputStream> getFileInputStreamFunction,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
       String primaryEntityName)
@@ -45,7 +43,7 @@ public abstract class EntityGroup {
     // read in entity group file
     UFEntityGroup serialized =
         JacksonMapper.readFileIntoJavaObject(
-            getFileInputStreamFunction.apply(entityGroupFilePath), UFEntityGroup.class);
+            FileIO.getGetFileInputStreamFunction().apply(entityGroupFilePath), UFEntityGroup.class);
     if (serialized.getEntities().size() == 0) {
       throw new IllegalArgumentException("There are no entities defined");
     }

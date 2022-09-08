@@ -1,9 +1,9 @@
 package bio.terra.tanagra.indexing.command;
 
-import static bio.terra.tanagra.indexing.Indexer.READ_RESOURCE_FILE_FUNCTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -21,16 +21,14 @@ public class IndexEntityTest {
 
   @BeforeAll
   static void readDataPointers() throws IOException {
-    Underlay underlay =
-        Underlay.fromJSON(Path.of("config/underlay/Omop.json"), READ_RESOURCE_FILE_FUNCTION);
+    FileIO.setToReadResourceFiles();
+    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
     dataPointers = underlay.getDataPointers();
   }
 
   @Test
   void person() throws IOException {
-    Entity person =
-        Entity.fromJSON(
-            Path.of("config/entity/Person.json"), READ_RESOURCE_FILE_FUNCTION, dataPointers);
+    Entity person = Entity.fromJSON(Path.of("config/entity/Person.json"), dataPointers);
     List<WorkflowCommand> cmds = person.getIndexingCommands();
 
     assertEquals(1, cmds.size(), "one indexing cmd generated");
@@ -45,9 +43,7 @@ public class IndexEntityTest {
 
   @Test
   void condition() throws IOException {
-    Entity condition =
-        Entity.fromJSON(
-            Path.of("config/entity/Condition.json"), READ_RESOURCE_FILE_FUNCTION, dataPointers);
+    Entity condition = Entity.fromJSON(Path.of("config/entity/Condition.json"), dataPointers);
     List<WorkflowCommand> cmds = condition.getIndexingCommands();
 
     assertEquals(5, cmds.size(), "five indexing cmds generated");

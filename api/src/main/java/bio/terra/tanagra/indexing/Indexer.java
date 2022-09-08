@@ -5,13 +5,11 @@ import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,35 +17,22 @@ import org.slf4j.LoggerFactory;
 public final class Indexer {
   private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
   public static final String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
-  public static final Function<Path, InputStream> READ_RESOURCE_FILE_FUNCTION =
-      filePath -> FileUtils.getResourceFileStream(filePath);
-  public static final Function<Path, InputStream> READ_FILE_FUNCTION =
-      filePath -> FileUtils.getFileStream(filePath);
 
   private final String underlayPath;
-  private final Function<Path, InputStream> getFileInputStreamFunction;
 
   private List<WorkflowCommand> indexingCmds;
   private UFUnderlay expandedUnderlay;
   private List<UFEntity> expandedEntities;
   private List<UFEntityGroup> expandedEntityGroups;
 
-  private Indexer(String underlayPath, Function<Path, InputStream> getFileInputStreamFunction) {
+  @VisibleForTesting
+  public Indexer(String underlayPath) {
     this.underlayPath = underlayPath;
-    this.getFileInputStreamFunction = getFileInputStreamFunction;
-  }
-
-  public static Indexer fromResourceFile(String underlayResourceFilePath) {
-    return new Indexer(underlayResourceFilePath, READ_RESOURCE_FILE_FUNCTION);
-  }
-
-  public static Indexer fromFile(String underlayFilePath) {
-    return new Indexer(underlayFilePath, READ_FILE_FUNCTION);
   }
 
   public void indexUnderlay() throws IOException {
     // deserialize the POJOs to the internal objects and expand all defaults
-    Underlay underlay = Underlay.fromJSON(Path.of(underlayPath), getFileInputStreamFunction);
+    Underlay underlay = Underlay.fromJSON(Path.of(underlayPath));
 
     // scan the source data to lookup data types, generate UI hints, etc.
     underlay.getEntities().values().forEach(Entity::scanSourceData);
@@ -99,7 +84,8 @@ public final class Indexer {
     String underlayFilePath = args[0];
     String outputDirPath = args[1];
 
-    Indexer indexer = Indexer.fromFile(underlayFilePath);
+    FileIO.setToReadDiskFiles();
+    Indexer indexer = new Indexer(underlayFilePath);
     indexer.indexUnderlay();
     indexer.writeOutIndexFiles(outputDirPath);
   }

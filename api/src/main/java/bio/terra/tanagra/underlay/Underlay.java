@@ -1,17 +1,16 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public final class Underlay {
   private final String name;
@@ -33,13 +32,11 @@ public final class Underlay {
     this.entityGroups = entityGroups;
   }
 
-  public static Underlay fromJSON(
-      Path underlayFilePath, Function<Path, InputStream> getFileInputStreamFunction)
-      throws IOException {
+  public static Underlay fromJSON(Path underlayFilePath) throws IOException {
     // read in the top-level underlay file
     UFUnderlay serialized =
         JacksonMapper.readFileIntoJavaObject(
-            getFileInputStreamFunction.apply(underlayFilePath), UFUnderlay.class);
+            FileIO.getGetFileInputStreamFunction().apply(underlayFilePath), UFUnderlay.class);
 
     // deserialize data pointers
     if (serialized.getDataPointers() == null || serialized.getDataPointers().size() == 0) {
@@ -59,8 +56,7 @@ public final class Underlay {
     }
     Map<String, Entity> entities = new HashMap<>();
     for (String entityFile : serialized.getEntities()) {
-      Entity entity =
-          Entity.fromJSON(parentDir.resolve(entityFile), getFileInputStreamFunction, dataPointers);
+      Entity entity = Entity.fromJSON(parentDir.resolve(entityFile), dataPointers);
       entities.put(entity.getName(), entity);
     }
 
@@ -78,11 +74,7 @@ public final class Underlay {
       for (String entityGroupFile : serialized.getEntityGroups()) {
         EntityGroup entityGroup =
             EntityGroup.fromJSON(
-                parentDir.resolve(entityGroupFile),
-                getFileInputStreamFunction,
-                dataPointers,
-                entities,
-                primaryEntity);
+                parentDir.resolve(entityGroupFile), dataPointers, entities, primaryEntity);
         entityGroups.put(entityGroup.getName(), entityGroup);
       }
     }

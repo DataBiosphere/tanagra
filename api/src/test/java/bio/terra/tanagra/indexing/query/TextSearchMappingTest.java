@@ -1,7 +1,6 @@
 package bio.terra.tanagra.indexing.query;
 
-import static bio.terra.tanagra.indexing.Indexer.READ_RESOURCE_FILE_FUNCTION;
-
+import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -17,16 +16,14 @@ public class TextSearchMappingTest {
 
   @BeforeAll
   static void readDataPointers() throws IOException {
-    Underlay underlay =
-        Underlay.fromJSON(Path.of("config/underlay/Omop.json"), READ_RESOURCE_FILE_FUNCTION);
+    FileIO.setToReadResourceFiles();
+    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
     dataPointers = underlay.getDataPointers();
   }
 
   @Test
   void condition() throws IOException {
-    Entity condition =
-        Entity.fromJSON(
-            Path.of("config/entity/Condition.json"), READ_RESOURCE_FILE_FUNCTION, dataPointers);
+    Entity condition = Entity.fromJSON(Path.of("config/entity/Condition.json"), dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         condition.getSourceDataMapping().queryTextSearchInformation().renderSQL(),
         "query/condition_source_textSearch.sql");
