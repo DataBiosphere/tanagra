@@ -52,6 +52,7 @@ export type Bucket = {
 export interface CriteriaConfig {
   // The plugin type to use for this criteria.
   type: string;
+  id: string;
   title: string;
   defaultName: string;
 

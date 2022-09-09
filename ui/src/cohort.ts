@@ -78,6 +78,7 @@ export function createCriteria(
     type: config.type,
     name: config.defaultName,
     data: entry.initializeData(source, config),
+    config: config,
   };
 }
 
@@ -86,6 +87,7 @@ export function getCriteriaPlugin(
 ): CriteriaPlugin<object> {
   return new (getCriteriaEntry(criteria.type).constructor)(
     criteria.id,
+    criteria.config as CriteriaConfig,
     criteria.data
   );
 }
@@ -99,7 +101,11 @@ function getCriteriaEntry(type: string): RegistryEntry {
 }
 
 interface CriteriaPluginConstructor {
-  new (id: string, data: object): CriteriaPlugin<object>;
+  new (
+    id: string,
+    config: CriteriaConfig,
+    data: object
+  ): CriteriaPlugin<object>;
 }
 
 type RegistryEntry = {

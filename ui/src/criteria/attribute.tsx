@@ -16,7 +16,7 @@ import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
 import Loading from "components/loading";
 import { DataValue } from "data/configuration";
 import { FilterType } from "data/filter";
-import { EnumHintOption, IntegerHint, Source, useSource } from "data/source";
+import { EnumHintOption, IntegerHint, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import produce from "immer";
 import React, { useCallback, useState } from "react";
@@ -35,10 +35,9 @@ type DataRange = {
 
 interface Config extends CriteriaConfig {
   attribute: string;
-  name: string;
 }
 
-interface Data extends Config {
+interface Data {
   // Selected is valid for enum attributes.
   selected: Selection[];
 
@@ -49,40 +48,44 @@ interface Data extends Config {
 type AttributeEditProps = {
   dispatchFn: (data: Data) => void;
   data: Data;
+  config: Config;
 };
 
-@registerCriteriaPlugin(
-  "attribute",
-  (source: Source, config: CriteriaConfig) => {
-    return {
-      ...(config.plugin as Config),
-      name: config.title,
-      selected: [],
-      dataRanges: [],
-    };
-  }
-)
+@registerCriteriaPlugin("attribute", () => {
+  return {
+    selected: [],
+    dataRanges: [],
+  };
+})
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
+  private config: Config;
 
-  constructor(public id: string, data: unknown) {
+  constructor(public id: string, config: CriteriaConfig, data: unknown) {
+    this.config = config as Config;
     this.data = data as Data;
   }
 
   renderEdit(dispatchFn: (data: Data) => void) {
-    return <AttributeEdit dispatchFn={dispatchFn} data={this.data} />;
+    return (
+      <AttributeEdit
+        dispatchFn={dispatchFn}
+        data={this.data}
+        config={this.config}
+      />
+    );
   }
 
   renderDetails() {
-    return <AttributeDetails data={this.data} />;
+    return <AttributeDetails data={this.data} config={this.config} />;
   }
 
   generateFilter() {
     return {
       type: FilterType.Attribute,
       occurrenceID: "",
-      attribute: this.data.attribute,
+      attribute: this.config.attribute,
       values: this.data.selected?.map(({ value }) => value),
       ranges: this.data.dataRanges,
     };
@@ -221,8 +224,8 @@ function AttributeEdit(props: AttributeEditProps) {
   const source = useSource();
 
   const fetchHintData = useCallback(() => {
-    return source.getHintData("", props.data.attribute);
-  }, [props.data.attribute]);
+    return source.getHintData("", props.config.attribute);
+  }, [props.config.attribute]);
   const hintDataState = useAsyncWithApi(fetchHintData);
 
   const handleAddRange = useCallback(
@@ -307,7 +310,7 @@ function AttributeEdit(props: AttributeEditProps) {
       ))}
       {!hintDataState.data && (
         <Typography>
-          No information for attribute {props.data.attribute}.
+          No information for attribute {props.config.attribute}.
         </Typography>
       )}
     </Loading>
@@ -315,6 +318,7 @@ function AttributeEdit(props: AttributeEditProps) {
 }
 
 type AttributeDetailsProps = {
+  config: Config;
   data: Data;
 };
 
@@ -338,7 +342,7 @@ function AttributeDetails(props: AttributeDetailsProps) {
         {props.data.dataRanges.map(({ id, min, max }) => (
           <Stack direction="row" alignItems="baseline" key={id}>
             <Typography variant="body1">
-              Current {props.data.name} in Range {min} to {max}
+              Current {props.config.title} in Range {min} to {max}
             </Typography>
           </Stack>
         ))}
