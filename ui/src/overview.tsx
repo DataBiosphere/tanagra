@@ -85,8 +85,6 @@ const MiniDrawer = styled(Drawer, {
 }));
 
 export function Overview() {
-  const cohort = useCohort();
-
   const [showDemographics, setShowDemographics] = useState(false);
 
   return (
@@ -123,7 +121,7 @@ export function Overview() {
               {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
             </IconButton>
           </Box>
-          <DemographicCharts cohort={cohort} open={showDemographics} />
+          <DemographicCharts open={false} />
         </Box>
       </MiniDrawer>
     </Box>
@@ -286,7 +284,7 @@ function ParticipantCriteria(props: {
     }
 
     return (await source.filterCount(filter))[0].count;
-  }, [underlay, cohort]);
+  }, [underlay, cohort.id, cohort.name, cohort.underlayName, props.criteria]);
 
   const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
 
@@ -398,11 +396,11 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
 }
 
 type DemographicChartsProps = {
-  cohort: tanagra.Cohort;
   open: boolean;
 };
 
-function DemographicCharts({ cohort, open }: DemographicChartsProps) {
+function DemographicCharts({ open }: DemographicChartsProps) {
+  const cohort = useCohort();
   const underlay = useUnderlay();
   const source = useSource();
 
