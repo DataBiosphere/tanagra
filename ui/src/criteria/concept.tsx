@@ -20,7 +20,6 @@ import { FilterType } from "data/filter";
 import {
   ClassificationNode,
   SearchClassificationResult,
-  Source,
   useSource,
 } from "data/source";
 import { useAsyncWithApi } from "errors";
@@ -51,27 +50,31 @@ interface Config extends CriteriaConfig {
 }
 
 // Exported for testing purposes.
-export interface Data extends Config {
+export interface Data {
   selected: Selection[];
 }
 
-@registerCriteriaPlugin(
-  "concept",
-  (source: Source, config: CriteriaConfig) => ({
-    ...(config.plugin as Config),
-    selected: [],
-  })
-)
+@registerCriteriaPlugin("concept", () => ({
+  selected: [],
+}))
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
+  private config: Config;
 
-  constructor(public id: string, data: unknown) {
+  constructor(public id: string, config: CriteriaConfig, data: unknown) {
+    this.config = config as Config;
     this.data = data as Data;
   }
 
   renderEdit(dispatchFn: (data: Data) => void) {
-    return <ConceptEdit dispatchFn={dispatchFn} data={this.data} />;
+    return (
+      <ConceptEdit
+        dispatchFn={dispatchFn}
+        data={this.data}
+        config={this.config}
+      />
+    );
   }
 
   renderDetails() {
@@ -81,14 +84,14 @@ class _ implements CriteriaPlugin<Data> {
   generateFilter() {
     return {
       type: FilterType.Classification,
-      occurrenceID: this.data.occurrence,
-      classificationID: this.data.classification,
+      occurrenceID: this.config.occurrence,
+      classificationID: this.config.classification,
       keys: this.data.selected.map(({ key }) => key),
     };
   }
 
   occurrenceID() {
-    return this.data.occurrence;
+    return this.config.occurrence;
   }
 }
 
@@ -103,15 +106,16 @@ function keyForNode(node: ClassificationNode): DataKey {
 type ConceptEditProps = {
   dispatchFn: (data: Data) => void;
   data: Data;
+  config: Config;
 };
 
 function ConceptEdit(props: ConceptEditProps) {
   const navigate = useNavigate();
   const source = useSource();
-  const occurrence = source.lookupOccurrence(props.data.occurrence);
+  const occurrence = source.lookupOccurrence(props.config.occurrence);
   const classification = source.lookupClassification(
-    props.data.occurrence,
-    props.data.classification
+    props.config.occurrence,
+    props.config.classification
   );
 
   const [hierarchy, setHierarchy] = useState<DataKey[] | undefined>();
@@ -176,8 +180,8 @@ function ConceptEdit(props: ConceptEditProps) {
   );
 
   const attributes = useMemo(
-    () => props.data.columns.map(({ key }) => key),
-    [props.data.columns]
+    () => props.config.columns.map(({ key }) => key),
+    [props.config.columns]
   );
 
   const fetchClassification = useCallback(() => {
@@ -192,7 +196,9 @@ function ConceptEdit(props: ConceptEditProps) {
   const classificationState = useAsyncWithApi<void>(fetchClassification);
 
   const hierarchyColumns = useMemo(() => {
-    const columns: TreeGridColumn[] = [...(props.data.hierarchyColumns ?? [])];
+    const columns: TreeGridColumn[] = [
+      ...(props.config.hierarchyColumns ?? []),
+    ];
     if (columns.length > 0) {
       columns[0] = {
         ...columns[0],
@@ -209,16 +215,16 @@ function ConceptEdit(props: ConceptEditProps) {
       };
     }
     return columns;
-  }, [props.data.hierarchyColumns]);
+  }, [props.config.hierarchyColumns]);
 
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
-      ...props.data.columns,
+      ...props.config.columns,
       ...(classification.hierarchical
         ? [{ key: "view_hierarchy", width: 160, title: "View Hierarchy" }]
         : []),
     ],
-    [props.data.columns]
+    [props.config.columns]
   );
 
   return (
@@ -243,14 +249,15 @@ function ConceptEdit(props: ConceptEditProps) {
               return undefined;
             }
 
-            const column = props.data.columns[props.data.nameColumnIndex ?? 0];
+            const column =
+              props.config.columns[props.config.nameColumnIndex ?? 0];
             const name = rowData[column.key];
             const newItem = {
               key: item.node.data.key,
               name: !!name ? String(name) : "",
             };
 
-            if (props.data.multiSelect) {
+            if (props.config.multiSelect) {
               const index = props.data.selected.findIndex(
                 (sel) => item.node.data.key === sel.key
               );

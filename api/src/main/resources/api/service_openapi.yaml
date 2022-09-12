@@ -530,7 +530,6 @@ components:
       description: Enum for unary function operators
       type: string
       enum: ["NOT"]
-      
 
     BinaryFilter:
       type: object
@@ -840,8 +839,32 @@ components:
         data:
           type: object
           description: The plugin specific data that defines this criteria.
+        config:
+          type: object
+          description: The UI configuration used by this criteria.
+          $ref: "#/components/schemas/CriteriaConfig"
       required:
         - id
         - name
         - type
         - data
+        - config
+
+    CriteriaConfig:
+      type: object
+      description: The configuration for an instance of a cohort plugin. Fields related to individual plugins may also be present.
+      properties:
+        type:
+          type: string
+          description: The plugin type to use for this criteria.
+        id:
+          type: string
+          description: The unique id of this criteria config.
+        title:
+          type: string
+          description: The display title for this criteria.
+      required:
+        - type
+        - id
+        - title
+      additionalProperties: true

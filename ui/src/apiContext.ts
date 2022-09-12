@@ -49,37 +49,29 @@ class FakeUnderlaysApi {
           type: "concept",
           title: "Conditions",
           defaultName: "Contains Conditions Codes",
-          plugin: {
-            columns,
-            occurrence: "condition_occurrence",
-            classification: "condition",
-          },
+          columns,
+          occurrence: "condition_occurrence",
+          classification: "condition",
         },
         {
           type: "concept",
           title: "Observations",
           defaultName: "Contains Observations Codes",
-          plugin: {
-            columns,
-            occurrence: "observation_occurrence",
-            classification: "observation",
-          },
+          columns,
+          occurrence: "observation_occurrence",
+          classification: "observation",
         },
         {
           type: "attribute",
           title: "Race",
           defaultName: "Contains Race Codes",
-          plugin: {
-            attribute: "race_concept_id",
-          },
+          attribute: "race_concept_id",
         },
         {
           type: "attribute",
           title: "Year at Birth",
           defaultName: "Contains Year at Birth Values",
-          plugin: {
-            attribute: "year_of_birth",
-          },
+          attribute: "year_of_birth",
         },
       ],
     };
