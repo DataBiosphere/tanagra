@@ -3,14 +3,16 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { ReactNode, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
 
 export type TreeGridId = string | number;
+export type TreeGridValue = undefined | string | number | boolean | JSX.Element;
 
 export type TreeGridRowData = {
-  [key: string]: undefined | string | number | boolean | JSX.Element;
+  [key: string]: TreeGridValue;
 };
 
 export type TreeGridItem = {
@@ -28,11 +30,19 @@ export type TreeGridColumn = {
   title?: string | JSX.Element;
 };
 
+export type RowCustomization = {
+  prefixElements?: ReactNode;
+  onClick?: () => void;
+};
+
 export type TreeGridProps = {
   columns: TreeGridColumn[];
   data: TreeGridData;
   defaultExpanded?: TreeGridId[];
-  prefixElements?: (id: TreeGridId, data: TreeGridRowData) => ReactNode;
+  rowCustomization?: (
+    id: TreeGridId,
+    data: TreeGridRowData
+  ) => RowCustomization | undefined;
   loadChildren?: (id: TreeGridId) => Promise<void>;
   variableWidth?: boolean;
   wrapBodyText?: boolean;
@@ -196,6 +206,40 @@ function renderChildren(
     }
     const childState = state.get(childId);
 
+    const renderFirstColumn = (value: TreeGridValue) => {
+      const rowCustomization = props.rowCustomization?.(childId, child.data);
+      return (
+        <>
+          {(!!child.children?.length ||
+            (props.loadChildren && !child.children)) && (
+            <IconButton
+              size="small"
+              title={childState?.errorMessage}
+              onClick={() => {
+                toggleExpanded(childId);
+              }}
+            >
+              <ItemIcon state={childState} />
+            </IconButton>
+          )}
+          {rowCustomization?.prefixElements}
+          {rowCustomization?.onClick ? (
+            <Link
+              component="button"
+              variant="body1"
+              color="inherit"
+              underline="hover"
+              onClick={rowCustomization.onClick}
+            >
+              {value}
+            </Link>
+          ) : (
+            value
+          )}
+        </>
+      );
+    };
+
     results.push(
       <tr
         key={id + "-" + childId}
@@ -232,7 +276,14 @@ function renderChildren(
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                       }),
-                  ...(i === 0 && { paddingLeft: `${indent}em` }),
+                  ...(i === 0 && {
+                    // TODO(tjennison): The removal of checkboxes revealed that
+                    // the inline-block style on the <thead> that's use to keep
+                    // the header in place while scrolling causes a small amount
+                    // of padding to appear around it that isn't present on the
+                    // <tbody>. Investigate other options for dealing with this.
+                    paddingLeft: `${indent + 0.2}em`,
+                  }),
                 }}
               >
                 <Typography
@@ -243,24 +294,7 @@ function renderChildren(
                     display: "inline",
                   }}
                 >
-                  {i === 0 && (
-                    <>
-                      {(!!child.children?.length ||
-                        (props.loadChildren && !child.children)) && (
-                        <IconButton
-                          size="small"
-                          title={childState?.errorMessage}
-                          onClick={() => {
-                            toggleExpanded(childId);
-                          }}
-                        >
-                          <ItemIcon state={childState} />
-                        </IconButton>
-                      )}
-                      {props.prefixElements?.(childId, child.data)}
-                    </>
-                  )}
-                  {value}
+                  {i === 0 ? renderFirstColumn(value) : value}
                 </Typography>
               </div>
             </td>

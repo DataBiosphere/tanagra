@@ -26,6 +26,7 @@ import {
 import { useAsyncWithApi } from "errors";
 import produce from "immer";
 import React, { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CriteriaConfig } from "underlaysSlice";
 import { useImmer } from "use-immer";
 
@@ -46,6 +47,7 @@ interface Config extends CriteriaConfig {
   hierarchyColumns?: TreeGridColumn[];
   occurrence: string;
   classification: string;
+  multiSelect?: boolean;
 }
 
 // Exported for testing purposes.
@@ -104,6 +106,7 @@ type ConceptEditProps = {
 };
 
 function ConceptEdit(props: ConceptEditProps) {
+  const navigate = useNavigate();
   const source = useSource();
   const occurrence = source.lookupOccurrence(props.data.occurrence);
   const classification = source.lookupClassification(
@@ -231,43 +234,59 @@ function ConceptEdit(props: ConceptEditProps) {
           columns={hierarchy ? hierarchyColumns : allColumns}
           data={data}
           defaultExpanded={hierarchy}
-          prefixElements={(id: TreeGridId, rowData: TreeGridRowData) => {
+          rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
             // TODO(tjennison): Make TreeGridData's type generic so we can avoid
             // this type assertion. Also consider passing the TreeGridItem to
             // the callback instead of the TreeGridRowData.
             const item = data[id] as ClassificationNodeItem;
             if (!item || item.node.grouping) {
-              return null;
+              return undefined;
             }
 
-            const index = props.data.selected.findIndex(
-              (sel) => item.node.data.key === sel.key
-            );
+            const column = props.data.columns[props.data.nameColumnIndex ?? 0];
+            const name = rowData[column.key];
+            const newItem = {
+              key: item.node.data.key,
+              name: !!name ? String(name) : "",
+            };
 
-            return (
-              <Checkbox
-                size="small"
-                fontSize="inherit"
-                checked={index > -1}
-                onChange={() => {
-                  props.dispatchFn(
-                    produce(props.data, (data) => {
-                      if (index > -1) {
-                        data.selected.splice(index, 1);
-                      } else {
-                        const column =
-                          props.data.columns[props.data.nameColumnIndex ?? 0];
-                        const name = rowData[column.key];
-                        data.selected.push({
-                          key: item.node.data.key,
-                          name: !!name ? String(name) : "",
-                        });
-                      }
-                    })
-                  );
-                }}
-              />
-            );
+            if (props.data.multiSelect) {
+              const index = props.data.selected.findIndex(
+                (sel) => item.node.data.key === sel.key
+              );
+
+              return {
+                prefixElements: (
+                  <Checkbox
+                    size="small"
+                    fontSize="inherit"
+                    checked={index > -1}
+                    onChange={() => {
+                      props.dispatchFn(
+                        produce(props.data, (data) => {
+                          if (index > -1) {
+                            data.selected.splice(index, 1);
+                          } else {
+                            data.selected.push(newItem);
+                          }
+                        })
+                      );
+                    }}
+                  />
+                ),
+              };
+            }
+
+            return {
+              onClick: () => {
+                props.dispatchFn(
+                  produce(props.data, (data) => {
+                    data.selected = [newItem];
+                  })
+                );
+                navigate("..");
+              },
+            };
           }}
           loadChildren={(id: TreeGridId) => {
             const item = data[id] as ClassificationNodeItem;

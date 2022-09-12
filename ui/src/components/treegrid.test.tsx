@@ -51,20 +51,27 @@ test("Table renders correctly", () => {
     },
   };
 
-  const prefixElements = (id: TreeGridId) => {
+  const rowCustomization = (id: TreeGridId) => {
     // Add variety to the rows.
     if (id !== 2) {
       return undefined;
     }
-    return;
-    <IconButton size="small">
-      <CheckBoxIcon fontSize="inherit" />
-    </IconButton>;
+    return {
+      prefixElements: (
+        <IconButton size="small">
+          <CheckBoxIcon fontSize="inherit" />
+        </IconButton>
+      ),
+    };
   };
 
   const tree = renderer
     .create(
-      <TreeGrid columns={columns} data={data} prefixElements={prefixElements} />
+      <TreeGrid
+        columns={columns}
+        data={data}
+        rowCustomization={rowCustomization}
+      />
     )
     .toJSON();
   expect(tree).toMatchSnapshot();
