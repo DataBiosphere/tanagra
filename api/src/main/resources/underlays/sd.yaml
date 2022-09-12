@@ -414,15 +414,18 @@ uiConfiguration: >-
       "title":"Conditions",
       "defaultName":"Contains Conditions Codes",
       "plugin": {
-        "columns":
-          [{"key":"concept_name","width":"100%","title":"Concept Name"},
+        "columns": [
+          {"key":"concept_name","width":"100%","title":"Concept Name"},
           {"key":"concept_id","width":120,"title":"Concept ID"},
           {"key":"standard_concept","width":180,"title":"SourceStandard"},
           {"key":"vocabulary_id","width":120,"title":"Vocab"},
-          {"key":"concept_code","width":120,"title":"Code"}],
+          {"key":"concept_code","width":120,"title":"Code"},
+          {"key":"person_count","width":120,"title":"Roll-up Count"}
+        ],
         "hierarchyColumns": [
           {"key": "concept_name", "width": "100%", "title": "Condition"},
-          {"key": "concept_id", "width": 120, "title": "Concept ID"}
+          {"key": "concept_id", "width": 120, "title": "Concept ID"},
+          {"key":"person_count","width":120,"title":"Roll-up Count"}
         ],
         "occurrence": "condition_occurrence",
         "classification": "condition"
@@ -433,15 +436,18 @@ uiConfiguration: >-
       "title":"Procedures",
       "defaultName":"Contains Procedures Codes",
       "plugin":{
-        "columns":[
+        "columns": [
           {"key":"concept_name","width":"100%","title":"Concept Name"},
           {"key":"concept_id","width":120,"title":"Concept ID"},
           {"key":"standard_concept","width":180,"title":"SourceStandard"},
-          {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
+          {"key":"vocabulary_id","width":120,"title":"Vocab"},
+          {"key":"concept_code","width":120,"title":"Code"},
+          {"key":"person_count","width":120,"title":"Roll-up Count"}
         ],
         "hierarchyColumns": [
           {"key": "concept_name", "width": "100%", "title": "Procedure"},
-          {"key": "concept_id", "width": 120, "title": "Concept ID"}
+          {"key": "concept_id", "width": 120, "title": "Concept ID"},
+          {"key":"person_count","width":120,"title":"Roll-up Count"}
         ],
         "occurrence": "procedure_occurrence",
         "classification": "procedure"
@@ -452,12 +458,13 @@ uiConfiguration: >-
       "title":"Observations",
       "defaultName":"Contains Observations Codes",
       "plugin":{
-        "columns":[
+        "columns": [
           {"key":"concept_name","width":"100%","title":"Concept Name"},
           {"key":"concept_id","width":120,"title":"Concept ID"},
           {"key":"standard_concept","width":180,"title":"SourceStandard"},
           {"key":"vocabulary_id","width":120,"title":"Vocab"},
-          {"key":"concept_code","width":120,"title":"Code"}
+          {"key":"concept_code","width":120,"title":"Code"},
+          {"key":"person_count","width":120,"title":"Roll-up Count"}
         ],
         "occurrence": "observation_occurrence",
         "classification": "observation"
@@ -468,16 +475,18 @@ uiConfiguration: >-
       "title":"Drugs",
       "defaultName":"Contains Drugs Codes",
       "plugin":{
-        "columns":[
+        "columns": [
           {"key":"concept_name","width":"100%","title":"Concept Name"},
           {"key":"concept_id","width":120,"title":"Concept ID"},
           {"key":"standard_concept","width":180,"title":"SourceStandard"},
           {"key":"vocabulary_id","width":120,"title":"Vocab"},
-          {"key":"concept_code","width":120,"title":"Code"}
+          {"key":"concept_code","width":120,"title":"Code"},
+          {"key":"person_count","width":120,"title":"Roll-up Count"}
         ],
         "hierarchyColumns": [
           {"key": "concept_name", "width": "100%", "title": "Drug"},
-          {"key": "concept_id", "width": 120, "title": "Concept ID"}
+          {"key": "concept_id", "width": 120, "title": "Concept ID"},
+          {"key":"person_count","width":120,"title":"Roll-up Count"}
         ],
         "occurrence": "ingredient_occurrence",
         "classification": "ingredient"
