@@ -22,7 +22,7 @@ export default function ActionBar(props: ActionBarProps) {
   const location = useLocation();
 
   return (
-    <Box sx={{ flexGrow: 1 }} className="action-bar">
+    <Box className="action-bar">
       <AppBar
         position="fixed"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
@@ -50,7 +50,6 @@ export default function ActionBar(props: ActionBarProps) {
           ) : null}
         </Toolbar>
       </AppBar>
-      <Toolbar /> {/*Prevent content from flowing under the AppBar.*/}
     </Box>
   );
 }

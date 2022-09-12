@@ -1,8 +1,9 @@
 import Button from "@mui/material/Button";
 import ConceptSetEdit from "conceptSetEdit";
 import Edit from "edit";
+import { GroupOverview } from "groupOverview";
 import { PathError } from "hooks";
-import Overview from "overview";
+import { Overview } from "overview";
 import { ErrorBoundary } from "react-error-boundary";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { UnderlaySelect } from "underlaySelect";
@@ -15,15 +16,14 @@ export function AppRouter() {
         <Route index element={<UnderlaySelect />} />
         <Route path=":underlayName">
           <Route index element={<Datasets />} />
-          <Route path="cohorts/:cohortId">
-            <Route index element={<Overview />} />
-            <Route path="edit/:groupId/:criteriaId">
-              <Route index element={<Edit />} />
-            </Route>
+          <Route path="cohorts/:cohortId/:groupId" element={<Overview />}>
+            <Route index element={<GroupOverview />} />
+            <Route path="edit/:criteriaId" element={<Edit />} />
           </Route>
-          <Route path="conceptSets/:conceptSetId">
-            <Route index element={<ConceptSetEdit />} />
-          </Route>
+          <Route
+            path="conceptSets/:conceptSetId"
+            element={<ConceptSetEdit />}
+          />
         </Route>
         <Route
           path="*"
@@ -38,16 +38,16 @@ export function underlayURL(underlayName: string) {
   return underlayName;
 }
 
-export function cohortURL(cohortId: string) {
-  return "cohorts/" + cohortId;
+export function cohortURL(cohortId: string, groupId: string) {
+  return "cohorts/" + cohortId + "/" + groupId;
 }
 
 export function conceptSetURL(conceptSetId: string) {
   return "conceptSets/" + conceptSetId;
 }
 
-export function criteriaURL(groupId: string, criteriaId: string) {
-  return `edit/${groupId}/${criteriaId}`;
+export function criteriaURL(criteriaId: string) {
+  return `edit/${criteriaId}`;
 }
 
 // TODO(tjennison): Make a prettier 404 page.

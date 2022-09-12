@@ -53,7 +53,7 @@ describe("Basic tests", () => {
     cy.reload();
 
     cy.get("a:Contains('New Cohort')").click();
-    cy.get("a:Contains('Contains Conditions Codes')").click();
+    cy.get("a:Contains('Contains Conditions Codes')").last().click();
     cy.contains("test concept");
   });
 });

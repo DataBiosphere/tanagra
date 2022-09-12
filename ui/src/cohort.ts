@@ -39,6 +39,10 @@ function generateFilter(group: tanagra.Group): Filter | null {
   };
 }
 
+export function groupName(group: tanagra.Group, index: number) {
+  return group.name ?? "Group " + String(index + 1);
+}
+
 // Having typed data here allows the registry to treat all data generically
 // while plugins can use an actual type internally.
 export interface CriteriaPlugin<DataType> {
