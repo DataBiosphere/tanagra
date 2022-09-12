@@ -105,7 +105,7 @@ export function GroupOverview() {
               >
                 {criteria.name}
               </Link>
-              {getCriteriaPlugin(criteria).renderDetails()}
+              {getCriteriaPlugin(criteria).renderInline()}
             </Box>
             <Divider />
           </Box>

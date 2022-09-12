@@ -769,22 +769,21 @@ function generateOccurrenceFilter(
       },
     }));
 
-    if (operands.length === 0) {
-      return [null, ""];
-    }
-
     return [
       {
         relationshipFilter: {
           outerVariable: entity.entity,
           newVariable: classification.entity,
           newEntity: classification.entity,
-          filter: {
-            arrayFilter: {
-              operands: operands,
-              operator: tanagra.ArrayFilterOperator.Or,
-            },
-          },
+          filter:
+            operands.length > 0
+              ? {
+                  arrayFilter: {
+                    operands: operands,
+                    operator: tanagra.ArrayFilterOperator.Or,
+                  },
+                }
+              : undefined,
         },
       },
       entity.entity,

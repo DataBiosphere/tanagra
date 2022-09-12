@@ -77,8 +77,21 @@ class _ implements CriteriaPlugin<Data> {
     );
   }
 
-  renderDetails() {
-    return <ConceptDetails data={this.data} />;
+  renderInline() {
+    return <ConceptInline data={this.data} />;
+  }
+
+  displayDetails() {
+    if (this.data.selected.length > 0) {
+      return {
+        title: this.data.selected[0].name,
+        additionalText: this.data.selected.slice(1).map((s) => s.name),
+      };
+    }
+
+    return {
+      title: `Any ${this.config.title}`,
+    };
   }
 
   generateFilter() {
@@ -330,11 +343,11 @@ function ConceptEdit(props: ConceptEditProps) {
   );
 }
 
-type ConceptDetailsProps = {
+type ConceptInlineProps = {
   data: Data;
 };
 
-function ConceptDetails(props: ConceptDetailsProps) {
+function ConceptInline(props: ConceptInlineProps) {
   return (
     <>
       {props.data.selected.length === 0 ? (
