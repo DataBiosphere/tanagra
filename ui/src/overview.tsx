@@ -121,7 +121,7 @@ export function Overview() {
               {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
             </IconButton>
           </Box>
-          <DemographicCharts open={false} />
+          <DemographicCharts open={showDemographics} />
         </Box>
       </MiniDrawer>
     </Box>
