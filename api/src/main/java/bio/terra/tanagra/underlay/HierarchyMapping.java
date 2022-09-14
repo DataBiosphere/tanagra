@@ -85,7 +85,11 @@ public final class HierarchyMapping {
                 .collect(
                     Collectors.toMap(
                         Function.identity(),
-                        fieldName -> new FieldPointer(childParentTable, fieldName))));
+                        fieldName ->
+                            new FieldPointer.Builder()
+                                .tablePointer(childParentTable)
+                                .columnName(fieldName)
+                                .build())));
 
     TablePointer ancestorDescendantTable =
         TablePointer.fromTableName(
@@ -97,7 +101,11 @@ public final class HierarchyMapping {
                 .collect(
                     Collectors.toMap(
                         Function.identity(),
-                        fieldName -> new FieldPointer(ancestorDescendantTable, fieldName))));
+                        fieldName ->
+                            new FieldPointer.Builder()
+                                .tablePointer(ancestorDescendantTable)
+                                .columnName(fieldName)
+                                .build())));
 
     AuxiliaryDataMapping pathNumChildren =
         new AuxiliaryDataMapping(
@@ -106,9 +114,15 @@ public final class HierarchyMapping {
                 "node",
                 idAttributeField,
                 "path",
-                new FieldPointer(tablePointer, PATH_COLUMN_ALIAS),
+                new FieldPointer.Builder()
+                    .tablePointer(tablePointer)
+                    .columnName(PATH_COLUMN_ALIAS)
+                    .build(),
                 "numChildren",
-                new FieldPointer(tablePointer, NUM_CHILDREN_COLUMN_ALIAS)));
+                new FieldPointer.Builder()
+                    .tablePointer(tablePointer)
+                    .columnName(NUM_CHILDREN_COLUMN_ALIAS)
+                    .build()));
 
     return new HierarchyMapping(childParent, null, ancestorDescendant, pathNumChildren);
   }

@@ -15,26 +15,19 @@ public final class TablePointer implements SQLExpression {
   private final TableFilter tableFilter;
   private final String sql;
 
-  private TablePointer(String tableName, DataPointer dataPointer, TableFilter tableFilter) {
-    this.dataPointer = dataPointer;
-    this.tableName = tableName;
-    this.tableFilter = tableFilter;
-    this.sql = null;
-  }
-
-  private TablePointer(String sql, DataPointer dataPointer) {
-    this.dataPointer = dataPointer;
-    this.tableName = null;
-    this.tableFilter = null;
-    this.sql = sql;
+  private TablePointer(Builder builder) {
+    this.dataPointer = builder.dataPointer;
+    this.tableName = builder.tableName;
+    this.tableFilter = builder.tableFilter;
+    this.sql = builder.sql;
   }
 
   public static TablePointer fromTableName(String tableName, DataPointer dataPointer) {
-    return new TablePointer(tableName, dataPointer, null);
+    return new Builder().dataPointer(dataPointer).tableName(tableName).build();
   }
 
   public static TablePointer fromRawSql(String sql, DataPointer dataPointer) {
-    return new TablePointer(sql, dataPointer);
+    return new Builder().dataPointer(dataPointer).sql(sql).build();
   }
 
   public static TablePointer fromSerialized(UFTablePointer serialized, DataPointer dataPointer) {
@@ -47,7 +40,11 @@ public final class TablePointer implements SQLExpression {
       return tablePointer;
     } else {
       TableFilter tableFilter = serialized.getFilter().deserializeToInternal(tablePointer);
-      return new TablePointer(serialized.getTable(), dataPointer, tableFilter);
+      return new Builder()
+          .dataPointer(dataPointer)
+          .tableName(serialized.getTable())
+          .tableFilter(tableFilter)
+          .build();
     }
   }
 
@@ -129,5 +126,37 @@ public final class TablePointer implements SQLExpression {
     hash = 37 * hash + (this.tableName != null ? this.tableName.hashCode() : 0);
     hash = 37 * hash + (this.tableFilter != null ? this.tableFilter.hashCode() : 0);
     return hash;
+  }
+
+  public static class Builder {
+    private DataPointer dataPointer;
+    private String tableName;
+    private TableFilter tableFilter;
+    private String sql;
+
+    public Builder dataPointer(DataPointer dataPointer) {
+      this.dataPointer = dataPointer;
+      return this;
+    }
+
+    public Builder tableName(String tableName) {
+      this.tableName = tableName;
+      return this;
+    }
+
+    public Builder tableFilter(TableFilter tableFilter) {
+      this.tableFilter = tableFilter;
+      return this;
+    }
+
+    public Builder sql(String sql) {
+      this.sql = sql;
+      return this;
+    }
+
+    /** Call the private constructor. */
+    public TablePointer build() {
+      return new TablePointer(this);
+    }
   }
 }

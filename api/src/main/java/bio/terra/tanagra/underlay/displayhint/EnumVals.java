@@ -9,6 +9,7 @@ import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.serialization.UFDisplayHint;
 import bio.terra.tanagra.serialization.displayhint.UFEnumVals;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
@@ -50,30 +51,34 @@ public final class EnumVals extends DisplayHint {
     return Type.ENUM;
   }
 
+  @Override
+  public UFDisplayHint serialize() {
+    return new UFEnumVals(this);
+  }
+
   public List<ValueDisplay> getValueDisplays() {
     return Collections.unmodifiableList(valueDisplays);
   }
 
+  /**
+   * Build a query to fetch a set of distinct values, up to the maximum allowed. e.g.
+   *
+   * <p>SELECT c.standard_concept AS enumVal
+   *
+   * <p>FROM concept AS c
+   *
+   * <p>GROUP BY c.standard_concept
+   *
+   * <p>ORDER BY c.standard_concept
+   *
+   * <p>LIMIT 101
+   */
   public static EnumVals computeForField(Literal.DataType dataType, FieldPointer value) {
-    List<TableVariable> tables = new ArrayList<>();
-    TableVariable primaryTable = TableVariable.forPrimary(value.getTablePointer());
-    tables.add(primaryTable);
-
-    final String enumValAlias = "enumVal";
-
-    FieldVariable valueFieldVar = value.buildVariable(primaryTable, tables, enumValAlias);
-    Query query =
-        new Query.Builder()
-            .select(List.of(valueFieldVar))
-            .tables(tables)
-            .orderBy(List.of(valueFieldVar))
-            .groupBy(List.of(valueFieldVar))
-            .limit(MAX_ENUM_VALS_FOR_DISPLAY_HINT + 1)
-            .build();
-
+    Query query = queryPossibleEnumVals(value);
     List<ColumnSchema> columnSchemas =
         List.of(
-            new ColumnSchema(enumValAlias, CellValue.SQLDataType.fromUnderlayDataType(dataType)));
+            new ColumnSchema(
+                ENUM_VALUE_COLUMN_ALIAS, CellValue.SQLDataType.fromUnderlayDataType(dataType)));
 
     DataPointer dataPointer = value.getTablePointer().getDataPointer();
     QueryRequest queryRequest =
@@ -83,13 +88,14 @@ public final class EnumVals extends DisplayHint {
     List<String> enumStringVals = new ArrayList<>();
     Iterator<RowResult> rowResultIter = queryResult.getRowResults().iterator();
     while (rowResultIter.hasNext()) {
-      enumStringVals.add(rowResultIter.next().get(enumValAlias).getString().orElse(null));
+      enumStringVals.add(
+          rowResultIter.next().get(ENUM_VALUE_COLUMN_ALIAS).getString().orElse(null));
       if (enumStringVals.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
         // if there are more than the max number of values, then skip the display hint
         LOGGER.info(
             "Skipping enum values display hint because there are >{} possible values: {}",
             MAX_ENUM_VALS_FOR_DISPLAY_HINT,
-            valueFieldVar.getAlias());
+            value.getColumnName());
         return null;
       }
     }
@@ -97,36 +103,45 @@ public final class EnumVals extends DisplayHint {
         enumStringVals.stream().map(esv -> new ValueDisplay(esv)).collect(Collectors.toList()));
   }
 
+  /**
+   * Build a query to fetch a set of distinct values and their display strings, up to the maximum
+   * allowed. e.g.
+   *
+   * <p>SELECT x.enumVal, v.vocabulary_name AS enumDisplay
+   *
+   * <p>FROM (SELECT c.vocabulary_id AS enumVal FROM concept GROUP BY c.vocabulary_id ORDER BY
+   * c.vocabulary_id) AS x
+   *
+   * <p>JOIN vocabulary as v
+   *
+   * <p>ON v.id = x.enumVal
+   *
+   * <p>GROUP BY x.enumVal
+   *
+   * <p>ORDER BY x.enumVal
+   *
+   * <p>LIMIT 101
+   */
   public static EnumVals computeForField(
       Literal.DataType dataType, FieldPointer value, FieldPointer display) {
-    // build the nested query for the possible values
-    List<TableVariable> nestedQueryTables = new ArrayList<>();
-    TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
-    nestedQueryTables.add(nestedPrimaryTable);
-
-    final String possibleValAlias = "possibleVal";
-    FieldVariable nestedValueFieldVar =
-        value.buildVariable(nestedPrimaryTable, nestedQueryTables, possibleValAlias);
-    Query possibleValuesQuery =
-        new Query.Builder()
-            .select(List.of(nestedValueFieldVar))
-            .tables(nestedQueryTables)
-            .orderBy(List.of(nestedValueFieldVar))
-            .groupBy(List.of(nestedValueFieldVar))
-            .build();
-
+    Query possibleValuesQuery = queryPossibleEnumVals(value);
     DataPointer dataPointer = value.getTablePointer().getDataPointer();
     TablePointer possibleValsTable =
         TablePointer.fromRawSql(possibleValuesQuery.renderSQL(), dataPointer);
-    FieldPointer possibleValField = new FieldPointer(possibleValsTable, possibleValAlias);
+    FieldPointer possibleValField =
+        new FieldPointer.Builder()
+            .tablePointer(possibleValsTable)
+            .columnName(ENUM_VALUE_COLUMN_ALIAS)
+            .build();
     FieldPointer possibleDisplayField =
-        new FieldPointer(
-            possibleValsTable,
-            possibleValAlias,
-            display.getSqlFunctionWrapper(),
-            display.getForeignTablePointer(),
-            display.getForeignKeyColumnName(),
-            display.getForeignColumnName());
+        new FieldPointer.Builder()
+            .tablePointer(possibleValsTable)
+            .columnName(ENUM_VALUE_COLUMN_ALIAS)
+            .foreignTablePointer(display.getForeignTablePointer())
+            .foreignKeyColumnName(display.getForeignKeyColumnName())
+            .foreignColumnName(display.getForeignColumnName())
+            .sqlFunctionWrapper(display.getSqlFunctionWrapper())
+            .build();
 
     // build the outer query for the list of (possible value, display) pairs
     List<TableVariable> tables = new ArrayList<>();
@@ -179,5 +194,21 @@ public final class EnumVals extends DisplayHint {
       }
     }
     return new EnumVals(valueDisplays);
+  }
+
+  private static Query queryPossibleEnumVals(FieldPointer value) {
+    List<TableVariable> nestedQueryTables = new ArrayList<>();
+    TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
+    nestedQueryTables.add(nestedPrimaryTable);
+
+    final String possibleValAlias = ENUM_VALUE_COLUMN_ALIAS;
+    FieldVariable nestedValueFieldVar =
+        value.buildVariable(nestedPrimaryTable, nestedQueryTables, possibleValAlias);
+    return new Query.Builder()
+        .select(List.of(nestedValueFieldVar))
+        .tables(nestedQueryTables)
+        .orderBy(List.of(nestedValueFieldVar))
+        .groupBy(List.of(nestedValueFieldVar))
+        .build();
   }
 }

@@ -84,7 +84,7 @@ public final class Indexer {
     String underlayFilePath = args[0];
     String outputDirPath = args[1];
 
-    FileIO.setToReadDiskFiles();
+    FileIO.setToReadDiskFiles(); // this is the default, included here for clarity
     Indexer indexer = new Indexer(underlayFilePath);
     indexer.indexUnderlay();
     indexer.writeOutIndexFiles(outputDirPath);

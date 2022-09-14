@@ -23,6 +23,7 @@ public final class BigQueryDataset extends DataPointer {
   private final String projectId;
   private final String datasetId;
   private final Path serviceAccountKeyFile;
+  // TODO: revisit how to point Tanagra at the right credentials for indexing/querying
   private ServiceAccountCredentials serviceAccountCredentials;
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;

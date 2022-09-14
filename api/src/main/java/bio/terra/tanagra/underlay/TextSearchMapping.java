@@ -50,7 +50,11 @@ public final class TextSearchMapping {
   }
 
   public static TextSearchMapping defaultIndexMapping(TablePointer tablePointer) {
-    return new TextSearchMapping(new FieldPointer(tablePointer, TEXT_SEARCH_COLUMN_ALIAS));
+    return new TextSearchMapping(
+        new FieldPointer.Builder()
+            .tablePointer(tablePointer)
+            .columnName(TEXT_SEARCH_COLUMN_ALIAS)
+            .build());
   }
 
   public boolean definedByAttributes() {

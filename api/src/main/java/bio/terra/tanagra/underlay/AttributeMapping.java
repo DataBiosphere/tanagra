@@ -31,7 +31,10 @@ public final class AttributeMapping {
     FieldPointer value =
         (serialized != null && serialized.getValue() != null)
             ? FieldPointer.fromSerialized(serialized.getValue(), tablePointer)
-            : new FieldPointer(tablePointer, attribute.getName());
+            : new FieldPointer.Builder()
+                .tablePointer(tablePointer)
+                .columnName(attribute.getName())
+                .build();
 
     switch (attribute.getType()) {
       case SIMPLE:
@@ -43,8 +46,10 @@ public final class AttributeMapping {
         FieldPointer display =
             (serialized != null && serialized.getDisplay() != null)
                 ? FieldPointer.fromSerialized(serialized.getDisplay(), tablePointer)
-                : new FieldPointer(
-                    tablePointer, DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName());
+                : new FieldPointer.Builder()
+                    .tablePointer(tablePointer)
+                    .columnName(DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName())
+                    .build();
         return new AttributeMapping(value, display);
       default:
         throw new IllegalArgumentException("Attribute type is not defined");

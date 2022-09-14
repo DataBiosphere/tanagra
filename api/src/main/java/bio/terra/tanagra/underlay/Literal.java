@@ -3,6 +3,7 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.serialization.UFLiteral;
 import com.google.common.base.Strings;
+import java.util.stream.Stream;
 
 public class Literal implements SQLExpression {
   /** Enum for the data types supported by Tanagra. */
@@ -37,28 +38,26 @@ public class Literal implements SQLExpression {
     boolean int64ValDefined = serialized.getInt64Val() != null;
     boolean booleanValDefined = serialized.getBooleanVal() != null;
 
-    if (stringValDefined) {
-      if (int64ValDefined || booleanValDefined) {
-        throw new IllegalArgumentException("More than one literal value defined");
-      }
-      return new Literal(serialized.getStringVal());
-    } else if (int64ValDefined) {
-      if (stringValDefined || booleanValDefined) {
-        throw new IllegalArgumentException("More than one literal value defined");
-      }
-      return new Literal(serialized.getInt64Val());
-    } else if (booleanValDefined) {
-      if (stringValDefined || int64ValDefined) {
-        throw new IllegalArgumentException("More than one literal value defined");
-      }
-      return new Literal(serialized.getBooleanVal());
+    long numDefined =
+        Stream.of(stringValDefined, int64ValDefined, booleanValDefined).filter(b -> b).count();
+    if (numDefined == 0) {
+      throw new IllegalArgumentException("No literal values defined");
+    } else if (numDefined > 1) {
+      throw new IllegalArgumentException("More than one literal value defined");
     }
 
-    throw new IllegalArgumentException("No literal values defined");
+    if (stringValDefined) {
+      return new Literal(serialized.getStringVal());
+    } else if (int64ValDefined) {
+      return new Literal(serialized.getInt64Val());
+    } else {
+      return new Literal(serialized.getBooleanVal());
+    }
   }
 
   @Override
   public String renderSQL() {
+    // TODO: use named parameters for literals to protect against SQL injection
     switch (dataType) {
       case STRING:
         return "'" + stringVal + "'";

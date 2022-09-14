@@ -59,7 +59,6 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
-    // render each GROUP BY FieldVariable and join them into a single string
     if (groupBy != null) {
       // render each GROUP BY FieldVariable and join them into a single string
       String groupBySQL =
@@ -74,7 +73,6 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
-    // render each ORDER BY FieldVariable and join them into a single string
     if (orderBy != null) {
       // render each ORDER BY FieldVariable and join them into a single string
       String orderBySQL =

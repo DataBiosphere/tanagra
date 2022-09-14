@@ -35,7 +35,7 @@ public final class AuxiliaryDataMapping {
       FieldPointer fieldPointer =
           serializedFieldPointers.get(fieldName) != null
               ? FieldPointer.fromSerialized(serializedFieldPointers.get(fieldName), tablePointer)
-              : new FieldPointer(tablePointer, fieldName);
+              : new FieldPointer.Builder().tablePointer(tablePointer).columnName(fieldName).build();
       fieldPointers.put(fieldName, fieldPointer);
     }
     serializedFieldPointers.keySet().stream()

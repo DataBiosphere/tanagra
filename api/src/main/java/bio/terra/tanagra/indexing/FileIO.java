@@ -5,6 +5,11 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.function.Function;
 
+/**
+ * This singleton class determines whether to interpret file paths as JAR resources or disk files.
+ * This is needed for testing, when we need to read files from JAR resources. For normal operation,
+ * we always read from disk directly.
+ */
 public final class FileIO {
   private static final Function<Path, InputStream> READ_RESOURCE_FILE_FUNCTION =
       filePath -> FileUtils.getResourceFileStream(filePath);

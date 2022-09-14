@@ -46,8 +46,8 @@ public class CriteriaOccurrence extends EntityGroup {
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
       String primaryEntityName) {
-    Entity criteriaEntity = deserializeEntity(serialized, CRITERIA_ENTITY_NAME, entities);
-    Entity occurrenceEntity = deserializeEntity(serialized, OCCURRENCE_ENTITY_NAME, entities);
+    Entity criteriaEntity = getDeserializedEntity(serialized, CRITERIA_ENTITY_NAME, entities);
+    Entity occurrenceEntity = getDeserializedEntity(serialized, OCCURRENCE_ENTITY_NAME, entities);
     Entity primaryEntity = entities.get(primaryEntityName);
 
     Map<String, Relationship> relationships =

@@ -9,6 +9,7 @@ import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.serialization.UFDisplayHint;
 import bio.terra.tanagra.serialization.displayhint.UFNumericRange;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
@@ -39,6 +40,11 @@ public final class NumericRange extends DisplayHint {
   @Override
   public Type getType() {
     return Type.RANGE;
+  }
+
+  @Override
+  public UFDisplayHint serialize() {
+    return new UFNumericRange(this);
   }
 
   public Long getMinVal() {
@@ -74,9 +80,19 @@ public final class NumericRange extends DisplayHint {
     final String maxValAlias = "maxVal";
 
     List<FieldVariable> select = new ArrayList<>();
-    FieldPointer minVal = new FieldPointer(possibleValsTable, possibleValAlias, "MIN");
+    FieldPointer minVal =
+        new FieldPointer.Builder()
+            .tablePointer(possibleValsTable)
+            .columnName(possibleValAlias)
+            .sqlFunctionWrapper("MIN")
+            .build();
     select.add(minVal.buildVariable(primaryTable, tables, minValAlias));
-    FieldPointer maxVal = new FieldPointer(possibleValsTable, possibleValAlias, "MAX");
+    FieldPointer maxVal =
+        new FieldPointer.Builder()
+            .tablePointer(possibleValsTable)
+            .columnName(possibleValAlias)
+            .sqlFunctionWrapper("MAX")
+            .build();
     select.add(maxVal.buildVariable(primaryTable, tables, maxValAlias));
     Query query = new Query.Builder().select(select).tables(tables).build();
 

@@ -32,8 +32,8 @@ public class OneToMany extends EntityGroup {
       UFEntityGroup serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities) {
-    Entity entity1 = deserializeEntity(serialized, ONE_ENTITY_NAME, entities);
-    Entity entityM = deserializeEntity(serialized, MANY_ENTITY_NAME, entities);
+    Entity entity1 = getDeserializedEntity(serialized, ONE_ENTITY_NAME, entities);
+    Entity entityM = getDeserializedEntity(serialized, MANY_ENTITY_NAME, entities);
 
     Map<String, Relationship> relationships =
         Map.of(

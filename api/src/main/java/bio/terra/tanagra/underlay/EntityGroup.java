@@ -58,7 +58,7 @@ public abstract class EntityGroup {
     }
   }
 
-  protected static Entity deserializeEntity(
+  protected static Entity getDeserializedEntity(
       UFEntityGroup serialized, String entityKey, Map<String, Entity> entities) {
     String entityName = serialized.getEntities().get(entityKey);
     if (entityName == null || entityName.isEmpty()) {
