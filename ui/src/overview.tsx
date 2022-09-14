@@ -7,7 +7,6 @@ import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -37,17 +36,18 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { cohortURL, criteriaURL } from "router";
+import { cohortURL } from "router";
 import * as tanagra from "tanagra-api";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
 import { generateCohortFilter, getCriteriaPlugin, groupName } from "./cohort";
 
-const drawerWidth = 400;
+const demographicsWidth = 400;
+const outlineWidth = 300;
 
 // This drawer customization is taken directly from the MUI docs.
 const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
+  width: demographicsWidth,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -70,7 +70,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
 const MiniDrawer = styled(Drawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
-  width: drawerWidth,
+  width: demographicsWidth,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
@@ -93,10 +93,10 @@ export function Overview() {
         variant="permanent"
         anchor="left"
         sx={{
-          width: drawerWidth,
+          width: outlineWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
+            width: outlineWidth,
             boxSizing: "border-box",
           },
         }}
@@ -288,6 +288,11 @@ function ParticipantCriteria(props: {
 
   const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
 
+  const displayDetails = getCriteriaPlugin(props.criteria).displayDetails();
+  const additionalText = displayDetails.additionalText?.length
+    ? displayDetails.additionalText.join("\n")
+    : displayDetails.title;
+
   return (
     <>
       <Box
@@ -296,23 +301,22 @@ function ParticipantCriteria(props: {
         justifyContent="space-between"
         alignItems="center"
       >
-        <Link
+        <Typography
           variant="h6"
-          color="inherit"
-          underline="hover"
-          component={RouterLink}
-          to={criteriaURL(props.criteria.id)}
+          title={additionalText}
+          sx={{
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
         >
-          {props.criteria.name}
-        </Link>
+          {displayDetails.title}
+        </Typography>
         <Loading status={criteriaCountState} size="small">
           <Typography variant="body1">
             {criteriaCountState.data?.toLocaleString()}
           </Typography>
         </Loading>
-      </Box>
-      <Box sx={{ pl: 1 }}>
-        {getCriteriaPlugin(props.criteria).renderDetails()}
       </Box>
     </>
   );

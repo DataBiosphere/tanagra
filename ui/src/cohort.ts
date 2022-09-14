@@ -49,10 +49,16 @@ export interface CriteriaPlugin<DataType> {
   id: string;
   data: DataType;
   renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
-  renderDetails: () => JSX.Element;
+  renderInline: () => JSX.Element;
+  displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
   occurrenceID: () => string;
 }
+
+export type DisplayDetails = {
+  title: string;
+  additionalText?: string[];
+};
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
 // register with the app simply by importing them.

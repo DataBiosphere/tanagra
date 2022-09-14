@@ -77,8 +77,30 @@ class _ implements CriteriaPlugin<Data> {
     );
   }
 
-  renderDetails() {
-    return <AttributeDetails data={this.data} config={this.config} />;
+  renderInline() {
+    return <AttributeInline data={this.data} config={this.config} />;
+  }
+
+  displayDetails() {
+    if (this.data.selected.length > 0) {
+      return {
+        title: this.config.title,
+        additionalText: this.data.selected.map((s) => s.name),
+      };
+    }
+
+    if (this.data.dataRanges.length > 0) {
+      return {
+        title: this.config.title,
+        additionalText: [
+          this.data.dataRanges.map((r) => `${r.min}-${r.max}`).join(", "),
+        ],
+      };
+    }
+
+    return {
+      title: `Any ${this.config.title}`,
+    };
   }
 
   generateFilter() {
@@ -317,12 +339,12 @@ function AttributeEdit(props: AttributeEditProps) {
   );
 }
 
-type AttributeDetailsProps = {
+type AttributeInlineProps = {
   config: Config;
   data: Data;
 };
 
-function AttributeDetails(props: AttributeDetailsProps) {
+function AttributeInline(props: AttributeInlineProps) {
   if (props.data.selected.length > 0) {
     return (
       <>
