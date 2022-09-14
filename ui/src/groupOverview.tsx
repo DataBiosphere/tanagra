@@ -93,23 +93,36 @@ export function GroupOverview() {
       </Stack>
       <Divider />
       <Stack spacing={0}>
-        {group.criteria.map((criteria) => (
-          <Box key={criteria.id}>
-            <Box sx={{ m: 1 }}>
-              <Link
-                variant="h6"
-                color="inherit"
-                underline="hover"
-                component={RouterLink}
-                to={criteriaURL(criteria.id)}
-              >
-                {criteria.name}
-              </Link>
-              {getCriteriaPlugin(criteria).renderInline()}
+        {group.criteria.map((criteria) => {
+          const plugin = getCriteriaPlugin(criteria);
+          const title = `${criteria.config.title}: ${
+            plugin.displayDetails().title
+          }`;
+
+          return (
+            <Box key={criteria.id}>
+              <Box sx={{ m: 1 }}>
+                <Stack direction="row">
+                  {!!plugin.renderEdit ? (
+                    <Link
+                      variant="h6"
+                      color="inherit"
+                      underline="hover"
+                      component={RouterLink}
+                      to={criteriaURL(criteria.id)}
+                    >
+                      {title}
+                    </Link>
+                  ) : (
+                    <Typography variant="h6">{title}</Typography>
+                  )}
+                </Stack>
+                {plugin.renderInline(criteria.id)}
+              </Box>
+              <Divider />
             </Box>
-            <Divider />
-          </Box>
-        ))}
+          );
+        })}
       </Stack>
       <Stack
         direction="row"
@@ -155,7 +168,11 @@ function AddCriteriaButton(props: { group: string }) {
     dispatch(
       insertCriteria({ cohortId: cohort.id, groupId: props.group, criteria })
     );
-    navigate(criteriaURL(criteria.id));
+    navigate(
+      !!getCriteriaPlugin(criteria).renderEdit
+        ? criteriaURL(criteria.id)
+        : "../" + cohortURL(cohort.id, props.group)
+    );
   };
 
   const [menu, show] = useMenu({

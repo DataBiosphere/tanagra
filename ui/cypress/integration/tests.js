@@ -14,24 +14,18 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add Criteria)").first().click();
     cy.get("li:Contains(Race)").click();
-    cy.get('[type = "checkbox"]').check();
-    cy.get("a[aria-label=back]").click();
+    cy.get(".MuiSelect-select").click();
+    cy.get("li:Contains(Asian)").click();
+    cy.get(".MuiBackdrop-root").click();
 
     cy.get("button:Contains(Add Criteria)").first().click();
     cy.get("li:Contains(Year at Birth)").click();
-    cy.get("button:Contains(Add Range)").click();
-    cy.get("input").first().clear().type("30");
-    cy.get("a[aria-label=back]").click();
+    cy.get(".MuiInput-input").first().type("{selectall}30");
 
     cy.get("button:Contains(Add Criteria)").last().click();
     cy.get("li:Contains(Observations)").click();
     cy.get("button:Contains(test concept)").click();
 
-    cy.get("button:Contains(Add Criteria)").last().click();
-    cy.get("li:Contains(Year at Birth)").click();
-    cy.get("button:Contains(Add Range)").click();
-    cy.get("input").first().clear().type("50");
-    cy.get("a[aria-label=back]").click();
     cy.get("a[aria-label=back]").click();
 
     cy.get("button[id=insert-concept-set]").click();
@@ -50,7 +44,7 @@ describe("Basic tests", () => {
     cy.reload();
 
     cy.get("a:Contains('New Cohort')").click();
-    cy.get("a:Contains('Contains Conditions Codes')").last().click();
+    cy.get("a:Contains('Conditions: test concept')").last().click();
     cy.contains("test concept");
   });
 });

@@ -48,8 +48,8 @@ export function groupName(group: tanagra.Group, index: number) {
 export interface CriteriaPlugin<DataType> {
   id: string;
   data: DataType;
-  renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
-  renderInline: () => JSX.Element;
+  renderEdit?: () => JSX.Element;
+  renderInline: (criteriaId: string) => JSX.Element;
   displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
   occurrenceID: () => string;
@@ -57,6 +57,7 @@ export interface CriteriaPlugin<DataType> {
 
 export type DisplayDetails = {
   title: string;
+  standaloneTitle?: boolean;
   additionalText?: string[];
 };
 

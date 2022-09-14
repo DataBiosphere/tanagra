@@ -47,22 +47,27 @@ class FakeUnderlaysApi {
       criteriaConfigs: [
         {
           type: "concept",
+          id: "tanagra-condition",
           title: "Conditions",
           defaultName: "Contains Conditions Codes",
+          conceptSet: true,
           columns,
           occurrence: "condition_occurrence",
           classification: "condition",
         },
         {
           type: "concept",
+          id: "tanagra-observation",
           title: "Observations",
           defaultName: "Contains Observations Codes",
+          conceptSet: true,
           columns,
           occurrence: "observation_occurrence",
           classification: "observation",
         },
         {
           type: "attribute",
+          id: "tanagra-race",
           title: "Race",
           defaultName: "Contains Race Codes",
           attribute: "race_concept_id",
