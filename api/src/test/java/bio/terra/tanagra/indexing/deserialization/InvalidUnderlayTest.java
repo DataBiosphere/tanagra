@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.deserialization;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
@@ -31,9 +32,9 @@ public class InvalidUnderlayTest {
 
   @Test
   void noDataPointers() throws IOException {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Underlay.fromJSON(Path.of("config/underlay/NoDataPointers.json")));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals("No DataPointer defined", ex.getMessage());
@@ -41,9 +42,9 @@ public class InvalidUnderlayTest {
 
   @Test
   void noEntities() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Underlay.fromJSON(Path.of("config/underlay/NoEntities.json")));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals("No Entity defined", ex.getMessage());
@@ -51,9 +52,9 @@ public class InvalidUnderlayTest {
 
   @Test
   void noPrimaryEntity() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Underlay.fromJSON(Path.of("config/underlay/NoPrimaryEntity.json")));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals("No primary Entity defined", ex.getMessage());
@@ -61,9 +62,9 @@ public class InvalidUnderlayTest {
 
   @Test
   void primaryEntityNotFound() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Underlay.fromJSON(Path.of("config/underlay/PrimaryEntityNotFound.json")));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals("Primary Entity not found in the set of Entities", ex.getMessage());
@@ -71,9 +72,9 @@ public class InvalidUnderlayTest {
 
   @Test
   void noBQProjectId() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Underlay.fromJSON(Path.of("config/underlay/NoBQProjectId.json")));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals("No BigQuery project ID defined", ex.getMessage());

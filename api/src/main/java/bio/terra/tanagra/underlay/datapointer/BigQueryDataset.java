@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.datapointer;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
@@ -38,19 +39,18 @@ public final class BigQueryDataset extends DataPointer {
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
     if (serialized.getProjectId() == null || serialized.getProjectId().isEmpty()) {
-      throw new IllegalArgumentException("No BigQuery project ID defined");
+      throw new InvalidConfigException("No BigQuery project ID defined");
     }
     if (serialized.getDatasetId() == null || serialized.getDatasetId().isEmpty()) {
-      throw new IllegalArgumentException("No BigQuery dataset ID defined");
+      throw new InvalidConfigException("No BigQuery dataset ID defined");
     }
     if (serialized.getServiceAccountKeyFile() == null
         || serialized.getServiceAccountKeyFile().isEmpty()) {
-      throw new IllegalArgumentException(
-          "No service account key file defined for BigQuery dataset");
+      throw new InvalidConfigException("No service account key file defined for BigQuery dataset");
     }
     Path serviceAccountKeyFile = Path.of(serialized.getServiceAccountKeyFile());
     if (!serviceAccountKeyFile.toFile().exists()) {
-      throw new IllegalArgumentException(
+      throw new InvalidConfigException(
           "Service account key file does not point to a valid path: "
               + serviceAccountKeyFile.toAbsolutePath());
     }
@@ -122,8 +122,7 @@ public final class BigQueryDataset extends DataPointer {
     } else if (LegacySQLTypeName.BOOLEAN.equals(field.getType())) {
       return Literal.DataType.BOOLEAN;
     } else {
-      throw new UnsupportedOperationException(
-          "BigQuery SQL data type not supported: " + field.getType());
+      throw new SystemException("BigQuery SQL data type not supported: " + field.getType());
     }
   }
 

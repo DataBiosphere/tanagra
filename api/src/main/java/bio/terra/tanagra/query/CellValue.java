@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.underlay.Literal;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -26,7 +27,7 @@ public interface CellValue {
         case BOOLEAN:
           return BOOLEAN;
         default:
-          throw new IllegalArgumentException("Unknown underlay data type: " + underlayDataType);
+          throw new SystemException("Unknown underlay data type: " + underlayDataType);
       }
     }
 
@@ -39,7 +40,7 @@ public interface CellValue {
         case BOOLEAN:
           return Literal.DataType.BOOLEAN;
         default:
-          throw new IllegalArgumentException("Unknown SQL data type: " + this);
+          throw new SystemException("Unknown SQL data type: " + this);
       }
     }
   }
@@ -50,14 +51,14 @@ public interface CellValue {
   /**
    * Returns this field's value as a long or empty if the value is null.
    *
-   * @throws ClassCastException if the cell's value is not a long
+   * @throws bio.terra.tanagra.exception.SystemException if the cell's value is not a long
    */
   OptionalLong getLong();
 
   /**
    * Returns this field's value as a string or empty if the value is null.
    *
-   * @throws ClassCastException if the cell's value is not a string
+   * @throws bio.terra.tanagra.exception.SystemException if the cell's value is not a string
    */
   Optional<String> getString();
 

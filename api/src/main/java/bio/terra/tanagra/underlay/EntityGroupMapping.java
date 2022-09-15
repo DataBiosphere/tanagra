@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFAuxiliaryDataMapping;
 import bio.terra.tanagra.serialization.UFEntityGroupMapping;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
@@ -45,10 +46,10 @@ public final class EntityGroupMapping {
       boolean requireRelationships,
       boolean requireAuxiliaryData) {
     if (serialized.getDataPointer() == null || serialized.getDataPointer().isEmpty()) {
-      throw new IllegalArgumentException("No Data Pointer defined");
+      throw new InvalidConfigException("No Data Pointer defined");
     }
     if (!dataPointers.containsKey(serialized.getDataPointer())) {
-      throw new IllegalArgumentException("Data Pointer not found: " + serialized.getDataPointer());
+      throw new InvalidConfigException("Data Pointer not found: " + serialized.getDataPointer());
     }
     DataPointer dataPointer = dataPointers.get(serialized.getDataPointer());
 
@@ -62,7 +63,7 @@ public final class EntityGroupMapping {
           serializedRelationshipMappings.get(relationship.getName());
       if (serializedRelationship == null) {
         if (requireRelationships) {
-          throw new IllegalArgumentException(
+          throw new InvalidConfigException(
               "Relationship mapping for " + relationship.getName() + " is undefined");
         } else {
           continue;
@@ -78,7 +79,7 @@ public final class EntityGroupMapping {
             srm -> {
               if (relationships.values().stream().filter(r -> r.getName().equals(srm)).findFirst()
                   == null) {
-                throw new IllegalArgumentException("Unexpected relationship mapping: " + srm);
+                throw new InvalidConfigException("Unexpected relationship mapping: " + srm);
               }
             });
 
@@ -106,7 +107,7 @@ public final class EntityGroupMapping {
                       .filter(ad -> ad.getName().equals(srad))
                       .findFirst()
                   == null) {
-                throw new IllegalArgumentException("Unexpected auxiliary data mapping: " + srad);
+                throw new InvalidConfigException("Unexpected auxiliary data mapping: " + srad);
               }
             });
 

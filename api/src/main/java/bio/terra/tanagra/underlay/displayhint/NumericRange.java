@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.displayhint;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
@@ -29,10 +30,10 @@ public final class NumericRange extends DisplayHint {
 
   public static NumericRange fromSerialized(UFNumericRange serialized) {
     if (serialized.getMinVal() == null) {
-      throw new IllegalArgumentException("Numeric range minimum value is undefined");
+      throw new InvalidConfigException("Numeric range minimum value is undefined");
     }
     if (serialized.getMaxVal() == null) {
-      throw new IllegalArgumentException("Numeric range maximum value is undefined");
+      throw new InvalidConfigException("Numeric range maximum value is undefined");
     }
     return new NumericRange(serialized.getMinVal(), serialized.getMaxVal());
   }

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.tablefilter;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.ArrayFilterVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.tablefilter.UFArrayFilter;
@@ -20,10 +21,10 @@ public final class ArrayFilter extends TableFilter {
 
   public static ArrayFilter fromSerialized(UFArrayFilter serialized, TablePointer tablePointer) {
     if (serialized.getOperator() == null) {
-      throw new IllegalArgumentException("Array filter operator is undefined");
+      throw new InvalidConfigException("Array filter operator is undefined");
     }
     if (serialized.getSubfilters() == null || serialized.getSubfilters().size() == 0) {
-      throw new IllegalArgumentException("Array filter has no sub-filters defined");
+      throw new InvalidConfigException("Array filter has no sub-filters defined");
     }
     List<TableFilter> subFilters =
         serialized.getSubfilters().stream()

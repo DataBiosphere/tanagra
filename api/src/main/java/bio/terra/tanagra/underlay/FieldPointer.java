@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFFieldPointer;
@@ -57,7 +58,7 @@ public class FieldPointer {
           .sqlFunctionWrapper(serialized.getSqlFunctionWrapper())
           .build();
     } else {
-      throw new IllegalArgumentException("Only some foreign key fields are defined");
+      throw new InvalidConfigException("Only some foreign key fields are defined");
     }
   }
 

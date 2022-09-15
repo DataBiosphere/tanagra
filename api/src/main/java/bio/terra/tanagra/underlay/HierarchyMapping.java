@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.SQLExpression;
@@ -42,7 +43,7 @@ public final class HierarchyMapping {
   public static HierarchyMapping fromSerialized(
       UFHierarchyMapping serialized, String hierarchyName, DataPointer dataPointer) {
     if (serialized.getChildParent() == null) {
-      throw new IllegalArgumentException("Child parent pairs are undefined");
+      throw new InvalidConfigException("Child parent pairs are undefined");
     }
     AuxiliaryDataMapping childParent =
         AuxiliaryDataMapping.fromSerialized(

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
@@ -58,7 +59,7 @@ public abstract class TableFilter {
       case ARRAY:
         return new UFArrayFilter((ArrayFilter) this);
       default:
-        throw new IllegalArgumentException("Unknown table filter type: " + getType());
+        throw new SystemException("Unknown table filter type: " + getType());
     }
   }
 }

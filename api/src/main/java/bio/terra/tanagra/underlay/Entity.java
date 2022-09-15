@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.BuildTextSearch;
@@ -48,7 +49,7 @@ public final class Entity {
 
     // deserialize attributes
     if (serialized.getAttributes() == null || serialized.getAttributes().size() == 0) {
-      throw new IllegalArgumentException("No Attributes defined: " + serialized.getName());
+      throw new InvalidConfigException("No Attributes defined: " + serialized.getName());
     }
     Map<String, Attribute> attributes = new HashMap<>();
     serialized
@@ -56,14 +57,14 @@ public final class Entity {
         .forEach(as -> attributes.put(as.getName(), Attribute.fromSerialized(as)));
 
     if (serialized.getIdAttribute() == null || serialized.getIdAttribute().isEmpty()) {
-      throw new IllegalArgumentException("No id Attribute defined");
+      throw new InvalidConfigException("No id Attribute defined");
     }
     if (!attributes.containsKey(serialized.getIdAttribute())) {
-      throw new IllegalArgumentException("Id Attribute not found in the set of Attributes");
+      throw new InvalidConfigException("Id Attribute not found in the set of Attributes");
     }
 
     if (serialized.getSourceDataMapping() == null) {
-      throw new IllegalArgumentException("No source Data Mapping defined");
+      throw new InvalidConfigException("No source Data Mapping defined");
     }
     EntityMapping sourceDataMapping =
         EntityMapping.fromSerialized(
@@ -74,7 +75,7 @@ public final class Entity {
             serialized.getIdAttribute());
 
     if (serialized.getIndexDataMapping() == null) {
-      throw new IllegalArgumentException("No index Data Mapping defined");
+      throw new InvalidConfigException("No index Data Mapping defined");
     }
     EntityMapping indexDataMapping =
         EntityMapping.fromSerialized(

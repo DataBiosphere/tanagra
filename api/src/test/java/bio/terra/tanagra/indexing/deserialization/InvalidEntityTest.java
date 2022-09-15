@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.deserialization;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -39,9 +40,9 @@ public class InvalidEntityTest {
 
   @Test
   void noAttributes() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Entity.fromJSON(Path.of("config/entity/NoAttributes.json"), dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No Attributes defined"));
@@ -49,9 +50,9 @@ public class InvalidEntityTest {
 
   @Test
   void noIdAttribute() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Entity.fromJSON(Path.of("config/entity/NoIdAttribute.json"), dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No id Attribute defined"));
@@ -59,9 +60,9 @@ public class InvalidEntityTest {
 
   @Test
   void idAttributeNotFound() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Entity.fromJSON(Path.of("config/entity/IdAttributeNotFound.json"), dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(
@@ -70,9 +71,9 @@ public class InvalidEntityTest {
 
   @Test
   void noSourceDataMapping() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Entity.fromJSON(Path.of("config/entity/NoSourceDataMapping.json"), dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No source Data Mapping defined"));
@@ -80,9 +81,9 @@ public class InvalidEntityTest {
 
   @Test
   void noIndexDataMapping() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () -> Entity.fromJSON(Path.of("config/entity/NoIndexDataMapping.json"), dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No index Data Mapping defined"));
@@ -90,9 +91,9 @@ public class InvalidEntityTest {
 
   @Test
   void attributeWithoutName() {
-    IllegalArgumentException ex =
+    InvalidConfigException ex =
         assertThrows(
-            IllegalArgumentException.class,
+            InvalidConfigException.class,
             () ->
                 Entity.fromJSON(Path.of("config/entity/AttributeWithoutName.json"), dataPointers));
     LOGGER.info("expected exception", ex);

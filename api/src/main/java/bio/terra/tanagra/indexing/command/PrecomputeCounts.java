@@ -1,5 +1,6 @@
 package bio.terra.tanagra.indexing.command;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyMapping;
@@ -38,8 +39,7 @@ public final class PrecomputeCounts extends WorkflowCommand {
       Map<String, HierarchyMapping> hierarchyMappings =
           criteriaEntity.getIndexDataMapping().getHierarchyMappings();
       if (hierarchyMappings.size() != 1) {
-        throw new UnsupportedOperationException(
-            "PrecomputeCounts workflow can only handle one hierarchy");
+        throw new InvalidConfigException("PrecomputeCounts workflow can only handle one hierarchy");
       }
       HierarchyMapping hierarchyMapping = hierarchyMappings.values().stream().findFirst().get();
       queryInputs.put(

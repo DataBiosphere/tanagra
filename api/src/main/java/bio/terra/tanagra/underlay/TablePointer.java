@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Query;
@@ -32,7 +33,7 @@ public final class TablePointer implements SQLExpression {
 
   public static TablePointer fromSerialized(UFTablePointer serialized, DataPointer dataPointer) {
     if (Strings.isNullOrEmpty(serialized.getTable())) {
-      throw new IllegalArgumentException("Table name not defined");
+      throw new InvalidConfigException("Table name not defined");
     }
 
     TablePointer tablePointer = TablePointer.fromTableName(serialized.getTable(), dataPointer);

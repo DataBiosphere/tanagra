@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
@@ -52,7 +53,7 @@ public final class AttributeMapping {
                     .build();
         return new AttributeMapping(value, display);
       default:
-        throw new IllegalArgumentException("Attribute type is not defined");
+        throw new InvalidConfigException("Attribute type is not defined");
     }
   }
 
@@ -87,8 +88,7 @@ public final class AttributeMapping {
       case STRING:
         return EnumVals.computeForField(attribute.getDataType(), value);
       default:
-        throw new IllegalArgumentException(
-            "Unknown attribute data type: " + attribute.getDataType());
+        throw new InvalidConfigException("Unknown attribute data type: " + attribute.getDataType());
     }
   }
 

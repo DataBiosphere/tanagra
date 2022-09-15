@@ -1,5 +1,7 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.SQLExpression;
@@ -42,10 +44,10 @@ public final class EntityMapping {
       String entityName,
       String idAttributeName) {
     if (serialized.getDataPointer() == null || serialized.getDataPointer().isEmpty()) {
-      throw new IllegalArgumentException("No Data Pointer defined");
+      throw new InvalidConfigException("No Data Pointer defined");
     }
     if (!dataPointers.containsKey(serialized.getDataPointer())) {
-      throw new IllegalArgumentException("Data Pointer not found: " + serialized.getDataPointer());
+      throw new InvalidConfigException("Data Pointer not found: " + serialized.getDataPointer());
     }
     DataPointer dataPointer = dataPointers.get(serialized.getDataPointer());
 
@@ -71,7 +73,7 @@ public final class EntityMapping {
         .forEach(
             serializedAttributeName -> {
               if (!attributes.containsKey(serializedAttributeName)) {
-                throw new IllegalArgumentException(
+                throw new InvalidConfigException(
                     "A mapping is defined for a non-existent attribute: "
                         + serializedAttributeName);
               }
@@ -162,7 +164,7 @@ public final class EntityMapping {
 
   public SQLExpression queryTextSearchInformation() {
     if (!hasTextSearchMapping()) {
-      throw new UnsupportedOperationException("Text search mapping is undefined");
+      throw new SystemException("Text search mapping is undefined");
     }
 
     if (textSearchMapping.definedByAttributes()) {
@@ -174,7 +176,7 @@ public final class EntityMapping {
       return queryAttributesAndFields(
           Map.of("node", idAttribute), Map.of("text", textSearchMapping.getSearchString()));
     } else {
-      throw new IllegalArgumentException("Unknown text search mapping type");
+      throw new SystemException("Unknown text search mapping type");
     }
   }
 
@@ -220,7 +222,7 @@ public final class EntityMapping {
 
   public HierarchyMapping getHierarchyMapping(String hierarchyName) {
     if (!hasHierarchyMappings() || !hierarchyMappings.containsKey(hierarchyName)) {
-      throw new UnsupportedOperationException("Hierarchy mapping is undefined: " + hierarchyName);
+      throw new SystemException("Hierarchy mapping is undefined: " + hierarchyName);
     }
     return hierarchyMappings.get(hierarchyName);
   }

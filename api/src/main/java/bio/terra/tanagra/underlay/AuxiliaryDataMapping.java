@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFAuxiliaryDataMapping;
 import bio.terra.tanagra.serialization.UFFieldPointer;
 import java.util.Collections;
@@ -42,7 +43,7 @@ public final class AuxiliaryDataMapping {
         .forEach(
             serializedFieldName -> {
               if (!auxiliaryData.getFields().contains(serializedFieldName)) {
-                throw new IllegalArgumentException(
+                throw new InvalidConfigException(
                     "A mapping is defined for a non-existent field: " + serializedFieldName);
               }
             });

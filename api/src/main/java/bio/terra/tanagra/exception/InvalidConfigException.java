@@ -1,16 +1,16 @@
 package bio.terra.tanagra.exception;
 
 /**
- * Custom exception class for system or internal exceptions. These represent errors that the user
- * cannot fix. (e.g. "Error pulling table schema from BigQuery").
+ * Custom exception class for invalid config exceptions. These represent errors in the definition of
+ * the underlay config, that the user needs to fix (e.g. "entity has no attributes").
  */
-public class SystemException extends RuntimeException {
+public class InvalidConfigException extends RuntimeException {
   /**
    * Constructs an exception with the given message. The cause is set to null.
    *
    * @param message description of error that may help with debugging
    */
-  public SystemException(String message) {
+  public InvalidConfigException(String message) {
     super(message);
   }
 
@@ -20,7 +20,7 @@ public class SystemException extends RuntimeException {
    * @param message description of error that may help with debugging
    * @param cause underlying exception that can be logged for debugging purposes
    */
-  public SystemException(String message, Throwable cause) {
+  public InvalidConfigException(String message, Throwable cause) {
     super(message, cause);
   }
 }

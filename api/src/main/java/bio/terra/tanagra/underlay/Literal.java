@@ -1,5 +1,7 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.serialization.UFLiteral;
 import com.google.common.base.Strings;
@@ -41,9 +43,9 @@ public class Literal implements SQLExpression {
     long numDefined =
         Stream.of(stringValDefined, int64ValDefined, booleanValDefined).filter(b -> b).count();
     if (numDefined == 0) {
-      throw new IllegalArgumentException("No literal values defined");
+      throw new InvalidConfigException("No literal values defined");
     } else if (numDefined > 1) {
-      throw new IllegalArgumentException("More than one literal value defined");
+      throw new InvalidConfigException("More than one literal value defined");
     }
 
     if (stringValDefined) {
@@ -66,7 +68,7 @@ public class Literal implements SQLExpression {
       case BOOLEAN:
         return String.valueOf(booleanVal);
       default:
-        throw new IllegalArgumentException("Unknown Literal data type");
+        throw new SystemException("Unknown Literal data type");
     }
   }
 

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.utils;
 
+import bio.terra.tanagra.exception.SystemException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public final class FileUtils {
     InputStream inputStream =
         FileUtils.class.getClassLoader().getResourceAsStream(resourceFilePath.toString());
     if (inputStream == null) {
-      throw new IllegalArgumentException("Resource file not found: " + resourceFilePath);
+      throw new SystemException("Resource file not found: " + resourceFilePath);
     }
     return inputStream;
   }
@@ -41,7 +42,7 @@ public final class FileUtils {
     try {
       return Files.newInputStream(Path.of(filePath.toAbsolutePath().toString()));
     } catch (IOException ioEx) {
-      throw new IllegalArgumentException("Error opening file stream: " + filePath, ioEx);
+      throw new SystemException("Error opening file stream: " + filePath, ioEx);
     }
   }
 

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFEntityGroup;
@@ -8,7 +9,6 @@ import bio.terra.tanagra.underlay.entitygroup.OneToMany;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +45,7 @@ public abstract class EntityGroup {
         JacksonMapper.readFileIntoJavaObject(
             FileIO.getGetFileInputStreamFunction().apply(entityGroupFilePath), UFEntityGroup.class);
     if (serialized.getEntities().size() == 0) {
-      throw new IllegalArgumentException("There are no entities defined");
+      throw new InvalidConfigException("There are no entities defined");
     }
     switch (serialized.getType()) {
       case ONE_TO_MANY:
@@ -54,7 +54,7 @@ public abstract class EntityGroup {
         return CriteriaOccurrence.fromSerialized(
             serialized, dataPointers, entities, primaryEntityName);
       default:
-        throw new RemoteException("Unknown entity group type: " + serialized.getType());
+        throw new InvalidConfigException("Unknown entity group type: " + serialized.getType());
     }
   }
 
@@ -62,11 +62,11 @@ public abstract class EntityGroup {
       UFEntityGroup serialized, String entityKey, Map<String, Entity> entities) {
     String entityName = serialized.getEntities().get(entityKey);
     if (entityName == null || entityName.isEmpty()) {
-      throw new IllegalArgumentException(entityKey + " entity is undefined in entity group");
+      throw new InvalidConfigException(entityKey + " entity is undefined in entity group");
     }
     Entity entity = entities.get(entityName);
     if (entity == null) {
-      throw new IllegalArgumentException(
+      throw new InvalidConfigException(
           entityKey + " entity not found in set of entities: " + entityName);
     }
     return entity;

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFAttribute;
 import com.google.common.base.Strings;
 
@@ -25,7 +26,7 @@ public final class Attribute {
 
   public static Attribute fromSerialized(UFAttribute serialized) {
     if (Strings.isNullOrEmpty(serialized.getName())) {
-      throw new IllegalArgumentException("Attribute name is undefined");
+      throw new InvalidConfigException("Attribute name is undefined");
     }
     DisplayHint displayHint =
         serialized.getDisplayHint() == null

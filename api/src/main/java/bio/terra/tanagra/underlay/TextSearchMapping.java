@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFTextSearchMapping;
 import java.util.Collections;
 import java.util.List;
@@ -25,13 +26,13 @@ public final class TextSearchMapping {
       TablePointer tablePointer,
       Map<String, Attribute> entityAttributes) {
     if (serialized.getAttributes() != null && serialized.getSearchString() != null) {
-      throw new IllegalArgumentException(
+      throw new InvalidConfigException(
           "Text search mapping can be defined by either attributes or a search string, not both");
     }
 
     if (serialized.getAttributes() != null) {
       if (serialized.getAttributes().size() == 0) {
-        throw new IllegalArgumentException("Text search mapping list of attributes is empty");
+        throw new InvalidConfigException("Text search mapping list of attributes is empty");
       }
       List<Attribute> attributesForTextSearch =
           serialized.getAttributes().stream()
@@ -46,7 +47,7 @@ public final class TextSearchMapping {
       return new TextSearchMapping(searchStringField);
     }
 
-    throw new IllegalArgumentException("Text search mapping is empty");
+    throw new InvalidConfigException("Text search mapping is empty");
   }
 
   public static TextSearchMapping defaultIndexMapping(TablePointer tablePointer) {

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.displayhint;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
@@ -37,7 +38,7 @@ public final class EnumVals extends DisplayHint {
 
   public static EnumVals fromSerialized(UFEnumVals serialized) {
     if (serialized.getValueDisplays() == null) {
-      throw new IllegalArgumentException("Enum values map is undefined");
+      throw new InvalidConfigException("Enum values map is undefined");
     }
     List<ValueDisplay> valueDisplays =
         serialized.getValueDisplays().stream()

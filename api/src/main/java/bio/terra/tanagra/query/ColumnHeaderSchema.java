@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query;
 
+import bio.terra.tanagra.exception.SystemException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ColumnHeaderSchema {
         return i;
       }
     }
-    throw new IllegalArgumentException(
+    throw new SystemException(
         String.format("Column name '%s' not a part of the column schema.", columnName));
   }
 

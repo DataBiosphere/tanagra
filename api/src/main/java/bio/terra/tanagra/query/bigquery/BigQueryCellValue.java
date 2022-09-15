@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query.bigquery;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.underlay.Literal;
@@ -30,8 +31,8 @@ class BigQueryCellValue implements CellValue {
       return fieldValue.isNull()
           ? OptionalLong.empty()
           : OptionalLong.of(fieldValue.getLongValue());
-    } catch (NumberFormatException e) {
-      throw new ClassCastException("Unable to format as number");
+    } catch (NumberFormatException nfEx) {
+      throw new SystemException("Unable to format as number", nfEx);
     }
   }
 
@@ -52,17 +53,17 @@ class BigQueryCellValue implements CellValue {
       case BOOLEAN:
         return new Literal(fieldValue.getBooleanValue());
       default:
-        throw new IllegalArgumentException("Unknown data type: " + dataType);
+        throw new SystemException("Unknown data type: " + dataType);
     }
   }
 
   /**
    * Checks that the {@link #dataType()} is what's expected, or else throws a {@link
-   * ClassCastException}.
+   * SystemException}.
    */
   private void assertDataTypeIs(SQLDataType expected) {
     if (!dataType().equals(expected)) {
-      throw new ClassCastException(
+      throw new SystemException(
           String.format("SQLDataType is %s, not the expected %s", dataType(), expected));
     }
   }

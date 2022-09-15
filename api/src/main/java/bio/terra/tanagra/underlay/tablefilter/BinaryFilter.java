@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.tablefilter;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.BinaryFilterVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.tablefilter.UFBinaryFilter;
@@ -25,7 +26,7 @@ public final class BinaryFilter extends TableFilter {
     if (serialized.getField() == null
         || serialized.getOperator() == null
         || serialized.getValue() == null) {
-      throw new IllegalArgumentException("Only some table filter fields are defined");
+      throw new InvalidConfigException("Only some table filter fields are defined");
     }
 
     FieldPointer fieldPointer = FieldPointer.fromSerialized(serialized.getField(), tablePointer);

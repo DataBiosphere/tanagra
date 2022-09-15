@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.serialization.UFDataPointer;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
@@ -34,7 +35,7 @@ public abstract class DataPointer {
     if (getType().equals(Type.BQ_DATASET)) {
       return new UFBigQueryDataset((BigQueryDataset) this);
     } else {
-      throw new IllegalArgumentException("Unknown data pointer type: " + getType());
+      throw new InvalidConfigException("Unknown data pointer type: " + getType());
     }
   }
 

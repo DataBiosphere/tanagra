@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFUnderlay;
@@ -40,7 +41,7 @@ public final class Underlay {
 
     // deserialize data pointers
     if (serialized.getDataPointers() == null || serialized.getDataPointers().size() == 0) {
-      throw new IllegalArgumentException("No DataPointer defined");
+      throw new InvalidConfigException("No DataPointer defined");
     }
     Map<String, DataPointer> dataPointers = new HashMap<>();
     serialized
@@ -52,7 +53,7 @@ public final class Underlay {
 
     // deserialize entities
     if (serialized.getEntities() == null || serialized.getEntities().size() == 0) {
-      throw new IllegalArgumentException("No Entity defined");
+      throw new InvalidConfigException("No Entity defined");
     }
     Map<String, Entity> entities = new HashMap<>();
     for (String entityFile : serialized.getEntities()) {
@@ -62,10 +63,10 @@ public final class Underlay {
 
     String primaryEntity = serialized.getPrimaryEntity();
     if (primaryEntity == null || primaryEntity.isEmpty()) {
-      throw new IllegalArgumentException("No primary Entity defined");
+      throw new InvalidConfigException("No primary Entity defined");
     }
     if (!entities.containsKey(primaryEntity)) {
-      throw new IllegalArgumentException("Primary Entity not found in the set of Entities");
+      throw new InvalidConfigException("Primary Entity not found in the set of Entities");
     }
 
     // deserialize entity groups

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.displayhint;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.displayhint.UFValueDisplay;
 import bio.terra.tanagra.underlay.Literal;
 
@@ -19,7 +20,7 @@ public class ValueDisplay {
 
   public static ValueDisplay fromSerialized(UFValueDisplay serialized) {
     if (serialized.getValue() == null) {
-      throw new IllegalArgumentException("Value is undefined");
+      throw new InvalidConfigException("Value is undefined");
     }
     return new ValueDisplay(Literal.fromSerialized(serialized.getValue()), serialized.getDisplay());
   }

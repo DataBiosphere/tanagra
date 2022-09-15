@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.underlay.FieldPointer;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class FieldVariable implements SQLExpression {
     String sql = StringSubstitutor.replace(template, params);
 
     if (fieldPointer.isForeignKey()) {
-      throw new UnsupportedOperationException("TODO: implement embedded selects " + sql);
+      throw new SystemException("TODO: implement embedded selects " + sql);
     }
 
     if (fieldPointer.hasSqlFunctionWrapper() && useAliasAndFunctionWrapper) {
