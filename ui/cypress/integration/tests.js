@@ -33,7 +33,7 @@ describe("Basic tests", () => {
     cy.get("button:Contains(test concept)").click();
 
     cy.get("button[name='New Cohort']").click();
-    cy.get("button[name='Contains Conditions Codes']").click();
+    cy.get("button[name='Conditions: test concept']").click();
 
     cy.get("button:Contains('condition_occurrence')");
 

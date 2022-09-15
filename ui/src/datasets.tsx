@@ -15,6 +15,7 @@ import {
   createCriteria,
   generateCohortFilter,
   getCriteriaPlugin,
+  getCriteriaTitle,
 } from "cohort";
 import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
@@ -215,7 +216,7 @@ export function Datasets() {
                 .filter((cs) => cs.underlayName === underlay.name)
                 .map((cs) => ({
                   id: cs.id,
-                  name: cs.criteria.name,
+                  name: getCriteriaTitle(cs.criteria),
                 }))
             )}
           </Paper>

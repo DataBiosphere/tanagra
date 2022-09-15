@@ -426,7 +426,6 @@ uiConfiguration: >-
       "type":"concept",
       "id": "tanagra-conditions",
       "title":"Conditions",
-      "defaultName":"Contains Conditions Codes",
       "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
@@ -448,7 +447,6 @@ uiConfiguration: >-
       "type":"concept",
       "id": "tanagra-procedures",
       "title":"Procedures",
-      "defaultName":"Contains Procedures Codes",
       "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
@@ -470,7 +468,6 @@ uiConfiguration: >-
       "type":"concept",
       "id": "tanagra-observations",
       "title":"Observations",
-      "defaultName":"Contains Observations Codes",
       "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
@@ -487,7 +484,6 @@ uiConfiguration: >-
       "type":"concept",
       "id": "tanagra-drugs",
       "title":"Drugs",
-      "defaultName":"Contains Drugs Codes",
       "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
@@ -509,35 +505,30 @@ uiConfiguration: >-
       "type":"attribute",
       "id": "tanagra-ethnicity",
       "title":"Ethnicity",
-      "defaultName":"Contains Ethnicity Codes",
       "attribute":"ethnicity_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-gender",
       "title":"Gender Identity",
-      "defaultName":"Contains Gender Identity Codes",
       "attribute":"gender_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-race",
       "title":"Race",
-      "defaultName":"Contains Race Codes",
       "attribute":"race_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-sex_at_birth",
       "title":"Sex Assigned at Birth",
-      "defaultName":"Contains Sex Assigned at Birth Codes",
       "attribute":"sex_at_birth_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-year_of_birth",
-      "title":"Year at Birth",
-      "defaultName":"Contains Year at Birth Values",
+      "title":"Year of Birth",
       "attribute":"year_of_birth"
     }],
     "demographicChartConfigs": {

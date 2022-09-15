@@ -31,7 +31,12 @@ import {
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { cohortURL, criteriaURL } from "router";
 import * as tanagra from "tanagra-api";
-import { createCriteria, getCriteriaPlugin, groupName } from "./cohort";
+import {
+  createCriteria,
+  getCriteriaPlugin,
+  getCriteriaTitle,
+  groupName,
+} from "./cohort";
 
 export function GroupOverview() {
   const { cohort, group, groupIndex } = useCohortAndGroup();
@@ -107,9 +112,7 @@ export function GroupOverview() {
       <Stack spacing={0}>
         {group.criteria.map((criteria) => {
           const plugin = getCriteriaPlugin(criteria);
-          const title = `${criteria.config.title}: ${
-            plugin.displayDetails().title
-          }`;
+          const title = getCriteriaTitle(criteria, plugin);
 
           return (
             <Box key={criteria.id}>
