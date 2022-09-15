@@ -1,5 +1,6 @@
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -12,6 +13,7 @@ import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
+  deleteCriteria,
   deleteGroup,
   insertCriteria,
   renameGroup,
@@ -67,6 +69,16 @@ export function GroupOverview() {
           <IconButton onClick={showRenameGroup}>
             <EditIcon />
           </IconButton>
+          <IconButton
+            onClick={() => {
+              const action = dispatch(deleteGroup(cohort, group.id));
+              navigate(
+                "../" + cohortURL(cohort.id, action.payload.nextGroupId)
+              );
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
           {renameGroupDialog}
         </Stack>
         <Stack direction="row" alignItems="center">
@@ -101,8 +113,13 @@ export function GroupOverview() {
 
           return (
             <Box key={criteria.id}>
-              <Box sx={{ m: 1 }}>
-                <Stack direction="row">
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="baseline"
+                sx={{ m: 1 }}
+              >
+                <Box>
                   {!!plugin.renderEdit ? (
                     <Link
                       variant="h6"
@@ -116,9 +133,22 @@ export function GroupOverview() {
                   ) : (
                     <Typography variant="h6">{title}</Typography>
                   )}
-                </Stack>
-                {plugin.renderInline(criteria.id)}
-              </Box>
+                  {plugin.renderInline(criteria.id)}
+                </Box>
+                <IconButton
+                  onClick={() => {
+                    dispatch(
+                      deleteCriteria({
+                        cohortId: cohort.id,
+                        groupId: group.id,
+                        criteriaId: criteria.id,
+                      })
+                    );
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Stack>
               <Divider />
             </Box>
           );
@@ -131,25 +161,6 @@ export function GroupOverview() {
         sx={{ mt: 1 }}
       >
         <AddCriteriaButton group={group.id} />
-        <Button
-          variant="contained"
-          disabled={cohort.groups.length === 1}
-          onClick={() => {
-            dispatch(
-              deleteGroup({
-                cohortId: cohort.id,
-                groupId: group.id,
-              })
-            );
-            const newIndex =
-              groupIndex === cohort.groups.length - 1
-                ? groupIndex - 1
-                : groupIndex + 1;
-            navigate("../" + cohortURL(cohort.id, cohort.groups[newIndex].id));
-          }}
-        >
-          Delete Group
-        </Button>
       </Stack>
     </Box>
   );
