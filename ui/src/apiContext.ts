@@ -79,6 +79,13 @@ class FakeUnderlaysApi {
           attribute: "year_of_birth",
         },
       ],
+      criteriaSearchConfig: {
+        criteriaTypeWidth: 120,
+        columns: [
+          { key: "concept_name", width: "100%", title: "Concept Name" },
+          { key: "person_count", width: 120, title: "Roll-up Count" },
+        ],
+      },
     };
 
     return new Promise<tanagra.ListUnderlaysResponse>((resolve) => {

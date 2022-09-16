@@ -15,11 +15,12 @@ import {
   TreeGridItem,
   TreeGridRowData,
 } from "components/treegrid";
-import { DataKey } from "data/configuration";
+import { DataEntry, DataKey } from "data/configuration";
 import { FilterType } from "data/filter";
 import {
   ClassificationNode,
   SearchClassificationResult,
+  Source,
   useSource,
 } from "data/source";
 import { useAsyncWithApi } from "errors";
@@ -55,9 +56,27 @@ export interface Data {
   selected: Selection[];
 }
 
-@registerCriteriaPlugin("concept", () => ({
-  selected: [],
-}))
+@registerCriteriaPlugin(
+  "concept",
+  (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
+    const config = c as Config;
+
+    const data: Data = {
+      selected: [],
+    };
+
+    if (dataEntry) {
+      const column = config.columns[config.nameColumnIndex ?? 0];
+      data.selected.push({
+        key: dataEntry.key,
+        name: String(dataEntry[column.key]) ?? "",
+      });
+    }
+
+    return data;
+  },
+  search
+)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
@@ -236,6 +255,8 @@ function ConceptEdit(props: ConceptEditProps) {
     [props.config.columns]
   );
 
+  const nameColumnIndex = props.config.nameColumnIndex ?? 0;
+
   return (
     <>
       {!hierarchy && (
@@ -258,8 +279,7 @@ function ConceptEdit(props: ConceptEditProps) {
               return undefined;
             }
 
-            const column =
-              props.config.columns[props.config.nameColumnIndex ?? 0];
+            const column = props.config.columns[nameColumnIndex];
             const name = rowData[column.key];
             const newItem = {
               key: item.node.data.key,
@@ -271,38 +291,48 @@ function ConceptEdit(props: ConceptEditProps) {
                 (sel) => item.node.data.key === sel.key
               );
 
-              return {
-                prefixElements: (
-                  <Checkbox
-                    size="small"
-                    fontSize="inherit"
-                    checked={index > -1}
-                    onChange={() => {
-                      updateCriteria(
-                        produce(props.data, (data) => {
-                          if (index > -1) {
-                            data.selected.splice(index, 1);
-                          } else {
-                            data.selected.push(newItem);
-                          }
-                        })
-                      );
-                    }}
-                  />
-                ),
-              };
+              return new Map([
+                [
+                  nameColumnIndex,
+                  {
+                    prefixElements: (
+                      <Checkbox
+                        size="small"
+                        fontSize="inherit"
+                        checked={index > -1}
+                        onChange={() => {
+                          updateCriteria(
+                            produce(props.data, (data) => {
+                              if (index > -1) {
+                                data.selected.splice(index, 1);
+                              } else {
+                                data.selected.push(newItem);
+                              }
+                            })
+                          );
+                        }}
+                      />
+                    ),
+                  },
+                ],
+              ]);
             }
 
-            return {
-              onClick: () => {
-                updateCriteria(
-                  produce(props.data, (data) => {
-                    data.selected = [newItem];
-                  })
-                );
-                navigate("..");
-              },
-            };
+            return new Map([
+              [
+                nameColumnIndex,
+                {
+                  onClick: () => {
+                    updateCriteria(
+                      produce(props.data, (data) => {
+                        data.selected = [newItem];
+                      })
+                    );
+                    navigate("..");
+                  },
+                },
+              ],
+            ]);
           }}
           loadChildren={(id: TreeGridId) => {
             const item = data[id] as ClassificationNodeItem;
@@ -358,4 +388,22 @@ function ConceptInline(props: ConceptInlineProps) {
       )}
     </>
   );
+}
+
+function search(
+  source: Source,
+  c: CriteriaConfig,
+  query: string
+): Promise<DataEntry[]> {
+  const config = c as Config;
+  return source
+    .searchClassification(
+      config.columns.map(({ key }) => key),
+      config.occurrence,
+      config.classification,
+      {
+        query,
+      }
+    )
+    .then((res) => res.nodes.map((node) => node.data));
 }

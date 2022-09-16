@@ -1,10 +1,11 @@
+import { DataEntry } from "data/configuration";
 import {
   Filter,
   FilterType,
   makeArrayFilter,
   UnaryFilterOperator,
 } from "data/filter";
-import { Source } from "data/source";
+import { MergedDataEntry, Source } from "data/source";
 import { generate } from "randomstring";
 import * as tanagra from "tanagra-api";
 import { isValid } from "util/valid";
@@ -69,29 +70,74 @@ export function getCriteriaTitle<DataType>(
   return `${criteria.config.title}: ${p.displayDetails().title}`;
 }
 
+export function searchCriteria(
+  source: Source,
+  configs: CriteriaConfig[],
+  query: string
+): Promise<SearchResponse> {
+  const promises: Promise<[string, DataEntry[]]>[] = configs
+    .map((config) => {
+      const entry = criteriaRegistry.get(config.type);
+      if (!entry?.search) {
+        return null;
+      }
+
+      // The compiler can't seem to understand this expression if it's not
+      // explicitly typed.
+      const p: Promise<[string, DataEntry[]]> = entry
+        .search(source, config, query)
+        .then((res) => [config.id, res]);
+      return p;
+    })
+    .filter(isValid);
+
+  return Promise.all(promises).then((responses) => ({
+    data: source.mergeDataEntryLists(responses, 100),
+  }));
+}
+
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
   type: string,
-  initializeData: (source: Source, config: CriteriaConfig) => object
+  initializeData: InitializeDataFn,
+  search?: SearchFn
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
       initializeData,
       constructor,
+      search,
     });
   };
 }
 
+type InitializeDataFn = (
+  source: Source,
+  config: CriteriaConfig,
+  dataEntry?: DataEntry
+) => object;
+
+type SearchFn = (
+  source: Source,
+  config: CriteriaConfig,
+  query: string
+) => Promise<DataEntry[]>;
+
+export type SearchResponse = {
+  data: MergedDataEntry[];
+};
+
 export function createCriteria(
   source: Source,
-  config: CriteriaConfig
+  config: CriteriaConfig,
+  dataEntry?: DataEntry
 ): tanagra.Criteria {
   const entry = getCriteriaEntry(config.type);
   return {
     id: generateId(),
     type: config.type,
-    data: entry.initializeData(source, config),
+    data: entry.initializeData(source, config, dataEntry),
     config: config,
   };
 }
@@ -123,8 +169,9 @@ interface CriteriaPluginConstructor {
 }
 
 type RegistryEntry = {
-  initializeData: (source: Source, config: CriteriaConfig) => object;
+  initializeData: InitializeDataFn;
   constructor: CriteriaPluginConstructor;
+  search?: SearchFn;
 };
 
 const criteriaRegistry = new Map<string, RegistryEntry>();

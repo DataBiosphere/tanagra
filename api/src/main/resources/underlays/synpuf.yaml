@@ -190,6 +190,7 @@ uiConfiguration: >-
       "id": "tanagra-conditions",
       "title":"Conditions",
       "conceptSet": true,
+      "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
@@ -211,6 +212,7 @@ uiConfiguration: >-
       "id": "tanagra-procedures",
       "title":"Procedures",
       "conceptSet": true,
+      "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
@@ -232,6 +234,7 @@ uiConfiguration: >-
       "id": "tanagra-observations",
       "title":"Observations",
       "conceptSet": true,
+      "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
@@ -248,6 +251,7 @@ uiConfiguration: >-
       "id": "tanagra-drugs",
       "title":"Drugs",
       "conceptSet": true,
+      "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
@@ -268,30 +272,35 @@ uiConfiguration: >-
       "type":"attribute",
       "id": "tanagra-ethnicity",
       "title":"Ethnicity",
+      "category": "Program data",
       "attribute":"ethnicity_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-gender",
       "title":"Gender Identity",
+      "category": "Program data",
       "attribute":"gender_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-race",
       "title":"Race",
+      "category": "Program data",
       "attribute":"race_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-sex_at_birth",
       "title":"Sex Assigned at Birth",
+      "category": "Program data",
       "attribute":"sex_at_birth_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-year_of_birth",
       "title":"Year of Birth",
+      "category": "Program data",
       "attribute":"year_of_birth"
     }],
     "demographicChartConfigs": {
@@ -343,7 +352,16 @@ uiConfiguration: >-
           "keys": [21604253]
         }
       }
-    ]
+    ],
+    "criteriaSearchConfig": {
+      "criteriaTypeWidth": 120,
+      "columns": [
+        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ]
+    }
   }
 relationships:
   - name: person_condition_occurrence

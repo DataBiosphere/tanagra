@@ -1,4 +1,5 @@
 import Button from "@mui/material/Button";
+import { AddCriteria } from "addCriteria";
 import ConceptSetEdit from "conceptSetEdit";
 import Edit from "edit";
 import { GroupOverview } from "groupOverview";
@@ -18,6 +19,7 @@ export function AppRouter() {
           <Route index element={<Datasets />} />
           <Route path="cohorts/:cohortId/:groupId" element={<Overview />}>
             <Route index element={<GroupOverview />} />
+            <Route path="add" element={<AddCriteria />} />
             <Route path="edit/:criteriaId" element={<Edit />} />
           </Route>
           <Route
