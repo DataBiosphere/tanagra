@@ -809,9 +809,6 @@ components:
         id:
           type: string
           description: The unique id of this concept set.
-        name:
-          type: string
-          description: The name of this concept set.
         underlayName:
           type: string
           description: The underlay this concept set is based on.
@@ -819,7 +816,6 @@ components:
           $ref: "#/components/schemas/Criteria"
       required:
         - id
-        - name
         - underlayName
         - criteria
 
@@ -830,9 +826,6 @@ components:
         id:
           type: string
           description: The unique id of this criteria.
-        name:
-          type: string
-          description: The name of this criteria.
         type:
           type: string
           description: The plugin type used by this criteria.
@@ -845,7 +838,6 @@ components:
           $ref: "#/components/schemas/CriteriaConfig"
       required:
         - id
-        - name
         - type
         - data
         - config

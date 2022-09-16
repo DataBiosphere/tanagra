@@ -54,7 +54,6 @@ export interface CriteriaConfig {
   type: string;
   id: string;
   title: string;
-  defaultName: string;
   conceptSet?: boolean;
 
   // Plugin specific config.

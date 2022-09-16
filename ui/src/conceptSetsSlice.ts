@@ -21,7 +21,6 @@ const conceptSetsSlice = createSlice({
       prepare: (underlayName: string, criteria: tanagra.Criteria) => ({
         payload: {
           id: generateId(),
-          name: criteria.name,
           underlayName,
           criteria,
         },

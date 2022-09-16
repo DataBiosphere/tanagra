@@ -61,6 +61,14 @@ export type DisplayDetails = {
   additionalText?: string[];
 };
 
+export function getCriteriaTitle<DataType>(
+  criteria: tanagra.Criteria,
+  plugin?: CriteriaPlugin<DataType>
+) {
+  const p = plugin ?? getCriteriaPlugin(criteria);
+  return `${criteria.config.title}: ${p.displayDetails().title}`;
+}
+
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
@@ -83,7 +91,6 @@ export function createCriteria(
   return {
     id: generateId(),
     type: config.type,
-    name: config.defaultName,
     data: entry.initializeData(source, config),
     config: config,
   };
