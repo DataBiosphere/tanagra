@@ -288,10 +288,14 @@ function ParticipantCriteria(props: {
 
   const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
 
-  const displayDetails = getCriteriaPlugin(props.criteria).displayDetails();
-  const additionalText = displayDetails.additionalText?.length
-    ? displayDetails.additionalText.join("\n")
-    : displayDetails.title;
+  const details = getCriteriaPlugin(props.criteria).displayDetails();
+  const title = details.standaloneTitle
+    ? details.title
+    : `${props.criteria.config.title}: ${details.title}`;
+
+  const additionalText = details.additionalText?.length
+    ? details.additionalText.join("\n")
+    : title;
 
   return (
     <>
@@ -310,7 +314,7 @@ function ParticipantCriteria(props: {
             overflow: "hidden",
           }}
         >
-          {displayDetails.title}
+          {title}
         </Typography>
         <Loading status={criteriaCountState} size="small">
           <Typography variant="body1">

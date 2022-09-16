@@ -852,7 +852,19 @@ function generateOccurrenceFilter(
         entity.entity,
       ];
     }
-    return [null, ""];
+
+    return [
+      {
+        binaryFilter: {
+          attributeVariable: {
+            variable: entity.entity,
+            name: filter.attribute,
+          },
+          operator: tanagra.BinaryFilterOperator.NotEquals,
+        },
+      },
+      entity.entity,
+    ];
   }
   throw new Error(`Unknown filter type: ${JSON.stringify(filter)}`);
 }

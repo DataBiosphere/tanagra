@@ -117,16 +117,18 @@ export function Datasets() {
   };
 
   const [menu, showInsertConceptSet] = useMenu({
-    children: underlay.uiConfiguration.criteriaConfigs.map((config) => (
-      <MenuItem
-        key={config.title}
-        onClick={() => {
-          onInsertConceptSet(createCriteria(source, config));
-        }}
-      >
-        {config.title}
-      </MenuItem>
-    )),
+    children: underlay.uiConfiguration.criteriaConfigs
+      .filter((config) => !!config.conceptSet)
+      .map((config) => (
+        <MenuItem
+          key={config.title}
+          onClick={() => {
+            onInsertConceptSet(createCriteria(source, config));
+          }}
+        >
+          {config.title}
+        </MenuItem>
+      )),
   });
 
   const allAttributesChecked = () => {

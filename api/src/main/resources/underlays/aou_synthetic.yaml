@@ -427,6 +427,7 @@ uiConfiguration: >-
       "id": "tanagra-conditions",
       "title":"Conditions",
       "defaultName":"Contains Conditions Codes",
+      "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
@@ -448,6 +449,7 @@ uiConfiguration: >-
       "id": "tanagra-procedures",
       "title":"Procedures",
       "defaultName":"Contains Procedures Codes",
+      "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
@@ -469,6 +471,7 @@ uiConfiguration: >-
       "id": "tanagra-observations",
       "title":"Observations",
       "defaultName":"Contains Observations Codes",
+      "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},
@@ -485,6 +488,7 @@ uiConfiguration: >-
       "id": "tanagra-drugs",
       "title":"Drugs",
       "defaultName":"Contains Drugs Codes",
+      "conceptSet": true,
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
         {"key":"concept_id","width":120,"title":"Concept ID"},

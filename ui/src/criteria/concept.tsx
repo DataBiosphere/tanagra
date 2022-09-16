@@ -23,6 +23,7 @@ import {
   useSource,
 } from "data/source";
 import { useAsyncWithApi } from "errors";
+import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -67,14 +68,8 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderEdit(dispatchFn: (data: Data) => void) {
-    return (
-      <ConceptEdit
-        dispatchFn={dispatchFn}
-        data={this.data}
-        config={this.config}
-      />
-    );
+  renderEdit() {
+    return <ConceptEdit data={this.data} config={this.config} />;
   }
 
   renderInline() {
@@ -85,12 +80,13 @@ class _ implements CriteriaPlugin<Data> {
     if (this.data.selected.length > 0) {
       return {
         title: this.data.selected[0].name,
+        standaloneTitle: true,
         additionalText: this.data.selected.slice(1).map((s) => s.name),
       };
     }
 
     return {
-      title: `Any ${this.config.title}`,
+      title: "(any)",
     };
   }
 
@@ -117,7 +113,6 @@ function keyForNode(node: ClassificationNode): DataKey {
 }
 
 type ConceptEditProps = {
-  dispatchFn: (data: Data) => void;
   data: Data;
   config: Config;
 };
@@ -130,6 +125,7 @@ function ConceptEdit(props: ConceptEditProps) {
     props.config.occurrence,
     props.config.classification
   );
+  const updateCriteria = useUpdateCriteria();
 
   const [hierarchy, setHierarchy] = useState<DataKey[] | undefined>();
   const [query, setQuery] = useState<string>("");
@@ -282,7 +278,7 @@ function ConceptEdit(props: ConceptEditProps) {
                     fontSize="inherit"
                     checked={index > -1}
                     onChange={() => {
-                      props.dispatchFn(
+                      updateCriteria(
                         produce(props.data, (data) => {
                           if (index > -1) {
                             data.selected.splice(index, 1);
@@ -299,7 +295,7 @@ function ConceptEdit(props: ConceptEditProps) {
 
             return {
               onClick: () => {
-                props.dispatchFn(
+                updateCriteria(
                   produce(props.data, (data) => {
                     data.selected = [newItem];
                   })
