@@ -77,19 +77,61 @@ const cohortsSlice = createSlice({
       }
     },
 
-    deleteGroup: (
-      state,
-      action: PayloadAction<{
-        cohortId: string;
-        groupId: string;
-      }>
-    ) => {
-      const cohort = state.find((c) => c.id === action.payload.cohortId);
-      if (cohort) {
-        cohort.groups = cohort.groups.filter(
-          (group) => group.id !== action.payload.groupId
+    deleteGroup: {
+      reducer: (
+        state,
+        action: PayloadAction<{
+          cohortId: string;
+          groupId: string;
+          nextGroupId: string;
+        }>
+      ) => {
+        const cohort = state.find((c) => c.id === action.payload.cohortId);
+        if (cohort) {
+          if (cohort.groups.length === 1) {
+            // Clear the last group instead of deleting it so there's always at
+            // least one group. Reusing the ID works more naturally for redo
+            // because it sets the URL to where the the action was initiated
+            // from, which would otherwise be the deleted group.
+            cohort.groups = [
+              {
+                id: cohort.groups[0].id,
+                kind: tanagra.GroupKindEnum.Included,
+                criteria: [],
+              },
+            ];
+          } else {
+            cohort.groups = cohort.groups.filter(
+              (group) => group.id !== action.payload.groupId
+            );
+          }
+        }
+      },
+      prepare: (cohort: tanagra.Cohort, groupId: string) => {
+        const groupIndex = cohort.groups.findIndex(
+          (group) => group.id === groupId
         );
-      }
+        if (groupIndex < 0) {
+          throw new Error(
+            `Group ${groupId} not found in cohort ${cohort.id} for deleteGroup.`
+          );
+        }
+
+        let newIndex = groupIndex + 1;
+        if (cohort.groups.length === 1) {
+          newIndex = 0;
+        } else if (groupIndex === cohort.groups.length - 1) {
+          newIndex = groupIndex - 1;
+        }
+
+        return {
+          payload: {
+            cohortId: cohort.id,
+            groupId,
+            nextGroupId: cohort.groups[newIndex].id,
+          },
+        };
+      },
     },
 
     setGroupKind: {
