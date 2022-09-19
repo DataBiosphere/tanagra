@@ -17,13 +17,14 @@ public class TextSearchMappingTest {
   @BeforeAll
   static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
-    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
+    FileIO.setInputParentDir(Path.of("config"));
+    Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
   }
 
   @Test
   void condition() throws IOException {
-    Entity condition = Entity.fromJSON(Path.of("config/entity/Condition.json"), dataPointers);
+    Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         condition.getSourceDataMapping().queryTextSearchInformation().renderSQL(),
         "query/condition_source_textSearch.sql");

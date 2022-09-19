@@ -10,7 +10,6 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class IndexEntityGroupTest {
   @BeforeAll
   static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
-    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
+    Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
     entities = underlay.getEntities();
     primaryEntityName = underlay.getPrimaryEntity().getName();
@@ -34,11 +33,7 @@ public class IndexEntityGroupTest {
   @Test
   void oneToMany() throws IOException {
     EntityGroup brandIngredient =
-        EntityGroup.fromJSON(
-            Path.of("config/entitygroup/BrandIngredient.json"),
-            dataPointers,
-            entities,
-            primaryEntityName);
+        EntityGroup.fromJSON("BrandIngredient.json", dataPointers, entities, primaryEntityName);
     List<WorkflowCommand> cmds = brandIngredient.getIndexingCommands();
 
     assertEquals(0, cmds.size(), "no indexing cmds generated");
@@ -48,10 +43,7 @@ public class IndexEntityGroupTest {
   void criteriaOccurrenceWithHierarchy() throws IOException {
     EntityGroup conditionPersonOccurrence =
         EntityGroup.fromJSON(
-            Path.of("config/entitygroup/ConditionPersonOccurrence.json"),
-            dataPointers,
-            entities,
-            primaryEntityName);
+            "ConditionPersonOccurrence.json", dataPointers, entities, primaryEntityName);
     List<WorkflowCommand> cmds = conditionPersonOccurrence.getIndexingCommands();
 
     assertEquals(1, cmds.size(), "one indexing cmd generated");

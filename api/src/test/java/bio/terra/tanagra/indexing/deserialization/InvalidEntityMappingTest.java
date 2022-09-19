@@ -22,7 +22,8 @@ public class InvalidEntityMappingTest {
   @BeforeAll
   static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
-    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
+    FileIO.setInputParentDir(Path.of("config"));
+    Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
   }
 
@@ -31,9 +32,7 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () ->
-                Entity.fromJSON(
-                    Path.of("config/entity/MappingNonExistentAttribute.json"), dataPointers));
+            () -> Entity.fromJSON("MappingNonExistentAttribute.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(
         ex.getMessage().startsWith("A mapping is defined for a non-existent attribute"));
@@ -44,9 +43,7 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () ->
-                Entity.fromJSON(
-                    Path.of("config/entity/DoubleTextSearchMapping.json"), dataPointers));
+            () -> Entity.fromJSON("DoubleTextSearchMapping.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals(
         "Text search mapping can be defined by either attributes or a search string, not both",
@@ -58,9 +55,7 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () ->
-                Entity.fromJSON(
-                    Path.of("config/entity/EmptyTextSearchMapping.json"), dataPointers));
+            () -> Entity.fromJSON("EmptyTextSearchMapping.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals("Text search mapping is empty", ex.getMessage());
   }
@@ -70,10 +65,7 @@ public class InvalidEntityMappingTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () ->
-                Entity.fromJSON(
-                    Path.of("config/entity/EmptyAttributesListTextSearchMapping.json"),
-                    dataPointers));
+            () -> Entity.fromJSON("EmptyAttributesListTextSearchMapping.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals("Text search mapping list of attributes is empty", ex.getMessage());
   }

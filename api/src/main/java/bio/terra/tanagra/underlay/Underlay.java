@@ -2,15 +2,12 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
-import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class Underlay {
@@ -33,8 +30,9 @@ public final class Underlay {
     this.entityGroups = entityGroups;
   }
 
-  public static Underlay fromJSON(Path underlayFilePath) throws IOException {
+  public static Underlay fromJSON(String underlayFileName) throws IOException {
     // read in the top-level underlay file
+    Path underlayFilePath = FileIO.getInputParentDir().resolve(underlayFileName);
     UFUnderlay serialized =
         JacksonMapper.readFileIntoJavaObject(
             FileIO.getGetFileInputStreamFunction().apply(underlayFilePath), UFUnderlay.class);
@@ -48,16 +46,13 @@ public final class Underlay {
         .getDataPointers()
         .forEach(dps -> dataPointers.put(dps.getName(), dps.deserializeToInternal()));
 
-    // entity and entity group file paths are relative to the underlay file path
-    Path parentDir = underlayFilePath.getParent();
-
     // deserialize entities
     if (serialized.getEntities() == null || serialized.getEntities().size() == 0) {
       throw new InvalidConfigException("No Entity defined");
     }
     Map<String, Entity> entities = new HashMap<>();
     for (String entityFile : serialized.getEntities()) {
-      Entity entity = Entity.fromJSON(parentDir.resolve(entityFile), dataPointers);
+      Entity entity = Entity.fromJSON(entityFile, dataPointers);
       entities.put(entity.getName(), entity);
     }
 
@@ -74,24 +69,12 @@ public final class Underlay {
     if (serialized.getEntityGroups() != null) {
       for (String entityGroupFile : serialized.getEntityGroups()) {
         EntityGroup entityGroup =
-            EntityGroup.fromJSON(
-                parentDir.resolve(entityGroupFile), dataPointers, entities, primaryEntity);
+            EntityGroup.fromJSON(entityGroupFile, dataPointers, entities, primaryEntity);
         entityGroups.put(entityGroup.getName(), entityGroup);
       }
     }
 
     return new Underlay(serialized.getName(), dataPointers, entities, primaryEntity, entityGroups);
-  }
-
-  public List<WorkflowCommand> getIndexingCommands() {
-    List<WorkflowCommand> cmds = new ArrayList<>();
-    for (Entity entity : entities.values()) {
-      cmds.addAll(entity.getIndexingCommands());
-    }
-    for (EntityGroup entityGroup : entityGroups.values()) {
-      cmds.addAll(entityGroup.getIndexingCommands());
-    }
-    return cmds;
   }
 
   public String getName() {

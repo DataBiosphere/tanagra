@@ -17,6 +17,8 @@ public final class FileIO {
       filePath -> FileUtils.getFileStream(filePath);
 
   private static boolean readResourceFiles; // default to false = read disk, not resource, files
+  private static Path inputParentDir;
+  private static Path outputParentDir;
 
   private FileIO() {}
 
@@ -34,7 +36,27 @@ public final class FileIO {
     }
   }
 
+  public static void setInputParentDir(Path inputParentDirPath) {
+    synchronized (FileIO.class) {
+      inputParentDir = inputParentDirPath;
+    }
+  }
+
+  public static void setOutputParentDir(Path outputParentDirPath) {
+    synchronized (FileIO.class) {
+      outputParentDir = outputParentDirPath;
+    }
+  }
+
   public static Function<Path, InputStream> getGetFileInputStreamFunction() {
     return readResourceFiles ? READ_RESOURCE_FILE_FUNCTION : READ_DISK_FILE_FUNCTION;
+  }
+
+  public static Path getOutputParentDir() {
+    return outputParentDir;
+  }
+
+  public static Path getInputParentDir() {
+    return inputParentDir;
   }
 }

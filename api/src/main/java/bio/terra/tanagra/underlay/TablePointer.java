@@ -1,16 +1,21 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFTablePointer;
+import bio.terra.tanagra.utils.FileUtils;
 import com.google.common.base.Strings;
+import java.nio.file.Path;
 import java.util.List;
 
 public final class TablePointer implements SQLExpression {
+  private static final String SQL_DIRECTORY_NAME = "sql";
+
   private final DataPointer dataPointer;
   private final String tableName;
   private final TableFilter tableFilter;
@@ -32,6 +37,22 @@ public final class TablePointer implements SQLExpression {
   }
 
   public static TablePointer fromSerialized(UFTablePointer serialized, DataPointer dataPointer) {
+    if (!Strings.isNullOrEmpty(serialized.getRawSql())) {
+      // Table is defined by a raw SQL string, which is specified directly in the JSON.
+      return TablePointer.fromRawSql(serialized.getRawSql(), dataPointer);
+    } else if (!Strings.isNullOrEmpty(serialized.getRawSqlFile())) {
+      // Table is defined by a raw SQL string, which is in a file path that is specified in the
+      // JSON.
+      Path rawSqlFile =
+          FileIO.getInputParentDir()
+              .resolve(SQL_DIRECTORY_NAME)
+              .resolve(Path.of(serialized.getRawSqlFile()));
+      String rawSqlString =
+          FileUtils.readStringFromFile(FileIO.getGetFileInputStreamFunction().apply(rawSqlFile));
+      return TablePointer.fromRawSql(rawSqlString, dataPointer);
+    }
+    // Table is defined by a table name and optional filter.
+
     if (Strings.isNullOrEmpty(serialized.getTable())) {
       throw new InvalidConfigException("Table name not defined");
     }

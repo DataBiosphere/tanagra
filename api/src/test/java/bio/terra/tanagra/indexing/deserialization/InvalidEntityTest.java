@@ -23,7 +23,8 @@ public class InvalidEntityTest {
   @BeforeAll
   static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
-    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
+    FileIO.setInputParentDir(Path.of("config"));
+    Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
   }
 
@@ -32,18 +33,17 @@ public class InvalidEntityTest {
     RuntimeException ex =
         assertThrows(
             RuntimeException.class,
-            () -> Entity.fromJSON(Path.of("nonexistent_entity_file.json"), dataPointers));
+            () -> Entity.fromJSON("nonexistent_entity_file.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertEquals(
-        "Resource file not found: nonexistent_entity_file.json", ex.getMessage());
+        "Resource file not found: config/entity/nonexistent_entity_file.json", ex.getMessage());
   }
 
   @Test
   void noAttributes() {
     InvalidConfigException ex =
         assertThrows(
-            InvalidConfigException.class,
-            () -> Entity.fromJSON(Path.of("config/entity/NoAttributes.json"), dataPointers));
+            InvalidConfigException.class, () -> Entity.fromJSON("NoAttributes.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No Attributes defined"));
   }
@@ -53,7 +53,7 @@ public class InvalidEntityTest {
     InvalidConfigException ex =
         assertThrows(
             InvalidConfigException.class,
-            () -> Entity.fromJSON(Path.of("config/entity/NoIdAttribute.json"), dataPointers));
+            () -> Entity.fromJSON("NoIdAttribute.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No id Attribute defined"));
   }
@@ -63,7 +63,7 @@ public class InvalidEntityTest {
     InvalidConfigException ex =
         assertThrows(
             InvalidConfigException.class,
-            () -> Entity.fromJSON(Path.of("config/entity/IdAttributeNotFound.json"), dataPointers));
+            () -> Entity.fromJSON("IdAttributeNotFound.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(
         ex.getMessage().startsWith("Id Attribute not found in the set of Attributes"));
@@ -74,7 +74,7 @@ public class InvalidEntityTest {
     InvalidConfigException ex =
         assertThrows(
             InvalidConfigException.class,
-            () -> Entity.fromJSON(Path.of("config/entity/NoSourceDataMapping.json"), dataPointers));
+            () -> Entity.fromJSON("NoSourceDataMapping.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No source Data Mapping defined"));
   }
@@ -84,7 +84,7 @@ public class InvalidEntityTest {
     InvalidConfigException ex =
         assertThrows(
             InvalidConfigException.class,
-            () -> Entity.fromJSON(Path.of("config/entity/NoIndexDataMapping.json"), dataPointers));
+            () -> Entity.fromJSON("NoIndexDataMapping.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("No index Data Mapping defined"));
   }
@@ -94,8 +94,7 @@ public class InvalidEntityTest {
     InvalidConfigException ex =
         assertThrows(
             InvalidConfigException.class,
-            () ->
-                Entity.fromJSON(Path.of("config/entity/AttributeWithoutName.json"), dataPointers));
+            () -> Entity.fromJSON("AttributeWithoutName.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(ex.getMessage().startsWith("Attribute name is undefined"));
   }

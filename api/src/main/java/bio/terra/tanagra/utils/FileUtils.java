@@ -1,10 +1,12 @@
 package bio.terra.tanagra.utils;
 
 import bio.terra.tanagra.exception.SystemException;
+import com.google.common.io.CharStreams;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,6 +58,30 @@ public final class FileUtils {
     if (!file.exists()) {
       file.getParentFile().mkdirs();
       file.createNewFile();
+    }
+  }
+
+  /** Create the directory and any parent directories if they don't already exist. */
+  public static void createDirectoryIfNonexistent(Path path) {
+    if (!path.toFile().exists()) {
+      boolean mkdirsSuccess = path.toFile().mkdirs();
+      if (!mkdirsSuccess) {
+        throw new SystemException("mkdirs failed for directory: " + path.toAbsolutePath());
+      }
+    }
+  }
+
+  /**
+   * Read a file into a string.
+   *
+   * @param inputStream the stream to the file contents
+   * @return a Java String representing the file contents
+   */
+  public static String readStringFromFile(InputStream inputStream) {
+    try {
+      return CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+    } catch (IOException ioEx) {
+      throw new SystemException("Error reading file contents", ioEx);
     }
   }
 

@@ -21,6 +21,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class Entity {
+  private static final String ENTITY_DIRECTORY_NAME = "entity";
+
   private final String name;
   private final String idAttributeName;
   private final Map<String, Attribute> attributes;
@@ -40,9 +42,11 @@ public final class Entity {
     this.indexDataMapping = indexDataMapping;
   }
 
-  public static Entity fromJSON(Path entityFilePath, Map<String, DataPointer> dataPointers)
+  public static Entity fromJSON(String entityFileName, Map<String, DataPointer> dataPointers)
       throws IOException {
     // read in entity file
+    Path entityFilePath =
+        FileIO.getInputParentDir().resolve(ENTITY_DIRECTORY_NAME).resolve(entityFileName);
     UFEntity serialized =
         JacksonMapper.readFileIntoJavaObject(
             FileIO.getGetFileInputStreamFunction().apply(entityFilePath), UFEntity.class);

@@ -17,13 +17,14 @@ public class SelectAllAttributesTest {
   @BeforeAll
   static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
-    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
+    FileIO.setInputParentDir(Path.of("config"));
+    Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
   }
 
   @Test
   void person() throws IOException {
-    Entity person = Entity.fromJSON(Path.of("config/entity/Person.json"), dataPointers);
+    Entity person = Entity.fromJSON("Person.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         person.getSourceDataMapping().queryAttributes(person.getAttributes()).renderSQL(),
         "query/person_source_selectAllAttributes.sql");
@@ -34,7 +35,7 @@ public class SelectAllAttributesTest {
 
   @Test
   void condition() throws IOException {
-    Entity condition = Entity.fromJSON(Path.of("config/entity/Condition.json"), dataPointers);
+    Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         condition.getSourceDataMapping().queryAttributes(condition.getAttributes()).renderSQL(),
         "query/condition_source_selectAllAttributes.sql");

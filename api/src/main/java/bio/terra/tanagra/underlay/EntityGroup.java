@@ -20,6 +20,8 @@ public abstract class EntityGroup {
     CRITERIA_OCCURRENCE
   }
 
+  private static final String ENTITY_GROUP_DIRECTORY_NAME = "entitygroup";
+
   protected String name;
   protected Map<String, Relationship> relationships;
   protected Map<String, AuxiliaryData> auxiliaryData;
@@ -35,12 +37,16 @@ public abstract class EntityGroup {
   }
 
   public static EntityGroup fromJSON(
-      Path entityGroupFilePath,
+      String entityGroupFileName,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
       String primaryEntityName)
       throws IOException {
     // read in entity group file
+    Path entityGroupFilePath =
+        FileIO.getInputParentDir()
+            .resolve(ENTITY_GROUP_DIRECTORY_NAME)
+            .resolve(entityGroupFileName);
     UFEntityGroup serialized =
         JacksonMapper.readFileIntoJavaObject(
             FileIO.getGetFileInputStreamFunction().apply(entityGroupFilePath), UFEntityGroup.class);

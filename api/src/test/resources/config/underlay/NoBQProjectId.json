@@ -5,6 +5,6 @@
       "name": "omop_dataset",
       "datasetId": "aou_synthetic",
       "serviceAccountKeyFile": "../rendered/tanagra_sa.json" } ],
-  "entities": [ "../entity/Person.json" ],
+  "entities": [ "Person.json" ],
   "primaryEntity": "Person"
 }

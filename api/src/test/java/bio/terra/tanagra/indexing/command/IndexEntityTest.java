@@ -22,13 +22,14 @@ public class IndexEntityTest {
   @BeforeAll
   static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
-    Underlay underlay = Underlay.fromJSON(Path.of("config/underlay/Omop.json"));
+    FileIO.setInputParentDir(Path.of("config"));
+    Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
   }
 
   @Test
   void person() throws IOException {
-    Entity person = Entity.fromJSON(Path.of("config/entity/Person.json"), dataPointers);
+    Entity person = Entity.fromJSON("Person.json", dataPointers);
     List<WorkflowCommand> cmds = person.getIndexingCommands();
 
     assertEquals(1, cmds.size(), "one indexing cmd generated");
@@ -43,7 +44,7 @@ public class IndexEntityTest {
 
   @Test
   void condition() throws IOException {
-    Entity condition = Entity.fromJSON(Path.of("config/entity/Condition.json"), dataPointers);
+    Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     List<WorkflowCommand> cmds = condition.getIndexingCommands();
 
     assertEquals(5, cmds.size(), "five indexing cmds generated");
