@@ -30,7 +30,7 @@ export type TreeGridColumn = {
   title?: string | JSX.Element;
 };
 
-export type RowCustomization = {
+export type ColumnCustomization = {
   prefixElements?: ReactNode;
   onClick?: () => void;
 };
@@ -42,7 +42,7 @@ export type TreeGridProps = {
   rowCustomization?: (
     id: TreeGridId,
     data: TreeGridRowData
-  ) => RowCustomization | undefined;
+  ) => Map<number, ColumnCustomization> | undefined;
   loadChildren?: (id: TreeGridId) => Promise<void>;
   variableWidth?: boolean;
   wrapBodyText?: boolean;
@@ -204,10 +204,12 @@ function renderChildren(
     if (!child) {
       return;
     }
-    const childState = state.get(childId);
 
-    const renderFirstColumn = (value: TreeGridValue) => {
-      const rowCustomization = props.rowCustomization?.(childId, child.data);
+    const childState = state.get(childId);
+    const rowCustomization = props.rowCustomization?.(childId, child.data);
+
+    const renderColumn = (column: number, value: TreeGridValue) => {
+      const columnCustomization = rowCustomization?.get(column);
       return (
         <>
           {(!!child.children?.length ||
@@ -222,14 +224,14 @@ function renderChildren(
               <ItemIcon state={childState} />
             </IconButton>
           )}
-          {rowCustomization?.prefixElements}
-          {rowCustomization?.onClick ? (
+          {columnCustomization?.prefixElements}
+          {columnCustomization?.onClick ? (
             <Link
               component="button"
               variant="body1"
               color="inherit"
               underline="hover"
-              onClick={rowCustomization.onClick}
+              onClick={columnCustomization.onClick}
             >
               {value}
             </Link>
@@ -294,7 +296,7 @@ function renderChildren(
                     display: "inline",
                   }}
                 >
-                  {i === 0 ? renderFirstColumn(value) : value}
+                  {renderColumn(i, value)}
                 </Typography>
               </div>
             </td>

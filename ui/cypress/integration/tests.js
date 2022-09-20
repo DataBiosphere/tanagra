@@ -9,22 +9,26 @@ describe("Basic tests", () => {
     cy.get("#text").type("New Cohort");
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add Criteria)").first().click();
-    cy.get("li:Contains(Conditions)").click();
+    cy.get("button:Contains(Conditions)").click();
     cy.get("button:Contains(test concept)").click();
 
     cy.get("button:Contains(Add Criteria)").first().click();
-    cy.get("li:Contains(Race)").click();
+    cy.get("button:Contains(Race)").click();
     cy.get(".MuiSelect-select").click();
     cy.get("li:Contains(Asian)").click();
     cy.get(".MuiBackdrop-root").click();
 
     cy.get("button:Contains(Add Criteria)").first().click();
-    cy.get("li:Contains(Year at Birth)").click();
+    cy.get("button:Contains(Year at Birth)").click();
     cy.get(".MuiInput-input").first().type("{selectall}30");
 
     cy.get("button:Contains(Add Criteria)").last().click();
-    cy.get("li:Contains(Observations)").click();
+    cy.get("button:Contains(Observations)").click();
     cy.get("button:Contains(test concept)").click();
+
+    cy.get("button:Contains(Add Criteria)").last().click();
+    cy.get("input").type("test{enter}");
+    cy.get("button:Contains(test concept)").first().click();
 
     cy.get("a[aria-label=back]").click();
 
