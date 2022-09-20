@@ -1,8 +1,8 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
@@ -92,7 +92,7 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   renderInline() {
-    return <ConceptInline data={this.data} />;
+    return <ConceptInline />;
   }
 
   displayDetails() {
@@ -162,14 +162,16 @@ function ConceptEdit(props: ConceptEditProps) {
           const rowData: TreeGridRowData = { ...node.data };
           if (node.ancestors) {
             rowData.view_hierarchy = (
-              <IconButton
-                size="small"
-                onClick={() => {
-                  setHierarchy(node.ancestors);
-                }}
-              >
-                <AccountTreeIcon fontSize="inherit" />
-              </IconButton>
+              <Stack alignItems="center">
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setHierarchy(node.ancestors);
+                  }}
+                >
+                  <AccountTreeIcon fontSize="inherit" />
+                </IconButton>
+              </Stack>
             );
           }
 
@@ -249,7 +251,7 @@ function ConceptEdit(props: ConceptEditProps) {
     () => [
       ...props.config.columns,
       ...(classification.hierarchical
-        ? [{ key: "view_hierarchy", width: 160, title: "View Hierarchy" }]
+        ? [{ key: "view_hierarchy", width: 70, title: "Hierarchy" }]
         : []),
     ],
     [props.config.columns]
@@ -258,7 +260,14 @@ function ConceptEdit(props: ConceptEditProps) {
   const nameColumnIndex = props.config.nameColumnIndex ?? 0;
 
   return (
-    <>
+    <Box
+      sx={{
+        minWidth: "900px",
+        height: "100%",
+        overflow: "auto",
+        backgroundColor: (theme) => theme.palette.background.paper,
+      }}
+    >
       {!hierarchy && (
         <Search
           placeholder="Search by code or description"
@@ -365,29 +374,12 @@ function ConceptEdit(props: ConceptEditProps) {
           }}
         />
       </Loading>
-    </>
+    </Box>
   );
 }
 
-type ConceptInlineProps = {
-  data: Data;
-};
-
-function ConceptInline(props: ConceptInlineProps) {
-  return (
-    <>
-      {props.data.selected.length === 0 ? (
-        <Typography variant="body1">None selected</Typography>
-      ) : (
-        props.data.selected.map(({ key, name }) => (
-          <Stack direction="row" alignItems="baseline" key={key}>
-            <Typography variant="body1">{key}</Typography>&nbsp;
-            <Typography variant="body2">{name}</Typography>
-          </Stack>
-        ))
-      )}
-    </>
-  );
+function ConceptInline() {
+  return null;
 }
 
 function search(

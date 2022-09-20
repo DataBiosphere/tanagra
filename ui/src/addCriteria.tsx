@@ -136,7 +136,15 @@ export function AddCriteria() {
   const searchState = useAsyncWithApi<void>(search);
 
   return (
-    <Box sx={{ m: 1 }}>
+    <Box
+      sx={{
+        p: 1,
+        minWidth: "900px",
+        height: "100%",
+        overflow: "auto",
+        backgroundColor: (theme) => theme.palette.background.paper,
+      }}
+    >
       <Search
         placeholder="Search criteria or select from the options below"
         onSearch={setQuery}
@@ -177,7 +185,7 @@ export function AddCriteria() {
               justifyContent="flex-start"
               sx={{ width: 180 }}
             >
-              <Typography key="" variant="h6">
+              <Typography key="" variant="subtitle1">
                 {category[0].category ?? "Uncategorized"}
               </Typography>
               {category.map((config) => (

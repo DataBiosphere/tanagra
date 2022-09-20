@@ -417,8 +417,8 @@ uiConfiguration: >-
       "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
         {"key":"person_count","width":120,"title":"Roll-up Count"}
@@ -439,8 +439,8 @@ uiConfiguration: >-
       "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
         {"key":"person_count","width":120,"title":"Roll-up Count"}
@@ -461,8 +461,8 @@ uiConfiguration: >-
       "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
         {"key":"person_count","width":120,"title":"Roll-up Count"}
@@ -478,8 +478,8 @@ uiConfiguration: >-
       "category": "Domains",
       "columns": [
         {"key":"concept_name","width":"100%","title":"Concept Name"},
-        {"key":"concept_id","width":120,"title":"Concept ID"},
-        {"key":"standard_concept","width":180,"title":"SourceStandard"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
         {"key":"person_count","width":120,"title":"Roll-up Count"}

@@ -29,7 +29,7 @@ export default function Checkbox({
       }}
     >
       {checked ? (
-        <CheckBoxIcon fontSize={fontSize} />
+        <CheckBoxIcon fontSize={fontSize} color="primary" />
       ) : (
         <CheckBoxOutlineBlankIcon fontSize={fontSize} />
       )}

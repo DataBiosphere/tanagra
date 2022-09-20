@@ -2,6 +2,7 @@ import ErrorIcon from "@mui/icons-material/Error";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import CircularProgress from "@mui/material/CircularProgress";
+import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
@@ -146,7 +147,7 @@ export function TreeGrid(props: TreeGridProps) {
                   }}
                 >
                   <Typography
-                    variant="h6"
+                    variant="overline"
                     title={String(col.title)}
                     sx={{
                       display: "inline",
@@ -160,6 +161,7 @@ export function TreeGrid(props: TreeGridProps) {
           </tr>
         </thead>
       </table>
+      <Divider />
       <div
         style={{
           overflowY: "auto",
@@ -208,7 +210,11 @@ function renderChildren(
     const childState = state.get(childId);
     const rowCustomization = props.rowCustomization?.(childId, child.data);
 
-    const renderColumn = (column: number, value: TreeGridValue) => {
+    const renderColumn = (
+      column: number,
+      value: TreeGridValue,
+      title: string
+    ) => {
       const columnCustomization = rowCustomization?.get(column);
       return (
         <>
@@ -231,12 +237,33 @@ function renderChildren(
               variant="body1"
               color="inherit"
               underline="hover"
+              title={title}
               onClick={columnCustomization.onClick}
+              sx={{
+                width: "100%",
+                textAlign: "initial",
+                ...(props.wrapBodyText
+                  ? { wordBreak: "break-all" }
+                  : {
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }),
+              }}
             >
               {value}
             </Link>
           ) : (
-            value
+            <Typography
+              variant="body1"
+              noWrap={!props.wrapBodyText}
+              title={title}
+              sx={{
+                display: "inline",
+              }}
+            >
+              {value}
+            </Typography>
           )}
         </>
       );
@@ -273,11 +300,7 @@ function renderChildren(
                 style={{
                   ...(props.wrapBodyText
                     ? { wordBreak: "break-all" }
-                    : {
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                      }),
+                    : { whiteSpace: "nowrap" }),
                   ...(i === 0 && {
                     // TODO(tjennison): The removal of checkboxes revealed that
                     // the inline-block style on the <thead> that's use to keep
@@ -288,16 +311,7 @@ function renderChildren(
                   }),
                 }}
               >
-                <Typography
-                  variant="body1"
-                  noWrap={!props.wrapBodyText}
-                  title={title}
-                  sx={{
-                    display: "inline",
-                  }}
-                >
-                  {renderColumn(i, value)}
-                </Typography>
+                {renderColumn(i, value, title)}
               </div>
             </td>
           );

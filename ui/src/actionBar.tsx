@@ -25,7 +25,12 @@ export default function ActionBar(props: ActionBarProps) {
     <Box className="action-bar">
       <AppBar
         position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          borderBottomColor: (theme) => theme.palette.divider,
+          borderBottomStyle: "solid",
+          borderBottomWidth: "1px",
+        }}
       >
         <Toolbar>
           <IconButton
@@ -39,12 +44,20 @@ export default function ActionBar(props: ActionBarProps) {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h4" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h1"
+            sx={{
+              flexGrow: 1,
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+            }}
+          >
             {props.title}
           </Typography>
           <UndoRedo />
           {underlay ? (
-            <Typography variant="h6" className="underlay-name">
+            <Typography variant="h4" className="underlay-name">
               Dataset: {underlay.name}
             </Typography>
           ) : null}

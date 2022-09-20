@@ -87,8 +87,12 @@ const MiniDrawer = styled(Drawer, {
 export function Overview() {
   const [showDemographics, setShowDemographics] = useState(false);
 
+  // TODO(tjennison): This overall layout is a mess and the built in components
+  // are only making it more difficult. Overhaul the main layout to use basic
+  // boxes and layout components, and confine scrolling to each of the
+  // approprite panels.
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", height: "calc(100% - 48px)" }}>
       <Drawer
         variant="permanent"
         anchor="left"
@@ -96,6 +100,7 @@ export function Overview() {
           width: outlineWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
+            backgroundColor: (theme) => theme.palette.background.default,
             width: outlineWidth,
             boxSizing: "border-box",
           },
@@ -106,7 +111,12 @@ export function Overview() {
           <Outline />
         </Box>
       </Drawer>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          height: "100%",
+        }}
+      >
         <Toolbar />
         <Outlet />
       </Box>
@@ -148,7 +158,7 @@ function Outline() {
             />
           </ListItemButton>
         ))}
-        <ListItem disableGutters key="">
+        <ListItem disableGutters key="" sx={{ p: 0 }}>
           <AddGroupButton />
         </ListItem>
       </List>
@@ -213,16 +223,31 @@ function ParticipantsGroup(props: {
   const groupCountState = useAsyncWithApi(fetchGroupCount);
 
   return (
-    <Paper elevation={props.selected ? 8 : 1} sx={{ width: "100%" }}>
+    <Paper
+      sx={{ p: 1, width: "100%", overflow: "hidden", position: "relative" }}
+    >
+      {props.selected && (
+        <Box
+          className="selected-group-highlight"
+          sx={{
+            position: "absolute",
+            top: "16px",
+            bottom: "16px",
+            left: "-4px",
+            width: "8px",
+            "border-radius": "4px",
+            backgroundColor: (theme) => theme.palette.primary.main,
+          }}
+        />
+      )}
       <Stack spacing={0}>
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
           className="group-title"
-          sx={{ px: 0.5 }}
         >
-          <Typography variant="h5">
+          <Typography variant="h3">
             {groupName(props.group, props.index)}
           </Typography>
           {props.group.kind === tanagra.GroupKindEnum.Included ? (
@@ -232,7 +257,7 @@ function ParticipantsGroup(props: {
           )}
         </Stack>
         {props.group.criteria.map((criteria) => (
-          <Box key={criteria.id} sx={{ px: 0.5 }}>
+          <Box key={criteria.id}>
             <ParticipantCriteria group={props.group} criteria={criteria} />
           </Box>
         ))}
@@ -243,10 +268,9 @@ function ParticipantsGroup(props: {
           justifyContent="right"
           alignItems="center"
           className="group-title"
-          sx={{ px: 0.5 }}
         >
           <Loading status={groupCountState} size="small">
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="subtitle1">
               Group Count: {groupCountState.data?.toLocaleString()}
             </Typography>
           </Loading>
@@ -306,7 +330,7 @@ function ParticipantCriteria(props: {
         alignItems="center"
       >
         <Typography
-          variant="h6"
+          variant="body1"
           title={additionalText}
           sx={{
             textOverflow: "ellipsis",
@@ -317,7 +341,7 @@ function ParticipantCriteria(props: {
           {title}
         </Typography>
         <Loading status={criteriaCountState} size="small">
-          <Typography variant="body1">
+          <Typography variant="body2" sx={{ ml: 1 }}>
             {criteriaCountState.data?.toLocaleString()}
           </Typography>
         </Loading>

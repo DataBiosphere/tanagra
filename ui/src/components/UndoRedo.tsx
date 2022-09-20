@@ -1,6 +1,7 @@
 import RedoIcon from "@mui/icons-material/Redo";
 import UndoIcon from "@mui/icons-material/Undo";
-import { Box, Button } from "@mui/material";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import { useAppDispatch, useAppSelector, useUndoRedoUrls } from "hooks";
 import { Link as RouterLink } from "react-router-dom";
 import { ActionCreators as UndoActionCreators } from "redux-undo";
@@ -12,30 +13,28 @@ function UndoRedo() {
   const [undoUrlPath, redoUrlPath] = useUndoRedoUrls();
 
   return (
-    <Box>
+    <Stack direction="row" spacing={1} sx={{ m: 1 }}>
       <Button
         onClick={() => dispatch(UndoActionCreators.undo())}
+        variant="outlined"
+        startIcon={<UndoIcon />}
         disabled={!canUndo}
         component={RouterLink}
         to={undoUrlPath}
       >
-        <UndoIcon
-          fontSize="medium"
-          sx={{ color: canUndo ? "white" : "gray" }}
-        />
+        Undo
       </Button>
       <Button
         onClick={() => dispatch(UndoActionCreators.redo())}
+        variant="outlined"
+        startIcon={<RedoIcon />}
         disabled={!canRedo}
         component={RouterLink}
         to={redoUrlPath}
       >
-        <RedoIcon
-          fontSize="medium"
-          sx={{ color: canRedo ? "white" : "gray" }}
-        />
+        Redo
       </Button>
-    </Box>
+    </Stack>
   );
 }
 

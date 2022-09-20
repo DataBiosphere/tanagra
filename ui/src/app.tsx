@@ -1,3 +1,5 @@
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material/styles";
 import { EntitiesApiContext, UnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
 import { useAsyncWithApi } from "errors";
@@ -10,6 +12,7 @@ import { AppRouter } from "router";
 import { fetchUserData } from "storage/storage";
 import { setUnderlays } from "underlaysSlice";
 import "./app.css";
+import theme from "./theme";
 
 enableMapSet();
 
@@ -63,10 +66,13 @@ export default function App() {
   );
 
   return (
-    <Loading status={underlaysState}>
-      <HashRouter>
-        <AppRouter />
-      </HashRouter>
-    </Loading>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Loading status={underlaysState}>
+        <HashRouter>
+          <AppRouter />
+        </HashRouter>
+      </Loading>
+    </ThemeProvider>
   );
 }
