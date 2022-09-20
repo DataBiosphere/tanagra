@@ -345,7 +345,7 @@ function ConceptEdit(props: ConceptEditProps) {
           }}
           loadChildren={(id: TreeGridId) => {
             const item = data[id] as ClassificationNodeItem;
-            const key = item ? keyForNode(item.node) : id;
+            const key = item?.node ? keyForNode(item.node) : id;
             if (item?.node.grouping) {
               return source
                 .searchGrouping(
