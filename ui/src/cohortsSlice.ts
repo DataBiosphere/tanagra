@@ -4,6 +4,11 @@ import * as tanagra from "tanagra-api";
 
 const initialState: tanagra.Cohort[] = [];
 
+export const defaultFilter: tanagra.GroupFilter = {
+  kind: tanagra.GroupFilterKindEnum.Any,
+  excluded: false,
+};
+
 // TODO(tjennison): Normalize groups and criteria to simplify a lot of this
 // nested code. This may require changing how the slices are arranged though,
 // since having cohorts, groups, and criteria in separate slices may end up
@@ -24,7 +29,7 @@ const cohortsSlice = createSlice({
           groups: [
             {
               id: generateId(),
-              kind: tanagra.GroupKindEnum.Included,
+              filter: defaultFilter,
               criteria: [],
             },
           ],
@@ -42,16 +47,12 @@ const cohortsSlice = createSlice({
           cohort.groups.push(action.payload.group);
         }
       },
-      prepare: (
-        cohortId: string,
-        kind: tanagra.GroupKindEnum,
-        criteria?: tanagra.Criteria
-      ) => ({
+      prepare: (cohortId: string, criteria?: tanagra.Criteria) => ({
         payload: {
           cohortId,
           group: {
             id: generateId(),
-            kind,
+            filter: defaultFilter,
             criteria: criteria ? [criteria] : [],
           },
         },
@@ -96,7 +97,7 @@ const cohortsSlice = createSlice({
             cohort.groups = [
               {
                 id: cohort.groups[0].id,
-                kind: tanagra.GroupKindEnum.Included,
+                filter: defaultFilter,
                 criteria: [],
               },
             ];
@@ -134,13 +135,13 @@ const cohortsSlice = createSlice({
       },
     },
 
-    setGroupKind: {
+    setGroupFilter: {
       reducer: (
         state,
         action: PayloadAction<{
           cohortId: string;
           groupId: string;
-          kind: tanagra.GroupKindEnum;
+          filter: tanagra.GroupFilter;
         }>
       ) => {
         const cohort = state.find((c) => c.id === action.payload.cohortId);
@@ -149,19 +150,19 @@ const cohortsSlice = createSlice({
             (g) => g.id === action.payload.groupId
           );
           if (group) {
-            group.kind = action.payload.kind;
+            group.filter = action.payload.filter;
           }
         }
       },
       prepare: (
         cohortId: string,
         groupId: string,
-        kind: tanagra.GroupKindEnum
+        filter: tanagra.GroupFilter
       ) => ({
         payload: {
           cohortId,
           groupId,
-          kind,
+          filter,
         },
       }),
     },
@@ -237,7 +238,7 @@ export const {
   insertGroup,
   renameGroup,
   deleteGroup,
-  setGroupKind,
+  setGroupFilter,
   insertCriteria,
   updateCriteriaData,
   deleteCriteria,

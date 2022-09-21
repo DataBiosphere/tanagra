@@ -24,13 +24,13 @@ export function generateCohortFilter(cohort: tanagra.Cohort): Filter | null {
 
 function generateFilter(group: tanagra.Group): Filter | null {
   const filter = makeArrayFilter(
-    { min: 1 },
+    group.filter.kind === tanagra.GroupFilterKindEnum.Any ? { min: 1 } : {},
     group.criteria
       .map((criteria) => getCriteriaPlugin(criteria).generateFilter())
       .filter(isValid)
   );
 
-  if (!filter || group.kind === tanagra.GroupKindEnum.Included) {
+  if (!filter || !group.filter.excluded) {
     return filter;
   }
   return {
@@ -41,7 +41,18 @@ function generateFilter(group: tanagra.Group): Filter | null {
 }
 
 export function groupName(group: tanagra.Group, index: number) {
-  return group.name ?? "Group " + String(index + 1);
+  return group.name ?? "Requirement " + String(index + 1);
+}
+
+export function groupFilterKindLabel(kind: tanagra.GroupFilterKindEnum) {
+  switch (kind) {
+    case tanagra.GroupFilterKindEnum.Any:
+      return "Any";
+    case tanagra.GroupFilterKindEnum.All:
+      return "All";
+  }
+
+  throw new Error(`Unknown group filter kind "${kind}".`);
 }
 
 // Having typed data here allows the registry to treat all data generically

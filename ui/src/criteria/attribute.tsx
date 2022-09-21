@@ -368,7 +368,7 @@ function AttributeInline(props: AttributeInlineProps) {
       </Box>
 
       {!!hintDataState.data?.enumHintOptions && (
-        <FormControl size="small" sx={{ maxWidth: 500 }}>
+        <FormControl sx={{ maxWidth: 500 }}>
           <Select
             multiple
             displayEmpty

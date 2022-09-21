@@ -142,6 +142,7 @@ export const theme = createTheme({
     MuiFormControl: {
       defaultProps: {
         margin: "dense",
+        size: "small",
       },
     },
     MuiFormHelperText: {

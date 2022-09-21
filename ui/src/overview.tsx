@@ -1,9 +1,8 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
-import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ClearIcon from "@mui/icons-material/Clear";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import Drawer from "@mui/material/Drawer";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
@@ -15,7 +14,7 @@ import Stack from "@mui/material/Stack";
 import { CSSObject, styled, Theme } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { insertGroup } from "cohortsSlice";
+import { defaultFilter, insertGroup } from "cohortsSlice";
 import Loading from "components/loading";
 import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
@@ -40,7 +39,12 @@ import { cohortURL } from "router";
 import * as tanagra from "tanagra-api";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
-import { generateCohortFilter, getCriteriaPlugin, groupName } from "./cohort";
+import {
+  generateCohortFilter,
+  getCriteriaPlugin,
+  groupFilterKindLabel,
+  groupName,
+} from "./cohort";
 
 const demographicsWidth = 400;
 const outlineWidth = 300;
@@ -172,9 +176,7 @@ function AddGroupButton() {
   const dispatch = useAppDispatch();
 
   const onAddGroup = () => {
-    const action = dispatch(
-      insertGroup(cohort.id, tanagra.GroupKindEnum.Included)
-    );
+    const action = dispatch(insertGroup(cohort.id));
     const groupId = action.payload.group.id;
     if (groupId) {
       navigate("../" + cohortURL(cohort.id, groupId));
@@ -184,7 +186,7 @@ function AddGroupButton() {
   return (
     <>
       <Button onClick={onAddGroup} variant="contained" className="add-group">
-        Add Group
+        Add requirement
       </Button>
     </>
   );
@@ -207,7 +209,10 @@ function ParticipantsGroup(props: {
       groups: [
         {
           ...props.group,
-          kind: tanagra.GroupKindEnum.Included,
+          filter: {
+            kind: props.group.filter.kind,
+            excluded: false,
+          },
         },
       ],
     };
@@ -250,11 +255,10 @@ function ParticipantsGroup(props: {
           <Typography variant="h3">
             {groupName(props.group, props.index)}
           </Typography>
-          {props.group.kind === tanagra.GroupKindEnum.Included ? (
-            <CheckIcon />
-          ) : (
-            <ClearIcon />
-          )}
+          <Stack direction="row" spacing={1}>
+            {props.group.filter.excluded && <Chip label="Not" />}
+            <Chip label={groupFilterKindLabel(props.group.filter.kind)} />
+          </Stack>
         </Stack>
         {props.group.criteria.map((criteria) => (
           <Box key={criteria.id}>
@@ -296,7 +300,7 @@ function ParticipantCriteria(props: {
       groups: [
         {
           id: props.group.id,
-          kind: tanagra.GroupKindEnum.Included,
+          filter: defaultFilter,
           criteria: [props.criteria],
         },
       ],
