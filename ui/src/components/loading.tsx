@@ -27,6 +27,13 @@ export default function Loading(props: Props) {
       return;
     }
 
+    // Show the small spinner immediately since it's used inline and the delay
+    // causes extra shifting of the surrounding elements.
+    if (props.size === "small") {
+      setVisible(true);
+      return;
+    }
+
     timerRef.current = window.setTimeout(() => {
       setVisible(true);
     }, 800);
