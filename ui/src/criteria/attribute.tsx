@@ -80,7 +80,7 @@ class _ implements CriteriaPlugin<Data> {
         title:
           this.data.selected.length === 1
             ? this.data.selected[0].name
-            : "(multiple)",
+            : `(${this.data.selected.length} selected)`,
         additionalText: this.data.selected.map((s) => s.name),
       };
     }
@@ -91,7 +91,9 @@ class _ implements CriteriaPlugin<Data> {
       ];
       return {
         title:
-          this.data.dataRanges.length === 1 ? additionalText[0] : "(multiple)",
+          this.data.dataRanges.length === 1
+            ? additionalText[0]
+            : `(${this.data.dataRanges.length} ranges)`,
         additionalText,
       };
     }
