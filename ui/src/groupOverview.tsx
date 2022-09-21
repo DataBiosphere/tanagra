@@ -57,13 +57,9 @@ export function GroupOverview() {
   return (
     <Box sx={{ m: 1 }}>
       <ActionBar title={cohort.name} />
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-      >
+      <Stack direction="row" justifyContent="space-between">
         <Stack direction="row" alignItems="center">
-          <Typography variant="h3">{name}</Typography>
+          <Typography variant="h2">{name}</Typography>
           <IconButton onClick={showRenameGroup}>
             <EditIcon />
           </IconButton>
