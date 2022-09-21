@@ -787,10 +787,8 @@ components:
         name:
           type: string
           description: The name of this group if customized.
-        kind:
-          type: string
-          description: The kind of this group.
-          enum: ["INCLUDED", "EXCLUDED"]
+        filter:
+          $ref: "#/components/schemas/GroupFilter"
         criteria:
           type: array
           description: The criteria that make of this group.
@@ -799,8 +797,26 @@ components:
       required:
         - id
         - kind
+        - filter
         - underlayName
         - criteria
+
+    GroupFilter:
+      type: object
+      description: |
+        A filter for a list of criteria that indicates how to combine the states
+        of the individual criteria.
+      properties:
+        kind:
+          type: string
+          description: The kind of this group.
+          enum: ["ANY", "ALL"]
+        excluded:
+          type: boolean
+          description: This group should be excluded instead of included.
+      required:
+        - kind
+        - excluded
 
     ConceptSet:
       type: object

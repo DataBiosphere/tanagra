@@ -1,12 +1,14 @@
-import CheckIcon from "@mui/icons-material/Check";
-import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
 import Link from "@mui/material/Link";
+import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
@@ -15,14 +17,19 @@ import {
   deleteCriteria,
   deleteGroup,
   renameGroup,
-  setGroupKind,
+  setGroupFilter,
 } from "cohortsSlice";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useAppDispatch, useCohortAndGroup } from "hooks";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { cohortURL, criteriaURL } from "router";
 import * as tanagra from "tanagra-api";
-import { getCriteriaPlugin, getCriteriaTitle, groupName } from "./cohort";
+import {
+  getCriteriaPlugin,
+  getCriteriaTitle,
+  groupFilterKindLabel,
+  groupName,
+} from "./cohort";
 
 export function GroupOverview() {
   const { cohort, group, groupIndex } = useCohortAndGroup();
@@ -73,25 +80,40 @@ export function GroupOverview() {
           {renameGroupDialog}
         </Stack>
         <Stack direction="row" alignItems="center">
-          <ClearIcon />
-          <Typography>Excluded</Typography>
+          <FormControl>
+            <InputLabel id="group-kind-label">Require</InputLabel>
+            <Select
+              value={group.filter.kind}
+              label="Require"
+              onChange={(event: SelectChangeEvent<string>) => {
+                dispatch(
+                  setGroupFilter(cohort.id, group.id, {
+                    ...group.filter,
+                    kind: event.target.value as tanagra.GroupFilterKindEnum,
+                  })
+                );
+              }}
+            >
+              {Object.values(tanagra.GroupFilterKindEnum).map((value) => (
+                <MenuItem key={value} value={value}>
+                  {groupFilterKindLabel(value)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <Switch
-            checked={group.kind === tanagra.GroupKindEnum.Included}
-            onChange={(event, checked) =>
+            checked={group.filter.excluded}
+            onChange={() =>
               dispatch(
-                setGroupKind(
-                  cohort.id,
-                  group.id,
-                  checked
-                    ? tanagra.GroupKindEnum.Included
-                    : tanagra.GroupKindEnum.Excluded
-                )
+                setGroupFilter(cohort.id, group.id, {
+                  ...group.filter,
+                  excluded: !group.filter.excluded,
+                })
               )
             }
             inputProps={{ "aria-label": "controlled" }}
           />
-          <CheckIcon />
-          <Typography>Included</Typography>
+          <Typography>Excluded</Typography>
         </Stack>
       </Stack>
       <Stack spacing={1}>
