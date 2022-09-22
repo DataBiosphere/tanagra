@@ -306,13 +306,13 @@ uiConfiguration: >-
     "demographicChartConfigs": {
       "groupByAttributes": ["gender_concept_id", "race_concept_id", "year_of_birth"],
       "chartConfigs": [{
-        "title": "Gender",
+        "title": "Gender identity",
         "primaryProperties": [
           { "key": "gender" }
         ]
       },
       {
-        "title": "Gender Identity, Current Age, Race",
+        "title": "Gender identity, Current age, Race",
         "primaryProperties": [
           { "key": "gender" },
           { "key": "age",

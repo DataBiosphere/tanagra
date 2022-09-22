@@ -125,17 +125,20 @@ export function Overview() {
         <Outlet />
       </Box>
       <MiniDrawer variant="permanent" open={showDemographics} anchor="right">
-        <Box sx={{ m: 1 }}>
-          <Toolbar />
-          <Box sx={{ float: "right" }}>
+        <Toolbar />
+        <Box sx={{ m: 1, display: "grid" }}>
+          <Box sx={{ gridArea: "1/1" }}>
+            <DemographicCharts open={showDemographics} />
+          </Box>
+          <Box sx={{ gridArea: "1/1" }}>
             <IconButton
               size="large"
+              sx={{ float: "right" }}
               onClick={() => setShowDemographics(!showDemographics)}
             >
               {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
             </IconButton>
           </Box>
-          <DemographicCharts open={showDemographics} />
         </Box>
       </MiniDrawer>
     </Box>
@@ -355,14 +358,16 @@ function ParticipantCriteria(props: {
 }
 
 const barColours = [
-  "#003f5c",
-  "#2f4b7c",
-  "#665191",
-  "#a05195",
-  "#d45087",
-  "#f95d6a",
-  "#ff7c43",
-  "#ffa600",
+  "#0a96aa",
+  "#e60049",
+  "#0bb4ff",
+  "#50e991",
+  "#e6d800",
+  "#9b19f5",
+  "#ffa300",
+  "#dc0ab4",
+  "#b3d4ff",
+  "#00bfa0",
 ];
 
 type BarData = {
@@ -390,24 +395,15 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
   });
   return (
     <>
-      <Typography>{chart.title}</Typography>
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart
-          data={barData}
-          margin={{
-            top: 10,
-            right: 0,
-            left: 20,
-            bottom: 10,
-          }}
-          layout="vertical"
-        >
+      <Typography variant="h4">{chart.title}</Typography>
+      <ResponsiveContainer width="100%" height={barData.length * 50}>
+        <BarChart data={barData} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" />
           <YAxis
             dataKey="name"
             type="category"
-            width={150}
+            width={120}
             tickFormatter={tickFormatter}
             tickMargin={10}
           />
@@ -598,16 +594,17 @@ function DemographicCharts({ open }: DemographicChartsProps) {
       <Loading status={demographicState}>
         <Grid item xs={1}>
           <Stack>
-            <Typography variant="h4">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
-            {demographicState.data?.chartsData.map((chart, index) => {
-              return (
-                <StackedBarChart
-                  key={index}
-                  chart={chart as ChartData}
-                  tickFormatter={tickFormatter}
-                />
-              );
-            })}
+            <Typography variant="h2">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
+            {demographicState.data?.totalCount &&
+              demographicState.data?.chartsData.map((chart, index) => {
+                return (
+                  <StackedBarChart
+                    key={index}
+                    chart={chart as ChartData}
+                    tickFormatter={tickFormatter}
+                  />
+                );
+              })}
           </Stack>
         </Grid>
       </Loading>
