@@ -95,7 +95,7 @@ export function Datasets() {
         />
         {editable ? (
           <Link
-            variant="h6"
+            variant="body1"
             color="inherit"
             underline="hover"
             component={RouterLink}
@@ -104,7 +104,7 @@ export function Datasets() {
             {conceptSet.name}
           </Link>
         ) : (
-          <Typography variant="h6">{conceptSet.name}</Typography>
+          <Typography variant="body1">{conceptSet.name}</Typography>
         )}
       </Stack>
     ));
@@ -133,6 +133,10 @@ export function Datasets() {
   });
 
   const allAttributesChecked = () => {
+    if (conceptSetOccurrences.length === 0) {
+      return false;
+    }
+
     for (const occurrence of conceptSetOccurrences) {
       for (const attribute of occurrence.attributes) {
         if (excludedAttributes.get(occurrence.id)?.has(attribute)) {
@@ -159,7 +163,7 @@ export function Datasets() {
             {dialog}
           </Stack>
           <Paper
-            sx={{ overflowY: "auto", display: "block" }}
+            sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
             {cohorts
@@ -174,7 +178,7 @@ export function Datasets() {
                     onChange={() => onToggle(updateSelectedCohorts, cohort.id)}
                   />
                   <Link
-                    variant="h6"
+                    variant="body1"
                     color="inherit"
                     underline="hover"
                     component={RouterLink}
@@ -197,19 +201,19 @@ export function Datasets() {
             {menu}
           </Stack>
           <Paper
-            sx={{ overflowY: "auto", display: "block" }}
+            sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
             {underlay.uiConfiguration.prepackagedConceptSets && (
               <>
-                <Typography variant="h5">Prepackaged</Typography>
+                <Typography variant="h4">Prepackaged</Typography>
                 {listConceptSets(
                   false,
                   underlay.uiConfiguration.prepackagedConceptSets
                 )}
               </>
             )}
-            <Typography variant="h5">Workspace</Typography>
+            <Typography variant="h4">Workspace</Typography>
             {listConceptSets(
               true,
               workspaceConceptSets
@@ -227,13 +231,13 @@ export function Datasets() {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Stack direction="row" alignItems="center">
+            <Stack direction="row" alignItems="baseline">
               <Typography variant="h4" mr={1}>
                 3. Values
               </Typography>
-              <Typography variant="h5">(Columns)</Typography>
+              <Typography variant="h4">(Columns)</Typography>
             </Stack>
-            <Stack direction="row">
+            <Stack direction="row" alignItems="center">
               <Checkbox
                 size="small"
                 fontSize="inherit"
@@ -259,12 +263,12 @@ export function Datasets() {
             </Stack>
           </Stack>
           <Paper
-            sx={{ overflowY: "auto", display: "block" }}
+            sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
             {conceptSetOccurrences.map((occurrence) => (
               <Fragment key={occurrence.id}>
-                <Typography variant="h5">{occurrence.name}</Typography>
+                <Typography variant="subtitle1">{occurrence.name}</Typography>
                 {occurrence.attributes.map((attribute) => (
                   <Stack key={attribute} direction="row" alignItems="center">
                     <Checkbox
@@ -289,7 +293,7 @@ export function Datasets() {
                         })
                       }
                     />
-                    <Typography variant="h6">{attribute}</Typography>
+                    <Typography variant="body1">{attribute}</Typography>
                   </Stack>
                 ))}
               </Fragment>
@@ -297,7 +301,7 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={3}>
-          <Paper>
+          <Paper sx={{ p: 1 }}>
             {selectedCohorts.size > 0 && selectedConceptSets.size > 0 ? (
               <Preview
                 selectedCohorts={selectedCohorts}
@@ -306,7 +310,7 @@ export function Datasets() {
                 excludedAttributes={excludedAttributes}
               />
             ) : (
-              <Typography variant="h5">
+              <Typography variant="h4">
                 Select at least one cohort and concept set to preview the
                 dataset.
               </Typography>

@@ -190,7 +190,7 @@ function AttributeSlider(props: SliderProps) {
   };
 
   return (
-    <Box sx={{ width: "30%", minWidth: 500 }}>
+    <Box sx={{ width: "30%", minWidth: 400, mt: 0.5 }}>
       <Grid container spacing={1} direction="row">
         <Grid item>
           <Input

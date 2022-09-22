@@ -4,9 +4,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
@@ -53,10 +53,10 @@ export function GroupOverview() {
       <Stack
         direction="row"
         justifyContent="space-between"
-        alignItems="baseline"
+        alignItems="flex-start"
       >
         <Stack direction="row" alignItems="center">
-          <Typography variant="h5">{name}</Typography>
+          <Typography variant="h3">{name}</Typography>
           <IconButton onClick={showRenameGroup}>
             <EditIcon />
           </IconButton>
@@ -94,51 +94,50 @@ export function GroupOverview() {
           <Typography>Included</Typography>
         </Stack>
       </Stack>
-      <Divider />
-      <Stack spacing={0}>
+      <Stack spacing={1}>
         {group.criteria.map((criteria) => {
           const plugin = getCriteriaPlugin(criteria);
           const title = getCriteriaTitle(criteria, plugin);
 
           return (
             <Box key={criteria.id}>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="baseline"
-                sx={{ m: 1 }}
-              >
-                <Box>
-                  {!!plugin.renderEdit ? (
-                    <Link
-                      variant="h6"
-                      color="inherit"
-                      underline="hover"
-                      component={RouterLink}
-                      to={criteriaURL(criteria.id)}
-                    >
-                      {title}
-                    </Link>
-                  ) : (
-                    <Typography variant="h6">{title}</Typography>
-                  )}
-                  {plugin.renderInline(criteria.id)}
-                </Box>
-                <IconButton
-                  onClick={() => {
-                    dispatch(
-                      deleteCriteria({
-                        cohortId: cohort.id,
-                        groupId: group.id,
-                        criteriaId: criteria.id,
-                      })
-                    );
-                  }}
+              <Paper sx={{ p: 1 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
                 >
-                  <DeleteIcon />
-                </IconButton>
-              </Stack>
-              <Divider />
+                  <Box>
+                    {!!plugin.renderEdit ? (
+                      <Link
+                        variant="h4"
+                        color="inherit"
+                        underline="hover"
+                        component={RouterLink}
+                        to={criteriaURL(criteria.id)}
+                      >
+                        {title}
+                      </Link>
+                    ) : (
+                      <Typography variant="h4">{title}</Typography>
+                    )}
+                    {plugin.renderInline(criteria.id)}
+                  </Box>
+                  <IconButton
+                    onClick={() => {
+                      dispatch(
+                        deleteCriteria({
+                          cohortId: cohort.id,
+                          groupId: group.id,
+                          criteriaId: criteria.id,
+                        })
+                      );
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
+              </Paper>
             </Box>
           );
         })}
