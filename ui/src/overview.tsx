@@ -201,7 +201,6 @@ function ParticipantsGroup(props: {
   selected: boolean;
 }) {
   const source = useSource();
-  const underlay = useUnderlay();
   const cohort = useCohort();
 
   const fetchGroupCount = useCallback(async () => {
@@ -226,7 +225,7 @@ function ParticipantsGroup(props: {
     }
 
     return (await source.filterCount(filter))[0].count;
-  }, [underlay, cohort]);
+  }, [cohort.id, cohort.name, cohort.underlayName, props.group]);
 
   const groupCountState = useAsyncWithApi(fetchGroupCount);
 
@@ -292,7 +291,6 @@ function ParticipantCriteria(props: {
   criteria: tanagra.Criteria;
 }) {
   const source = useSource();
-  const underlay = useUnderlay();
   const cohort = useCohort();
 
   const fetchCriteriaCount = useCallback(async () => {
@@ -315,7 +313,7 @@ function ParticipantCriteria(props: {
     }
 
     return (await source.filterCount(filter))[0].count;
-  }, [underlay, cohort.id, cohort.name, cohort.underlayName, props.criteria]);
+  }, [cohort.id, cohort.name, cohort.underlayName, props.criteria]);
 
   const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
 
