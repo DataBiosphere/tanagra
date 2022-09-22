@@ -396,7 +396,7 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
   return (
     <>
       <Typography variant="h4">{chart.title}</Typography>
-      <ResponsiveContainer width="100%" height={barData.length * 50}>
+      <ResponsiveContainer width="100%" height={30 + barData.length * 30}>
         <BarChart data={barData} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" />
@@ -407,7 +407,12 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
             tickFormatter={tickFormatter}
             tickMargin={10}
           />
-          <Tooltip />
+          <Tooltip
+            itemStyle={{ padding: 0 }}
+            labelFormatter={(label) => (
+              <Typography variant="h4">{label}</Typography>
+            )}
+          />
           {chart.stackedProperties.length > 0 ? (
             chart.stackedProperties.map((property, index) => (
               <Bar
@@ -567,9 +572,10 @@ function DemographicCharts({ open }: DemographicChartsProps) {
       });
     }
 
-    chartsData.forEach((chart) =>
-      chart.bars.sort((a, b) => (a.name > b.name ? 1 : -1))
-    );
+    chartsData.forEach((chart) => {
+      chart.bars.sort((a, b) => (a.name > b.name ? 1 : -1));
+      chart.stackedProperties.sort();
+    });
 
     return {
       totalCount,
