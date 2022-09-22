@@ -193,7 +193,7 @@ function AttributeSlider(props: SliderProps) {
 
   return (
     <Box sx={{ width: "30%", minWidth: 400, mt: 0.5 }}>
-      <Grid container spacing={1} direction="row">
+      <Grid container spacing={3} direction="row">
         <Grid item>
           <Input
             value={minInputValue}
@@ -201,7 +201,6 @@ function AttributeSlider(props: SliderProps) {
             onChange={handleMinInputChange}
             onBlur={handleMinInputBlur}
             inputProps={{
-              step: Math.ceil((maxBound - minBound) / 20),
               min: minBound,
               max: maxBound,
               type: "number",
@@ -226,7 +225,6 @@ function AttributeSlider(props: SliderProps) {
             onChange={handleMaxInputChange}
             onBlur={handleMaxInputBlur}
             inputProps={{
-              step: Math.ceil((maxBound - minBound) / 20),
               min: minBound,
               max: maxBound,
               type: "number",
