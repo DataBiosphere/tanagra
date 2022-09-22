@@ -182,7 +182,7 @@ function AddGroupButton() {
     const action = dispatch(insertGroup(cohort.id));
     const groupId = action.payload.group.id;
     if (groupId) {
-      navigate("../" + cohortURL(cohort.id, groupId));
+      navigate(`../${cohortURL(cohort.id, groupId)}/add`);
     }
   };
 
