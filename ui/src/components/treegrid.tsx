@@ -218,18 +218,19 @@ function renderChildren(
       const columnCustomization = rowCustomization?.get(column);
       return (
         <>
-          {(!!child.children?.length ||
-            (props.loadChildren && !child.children)) && (
-            <IconButton
-              size="small"
-              title={childState?.errorMessage}
-              onClick={() => {
-                toggleExpanded(childId);
-              }}
-            >
-              <ItemIcon state={childState} />
-            </IconButton>
-          )}
+          {column === 0 &&
+            (!!child.children?.length ||
+              (props.loadChildren && !child.children)) && (
+              <IconButton
+                size="small"
+                title={childState?.errorMessage}
+                onClick={() => {
+                  toggleExpanded(childId);
+                }}
+              >
+                <ItemIcon state={childState} />
+              </IconButton>
+            )}
           {columnCustomization?.prefixElements}
           {columnCustomization?.onClick ? (
             <Link
