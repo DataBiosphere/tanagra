@@ -89,7 +89,7 @@ const MiniDrawer = styled(Drawer, {
 }));
 
 export function Overview() {
-  const [showDemographics, setShowDemographics] = useState(false);
+  const [showDemographics, setShowDemographics] = useState(true);
 
   // TODO(tjennison): This overall layout is a mess and the built in components
   // are only making it more difficult. Overhaul the main layout to use basic
