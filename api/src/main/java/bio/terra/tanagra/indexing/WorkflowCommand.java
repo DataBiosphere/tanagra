@@ -3,7 +3,7 @@ package bio.terra.tanagra.indexing;
 import java.util.Collections;
 import java.util.Map;
 
-public class WorkflowCommand {
+public abstract class WorkflowCommand {
   private static final String BASH_COMMENT_PREFIX = "# ";
 
   private final String command;
