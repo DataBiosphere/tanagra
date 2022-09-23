@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
+import Empty from "components/empty";
 import Loading from "components/loading";
 import { Search } from "components/search";
 import {
@@ -274,104 +275,112 @@ function ConceptEdit(props: ConceptEditProps) {
         />
       )}
       <Loading status={classificationState}>
-        <TreeGrid
-          columns={hierarchy ? hierarchyColumns : allColumns}
-          data={data}
-          defaultExpanded={hierarchy}
-          rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
-            // TODO(tjennison): Make TreeGridData's type generic so we can avoid
-            // this type assertion. Also consider passing the TreeGridItem to
-            // the callback instead of the TreeGridRowData.
-            const item = data[id] as ClassificationNodeItem;
-            if (!item || item.node.grouping) {
-              return undefined;
-            }
+        {!data.root?.children?.length ? (
+          <Empty
+            minHeight="300px"
+            image="/empty.png"
+            title="No matches found"
+          />
+        ) : (
+          <TreeGrid
+            columns={hierarchy ? hierarchyColumns : allColumns}
+            data={data}
+            defaultExpanded={hierarchy}
+            rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
+              // TODO(tjennison): Make TreeGridData's type generic so we can avoid
+              // this type assertion. Also consider passing the TreeGridItem to
+              // the callback instead of the TreeGridRowData.
+              const item = data[id] as ClassificationNodeItem;
+              if (!item || item.node.grouping) {
+                return undefined;
+              }
 
-            const column = props.config.columns[nameColumnIndex];
-            const name = rowData[column.key];
-            const newItem = {
-              key: item.node.data.key,
-              name: !!name ? String(name) : "",
-            };
+              const column = props.config.columns[nameColumnIndex];
+              const name = rowData[column.key];
+              const newItem = {
+                key: item.node.data.key,
+                name: !!name ? String(name) : "",
+              };
 
-            if (props.config.multiSelect) {
-              const index = props.data.selected.findIndex(
-                (sel) => item.node.data.key === sel.key
-              );
+              if (props.config.multiSelect) {
+                const index = props.data.selected.findIndex(
+                  (sel) => item.node.data.key === sel.key
+                );
+
+                return new Map([
+                  [
+                    nameColumnIndex,
+                    {
+                      prefixElements: (
+                        <Checkbox
+                          size="small"
+                          fontSize="inherit"
+                          checked={index > -1}
+                          onChange={() => {
+                            updateCriteria(
+                              produce(props.data, (data) => {
+                                if (index > -1) {
+                                  data.selected.splice(index, 1);
+                                } else {
+                                  data.selected.push(newItem);
+                                }
+                              })
+                            );
+                          }}
+                        />
+                      ),
+                    },
+                  ],
+                ]);
+              }
 
               return new Map([
                 [
                   nameColumnIndex,
                   {
-                    prefixElements: (
-                      <Checkbox
-                        size="small"
-                        fontSize="inherit"
-                        checked={index > -1}
-                        onChange={() => {
-                          updateCriteria(
-                            produce(props.data, (data) => {
-                              if (index > -1) {
-                                data.selected.splice(index, 1);
-                              } else {
-                                data.selected.push(newItem);
-                              }
-                            })
-                          );
-                        }}
-                      />
-                    ),
+                    onClick: () => {
+                      updateCriteria(
+                        produce(props.data, (data) => {
+                          data.selected = [newItem];
+                        })
+                      );
+                      navigate("..");
+                    },
                   },
                 ],
               ]);
-            }
-
-            return new Map([
-              [
-                nameColumnIndex,
-                {
-                  onClick: () => {
-                    updateCriteria(
-                      produce(props.data, (data) => {
-                        data.selected = [newItem];
-                      })
-                    );
-                    navigate("..");
-                  },
-                },
-              ],
-            ]);
-          }}
-          loadChildren={(id: TreeGridId) => {
-            const item = data[id] as ClassificationNodeItem;
-            const key = item?.node ? keyForNode(item.node) : id;
-            if (item?.node.grouping) {
-              return source
-                .searchGrouping(
-                  attributes,
-                  occurrence.id,
-                  classification.id,
-                  item.node
-                )
-                .then((res) => {
-                  processEntities(res, hierarchy, key);
-                });
-            } else {
-              return source
-                .searchClassification(
-                  attributes,
-                  occurrence.id,
-                  classification.id,
-                  {
-                    parent: key,
-                  }
-                )
-                .then((res) => {
-                  processEntities(res, hierarchy, key);
-                });
-            }
-          }}
-        />
+            }}
+            loadChildren={(id: TreeGridId) => {
+              const item = data[id] as ClassificationNodeItem;
+              const key = item?.node ? keyForNode(item.node) : id;
+              if (item?.node.grouping) {
+                return source
+                  .searchGrouping(
+                    attributes,
+                    occurrence.id,
+                    classification.id,
+                    item.node
+                  )
+                  .then((res) => {
+                    processEntities(res, hierarchy, key);
+                  });
+              } else {
+                return source
+                  .searchClassification(
+                    attributes,
+                    occurrence.id,
+                    classification.id,
+                    {
+                      parent: key,
+                    }
+                  )
+                  .then((res) => {
+                    processEntities(res, hierarchy, key);
+                  });
+              }
+            }}
+          />
+        )}
       </Loading>
     </Box>
   );

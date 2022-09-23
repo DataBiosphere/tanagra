@@ -19,6 +19,7 @@ import {
 } from "cohort";
 import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
+import Empty from "components/empty";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
@@ -29,7 +30,13 @@ import { Filter, makeArrayFilter } from "data/filter";
 import { useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
-import React, { Fragment, SyntheticEvent, useCallback, useState } from "react";
+import React, {
+  Fragment,
+  SyntheticEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { cohortURL, conceptSetURL } from "router";
 import * as tanagra from "tanagra-api";
@@ -37,7 +44,7 @@ import { useImmer } from "use-immer";
 
 export function Datasets() {
   const dispatch = useAppDispatch();
-  const cohorts = useAppSelector((state) => state.present.cohorts);
+  const unfilteredCohorts = useAppSelector((state) => state.present.cohorts);
   const workspaceConceptSets = useAppSelector(
     (state) => state.present.conceptSets
   );
@@ -147,6 +154,14 @@ export function Datasets() {
     return true;
   };
 
+  const cohorts = useMemo(
+    () =>
+      unfilteredCohorts.filter(
+        (cohort) => cohort.underlayName === underlay.name
+      ),
+    [unfilteredCohorts]
+  );
+
   return (
     <>
       <ActionBar title="Datasets" />
@@ -166,6 +181,13 @@ export function Datasets() {
             sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
+            {cohorts.length === 0 && (
+              <Empty
+                maxWidth="80%"
+                title="No cohorts yet"
+                subtitle="You can create a cohort by clicking on the '+' above"
+              />
+            )}
             {cohorts
               .filter((cohort) => cohort.underlayName === underlay.name)
               .map((cohort) => (
@@ -266,6 +288,13 @@ export function Datasets() {
             sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
+            {conceptSetOccurrences.length === 0 && (
+              <Empty
+                maxWidth="80%"
+                title="No inputs selected"
+                subtitle="You can view the available values by selecting at least one cohort and concept set"
+              />
+            )}
             {conceptSetOccurrences.map((occurrence) => (
               <Fragment key={occurrence.id}>
                 <Typography variant="subtitle1">{occurrence.name}</Typography>
@@ -310,10 +339,13 @@ export function Datasets() {
                 excludedAttributes={excludedAttributes}
               />
             ) : (
-              <Typography variant="h4">
-                Select at least one cohort and concept set to preview the
-                dataset.
-              </Typography>
+              <Empty
+                maxWidth="60%"
+                minHeight="200px"
+                image="/empty.png"
+                title="No inputs selected"
+                subtitle="You can preview the data by selecting at least one cohort and concept set"
+              />
             )}
           </Paper>
         </Grid>

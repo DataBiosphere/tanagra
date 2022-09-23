@@ -12,6 +12,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { defaultFilter, insertGroup } from "cohortsSlice";
+import Empty from "components/empty";
 import Loading from "components/loading";
 import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
@@ -221,11 +222,20 @@ function ParticipantsGroup(props: {
             <Chip label={groupFilterKindLabel(props.group.filter.kind)} />
           </Stack>
         </Stack>
-        {props.group.criteria.map((criteria) => (
-          <Box key={criteria.id}>
-            <ParticipantCriteria group={props.group} criteria={criteria} />
-          </Box>
-        ))}
+        {props.group.criteria.length === 0 ? (
+          <Empty
+            maxWidth="90%"
+            minHeight="100px"
+            title="No criteria yet"
+            subtitle="You can add a criteria by selecting this requirement and clicking on 'Add criteria'"
+          />
+        ) : (
+          props.group.criteria.map((criteria) => (
+            <Box key={criteria.id}>
+              <ParticipantCriteria group={props.group} criteria={criteria} />
+            </Box>
+          ))
+        )}
         <Box
           key="footer"
           display="flex"
