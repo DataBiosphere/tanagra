@@ -1,0 +1,49 @@
+{
+  "name": "brand",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "standard_concept", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING" } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": {
+      "table": "concept",
+      "filter": {
+        "type": "ARRAY",
+        "operator": "AND",
+        "subfilters": [
+          { "type": "ARRAY",
+            "operator": "OR",
+            "subfilters": [
+              {  "type": "BINARY",
+                 "field":  { "column":  "vocabulary_id" },
+                 "operator": "EQUALS",
+                 "value":  { "stringVal": "RxNorm" } },
+              {  "type": "BINARY",
+                "field":  { "column":  "vocabulary_id" },
+                "operator": "EQUALS",
+                "value":  { "stringVal": "RxNorm Extension" } }
+            ] },
+          { "type": "BINARY",
+            "field": { "column": "domain_id" },
+            "operator": "EQUALS",
+            "value": { "stringVal": "Drug" } },
+          { "type": "BINARY",
+            "field": { "column": "concept_class_id" },
+            "operator": "EQUALS",
+            "value": { "stringVal": "Brand Name" } } ] } },
+    "attributeMappings": {
+      "id": { "value": { "column": "concept_id" } },
+      "name": { "value": { "column": "concept_name" } } },
+    "textSearchMapping": {
+      "attributes": [ "id", "name", "concept_code" ]
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

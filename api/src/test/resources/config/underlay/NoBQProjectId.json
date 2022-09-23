@@ -1,0 +1,10 @@
+{
+  "name": "aou_synthetic",
+  "dataPointers": [
+    { "type": "BQ_DATASET",
+      "name": "omop_dataset",
+      "datasetId": "aou_synthetic",
+      "serviceAccountKeyFile": "../rendered/tanagra_sa.json" } ],
+  "entities": [ "Person.json" ],
+  "primaryEntity": "Person"
+}
