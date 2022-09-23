@@ -5,6 +5,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { insertCriteria } from "cohortsSlice";
+import Empty from "components/empty";
 import Loading from "components/loading";
 import { Search } from "components/search";
 import {
@@ -139,9 +140,7 @@ export function AddCriteria() {
     <Box
       sx={{
         p: 1,
-        minWidth: "900px",
-        height: "100%",
-        overflow: "auto",
+        minHeight: "100%",
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
@@ -152,28 +151,36 @@ export function AddCriteria() {
       <ActionBar title={"Add criteria"} />
       {showResults ? (
         <Loading status={searchState}>
-          <TreeGrid
-            columns={columns}
-            data={data}
-            rowCustomization={(id: TreeGridId) => {
-              const item = data[id] as CriteriaItem;
-              const config = criteriaConfigMap.get(item.entry.source);
-              if (!config) {
-                throw new Error(
-                  `Item source "${item.entry.source}" doesn't match any criteria config ID.`
-                );
-              }
+          {!data.root?.children?.length ? (
+            <Empty
+              minHeight="300px"
+              image="/empty.png"
+              title="No matches found"
+            />
+          ) : (
+            <TreeGrid
+              columns={columns}
+              data={data}
+              rowCustomization={(id: TreeGridId) => {
+                const item = data[id] as CriteriaItem;
+                const config = criteriaConfigMap.get(item.entry.source);
+                if (!config) {
+                  throw new Error(
+                    `Item source "${item.entry.source}" doesn't match any criteria config ID.`
+                  );
+                }
 
-              return new Map([
-                [
-                  1,
-                  {
-                    onClick: () => onClick(config, item.entry.data),
-                  },
-                ],
-              ]);
-            }}
-          />
+                return new Map([
+                  [
+                    1,
+                    {
+                      onClick: () => onClick(config, item.entry.data),
+                    },
+                  ],
+                ]);
+              }}
+            />
+          )}
         </Loading>
       ) : (
         <Stack direction="row" justifyContent="center">
