@@ -1,14 +1,14 @@
 {
   "name": "brand_ingredient",
-  "type": "ONE_TO_MANY",
+  "type": "GROUP_ITEMS",
   "entities": {
-    "one": "brand",
-    "many": "ingredient"
+    "group": "brand",
+    "items": "ingredient"
   },
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
-      "oneToMany": {
+      "groupToItems": {
         "tablePointer": { "table": "concept_relationship" },
         "fromEntityId": { "column": "concept_id_1" },
         "toEntityId":  { "column": "concept_id_2" }

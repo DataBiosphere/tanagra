@@ -14,31 +14,31 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class OneToMany extends EntityGroup {
-  private static final String ONE_ENTITY_NAME = "one";
-  private static final String MANY_ENTITY_NAME = "many";
-  private static final String ONE_TO_MANY_RELATIONSHIP_NAME = "oneToMany";
+public class GroupItems extends EntityGroup {
+  private static final String GROUP_ENTITY_NAME = "group";
+  private static final String ITEMS_ENTITY_NAME = "items";
+  private static final String GROUP_ITEMS_RELATIONSHIP_NAME = "groupToItems";
 
-  private final Entity entity1;
-  private final Entity entityM;
+  private final Entity groupEntity;
+  private final Entity itemsEntity;
 
-  private OneToMany(Builder builder) {
+  private GroupItems(Builder builder) {
     super(builder);
-    this.entity1 = builder.entity1;
-    this.entityM = builder.entityM;
+    this.groupEntity = builder.groupEntity;
+    this.itemsEntity = builder.itemsEntity;
   }
 
-  public static OneToMany fromSerialized(
+  public static GroupItems fromSerialized(
       UFEntityGroup serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities) {
-    Entity entity1 = getDeserializedEntity(serialized, ONE_ENTITY_NAME, entities);
-    Entity entityM = getDeserializedEntity(serialized, MANY_ENTITY_NAME, entities);
+    Entity entity1 = getDeserializedEntity(serialized, GROUP_ENTITY_NAME, entities);
+    Entity entityM = getDeserializedEntity(serialized, ITEMS_ENTITY_NAME, entities);
 
     Map<String, Relationship> relationships =
         Map.of(
-            ONE_TO_MANY_RELATIONSHIP_NAME,
-            new Relationship(ONE_TO_MANY_RELATIONSHIP_NAME, entity1, entityM));
+            GROUP_ITEMS_RELATIONSHIP_NAME,
+            new Relationship(GROUP_ITEMS_RELATIONSHIP_NAME, entity1, entityM));
     Map<String, AuxiliaryData> auxiliaryData = Collections.emptyMap();
 
     EntityGroupMapping sourceDataMapping =
@@ -55,17 +55,17 @@ public class OneToMany extends EntityGroup {
         .auxiliaryData(auxiliaryData)
         .sourceDataMapping(sourceDataMapping)
         .indexDataMapping(indexDataMapping);
-    return builder.entity1(entity1).entityM(entityM).build();
+    return builder.groupEntity(entity1).itemsEntity(entityM).build();
   }
 
   @Override
   public EntityGroup.Type getType() {
-    return Type.ONE_TO_MANY;
+    return Type.GROUP_ITEMS;
   }
 
   @Override
   public Map<String, Entity> getEntities() {
-    return ImmutableMap.of(ONE_ENTITY_NAME, entity1, MANY_ENTITY_NAME, entityM);
+    return ImmutableMap.of(GROUP_ENTITY_NAME, groupEntity, ITEMS_ENTITY_NAME, itemsEntity);
   }
 
   @Override
@@ -74,22 +74,22 @@ public class OneToMany extends EntityGroup {
   }
 
   private static class Builder extends EntityGroup.Builder {
-    private Entity entity1;
-    private Entity entityM;
+    private Entity groupEntity;
+    private Entity itemsEntity;
 
-    public Builder entity1(Entity entity1) {
-      this.entity1 = entity1;
+    public Builder groupEntity(Entity groupEntity) {
+      this.groupEntity = groupEntity;
       return this;
     }
 
-    public Builder entityM(Entity entityM) {
-      this.entityM = entityM;
+    public Builder itemsEntity(Entity itemsEntity) {
+      this.itemsEntity = itemsEntity;
       return this;
     }
 
     @Override
-    public OneToMany build() {
-      return new OneToMany(this);
+    public GroupItems build() {
+      return new GroupItems(this);
     }
   }
 }

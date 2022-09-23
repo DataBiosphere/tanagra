@@ -5,7 +5,7 @@ import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
-import bio.terra.tanagra.underlay.entitygroup.OneToMany;
+import bio.terra.tanagra.underlay.entitygroup.GroupItems;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class EntityGroup {
   /** Enum for the types of entity groups supported by Tanagra. */
   public enum Type {
-    ONE_TO_MANY,
+    GROUP_ITEMS,
     CRITERIA_OCCURRENCE
   }
 
@@ -54,8 +54,8 @@ public abstract class EntityGroup {
       throw new InvalidConfigException("There are no entities defined");
     }
     switch (serialized.getType()) {
-      case ONE_TO_MANY:
-        return OneToMany.fromSerialized(serialized, dataPointers, entities);
+      case GROUP_ITEMS:
+        return GroupItems.fromSerialized(serialized, dataPointers, entities);
       case CRITERIA_OCCURRENCE:
         return CriteriaOccurrence.fromSerialized(
             serialized, dataPointers, entities, primaryEntityName);
