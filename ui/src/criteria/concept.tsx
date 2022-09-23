@@ -262,9 +262,8 @@ function ConceptEdit(props: ConceptEditProps) {
   return (
     <Box
       sx={{
-        minWidth: "900px",
-        height: "100%",
-        overflow: "auto",
+        p: 1,
+        minHeight: "100%",
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
