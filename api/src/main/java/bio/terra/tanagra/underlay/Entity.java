@@ -2,12 +2,14 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
+import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.BuildTextSearch;
 import bio.terra.tanagra.indexing.command.ComputeAncestorDescendant;
 import bio.terra.tanagra.indexing.command.ComputePathNumChildren;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.indexing.command.WriteParentChild;
+import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
@@ -152,6 +154,12 @@ public final class Entity {
               });
     }
     return cmds;
+  }
+
+  public List<IndexingJob> getIndexingJobs() {
+    List<IndexingJob> jobs = new ArrayList<>();
+    jobs.add(new DenormalizeEntityInstances(this));
+    return jobs;
   }
 
   public String getName() {

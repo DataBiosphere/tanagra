@@ -9,32 +9,25 @@ import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.utils.GoogleBigQuery;
-import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public final class BigQueryDataset extends DataPointer {
   private final String projectId;
   private final String datasetId;
-  private final Path serviceAccountKeyFile;
-  // TODO: revisit how to point Tanagra at the right credentials for indexing/querying
-  private ServiceAccountCredentials serviceAccountCredentials;
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
 
-  private BigQueryDataset(
-      String name, String projectId, String datasetId, Path serviceAccountKeyFile) {
+  private BigQueryDataset(String name, String projectId, String datasetId) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
-    this.serviceAccountKeyFile = serviceAccountKeyFile;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -44,21 +37,8 @@ public final class BigQueryDataset extends DataPointer {
     if (serialized.getDatasetId() == null || serialized.getDatasetId().isEmpty()) {
       throw new InvalidConfigException("No BigQuery dataset ID defined");
     }
-    if (serialized.getServiceAccountKeyFile() == null
-        || serialized.getServiceAccountKeyFile().isEmpty()) {
-      throw new InvalidConfigException("No service account key file defined for BigQuery dataset");
-    }
-    Path serviceAccountKeyFile = Path.of(serialized.getServiceAccountKeyFile());
-    if (!serviceAccountKeyFile.toFile().exists()) {
-      throw new InvalidConfigException(
-          "Service account key file does not point to a valid path: "
-              + serviceAccountKeyFile.toAbsolutePath());
-    }
     return new BigQueryDataset(
-        serialized.getName(),
-        serialized.getProjectId(),
-        serialized.getDatasetId(),
-        serviceAccountKeyFile);
+        serialized.getName(), serialized.getProjectId(), serialized.getDatasetId());
   }
 
   @Override
@@ -126,16 +106,15 @@ public final class BigQueryDataset extends DataPointer {
     }
   }
 
-  private GoogleBigQuery getBigQueryService() {
+  public GoogleBigQuery getBigQueryService() {
     if (bigQueryService == null) {
+      GoogleCredentials credentials;
       try {
-        serviceAccountCredentials =
-            ServiceAccountCredentials.fromStream(Files.newInputStream(serviceAccountKeyFile));
+        credentials = GoogleCredentials.getApplicationDefault();
       } catch (IOException ioEx) {
-        throw new SystemException(
-            "Error reading service account key file: " + serviceAccountKeyFile, ioEx);
+        throw new SystemException("Error loading application default credentials", ioEx);
       }
-      bigQueryService = new GoogleBigQuery(serviceAccountCredentials, projectId);
+      bigQueryService = new GoogleBigQuery(credentials, projectId);
     }
     return bigQueryService;
   }
@@ -146,9 +125,5 @@ public final class BigQueryDataset extends DataPointer {
 
   public String getDatasetId() {
     return datasetId;
-  }
-
-  public Path getServiceAccountKeyFile() {
-    return serviceAccountKeyFile;
   }
 }

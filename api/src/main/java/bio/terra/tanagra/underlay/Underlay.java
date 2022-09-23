@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.utils.JacksonMapper;
@@ -93,7 +94,21 @@ public final class Underlay {
     return entities.get(primaryEntityName);
   }
 
+  public Entity getEntity(String name) {
+    if (!entities.containsKey(name)) {
+      throw new SystemException("Entity not found: " + name);
+    }
+    return entities.get(name);
+  }
+
   public Map<String, EntityGroup> getEntityGroups() {
     return Collections.unmodifiableMap(entityGroups);
+  }
+
+  public EntityGroup getEntityGroup(String name) {
+    if (!entityGroups.containsKey(name)) {
+      throw new SystemException("Entity group not found: " + name);
+    }
+    return entityGroups.get(name);
   }
 }

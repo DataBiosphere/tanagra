@@ -99,6 +99,25 @@ public final class GoogleBigQuery {
   }
 
   /**
+   * Create a new table from the results of a query.
+   *
+   * @param destinationTable the destination project+dataset+table id
+   * @param query the SQL string
+   * @param isDryRun true if this is a dry run and no table should actually be created
+   * @return the result of the BQ query job
+   */
+  public TableResult createTableFromQuery(
+      TableId destinationTable, String query, boolean isDryRun) {
+    QueryJobConfiguration queryConfig =
+        QueryJobConfiguration.newBuilder(query)
+            .setDestinationTable(destinationTable)
+            .setDryRun(isDryRun)
+            .build();
+    return callWithRetries(
+        () -> bigQuery.query(queryConfig), "Retryable error creating table from query");
+  }
+
+  /**
    * Execute a query.
    *
    * @param query the query to run
