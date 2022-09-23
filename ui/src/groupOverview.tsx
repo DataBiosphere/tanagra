@@ -55,7 +55,7 @@ export function GroupOverview() {
   });
 
   return (
-    <Box sx={{ m: 1 }}>
+    <Box sx={{ p: 1 }}>
       <ActionBar title={cohort.name} />
       <Stack direction="row" justifyContent="space-between">
         <Stack direction="row" alignItems="center">
