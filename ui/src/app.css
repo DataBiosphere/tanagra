@@ -26,59 +26,6 @@
   margin-bottom: 2em;
 }
 
-.overview {
-  padding: 0em 1em;
-}
-
-.overview h4 {
-  padding: 0.25em 0em;
-}
-
-.overview .participants-group {
-  padding: 0.5em 0em;
-}
-
-.overview .group-title {
-  padding: 0.5em 0em;
-  background: #e2e6ea;
-  color: #262262;
-}
-
-.overview .criteria-accordion .MuiAccordionSummary-root {
-  padding: 0em 0.5em 0em 0em;
-  align-items: flex-start;
-  min-height: 0em;
-}
-
-.overview .criteria-accordion .MuiAccordionSummary-content {
-  margin: 0em;
-  align-items: baseline;
-}
-
-.overview .criteria-accordion .MuiAccordionSummary-content .MuiDivider-root {
-  margin: 0em 0.5em;
-}
-
-.overview .criteria-accordion .MuiAccordionDetails-root {
-  padding: 0em;
-}
-
-.overview .criteria-accordion .MuiList-root {
-  padding: 0em;
-}
-
-.overview .criteria-accordion .MuiAccordionSummary-expandIconWrapper {
-  margin: 0.3em 0em 0em 0em;
-}
-
-.overview .add-criteria {
-  margin: 0em 0.5em !important;
-}
-
-.overview .and-divider {
-  margin: 0.2em 0em !important;
-}
-
 .loading {
   margin: 2em 4em;
 }

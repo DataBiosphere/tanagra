@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { TreeGridColumn } from "components/treegrid";
 import { Configuration } from "data/configuration";
 import { Filter } from "data/filter";
 import * as tanagra from "tanagra-api";
@@ -15,13 +16,14 @@ export type Underlay = {
   primaryEntity: string;
   entities: tanagra.Entity[];
   uiConfiguration: UIConfiguration;
-  prepackagedConceptSets: PrepackagedConceptSet[];
 };
 
 export type UIConfiguration = {
   dataConfig: Configuration;
   criteriaConfigs: CriteriaConfig[];
   demographicChartConfigs: DemographicChartConfig;
+  prepackagedConceptSets: PrepackagedConceptSet[];
+  criteriaSearchConfig: CriteriaSearchConfig;
 };
 
 export type DemographicChartConfig = {
@@ -47,13 +49,20 @@ export type Bucket = {
   displayName: string;
 };
 
+export type CriteriaSearchConfig = {
+  criteriaTypeWidth: string;
+  columns: TreeGridColumn[];
+};
+
 // CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
 // possible criteria.
 export interface CriteriaConfig {
   // The plugin type to use for this criteria.
   type: string;
+  id: string;
   title: string;
-  defaultName: string;
+  conceptSet?: boolean;
+  category?: string;
 
   // Plugin specific config.
   plugin: unknown;

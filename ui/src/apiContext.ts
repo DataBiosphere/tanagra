@@ -47,41 +47,45 @@ class FakeUnderlaysApi {
       criteriaConfigs: [
         {
           type: "concept",
+          id: "tanagra-condition",
           title: "Conditions",
           defaultName: "Contains Conditions Codes",
-          plugin: {
-            columns,
-            occurrence: "condition_occurrence",
-            classification: "condition",
-          },
+          conceptSet: true,
+          columns,
+          occurrence: "condition_occurrence",
+          classification: "condition",
         },
         {
           type: "concept",
+          id: "tanagra-observation",
           title: "Observations",
           defaultName: "Contains Observations Codes",
-          plugin: {
-            columns,
-            occurrence: "observation_occurrence",
-            classification: "observation",
-          },
+          conceptSet: true,
+          columns,
+          occurrence: "observation_occurrence",
+          classification: "observation",
         },
         {
           type: "attribute",
+          id: "tanagra-race",
           title: "Race",
           defaultName: "Contains Race Codes",
-          plugin: {
-            attribute: "race_concept_id",
-          },
+          attribute: "race_concept_id",
         },
         {
           type: "attribute",
           title: "Year at Birth",
           defaultName: "Contains Year at Birth Values",
-          plugin: {
-            attribute: "year_of_birth",
-          },
+          attribute: "year_of_birth",
         },
       ],
+      criteriaSearchConfig: {
+        criteriaTypeWidth: 120,
+        columns: [
+          { key: "concept_name", width: "100%", title: "Concept Name" },
+          { key: "person_count", width: 120, title: "Roll-up Count" },
+        ],
+      },
     };
 
     return new Promise<tanagra.ListUnderlaysResponse>((resolve) => {

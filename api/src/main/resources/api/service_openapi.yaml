@@ -530,7 +530,6 @@ components:
       description: Enum for unary function operators
       type: string
       enum: ["NOT"]
-      
 
     BinaryFilter:
       type: object
@@ -788,10 +787,8 @@ components:
         name:
           type: string
           description: The name of this group if customized.
-        kind:
-          type: string
-          description: The kind of this group.
-          enum: ["INCLUDED", "EXCLUDED"]
+        filter:
+          $ref: "#/components/schemas/GroupFilter"
         criteria:
           type: array
           description: The criteria that make of this group.
@@ -800,8 +797,26 @@ components:
       required:
         - id
         - kind
+        - filter
         - underlayName
         - criteria
+
+    GroupFilter:
+      type: object
+      description: |
+        A filter for a list of criteria that indicates how to combine the states
+        of the individual criteria.
+      properties:
+        kind:
+          type: string
+          description: The kind of this group.
+          enum: ["ANY", "ALL"]
+        excluded:
+          type: boolean
+          description: This group should be excluded instead of included.
+      required:
+        - kind
+        - excluded
 
     ConceptSet:
       type: object
@@ -810,9 +825,6 @@ components:
         id:
           type: string
           description: The unique id of this concept set.
-        name:
-          type: string
-          description: The name of this concept set.
         underlayName:
           type: string
           description: The underlay this concept set is based on.
@@ -820,7 +832,6 @@ components:
           $ref: "#/components/schemas/Criteria"
       required:
         - id
-        - name
         - underlayName
         - criteria
 
@@ -831,17 +842,37 @@ components:
         id:
           type: string
           description: The unique id of this criteria.
-        name:
-          type: string
-          description: The name of this criteria.
         type:
           type: string
           description: The plugin type used by this criteria.
         data:
           type: object
           description: The plugin specific data that defines this criteria.
+        config:
+          type: object
+          description: The UI configuration used by this criteria.
+          $ref: "#/components/schemas/CriteriaConfig"
       required:
         - id
-        - name
         - type
         - data
+        - config
+
+    CriteriaConfig:
+      type: object
+      description: The configuration for an instance of a cohort plugin. Fields related to individual plugins may also be present.
+      properties:
+        type:
+          type: string
+          description: The plugin type to use for this criteria.
+        id:
+          type: string
+          description: The unique id of this criteria config.
+        title:
+          type: string
+          description: The display title for this criteria.
+      required:
+        - type
+        - id
+        - title
+      additionalProperties: true

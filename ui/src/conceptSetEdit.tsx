@@ -1,24 +1,18 @@
+import Toolbar from "@mui/material/Toolbar";
 import ActionBar from "actionBar";
-import { getCriteriaPlugin } from "cohort";
-import { updateConceptSetData } from "conceptSetsSlice";
-import { useAppDispatch, useConceptSet } from "hooks";
+import { getCriteriaPlugin, getCriteriaTitle } from "cohort";
+import { useConceptSet } from "hooks";
 import React from "react";
 
 export default function Edit() {
-  const dispatch = useAppDispatch();
   const conceptSet = useConceptSet();
+  const plugin = getCriteriaPlugin(conceptSet.criteria);
 
   return (
     <>
-      <ActionBar title={conceptSet.criteria.name} />
-      {getCriteriaPlugin(conceptSet.criteria).renderEdit((data: object) => {
-        dispatch(
-          updateConceptSetData({
-            conceptSetId: conceptSet.id,
-            data: data,
-          })
-        );
-      })}
+      <ActionBar title={getCriteriaTitle(conceptSet.criteria, plugin)} />
+      <Toolbar />
+      {plugin.renderEdit?.()}
     </>
   );
 }

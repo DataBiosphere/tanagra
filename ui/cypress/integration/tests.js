@@ -9,40 +9,35 @@ describe("Basic tests", () => {
     cy.get("#text").type("New Cohort");
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add Criteria)").first().click();
-    cy.get("li:Contains(Conditions)").click();
-    cy.get("button[role=checkbox]").click();
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(Conditions)").click();
+    cy.get("button:Contains(test concept)").click();
 
     cy.get("button:Contains(Add Criteria)").first().click();
-    cy.get("li:Contains(Race)").click();
-    cy.get('[type = "checkbox"]').check();
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(Race)").click();
+    cy.get(".MuiSelect-select:Contains(None selected)").click();
+    cy.get("li:Contains(Asian)").click();
+    cy.get(".MuiBackdrop-root").click();
 
     cy.get("button:Contains(Add Criteria)").first().click();
-    cy.get("li:Contains(Year at Birth)").click();
-    cy.get("button:Contains(Add Range)").click();
-    cy.get("input").first().clear().type("30");
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(Year at Birth)").click();
+    cy.get(".MuiInput-input").first().type("{selectall}30");
 
     cy.get("button:Contains(Add Criteria)").last().click();
-    cy.get("li:Contains(Observations)").click();
-    cy.get("button[role=checkbox]").click();
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(Observations)").click();
+    cy.get("button:Contains(test concept)").click();
 
     cy.get("button:Contains(Add Criteria)").last().click();
-    cy.get("li:Contains(Year at Birth)").click();
-    cy.get("button:Contains(Add Range)").click();
-    cy.get("input").first().clear().type("50");
-    cy.get("a[aria-label=back]").click();
+    cy.get("input").type("test{enter}");
+    cy.get("button:Contains(test concept)").first().click();
+
     cy.get("a[aria-label=back]").click();
 
     cy.get("button[id=insert-concept-set]").click();
     cy.get("li:Contains(Condition)").click();
-    cy.get("button[role=checkbox]").click();
-    cy.get("a[aria-label=back]").click();
+    cy.get("button:Contains(test concept)").click();
 
     cy.get("button[name='New Cohort']").click();
-    cy.get("button[name='Contains Conditions Codes']").click();
+    cy.get("button[name='Conditions: test concept']").click();
 
     cy.get("button:Contains('condition_occurrence')");
 
@@ -53,7 +48,7 @@ describe("Basic tests", () => {
     cy.reload();
 
     cy.get("a:Contains('New Cohort')").click();
-    cy.get("a:Contains('Contains Conditions Codes')").click();
+    cy.get("a:Contains('Conditions: test concept')").last().click();
     cy.contains("test concept");
   });
 });

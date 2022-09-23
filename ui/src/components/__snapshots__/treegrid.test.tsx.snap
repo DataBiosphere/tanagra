@@ -36,12 +36,12 @@ Array [
               }
             }
           >
-            <h6
-              className="MuiTypography-root MuiTypography-h6 css-1to91m4-MuiTypography-root"
+            <span
+              className="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
               title="Column 1"
             >
               Column 1
-            </h6>
+            </span>
           </div>
         </td>
         <td
@@ -62,12 +62,12 @@ Array [
               }
             }
           >
-            <h6
-              className="MuiTypography-root MuiTypography-h6 css-1to91m4-MuiTypography-root"
+            <span
+              className="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
               title="Column 2"
             >
               Column 2
-            </h6>
+            </span>
           </div>
         </td>
         <td
@@ -88,8 +88,8 @@ Array [
               }
             }
           >
-            <h6
-              className="MuiTypography-root MuiTypography-h6 css-1to91m4-MuiTypography-root"
+            <span
+              className="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
               title="[object Object]"
             >
               <svg
@@ -103,12 +103,15 @@ Array [
                   d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
                 />
               </svg>
-            </h6>
+            </span>
           </div>
         </td>
       </tr>
     </thead>
   </table>,
+  <hr
+    className="MuiDivider-root MuiDivider-fullWidth css-9mgopn-MuiDivider-root"
+  />,
   <div
     style={
       Object {
@@ -141,48 +144,46 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "paddingLeft": "0em",
-                  "textOverflow": "ellipsis",
+                  "paddingLeft": "0.2em",
                   "whiteSpace": "nowrap",
                 }
               }
             >
+              <button
+                className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                disabled={false}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onContextMenu={[Function]}
+                onDragLeave={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                onKeyUp={[Function]}
+                onMouseDown={[Function]}
+                onMouseLeave={[Function]}
+                onMouseUp={[Function]}
+                onTouchEnd={[Function]}
+                onTouchMove={[Function]}
+                onTouchStart={[Function]}
+                tabIndex={0}
+                type="button"
+              >
+                <svg
+                  aria-hidden={true}
+                  className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                  data-testid="KeyboardArrowRightIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                  />
+                </svg>
+              </button>
               <p
                 className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="1-col1"
               >
-                <button
-                  className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                  disabled={false}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onContextMenu={[Function]}
-                  onDragLeave={[Function]}
-                  onFocus={[Function]}
-                  onKeyDown={[Function]}
-                  onKeyUp={[Function]}
-                  onMouseDown={[Function]}
-                  onMouseLeave={[Function]}
-                  onMouseUp={[Function]}
-                  onTouchEnd={[Function]}
-                  onTouchMove={[Function]}
-                  onTouchStart={[Function]}
-                  tabIndex={0}
-                  type="button"
-                >
-                  <svg
-                    aria-hidden={true}
-                    className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                    />
-                  </svg>
-                </button>
                 1-col1
               </p>
             </div>
@@ -199,8 +200,6 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "textOverflow": "ellipsis",
                   "whiteSpace": "nowrap",
                 }
               }
@@ -225,8 +224,6 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "textOverflow": "ellipsis",
                   "whiteSpace": "nowrap",
                 }
               }
@@ -259,13 +256,41 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "paddingLeft": "1em",
-                  "textOverflow": "ellipsis",
+                  "paddingLeft": "1.2em",
                   "whiteSpace": "nowrap",
                 }
               }
             >
+              <button
+                className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                disabled={false}
+                onBlur={[Function]}
+                onContextMenu={[Function]}
+                onDragLeave={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                onKeyUp={[Function]}
+                onMouseDown={[Function]}
+                onMouseLeave={[Function]}
+                onMouseUp={[Function]}
+                onTouchEnd={[Function]}
+                onTouchMove={[Function]}
+                onTouchStart={[Function]}
+                tabIndex={0}
+                type="button"
+              >
+                <svg
+                  aria-hidden={true}
+                  className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                  data-testid="CheckBoxIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                  />
+                </svg>
+              </button>
               <p
                 className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
                 title="2-col1"
@@ -286,8 +311,6 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "textOverflow": "ellipsis",
                   "whiteSpace": "nowrap",
                 }
               }
@@ -312,8 +335,6 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "textOverflow": "ellipsis",
                   "whiteSpace": "nowrap",
                 }
               }
@@ -342,9 +363,7 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "paddingLeft": "0em",
-                  "textOverflow": "ellipsis",
+                  "paddingLeft": "0.2em",
                   "whiteSpace": "nowrap",
                 }
               }
@@ -369,8 +388,6 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "textOverflow": "ellipsis",
                   "whiteSpace": "nowrap",
                 }
               }
@@ -395,8 +412,6 @@ Array [
             <div
               style={
                 Object {
-                  "overflow": "hidden",
-                  "textOverflow": "ellipsis",
                   "whiteSpace": "nowrap",
                 }
               }

@@ -1,10 +1,11 @@
+import { DataEntry } from "data/configuration";
 import {
   Filter,
   FilterType,
   makeArrayFilter,
   UnaryFilterOperator,
 } from "data/filter";
-import { Source } from "data/source";
+import { MergedDataEntry, Source } from "data/source";
 import { generate } from "randomstring";
 import * as tanagra from "tanagra-api";
 import { isValid } from "util/valid";
@@ -23,13 +24,13 @@ export function generateCohortFilter(cohort: tanagra.Cohort): Filter | null {
 
 function generateFilter(group: tanagra.Group): Filter | null {
   const filter = makeArrayFilter(
-    { min: 1 },
+    group.filter.kind === tanagra.GroupFilterKindEnum.Any ? { min: 1 } : {},
     group.criteria
       .map((criteria) => getCriteriaPlugin(criteria).generateFilter())
       .filter(isValid)
   );
 
-  if (!filter || group.kind === tanagra.GroupKindEnum.Included) {
+  if (!filter || !group.filter.excluded) {
     return filter;
   }
   return {
@@ -39,41 +40,116 @@ function generateFilter(group: tanagra.Group): Filter | null {
   };
 }
 
+export function groupName(group: tanagra.Group, index: number) {
+  return group.name ?? "Requirement " + String(index + 1);
+}
+
+export function groupFilterKindLabel(kind: tanagra.GroupFilterKindEnum) {
+  switch (kind) {
+    case tanagra.GroupFilterKindEnum.Any:
+      return "Any";
+    case tanagra.GroupFilterKindEnum.All:
+      return "All";
+  }
+
+  throw new Error(`Unknown group filter kind "${kind}".`);
+}
+
 // Having typed data here allows the registry to treat all data generically
 // while plugins can use an actual type internally.
 export interface CriteriaPlugin<DataType> {
   id: string;
   data: DataType;
-  renderEdit: (dispatchFn: (data: DataType) => void) => JSX.Element;
-  renderDetails: () => JSX.Element;
+  renderEdit?: () => JSX.Element;
+  renderInline: (criteriaId: string) => JSX.Element;
+  displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
   occurrenceID: () => string;
+}
+
+export type DisplayDetails = {
+  title: string;
+  standaloneTitle?: boolean;
+  additionalText?: string[];
+};
+
+export function getCriteriaTitle<DataType>(
+  criteria: tanagra.Criteria,
+  plugin?: CriteriaPlugin<DataType>
+) {
+  const p = plugin ?? getCriteriaPlugin(criteria);
+  return `${criteria.config.title}: ${p.displayDetails().title}`;
+}
+
+export function searchCriteria(
+  source: Source,
+  configs: CriteriaConfig[],
+  query: string
+): Promise<SearchResponse> {
+  const promises: Promise<[string, DataEntry[]]>[] = configs
+    .map((config) => {
+      const entry = criteriaRegistry.get(config.type);
+      if (!entry?.search) {
+        return null;
+      }
+
+      // The compiler can't seem to understand this expression if it's not
+      // explicitly typed.
+      const p: Promise<[string, DataEntry[]]> = entry
+        .search(source, config, query)
+        .then((res) => [config.id, res]);
+      return p;
+    })
+    .filter(isValid);
+
+  return Promise.all(promises).then((responses) => ({
+    data: source.mergeDataEntryLists(responses, 100),
+  }));
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
   type: string,
-  initializeData: (source: Source, config: CriteriaConfig) => object
+  initializeData: InitializeDataFn,
+  search?: SearchFn
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
       initializeData,
       constructor,
+      search,
     });
   };
 }
 
+type InitializeDataFn = (
+  source: Source,
+  config: CriteriaConfig,
+  dataEntry?: DataEntry
+) => object;
+
+type SearchFn = (
+  source: Source,
+  config: CriteriaConfig,
+  query: string
+) => Promise<DataEntry[]>;
+
+export type SearchResponse = {
+  data: MergedDataEntry[];
+};
+
 export function createCriteria(
   source: Source,
-  config: CriteriaConfig
+  config: CriteriaConfig,
+  dataEntry?: DataEntry
 ): tanagra.Criteria {
   const entry = getCriteriaEntry(config.type);
   return {
     id: generateId(),
     type: config.type,
-    name: config.defaultName,
-    data: entry.initializeData(source, config),
+    data: entry.initializeData(source, config, dataEntry),
+    config: config,
   };
 }
 
@@ -82,6 +158,7 @@ export function getCriteriaPlugin(
 ): CriteriaPlugin<object> {
   return new (getCriteriaEntry(criteria.type).constructor)(
     criteria.id,
+    criteria.config as CriteriaConfig,
     criteria.data
   );
 }
@@ -95,12 +172,17 @@ function getCriteriaEntry(type: string): RegistryEntry {
 }
 
 interface CriteriaPluginConstructor {
-  new (id: string, data: object): CriteriaPlugin<object>;
+  new (
+    id: string,
+    config: CriteriaConfig,
+    data: object
+  ): CriteriaPlugin<object>;
 }
 
 type RegistryEntry = {
-  initializeData: (source: Source, config: CriteriaConfig) => object;
+  initializeData: InitializeDataFn;
   constructor: CriteriaPluginConstructor;
+  search?: SearchFn;
 };
 
 const criteriaRegistry = new Map<string, RegistryEntry>();

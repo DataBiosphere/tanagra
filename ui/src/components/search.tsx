@@ -12,7 +12,7 @@ export type SearchProps = {
 
 export function Search(props: SearchProps) {
   return (
-    <Box m={2}>
+    <Box m={1}>
       <Form
         initialValues={{ query: "" }}
         onSubmit={({ query }) => props.onSearch(query)}

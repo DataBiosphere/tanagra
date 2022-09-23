@@ -411,112 +411,125 @@ uiConfiguration: >-
     },
     "criteriaConfigs": [{
       "type":"concept",
+      "id": "tanagra-conditions",
       "title":"Conditions",
-      "defaultName":"Contains Conditions Codes",
-      "plugin": {
-        "columns":
-          [{"key":"concept_name","width":"100%","title":"Concept Name"},
-          {"key":"concept_id","width":120,"title":"Concept ID"},
-          {"key":"standard_concept","width":180,"title":"SourceStandard"},
-          {"key":"vocabulary_id","width":120,"title":"Vocab"},
-          {"key":"concept_code","width":120,"title":"Code"}],
-        "hierarchyColumns": [
-          {"key": "concept_name", "width": "100%", "title": "Condition"},
-          {"key": "concept_id", "width": 120, "title": "Concept ID"}
-        ],
-        "occurrence": "condition_occurrence",
-        "classification": "condition"
-      }
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ],
+      "hierarchyColumns": [
+        {"key": "concept_name", "width": "100%", "title": "Condition"},
+        {"key": "concept_id", "width": 120, "title": "Concept ID"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ],
+      "occurrence": "condition_occurrence",
+      "classification": "condition"
     },
     {
       "type":"concept",
+      "id": "tanagra-procedures",
       "title":"Procedures",
-      "defaultName":"Contains Procedures Codes",
-      "plugin":{
-        "columns":[
-          {"key":"concept_name","width":"100%","title":"Concept Name"},
-          {"key":"concept_id","width":120,"title":"Concept ID"},
-          {"key":"standard_concept","width":180,"title":"SourceStandard"},
-          {"key":"vocabulary_id","width":120,"title":"Vocab"},{"key":"concept_code","width":120,"title":"Code"}
-        ],
-        "hierarchyColumns": [
-          {"key": "concept_name", "width": "100%", "title": "Procedure"},
-          {"key": "concept_id", "width": 120, "title": "Concept ID"}
-        ],
-        "occurrence": "procedure_occurrence",
-        "classification": "procedure"
-      }
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ],
+      "hierarchyColumns": [
+        {"key": "concept_name", "width": "100%", "title": "Procedure"},
+        {"key": "concept_id", "width": 120, "title": "Concept ID"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ],
+      "occurrence": "procedure_occurrence",
+      "classification": "procedure"
     },
     {
       "type":"concept",
+      "id": "tanagra-observations",
       "title":"Observations",
-      "defaultName":"Contains Observations Codes",
-      "plugin":{
-        "columns":[
-          {"key":"concept_name","width":"100%","title":"Concept Name"},
-          {"key":"concept_id","width":120,"title":"Concept ID"},
-          {"key":"standard_concept","width":180,"title":"SourceStandard"},
-          {"key":"vocabulary_id","width":120,"title":"Vocab"},
-          {"key":"concept_code","width":120,"title":"Code"}
-        ],
-        "occurrence": "observation_occurrence",
-        "classification": "observation"
-      }
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ],
+      "occurrence": "observation_occurrence",
+      "classification": "observation"
     },
     {
       "type":"concept",
+      "id": "tanagra-drugs",
       "title":"Drugs",
-      "defaultName":"Contains Drugs Codes",
-      "plugin":{
-        "columns":[
-          {"key":"concept_name","width":"100%","title":"Concept Name"},
-          {"key":"concept_id","width":120,"title":"Concept ID"},
-          {"key":"standard_concept","width":180,"title":"SourceStandard"},
-          {"key":"vocabulary_id","width":120,"title":"Vocab"},
-          {"key":"concept_code","width":120,"title":"Code"}
-        ],
-        "hierarchyColumns": [
-          {"key": "concept_name", "width": "100%", "title": "Drug"},
-          {"key": "concept_id", "width": 120, "title": "Concept ID"}
-        ],
-        "occurrence": "ingredient_occurrence",
-        "classification": "ingredient"
-      }
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ],
+      "hierarchyColumns": [
+        {"key": "concept_name", "width": "100%", "title": "Drug"},
+        {"key": "concept_id", "width": 120, "title": "Concept ID"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ],
+      "occurrence": "ingredient_occurrence",
+      "classification": "ingredient"
     },
     {
       "type":"attribute",
+      "id": "tanagra-ethnicity",
       "title":"Ethnicity",
-      "defaultName":"Contains Ethnicity Codes",
-      "plugin":{"attribute":"ethnicity_concept_id"}
+      "category": "Program data",
+      "attribute":"ethnicity_concept_id"
     },
     {
       "type":"attribute",
+      "id": "tanagra-gender",
       "title":"Gender Identity",
-      "defaultName":"Contains Gender Identity Codes",
-      "plugin":{"attribute":"gender_concept_id"}
+      "category": "Program data",
+      "attribute":"gender_concept_id"
     },
     {
       "type":"attribute",
+      "id": "tanagra-race",
       "title":"Race",
-      "defaultName":"Contains Race Codes",
-      "plugin":{"attribute":"race_concept_id"}
+      "category": "Program data",
+      "attribute":"race_concept_id"
     },
     {
       "type":"attribute",
-      "title":"Year at Birth",
-      "defaultName":"Contains Year at Birth Values",
-      "plugin":{"attribute":"year_of_birth"}
+      "id": "tanagra-year_of_birth",
+      "title":"Year of Birth",
+      "category": "Program data",
+      "attribute":"year_of_birth"
     }],
     "demographicChartConfigs": {
       "groupByAttributes": ["gender_concept_id", "race_concept_id", "year_of_birth"],
       "chartConfigs": [{
-        "title": "Gender",
+        "title": "Gender identity",
         "primaryProperties": [
           { "key": "gender" }
         ]
       },
       {
-        "title": "Gender Identity, Current Age, Race",
+        "title": "Gender identity, Current age, Race",
         "primaryProperties": [
           { "key": "gender" },
           { "key": "age",
@@ -538,6 +551,33 @@ uiConfiguration: >-
         ],
         "stackedProperty": { "key": "race" }
       }]
+    },
+    "prepackagedConceptSets": [
+      {
+        "id": "_demographics",
+        "name": "Demographics",
+        "occurrence": ""
+      },
+      {
+        "id": "_analgesics",
+        "name": "Analgesics",
+        "occurrence": "ingredient_occurrence",
+        "filter": {
+          "type": "CLASSIFICATION",
+          "occurrenceID": "ingredient_occurrence",
+          "classificationID": "ingredient",
+          "keys": [21604253]
+        }
+      }
+    ],
+    "criteriaSearchConfig": {
+      "criteriaTypeWidth": 120,
+      "columns": [
+        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"vocabulary_id","width":120,"title":"Vocab"},
+        {"key":"concept_code","width":120,"title":"Code"},
+        {"key":"person_count","width":120,"title":"Roll-up Count"}
+      ]
     }
   }
 relationships:

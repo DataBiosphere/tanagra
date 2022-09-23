@@ -2,15 +2,18 @@ import ErrorIcon from "@mui/icons-material/Error";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import CircularProgress from "@mui/material/CircularProgress";
+import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { ReactNode, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
 
 export type TreeGridId = string | number;
+export type TreeGridValue = undefined | string | number | boolean | JSX.Element;
 
 export type TreeGridRowData = {
-  [key: string]: undefined | string | number | boolean | JSX.Element;
+  [key: string]: TreeGridValue;
 };
 
 export type TreeGridItem = {
@@ -28,11 +31,19 @@ export type TreeGridColumn = {
   title?: string | JSX.Element;
 };
 
+export type ColumnCustomization = {
+  prefixElements?: ReactNode;
+  onClick?: () => void;
+};
+
 export type TreeGridProps = {
   columns: TreeGridColumn[];
   data: TreeGridData;
   defaultExpanded?: TreeGridId[];
-  prefixElements?: (id: TreeGridId, data: TreeGridRowData) => ReactNode;
+  rowCustomization?: (
+    id: TreeGridId,
+    data: TreeGridRowData
+  ) => Map<number, ColumnCustomization> | undefined;
   loadChildren?: (id: TreeGridId) => Promise<void>;
   variableWidth?: boolean;
   wrapBodyText?: boolean;
@@ -136,7 +147,7 @@ export function TreeGrid(props: TreeGridProps) {
                   }}
                 >
                   <Typography
-                    variant="h6"
+                    variant="overline"
                     title={String(col.title)}
                     sx={{
                       display: "inline",
@@ -150,6 +161,7 @@ export function TreeGrid(props: TreeGridProps) {
           </tr>
         </thead>
       </table>
+      <Divider />
       <div
         style={{
           overflowY: "auto",
@@ -194,7 +206,69 @@ function renderChildren(
     if (!child) {
       return;
     }
+
     const childState = state.get(childId);
+    const rowCustomization = props.rowCustomization?.(childId, child.data);
+
+    const renderColumn = (
+      column: number,
+      value: TreeGridValue,
+      title: string
+    ) => {
+      const columnCustomization = rowCustomization?.get(column);
+      return (
+        <>
+          {column === 0 &&
+            (!!child.children?.length ||
+              (props.loadChildren && !child.children)) && (
+              <IconButton
+                size="small"
+                title={childState?.errorMessage}
+                onClick={() => {
+                  toggleExpanded(childId);
+                }}
+              >
+                <ItemIcon state={childState} />
+              </IconButton>
+            )}
+          {columnCustomization?.prefixElements}
+          {columnCustomization?.onClick ? (
+            <Link
+              component="button"
+              variant="body1"
+              color="inherit"
+              underline="hover"
+              title={title}
+              onClick={columnCustomization.onClick}
+              sx={{
+                width: "100%",
+                textAlign: "initial",
+                ...(props.wrapBodyText
+                  ? { wordBreak: "break-all" }
+                  : {
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }),
+              }}
+            >
+              {value}
+            </Link>
+          ) : (
+            <Typography
+              variant="body1"
+              noWrap={!props.wrapBodyText}
+              title={title}
+              sx={{
+                display: "inline",
+              }}
+            >
+              {value}
+            </Typography>
+          )}
+        </>
+      );
+    };
 
     results.push(
       <tr
@@ -227,41 +301,18 @@ function renderChildren(
                 style={{
                   ...(props.wrapBodyText
                     ? { wordBreak: "break-all" }
-                    : {
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                      }),
-                  ...(i === 0 && { paddingLeft: `${indent}em` }),
+                    : { whiteSpace: "nowrap" }),
+                  ...(i === 0 && {
+                    // TODO(tjennison): The removal of checkboxes revealed that
+                    // the inline-block style on the <thead> that's use to keep
+                    // the header in place while scrolling causes a small amount
+                    // of padding to appear around it that isn't present on the
+                    // <tbody>. Investigate other options for dealing with this.
+                    paddingLeft: `${indent + 0.2}em`,
+                  }),
                 }}
               >
-                <Typography
-                  variant="body1"
-                  noWrap={!props.wrapBodyText}
-                  title={title}
-                  sx={{
-                    display: "inline",
-                  }}
-                >
-                  {i === 0 && (
-                    <>
-                      {(!!child.children?.length ||
-                        (props.loadChildren && !child.children)) && (
-                        <IconButton
-                          size="small"
-                          title={childState?.errorMessage}
-                          onClick={() => {
-                            toggleExpanded(childId);
-                          }}
-                        >
-                          <ItemIcon state={childState} />
-                        </IconButton>
-                      )}
-                      {props.prefixElements?.(childId, child.data)}
-                    </>
-                  )}
-                  {value}
-                </Typography>
+                {renderColumn(i, value, title)}
               </div>
             </td>
           );

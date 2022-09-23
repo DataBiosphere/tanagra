@@ -8,12 +8,14 @@ import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
+import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
   createCriteria,
   generateCohortFilter,
   getCriteriaPlugin,
+  getCriteriaTitle,
 } from "cohort";
 import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
@@ -28,8 +30,8 @@ import { useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
 import React, { Fragment, SyntheticEvent, useCallback, useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
-import { createUrl } from "router";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { cohortURL, conceptSetURL } from "router";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 
@@ -39,7 +41,7 @@ export function Datasets() {
   const workspaceConceptSets = useAppSelector(
     (state) => state.present.conceptSets
   );
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const underlay = useUnderlay();
   const source = useSource();
@@ -60,12 +62,7 @@ export function Datasets() {
     buttonLabel: "Create",
     onConfirm: (name: string) => {
       const action = dispatch(insertCohort(name, underlay.name));
-      history.push(
-        createUrl({
-          underlayName: underlay.name,
-          cohortId: action.payload.id,
-        })
-      );
+      navigate(cohortURL(action.payload.id, action.payload.groups[0].id));
     },
   });
 
@@ -98,19 +95,16 @@ export function Datasets() {
         />
         {editable ? (
           <Link
-            variant="h6"
+            variant="body1"
             color="inherit"
             underline="hover"
             component={RouterLink}
-            to={createUrl({
-              underlayName: underlay.name,
-              conceptSetId: conceptSet.id,
-            })}
+            to={conceptSetURL(conceptSet.id)}
           >
             {conceptSet.name}
           </Link>
         ) : (
-          <Typography variant="h6">{conceptSet.name}</Typography>
+          <Typography variant="body1">{conceptSet.name}</Typography>
         )}
       </Stack>
     ));
@@ -120,28 +114,29 @@ export function Datasets() {
     const {
       payload: { id },
     } = dispatch(insertConceptSet(underlay.name, criteria));
-    history.push(
-      createUrl({
-        underlayName: underlay.name,
-        conceptSetId: id,
-      })
-    );
+    navigate(conceptSetURL(id));
   };
 
   const [menu, showInsertConceptSet] = useMenu({
-    children: underlay.uiConfiguration.criteriaConfigs.map((config) => (
-      <MenuItem
-        key={config.title}
-        onClick={() => {
-          onInsertConceptSet(createCriteria(source, config));
-        }}
-      >
-        {config.title}
-      </MenuItem>
-    )),
+    children: underlay.uiConfiguration.criteriaConfigs
+      .filter((config) => !!config.conceptSet)
+      .map((config) => (
+        <MenuItem
+          key={config.title}
+          onClick={() => {
+            onInsertConceptSet(createCriteria(source, config));
+          }}
+        >
+          {config.title}
+        </MenuItem>
+      )),
   });
 
   const allAttributesChecked = () => {
+    if (conceptSetOccurrences.length === 0) {
+      return false;
+    }
+
     for (const occurrence of conceptSetOccurrences) {
       for (const attribute of occurrence.attributes) {
         if (excludedAttributes.get(occurrence.id)?.has(attribute)) {
@@ -155,6 +150,7 @@ export function Datasets() {
   return (
     <>
       <ActionBar title="Datasets" />
+      <Toolbar />
       <Grid container columns={3} className="datasets">
         <Grid item xs={1}>
           <Stack direction="row" alignItems="baseline">
@@ -167,7 +163,7 @@ export function Datasets() {
             {dialog}
           </Stack>
           <Paper
-            sx={{ overflowY: "auto", display: "block" }}
+            sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
             {cohorts
@@ -182,14 +178,11 @@ export function Datasets() {
                     onChange={() => onToggle(updateSelectedCohorts, cohort.id)}
                   />
                   <Link
-                    variant="h6"
+                    variant="body1"
                     color="inherit"
                     underline="hover"
                     component={RouterLink}
-                    to={createUrl({
-                      underlayName: underlay.name,
-                      cohortId: cohort.id,
-                    })}
+                    to={cohortURL(cohort.id, cohort.groups[0].id)}
                   >
                     {cohort.name}
                   </Link>
@@ -208,19 +201,26 @@ export function Datasets() {
             {menu}
           </Stack>
           <Paper
-            sx={{ overflowY: "auto", display: "block" }}
+            sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
-            <Typography variant="h5">Prepackaged</Typography>
-            {listConceptSets(false, underlay.prepackagedConceptSets)}
-            <Typography variant="h5">Workspace</Typography>
+            {underlay.uiConfiguration.prepackagedConceptSets && (
+              <>
+                <Typography variant="h4">Prepackaged</Typography>
+                {listConceptSets(
+                  false,
+                  underlay.uiConfiguration.prepackagedConceptSets
+                )}
+              </>
+            )}
+            <Typography variant="h4">Workspace</Typography>
             {listConceptSets(
               true,
               workspaceConceptSets
                 .filter((cs) => cs.underlayName === underlay.name)
                 .map((cs) => ({
                   id: cs.id,
-                  name: cs.criteria.name,
+                  name: getCriteriaTitle(cs.criteria),
                 }))
             )}
           </Paper>
@@ -231,13 +231,13 @@ export function Datasets() {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Stack direction="row" alignItems="center">
+            <Stack direction="row" alignItems="baseline">
               <Typography variant="h4" mr={1}>
                 3. Values
               </Typography>
-              <Typography variant="h5">(Columns)</Typography>
+              <Typography variant="h4">(Columns)</Typography>
             </Stack>
-            <Stack direction="row">
+            <Stack direction="row" alignItems="center">
               <Checkbox
                 size="small"
                 fontSize="inherit"
@@ -263,12 +263,12 @@ export function Datasets() {
             </Stack>
           </Stack>
           <Paper
-            sx={{ overflowY: "auto", display: "block" }}
+            sx={{ p: 1, overflowY: "auto", display: "block" }}
             className="datasets-select-panel"
           >
             {conceptSetOccurrences.map((occurrence) => (
               <Fragment key={occurrence.id}>
-                <Typography variant="h5">{occurrence.name}</Typography>
+                <Typography variant="subtitle1">{occurrence.name}</Typography>
                 {occurrence.attributes.map((attribute) => (
                   <Stack key={attribute} direction="row" alignItems="center">
                     <Checkbox
@@ -293,7 +293,7 @@ export function Datasets() {
                         })
                       }
                     />
-                    <Typography variant="h6">{attribute}</Typography>
+                    <Typography variant="body1">{attribute}</Typography>
                   </Stack>
                 ))}
               </Fragment>
@@ -301,7 +301,7 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={3}>
-          <Paper>
+          <Paper sx={{ p: 1 }}>
             {selectedCohorts.size > 0 && selectedConceptSets.size > 0 ? (
               <Preview
                 selectedCohorts={selectedCohorts}
@@ -310,7 +310,7 @@ export function Datasets() {
                 excludedAttributes={excludedAttributes}
               />
             ) : (
-              <Typography variant="h5">
+              <Typography variant="h4">
                 Select at least one cohort and concept set to preview the
                 dataset.
               </Typography>
@@ -345,7 +345,7 @@ function useConceptSetOccurrences(
     }
   };
 
-  underlay.prepackagedConceptSets.forEach((conceptSet) => {
+  underlay.uiConfiguration.prepackagedConceptSets?.forEach((conceptSet) => {
     if (selectedConceptSets.has(conceptSet.id)) {
       addFilter(conceptSet.occurrence, conceptSet.filter);
     }

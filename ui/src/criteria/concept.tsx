@@ -1,8 +1,8 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
@@ -15,7 +15,7 @@ import {
   TreeGridItem,
   TreeGridRowData,
 } from "components/treegrid";
-import { DataKey } from "data/configuration";
+import { DataEntry, DataKey } from "data/configuration";
 import { FilterType } from "data/filter";
 import {
   ClassificationNode,
@@ -24,8 +24,10 @@ import {
   useSource,
 } from "data/source";
 import { useAsyncWithApi } from "errors";
+import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CriteriaConfig } from "underlaysSlice";
 import { useImmer } from "use-immer";
 
@@ -46,47 +48,78 @@ interface Config extends CriteriaConfig {
   hierarchyColumns?: TreeGridColumn[];
   occurrence: string;
   classification: string;
+  multiSelect?: boolean;
 }
 
 // Exported for testing purposes.
-export interface Data extends Config {
+export interface Data {
   selected: Selection[];
 }
 
 @registerCriteriaPlugin(
   "concept",
-  (source: Source, config: CriteriaConfig) => ({
-    ...(config.plugin as Config),
-    selected: [],
-  })
+  (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
+    const config = c as Config;
+
+    const data: Data = {
+      selected: [],
+    };
+
+    if (dataEntry) {
+      const column = config.columns[config.nameColumnIndex ?? 0];
+      data.selected.push({
+        key: dataEntry.key,
+        name: String(dataEntry[column.key]) ?? "",
+      });
+    }
+
+    return data;
+  },
+  search
 )
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
+  private config: Config;
 
-  constructor(public id: string, data: unknown) {
+  constructor(public id: string, config: CriteriaConfig, data: unknown) {
+    this.config = config as Config;
     this.data = data as Data;
   }
 
-  renderEdit(dispatchFn: (data: Data) => void) {
-    return <ConceptEdit dispatchFn={dispatchFn} data={this.data} />;
+  renderEdit() {
+    return <ConceptEdit data={this.data} config={this.config} />;
   }
 
-  renderDetails() {
-    return <ConceptDetails data={this.data} />;
+  renderInline() {
+    return <ConceptInline />;
+  }
+
+  displayDetails() {
+    if (this.data.selected.length > 0) {
+      return {
+        title: this.data.selected[0].name,
+        standaloneTitle: true,
+        additionalText: this.data.selected.slice(1).map((s) => s.name),
+      };
+    }
+
+    return {
+      title: "(any)",
+    };
   }
 
   generateFilter() {
     return {
       type: FilterType.Classification,
-      occurrenceID: this.data.occurrence,
-      classificationID: this.data.classification,
+      occurrenceID: this.config.occurrence,
+      classificationID: this.config.classification,
       keys: this.data.selected.map(({ key }) => key),
     };
   }
 
   occurrenceID() {
-    return this.data.occurrence;
+    return this.config.occurrence;
   }
 }
 
@@ -99,17 +132,19 @@ function keyForNode(node: ClassificationNode): DataKey {
 }
 
 type ConceptEditProps = {
-  dispatchFn: (data: Data) => void;
   data: Data;
+  config: Config;
 };
 
 function ConceptEdit(props: ConceptEditProps) {
+  const navigate = useNavigate();
   const source = useSource();
-  const occurrence = source.lookupOccurrence(props.data.occurrence);
+  const occurrence = source.lookupOccurrence(props.config.occurrence);
   const classification = source.lookupClassification(
-    props.data.occurrence,
-    props.data.classification
+    props.config.occurrence,
+    props.config.classification
   );
+  const updateCriteria = useUpdateCriteria();
 
   const [hierarchy, setHierarchy] = useState<DataKey[] | undefined>();
   const [query, setQuery] = useState<string>("");
@@ -127,14 +162,16 @@ function ConceptEdit(props: ConceptEditProps) {
           const rowData: TreeGridRowData = { ...node.data };
           if (node.ancestors) {
             rowData.view_hierarchy = (
-              <IconButton
-                size="small"
-                onClick={() => {
-                  setHierarchy(node.ancestors);
-                }}
-              >
-                <AccountTreeIcon fontSize="inherit" />
-              </IconButton>
+              <Stack alignItems="center">
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setHierarchy(node.ancestors);
+                  }}
+                >
+                  <AccountTreeIcon fontSize="inherit" />
+                </IconButton>
+              </Stack>
             );
           }
 
@@ -173,8 +210,8 @@ function ConceptEdit(props: ConceptEditProps) {
   );
 
   const attributes = useMemo(
-    () => props.data.columns.map(({ key }) => key),
-    [props.data.columns]
+    () => props.config.columns.map(({ key }) => key),
+    [props.config.columns]
   );
 
   const fetchClassification = useCallback(() => {
@@ -189,7 +226,9 @@ function ConceptEdit(props: ConceptEditProps) {
   const classificationState = useAsyncWithApi<void>(fetchClassification);
 
   const hierarchyColumns = useMemo(() => {
-    const columns: TreeGridColumn[] = [...(props.data.hierarchyColumns ?? [])];
+    const columns: TreeGridColumn[] = [
+      ...(props.config.hierarchyColumns ?? []),
+    ];
     if (columns.length > 0) {
       columns[0] = {
         ...columns[0],
@@ -206,20 +245,29 @@ function ConceptEdit(props: ConceptEditProps) {
       };
     }
     return columns;
-  }, [props.data.hierarchyColumns]);
+  }, [props.config.hierarchyColumns]);
 
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
-      ...props.data.columns,
+      ...props.config.columns,
       ...(classification.hierarchical
-        ? [{ key: "view_hierarchy", width: 160, title: "View Hierarchy" }]
+        ? [{ key: "view_hierarchy", width: 70, title: "Hierarchy" }]
         : []),
     ],
-    [props.data.columns]
+    [props.config.columns]
   );
 
+  const nameColumnIndex = props.config.nameColumnIndex ?? 0;
+
   return (
-    <>
+    <Box
+      sx={{
+        minWidth: "900px",
+        height: "100%",
+        overflow: "auto",
+        backgroundColor: (theme) => theme.palette.background.paper,
+      }}
+    >
       {!hierarchy && (
         <Search
           placeholder="Search by code or description"
@@ -231,47 +279,73 @@ function ConceptEdit(props: ConceptEditProps) {
           columns={hierarchy ? hierarchyColumns : allColumns}
           data={data}
           defaultExpanded={hierarchy}
-          prefixElements={(id: TreeGridId, rowData: TreeGridRowData) => {
+          rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
             // TODO(tjennison): Make TreeGridData's type generic so we can avoid
             // this type assertion. Also consider passing the TreeGridItem to
             // the callback instead of the TreeGridRowData.
             const item = data[id] as ClassificationNodeItem;
             if (!item || item.node.grouping) {
-              return null;
+              return undefined;
             }
 
-            const index = props.data.selected.findIndex(
-              (sel) => item.node.data.key === sel.key
-            );
+            const column = props.config.columns[nameColumnIndex];
+            const name = rowData[column.key];
+            const newItem = {
+              key: item.node.data.key,
+              name: !!name ? String(name) : "",
+            };
 
-            return (
-              <Checkbox
-                size="small"
-                fontSize="inherit"
-                checked={index > -1}
-                onChange={() => {
-                  props.dispatchFn(
-                    produce(props.data, (data) => {
-                      if (index > -1) {
-                        data.selected.splice(index, 1);
-                      } else {
-                        const column =
-                          props.data.columns[props.data.nameColumnIndex ?? 0];
-                        const name = rowData[column.key];
-                        data.selected.push({
-                          key: item.node.data.key,
-                          name: !!name ? String(name) : "",
-                        });
-                      }
-                    })
-                  );
-                }}
-              />
-            );
+            if (props.config.multiSelect) {
+              const index = props.data.selected.findIndex(
+                (sel) => item.node.data.key === sel.key
+              );
+
+              return new Map([
+                [
+                  nameColumnIndex,
+                  {
+                    prefixElements: (
+                      <Checkbox
+                        size="small"
+                        fontSize="inherit"
+                        checked={index > -1}
+                        onChange={() => {
+                          updateCriteria(
+                            produce(props.data, (data) => {
+                              if (index > -1) {
+                                data.selected.splice(index, 1);
+                              } else {
+                                data.selected.push(newItem);
+                              }
+                            })
+                          );
+                        }}
+                      />
+                    ),
+                  },
+                ],
+              ]);
+            }
+
+            return new Map([
+              [
+                nameColumnIndex,
+                {
+                  onClick: () => {
+                    updateCriteria(
+                      produce(props.data, (data) => {
+                        data.selected = [newItem];
+                      })
+                    );
+                    navigate("..");
+                  },
+                },
+              ],
+            ]);
           }}
           loadChildren={(id: TreeGridId) => {
             const item = data[id] as ClassificationNodeItem;
-            const key = item ? keyForNode(item.node) : id;
+            const key = item?.node ? keyForNode(item.node) : id;
             if (item?.node.grouping) {
               return source
                 .searchGrouping(
@@ -300,27 +374,28 @@ function ConceptEdit(props: ConceptEditProps) {
           }}
         />
       </Loading>
-    </>
+    </Box>
   );
 }
 
-type ConceptDetailsProps = {
-  data: Data;
-};
+function ConceptInline() {
+  return null;
+}
 
-function ConceptDetails(props: ConceptDetailsProps) {
-  return (
-    <>
-      {props.data.selected.length === 0 ? (
-        <Typography variant="body1">None selected</Typography>
-      ) : (
-        props.data.selected.map(({ key, name }) => (
-          <Stack direction="row" alignItems="baseline" key={key}>
-            <Typography variant="body1">{key}</Typography>&nbsp;
-            <Typography variant="body2">{name}</Typography>
-          </Stack>
-        ))
-      )}
-    </>
-  );
+function search(
+  source: Source,
+  c: CriteriaConfig,
+  query: string
+): Promise<DataEntry[]> {
+  const config = c as Config;
+  return source
+    .searchClassification(
+      config.columns.map(({ key }) => key),
+      config.occurrence,
+      config.classification,
+      {
+        query,
+      }
+    )
+    .then((res) => res.nodes.map((node) => node.data));
 }

@@ -65,6 +65,11 @@ export type FilterCountValue = {
   [x: string]: DataValue;
 };
 
+export type MergedDataEntry = {
+  source: string;
+  data: DataEntry;
+};
+
 export interface Source {
   config: Configuration;
 
@@ -114,6 +119,11 @@ export interface Source {
     groupByAttributes?: string[],
     additionalAttributes?: string[]
   ): Promise<FilterCountValue[]>;
+
+  mergeDataEntryLists(
+    lists: [string, DataEntry[]][],
+    maxCount: number
+  ): MergedDataEntry[];
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -417,6 +427,38 @@ export class BackendSource implements Source {
     });
   }
 
+  public mergeDataEntryLists(
+    lists: [string, DataEntry[]][],
+    maxCount: number
+  ): MergedDataEntry[] {
+    const merged: MergedDataEntry[] = [];
+    const sources = lists.map(
+      ([source, data]) => new MergeSource(source, data)
+    );
+    const countKey = this.config.primaryEntity.entity + "_count";
+
+    while (true) {
+      let maxSource: MergeSource | undefined;
+
+      sources.forEach((source) => {
+        if (
+          !source.done() &&
+          (!maxSource || source.peek()[countKey] > maxSource.peek()[countKey])
+        ) {
+          maxSource = source;
+        }
+      });
+
+      if (!maxSource || merged.length === maxCount) {
+        break;
+      }
+
+      merged.push({ source: maxSource.source, data: maxSource.pop() });
+    }
+
+    return merged;
+  }
+
   private makeEntityDataset(
     requestedAttributes: string[],
     occurrenceID: string,
@@ -459,6 +501,30 @@ export class BackendSource implements Source {
       limit: 50,
     };
   }
+}
+
+class MergeSource {
+  constructor(public source: string, private data: DataEntry[]) {
+    this.source = source;
+    this.data = data;
+    this.current = 0;
+  }
+
+  done() {
+    return this.current === this.data.length;
+  }
+
+  peek() {
+    return this.data[this.current];
+  }
+
+  pop(): DataEntry {
+    const data = this.peek();
+    this.current++;
+    return data;
+  }
+
+  private current: number;
 }
 
 function isInternalAttribute(attribute: string): boolean {
@@ -759,7 +825,9 @@ function generateOccurrenceFilter(
           variable: classification.entity,
           name: classification.entityAttribute,
         },
-        operator: tanagra.BinaryFilterOperator.DescendantOfInclusive,
+        operator: classification.hierarchical
+          ? tanagra.BinaryFilterOperator.DescendantOfInclusive
+          : tanagra.BinaryFilterOperator.Equals,
         attributeValue: {
           // TODO(tjennison): Handle other key types.
           int64Val: key as number,
@@ -767,22 +835,21 @@ function generateOccurrenceFilter(
       },
     }));
 
-    if (operands.length === 0) {
-      return [null, ""];
-    }
-
     return [
       {
         relationshipFilter: {
           outerVariable: entity.entity,
           newVariable: classification.entity,
           newEntity: classification.entity,
-          filter: {
-            arrayFilter: {
-              operands: operands,
-              operator: tanagra.ArrayFilterOperator.Or,
-            },
-          },
+          filter:
+            operands.length > 0
+              ? {
+                  arrayFilter: {
+                    operands: operands,
+                    operator: tanagra.ArrayFilterOperator.Or,
+                  },
+                }
+              : undefined,
         },
       },
       entity.entity,
@@ -851,7 +918,19 @@ function generateOccurrenceFilter(
         entity.entity,
       ];
     }
-    return [null, ""];
+
+    return [
+      {
+        binaryFilter: {
+          attributeVariable: {
+            variable: entity.entity,
+            name: filter.attribute,
+          },
+          operator: tanagra.BinaryFilterOperator.NotEquals,
+        },
+      },
+      entity.entity,
+    ];
   }
   throw new Error(`Unknown filter type: ${JSON.stringify(filter)}`);
 }
