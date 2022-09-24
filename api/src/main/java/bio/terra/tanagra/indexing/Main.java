@@ -17,8 +17,7 @@ public class Main {
    * <p>[dry run] ./gradlew api:index -Dexec.args="INDEX_ENTITY output_dir/underlay.json person
    * DRY_RUN"
    *
-   * <p>[actual run] ./gradlew api:index -Dexec.args="INDEX_ENTITY output_dir/underlay.json person
-   * true"
+   * <p>[actual run] ./gradlew api:index -Dexec.args="INDEX_ENTITY output_dir/underlay.json person"
    */
   public static void main(String... args) throws Exception {
     // TODO: Consider using the picocli library for command parsing and packaging this as an actual
@@ -46,7 +45,7 @@ public class Main {
       indexer.writeWorkflowCommands();
     } else if ("INDEX_ENTITY".equals(cmd)) {
       String name = args[2];
-      String dryRun = args[3];
+      String dryRun = args.length > 3 ? args[3] : "";
 
       Entity entity = indexer.getUnderlay().getEntity(name);
       entity

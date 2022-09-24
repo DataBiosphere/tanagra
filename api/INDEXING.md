@@ -40,7 +40,7 @@ Create a new BigQuery dataset to hold the indexed tables.
 Change the location, project, and dataset name below to your own.
 ```
 gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-bq mk --location=us-central1 project_id:dataset_id
+bq mk --location=location project_id:dataset_id
 ```
 (TODO: Tanagra could do this in the future. Upside is fewer steps to run indexing and maybe easier for testing.
 Potential downside is more permissions needed by indexing service account.)
