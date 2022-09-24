@@ -9,6 +9,7 @@ import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
+import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.Table;
@@ -113,8 +114,18 @@ public final class GoogleBigQuery {
             .setDestinationTable(destinationTable)
             .setDryRun(isDryRun)
             .build();
-    return callWithRetries(
-        () -> bigQuery.query(queryConfig), "Retryable error creating table from query");
+
+    if (isDryRun) {
+      Job job = bigQuery.create(JobInfo.of(queryConfig));
+      JobStatistics.QueryStatistics statistics = job.getStatistics();
+      LOGGER.info(
+          "BigQuery dry run performed successfully: {} bytes processed",
+          statistics.getTotalBytesProcessed());
+      return null;
+    } else {
+      return callWithRetries(
+          () -> bigQuery.query(queryConfig), "Retryable error creating table from query");
+    }
   }
 
   /**

@@ -15,7 +15,7 @@ public class Main {
    * <p>- Kick off the indexing jobs for a single entity:
    *
    * <p>[dry run] ./gradlew api:index -Dexec.args="INDEX_ENTITY output_dir/underlay.json person
-   * true"
+   * DRY_RUN"
    *
    * <p>[actual run] ./gradlew api:index -Dexec.args="INDEX_ENTITY output_dir/underlay.json person
    * true"
