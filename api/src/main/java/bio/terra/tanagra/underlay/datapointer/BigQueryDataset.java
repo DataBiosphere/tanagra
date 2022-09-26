@@ -15,6 +15,7 @@ import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -108,6 +109,12 @@ public final class BigQueryDataset extends DataPointer {
 
   public GoogleBigQuery getBigQueryService() {
     if (bigQueryService == null) {
+      String adcFile = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+      System.out.println("env var: " + adcFile);
+      if (adcFile != null) {
+        Path adc = Path.of(adcFile);
+        System.out.println("file " + adc.toAbsolutePath() + " exists: " + adc.toFile().exists());
+      }
       GoogleCredentials credentials;
       try {
         credentials = GoogleCredentials.getApplicationDefault();
