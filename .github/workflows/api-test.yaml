@@ -55,12 +55,6 @@ jobs:
           echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
         env:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
-      - name: Check ADC
-        run: |
-          echo "GOOGLE_APPLICATION_CREDENTIALS points to $GOOGLE_APPLICATION_CREDENTIALS"
-          ls -la $GOOGLE_APPLICATION_CREDENTIALS
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
       - name: Gradle Build API
         # The build task includes the test and some quality static analysis tasks.
         run: ./gradlew api:build
