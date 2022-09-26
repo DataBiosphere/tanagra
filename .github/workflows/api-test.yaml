@@ -65,7 +65,7 @@ jobs:
         # The build task includes the test and some quality static analysis tasks.
         run: ./gradlew api:build
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
+          GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Gradle Check
         # The check task runs static analysis on main & test sources.
         run: ./gradlew api:check
