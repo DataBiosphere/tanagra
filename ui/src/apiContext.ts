@@ -5,7 +5,7 @@ import * as tanagra from "./tanagra-api";
 class FakeUnderlaysApi {
   async listUnderlays(): Promise<tanagra.ListUnderlaysResponse> {
     const columns = [
-      { key: "concept_name", width: "100%", title: "Concept Name" },
+      { key: "concept_name", width: "100%", title: "Concept name" },
     ];
 
     const uiConfiguration = {
@@ -48,8 +48,7 @@ class FakeUnderlaysApi {
         {
           type: "concept",
           id: "tanagra-condition",
-          title: "Conditions",
-          defaultName: "Contains Conditions Codes",
+          title: "Condition",
           conceptSet: true,
           columns,
           occurrence: "condition_occurrence",
@@ -58,8 +57,7 @@ class FakeUnderlaysApi {
         {
           type: "concept",
           id: "tanagra-observation",
-          title: "Observations",
-          defaultName: "Contains Observations Codes",
+          title: "Observation",
           conceptSet: true,
           columns,
           occurrence: "observation_occurrence",
@@ -69,21 +67,19 @@ class FakeUnderlaysApi {
           type: "attribute",
           id: "tanagra-race",
           title: "Race",
-          defaultName: "Contains Race Codes",
           attribute: "race_concept_id",
         },
         {
           type: "attribute",
-          title: "Year at Birth",
-          defaultName: "Contains Year at Birth Values",
+          title: "Year at birth",
           attribute: "year_of_birth",
         },
       ],
       criteriaSearchConfig: {
         criteriaTypeWidth: 120,
         columns: [
-          { key: "concept_name", width: "100%", title: "Concept Name" },
-          { key: "person_count", width: 120, title: "Roll-up Count" },
+          { key: "concept_name", width: "100%", title: "Concept name" },
+          { key: "person_count", width: 120, title: "Roll-up count" },
         ],
       },
     };
