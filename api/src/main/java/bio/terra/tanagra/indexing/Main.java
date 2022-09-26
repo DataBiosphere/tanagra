@@ -4,7 +4,9 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.utils.FileUtils;
 import java.nio.file.Path;
 
-public class Main {
+public final class Main {
+  private Main() {}
+
   /**
    * Main entrypoint for running indexing.
    *
