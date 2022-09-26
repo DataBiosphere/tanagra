@@ -59,8 +59,10 @@ jobs:
         # The build task includes the test and some quality static analysis tasks.
         run: ./gradlew api:build
       - name: Gradle Check
-        # The check task runs static analysis on main & test sources.
+        # The check task runs static analysis on main & test sources, and runs all the tests.
         run: ./gradlew api:check
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Jib build
         # Check that jib builds a docker container.
         run: ./gradlew api:jibDockerBuild
