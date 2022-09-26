@@ -114,6 +114,11 @@ public final class BigQueryDataset extends DataPointer {
       if (adcFile != null) {
         Path adc = Path.of(adcFile);
         System.out.println("file " + adc.toAbsolutePath() + " exists: " + adc.toFile().exists());
+        if (!adc.toFile().exists()) {
+          throw new RuntimeException("ADC file doesn't exist: " + adc.toAbsolutePath());
+        }
+      } else {
+        throw new RuntimeException("ADC not found: env var is null");
       }
       GoogleCredentials credentials;
       try {

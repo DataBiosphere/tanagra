@@ -56,7 +56,9 @@ jobs:
         env:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Check ADC
-        run: echo "GOOGLE_APPLICATION_CREDENTIALS points to $GOOGLE_APPLICATION_CREDENTIALS"
+        run: |
+          echo "GOOGLE_APPLICATION_CREDENTIALS points to $GOOGLE_APPLICATION_CREDENTIALS"
+          ls -la $GOOGLE_APPLICATION_CREDENTIALS
         env:
           GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
       - name: Gradle Build API
