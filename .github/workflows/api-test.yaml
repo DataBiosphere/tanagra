@@ -62,7 +62,7 @@ jobs:
         # The check task runs static analysis on main & test sources, and runs all the tests.
         run: ./gradlew api:check
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.TEST_PROJECT_SA_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: rendered/tanagra_sa.json
       - name: Jib build
         # Check that jib builds a docker container.
         run: ./gradlew api:jibDockerBuild
