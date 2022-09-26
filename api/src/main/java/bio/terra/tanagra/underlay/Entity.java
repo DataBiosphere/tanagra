@@ -9,6 +9,7 @@ import bio.terra.tanagra.indexing.command.ComputeAncestorDescendant;
 import bio.terra.tanagra.indexing.command.ComputePathNumChildren;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.indexing.command.WriteParentChild;
+import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
 import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
 import bio.terra.tanagra.serialization.UFEntity;
@@ -95,7 +96,10 @@ public final class Entity {
     // if the source data mapping includes text search, then expand it in the index data mapping
     if (sourceDataMapping.hasTextSearchMapping() && !indexDataMapping.hasTextSearchMapping()) {
       indexDataMapping.setTextSearchMapping(
-          TextSearchMapping.defaultIndexMapping(indexDataMapping.getTablePointer()));
+          TextSearchMapping.defaultIndexMapping(
+              serialized.getName(),
+              indexDataMapping.getTablePointer(),
+              attributes.get(serialized.getIdAttribute())));
     }
 
     // if the source data mapping includes hierarchies, then expand them in the index data mapping
@@ -160,6 +164,9 @@ public final class Entity {
   public List<IndexingJob> getIndexingJobs() {
     List<IndexingJob> jobs = new ArrayList<>();
     jobs.add(new DenormalizeEntityInstances(this));
+    if (sourceDataMapping.hasTextSearchMapping()) {
+      jobs.add(new BuildTextSearchStrings(this));
+    }
     sourceDataMapping.getHierarchyMappings().keySet().stream()
         .forEach(
             hierarchyName -> {

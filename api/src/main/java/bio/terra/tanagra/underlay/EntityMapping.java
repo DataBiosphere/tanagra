@@ -83,7 +83,7 @@ public final class EntityMapping {
         serialized.getTextSearchMapping() == null
             ? null
             : TextSearchMapping.fromSerialized(
-                serialized.getTextSearchMapping(), tablePointer, attributes);
+                serialized.getTextSearchMapping(), tablePointer, attributes, idAttributeName);
 
     Map<String, HierarchyMapping> hierarchyMappings =
         serialized.getHierarchyMappings() == null
@@ -178,6 +178,14 @@ public final class EntityMapping {
     } else {
       throw new SystemException("Unknown text search mapping type");
     }
+  }
+
+  public Query queryTextSearchString() {
+    return textSearchMapping.queryTextSearchString(this);
+  }
+
+  public TablePointer getTextSearchTablePointer() {
+    return textSearchMapping.getTablePointer(this);
   }
 
   public TablePointer getTablePointer() {
