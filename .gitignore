@@ -2,6 +2,7 @@
 build/
 rendered/
 workflow/rendered/
+**/test_output/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**

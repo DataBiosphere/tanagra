@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.underlay.Underlay;
-import java.io.IOException;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,7 @@ public class InvalidUnderlayTest {
   @BeforeAll
   static void setupFileIO() {
     FileIO.setToReadResourceFiles();
+    FileIO.setInputParentDir(Path.of("config/"));
   }
 
   @Test
@@ -30,7 +31,7 @@ public class InvalidUnderlayTest {
   }
 
   @Test
-  void noDataPointers() throws IOException {
+  void noDataPointers() {
     InvalidConfigException ex =
         assertThrows(
             InvalidConfigException.class, () -> Underlay.fromJSON("underlay/NoDataPointers.json"));

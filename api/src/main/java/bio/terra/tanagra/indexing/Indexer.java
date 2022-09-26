@@ -130,21 +130,7 @@ public final class Indexer {
     Files.write(workflowInputSubDir.resolve("indexing_script.sh"), script);
   }
 
-  public static void main(String... args) throws Exception {
-    String underlayFilePath = args[0];
-    String outputDirPath = args[1];
-
-    FileIO.setToReadDiskFiles(); // This is the default, included here for clarity.
-    FileIO.setInputParentDir(Path.of(underlayFilePath).toAbsolutePath().getParent());
-    FileIO.setOutputParentDir(Path.of(outputDirPath));
-    FileUtils.createDirectoryIfNonexistent(FileIO.getOutputParentDir());
-
-    Indexer indexer = Indexer.deserializeUnderlay(underlayFilePath);
-    indexer.scanSourceData();
-    indexer.buildWorkflowCommands();
-
-    indexer.serializeUnderlay();
-    indexer.writeSerializedUnderlay();
-    indexer.writeWorkflowCommands();
+  public Underlay getUnderlay() {
+    return underlay;
   }
 }

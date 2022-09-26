@@ -9,6 +9,7 @@ import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
+import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.Table;
@@ -95,6 +96,35 @@ public final class GoogleBigQuery {
     } catch (Exception e) {
       LOGGER.error("Error looking up table", e);
       return Optional.empty();
+    }
+  }
+
+  /**
+   * Create a new table from the results of a query.
+   *
+   * @param destinationTable the destination project+dataset+table id
+   * @param query the SQL string
+   * @param isDryRun true if this is a dry run and no table should actually be created
+   * @return the result of the BQ query job
+   */
+  public TableResult createTableFromQuery(
+      TableId destinationTable, String query, boolean isDryRun) {
+    QueryJobConfiguration queryConfig =
+        QueryJobConfiguration.newBuilder(query)
+            .setDestinationTable(destinationTable)
+            .setDryRun(isDryRun)
+            .build();
+
+    if (isDryRun) {
+      Job job = bigQuery.create(JobInfo.of(queryConfig));
+      JobStatistics.QueryStatistics statistics = job.getStatistics();
+      LOGGER.info(
+          "BigQuery dry run performed successfully: {} bytes processed",
+          statistics.getTotalBytesProcessed());
+      return null;
+    } else {
+      return callWithRetries(
+          () -> bigQuery.query(queryConfig), "Retryable error creating table from query");
     }
   }
 

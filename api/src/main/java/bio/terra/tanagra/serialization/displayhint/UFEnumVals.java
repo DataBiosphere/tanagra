@@ -26,15 +26,15 @@ public class UFEnumVals extends UFDisplayHint {
 
   private UFEnumVals(Builder builder) {
     super(builder);
-    this.valueDisplays = builder.enumVals;
+    this.valueDisplays = builder.valueDisplays;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFDisplayHint.Builder {
-    private List<UFValueDisplay> enumVals;
+    private List<UFValueDisplay> valueDisplays;
 
-    public Builder enumVals(List<UFValueDisplay> enumVals) {
-      this.enumVals = enumVals;
+    public Builder valueDisplays(List<UFValueDisplay> valueDisplays) {
+      this.valueDisplays = valueDisplays;
       return this;
     }
 

@@ -52,15 +52,14 @@ jobs:
           # Regardless of how it was fetched, tests and scripts expect these
           # keys to be stored in rendered/.
           mkdir -p rendered/broad/
-          echo "$TEST_PROJECT_SA_KEY" > rendered/tanagra_sa.json
+          echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
         env:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
-      - name: Gradle Build API
-        # The build task includes the test and some quality static analysis tasks.
-        run: ./gradlew api:build
-      - name: Gradle Check
-        # The check task runs static analysis on main & test sources.
+      - name: Gradle Build and Check
+        # The build task includes the build, test and static analysis tasks.
         run: ./gradlew api:check
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Jib build
         # Check that jib builds a docker container.
         run: ./gradlew api:jibDockerBuild
