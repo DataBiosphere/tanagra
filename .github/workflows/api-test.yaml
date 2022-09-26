@@ -58,9 +58,13 @@ jobs:
       - name: Gradle Build API
         # The build task includes the test and some quality static analysis tasks.
         run: ./gradlew api:build
+      - name: Check ADC
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS points to $GOOGLE_APPLICATION_CREDENTIALS"
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
       - name: Gradle Check
         # The check task runs static analysis on main & test sources, and runs all the tests.
-        run:
+        run: |
           echo "GOOGLE_APPLICATION_CREDENTIALS points to $GOOGLE_APPLICATION_CREDENTIALS"
           ./gradlew api:check
         env:
