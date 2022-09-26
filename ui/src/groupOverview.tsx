@@ -19,6 +19,7 @@ import {
   renameGroup,
   setGroupFilter,
 } from "cohortsSlice";
+import Empty from "components/empty";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useAppDispatch, useCohortAndGroup } from "hooks";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
@@ -55,7 +56,7 @@ export function GroupOverview() {
   });
 
   return (
-    <Box sx={{ m: 1 }}>
+    <Box sx={{ p: 1 }}>
       <ActionBar title={cohort.name} />
       <Stack direction="row" justifyContent="space-between">
         <Stack direction="row" alignItems="center">
@@ -113,52 +114,61 @@ export function GroupOverview() {
         </Stack>
       </Stack>
       <Stack spacing={1}>
-        {group.criteria.map((criteria) => {
-          const plugin = getCriteriaPlugin(criteria);
-          const title = getCriteriaTitle(criteria, plugin);
+        {group.criteria.length === 0 && (
+          <Empty
+            minHeight="300px"
+            image="/empty.png"
+            title="No criteria yet"
+            subtitle="You can add a criteria by clicking on 'Add criteria'"
+          />
+        )}
+        {group.criteria.length > 0 &&
+          group.criteria.map((criteria) => {
+            const plugin = getCriteriaPlugin(criteria);
+            const title = getCriteriaTitle(criteria, plugin);
 
-          return (
-            <Box key={criteria.id}>
-              <Paper sx={{ p: 1 }}>
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="flex-start"
-                >
-                  <Box>
-                    {!!plugin.renderEdit ? (
-                      <Link
-                        variant="h4"
-                        color="inherit"
-                        underline="hover"
-                        component={RouterLink}
-                        to={criteriaURL(criteria.id)}
-                      >
-                        {title}
-                      </Link>
-                    ) : (
-                      <Typography variant="h4">{title}</Typography>
-                    )}
-                    {plugin.renderInline(criteria.id)}
-                  </Box>
-                  <IconButton
-                    onClick={() => {
-                      dispatch(
-                        deleteCriteria({
-                          cohortId: cohort.id,
-                          groupId: group.id,
-                          criteriaId: criteria.id,
-                        })
-                      );
-                    }}
+            return (
+              <Box key={criteria.id}>
+                <Paper sx={{ p: 1 }}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              </Paper>
-            </Box>
-          );
-        })}
+                    <Box>
+                      {!!plugin.renderEdit ? (
+                        <Link
+                          variant="h4"
+                          color="inherit"
+                          underline="hover"
+                          component={RouterLink}
+                          to={criteriaURL(criteria.id)}
+                        >
+                          {title}
+                        </Link>
+                      ) : (
+                        <Typography variant="h4">{title}</Typography>
+                      )}
+                      {plugin.renderInline(criteria.id)}
+                    </Box>
+                    <IconButton
+                      onClick={() => {
+                        dispatch(
+                          deleteCriteria({
+                            cohortId: cohort.id,
+                            groupId: group.id,
+                            criteriaId: criteria.id,
+                          })
+                        );
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                </Paper>
+              </Box>
+            );
+          })}
       </Stack>
       <Stack
         direction="row"

@@ -3,7 +3,6 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import Drawer from "@mui/material/Drawer";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
@@ -11,10 +10,9 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import { CSSObject, styled, Theme } from "@mui/material/styles";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { defaultFilter, insertGroup } from "cohortsSlice";
+import Empty from "components/empty";
 import Loading from "components/loading";
 import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
@@ -46,101 +44,63 @@ import {
   groupName,
 } from "./cohort";
 
-const demographicsWidth = 400;
-const outlineWidth = 300;
-
-// This drawer customization is taken directly from the MUI docs.
-const openedMixin = (theme: Theme): CSSObject => ({
-  width: demographicsWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: "hidden",
-});
-
-const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-
-const MiniDrawer = styled(Drawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: demographicsWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
-}));
-
 export function Overview() {
   const [showDemographics, setShowDemographics] = useState(true);
 
-  // TODO(tjennison): This overall layout is a mess and the built in components
-  // are only making it more difficult. Overhaul the main layout to use basic
-  // boxes and layout components, and confine scrolling to each of the
-  // approprite panels.
   return (
-    <Box sx={{ display: "flex", height: "calc(100% - 48px)" }}>
-      <Drawer
-        variant="permanent"
-        anchor="left"
-        sx={{
-          width: outlineWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            backgroundColor: (theme) => theme.palette.background.default,
-            width: outlineWidth,
-            boxSizing: "border-box",
-          },
-        }}
-      >
-        <Toolbar />
-        <Box sx={{ mx: 1 }}>
-          <Outline />
-        </Box>
-      </Drawer>
+    <Box
+      sx={{
+        display: "grid",
+        width: "100%",
+        height: "100%",
+        gridTemplateColumns: (theme) =>
+          `300px 1fr ${showDemographics ? "380px" : theme.spacing(8)}`,
+        gridTemplateRows: (theme) => `${theme.spacing(6)} 1fr`,
+        gridTemplateAreas: "'header header header' 'outline content drawer'",
+      }}
+    >
       <Box
         sx={{
-          flexGrow: 1,
-          height: "100%",
+          gridArea: "outline",
+          p: 1,
         }}
       >
-        <Toolbar />
-        <Outlet />
+        <Outline />
       </Box>
-      <MiniDrawer variant="permanent" open={showDemographics} anchor="right">
-        <Toolbar />
-        <Box sx={{ m: 1, display: "grid" }}>
-          <Box sx={{ gridArea: "1/1" }}>
-            <DemographicCharts open={showDemographics} />
-          </Box>
-          <Box sx={{ gridArea: "1/1" }}>
-            <IconButton
-              size="large"
-              sx={{ float: "right" }}
-              onClick={() => setShowDemographics(!showDemographics)}
-            >
-              {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
-            </IconButton>
-          </Box>
+      <Box
+        sx={{
+          gridArea: "content",
+          overflow: "auto",
+          borderColor: (theme) => theme.palette.divider,
+          borderStyle: "solid",
+          borderWidth: "0px 1px",
+        }}
+      >
+        <Box sx={{ minWidth: "900px", height: "100%" }}>
+          <Outlet />
         </Box>
-      </MiniDrawer>
+      </Box>
+      <Box
+        sx={{
+          gridArea: "drawer",
+          backgroundColor: (theme) => theme.palette.background.paper,
+          p: 1,
+          display: "grid",
+        }}
+      >
+        <Box sx={{ gridArea: "1/1" }}>
+          <DemographicCharts open={showDemographics} />
+        </Box>
+        <Box sx={{ gridArea: "1/1" }}>
+          <IconButton
+            size="large"
+            sx={{ float: "right" }}
+            onClick={() => setShowDemographics(!showDemographics)}
+          >
+            {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
+          </IconButton>
+        </Box>
+      </Box>
     </Box>
   );
 }
@@ -150,7 +110,7 @@ function Outline() {
 
   return (
     <Box className="outline">
-      <List>
+      <List sx={{ p: 0 }}>
         {cohort.groups.map((g, index) => (
           <ListItemButton
             sx={{ p: 0, mb: 1 }}
@@ -262,11 +222,20 @@ function ParticipantsGroup(props: {
             <Chip label={groupFilterKindLabel(props.group.filter.kind)} />
           </Stack>
         </Stack>
-        {props.group.criteria.map((criteria) => (
-          <Box key={criteria.id}>
-            <ParticipantCriteria group={props.group} criteria={criteria} />
-          </Box>
-        ))}
+        {props.group.criteria.length === 0 ? (
+          <Empty
+            maxWidth="90%"
+            minHeight="100px"
+            title="No criteria yet"
+            subtitle="You can add a criteria by selecting this requirement and clicking on 'Add criteria'"
+          />
+        ) : (
+          props.group.criteria.map((criteria) => (
+            <Box key={criteria.id}>
+              <ParticipantCriteria group={props.group} criteria={criteria} />
+            </Box>
+          ))
+        )}
         <Box
           key="footer"
           display="flex"
