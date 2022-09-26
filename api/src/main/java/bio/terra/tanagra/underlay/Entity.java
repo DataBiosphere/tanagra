@@ -10,6 +10,7 @@ import bio.terra.tanagra.indexing.command.ComputePathNumChildren;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.indexing.command.WriteParentChild;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
+import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
@@ -159,6 +160,11 @@ public final class Entity {
   public List<IndexingJob> getIndexingJobs() {
     List<IndexingJob> jobs = new ArrayList<>();
     jobs.add(new DenormalizeEntityInstances(this));
+    sourceDataMapping.getHierarchyMappings().keySet().stream()
+        .forEach(
+            hierarchyName -> {
+              jobs.add(new WriteParentChildIdPairs(this, hierarchyName));
+            });
     return jobs;
   }
 

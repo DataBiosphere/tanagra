@@ -50,16 +50,7 @@ public final class Main {
       String dryRun = args.length > 3 ? args[3] : "";
 
       Entity entity = indexer.getUnderlay().getEntity(name);
-      entity
-          .getIndexingJobs()
-          .forEach(
-              ij -> {
-                if ("DRY_RUN".equals(dryRun)) {
-                  ij.dryRun();
-                } else {
-                  ij.runIfPending();
-                }
-              });
+      entity.getIndexingJobs().forEach(ij -> ij.runIfPending("DRY_RUN".equals(dryRun)));
     } else {
       throw new IllegalArgumentException("Unknown command: " + cmd);
     }
