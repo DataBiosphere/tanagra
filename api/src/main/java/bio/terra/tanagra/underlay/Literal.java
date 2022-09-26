@@ -43,7 +43,7 @@ public class Literal implements SQLExpression {
     long numDefined =
         Stream.of(stringValDefined, int64ValDefined, booleanValDefined).filter(b -> b).count();
     if (numDefined == 0) {
-      throw new InvalidConfigException("No literal values defined");
+      return new Literal(null);
     } else if (numDefined > 1) {
       throw new InvalidConfigException("More than one literal value defined");
     }

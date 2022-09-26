@@ -4,6 +4,7 @@
     * [Expand Underlay Config](#expand-underlay-config)
     * [Create Index Dataset](#create-index-dataset)
     * [Kickoff Jobs](#kickoff-jobs)
+    * [OMOP example](#omop-example)
 
 ## Overview
 Each underlay config specifies the mapping from the source data to Tanagra's entity model. Tanagra can query the
@@ -78,3 +79,12 @@ Now actually kick off all the indexing jobs for the entity group.
 (TODO: We should kick off all jobs for all entities and entity groups with a single command, rather than requiring 
 separate commands for each one. I've left it separate for now to make debugging and retesting certain parts easier 
 should we encounter any errors at first.)
+
+### OMOP example
+```
+./gradlew api:index -Dexec.args="EXPAND_CONFIG /config/input/omop.json /config/output/"
+./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json person"
+./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json condition"
+```
+
+(TODO: Continue adding to this script as more indexing jobs are added.)

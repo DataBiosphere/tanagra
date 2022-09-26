@@ -12,6 +12,8 @@ public interface IndexingJob {
     COMPLETE
   }
 
+  String getName();
+
   void dryRun();
 
   void run();
@@ -20,7 +22,8 @@ public interface IndexingJob {
 
   boolean prerequisitesComplete();
 
-  default void runIfPending() {
+  default void runIfPending(boolean isDryRun) {
+    LOGGER.info("Indexing job: {}", getName());
     if (!prerequisitesComplete()) {
       LOGGER.info("Skipping because prerequisites are not complete");
       return;
@@ -28,7 +31,11 @@ public interface IndexingJob {
     JobStatus status = checkStatus();
     LOGGER.info("Job status: {}", status);
     if (JobStatus.NOT_STARTED.equals(status)) {
-      run();
+      if (isDryRun) {
+        dryRun();
+      } else {
+        run();
+      }
     }
   }
 }

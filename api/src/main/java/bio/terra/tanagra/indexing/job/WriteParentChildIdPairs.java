@@ -2,7 +2,7 @@ package bio.terra.tanagra.indexing.job;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.EntityJob;
-import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.TablePointer;
@@ -14,16 +14,19 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DenormalizeEntityInstances extends EntityJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DenormalizeEntityInstances.class);
+public class WriteParentChildIdPairs extends EntityJob {
+  private static final Logger LOGGER = LoggerFactory.getLogger(WriteParentChildIdPairs.class);
 
-  public DenormalizeEntityInstances(Entity entity) {
+  private final String hierarchyName;
+
+  public WriteParentChildIdPairs(Entity entity, String hierarchyName) {
     super(entity);
+    this.hierarchyName = hierarchyName;
   }
 
   @Override
   public String getName() {
-    return "DENORMALIZE ENTITY INSTANCES (" + getEntity().getName() + ")";
+    return "WRITE PARENT-CHILD ID PAIRS (" + getEntity().getName() + ", " + hierarchyName + ")";
   }
 
   @Override
@@ -37,13 +40,21 @@ public class DenormalizeEntityInstances extends EntityJob {
   }
 
   private void run(boolean isDryRun) {
-    Query selectAllAttributes =
-        getEntity().getSourceDataMapping().queryAttributes(getEntity().getAttributes());
-    String sql = selectAllAttributes.renderSQL();
-    LOGGER.info("select all attributes SQL: {}", sql);
+    SQLExpression selectChildParentIdPairs =
+        getEntity()
+            .getSourceDataMapping()
+            .getHierarchyMapping(hierarchyName)
+            .queryChildParentPairs("child", "parent");
+    String sql = selectChildParentIdPairs.renderSQL();
+    LOGGER.info("select all child-parent id pairs SQL: {}", sql);
 
     BigQueryDataset outputBQDataset = getOutputDataPointer();
-    TablePointer outputTable = getEntity().getIndexDataMapping().getTablePointer();
+    TablePointer outputTable =
+        getEntity()
+            .getIndexDataMapping()
+            .getHierarchyMapping(hierarchyName)
+            .getChildParent()
+            .getTablePointer();
     LOGGER.info(
         "output BQ table: project={}, dataset={}, table={}",
         outputBQDataset.getProjectId(),
@@ -63,7 +74,12 @@ public class DenormalizeEntityInstances extends EntityJob {
     // Check if the table already exists. We don't expect this to be a long-running operation, so
     // there is no IN_PROGRESS state for this job.
     BigQueryDataset outputBQDataset = getOutputDataPointer();
-    TablePointer outputTable = getEntity().getIndexDataMapping().getTablePointer();
+    TablePointer outputTable =
+        getEntity()
+            .getIndexDataMapping()
+            .getHierarchyMapping(hierarchyName)
+            .getChildParent()
+            .getTablePointer();
     GoogleBigQuery googleBigQuery = outputBQDataset.getBigQueryService();
     Optional<Table> tableOpt =
         googleBigQuery.getTable(
@@ -78,7 +94,7 @@ public class DenormalizeEntityInstances extends EntityJob {
     DataPointer outputDataPointer = outputTable.getDataPointer();
     if (!(outputDataPointer instanceof BigQueryDataset)) {
       throw new InvalidConfigException(
-          "DenormalizeEntityInstances indexing job only supports BigQuery");
+          "WriteParentChildIdPairs indexing job only supports BigQuery");
     }
     return (BigQueryDataset) outputDataPointer;
   }
