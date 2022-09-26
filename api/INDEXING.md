@@ -82,5 +82,9 @@ should we encounter any errors at first.)
 
 ### OMOP example
 ```
-./gradlew api:index -Dexec.args="INDEX_ENTITY_GROUP /config/output/omop.json condition_occurrence_person"
+./gradlew api:index -Dexec.args="EXPAND_CONFIG /config/input/omop.json /config/output/"
+./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json person"
+./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json condition"
 ```
+
+(TODO: Continue adding to this script as more indexing jobs are added.)
