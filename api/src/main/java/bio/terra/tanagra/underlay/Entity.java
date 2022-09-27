@@ -11,6 +11,7 @@ import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.indexing.command.WriteParentChild;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
+import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
 import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.utils.JacksonMapper;
@@ -171,6 +172,7 @@ public final class Entity {
         .forEach(
             hierarchyName -> {
               jobs.add(new WriteParentChildIdPairs(this, hierarchyName));
+              jobs.add(new WriteAncestorDescendantIdPairs(this, hierarchyName));
             });
     return jobs;
   }
