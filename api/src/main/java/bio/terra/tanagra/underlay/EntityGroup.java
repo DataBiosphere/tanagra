@@ -3,7 +3,6 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
-import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
@@ -82,8 +81,6 @@ public abstract class EntityGroup {
   public abstract Type getType();
 
   public abstract Map<String, Entity> getEntities();
-
-  public abstract List<WorkflowCommand> getIndexingCommands();
 
   public abstract List<IndexingJob> getIndexingJobs();
 

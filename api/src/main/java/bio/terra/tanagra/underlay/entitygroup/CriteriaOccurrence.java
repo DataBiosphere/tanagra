@@ -1,8 +1,6 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.IndexingJob;
-import bio.terra.tanagra.indexing.WorkflowCommand;
-import bio.terra.tanagra.indexing.command.PrecomputeCounts;
 import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
@@ -104,11 +102,6 @@ public class CriteriaOccurrence extends EntityGroup {
   public Map<String, Entity> getEntities() {
     return ImmutableMap.of(
         CRITERIA_ENTITY_NAME, criteriaEntity, OCCURRENCE_ENTITY_NAME, occurrenceEntity);
-  }
-
-  @Override
-  public List<WorkflowCommand> getIndexingCommands() {
-    return List.of(PrecomputeCounts.forEntityGroup(this));
   }
 
   @Override

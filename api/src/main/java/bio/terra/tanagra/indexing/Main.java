@@ -41,11 +41,9 @@ public final class Main {
       FileUtils.createDirectoryIfNonexistent(FileIO.getOutputParentDir());
 
       indexer.scanSourceData();
-      indexer.buildWorkflowCommands();
 
       indexer.serializeUnderlay();
       indexer.writeSerializedUnderlay();
-      indexer.writeWorkflowCommands();
     } else if ("INDEX_ENTITY".equals(cmd)) {
       String name = args[2];
       String dryRun = args.length > 3 ? args[3] : "";

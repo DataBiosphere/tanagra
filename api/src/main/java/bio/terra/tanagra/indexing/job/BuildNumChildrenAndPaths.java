@@ -15,6 +15,7 @@ import bio.terra.tanagra.underlay.TablePointer;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A batch Apache Beam pipeline for building a table that contains a path (i.e. a list of ancestors
- * in order) for each node in a hierarchy. Example row: (id,path)=(123,"456.789"), where 456 is
- * the parent of 123 and 789 is the grandparent of 123.
+ * in order) for each node in a hierarchy. Example row: (id,path)=(123,"456.789"), where 456 is the
+ * parent of 123 and 789 is the grandparent of 123.
  */
 public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuildNumChildrenAndPaths.class);
@@ -139,7 +140,8 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   }
 
   @Override
-  protected TablePointer getOutputTablePointer() {
+  @VisibleForTesting
+  public TablePointer getOutputTablePointer() {
     return getEntity()
         .getIndexDataMapping()
         .getHierarchyMapping(hierarchyName)

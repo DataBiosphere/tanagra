@@ -4,6 +4,7 @@ import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.TablePointer;
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,8 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
   }
 
   @Override
-  protected TablePointer getOutputTablePointer() {
+  @VisibleForTesting
+  public TablePointer getOutputTablePointer() {
     return getEntity().getIndexDataMapping().getTablePointer();
   }
 }

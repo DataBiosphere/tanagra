@@ -1,7 +1,6 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.IndexingJob;
-import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.AuxiliaryData;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -9,7 +8,6 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
@@ -75,11 +73,6 @@ public class GroupItems extends EntityGroup {
   @Override
   public Map<String, Entity> getEntities() {
     return ImmutableMap.of(GROUP_ENTITY_NAME, groupEntity, ITEMS_ENTITY_NAME, itemsEntity);
-  }
-
-  @Override
-  public List<WorkflowCommand> getIndexingCommands() {
-    return ImmutableList.of(); // no indexing workflows for one-to-many relationships
   }
 
   @Override
