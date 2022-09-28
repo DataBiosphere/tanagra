@@ -12,7 +12,6 @@ import bio.terra.tanagra.indexing.job.beam.PathUtils;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.TablePointer;
-import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -32,6 +31,11 @@ import org.apache.beam.sdk.values.TupleTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A batch Apache Beam pipeline for building a table that contains a path (i.e. a list of ancestors
+ * in order) for each node in a hierarchy. Example row: (id,path)=(123,"456.789"), where 456 is
+ * the parent of 123 and 789 is the grandparent of 123.
+ */
 public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuildNumChildrenAndPaths.class);
 
@@ -45,12 +49,9 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
                       .setType("INTEGER")
                       .setMode("REQUIRED"),
                   // TODO: Consider how to handle other node types besides integer. One possibility
-                  // is
-                  // to serialize a list into a string. Another possibility is to make the path
-                  // column
-                  // an INTEGER/REPEATED field instead of a string, although that may only work for
-                  // BQ
-                  // and not other backends.
+                  // is to serialize a list into a string. Another possibility is to make the path
+                  // column an INTEGER/REPEATED field instead of a string, although that may only
+                  // work for BQ and not other backends.
                   new TableFieldSchema()
                       .setName(PATH_COLUMN_NAME)
                       .setType("STRING")
@@ -95,15 +96,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
             : null;
     LOGGER.info("select possible root ids SQL: {}", selectPossibleRootIdsSql);
 
-    TablePointer outputTable =
-        getEntity()
-            .getIndexDataMapping()
-            .getHierarchyMapping(hierarchyName)
-            .getPathNumChildren()
-            .getTablePointer();
-    BigQueryDataset outputBQDataset = getOutputDataPointer();
-
-    Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(outputBQDataset));
+    Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(getOutputDataPointer()));
 
     // read in the nodes and the child-parent relationships from BQ
     PCollection<Long> allNodesPC =
@@ -138,8 +131,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
     }
 
     // write the node-{path, numChildren} pairs to BQ
-    writePathAndNumChildrenToBQ(
-        outputNodePathKVsPC, nodeNumChildrenKVsPC, outputTable, PATH_NUMCHILDREN_TABLE_SCHEMA);
+    writePathAndNumChildrenToBQ(outputNodePathKVsPC, nodeNumChildrenKVsPC, getOutputTablePointer());
 
     if (!isDryRun) {
       pipeline.run().waitUntilFinish();
@@ -147,21 +139,19 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   }
 
   @Override
-  public JobStatus checkStatus() {
-    return checkTableExistenceForJobStatus(
-        getEntity()
-            .getIndexDataMapping()
-            .getHierarchyMapping(hierarchyName)
-            .getPathNumChildren()
-            .getTablePointer());
+  protected TablePointer getOutputTablePointer() {
+    return getEntity()
+        .getIndexDataMapping()
+        .getHierarchyMapping(hierarchyName)
+        .getPathNumChildren()
+        .getTablePointer();
   }
 
   /** Write the {@link KV} pairs (id, path, num_children) to BQ. */
   private static void writePathAndNumChildrenToBQ(
       PCollection<KV<Long, String>> nodePathKVs,
       PCollection<KV<Long, Long>> nodeNumChildrenKVs,
-      TablePointer outputBQTable,
-      TableSchema outputBQSchema) {
+      TablePointer outputBQTable) {
     // define the CoGroupByKey tags
     final TupleTag<String> pathTag = new TupleTag<>();
     final TupleTag<Long> numChildrenTag = new TupleTag<>();
@@ -204,7 +194,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
         "insert the (id, path, numChildren) rows into BQ",
         BigQueryIO.writeTableRows()
             .to(outputBQTable.getPathForIndexing())
-            .withSchema(outputBQSchema)
+            .withSchema(PATH_NUMCHILDREN_TABLE_SCHEMA)
             .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
             .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
             .withMethod(BigQueryIO.Write.Method.FILE_LOADS));

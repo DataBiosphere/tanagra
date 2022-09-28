@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class Entity {
-  private static final String ENTITY_DIRECTORY_NAME = "entity";
+  public static final String ENTITY_DIRECTORY_NAME = "entity";
 
   private final String name;
   private final String idAttributeName;
@@ -115,8 +115,7 @@ public final class Entity {
                           HierarchyMapping.defaultIndexMapping(
                               serialized.getName(),
                               hierarchyName,
-                              indexDataMapping.getTablePointer(),
-                              indexDataMapping.getIdAttributeMapping().getValue()))));
+                              indexDataMapping.getTablePointer()))));
     }
 
     return new Entity(

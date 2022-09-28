@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.utils.FileUtils;
 import java.nio.file.Path;
 
@@ -51,6 +52,12 @@ public final class Main {
 
       Entity entity = indexer.getUnderlay().getEntity(name);
       entity.getIndexingJobs().forEach(ij -> ij.runIfPending("DRY_RUN".equals(dryRun)));
+    } else if ("INDEX_ENTITY_GROUP".equals(cmd)) {
+      String name = args[2];
+      String dryRun = args.length > 3 ? args[3] : "";
+
+      EntityGroup entityGroup = indexer.getUnderlay().getEntityGroup(name);
+      entityGroup.getIndexingJobs().forEach(ij -> ij.runIfPending("DRY_RUN".equals(dryRun)));
     } else {
       throw new IllegalArgumentException("Unknown command: " + cmd);
     }

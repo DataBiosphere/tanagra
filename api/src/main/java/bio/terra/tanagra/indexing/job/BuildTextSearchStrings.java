@@ -25,13 +25,11 @@ public class BuildTextSearchStrings extends BigQueryIndexingJob {
     String sql = selectIdTextPairs.renderSQL();
     LOGGER.info("select id-text pairs SQL: {}", sql);
 
-    TablePointer outputTable = getEntity().getIndexDataMapping().getTextSearchTablePointer();
-    createTableFromSql(outputTable, sql, isDryRun);
+    createTableFromSql(getOutputTablePointer(), sql, isDryRun);
   }
 
   @Override
-  public JobStatus checkStatus() {
-    return checkTableExistenceForJobStatus(
-        getEntity().getIndexDataMapping().getTextSearchTablePointer());
+  protected TablePointer getOutputTablePointer() {
+    return getEntity().getIndexDataMapping().getTextSearchTablePointer();
   }
 }

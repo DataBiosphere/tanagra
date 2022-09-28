@@ -26,16 +26,20 @@ public final class EntityGroupMapping {
       UFEntityGroupMapping serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Relationship> relationships,
-      Map<String, AuxiliaryData> auxiliaryData) {
-    return fromSerialized(serialized, dataPointers, relationships, auxiliaryData, true, false);
+      Map<String, AuxiliaryData> auxiliaryData,
+      String entityGroupName) {
+    return fromSerialized(
+        serialized, dataPointers, relationships, auxiliaryData, entityGroupName, true, false);
   }
 
   public static EntityGroupMapping fromSerializedForIndexData(
       UFEntityGroupMapping serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Relationship> relationships,
-      Map<String, AuxiliaryData> auxiliaryData) {
-    return fromSerialized(serialized, dataPointers, relationships, auxiliaryData, false, true);
+      Map<String, AuxiliaryData> auxiliaryData,
+      String entityGroupName) {
+    return fromSerialized(
+        serialized, dataPointers, relationships, auxiliaryData, entityGroupName, false, true);
   }
 
   private static EntityGroupMapping fromSerialized(
@@ -43,6 +47,7 @@ public final class EntityGroupMapping {
       Map<String, DataPointer> dataPointers,
       Map<String, Relationship> relationships,
       Map<String, AuxiliaryData> auxiliaryData,
+      String entityGroupName,
       boolean requireRelationships,
       boolean requireAuxiliaryData) {
     if (serialized.getDataPointer() == null || serialized.getDataPointer().isEmpty()) {
@@ -91,13 +96,17 @@ public final class EntityGroupMapping {
     for (AuxiliaryData auxiliaryDataPointer : auxiliaryData.values()) {
       UFAuxiliaryDataMapping serializedAuxiliaryData =
           serializedAuxiliaryDataMappings.get(auxiliaryDataPointer.getName());
-      if (serializedAuxiliaryData == null && !requireAuxiliaryData) {
-        continue;
+      if (serializedAuxiliaryData != null) {
+        AuxiliaryDataMapping auxiliaryDataMapping =
+            AuxiliaryDataMapping.fromSerialized(
+                serializedAuxiliaryData, dataPointer, auxiliaryDataPointer);
+        auxiliaryDataMappings.put(auxiliaryDataPointer.getName(), auxiliaryDataMapping);
+      } else if (requireAuxiliaryData) {
+        AuxiliaryDataMapping auxiliaryDataMapping =
+            AuxiliaryDataMapping.defaultIndexMapping(
+                auxiliaryDataPointer, entityGroupName + "_", dataPointer);
+        auxiliaryDataMappings.put(auxiliaryDataPointer.getName(), auxiliaryDataMapping);
       }
-      AuxiliaryDataMapping auxiliaryDataMapping =
-          AuxiliaryDataMapping.fromSerialized(
-              serializedAuxiliaryData, dataPointer, auxiliaryDataPointer);
-      auxiliaryDataMappings.put(auxiliaryDataPointer.getName(), auxiliaryDataMapping);
     }
     serializedAuxiliaryDataMappings
         .keySet()

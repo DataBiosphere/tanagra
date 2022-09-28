@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
+import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
@@ -20,7 +21,7 @@ public abstract class EntityGroup {
     CRITERIA_OCCURRENCE
   }
 
-  private static final String ENTITY_GROUP_DIRECTORY_NAME = "entitygroup";
+  public static final String ENTITY_GROUP_DIRECTORY_NAME = "entitygroup";
 
   protected String name;
   protected Map<String, Relationship> relationships;
@@ -83,6 +84,8 @@ public abstract class EntityGroup {
   public abstract Map<String, Entity> getEntities();
 
   public abstract List<WorkflowCommand> getIndexingCommands();
+
+  public abstract List<IndexingJob> getIndexingJobs();
 
   public String getName() {
     return name;
