@@ -32,9 +32,12 @@ public final class CountUtils {
   public static PCollection<KV<Long, Long>> countDistinct(
       PCollection<Long> primaryNodes, PCollection<KV<Long, Long>> occurrences) {
     // remove duplicate occurrences
-    // do this because there could be duplicate occurrences (i.e. 2 occurrences of diabetes for personA)
-    // in the original data. or, for concepts that include a hierarchy, there would be duplicates if e.g. a parent
-    // condition had two children, each with an occurrence for the same person. this distinct step is so we only
+    // do this because there could be duplicate occurrences (i.e. 2 occurrences of diabetes for
+    // personA)
+    // in the original data. or, for concepts that include a hierarchy, there would be duplicates if
+    // e.g. a parent
+    // condition had two children, each with an occurrence for the same person. this distinct step
+    // is so we only
     // count occurrences of a condition for each person once.
     PCollection<KV<Long, Long>> distinctOccurrences =
         occurrences.apply("remove duplicate occurrences before counting", Distinct.create());
@@ -46,9 +49,11 @@ public final class CountUtils {
         distinctOccurrences.apply(
             "count the number of distinct occurrences per primary node", Count.perKey());
 
-    // build a collection of KV<node,[placeholder 0L]>. this is just a collection of the primary nodes,
+    // build a collection of KV<node,[placeholder 0L]>. this is just a collection of the primary
+    // nodes,
     // but here we expand it to a map where each primary node is mapped to 0L, just so we can do an
-    // outer join with the countKVs above. the 0L is just a placeholder value in the map, the actual count
+    // outer join with the countKVs above. the 0L is just a placeholder value in the map, the actual
+    // count
     // will be set in the join result
     PCollection<KV<Long, Long>> primaryNodeInitialKVs =
         primaryNodes.apply(
@@ -82,8 +87,7 @@ public final class CountUtils {
               public void processElement(ProcessContext context) {
                 KV<Long, CoGbkResult> element = context.element();
                 Long node = element.getKey();
-                Iterator<Long> countTagIter =
-                    element.getValue().getAll(countTag).iterator();
+                Iterator<Long> countTagIter = element.getValue().getAll(countTag).iterator();
                 Iterator<Long> primaryNodeInitialTagIter =
                     element.getValue().getAll(primaryNodeInitialTag).iterator();
 

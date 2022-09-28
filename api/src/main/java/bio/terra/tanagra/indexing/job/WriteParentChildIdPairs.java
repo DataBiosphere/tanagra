@@ -1,13 +1,13 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.indexing.EntityJob;
+import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.TablePointer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WriteParentChildIdPairs extends EntityJob {
+public class WriteParentChildIdPairs extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteParentChildIdPairs.class);
 
   private final String hierarchyName;
@@ -23,16 +23,7 @@ public class WriteParentChildIdPairs extends EntityJob {
   }
 
   @Override
-  public void dryRun() {
-    run(true);
-  }
-
-  @Override
-  public void run() {
-    run(false);
-  }
-
-  private void run(boolean isDryRun) {
+  protected void run(boolean isDryRun) {
     SQLExpression selectChildParentIdPairs =
         getEntity()
             .getSourceDataMapping()

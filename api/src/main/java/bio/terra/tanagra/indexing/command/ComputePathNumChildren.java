@@ -38,7 +38,7 @@ public final class ComputePathNumChildren extends WorkflowCommand {
     if (hierarchySourceMapping.hasRootNodesFilter()) {
       queryInputs.put(
           sqlFileSelectPossibleRootNodes,
-          hierarchySourceMapping.queryPossibleRootNodes("node").renderSQL());
+          hierarchySourceMapping.queryPossibleRootNodes("id").renderSQL());
     }
 
     String template =

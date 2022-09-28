@@ -58,7 +58,7 @@
             "table": "concept",
             "filter": { "type": "BINARY",  "field": { "column": "concept_id" }, "operator": "EQUALS", "value": { "int64Val": 441840 } } },
           "fieldPointers": {
-            "node": { "column": "concept_id" }
+            "id": { "column": "concept_id" }
           }
         }
       }

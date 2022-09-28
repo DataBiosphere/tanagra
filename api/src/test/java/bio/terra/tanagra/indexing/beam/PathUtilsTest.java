@@ -1,6 +1,7 @@
-package bio.terra.tanagra.workflow;
+package bio.terra.tanagra.indexing.beam;
 
-import bio.terra.tanagra.workflow.utils.KVUtils;
+import bio.terra.tanagra.indexing.job.beam.PathUtils;
+import bio.terra.tanagra.testing.KVUtils;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import java.util.List;

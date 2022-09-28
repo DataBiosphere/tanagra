@@ -1,13 +1,13 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.indexing.EntityJob;
+import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.TablePointer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BuildTextSearchStrings extends EntityJob {
+public class BuildTextSearchStrings extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteParentChildIdPairs.class);
 
   public BuildTextSearchStrings(Entity entity) {
@@ -20,16 +20,7 @@ public class BuildTextSearchStrings extends EntityJob {
   }
 
   @Override
-  public void dryRun() {
-    run(true);
-  }
-
-  @Override
-  public void run() {
-    run(false);
-  }
-
-  private void run(boolean isDryRun) {
+  protected void run(boolean isDryRun) {
     Query selectIdTextPairs = getEntity().getSourceDataMapping().queryTextSearchString();
     String sql = selectIdTextPairs.renderSQL();
     LOGGER.info("select id-text pairs SQL: {}", sql);

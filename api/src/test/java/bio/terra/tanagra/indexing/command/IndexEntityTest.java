@@ -91,7 +91,7 @@ public class IndexEntityTest {
             .findFirst();
     assertTrue(computePathNumChildren.isPresent(), "ComputePathNumChildren indexing cmd generated");
     assertEquals(
-        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildPathsForHierarchy -Dexec.args=\"--outputBigQueryTable=broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition --allNodesQuery=condition_standard_selectIds.sql --parentChildQuery=condition_standard_selectParentChildPairs.sql --rootNodesFilterQuery=condition_standard_selectPossibleRootNodes.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
+        "./gradlew workflow:execute -DmainClass=bio.terra.tanagra.workflow.BuildPathsForHierarchy -Dexec.args=\"--outputBigQueryTable=broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_standard_pathNumChildren --allNodesQuery=condition_standard_selectIds.sql --parentChildQuery=condition_standard_selectParentChildPairs.sql --rootNodesFilterQuery=condition_standard_selectPossibleRootNodes.sql --runner=dataflow --project=broad-tanagra-dev --region=us-central1 --serviceAccount=tanagra@broad-tanagra-dev.iam.gserviceaccount.com\"",
         computePathNumChildren.get().getCommand());
     assertEquals(
         3, computePathNumChildren.get().getQueryInputs().size(), "three query inputs generated");
