@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.job;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.EntityJob;
+import bio.terra.tanagra.indexing.job.beam.GraphUtils;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.TablePointer;
