@@ -1,0 +1,15 @@
+{
+  "name": "omop",
+  "dataPointers": [
+    { "type": "BQ_DATASET",
+      "name": "omop_dataset",
+      "projectId": "broad-tanagra-dev",
+      "datasetId": "aou_synthetic_SR2019q4r4" },
+    { "type": "BQ_DATASET",
+      "name": "index_dataset",
+      "projectId": "broad-tanagra-dev",
+      "datasetId": "aousynthetic_index" } ],
+  "entities": [ "person.json", "condition.json", "condition_occurrence.json", "procedure.json", "procedure_occurrence.json" ],
+  "primaryEntity": "person",
+  "entityGroups": [ "condition_person_occurrence.json", "procedure_person_occurrence.json" ]
+}
