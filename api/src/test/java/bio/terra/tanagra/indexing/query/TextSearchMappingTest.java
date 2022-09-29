@@ -26,10 +26,7 @@ public class TextSearchMappingTest {
   void condition() throws IOException {
     Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        condition.getSourceDataMapping().queryTextSearchInformation().renderSQL(),
+        condition.getSourceDataMapping().queryTextSearchStrings().renderSQL(),
         "query/condition_source_textSearch.sql");
-    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        condition.getIndexDataMapping().queryTextSearchInformation().renderSQL(),
-        "query/condition_index_textSearch.sql");
   }
 }

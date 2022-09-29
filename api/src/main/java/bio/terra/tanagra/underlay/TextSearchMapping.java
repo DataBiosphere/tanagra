@@ -14,12 +14,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class TextSearchMapping {
-  private static final String TEXT_SEARCH_TABLE = "textsearch";
-  private static final String TEXT_SEARCH_STRING_COLUMN_ALIAS = "t_text";
-  private static final String TEXT_SEARCH_ID_COLUMN_ALIAS = "id";
+  private static final String TEXT_SEARCH_ID_COLUMN_NAME = "id";
+  private static final String TEXT_SEARCH_STRING_COLUMN_NAME = "text";
+  private static final AuxiliaryData TEXT_SEARCH_STRING_AUXILIARY_DATA =
+      new AuxiliaryData(
+          "textsearch", List.of(TEXT_SEARCH_ID_COLUMN_NAME, TEXT_SEARCH_STRING_COLUMN_NAME));
 
   private List<Attribute> attributes;
   private FieldPointer searchString;
+  private AuxiliaryDataMapping searchStringTable;
   private final Attribute idAttribute;
 
   private TextSearchMapping(List<Attribute> attributes, Attribute idAttribute) {
@@ -29,6 +32,11 @@ public final class TextSearchMapping {
 
   private TextSearchMapping(FieldPointer searchString, Attribute idAttribute) {
     this.searchString = searchString;
+    this.idAttribute = idAttribute;
+  }
+
+  private TextSearchMapping(AuxiliaryDataMapping searchStringTable, Attribute idAttribute) {
+    this.searchStringTable = searchStringTable;
     this.idAttribute = idAttribute;
   }
 
@@ -60,6 +68,15 @@ public final class TextSearchMapping {
       return new TextSearchMapping(searchStringField, idAttribute);
     }
 
+    if (serialized.getSearchStringTable() != null) {
+      AuxiliaryDataMapping searchStringTable =
+          AuxiliaryDataMapping.fromSerialized(
+              serialized.getSearchStringTable(),
+              tablePointer.getDataPointer(),
+              TEXT_SEARCH_STRING_AUXILIARY_DATA);
+      return new TextSearchMapping(searchStringTable, idAttribute);
+    }
+
     throw new InvalidConfigException("Text search mapping is empty");
   }
 
@@ -69,26 +86,36 @@ public final class TextSearchMapping {
     // instances.
     String tablePrefix = entityName + "_";
     TablePointer idTextStringTable =
-        TablePointer.fromTableName(tablePrefix + TEXT_SEARCH_TABLE, tablePointer.getDataPointer());
+        TablePointer.fromTableName(
+            tablePrefix + TEXT_SEARCH_STRING_AUXILIARY_DATA.getName(),
+            tablePointer.getDataPointer());
 
     return new TextSearchMapping(
         new FieldPointer.Builder()
             .tablePointer(tablePointer)
             .columnName(idAttribute.getName())
             .foreignTablePointer(idTextStringTable)
-            .foreignKeyColumnName(TEXT_SEARCH_ID_COLUMN_ALIAS)
-            .foreignColumnName(TEXT_SEARCH_STRING_COLUMN_ALIAS)
+            .foreignKeyColumnName(TEXT_SEARCH_ID_COLUMN_NAME)
+            .foreignColumnName(TEXT_SEARCH_STRING_COLUMN_NAME)
             .build(),
         idAttribute);
   }
 
-  public boolean definedByAttributes() {
-    return attributes != null;
-  }
-
-  public Query queryTextSearchString(EntityMapping entityMapping) {
+  public Query queryTextSearchStrings(EntityMapping entityMapping) {
     SQLExpression idAllTextPairs;
     if (definedByAttributes()) {
+      // TODO: Allow specifying non-STRING attributes, but wrap them in CAST to STRING.
+      getAttributes()
+          .forEach(
+              attr -> {
+                if (!attr.getDataType().equals(Literal.DataType.STRING)) {
+                  throw new InvalidConfigException(
+                      "All text search attributes must have datatype STRING: "
+                          + attr.getName()
+                          + ","
+                          + attr.getDataType());
+                }
+              });
       idAllTextPairs =
           new UnionQuery(
               getAttributes().stream()
@@ -96,16 +123,32 @@ public final class TextSearchMapping {
                       attr ->
                           entityMapping.queryAttributes(
                               Map.of(
-                                  TEXT_SEARCH_ID_COLUMN_ALIAS,
+                                  TEXT_SEARCH_ID_COLUMN_NAME,
                                   idAttribute,
-                                  TEXT_SEARCH_STRING_COLUMN_ALIAS,
+                                  TEXT_SEARCH_STRING_COLUMN_NAME,
                                   attr)))
                   .collect(Collectors.toList()));
     } else if (definedBySearchString()) {
       idAllTextPairs =
           entityMapping.queryAttributesAndFields(
-              Map.of(TEXT_SEARCH_ID_COLUMN_ALIAS, idAttribute),
-              Map.of(TEXT_SEARCH_STRING_COLUMN_ALIAS, getSearchString()));
+              Map.of(TEXT_SEARCH_ID_COLUMN_NAME, idAttribute),
+              Map.of(TEXT_SEARCH_STRING_COLUMN_NAME, getSearchString()));
+    } else if (definedBySearchStringAuxiliaryData()) {
+      TableVariable searchStringTableVar =
+          TableVariable.forPrimary(searchStringTable.getTablePointer());
+      List<TableVariable> tableVars = List.of(searchStringTableVar);
+      FieldVariable idFieldVar =
+          searchStringTable
+              .getFieldPointers()
+              .get(TEXT_SEARCH_ID_COLUMN_NAME)
+              .buildVariable(searchStringTableVar, tableVars);
+      FieldVariable textFieldVar =
+          searchStringTable
+              .getFieldPointers()
+              .get(TEXT_SEARCH_STRING_COLUMN_NAME)
+              .buildVariable(searchStringTableVar, tableVars);
+      idAllTextPairs =
+          new Query.Builder().select(List.of(idFieldVar, textFieldVar)).tables(tableVars).build();
     } else {
       throw new SystemException("Unknown text search mapping type");
     }
@@ -116,12 +159,12 @@ public final class TextSearchMapping {
     FieldPointer idField =
         new FieldPointer.Builder()
             .tablePointer(idTextPairsTable)
-            .columnName(TEXT_SEARCH_ID_COLUMN_ALIAS)
+            .columnName(TEXT_SEARCH_ID_COLUMN_NAME)
             .build();
     FieldPointer concatenatedTextField =
         new FieldPointer.Builder()
             .tablePointer(idTextPairsTable)
-            .columnName(TEXT_SEARCH_STRING_COLUMN_ALIAS)
+            .columnName(TEXT_SEARCH_STRING_COLUMN_NAME)
             .sqlFunctionWrapper("STRING_AGG")
             .build();
 
@@ -141,13 +184,23 @@ public final class TextSearchMapping {
       return entityMapping.getTablePointer();
     } else if (definedBySearchString()) {
       return searchString.getForeignTablePointer();
+    } else if (definedBySearchStringAuxiliaryData()) {
+      return searchStringTable.getTablePointer();
     } else {
       throw new SystemException("Unknown text search mapping type");
     }
   }
 
+  public boolean definedByAttributes() {
+    return attributes != null;
+  }
+
   public boolean definedBySearchString() {
     return searchString != null;
+  }
+
+  public boolean definedBySearchStringAuxiliaryData() {
+    return searchStringTable != null;
   }
 
   public List<Attribute> getAttributes() {
@@ -156,5 +209,9 @@ public final class TextSearchMapping {
 
   public FieldPointer getSearchString() {
     return searchString;
+  }
+
+  public AuxiliaryDataMapping getSearchStringTable() {
+    return searchStringTable;
   }
 }

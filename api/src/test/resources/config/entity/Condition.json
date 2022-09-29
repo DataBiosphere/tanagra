@@ -40,8 +40,9 @@
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
     "textSearchMapping": {
-      "attributes": [ "id", "name" ]
-    },
+      "searchStringTable": {
+        "tablePointer": { "rawSqlFile": "condition_textsearch.sql" }
+    } },
     "hierarchyMappings": {
       "standard": {
         "childParent": {
