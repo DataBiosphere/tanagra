@@ -62,7 +62,7 @@ public class Literal implements SQLExpression {
     // TODO: use named parameters for literals to protect against SQL injection
     switch (dataType) {
       case STRING:
-        return "'" + stringVal + "'";
+        return stringVal == null ? "NULL" : "'" + stringVal + "'";
       case INT64:
         return String.valueOf(int64Val);
       case BOOLEAN:

@@ -2,19 +2,23 @@ package bio.terra.tanagra.underlay.datapointer;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryExecutor;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.underlay.TablePointer;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -80,29 +84,45 @@ public final class BigQueryDataset extends DataPointer {
 
   @Override
   public Literal.DataType lookupDatatype(FieldPointer fieldPointer) {
-    // if this is a foreign-key field pointer, then we want the datatype of the foreign table field,
-    // not the key field
-    String tableName =
+    // If this is a foreign-key field pointer, then we want the data type of the foreign table
+    // field,
+    // not the key field.
+    TablePointer tablePointer =
         fieldPointer.isForeignKey()
-            ? fieldPointer.getForeignTablePointer().getTableName()
-            : fieldPointer.getTablePointer().getTableName();
+            ? fieldPointer.getForeignTablePointer()
+            : fieldPointer.getTablePointer();
     String columnName =
         fieldPointer.isForeignKey()
             ? fieldPointer.getForeignColumnName()
             : fieldPointer.getColumnName();
 
-    Schema tableSchema =
-        getBigQueryService().getTableSchemaWithCaching(projectId, datasetId, tableName);
-    Field field = tableSchema.getFields().get(columnName);
-    if (LegacySQLTypeName.STRING.equals(field.getType())
-        || LegacySQLTypeName.DATE.equals(field.getType())) {
+    Schema tableSchema;
+    if (tablePointer.isRawSql()) {
+      // If the table is a raw SQL string, then we can't fetch a table schema directly.
+      // Instead, fetch a single row result and inspect the data types of that.
+      TableVariable tableVar = TableVariable.forPrimary(tablePointer);
+      List<TableVariable> tableVars = List.of(tableVar);
+      FieldVariable fieldVarStar =
+          FieldPointer.allFields(tablePointer).buildVariable(tableVar, tableVars);
+      Query queryOneRow =
+          new Query.Builder().select(List.of(fieldVarStar)).tables(tableVars).limit(1).build();
+      tableSchema = getBigQueryService().getQuerySchemaWithCaching(queryOneRow.renderSQL());
+    } else {
+      // If the table is not a raw SQL string, then just fetch the table schema directly.
+      tableSchema =
+          getBigQueryService()
+              .getTableSchemaWithCaching(projectId, datasetId, tablePointer.getTableName());
+    }
+
+    LegacySQLTypeName fieldType = tableSchema.getFields().get(columnName).getType();
+    if (LegacySQLTypeName.STRING.equals(fieldType) || LegacySQLTypeName.DATE.equals(fieldType)) {
       return Literal.DataType.STRING;
-    } else if (LegacySQLTypeName.INTEGER.equals(field.getType())) {
+    } else if (LegacySQLTypeName.INTEGER.equals(fieldType)) {
       return Literal.DataType.INT64;
-    } else if (LegacySQLTypeName.BOOLEAN.equals(field.getType())) {
+    } else if (LegacySQLTypeName.BOOLEAN.equals(fieldType)) {
       return Literal.DataType.BOOLEAN;
     } else {
-      throw new SystemException("BigQuery SQL data type not supported: " + field.getType());
+      throw new SystemException("BigQuery SQL data type not supported: " + fieldType);
     }
   }
 

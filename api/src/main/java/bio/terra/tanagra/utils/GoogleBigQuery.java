@@ -39,6 +39,7 @@ public final class GoogleBigQuery {
 
   private final BigQuery bigQuery;
   private final Map<String, Schema> tableSchemasCache;
+  private final Map<String, Schema> querySchemasCache;
 
   public GoogleBigQuery(GoogleCredentials credentials, String projectId) {
     this.bigQuery =
@@ -48,6 +49,20 @@ public final class GoogleBigQuery {
             .build()
             .getService();
     this.tableSchemasCache = new HashMap<>();
+    this.querySchemasCache = new HashMap<>();
+  }
+
+  public Schema getQuerySchemaWithCaching(String query) {
+    // Check if the schema is in the cache.
+    Schema schema = querySchemasCache.get(query);
+    if (schema != null) {
+      return schema;
+    }
+
+    // If it isn't, then fetch it and insert into the cache.
+    schema = queryBigQuery(query).getSchema();
+    querySchemasCache.put(query, schema);
+    return schema;
   }
 
   public Schema getTableSchemaWithCaching(String projectId, String datasetId, String tableId) {
@@ -66,7 +81,7 @@ public final class GoogleBigQuery {
     return schema;
   }
 
-  public Schema getTableSchema(String projectId, String datasetId, String tableId) {
+  private Schema getTableSchema(String projectId, String datasetId, String tableId) {
     Optional<Table> table = getTable(projectId, datasetId, tableId);
     if (table.isEmpty()) {
       throw new SystemException(
