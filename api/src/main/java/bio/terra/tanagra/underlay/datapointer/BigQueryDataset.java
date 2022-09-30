@@ -85,8 +85,7 @@ public final class BigQueryDataset extends DataPointer {
   @Override
   public Literal.DataType lookupDatatype(FieldPointer fieldPointer) {
     // If this is a foreign-key field pointer, then we want the data type of the foreign table
-    // field,
-    // not the key field.
+    // field, not the key field.
     TablePointer tablePointer =
         fieldPointer.isForeignKey()
             ? fieldPointer.getForeignTablePointer()
