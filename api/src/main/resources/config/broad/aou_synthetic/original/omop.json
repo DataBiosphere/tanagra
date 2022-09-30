@@ -9,7 +9,10 @@
       "name": "index_dataset",
       "projectId": "broad-tanagra-dev",
       "datasetId": "aousynthetic_index" } ],
-  "entities": [ "person.json", "condition.json", "condition_occurrence.json", "procedure.json", "procedure_occurrence.json" ],
+  "entities": [
+    "person.json",
+    "device.json",
+    "device_occurrence.json" ],
   "primaryEntity": "person",
-  "entityGroups": [ "condition_person_occurrence.json", "procedure_person_occurrence.json" ]
+  "entityGroups": ["device_person_occurrence.json" ]
 }

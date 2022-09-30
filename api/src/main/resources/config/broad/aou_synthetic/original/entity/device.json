@@ -1,5 +1,5 @@
 {
-  "name": "procedure",
+  "name": "device",
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
@@ -19,11 +19,12 @@
           { "type": "BINARY",
             "field": { "column": "domain_id" },
             "operator": "EQUALS",
-            "value": { "stringVal": "Procedure" } },
+            "value": { "stringVal": "Device" } },
           { "type": "BINARY",
-            "field": { "column": "valid_end_date" },
-            "operator": "GREATER_THAN",
-            "value": { "stringVal": "2022-01-01" } } ] } },
+            "field": { "column": "standard_concept" },
+            "operator": "EQUALS",
+            "value": { "stringVal": "S" } }
+        ] } },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } },
@@ -39,22 +40,7 @@
         "display": {
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
-    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "procedure_textSearch.sql" } } },
-    "hierarchyMappings": {
-      "standard": {
-        "childParent": {
-          "tablePointer": { "rawSqlFile": "procedure_parentChild.sql" }
-        },
-        "rootNodesFilter": {
-          "tablePointer": {
-            "table": "concept",
-            "filter": { "type": "BINARY",  "field": { "column": "concept_id" }, "operator": "EQUALS", "value": { "int64Val": 4322976 } } },
-          "fieldPointers": {
-            "id": { "column": "concept_id" }
-          }
-        }
-      }
-    }
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "device_textSearch.sql" } } }
   },
 
   "indexDataMapping": {
