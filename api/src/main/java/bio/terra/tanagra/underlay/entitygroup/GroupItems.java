@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
+import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.AuxiliaryData;
@@ -43,10 +44,18 @@ public class GroupItems extends EntityGroup {
 
     EntityGroupMapping sourceDataMapping =
         EntityGroupMapping.fromSerializedForSourceData(
-            serialized.getSourceDataMapping(), dataPointers, relationships, auxiliaryData);
+            serialized.getSourceDataMapping(),
+            dataPointers,
+            relationships,
+            auxiliaryData,
+            serialized.getName());
     EntityGroupMapping indexDataMapping =
         EntityGroupMapping.fromSerializedForIndexData(
-            serialized.getIndexDataMapping(), dataPointers, relationships, auxiliaryData);
+            serialized.getIndexDataMapping(),
+            dataPointers,
+            relationships,
+            auxiliaryData,
+            serialized.getName());
 
     Builder builder = new Builder();
     builder
@@ -71,6 +80,13 @@ public class GroupItems extends EntityGroup {
   @Override
   public List<WorkflowCommand> getIndexingCommands() {
     return ImmutableList.of(); // no indexing workflows for one-to-many relationships
+  }
+
+  @Override
+  public List<IndexingJob> getIndexingJobs() {
+    // TODO: Add a new indexing job to write the group-item id pairs to a separate table, or a new
+    // column in the group denormalized entity instances table.
+    return Collections.emptyList();
   }
 
   private static class Builder extends EntityGroup.Builder {

@@ -32,22 +32,15 @@ public class WriteParentChildIdPairs extends BigQueryIndexingJob {
     String sql = selectChildParentIdPairs.renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", sql);
 
-    TablePointer outputTable =
-        getEntity()
-            .getIndexDataMapping()
-            .getHierarchyMapping(hierarchyName)
-            .getChildParent()
-            .getTablePointer();
-    createTableFromSql(outputTable, sql, isDryRun);
+    createTableFromSql(getOutputTablePointer(), sql, isDryRun);
   }
 
   @Override
-  public JobStatus checkStatus() {
-    return checkTableExistenceForJobStatus(
-        getEntity()
-            .getIndexDataMapping()
-            .getHierarchyMapping(hierarchyName)
-            .getChildParent()
-            .getTablePointer());
+  protected TablePointer getOutputTablePointer() {
+    return getEntity()
+        .getIndexDataMapping()
+        .getHierarchyMapping(hierarchyName)
+        .getChildParent()
+        .getTablePointer();
   }
 }

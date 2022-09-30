@@ -9,6 +9,10 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 public final class BigQueryUtils {
+  // TODO: Pull these default column names from the underlay HierarchyMapping class, instead of
+  // using static names here. Currently these are defined in this utils class because different Beam
+  // workflows read the results of previous ones, and make assumptions about what the column names
+  // are.
   public static final String ID_COLUMN_NAME = "id";
   public static final String PARENT_COLUMN_NAME = "parent";
   public static final String CHILD_COLUMN_NAME = "child";
@@ -16,6 +20,8 @@ public final class BigQueryUtils {
   public static final String DESCENDANT_COLUMN_NAME = "descendant";
   public static final String PATH_COLUMN_NAME = "path";
   public static final String NUMCHILDREN_COLUMN_NAME = "num_children";
+  public static final String COUNT_ID_COLUMN_NAME = "count_id";
+  public static final String ROLLUP_COUNT_COLUMN_NAME = "rollup_count";
 
   private BigQueryUtils() {}
 
@@ -45,12 +51,12 @@ public final class BigQueryUtils {
   }
 
   /**
-   * Read all the occurrence rows from BQ and build a {@link PCollection} of {@link KV} pairs (node,
-   * secondary).
+   * Read all the occurrence rows from BQ and build a {@link PCollection} of {@link KV} pairs (id,
+   * count_id).
    */
   public static PCollection<KV<Long, Long>> readOccurrencesFromBQ(
       Pipeline pipeline, String sqlQuery) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, ID_COLUMN_NAME, "what_to_count");
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, ID_COLUMN_NAME, COUNT_ID_COLUMN_NAME);
   }
 
   /**

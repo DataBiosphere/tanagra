@@ -33,7 +33,10 @@ public class UFUnderlay {
         underlay.getEntities().keySet().stream()
             .map(entityName -> entityName + OUTPUT_UNDERLAY_FILE_EXTENSION)
             .collect(Collectors.toList());
-    this.entityGroups = null;
+    this.entityGroups =
+        underlay.getEntityGroups().keySet().stream()
+            .map(entityGroupName -> entityGroupName + OUTPUT_UNDERLAY_FILE_EXTENSION)
+            .collect(Collectors.toList());
     this.primaryEntity = underlay.getPrimaryEntity().getName();
   }
 

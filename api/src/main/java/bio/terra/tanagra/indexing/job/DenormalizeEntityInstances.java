@@ -26,12 +26,11 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
     String sql = selectAllAttributes.renderSQL();
     LOGGER.info("select all attributes SQL: {}", sql);
 
-    TablePointer outputTable = getEntity().getIndexDataMapping().getTablePointer();
-    createTableFromSql(outputTable, sql, isDryRun);
+    createTableFromSql(getOutputTablePointer(), sql, isDryRun);
   }
 
   @Override
-  public JobStatus checkStatus() {
-    return checkTableExistenceForJobStatus(getEntity().getIndexDataMapping().getTablePointer());
+  protected TablePointer getOutputTablePointer() {
+    return getEntity().getIndexDataMapping().getTablePointer();
   }
 }

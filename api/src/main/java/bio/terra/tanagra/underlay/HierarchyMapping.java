@@ -7,8 +7,6 @@ import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFHierarchyMapping;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public final class HierarchyMapping {
   private static final AuxiliaryData CHILD_PARENT_AUXILIARY_DATA =
@@ -65,60 +63,19 @@ public final class HierarchyMapping {
   }
 
   public static HierarchyMapping defaultIndexMapping(
-      String entityName,
-      String hierarchyName,
-      TablePointer tablePointer,
-      FieldPointer idAttributeField) {
+      String entityName, String hierarchyName, TablePointer tablePointer) {
     String tablePrefix = entityName + "_" + hierarchyName + "_";
     DataPointer dataPointer = tablePointer.getDataPointer();
 
-    TablePointer childParentTable =
-        TablePointer.fromTableName(
-            tablePrefix + CHILD_PARENT_AUXILIARY_DATA.getName(), dataPointer);
     AuxiliaryDataMapping childParent =
-        new AuxiliaryDataMapping(
-            childParentTable,
-            CHILD_PARENT_AUXILIARY_DATA.getFields().stream()
-                .collect(
-                    Collectors.toMap(
-                        Function.identity(),
-                        fieldName ->
-                            new FieldPointer.Builder()
-                                .tablePointer(childParentTable)
-                                .columnName(fieldName)
-                                .build())));
-
-    TablePointer ancestorDescendantTable =
-        TablePointer.fromTableName(
-            tablePrefix + ANCESTOR_DESCENDANT_AUXILIARY_DATA.getName(), dataPointer);
+        AuxiliaryDataMapping.defaultIndexMapping(
+            CHILD_PARENT_AUXILIARY_DATA, tablePrefix, dataPointer);
     AuxiliaryDataMapping ancestorDescendant =
-        new AuxiliaryDataMapping(
-            ancestorDescendantTable,
-            ANCESTOR_DESCENDANT_AUXILIARY_DATA.getFields().stream()
-                .collect(
-                    Collectors.toMap(
-                        Function.identity(),
-                        fieldName ->
-                            new FieldPointer.Builder()
-                                .tablePointer(ancestorDescendantTable)
-                                .columnName(fieldName)
-                                .build())));
-
-    TablePointer pathNumChildrenTable =
-        TablePointer.fromTableName(
-            tablePrefix + PATH_NUM_CHILDREN_AUXILIARY_DATA.getName(), dataPointer);
+        AuxiliaryDataMapping.defaultIndexMapping(
+            ANCESTOR_DESCENDANT_AUXILIARY_DATA, tablePrefix, dataPointer);
     AuxiliaryDataMapping pathNumChildren =
-        new AuxiliaryDataMapping(
-            pathNumChildrenTable,
-            PATH_NUM_CHILDREN_AUXILIARY_DATA.getFields().stream()
-                .collect(
-                    Collectors.toMap(
-                        Function.identity(),
-                        fieldName ->
-                            new FieldPointer.Builder()
-                                .tablePointer(pathNumChildrenTable)
-                                .columnName(fieldName)
-                                .build())));
+        AuxiliaryDataMapping.defaultIndexMapping(
+            PATH_NUM_CHILDREN_AUXILIARY_DATA, tablePrefix, dataPointer);
 
     return new HierarchyMapping(childParent, null, ancestorDescendant, pathNumChildren);
   }

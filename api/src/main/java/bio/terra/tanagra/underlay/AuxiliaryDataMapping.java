@@ -6,6 +6,8 @@ import bio.terra.tanagra.serialization.UFFieldPointer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class AuxiliaryDataMapping {
   private final TablePointer tablePointer;
@@ -49,6 +51,27 @@ public final class AuxiliaryDataMapping {
             });
 
     return new AuxiliaryDataMapping(tablePointer, fieldPointers);
+  }
+
+  /**
+   * Build a default auxiliary data mapping to a table with the same name as the auxiliary data
+   * object (plus a prefix), and columns with the same name as the auxiliary data fields.
+   */
+  public static AuxiliaryDataMapping defaultIndexMapping(
+      AuxiliaryData auxiliaryData, String tablePrefix, DataPointer dataPointer) {
+    TablePointer table =
+        TablePointer.fromTableName(tablePrefix + auxiliaryData.getName(), dataPointer);
+    return new AuxiliaryDataMapping(
+        table,
+        auxiliaryData.getFields().stream()
+            .collect(
+                Collectors.toMap(
+                    Function.identity(),
+                    fieldName ->
+                        new FieldPointer.Builder()
+                            .tablePointer(table)
+                            .columnName(fieldName)
+                            .build())));
   }
 
   public TablePointer getTablePointer() {

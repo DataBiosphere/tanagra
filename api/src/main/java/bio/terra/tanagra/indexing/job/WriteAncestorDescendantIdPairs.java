@@ -10,7 +10,6 @@ import bio.terra.tanagra.indexing.job.beam.GraphUtils;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.TablePointer;
-import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -27,6 +26,10 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A batch Apache Beam pipeline for flattening hierarchical parent-child relationships to
+ * ancestor-descendant relationships.
+ */
 public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteParentChildIdPairs.class);
 
@@ -70,15 +73,7 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
     String sql = selectChildParentIdPairs.renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", sql);
 
-    TablePointer outputTable =
-        getEntity()
-            .getIndexDataMapping()
-            .getHierarchyMapping(hierarchyName)
-            .getAncestorDescendant()
-            .getTablePointer();
-    BigQueryDataset outputBQDataset = getOutputDataPointer();
-
-    Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(outputBQDataset));
+    Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(getOutputDataPointer()));
     PCollection<KV<Long, Long>> relationships =
         pipeline
             .apply(
@@ -98,7 +93,7 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
         .apply(ParDo.of(new KVToTableRow()))
         .apply(
             BigQueryIO.writeTableRows()
-                .to(outputTable.getPathForIndexing())
+                .to(getOutputTablePointer().getPathForIndexing())
                 .withSchema(ANCESTOR_DESCENDANT_TABLE_SCHEMA)
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
@@ -110,13 +105,12 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   }
 
   @Override
-  public JobStatus checkStatus() {
-    return checkTableExistenceForJobStatus(
-        getEntity()
-            .getIndexDataMapping()
-            .getHierarchyMapping(hierarchyName)
-            .getAncestorDescendant()
-            .getTablePointer());
+  protected TablePointer getOutputTablePointer() {
+    return getEntity()
+        .getIndexDataMapping()
+        .getHierarchyMapping(hierarchyName)
+        .getAncestorDescendant()
+        .getTablePointer();
   }
 
   /** Parses a {@link TableRow} as a row containing a (parent_id, child_id) long pair. */

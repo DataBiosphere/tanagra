@@ -1,5 +1,8 @@
 package bio.terra.tanagra.indexing;
 
+import static bio.terra.tanagra.underlay.Entity.ENTITY_DIRECTORY_NAME;
+import static bio.terra.tanagra.underlay.EntityGroup.ENTITY_GROUP_DIRECTORY_NAME;
+
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
@@ -90,7 +93,7 @@ public final class Indexer {
     JacksonMapper.writeJavaObjectToFile(underlayPath, expandedUnderlay);
 
     // Write out the entity POJOs to the entity/ sub-directory.
-    Path entitySubDir = FileIO.getOutputParentDir().resolve("entity");
+    Path entitySubDir = FileIO.getOutputParentDir().resolve(ENTITY_DIRECTORY_NAME);
     for (UFEntity expandedEntity : expandedEntities) {
       JacksonMapper.writeJavaObjectToFile(
           entitySubDir.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
@@ -98,7 +101,7 @@ public final class Indexer {
     }
 
     // Write out the entity group POJOs to the entity_group/ sub-directory.
-    Path entityGroupSubDir = FileIO.getOutputParentDir().resolve("entity_group");
+    Path entityGroupSubDir = FileIO.getOutputParentDir().resolve(ENTITY_GROUP_DIRECTORY_NAME);
     for (UFEntityGroup expandedEntityGroup : expandedEntityGroups) {
       JacksonMapper.writeJavaObjectToFile(
           entityGroupSubDir.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),

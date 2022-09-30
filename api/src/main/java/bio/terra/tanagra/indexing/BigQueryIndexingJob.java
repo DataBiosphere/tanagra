@@ -4,6 +4,7 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.TablePointer;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.utils.GoogleBigQuery;
@@ -25,9 +26,16 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
   protected static final int DEFAULT_MAX_HIERARCHY_DEPTH = 64;
 
   private final Entity entity;
+  private final EntityGroup entityGroup;
 
   protected BigQueryIndexingJob(Entity entity) {
     this.entity = entity;
+    this.entityGroup = null;
+  }
+
+  protected BigQueryIndexingJob(EntityGroup entityGroup) {
+    this.entity = null;
+    this.entityGroup = entityGroup;
   }
 
   @Override
@@ -48,22 +56,29 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
   protected abstract void run(boolean isDryRun);
 
-  public Entity getEntity() {
+  protected Entity getEntity() {
     return entity;
   }
 
+  protected EntityGroup getEntityGroup() {
+    return entityGroup;
+  }
+
+  protected abstract TablePointer getOutputTablePointer();
+
   protected BigQueryDataset getOutputDataPointer() {
-    TablePointer outputTable = getEntity().getIndexDataMapping().getTablePointer();
-    DataPointer outputDataPointer = outputTable.getDataPointer();
+    DataPointer outputDataPointer = getOutputTablePointer().getDataPointer();
     if (!(outputDataPointer instanceof BigQueryDataset)) {
       throw new InvalidConfigException("Entity indexing job only supports BigQuery");
     }
     return (BigQueryDataset) outputDataPointer;
   }
 
-  protected JobStatus checkTableExistenceForJobStatus(TablePointer outputTable) {
+  @Override
+  public JobStatus checkStatus() {
     // Check if the table already exists. We don't expect this to be a long-running operation, so
     // there is no IN_PROGRESS state for this job.
+    TablePointer outputTable = getOutputTablePointer();
     BigQueryDataset outputBQDataset = getOutputDataPointer();
     LOGGER.info(
         "output BQ table: project={}, dataset={}, table={}",

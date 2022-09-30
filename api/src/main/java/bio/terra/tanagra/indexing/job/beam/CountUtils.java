@@ -1,4 +1,4 @@
-package bio.terra.tanagra.workflow;
+package bio.terra.tanagra.indexing.job.beam;
 
 import java.util.Iterator;
 import org.apache.beam.sdk.transforms.Count;

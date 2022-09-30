@@ -1,7 +1,9 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
+import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.WorkflowCommand;
 import bio.terra.tanagra.indexing.command.PrecomputeCounts;
+import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TableVariable;
@@ -17,6 +19,7 @@ import bio.terra.tanagra.underlay.RelationshipMapping;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CriteriaOccurrence extends EntityGroup {
   private static final String CRITERIA_ENTITY_NAME = "criteria";
@@ -28,7 +31,7 @@ public class CriteriaOccurrence extends EntityGroup {
       "criteriaPrimaryRollupCount";
   private static final AuxiliaryData CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA =
       new AuxiliaryData(
-          CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME, List.of("criteriaId", "primaryCount"));
+          CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME, List.of("id", "rollup_count"));
 
   private final Entity criteriaEntity;
   private final Entity occurrenceEntity;
@@ -65,10 +68,18 @@ public class CriteriaOccurrence extends EntityGroup {
 
     EntityGroupMapping sourceDataMapping =
         EntityGroupMapping.fromSerializedForSourceData(
-            serialized.getSourceDataMapping(), dataPointers, relationships, auxiliaryData);
+            serialized.getSourceDataMapping(),
+            dataPointers,
+            relationships,
+            auxiliaryData,
+            serialized.getName());
     EntityGroupMapping indexDataMapping =
         EntityGroupMapping.fromSerializedForIndexData(
-            serialized.getIndexDataMapping(), dataPointers, relationships, auxiliaryData);
+            serialized.getIndexDataMapping(),
+            dataPointers,
+            relationships,
+            auxiliaryData,
+            serialized.getName());
 
     Builder builder = new Builder();
     builder
@@ -98,6 +109,17 @@ public class CriteriaOccurrence extends EntityGroup {
   @Override
   public List<WorkflowCommand> getIndexingCommands() {
     return List.of(PrecomputeCounts.forEntityGroup(this));
+  }
+
+  @Override
+  public List<IndexingJob> getIndexingJobs() {
+    if (criteriaEntity.getSourceDataMapping().hasHierarchyMappings()) {
+      return criteriaEntity.getSourceDataMapping().getHierarchyMappings().keySet().stream()
+          .map(hierarchyName -> new ComputeRollupCounts(this, hierarchyName))
+          .collect(Collectors.toList());
+    } else {
+      return List.of(new ComputeRollupCounts(this));
+    }
   }
 
   public Entity getCriteriaEntity() {
