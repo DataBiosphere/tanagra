@@ -119,7 +119,8 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
         PathUtils.pruneOrphanPaths(nodePathKVsPC, nodeNumChildrenKVsPC);
 
     // filter the root nodes
-    PCollection<KV<Long, String>> outputNodePathKVsPC = filterRootNodes(sourceHierarchyMapping, pipeline, nodePrunedPathKVsPC);
+    PCollection<KV<Long, String>> outputNodePathKVsPC =
+        filterRootNodes(sourceHierarchyMapping, pipeline, nodePrunedPathKVsPC);
 
     // write the node-{path, numChildren} pairs to BQ
     writePathAndNumChildrenToBQ(
@@ -140,17 +141,21 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
             .getTablePointer());
   }
 
-  /** Filter the root nodes, if a root nodes filter is specified by the hierarchy mapping.  */
-  private static PCollection<KV<Long, String>> filterRootNodes(HierarchyMapping sourceHierarchyMapping, Pipeline pipeline, PCollection<KV<Long, String>> nodePrunedPathKVsPC) {
+  /** Filter the root nodes, if a root nodes filter is specified by the hierarchy mapping. */
+  private static PCollection<KV<Long, String>> filterRootNodes(
+      HierarchyMapping sourceHierarchyMapping,
+      Pipeline pipeline,
+      PCollection<KV<Long, String>> nodePrunedPathKVsPC) {
     if (!sourceHierarchyMapping.hasRootNodesFilter()) {
       return nodePrunedPathKVsPC;
     }
-    String selectPossibleRootIdsSql = sourceHierarchyMapping.queryPossibleRootNodes(ID_COLUMN_NAME).renderSQL();
+    String selectPossibleRootIdsSql =
+        sourceHierarchyMapping.queryPossibleRootNodes(ID_COLUMN_NAME).renderSQL();
     LOGGER.info("select possible root ids SQL: {}", selectPossibleRootIdsSql);
 
     // read in the possible root nodes from BQ
     PCollection<Long> possibleRootNodesPC =
-            BigQueryUtils.readNodesFromBQ(pipeline, selectPossibleRootIdsSql, "rootNodes");
+        BigQueryUtils.readNodesFromBQ(pipeline, selectPossibleRootIdsSql, "rootNodes");
 
     // filter the root nodes (i.e. set path=null for any existing root nodes that are not in the
     // list of possibles)
