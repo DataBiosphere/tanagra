@@ -1,0 +1,26 @@
+{
+  "name": "ingredient_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "entities": {
+    "criteria": "ingredient",
+    "occurrence": "ingredient_occurrence"
+  },
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria": {
+        "tablePointer": { "table": "drug_exposure" },
+        "fromEntityId": { "column": "drug_exposure_id" },
+        "toEntityId":  { "column": "drug_concept_id" }
+      },
+      "occurrenceToPrimary": {
+        "tablePointer": { "table": "drug_exposure" },
+        "fromEntityId": { "column": "drug_exposure_id" },
+        "toEntityId":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

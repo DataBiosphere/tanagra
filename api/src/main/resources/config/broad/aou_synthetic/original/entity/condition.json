@@ -1,0 +1,63 @@
+{
+  "name": "condition",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "name" },
+    { "type": "KEY_AND_DISPLAY", "name": "vocabulary" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
+    { "type": "SIMPLE", "name": "concept_code" } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": {
+      "table": "concept",
+      "filter": {
+        "type": "ARRAY",
+        "operator": "AND",
+        "subfilters": [
+          { "type": "BINARY",
+            "field": { "column": "domain_id" },
+            "operator": "EQUALS",
+            "value": { "stringVal": "Condition" } },
+          { "type": "BINARY",
+            "field": { "column": "valid_end_date" },
+            "operator": "GREATER_THAN",
+            "value": { "stringVal": "2022-01-01" } } ] } },
+    "attributeMappings": {
+      "id": { "value": { "column": "concept_id" } },
+      "name": { "value": { "column": "concept_name" } },
+      "vocabulary": {
+        "value": { "column": "vocabulary_id" },
+        "display": {
+          "column": "vocabulary_id",
+          "foreignTable": "vocabulary",
+          "foreignKey": "vocabulary_id",
+          "foreignColumn": "vocabulary_name" } },
+      "standard_concept": {
+        "value": { "column": "standard_concept" },
+        "display": {
+          "column": "standard_concept",
+          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "condition_textSearch.sql" } } },
+    "hierarchyMappings": {
+      "standard": {
+        "childParent": {
+          "tablePointer": { "rawSqlFile": "condition_parentChild.sql" }
+        },
+        "rootNodesFilter": {
+          "tablePointer": {
+            "table": "concept",
+            "filter": { "type": "BINARY",  "field": { "column": "concept_id" }, "operator": "EQUALS", "value": { "int64Val": 441840 } } },
+          "fieldPointers": {
+            "id": { "column": "concept_id" }
+          }
+        }
+      }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

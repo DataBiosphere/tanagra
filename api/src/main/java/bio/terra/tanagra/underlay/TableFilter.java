@@ -20,10 +20,13 @@ public abstract class TableFilter {
 
   public enum BinaryOperator implements SQLExpression {
     EQUALS("="),
+    NOT_EQUALS("!="),
     LESS_THAN("<"),
     GREATER_THAN(">"),
     LESS_THAN_OR_EQUAL("<="),
-    GREATER_THAN_OR_EQUAL(">=");
+    GREATER_THAN_OR_EQUAL(">="),
+    IS("IS"),
+    IS_NOT("IS NOT");
 
     private String sql;
 
