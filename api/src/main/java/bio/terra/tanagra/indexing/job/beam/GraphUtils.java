@@ -1,4 +1,4 @@
-package bio.terra.tanagra.workflow;
+package bio.terra.tanagra.indexing.job.beam;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

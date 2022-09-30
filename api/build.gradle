@@ -4,7 +4,6 @@ plugins {
 
     // See /buildSrc/build.gradle
     id 'tanagra.java-conventions'
-    id "tanagra.protobuf-conventions"
 
     id 'com.google.cloud.tools.jib' version '3.1.2'
     id "com.jfrog.artifactory" version "4.18.2"
@@ -33,6 +32,9 @@ repositories {
     maven {
         url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
     }
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
 }
 
 dependencyManagement {
@@ -47,6 +49,7 @@ dependencyManagement {
 
 dependencies {
     ext {
+        beam = "2.32.0"
         google_protobuf = "3.17.3"
         jackson = "2.12.3"
         jacksonYaml = "2.11.2"
@@ -81,6 +84,14 @@ dependencies {
     runtimeOnly group: "org.webjars.npm", name: "swagger-ui-dist", version: "3.36.2"
     swaggerCodegen group: "io.swagger.codegen.v3", name: "swagger-codegen-cli"
 
+    // Beam libraries
+    implementation "org.apache.beam:beam-sdks-java-core:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-io-google-cloud-platform:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-io-jdbc:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:${beam}"
+    testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${beam}"
+    implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${beam}"
+
     // Test dependencies
     // Jupiter version is managed by the Spring Boot plugin
     testImplementation group: "org.junit.jupiter", name: "junit-jupiter"
@@ -88,6 +99,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
+
+    // Static analysis
+    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
 }
 
 test {

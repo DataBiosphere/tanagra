@@ -80,7 +80,7 @@ public final class FileUtils {
   public static String readStringFromFile(InputStream inputStream) {
     try {
       return CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-          .replace(System.lineSeparator(), "");
+          .replace(System.lineSeparator(), " ");
     } catch (IOException ioEx) {
       throw new SystemException("Error reading file contents", ioEx);
     }

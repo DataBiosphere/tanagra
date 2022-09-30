@@ -26,6 +26,7 @@
   <suppress checks="MethodLength"/>
   <suppress checks="MultipleStringLiterals"/>
   <suppress checks="NPathComplexity"/>
+  <suppress checks="NoArrayTrailingComma"/>
   <!-- Spotless is canonical for line length. -->
   <suppress checks="OperatorWrap"/>
   <suppress checks="ReturnCount"/>
