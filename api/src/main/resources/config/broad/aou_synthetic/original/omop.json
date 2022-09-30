@@ -10,9 +10,31 @@
       "projectId": "broad-tanagra-dev",
       "datasetId": "aousynthetic_index" } ],
   "entities": [
-    "person.json",
+    "brand.json",
+    "condition,json",
+    "condition_occurrence.json",
     "device.json",
-    "device_occurrence.json" ],
+    "device_occurrence.json",
+    "ingredient.json",
+    "ingredient_occurrence.json",
+    "measurement.json",
+    "measurement_occurrence.json",
+    "observation.json",
+    "observation_occurrence.json",
+    "person.json",
+    "procedure.json",
+    "procedure_occurrence.json",
+    "visit.json",
+    "visit_occurrence.json" ],
   "primaryEntity": "person",
-  "entityGroups": ["device_person_occurrence.json" ]
+  "entityGroups": [
+    "brand_ingredient.json",
+    "condition_person_occurrence.json",
+    "device_person_occurrence.json",
+    "ingredient_person_occurrence.json",
+    "measurement_person_occurrence.json",
+    "observation_person_occurrence.json",
+    "procedure_person_occurrence.json",
+    "visit_person_occurrence.json"
+  ]
 }
