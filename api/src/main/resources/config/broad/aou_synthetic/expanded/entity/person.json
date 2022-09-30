@@ -1,0 +1,269 @@
+{
+  "name" : "person",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "gender",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : {
+          "int64Val" : 45878463
+        },
+        "display" : "Female"
+      }, {
+        "value" : {
+          "int64Val" : 45880669
+        },
+        "display" : "Male"
+      }, {
+        "value" : {
+          "int64Val" : 2000000002
+        },
+        "display" : "Not man only, not woman only, prefer not to answer, or skipped"
+      } ]
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "race",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : {
+          "int64Val" : 2000000001
+        },
+        "display" : "Another single population"
+      }, {
+        "value" : {
+          "int64Val" : 8515
+        },
+        "display" : "Asian"
+      }, {
+        "value" : {
+          "int64Val" : 8516
+        },
+        "display" : "Black or African American"
+      }, {
+        "value" : {
+          "int64Val" : 1177221
+        },
+        "display" : "I prefer not to answer"
+      }, {
+        "value" : {
+          "int64Val" : 2000000008
+        },
+        "display" : "More than one population"
+      }, {
+        "value" : {
+          "int64Val" : 0
+        },
+        "display" : "No matching concept"
+      }, {
+        "value" : {
+          "int64Val" : 45882607
+        },
+        "display" : "None of these"
+      }, {
+        "value" : {
+          "int64Val" : 903096
+        },
+        "display" : "PMI: Skip"
+      }, {
+        "value" : {
+          "int64Val" : 8527
+        },
+        "display" : "White"
+      } ]
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "ethnicity",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : {
+          "int64Val" : 38003563
+        },
+        "display" : "Hispanic or Latino"
+      }, {
+        "value" : {
+          "int64Val" : 38003564
+        },
+        "display" : "Not Hispanic or Latino"
+      }, {
+        "value" : {
+          "int64Val" : 903079
+        },
+        "display" : "PMI: Prefer Not To Answer"
+      }, {
+        "value" : {
+          "int64Val" : 903096
+        },
+        "display" : "PMI: Skip"
+      }, {
+        "value" : {
+          "int64Val" : 1586148
+        },
+        "display" : "What Race Ethnicity: Race Ethnicity None Of These"
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "sex_at_birth",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : {
+          "int64Val" : 45878463
+        },
+        "display" : "Female"
+      }, {
+        "value" : {
+          "int64Val" : 45880669
+        },
+        "display" : "Male"
+      }, {
+        "value" : {
+          "int64Val" : 0
+        },
+        "display" : "No matching concept"
+      }, {
+        "value" : {
+          "int64Val" : 2000000009
+        },
+        "display" : "Not male, not female, prefer not to answer, or skipped"
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "year_of_birth",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1930,
+      "maxVal" : 2001
+    }
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "person"
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender_concept_id"
+        },
+        "display" : {
+          "column" : "gender_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race_concept_id"
+        },
+        "display" : {
+          "column" : "race_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity_concept_id"
+        },
+        "display" : {
+          "column" : "ethnicity_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      },
+      "sex_at_birth" : {
+        "value" : {
+          "column" : "sex_at_birth_concept_id"
+        },
+        "display" : {
+          "column" : "sex_at_birth_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "person"
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender"
+        },
+        "display" : {
+          "column" : "t_display_gender"
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race"
+        },
+        "display" : {
+          "column" : "t_display_race"
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity"
+        },
+        "display" : {
+          "column" : "t_display_ethnicity"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      },
+      "sex_at_birth" : {
+        "value" : {
+          "column" : "sex_at_birth"
+        },
+        "display" : {
+          "column" : "t_display_sex_at_birth"
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

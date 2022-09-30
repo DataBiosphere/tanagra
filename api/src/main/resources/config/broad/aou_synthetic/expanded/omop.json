@@ -1,0 +1,17 @@
+{
+  "name" : "omop",
+  "dataPointers" : [ {
+    "type" : "BQ_DATASET",
+    "name" : "index_dataset",
+    "projectId" : "broad-tanagra-dev",
+    "datasetId" : "aousynthetic_index"
+  }, {
+    "type" : "BQ_DATASET",
+    "name" : "omop_dataset",
+    "projectId" : "broad-tanagra-dev",
+    "datasetId" : "aou_synthetic_SR2019q4r4"
+  } ],
+  "entities" : [ "measurement_occurrence.json", "condition_occurrence.json", "ingredient.json", "device_occurrence.json", "observation.json", "procedure.json", "measurement.json", "ingredient_occurrence.json", "condition.json", "person.json", "visit_occurrence.json", "observation_occurrence.json", "procedure_occurrence.json", "visit.json", "brand.json", "device.json" ],
+  "entityGroups" : [ "device_person_occurrence.json", "visit_person_occurrence.json", "condition_person_occurrence.json", "ingredient_person_occurrence.json", "observation_person_occurrence.json", "brand_ingredient.json", "measurement_person_occurrence.json", "procedure_person_occurrence.json" ],
+  "primaryEntity" : "person"
+}

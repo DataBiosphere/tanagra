@@ -1,0 +1,380 @@
+{
+  "name" : "measurement",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : { },
+        "display" : "Source"
+      }, {
+        "value" : {
+          "stringVal" : "C"
+        },
+        "display" : "Unknown"
+      }, {
+        "value" : {
+          "stringVal" : "S"
+        },
+        "display" : "Standard"
+      } ]
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "vocabulary",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : {
+          "stringVal" : "LOINC"
+        },
+        "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
+      }, {
+        "value" : {
+          "stringVal" : "SNOMED"
+        },
+        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "ARRAY",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "ARRAY",
+          "operator" : "OR",
+          "subfilters" : [ {
+            "type" : "ARRAY",
+            "operator" : "AND",
+            "subfilters" : [ {
+              "type" : "BINARY",
+              "field" : {
+                "column" : "domain_id"
+              },
+              "operator" : "EQUALS",
+              "value" : {
+                "stringVal" : "Measurement"
+              }
+            }, {
+              "type" : "BINARY",
+              "field" : {
+                "column" : "vocabulary_id"
+              },
+              "operator" : "EQUALS",
+              "value" : {
+                "stringVal" : "SNOMED"
+              }
+            } ]
+          }, {
+            "type" : "ARRAY",
+            "operator" : "AND",
+            "subfilters" : [ {
+              "type" : "BINARY",
+              "field" : {
+                "column" : "vocabulary_id"
+              },
+              "operator" : "EQUALS",
+              "value" : {
+                "stringVal" : "LOINC"
+              }
+            }, {
+              "type" : "ARRAY",
+              "operator" : "OR",
+              "subfilters" : [ {
+                "type" : "BINARY",
+                "field" : {
+                  "column" : "concept_class_id"
+                },
+                "operator" : "EQUALS",
+                "value" : {
+                  "stringVal" : "LOINC Hierarchy"
+                }
+              }, {
+                "type" : "BINARY",
+                "field" : {
+                  "column" : "concept_class_id"
+                },
+                "operator" : "EQUALS",
+                "value" : {
+                  "stringVal" : "LOINC Component"
+                }
+              }, {
+                "type" : "BINARY",
+                "field" : {
+                  "column" : "concept_class_id"
+                },
+                "operator" : "EQUALS",
+                "value" : {
+                  "stringVal" : "Lab Test"
+                }
+              } ]
+            } ]
+          } ]
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "valid_end_date"
+          },
+          "operator" : "GREATER_THAN",
+          "value" : {
+            "stringVal" : "2022-01-01"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary_id"
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       cs.concept_id AS id, cs.concept_synonym_name AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept_synonym` cs ) AS textsearch  JOIN `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c ON c.concept_id = textsearch.id  WHERE ((c.domain_id = 'Measurement' AND c.vocabulary_id = 'SNOMED')         OR (c.vocabulary_id = 'LOINC' AND c.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test'))) AND c.valid_end_date > DATE('2022-01-01')"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "rawSql" : "SELECT   cr.concept_id_1 AS parent,   cr.concept_id_2 AS child, FROM `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept_relationship` cr JOIN `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c1  ON c1.concept_id = cr.concept_id_1 JOIN `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c2  ON c2.concept_id = cr.concept_id_2 WHERE   cr.relationship_id = 'Subsumes'   AND c1.vocabulary_id = c2.vocabulary_id   AND ((c1.vocabulary_id = 'SNOMED' AND c1.domain_id = c2.domain_id AND c1.domain_id = 'Measurement')       OR (c1.vocabulary_id = 'LOINC'           AND c1.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')           AND c2.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')))   AND c1.valid_end_date > DATE('2022-01-01')   AND c2.valid_end_date > DATE('2022-01-01') "
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent"
+            },
+            "child" : {
+              "column" : "child"
+            }
+          }
+        },
+        "rootNodesFilter" : {
+          "tablePointer" : {
+            "table" : "concept",
+            "filter" : {
+              "type" : "ARRAY",
+              "operator" : "AND",
+              "subfilters" : [ {
+                "type" : "ARRAY",
+                "operator" : "OR",
+                "subfilters" : [ {
+                  "type" : "ARRAY",
+                  "operator" : "AND",
+                  "subfilters" : [ {
+                    "type" : "BINARY",
+                    "field" : {
+                      "column" : "domain_id"
+                    },
+                    "operator" : "EQUALS",
+                    "value" : {
+                      "stringVal" : "Measurement"
+                    }
+                  }, {
+                    "type" : "BINARY",
+                    "field" : {
+                      "column" : "vocabulary_id"
+                    },
+                    "operator" : "EQUALS",
+                    "value" : {
+                      "stringVal" : "SNOMED"
+                    }
+                  } ]
+                }, {
+                  "type" : "ARRAY",
+                  "operator" : "AND",
+                  "subfilters" : [ {
+                    "type" : "BINARY",
+                    "field" : {
+                      "column" : "vocabulary_id"
+                    },
+                    "operator" : "EQUALS",
+                    "value" : {
+                      "stringVal" : "LOINC"
+                    }
+                  }, {
+                    "type" : "BINARY",
+                    "field" : {
+                      "column" : "concept_id"
+                    },
+                    "operator" : "EQUALS",
+                    "value" : {
+                      "int64Val" : 36206173
+                    }
+                  } ]
+                } ]
+              }, {
+                "type" : "BINARY",
+                "field" : {
+                  "column" : "valid_end_date"
+                },
+                "operator" : "GREATER_THAN",
+                "value" : {
+                  "stringVal" : "2022-01-01"
+                }
+              } ]
+            }
+          },
+          "fieldPointers" : {
+            "id" : {
+              "column" : "concept_id"
+            }
+          }
+        }
+      }
+    }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "measurement"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "t_display_standard_concept"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary"
+        },
+        "display" : {
+          "column" : "t_display_vocabulary"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "id",
+        "foreignTable" : "measurement_textsearch",
+        "foreignKey" : "id",
+        "foreignColumn" : "text"
+      }
+    },
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "table" : "measurement_standard_childParent"
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent"
+            },
+            "child" : {
+              "column" : "child"
+            }
+          }
+        },
+        "ancestorDescendant" : {
+          "tablePointer" : {
+            "table" : "measurement_standard_ancestorDescendant"
+          },
+          "fieldPointers" : {
+            "ancestor" : {
+              "column" : "ancestor"
+            },
+            "descendant" : {
+              "column" : "descendant"
+            }
+          }
+        },
+        "pathNumChildren" : {
+          "tablePointer" : {
+            "table" : "measurement_standard_pathNumChildren"
+          },
+          "fieldPointers" : {
+            "path" : {
+              "column" : "path"
+            },
+            "num_children" : {
+              "column" : "num_children"
+            },
+            "id" : {
+              "column" : "id"
+            }
+          }
+        }
+      }
+    }
+  }
+}

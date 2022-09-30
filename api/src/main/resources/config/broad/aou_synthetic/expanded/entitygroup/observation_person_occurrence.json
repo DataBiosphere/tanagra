@@ -1,0 +1,55 @@
+{
+  "type" : "CRITERIA_OCCURRENCE",
+  "name" : "observation_person_occurrence",
+  "entities" : {
+    "criteria" : "observation",
+    "occurrence" : "observation_occurrence"
+  },
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "tablePointer" : {
+          "table" : "observation"
+        },
+        "fromEntityId" : {
+          "column" : "observation_id"
+        },
+        "toEntityId" : {
+          "column" : "observation_concept_id"
+        }
+      },
+      "occurrenceToPrimary" : {
+        "tablePointer" : {
+          "table" : "observation"
+        },
+        "fromEntityId" : {
+          "column" : "observation_id"
+        },
+        "toEntityId" : {
+          "column" : "person_id"
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : { },
+    "auxiliaryDataMappings" : {
+      "criteriaPrimaryRollupCount" : {
+        "tablePointer" : {
+          "table" : "observation_person_occurrence_criteriaPrimaryRollupCount"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "rollup_count" : {
+            "column" : "rollup_count"
+          }
+        }
+      }
+    }
+  }
+}
