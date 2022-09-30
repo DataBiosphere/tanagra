@@ -12,7 +12,7 @@ etc.).
 
 ## Underlay Config Files
 There should be a separate config for each set of source data. The underlay configs are static resources (defined at
-build-time) that are packaged with the JAR file in [`api/src/main/resources/config/`](src/main/resources/config/).
+build-time) that are packaged with the JAR file in [`api/src/main/resources/config/`](../src/main/resources/config/).
 
 ### Environment
 The underlay configs are organized by environment, in different sub-directories of `config/` (e.g. `broad/`, `vumc/`,
@@ -48,7 +48,7 @@ There are 3 steps to generating the index tables:
 1. [Expand](#expand-underlay-config) the user-specified underlay config to include information from scanning the 
 source data. For example, data types and UI hints.
 2. [Create](#create-index-dataset) the index dataset, if it doesn't already exist.
-3. [Kickoff](#kickoff-jobs) jobs for each entity and entity group.
+3. [Kickoff](#kickoff-jobs) the jobs.
 
 Below you can see an [example](#omop-example) of the commands for an OMOP dataset.
 
@@ -81,43 +81,53 @@ write access to the index data.
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=/credentials/indexing_sa.json
 ```
-Do a dry run of all the indexing jobs for a particular entity. This provides a sanity check that the indexing jobs
-inputs, especially the SQL query inputs, are valid. This step is not required, but highly recommended to help catch
-errors/bugs sooner and without running a bunch of computation.
+
+#### All Jobs
+Do a dry run of all the indexing jobs. This provides a sanity check that the indexing jobs inputs, especially the SQL 
+query inputs, are valid. This step is not required, but highly recommended to help catch errors/bugs sooner and without 
+running a bunch of computation first.
+```
+./gradlew api:index -Dexec.args="INDEX_ALL /config/output/omop.json DRY_RUN"
+```
+Now actually kick off all the indexing jobs.
+```
+./gradlew api:index -Dexec.args="INDEX_ALL /config/output/omop.json"
+```
+This can take a long time to complete. If e.g. your computer falls asleep or you need to kill the process on your
+computer, you can re-run the same command again. You need to check that there are no in-progress Dataflow jobs in the
+project before kicking it off again, because the jobs check for the existence of the output BQ table to tell if they
+need to run.
+
+TODO: Cache the Dataflow job id somewhere so we can do a more accurate check for jobs that are still running before
+kicking them off again.
+
+#### Jobs for One Entity/Group
+You can also kickoff the indexing jobs for a single entity or entity group. This is helpful for testing and debugging.
+To kick off all the indexing jobs for a particular entity:
 ```
 ./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json person DRY_RUN"
-```
-Now actually kick off all the indexing jobs for the entity.
-```
 ./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json person"
 ```
-Repeat this (dry run + actual kick off) for each entity. The jobs for one entity do not depend on those for another
-entity, so you can kick them all off concurrently.
-
-Wait until all the indexing jobs for all the entities are complete before starting the same process for entity groups.
-
-Do a dry run of all the indexing jobs for a particular entity group.
+or entity group:
 ```
 ./gradlew api:index -Dexec.args="INDEX_ENTITY_GROUP /config/output/omop.json condition_occurrence_person DRY_RUN"
-```
-Now actually kick off all the indexing jobs for the entity group.
-```
 ./gradlew api:index -Dexec.args="INDEX_ENTITY_GROUP /config/output/omop.json condition_occurrence_person"
 ```
-Repeat this (dry run + actual kick off) for each entity group.
-
-(TODO: We should kick off all jobs for all entities and entity groups with a single command, rather than requiring 
-separate commands for each one. I've left it separate for now to make debugging and retesting certain parts easier 
-should we encounter any errors at first.)
+All the entities in a group should be indexed before the group. The `INDEX_ALL` command ensures this ordering, but keep 
+this in  mind if you're running the jobs for each entity or entity group separately.
 
 ## OMOP Example
 The `aou_synthetic` dataset uses the standard OMOP schema. You can see the underlay config files defined for this
-dataset in [`api/src/main/resources/config/broad/aou_synthetic/`](src/main/resources/config/broad/aou_synthetic/).
+dataset in [`api/src/main/resources/config/broad/aou_synthetic/`](../src/main/resources/config/broad/aou_synthetic/).
 
 ```
-./gradlew api:index -Dexec.args="EXPAND_CONFIG /config/input/omop.json /config/output/"
-./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json person"
-./gradlew api:index -Dexec.args="INDEX_ENTITY /config/output/omop.json condition"
-```
+export INPUT_DIR=$HOME/tanagra/api/src/main/resources/config/broad/aou_synthetic/original
+export OUTPUT_DIR=$HOME/tanagra/api/src/main/resources/config/broad/aou_synthetic/expanded
 
-(TODO: Continue adding to this script as more indexing jobs are added.)
+./gradlew api:index -Dexec.args="EXPAND_CONFIG $INPUT_DIR/omop.json $OUTPUT_DIR/"
+
+bq mk --location=US broad-tanagra-dev:aousynthetic_index
+
+./gradlew api:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/omop.json DRY_RUN"
+./gradlew api:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/omop.json"
+```
