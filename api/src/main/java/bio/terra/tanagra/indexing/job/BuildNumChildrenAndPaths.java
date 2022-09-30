@@ -89,12 +89,6 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
             .renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", selectChildParentIdPairsSql);
 
-    String selectPossibleRootIdsSql =
-        sourceHierarchyMapping.hasRootNodesFilter()
-            ? sourceHierarchyMapping.queryPossibleRootNodes(ID_COLUMN_NAME).renderSQL()
-            : null;
-    LOGGER.info("select possible root ids SQL: {}", selectPossibleRootIdsSql);
-
     TablePointer outputTable =
         getEntity()
             .getIndexDataMapping()
@@ -124,18 +118,8 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
     PCollection<KV<Long, String>> nodePrunedPathKVsPC =
         PathUtils.pruneOrphanPaths(nodePathKVsPC, nodeNumChildrenKVsPC);
 
-    PCollection<KV<Long, String>> outputNodePathKVsPC;
-    if (selectPossibleRootIdsSql != null) {
-      // read in the possible root nodes from BQ
-      PCollection<Long> possibleRootNodesPC =
-          BigQueryUtils.readNodesFromBQ(pipeline, selectPossibleRootIdsSql, "rootNodes");
-
-      // filter the root nodes (i.e. set path=null for any existing root nodes that are not in the
-      // list of possibles)
-      outputNodePathKVsPC = PathUtils.filterRootNodes(possibleRootNodesPC, nodePrunedPathKVsPC);
-    } else {
-      outputNodePathKVsPC = nodePrunedPathKVsPC;
-    }
+    // filter the root nodes
+    PCollection<KV<Long, String>> outputNodePathKVsPC = filterRootNodes(sourceHierarchyMapping, pipeline, nodePrunedPathKVsPC);
 
     // write the node-{path, numChildren} pairs to BQ
     writePathAndNumChildrenToBQ(
@@ -154,6 +138,23 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
             .getHierarchyMapping(hierarchyName)
             .getPathNumChildren()
             .getTablePointer());
+  }
+
+  /** Filter the root nodes, if a root nodes filter is specified by the hierarchy mapping.  */
+  private static PCollection<KV<Long, String>> filterRootNodes(HierarchyMapping sourceHierarchyMapping, Pipeline pipeline, PCollection<KV<Long, String>> nodePrunedPathKVsPC) {
+    if (!sourceHierarchyMapping.hasRootNodesFilter()) {
+      return nodePrunedPathKVsPC;
+    }
+    String selectPossibleRootIdsSql = sourceHierarchyMapping.queryPossibleRootNodes(ID_COLUMN_NAME).renderSQL();
+    LOGGER.info("select possible root ids SQL: {}", selectPossibleRootIdsSql);
+
+    // read in the possible root nodes from BQ
+    PCollection<Long> possibleRootNodesPC =
+            BigQueryUtils.readNodesFromBQ(pipeline, selectPossibleRootIdsSql, "rootNodes");
+
+    // filter the root nodes (i.e. set path=null for any existing root nodes that are not in the
+    // list of possibles)
+    return PathUtils.filterRootNodes(possibleRootNodesPC, nodePrunedPathKVsPC);
   }
 
   /** Write the {@link KV} pairs (id, path, num_children) to BQ. */
