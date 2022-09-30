@@ -6,18 +6,11 @@ import static bio.terra.tanagra.underlay.EntityGroup.ENTITY_GROUP_DIRECTORY_NAME
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +20,6 @@ public final class Indexer {
   public static final String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
 
   private final Underlay underlay;
-  private List<WorkflowCommand> indexingCmds;
   private UFUnderlay expandedUnderlay;
   private List<UFEntity> expandedEntities;
   private List<UFEntityGroup> expandedEntityGroups;
@@ -54,20 +46,6 @@ public final class Indexer {
                       + e.getName());
               e.scanSourceData();
             });
-  }
-
-  /** Build a list of indexing commands, including their associated input queries. */
-  public void buildWorkflowCommands() {
-    List<WorkflowCommand> cmds = new ArrayList<>();
-    for (Entity entity : underlay.getEntities().values()) {
-      LOGGER.info("Building set of indexing commands for entity: " + entity.getName());
-      cmds.addAll(entity.getIndexingCommands());
-    }
-    for (EntityGroup entityGroup : underlay.getEntityGroups().values()) {
-      LOGGER.info("Building set of indexing commands for entity group: " + entityGroup.getName());
-      cmds.addAll(entityGroup.getIndexingCommands());
-    }
-    indexingCmds = cmds;
   }
 
   /** Convert the internal objects, now expanded, back to POJOs. */
@@ -107,30 +85,6 @@ public final class Indexer {
           entityGroupSubDir.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
           expandedEntityGroup);
     }
-  }
-
-  /**
-   * Write out a bash script with all the workflow commands, and all the query inputs expected by
-   * those workflows.
-   */
-  public void writeWorkflowCommands() throws IOException {
-    // Write out the workflow input files to the workflow_input/ sub-directory.
-    Path workflowInputSubDir = FileIO.getOutputParentDir().resolve("workflow_input");
-    FileUtils.createDirectoryIfNonexistent(workflowInputSubDir);
-
-    List<String> script = new ArrayList<>();
-    for (WorkflowCommand cmd : indexingCmds) {
-      for (Map.Entry<String, String> fileNameToContents : cmd.getQueryInputs().entrySet()) {
-        Files.write(
-            workflowInputSubDir.resolve(fileNameToContents.getKey()),
-            List.of(fileNameToContents.getValue()),
-            StandardCharsets.UTF_8);
-      }
-      script.addAll(List.of(cmd.getComment(), cmd.getCommand(), ""));
-    }
-
-    // Write out the bash script with all the workflow commands to the top-level directory.
-    Files.write(workflowInputSubDir.resolve("indexing_script.sh"), script);
   }
 
   public Underlay getUnderlay() {

@@ -12,6 +12,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.Optional;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
@@ -64,7 +65,8 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     return entityGroup;
   }
 
-  protected abstract TablePointer getOutputTablePointer();
+  @VisibleForTesting
+  public abstract TablePointer getOutputTablePointer();
 
   protected BigQueryDataset getOutputDataPointer() {
     DataPointer outputDataPointer = getOutputTablePointer().getDataPointer();

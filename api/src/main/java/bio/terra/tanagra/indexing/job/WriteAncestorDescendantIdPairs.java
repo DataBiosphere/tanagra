@@ -13,6 +13,7 @@ import bio.terra.tanagra.underlay.TablePointer;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -105,7 +106,8 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   }
 
   @Override
-  protected TablePointer getOutputTablePointer() {
+  @VisibleForTesting
+  public TablePointer getOutputTablePointer() {
     return getEntity()
         .getIndexDataMapping()
         .getHierarchyMapping(hierarchyName)

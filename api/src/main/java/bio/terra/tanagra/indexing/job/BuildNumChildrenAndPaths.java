@@ -16,6 +16,7 @@ import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -91,14 +92,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
             .renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", selectChildParentIdPairsSql);
 
-    TablePointer outputTable =
-        getEntity()
-            .getIndexDataMapping()
-            .getHierarchyMapping(hierarchyName)
-            .getPathNumChildren()
-            .getTablePointer();
     BigQueryDataset outputBQDataset = getOutputDataPointer();
-
     Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(outputBQDataset));
 
     // read in the nodes and the child-parent relationships from BQ
@@ -125,7 +119,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
         filterRootNodes(sourceHierarchyMapping, pipeline, nodePrunedPathKVsPC);
 
     // write the node-{path, numChildren} pairs to BQ
-    writePathAndNumChildrenToBQ(outputNodePathKVsPC, nodeNumChildrenKVsPC, outputTable);
+    writePathAndNumChildrenToBQ(outputNodePathKVsPC, nodeNumChildrenKVsPC, getOutputTablePointer());
 
     if (!isDryRun) {
       pipeline.run().waitUntilFinish();
@@ -133,7 +127,8 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   }
 
   @Override
-  protected TablePointer getOutputTablePointer() {
+  @VisibleForTesting
+  public TablePointer getOutputTablePointer() {
     return getEntity()
         .getIndexDataMapping()
         .getHierarchyMapping(hierarchyName)

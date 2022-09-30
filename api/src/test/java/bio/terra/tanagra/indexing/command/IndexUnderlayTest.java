@@ -17,10 +17,8 @@ public class IndexUnderlayTest {
 
     Indexer indexer = Indexer.deserializeUnderlay("underlay/Omop.json");
     indexer.scanSourceData();
-    indexer.buildWorkflowCommands();
 
     indexer.serializeUnderlay();
     indexer.writeSerializedUnderlay();
-    indexer.writeWorkflowCommands();
   }
 }

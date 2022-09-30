@@ -14,6 +14,7 @@ import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
@@ -132,7 +133,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
   }
 
   @Override
-  protected TablePointer getOutputTablePointer() {
+  @VisibleForTesting
+  public TablePointer getOutputTablePointer() {
     return ((CriteriaOccurrence) getEntityGroup())
         .getCriteriaPrimaryRollupCountAuxiliaryDataMapping()
         .getTablePointer();

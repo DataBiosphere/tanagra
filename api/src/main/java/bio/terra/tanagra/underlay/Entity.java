@@ -3,12 +3,6 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
-import bio.terra.tanagra.indexing.WorkflowCommand;
-import bio.terra.tanagra.indexing.command.BuildTextSearch;
-import bio.terra.tanagra.indexing.command.ComputeAncestorDescendant;
-import bio.terra.tanagra.indexing.command.ComputePathNumChildren;
-import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
-import bio.terra.tanagra.indexing.command.WriteParentChild;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
@@ -142,24 +136,6 @@ public final class Entity {
                 attribute.setDisplayHint(attributeMapping.computeDisplayHint(attribute));
               }
             });
-  }
-
-  public List<WorkflowCommand> getIndexingCommands() {
-    List<WorkflowCommand> cmds = new ArrayList<>();
-    cmds.add(DenormalizeAllNodes.forEntity(this));
-    if (sourceDataMapping.hasTextSearchMapping()) {
-      cmds.add(BuildTextSearch.forEntity(this));
-    }
-    if (sourceDataMapping.hasHierarchyMappings()) {
-      sourceDataMapping.getHierarchyMappings().keySet().stream()
-          .forEach(
-              hierarchyName -> {
-                cmds.add(WriteParentChild.forHierarchy(this, hierarchyName));
-                cmds.add(ComputeAncestorDescendant.forHierarchy(this, hierarchyName));
-                cmds.add(ComputePathNumChildren.forHierarchy(this, hierarchyName));
-              });
-    }
-    return cmds;
   }
 
   public List<IndexingJob> getIndexingJobs() {
