@@ -1,7 +1,5 @@
 package bio.terra.tanagra.indexing;
 
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.utils.FileUtils;
 import java.nio.file.Path;
 
@@ -46,16 +44,28 @@ public final class Main {
       indexer.writeSerializedUnderlay();
     } else if ("INDEX_ENTITY".equals(cmd)) {
       String name = args[2];
-      String dryRun = args.length > 3 ? args[3] : "";
+      boolean isDryRun = args.length > 3 ? "DRY_RUN".equals(args[3]) : false;
 
-      Entity entity = indexer.getUnderlay().getEntity(name);
-      entity.getIndexingJobs().forEach(ij -> ij.runIfPending("DRY_RUN".equals(dryRun)));
+      // Index all the entities (*) or just one (entityName).
+      if ("*".equals(name)) {
+        indexer.runJobsForAllEntities(isDryRun);
+      } else {
+        indexer.runJobsForEntity(name, isDryRun);
+      }
     } else if ("INDEX_ENTITY_GROUP".equals(cmd)) {
       String name = args[2];
-      String dryRun = args.length > 3 ? args[3] : "";
+      boolean isDryRun = args.length > 3 ? "DRY_RUN".equals(args[3]) : false;
 
-      EntityGroup entityGroup = indexer.getUnderlay().getEntityGroup(name);
-      entityGroup.getIndexingJobs().forEach(ij -> ij.runIfPending("DRY_RUN".equals(dryRun)));
+      // Index all the entity groups (*) or just one (entityGroupName).
+      if ("*".equals(name)) {
+        indexer.runJobsForAllEntityGroups(isDryRun);
+      } else {
+        indexer.runJobsForEntityGroup(name, isDryRun);
+      }
+    } else if ("INDEX_ALL".equals(cmd)) {
+      boolean isDryRun = args.length > 2 ? "DRY_RUN".equals(args[2]) : false;
+      indexer.runJobsForAllEntities(isDryRun);
+      indexer.runJobsForAllEntityGroups(isDryRun);
     } else {
       throw new IllegalArgumentException("Unknown command: " + cmd);
     }

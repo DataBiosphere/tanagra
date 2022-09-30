@@ -87,6 +87,24 @@ public final class Indexer {
     }
   }
 
+  public void runJobsForAllEntities(boolean isDryRun) {
+    underlay.getEntities().keySet().forEach(name -> runJobsForEntity(name, isDryRun));
+  }
+
+  public void runJobsForEntity(String name, boolean isDryRun) {
+    LOGGER.info("Indexing entity: {}", name);
+    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.runIfPending(isDryRun));
+  }
+
+  public void runJobsForAllEntityGroups(boolean isDryRun) {
+    underlay.getEntityGroups().keySet().forEach(name -> runJobsForEntityGroup(name, isDryRun));
+  }
+
+  public void runJobsForEntityGroup(String name, boolean isDryRun) {
+    LOGGER.info("Indexing entity group: {}", name);
+    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.runIfPending(isDryRun));
+  }
+
   public Underlay getUnderlay() {
     return underlay;
   }

@@ -11,7 +11,7 @@
       "datasetId": "aousynthetic_index" } ],
   "entities": [
     "brand.json",
-    "condition,json",
+    "condition.json",
     "condition_occurrence.json",
     "device.json",
     "device_occurrence.json",
