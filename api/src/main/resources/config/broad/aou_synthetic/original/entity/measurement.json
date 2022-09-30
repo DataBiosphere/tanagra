@@ -109,7 +109,7 @@
                         { "type": "BINARY",
                           "field": { "column": "concept_id" },
                           "operator": "EQUALS",
-                          "value": { "stringVal": "36206173" } } ] } ] },
+                          "value": { "int64Val": 36206173 } } ] } ] },
                 { "type": "BINARY",
                   "field": { "column": "valid_end_date" },
                   "operator": "GREATER_THAN",
