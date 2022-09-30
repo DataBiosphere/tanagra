@@ -16,9 +16,11 @@ public class ArrayFilterVariable extends FilterVariable {
 
   @Override
   public String renderSQL() {
-    return subfilters.stream()
-        .map(sf -> sf.renderSQL())
-        .collect(Collectors.joining(" " + operator.renderSQL() + " "));
+    return "("
+        + subfilters.stream()
+            .map(sf -> sf.renderSQL())
+            .collect(Collectors.joining(" " + operator.renderSQL() + " "))
+        + ")";
   }
 
   @Override
