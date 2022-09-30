@@ -21,6 +21,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +40,8 @@ public final class GoogleBigQuery {
   private static final Duration MAX_QUERY_WAIT_TIME = Duration.ofSeconds(60);
 
   private final BigQuery bigQuery;
-  private final Map<String, Schema> tableSchemasCache;
-  private final Map<String, Schema> querySchemasCache;
+  private final ConcurrentHashMap<String, Schema> tableSchemasCache;
+  private final ConcurrentHashMap<String, Schema> querySchemasCache;
 
   public GoogleBigQuery(GoogleCredentials credentials, String projectId) {
     this.bigQuery =
@@ -48,8 +50,8 @@ public final class GoogleBigQuery {
             .setProjectId(projectId)
             .build()
             .getService();
-    this.tableSchemasCache = new HashMap<>();
-    this.querySchemasCache = new HashMap<>();
+    this.tableSchemasCache = new ConcurrentHashMap<>();
+    this.querySchemasCache = new ConcurrentHashMap<>();
   }
 
   public Schema getQuerySchemaWithCaching(String query) {
