@@ -164,6 +164,25 @@ public final class GoogleBigQuery {
   }
 
   /**
+   * Delete a table. Do nothing if the table is not found (i.e. assume that means it's already
+   * deleted).
+   */
+  public void deleteTable(String projectId, String datasetId, String tableId) {
+    try {
+      TableId tablePointer = TableId.of(projectId, datasetId, tableId);
+      boolean deleteSuccessful =
+          callWithRetries(() -> bigQuery.delete(tablePointer), "Retryable error deleting table");
+      if (deleteSuccessful) {
+        LOGGER.info("Table deleted: {}, {}, {}", projectId, datasetId, tableId);
+      } else {
+        LOGGER.info("Table not found: {}, {}, {}", projectId, datasetId, tableId);
+      }
+    } catch (Exception ex) {
+      throw new SystemException("Error deleting table", ex);
+    }
+  }
+
+  /**
    * Utility method that checks if an exception thrown by the BQ client is retryable.
    *
    * @param ex exception to test

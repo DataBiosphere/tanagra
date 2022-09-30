@@ -42,30 +42,52 @@ public final class Main {
 
       indexer.serializeUnderlay();
       indexer.writeSerializedUnderlay();
-    } else if ("INDEX_ENTITY".equals(cmd)) {
+    } else if ("INDEX_ENTITY".equals(cmd) || "CLEAN_ENTITY".equals(cmd)) {
+      boolean isRun = "INDEX_ENTITY".equals(cmd);
       String name = args[2];
       boolean isDryRun = isDryRun(3, args);
 
-      // Index all the entities (*) or just one (entityName).
+      // Index/clean all the entities (*) or just one (entityName).
       if ("*".equals(name)) {
-        indexer.runJobsForAllEntities(isDryRun);
+        if (isRun) {
+          indexer.runJobsForAllEntities(isDryRun);
+        } else {
+          indexer.cleanAllEntities(isDryRun);
+        }
       } else {
-        indexer.runJobsForEntity(name, isDryRun);
+        if (isRun) {
+          indexer.runJobsForEntity(name, isDryRun);
+        } else {
+          indexer.cleanEntity(name, isDryRun);
+        }
       }
-    } else if ("INDEX_ENTITY_GROUP".equals(cmd)) {
+    } else if ("INDEX_ENTITY_GROUP".equals(cmd) || "CLEAN_ENTITY_GROUP".equals(cmd)) {
+      boolean isRun = "INDEX_ENTITY_GROUP".equals(cmd);
       String name = args[2];
       boolean isDryRun = isDryRun(3, args);
 
-      // Index all the entity groups (*) or just one (entityGroupName).
+      // Index/clean all the entity groups (*) or just one (entityGroupName).
       if ("*".equals(name)) {
-        indexer.runJobsForAllEntityGroups(isDryRun);
+        if (isRun) {
+          indexer.runJobsForAllEntityGroups(isDryRun);
+        } else {
+          indexer.cleanAllEntityGroups(isDryRun);
+        }
       } else {
-        indexer.runJobsForEntityGroup(name, isDryRun);
+        if (isRun) {
+          indexer.runJobsForEntityGroup(name, isDryRun);
+        } else {
+          indexer.cleanEntityGroup(name, isDryRun);
+        }
       }
     } else if ("INDEX_ALL".equals(cmd)) {
       boolean isDryRun = isDryRun(2, args);
       indexer.runJobsForAllEntities(isDryRun);
       indexer.runJobsForAllEntityGroups(isDryRun);
+    } else if ("CLEAN_ALL".equals(cmd)) {
+      boolean isDryRun = isDryRun(2, args);
+      indexer.cleanAllEntities(isDryRun);
+      indexer.cleanAllEntityGroups(isDryRun);
     } else {
       throw new IllegalArgumentException("Unknown command: " + cmd);
     }

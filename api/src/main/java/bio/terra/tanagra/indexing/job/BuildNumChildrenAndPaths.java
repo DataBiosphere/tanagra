@@ -76,7 +76,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   }
 
   @Override
-  protected void run(boolean isDryRun) {
+  public void run(boolean isDryRun) {
     String selectAllIdsSql =
         getEntity()
             .getSourceDataMapping()
