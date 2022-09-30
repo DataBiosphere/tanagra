@@ -4,9 +4,7 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.UnionQuery;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
 import bio.terra.tanagra.serialization.UFEntityMapping;
 import java.util.ArrayList;
@@ -162,26 +160,8 @@ public final class EntityMapping {
     return new Query.Builder().select(select).tables(tables).build();
   }
 
-  public SQLExpression queryTextSearchInformation() {
-    if (!hasTextSearchMapping()) {
-      throw new SystemException("Text search mapping is undefined");
-    }
-
-    if (textSearchMapping.definedByAttributes()) {
-      return new UnionQuery(
-          textSearchMapping.getAttributes().stream()
-              .map(attr -> queryAttributes(Map.of("node", idAttribute, "text", attr)))
-              .collect(Collectors.toList()));
-    } else if (textSearchMapping.definedBySearchString()) {
-      return queryAttributesAndFields(
-          Map.of("node", idAttribute), Map.of("text", textSearchMapping.getSearchString()));
-    } else {
-      throw new SystemException("Unknown text search mapping type");
-    }
-  }
-
-  public Query queryTextSearchString() {
-    return textSearchMapping.queryTextSearchString(this);
+  public Query queryTextSearchStrings() {
+    return textSearchMapping.queryTextSearchStrings(this);
   }
 
   public TablePointer getTextSearchTablePointer() {

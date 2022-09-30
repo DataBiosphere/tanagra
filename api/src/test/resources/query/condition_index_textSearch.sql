@@ -1,1 +1,0 @@
-SELECT c.id AS node, c0.t_text AS text FROM `broad-tanagra-dev.aou_synthetic_SR2019q4r4_indexes`.condition AS c JOIN `broad-tanagra-dev.aou_synthetic_SR2019q4r4_indexes`.condition_textsearch AS c0 ON c0.id = c.id
