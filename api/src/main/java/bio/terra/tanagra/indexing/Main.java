@@ -44,7 +44,7 @@ public final class Main {
       indexer.writeSerializedUnderlay();
     } else if ("INDEX_ENTITY".equals(cmd)) {
       String name = args[2];
-      boolean isDryRun = args.length > 3 ? "DRY_RUN".equals(args[3]) : false;
+      boolean isDryRun = isDryRun(3, args);
 
       // Index all the entities (*) or just one (entityName).
       if ("*".equals(name)) {
@@ -54,7 +54,7 @@ public final class Main {
       }
     } else if ("INDEX_ENTITY_GROUP".equals(cmd)) {
       String name = args[2];
-      boolean isDryRun = args.length > 3 ? "DRY_RUN".equals(args[3]) : false;
+      boolean isDryRun = isDryRun(3, args);
 
       // Index all the entity groups (*) or just one (entityGroupName).
       if ("*".equals(name)) {
@@ -63,11 +63,15 @@ public final class Main {
         indexer.runJobsForEntityGroup(name, isDryRun);
       }
     } else if ("INDEX_ALL".equals(cmd)) {
-      boolean isDryRun = args.length > 2 ? "DRY_RUN".equals(args[2]) : false;
+      boolean isDryRun = isDryRun(2, args);
       indexer.runJobsForAllEntities(isDryRun);
       indexer.runJobsForAllEntityGroups(isDryRun);
     } else {
       throw new IllegalArgumentException("Unknown command: " + cmd);
     }
+  }
+
+  private static boolean isDryRun(int index, String... args) {
+    return args.length > index && "DRY_RUN".equals(args[index]);
   }
 }
