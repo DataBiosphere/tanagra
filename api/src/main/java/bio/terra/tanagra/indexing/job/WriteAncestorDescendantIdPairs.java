@@ -1,7 +1,11 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.indexing.EntityJob;
+import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.ANCESTOR_COLUMN_NAME;
+import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.CHILD_COLUMN_NAME;
+import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.DESCENDANT_COLUMN_NAME;
+import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.PARENT_COLUMN_NAME;
+
+import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.GraphUtils;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.underlay.Entity;
@@ -10,14 +14,9 @@ import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import java.io.IOException;
 import java.util.List;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
-import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
-import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
@@ -28,18 +27,10 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WriteAncestorDescendantIdPairs extends EntityJob {
+public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteParentChildIdPairs.class);
 
-  private static final String DEFAULT_REGION = "us-central1";
-
-  // The maximum depth of ancestors present than the hierarchy. This may be larger
-  // than the actual max depth, but if it is smaller the resulting table will be incomplete.
-  private static final int DEFAULT_MAX_HIERARCHY_DEPTH = 64;
-
   // The default table schema for the ancestor-descendant output table.
-  private static final String ANCESTOR_COLUMN_NAME = "ancestor";
-  private static final String DESCENDANT_COLUMN_NAME = "descendant";
   private static final TableSchema ANCESTOR_DESCENDANT_TABLE_SCHEMA =
       new TableSchema()
           .setFields(
@@ -70,23 +61,14 @@ public class WriteAncestorDescendantIdPairs extends EntityJob {
   }
 
   @Override
-  public void dryRun() {
-    run(true);
-  }
-
-  @Override
-  public void run() {
-    run(false);
-  }
-
-  private void run(boolean isDryRun) {
+  protected void run(boolean isDryRun) {
     SQLExpression selectChildParentIdPairs =
         getEntity()
             .getSourceDataMapping()
             .getHierarchyMapping(hierarchyName)
-            .queryChildParentPairs("child", "parent");
+            .queryChildParentPairs(CHILD_COLUMN_NAME, PARENT_COLUMN_NAME);
     String sql = selectChildParentIdPairs.renderSQL();
-    LOGGER.info("select all ancestor-descendant id pairs SQL: {}", sql);
+    LOGGER.info("select all child-parent id pairs SQL: {}", sql);
 
     TablePointer outputTable =
         getEntity()
@@ -95,35 +77,8 @@ public class WriteAncestorDescendantIdPairs extends EntityJob {
             .getAncestorDescendant()
             .getTablePointer();
     BigQueryDataset outputBQDataset = getOutputDataPointer();
-    LOGGER.info(
-        "output BQ table: project={}, dataset={}, table={}",
-        outputBQDataset.getProjectId(),
-        outputBQDataset.getDatasetId(),
-        outputTable.getTableName());
 
-    String serviceAccountEmail;
-    try {
-      GoogleCredentials appDefaultSACredentials = GoogleCredentials.getApplicationDefault();
-      serviceAccountEmail = ((ServiceAccountCredentials) appDefaultSACredentials).getClientEmail();
-      LOGGER.info("Service account email: {}", serviceAccountEmail);
-    } catch (IOException ioEx) {
-      throw new SystemException("Error reading application default credentials.", ioEx);
-    }
-
-    // TODO: Allow overriding the default region.
-    String[] args = {
-      "--runner=dataflow",
-      "--project=" + outputBQDataset.getProjectId(),
-      "--region=" + DEFAULT_REGION,
-      "--serviceAccount=" + serviceAccountEmail,
-    };
-    // TODO: Use PipelineOptionsFactory.create() instead of fromArgs().
-    // PipelineOptionsFactory.create() doesn't seem to call the default factory classes, while
-    // fromArgs() does.
-    BigQueryOptions options =
-        PipelineOptionsFactory.fromArgs(args).withValidation().as(BigQueryOptions.class);
-
-    Pipeline pipeline = Pipeline.create(options);
+    Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(outputBQDataset));
     PCollection<KV<Long, Long>> relationships =
         pipeline
             .apply(
@@ -136,7 +91,6 @@ public class WriteAncestorDescendantIdPairs extends EntityJob {
                 MapElements.into(
                         TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
                     .via(WriteAncestorDescendantIdPairs::relationshipRowToKV));
-    // TODO: Allow overriding the default max hierarchy depth.
     PCollection<KV<Long, Long>> flattenedRelationships =
         GraphUtils.transitiveClosure(relationships, DEFAULT_MAX_HIERARCHY_DEPTH)
             .apply(Distinct.create()); // There may be duplicate descendants.
@@ -168,8 +122,8 @@ public class WriteAncestorDescendantIdPairs extends EntityJob {
   /** Parses a {@link TableRow} as a row containing a (parent_id, child_id) long pair. */
   private static KV<Long, Long> relationshipRowToKV(TableRow row) {
     // TODO: Support id data types other than longs.
-    Long parentId = Long.parseLong((String) row.get("parent"));
-    Long childId = Long.parseLong((String) row.get("child"));
+    Long parentId = Long.parseLong((String) row.get(PARENT_COLUMN_NAME));
+    Long childId = Long.parseLong((String) row.get(CHILD_COLUMN_NAME));
     return KV.of(parentId, childId);
   }
 

@@ -7,22 +7,18 @@ import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFHierarchyMapping;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class HierarchyMapping {
-  private static final String PATH_COLUMN_ALIAS = "t_path";
-  private static final String NUM_CHILDREN_COLUMN_ALIAS = "t_numChildren";
-
   private static final AuxiliaryData CHILD_PARENT_AUXILIARY_DATA =
       new AuxiliaryData("childParent", List.of("child", "parent"));
   private static final AuxiliaryData ROOT_NODES_FILTER_AUXILIARY_DATA =
-      new AuxiliaryData("rootNodesFilter", List.of("node"));
+      new AuxiliaryData("rootNodesFilter", List.of("id"));
   private static final AuxiliaryData ANCESTOR_DESCENDANT_AUXILIARY_DATA =
       new AuxiliaryData("ancestorDescendant", List.of("ancestor", "descendant"));
   private static final AuxiliaryData PATH_NUM_CHILDREN_AUXILIARY_DATA =
-      new AuxiliaryData("pathNumChildren", List.of("node", "path", "numChildren"));
+      new AuxiliaryData("pathNumChildren", List.of("id", "path", "num_children"));
 
   private final AuxiliaryDataMapping childParent;
   private final AuxiliaryDataMapping rootNodesFilter;
@@ -108,22 +104,21 @@ public final class HierarchyMapping {
                                 .columnName(fieldName)
                                 .build())));
 
+    TablePointer pathNumChildrenTable =
+        TablePointer.fromTableName(
+            tablePrefix + PATH_NUM_CHILDREN_AUXILIARY_DATA.getName(), dataPointer);
     AuxiliaryDataMapping pathNumChildren =
         new AuxiliaryDataMapping(
-            tablePointer,
-            Map.of(
-                "node",
-                idAttributeField,
-                "path",
-                new FieldPointer.Builder()
-                    .tablePointer(tablePointer)
-                    .columnName(PATH_COLUMN_ALIAS)
-                    .build(),
-                "numChildren",
-                new FieldPointer.Builder()
-                    .tablePointer(tablePointer)
-                    .columnName(NUM_CHILDREN_COLUMN_ALIAS)
-                    .build()));
+            pathNumChildrenTable,
+            PATH_NUM_CHILDREN_AUXILIARY_DATA.getFields().stream()
+                .collect(
+                    Collectors.toMap(
+                        Function.identity(),
+                        fieldName ->
+                            new FieldPointer.Builder()
+                                .tablePointer(pathNumChildrenTable)
+                                .columnName(fieldName)
+                                .build())));
 
     return new HierarchyMapping(childParent, null, ancestorDescendant, pathNumChildren);
   }
@@ -147,9 +142,7 @@ public final class HierarchyMapping {
         TableVariable.forPrimary(rootNodesFilter.getTablePointer());
     FieldVariable idFieldVar =
         new FieldVariable(
-            rootNodesFilter.getFieldPointers().get("node"),
-            possibleRootNodesTableVar,
-            idFieldAlias);
+            rootNodesFilter.getFieldPointers().get("id"), possibleRootNodesTableVar, idFieldAlias);
     return new Query.Builder()
         .select(List.of(idFieldVar))
         .tables(List.of(possibleRootNodesTableVar))

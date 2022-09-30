@@ -9,6 +9,7 @@ import bio.terra.tanagra.indexing.command.ComputeAncestorDescendant;
 import bio.terra.tanagra.indexing.command.ComputePathNumChildren;
 import bio.terra.tanagra.indexing.command.DenormalizeAllNodes;
 import bio.terra.tanagra.indexing.command.WriteParentChild;
+import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
 import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
@@ -173,6 +174,7 @@ public final class Entity {
             hierarchyName -> {
               jobs.add(new WriteParentChildIdPairs(this, hierarchyName));
               jobs.add(new WriteAncestorDescendantIdPairs(this, hierarchyName));
+              jobs.add(new BuildNumChildrenAndPaths(this, hierarchyName));
             });
     return jobs;
   }
