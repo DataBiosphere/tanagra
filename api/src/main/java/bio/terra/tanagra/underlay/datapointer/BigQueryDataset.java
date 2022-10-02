@@ -25,13 +25,15 @@ import org.apache.commons.text.StringSubstitutor;
 public final class BigQueryDataset extends DataPointer {
   private final String projectId;
   private final String datasetId;
+  private final String queryProjectId;
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
 
-  private BigQueryDataset(String name, String projectId, String datasetId) {
+  private BigQueryDataset(String name, String projectId, String datasetId, String queryProjectId) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
+    this.queryProjectId = queryProjectId;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -41,8 +43,16 @@ public final class BigQueryDataset extends DataPointer {
     if (serialized.getDatasetId() == null || serialized.getDatasetId().isEmpty()) {
       throw new InvalidConfigException("No BigQuery dataset ID defined");
     }
+    // Default query project id is the same project where the data lives.
+    // This property lets users specify a different project to run the queries in.
+    // This is useful for e.g. public datasets, where you don't have permission to run queries
+    // there.
+    String queryProjectId = serialized.getQueryProjectId();
+    if (queryProjectId == null || queryProjectId.isEmpty()) {
+      queryProjectId = serialized.getProjectId();
+    }
     return new BigQueryDataset(
-        serialized.getName(), serialized.getProjectId(), serialized.getDatasetId());
+        serialized.getName(), serialized.getProjectId(), serialized.getDatasetId(), queryProjectId);
   }
 
   @Override
@@ -133,7 +143,7 @@ public final class BigQueryDataset extends DataPointer {
       } catch (IOException ioEx) {
         throw new SystemException("Error loading application default credentials", ioEx);
       }
-      bigQueryService = new GoogleBigQuery(credentials, projectId);
+      bigQueryService = new GoogleBigQuery(credentials, queryProjectId);
     }
     return bigQueryService;
   }
@@ -144,5 +154,9 @@ public final class BigQueryDataset extends DataPointer {
 
   public String getDatasetId() {
     return datasetId;
+  }
+
+  public String getQueryProjectId() {
+    return queryProjectId;
   }
 }
