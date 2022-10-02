@@ -27,4 +27,3 @@ JOIN `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c
 ON c.concept_id = textsearch.id
 
 WHERE c.domain_id = 'Procedure'
-AND c.valid_end_date > DATE('2022-01-01')

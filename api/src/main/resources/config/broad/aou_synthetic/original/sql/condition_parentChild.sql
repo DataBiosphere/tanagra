@@ -10,5 +10,3 @@ WHERE
   AND c2.domain_id = 'Condition'
   AND c1.vocabulary_id = c2.vocabulary_id
   AND c2.vocabulary_id = 'SNOMED'
-  AND c1.valid_end_date > DATE('2022-01-01')
-  AND c2.valid_end_date > DATE('2022-01-01')
