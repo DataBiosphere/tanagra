@@ -1,0 +1,114 @@
+{
+  "name": "measurement",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "name" },
+    { "type": "KEY_AND_DISPLAY", "name": "vocabulary" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
+    { "type": "SIMPLE", "name": "concept_code" } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": {
+      "table": "concept",
+      "filter": {
+        "type": "ARRAY",
+        "operator": "OR",
+        "subfilters": [
+          { "type": "ARRAY",
+            "operator": "AND",
+            "subfilters": [
+              { "type": "BINARY",
+                "field": { "column": "domain_id" },
+                "operator": "EQUALS",
+                "value": { "stringVal": "Measurement" } },
+              { "type": "BINARY",
+                "field": { "column": "vocabulary_id" },
+                "operator": "EQUALS",
+                "value": { "stringVal": "SNOMED" } } ] },
+          { "type": "ARRAY",
+            "operator": "AND",
+            "subfilters": [
+              { "type": "BINARY",
+                "field": { "column": "vocabulary_id" },
+                "operator": "EQUALS",
+                "value": { "stringVal": "LOINC" } },
+              { "type": "ARRAY",
+                "operator": "OR",
+                "subfilters": [
+                  { "type": "BINARY",
+                    "field": { "column": "concept_class_id" },
+                    "operator": "EQUALS",
+                    "value": { "stringVal": "LOINC Hierarchy" } },
+                  { "type": "BINARY",
+                    "field": { "column": "concept_class_id" },
+                    "operator": "EQUALS",
+                    "value": { "stringVal": "LOINC Component" } },
+                  { "type": "BINARY",
+                    "field": { "column": "concept_class_id" },
+                    "operator": "EQUALS",
+                    "value": { "stringVal": "Lab Test" } }
+                ] } ] } ] } },
+    "attributeMappings": {
+      "id": { "value": { "column": "concept_id" } },
+      "name": { "value": { "column": "concept_name" } },
+      "vocabulary": {
+        "value": { "column": "vocabulary_id" },
+        "display": {
+          "column": "vocabulary_id",
+          "foreignTable": "vocabulary",
+          "foreignKey": "vocabulary_id",
+          "foreignColumn": "vocabulary_name" } },
+      "standard_concept": {
+        "value": { "column": "standard_concept" },
+        "display": {
+          "column": "standard_concept",
+          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "measurement_textSearch.sql" } } },
+    "hierarchyMappings": {
+      "standard": {
+        "childParent": {
+          "tablePointer": { "rawSqlFile": "measurement_parentChild.sql" }
+        },
+        "rootNodesFilter": {
+          "tablePointer": {
+            "table": "concept",
+            "filter": {
+              "type": "ARRAY",
+              "operator": "OR",
+              "subfilters": [
+                { "type": "ARRAY",
+                  "operator": "AND",
+                  "subfilters": [
+                    { "type": "BINARY",
+                      "field": { "column": "domain_id" },
+                      "operator": "EQUALS",
+                      "value": { "stringVal": "Measurement" } },
+                    { "type": "BINARY",
+                      "field": { "column": "vocabulary_id" },
+                      "operator": "EQUALS",
+                      "value": { "stringVal": "SNOMED" } } ] },
+                { "type": "ARRAY",
+                  "operator": "AND",
+                  "subfilters": [
+                    { "type": "BINARY",
+                      "field": { "column": "vocabulary_id" },
+                      "operator": "EQUALS",
+                      "value": { "stringVal": "LOINC" } },
+                    { "type": "BINARY",
+                      "field": { "column": "concept_id" },
+                      "operator": "EQUALS",
+                      "value": { "int64Val": 36206173 } } ] } ] } },
+          "fieldPointers": {
+            "id": { "column": "concept_id" }
+          }
+        }
+      }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
