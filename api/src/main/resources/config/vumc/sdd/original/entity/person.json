@@ -6,8 +6,7 @@
     { "type": "SIMPLE", "name": "year_of_birth" },
     { "type": "KEY_AND_DISPLAY", "name": "gender" },
     { "type": "KEY_AND_DISPLAY", "name": "race" },
-    { "type": "KEY_AND_DISPLAY", "name": "ethnicity" },
-    { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth" } ],
+    { "type": "KEY_AND_DISPLAY", "name": "ethnicity" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
@@ -32,13 +31,6 @@
         "value": { "column": "ethnicity_concept_id" },
         "display": {
           "column": "ethnicity_concept_id",
-          "foreignTable": "concept",
-          "foreignKey": "concept_id",
-          "foreignColumn": "concept_name" } },
-      "sex_at_birth": {
-        "value": { "column": "sex_at_birth_concept_id" },
-        "display": {
-          "column": "sex_at_birth_concept_id",
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } }
