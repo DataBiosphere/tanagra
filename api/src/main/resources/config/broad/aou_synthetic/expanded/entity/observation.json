@@ -1,0 +1,241 @@
+{
+  "name" : "observation",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : {
+          "stringVal" : "S"
+        },
+        "display" : "Standard"
+      } ]
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "vocabulary",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : {
+          "stringVal" : "APC"
+        },
+        "display" : "Ambulatory Payment Classification (CMS)"
+      }, {
+        "value" : {
+          "stringVal" : "AoU_General"
+        },
+        "display" : "AoU_General"
+      }, {
+        "value" : {
+          "stringVal" : "CPT4"
+        },
+        "display" : "Current Procedural Terminology version 4 (AMA)"
+      }, {
+        "value" : {
+          "stringVal" : "DRG"
+        },
+        "display" : "Diagnosis-related group (CMS)"
+      }, {
+        "value" : {
+          "stringVal" : "HCPCS"
+        },
+        "display" : "Healthcare Common Procedure Coding System (CMS)"
+      }, {
+        "value" : {
+          "stringVal" : "ICDO3"
+        },
+        "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
+      }, {
+        "value" : {
+          "stringVal" : "LOINC"
+        },
+        "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
+      }, {
+        "value" : {
+          "stringVal" : "MDC"
+        },
+        "display" : "Major Diagnostic Categories (CMS)"
+      }, {
+        "value" : {
+          "stringVal" : "PCORNet"
+        },
+        "display" : "National Patient-Centered Clinical Research Network (PCORI)"
+      }, {
+        "value" : {
+          "stringVal" : "NUCC"
+        },
+        "display" : "National Uniform Claim Committee Health Care Provider Taxonomy Code Set (NUCC)"
+      }, {
+        "value" : {
+          "stringVal" : "SNOMED"
+        },
+        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "ARRAY",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Observation"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "standard_concept"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "S"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "vocabulary_id"
+          },
+          "operator" : "NOT_EQUALS",
+          "value" : {
+            "stringVal" : "PPI"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "concept_class_id"
+          },
+          "operator" : "NOT_EQUALS",
+          "value" : {
+            "stringVal" : "Survey"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary_id"
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       cs.concept_id AS id, cs.concept_synonym_name AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept_synonym` cs ) AS textsearch  JOIN `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Observation' AND c.standard_concept = 'S' AND c.vocabulary_id != 'PPI' AND c.concept_class_id != 'Survey'"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "observation"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "t_display_standard_concept"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary"
+        },
+        "display" : {
+          "column" : "t_display_vocabulary"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "id",
+        "foreignTable" : "observation_textsearch",
+        "foreignKey" : "id",
+        "foreignColumn" : "text"
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

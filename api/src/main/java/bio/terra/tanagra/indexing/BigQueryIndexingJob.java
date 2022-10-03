@@ -15,10 +15,19 @@ import com.google.cloud.bigquery.TableId;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.MoreObjects;
+import org.joda.time.DateTimeUtils;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public abstract class BigQueryIndexingJob implements IndexingJob {
+  private static final DateTimeFormatter FORMATTER =
+      DateTimeFormat.forPattern("MMddHHmm").withZone(DateTimeZone.UTC);
+
   protected static final String DEFAULT_REGION = "us-central1";
 
   // The maximum depth of ancestors present in a hierarchy. This may be larger
@@ -41,21 +50,9 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
   @Override
   public boolean prerequisitesComplete() {
-    // Entity jobs have no prerequisites.
+    // TODO: Implement a required ordering so we can run jobs in parallel.
     return true;
   }
-
-  @Override
-  public void dryRun() {
-    run(true);
-  }
-
-  @Override
-  public void run() {
-    run(false);
-  }
-
-  protected abstract void run(boolean isDryRun);
 
   protected Entity getEntity() {
     return entity;
@@ -96,6 +93,26 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     return tableOpt.isPresent() ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
   }
 
+  @Override
+  public void clean(boolean isDryRun) {
+    // Delete the output table.
+    BigQueryDataset outputBQDataset = getOutputDataPointer();
+    if (isDryRun) {
+      LOGGER.info(
+          "Delete table: {}, {}, {}",
+          outputBQDataset.getProjectId(),
+          outputBQDataset.getDatasetId(),
+          getOutputTablePointer().getTableName());
+    } else {
+      getOutputDataPointer()
+          .getBigQueryService()
+          .deleteTable(
+              outputBQDataset.getProjectId(),
+              outputBQDataset.getDatasetId(),
+              getOutputTablePointer().getTableName());
+    }
+  }
+
   protected void createTableFromSql(TablePointer outputTable, String sql, boolean isDryRun) {
     BigQueryDataset outputBQDataset = getOutputDataPointer();
     TableId destinationTable =
@@ -117,7 +134,26 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     // TODO: Use PipelineOptionsFactory.create() instead of fromArgs().
     // PipelineOptionsFactory.create() doesn't seem to call the default factory classes, while
     // fromArgs() does.
-    return PipelineOptionsFactory.fromArgs(args).withValidation().as(BigQueryOptions.class);
+    BigQueryOptions options =
+        PipelineOptionsFactory.fromArgs(args).withValidation().as(BigQueryOptions.class);
+    options.setJobName(getDataflowJobName());
+    return options;
+  }
+
+  /** Build a name for the Dataflow job that will be visible in the Cloud Console. */
+  private String getDataflowJobName() {
+    String jobDisplayName = getName();
+    String normalizedJobDisplayName =
+        jobDisplayName == null || jobDisplayName.length() == 0
+            ? "t-BQIndexingJob"
+            : "t-" + jobDisplayName.toLowerCase().replaceAll("[^a-z0-9]", "-");
+    String userName = MoreObjects.firstNonNull(System.getProperty("user.name"), "");
+    String normalizedUserName = userName.toLowerCase().replaceAll("[^a-z0-9]", "0");
+    String datePart = FORMATTER.print(DateTimeUtils.currentTimeMillis());
+
+    String randomPart = Integer.toHexString(ThreadLocalRandom.current().nextInt());
+    return String.format(
+        "%s-%s-%s-%s", normalizedJobDisplayName, normalizedUserName, datePart, randomPart);
   }
 
   protected String getAppDefaultSAEmail() {

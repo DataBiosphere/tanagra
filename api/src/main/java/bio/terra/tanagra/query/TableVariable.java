@@ -13,23 +13,39 @@ public final class TableVariable implements SQLExpression {
   private final TablePointer tablePointer;
   private final String joinField;
   private final FieldVariable joinFieldOnParent;
+  private final boolean isLeftJoin;
 
   private TableVariable(
       TablePointer tablePointer,
       @Nullable String joinField,
-      @Nullable FieldVariable joinFieldOnParent) {
+      @Nullable FieldVariable joinFieldOnParent,
+      boolean isLeftJoin) {
     this.tablePointer = tablePointer;
     this.joinField = joinField;
     this.joinFieldOnParent = joinFieldOnParent;
+    this.isLeftJoin = isLeftJoin;
   }
 
   public static TableVariable forPrimary(TablePointer tablePointer) {
-    return new TableVariable(tablePointer, null, null);
+    return new TableVariable(tablePointer, null, null, false);
   }
 
   public static TableVariable forJoined(
       TablePointer tablePointer, String joinField, FieldVariable joinFieldOnParent) {
-    return new TableVariable(tablePointer, joinField, joinFieldOnParent);
+    return forJoined(tablePointer, joinField, joinFieldOnParent, false);
+  }
+
+  public static TableVariable forLeftJoined(
+      TablePointer tablePointer, String joinField, FieldVariable joinFieldOnParent) {
+    return forJoined(tablePointer, joinField, joinFieldOnParent, true);
+  }
+
+  private static TableVariable forJoined(
+      TablePointer tablePointer,
+      String joinField,
+      FieldVariable joinFieldOnParent,
+      boolean isLeftJoin) {
+    return new TableVariable(tablePointer, joinField, joinFieldOnParent, isLeftJoin);
   }
 
   @Override
@@ -43,9 +59,11 @@ public final class TableVariable implements SQLExpression {
     String sql = StringSubstitutor.replace(template, params);
 
     if (joinField != null) {
-      template = "JOIN ${tableReference} ON ${tableAlias}.${joinField} = ${joinFieldOnParent}";
+      template =
+          "${joinType} ${tableReference} ON ${tableAlias}.${joinField} = ${joinFieldOnParent}";
       params =
           ImmutableMap.<String, String>builder()
+              .put("joinType", isLeftJoin ? "LEFT JOIN" : "JOIN")
               .put("tableReference", sql)
               .put("tableAlias", alias)
               .put("joinField", joinField)

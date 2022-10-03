@@ -65,7 +65,7 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   }
 
   @Override
-  protected void run(boolean isDryRun) {
+  public void run(boolean isDryRun) {
     SQLExpression selectChildParentIdPairs =
         getEntity()
             .getSourceDataMapping()

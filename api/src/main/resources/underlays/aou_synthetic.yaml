@@ -425,21 +425,21 @@ uiConfiguration: >-
     "criteriaConfigs": [{
       "type":"concept",
       "id": "tanagra-conditions",
-      "title":"Conditions",
+      "title":"Condition",
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_name","width":"100%","title":"Concept name"},
         {"key":"concept_id","width":100,"title":"Concept ID"},
-        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
-        {"key":"person_count","width":120,"title":"Roll-up Count"}
+        {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "hierarchyColumns": [
         {"key": "concept_name", "width": "100%", "title": "Condition"},
         {"key": "concept_id", "width": 120, "title": "Concept ID"},
-        {"key":"person_count","width":120,"title":"Roll-up Count"}
+        {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "occurrence": "condition_occurrence",
       "classification": "condition"
@@ -447,21 +447,21 @@ uiConfiguration: >-
     {
       "type":"concept",
       "id": "tanagra-procedures",
-      "title":"Procedures",
+      "title":"Procedure",
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_name","width":"100%","title":"Concept name"},
         {"key":"concept_id","width":100,"title":"Concept ID"},
-        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
-        {"key":"person_count","width":120,"title":"Roll-up Count"}
+        {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "hierarchyColumns": [
         {"key": "concept_name", "width": "100%", "title": "Procedure"},
         {"key": "concept_id", "width": 120, "title": "Concept ID"},
-        {"key":"person_count","width":120,"title":"Roll-up Count"}
+        {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "occurrence": "procedure_occurrence",
       "classification": "procedure"
@@ -469,16 +469,16 @@ uiConfiguration: >-
     {
       "type":"concept",
       "id": "tanagra-observations",
-      "title":"Observations",
+      "title":"Observation",
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_name","width":"100%","title":"Concept name"},
         {"key":"concept_id","width":100,"title":"Concept ID"},
-        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
-        {"key":"person_count","width":120,"title":"Roll-up Count"}
+        {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "occurrence": "observation_occurrence",
       "classification": "observation"
@@ -486,21 +486,21 @@ uiConfiguration: >-
     {
       "type":"concept",
       "id": "tanagra-drugs",
-      "title":"Drugs",
+      "title":"Drug",
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_name","width":"100%","title":"Concept name"},
         {"key":"concept_id","width":100,"title":"Concept ID"},
-        {"key":"standard_concept","width":120,"title":"Source/Standard"},
+        {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
-        {"key":"person_count","width":120,"title":"Roll-up Count"}
+        {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "hierarchyColumns": [
         {"key": "concept_name", "width": "100%", "title": "Drug"},
         {"key": "concept_id", "width": 120, "title": "Concept ID"},
-        {"key":"person_count","width":120,"title":"Roll-up Count"}
+        {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "occurrence": "ingredient_occurrence",
       "classification": "ingredient"
@@ -515,7 +515,7 @@ uiConfiguration: >-
     {
       "type":"attribute",
       "id": "tanagra-gender",
-      "title":"Gender Identity",
+      "title":"Gender identity",
       "category": "Program data",
       "attribute":"gender_concept_id"
     },
@@ -529,14 +529,14 @@ uiConfiguration: >-
     {
       "type":"attribute",
       "id": "tanagra-sex_at_birth",
-      "title":"Sex Assigned at Birth",
+      "title":"Sex assigned at birth",
       "category": "Program data",
       "attribute":"sex_at_birth_concept_id"
     },
     {
       "type":"attribute",
       "id": "tanagra-year_of_birth",
-      "title":"Year of Birth",
+      "title":"Year of birth",
       "category": "Program data",
       "attribute":"year_of_birth"
     }],

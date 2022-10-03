@@ -181,7 +181,7 @@ export function GroupOverview() {
           variant="contained"
           className="add-criteria"
         >
-          Add Criteria
+          Add criteria
         </Button>
       </Stack>
     </Box>

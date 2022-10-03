@@ -47,6 +47,7 @@ public final class AttributeMapping {
         FieldPointer display =
             (serialized != null && serialized.getDisplay() != null)
                 ? FieldPointer.fromSerialized(serialized.getDisplay(), tablePointer)
+                    .setJoinCanBeEmpty(true) // Allow null display names.
                 : new FieldPointer.Builder()
                     .tablePointer(tablePointer)
                     .columnName(DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName())

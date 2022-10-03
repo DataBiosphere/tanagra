@@ -1,0 +1,173 @@
+{
+  "name" : "brand",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "valueDisplays" : [ {
+        "value" : { },
+        "display" : "Source"
+      }, {
+        "value" : {
+          "stringVal" : "S"
+        },
+        "display" : "Standard"
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "ARRAY",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Drug"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "concept_class_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Brand Name"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "invalid_reason"
+          },
+          "operator" : "IS",
+          "value" : { }
+        }, {
+          "type" : "ARRAY",
+          "operator" : "OR",
+          "subfilters" : [ {
+            "type" : "BINARY",
+            "field" : {
+              "column" : "vocabulary_id"
+            },
+            "operator" : "EQUALS",
+            "value" : {
+              "stringVal" : "RxNorm"
+            }
+          }, {
+            "type" : "BINARY",
+            "field" : {
+              "column" : "vocabulary_id"
+            },
+            "operator" : "EQUALS",
+            "value" : {
+              "stringVal" : "RxNorm Extension"
+            }
+          } ]
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       cs.concept_id AS id, cs.concept_synonym_name AS text     FROM  `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept_synonym` cs ) AS textsearch  JOIN `broad-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Drug' AND c.concept_class_id = 'Brand Name' AND c.invalid_reason IS NULL AND c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "brand"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "t_display_standard_concept"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "id",
+        "foreignTable" : "brand_textsearch",
+        "foreignKey" : "id",
+        "foreignColumn" : "text"
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

@@ -14,28 +14,38 @@ public interface IndexingJob {
 
   String getName();
 
-  void dryRun();
+  void run(boolean isDryRun);
 
-  void run();
+  void clean(boolean isDryRun);
 
   JobStatus checkStatus();
 
   boolean prerequisitesComplete();
 
-  default void runIfPending(boolean isDryRun) {
-    LOGGER.info("Indexing job: {}", getName());
+  default void checkStatusAndRun(boolean isDryRun) {
+    LOGGER.info("RUN Indexing job: {}", getName());
+    JobStatus status = checkStatus();
+    LOGGER.info("Job status: {}", status);
+
     if (!prerequisitesComplete()) {
       LOGGER.info("Skipping because prerequisites are not complete");
       return;
+    } else if (!JobStatus.NOT_STARTED.equals(status)) {
+      LOGGER.info("Skipping because job is either in progress or complete");
+      return;
     }
+    run(isDryRun);
+  }
+
+  default void checkStatusAndClean(boolean isDryRun) {
+    LOGGER.info("CLEAN Indexing job: {}", getName());
     JobStatus status = checkStatus();
     LOGGER.info("Job status: {}", status);
-    if (JobStatus.NOT_STARTED.equals(status)) {
-      if (isDryRun) {
-        dryRun();
-      } else {
-        run();
-      }
+
+    if (JobStatus.IN_PROGRESS.equals(status)) {
+      LOGGER.info("Skipping because job is in progress");
+      return;
     }
+    clean(isDryRun);
   }
 }

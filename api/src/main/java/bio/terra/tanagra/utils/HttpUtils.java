@@ -144,7 +144,7 @@ public class HttpUtils {
     do {
       numTries++;
       try {
-        LOGGER.info("Request attempt #{}/{}", numTries - 1, maxCalls);
+        LOGGER.debug("Request attempt #{}/{}", numTries - 1, maxCalls);
 
         T result = makeRequest.makeRequest();
         LOGGER.debug("Result: {}", result);
@@ -167,7 +167,7 @@ public class HttpUtils {
           // keep track of the last retryable exception so we can re-throw it in case of a timeout
           lastRetryableException = ex;
         }
-        LOGGER.info("Caught retryable exception: {}", ex);
+        LOGGER.debug("Caught retryable exception: {}", ex);
       }
 
       // sleep before retrying, unless this is the last try

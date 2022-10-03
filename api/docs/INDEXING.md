@@ -117,17 +117,21 @@ All the entities in a group should be indexed before the group. The `INDEX_ALL` 
 this in  mind if you're running the jobs for each entity or entity group separately.
 
 ## OMOP Example
-The `aou_synthetic` dataset uses the standard OMOP schema. You can see the underlay config files defined for this
-dataset in [`api/src/main/resources/config/broad/aou_synthetic/`](../src/main/resources/config/broad/aou_synthetic/).
+The `cms_synpuf` is a [public dataset](https://console.cloud.google.com/marketplace/product/hhs/synpuf) that uses the 
+standard OMOP schema.
+
+You can see the underlay config files defined for this dataset in 
+[`api/src/main/resources/config/broad/cms_synpuf/`](../src/main/resources/config/broad/cms_synpuf/).
+Note that while the source dataset is public, the index dataset that Tanagra generates is not.
 
 ```
-export INPUT_DIR=$HOME/tanagra/api/src/main/resources/config/broad/aou_synthetic/original
-export OUTPUT_DIR=$HOME/tanagra/api/src/main/resources/config/broad/aou_synthetic/expanded
+export INPUT_DIR=$HOME/tanagra/api/src/main/resources/config/broad/cms_synpuf/original
+export OUTPUT_DIR=$HOME/tanagra/api/src/main/resources/config/broad/cms_synpuf/expanded
 
-./gradlew api:index -Dexec.args="EXPAND_CONFIG $INPUT_DIR/omop.json $OUTPUT_DIR/"
+./gradlew api:index -Dexec.args="EXPAND_CONFIG $INPUT_DIR/cms_synpuf.json $OUTPUT_DIR/"
 
-bq mk --location=US broad-tanagra-dev:aousynthetic_index
+bq mk --location=US broad-tanagra-dev:cmssynpuf_index
 
-./gradlew api:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/omop.json DRY_RUN"
-./gradlew api:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/omop.json"
+./gradlew api:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/cms_synpuf.json DRY_RUN"
+./gradlew api:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/cms_synpuf.json"
 ```

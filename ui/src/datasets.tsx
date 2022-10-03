@@ -64,8 +64,8 @@ export function Datasets() {
   const conceptSetOccurrences = useConceptSetOccurrences(selectedConceptSets);
 
   const [dialog, showNewCohort] = useTextInputDialog({
-    title: "New Cohort",
-    textLabel: "Cohort Name",
+    title: "New cohort",
+    textLabel: "Cohort name",
     buttonLabel: "Create",
     onConfirm: (name: string) => {
       const action = dispatch(insertCohort(name, underlay.name));
@@ -170,7 +170,7 @@ export function Datasets() {
         <Grid item xs={1}>
           <Stack direction="row" alignItems="baseline">
             <Typography variant="h4" sx={{ flexGrow: 1 }}>
-              1. Select Cohorts
+              1. Select cohorts
             </Typography>
             <IconButton id="insert-cohort" onClick={showNewCohort}>
               <AddIcon />
@@ -215,7 +215,7 @@ export function Datasets() {
         <Grid item xs={1}>
           <Stack direction="row" alignItems="baseline">
             <Typography variant="h4" sx={{ flexGrow: 1 }}>
-              2. Select Concept Sets
+              2. Select concept Sets
             </Typography>
             <IconButton id="insert-concept-set" onClick={showInsertConceptSet}>
               <AddIcon />
@@ -280,7 +280,7 @@ export function Datasets() {
                 }
               />
               <Typography variant="subtitle1">
-                {allAttributesChecked() ? "Deselect All" : "Select All"}
+                {allAttributesChecked() ? "Deselect all" : "Select all"}
               </Typography>
             </Stack>
           </Stack>

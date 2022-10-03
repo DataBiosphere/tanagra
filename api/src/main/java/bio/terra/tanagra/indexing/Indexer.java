@@ -88,21 +88,45 @@ public final class Indexer {
   }
 
   public void runJobsForAllEntities(boolean isDryRun) {
-    underlay.getEntities().keySet().forEach(name -> runJobsForEntity(name, isDryRun));
+    underlay.getEntities().keySet().stream()
+        .sorted()
+        .forEach(name -> runJobsForEntity(name, isDryRun));
   }
 
   public void runJobsForEntity(String name, boolean isDryRun) {
-    LOGGER.info("Indexing entity: {}", name);
-    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.runIfPending(isDryRun));
+    LOGGER.info("RUN entity: {}", name);
+    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndRun(isDryRun));
   }
 
   public void runJobsForAllEntityGroups(boolean isDryRun) {
-    underlay.getEntityGroups().keySet().forEach(name -> runJobsForEntityGroup(name, isDryRun));
+    underlay.getEntityGroups().keySet().stream()
+        .sorted()
+        .forEach(name -> runJobsForEntityGroup(name, isDryRun));
   }
 
   public void runJobsForEntityGroup(String name, boolean isDryRun) {
-    LOGGER.info("Indexing entity group: {}", name);
-    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.runIfPending(isDryRun));
+    LOGGER.info("RUN entity group: {}", name);
+    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndRun(isDryRun));
+  }
+
+  public void cleanAllEntities(boolean isDryRun) {
+    underlay.getEntities().keySet().stream().sorted().forEach(name -> cleanEntity(name, isDryRun));
+  }
+
+  public void cleanEntity(String name, boolean isDryRun) {
+    LOGGER.info("CLEAN entity: {}", name);
+    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndClean(isDryRun));
+  }
+
+  public void cleanAllEntityGroups(boolean isDryRun) {
+    underlay.getEntityGroups().keySet().stream()
+        .sorted()
+        .forEach(name -> cleanEntityGroup(name, isDryRun));
+  }
+
+  public void cleanEntityGroup(String name, boolean isDryRun) {
+    LOGGER.info("CLEAN entity group: {}", name);
+    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndClean(isDryRun));
   }
 
   public Underlay getUnderlay() {

@@ -15,6 +15,7 @@ public class FieldPointer {
   private final TablePointer foreignTablePointer;
   private final String foreignKeyColumnName;
   private final String foreignColumnName;
+  private boolean joinCanBeEmpty;
   private final String sqlFunctionWrapper;
 
   private FieldPointer(Builder builder) {
@@ -23,6 +24,7 @@ public class FieldPointer {
     this.foreignTablePointer = builder.foreignTablePointer;
     this.foreignKeyColumnName = builder.foreignKeyColumnName;
     this.foreignColumnName = builder.foreignColumnName;
+    this.joinCanBeEmpty = builder.joinCanBeEmpty;
     this.sqlFunctionWrapper = builder.sqlFunctionWrapper;
   }
 
@@ -75,7 +77,11 @@ public class FieldPointer {
               new Builder().tablePointer(tablePointer).columnName(columnName).build(),
               primaryTable);
       TableVariable foreignTable =
-          TableVariable.forJoined(foreignTablePointer, foreignKeyColumnName, primaryTableColumn);
+          joinCanBeEmpty
+              ? TableVariable.forLeftJoined(
+                  foreignTablePointer, foreignKeyColumnName, primaryTableColumn)
+              : TableVariable.forJoined(
+                  foreignTablePointer, foreignKeyColumnName, primaryTableColumn);
       tableVariables.add(foreignTable);
       return new FieldVariable(
           new Builder().tablePointer(foreignTablePointer).columnName(foreignColumnName).build(),
@@ -106,6 +112,11 @@ public class FieldPointer {
     return foreignColumnName;
   }
 
+  public FieldPointer setJoinCanBeEmpty(boolean joinCanBeEmpty) {
+    this.joinCanBeEmpty = joinCanBeEmpty;
+    return this;
+  }
+
   public boolean hasSqlFunctionWrapper() {
     return sqlFunctionWrapper != null;
   }
@@ -128,6 +139,7 @@ public class FieldPointer {
     private TablePointer foreignTablePointer;
     private String foreignKeyColumnName;
     private String foreignColumnName;
+    private boolean joinCanBeEmpty;
     private String sqlFunctionWrapper;
 
     public Builder tablePointer(TablePointer tablePointer) {
@@ -152,6 +164,11 @@ public class FieldPointer {
 
     public Builder foreignColumnName(String foreignColumnName) {
       this.foreignColumnName = foreignColumnName;
+      return this;
+    }
+
+    public Builder joinCanBeEmpty(boolean joinCanBeEmpty) {
+      this.joinCanBeEmpty = joinCanBeEmpty;
       return this;
     }
 

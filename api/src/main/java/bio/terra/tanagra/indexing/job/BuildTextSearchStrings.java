@@ -21,7 +21,7 @@ public class BuildTextSearchStrings extends BigQueryIndexingJob {
   }
 
   @Override
-  protected void run(boolean isDryRun) {
+  public void run(boolean isDryRun) {
     Query selectIdTextPairs = getEntity().getSourceDataMapping().queryTextSearchStrings();
     String sql = selectIdTextPairs.renderSQL();
     LOGGER.info("select id-text pairs SQL: {}", sql);

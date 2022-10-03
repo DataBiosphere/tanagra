@@ -50,11 +50,6 @@ export const theme = createTheme({
       fontSize: 11,
       lineHeight: "16px",
     },
-    button: {
-      fontFamily: "'Red Hat Text', sans-serif",
-      fontSize: 14,
-      lineHeight: "16px",
-    },
   },
   palette: {
     primary: {
@@ -81,6 +76,11 @@ export const theme = createTheme({
       defaultProps: {
         size: "small",
         disableElevation: true,
+      },
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+        },
       },
     },
     MuiPaper: {

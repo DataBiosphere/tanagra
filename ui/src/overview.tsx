@@ -246,7 +246,7 @@ function ParticipantsGroup(props: {
         >
           <Loading status={groupCountState} size="small">
             <Typography variant="subtitle1">
-              Group Count: {groupCountState.data?.toLocaleString()}
+              Group count: {groupCountState.data?.toLocaleString()}
             </Typography>
           </Loading>
         </Box>
@@ -567,7 +567,7 @@ function DemographicCharts({ open }: DemographicChartsProps) {
       <Loading status={demographicState}>
         <Grid item xs={1}>
           <Stack>
-            <Typography variant="h2">{`Total Count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
+            <Typography variant="h2">{`Total count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
             {demographicState.data?.totalCount &&
               demographicState.data?.chartsData.map((chart, index) => {
                 return (
