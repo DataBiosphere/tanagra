@@ -157,14 +157,23 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
   }
 
   protected String getAppDefaultSAEmail() {
+    GoogleCredentials appDefaultSACredentials;
     try {
-      GoogleCredentials appDefaultSACredentials = GoogleCredentials.getApplicationDefault();
+      appDefaultSACredentials = GoogleCredentials.getApplicationDefault();
+    } catch (IOException ioEx) {
+      throw new SystemException("Error reading application default credentials.", ioEx);
+    }
+
+    // Get email if this is a service account.
+    try {
       String serviceAccountEmail =
           ((ServiceAccountCredentials) appDefaultSACredentials).getClientEmail();
       LOGGER.info("Service account email: {}", serviceAccountEmail);
       return serviceAccountEmail;
-    } catch (IOException ioEx) {
-      throw new SystemException("Error reading application default credentials.", ioEx);
+    } catch (ClassCastException ccEx) {
+      LOGGER.debug("Application default credentials are not a service account.", ccEx);
     }
+
+    return "";
   }
 }

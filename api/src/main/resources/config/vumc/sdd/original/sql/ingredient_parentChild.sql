@@ -27,35 +27,3 @@ WHERE
     OR (c2.vocabulary_id = 'ATC'
         AND c2.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')
         AND c2.standard_concept = 'C'))
-
-UNION ALL
-
-SELECT
-  ca.ancestor_concept_id AS parent,
-  ca.descendant_concept_id AS child,
-FROM `victr-tanagra-test.sd_static.concept_ancestor` ca
-JOIN `victr-tanagra-test.sd_static.concept` c1  ON c1.concept_id = ca.ancestor_concept_id
-JOIN `victr-tanagra-test.sd_static.concept` c2  ON c2.concept_id = ca.descendant_concept_id
-WHERE
-  ca.min_levels_of_separation = 1
-  AND ca.max_levels_of_separation = 1
-
-  AND c1.domain_id = 'Drug'
-  AND ((c1.vocabulary_id IN ('RxNorm', 'RxNorm Extension')
-        AND c1.concept_class_id = 'Ingredient'
-        AND c1.standard_concept = 'S')
-    OR (c1.vocabulary_id = 'RxNorm'
-        AND c1.concept_class_id = 'Precise Ingredient')
-    OR (c1.vocabulary_id = 'ATC'
-        AND c1.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')
-        AND c1.standard_concept = 'C'))
-
-  AND c2.domain_id = 'Drug'
-  AND ((c2.vocabulary_id IN ('RxNorm', 'RxNorm Extension')
-        AND c2.concept_class_id = 'Ingredient'
-        AND c2.standard_concept = 'S')
-    OR (c2.vocabulary_id = 'RxNorm'
-        AND c2.concept_class_id = 'Precise Ingredient')
-    OR (c2.vocabulary_id = 'ATC'
-        AND c2.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')
-        AND c2.standard_concept = 'C'))
