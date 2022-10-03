@@ -1,0 +1,26 @@
+{
+  "name": "observation_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "entities": {
+    "criteria": "observation",
+    "occurrence": "observation_occurrence"
+  },
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria": {
+        "tablePointer": { "table": "observation" },
+        "fromEntityId": { "column": "observation_id" },
+        "toEntityId":  { "column": "observation_concept_id" }
+      },
+      "occurrenceToPrimary": {
+        "tablePointer": { "table": "observation" },
+        "fromEntityId": { "column": "observation_id" },
+        "toEntityId":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
