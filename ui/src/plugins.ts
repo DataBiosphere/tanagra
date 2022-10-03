@@ -1,6 +1,6 @@
 // Core plugins
 import "criteria/attribute";
-import "criteria/concept";
+import "criteria/classification";
 // Storage plugin
 import "storage/local";
 
