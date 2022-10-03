@@ -21,7 +21,7 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
   }
 
   @Override
-  protected void run(boolean isDryRun) {
+  public void run(boolean isDryRun) {
     Query selectAllAttributes =
         getEntity().getSourceDataMapping().queryAttributes(getEntity().getAttributes());
     String sql = selectAllAttributes.renderSQL();

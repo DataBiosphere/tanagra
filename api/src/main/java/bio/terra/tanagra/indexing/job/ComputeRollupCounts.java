@@ -68,7 +68,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
   }
 
   @Override
-  protected void run(boolean isDryRun) {
+  public void run(boolean isDryRun) {
     CriteriaOccurrence entityGroup = (CriteriaOccurrence) getEntityGroup();
 
     String selectAllCriteriaIdsSql =

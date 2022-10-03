@@ -18,11 +18,8 @@ import com.google.cloud.bigquery.TableResult;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +158,25 @@ public final class GoogleBigQuery {
             job.getQueryResults(
                 BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis())),
         "Error running BigQuery query: " + query);
+  }
+
+  /**
+   * Delete a table. Do nothing if the table is not found (i.e. assume that means it's already
+   * deleted).
+   */
+  public void deleteTable(String projectId, String datasetId, String tableId) {
+    try {
+      TableId tablePointer = TableId.of(projectId, datasetId, tableId);
+      boolean deleteSuccessful =
+          callWithRetries(() -> bigQuery.delete(tablePointer), "Retryable error deleting table");
+      if (deleteSuccessful) {
+        LOGGER.info("Table deleted: {}, {}, {}", projectId, datasetId, tableId);
+      } else {
+        LOGGER.info("Table not found: {}, {}, {}", projectId, datasetId, tableId);
+      }
+    } catch (Exception ex) {
+      throw new SystemException("Error deleting table", ex);
+    }
   }
 
   /**
