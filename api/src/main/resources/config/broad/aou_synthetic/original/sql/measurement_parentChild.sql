@@ -11,5 +11,3 @@ WHERE
       OR (c1.vocabulary_id = 'LOINC'
           AND c1.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')
           AND c2.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')))
-  AND c1.valid_end_date > DATE('2022-01-01')
-  AND c2.valid_end_date > DATE('2022-01-01')

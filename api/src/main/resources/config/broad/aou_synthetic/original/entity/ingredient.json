@@ -48,11 +48,7 @@
                 { "type": "BINARY",
                   "field": { "column": "standard_concept" },
                   "operator": "EQUALS",
-                  "value": { "stringVal": "C" } },
-                { "type": "BINARY",
-                  "field": { "column": "valid_end_date" },
-                  "operator": "GREATER_THAN",
-                  "value": { "stringVal": "2022-01-01" } } ] } },
+                  "value": { "stringVal": "C" } } ] } },
           "fieldPointers": {
             "id": { "column": "concept_id" }
           }

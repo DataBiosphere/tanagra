@@ -10,4 +10,3 @@ AND ((c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')
     OR (c.vocabulary_id = 'ATC'
         AND c.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')
         AND c.standard_concept = 'C'))
-AND c.valid_end_date > DATE('2022-01-01')
