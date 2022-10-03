@@ -1,0 +1,26 @@
+{
+  "name": "visit_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "entities": {
+    "criteria": "visit",
+    "occurrence": "visit_occurrence"
+  },
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria": {
+        "tablePointer": { "table": "visit_occurrence" },
+        "fromEntityId": { "column": "visit_occurrence_id" },
+        "toEntityId":  { "column": "visit_concept_id" }
+      },
+      "occurrenceToPrimary": {
+        "tablePointer": { "table": "visit_occurrence" },
+        "fromEntityId": { "column": "visit_occurrence_id" },
+        "toEntityId":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
