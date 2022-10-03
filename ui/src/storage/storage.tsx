@@ -4,7 +4,7 @@ import { AppDispatch } from "store";
 import * as tanagra from "tanagra-api";
 import { Underlay } from "underlaysSlice";
 
-const currentVersion = 6;
+const currentVersion = 7;
 
 export interface StoragePlugin {
   store(data: tanagra.UserData): Promise<void>;

@@ -46,7 +46,7 @@ class FakeUnderlaysApi {
       },
       criteriaConfigs: [
         {
-          type: "concept",
+          type: "classification",
           id: "tanagra-condition",
           title: "Condition",
           conceptSet: true,
@@ -55,7 +55,7 @@ class FakeUnderlaysApi {
           classification: "condition",
         },
         {
-          type: "concept",
+          type: "classification",
           id: "tanagra-observation",
           title: "Observation",
           conceptSet: true,

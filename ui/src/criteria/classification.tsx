@@ -58,7 +58,7 @@ export interface Data {
 }
 
 @registerCriteriaPlugin(
-  "concept",
+  "classification",
   (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
     const config = c as Config;
 
@@ -89,11 +89,11 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   renderEdit() {
-    return <ConceptEdit data={this.data} config={this.config} />;
+    return <ClassificationEdit data={this.data} config={this.config} />;
   }
 
   renderInline() {
-    return <ConceptInline />;
+    return <ClassificationInline />;
   }
 
   displayDetails() {
@@ -132,12 +132,12 @@ function keyForNode(node: ClassificationNode): DataKey {
   return key;
 }
 
-type ConceptEditProps = {
+type ClassificationEditProps = {
   data: Data;
   config: Config;
 };
 
-function ConceptEdit(props: ConceptEditProps) {
+function ClassificationEdit(props: ClassificationEditProps) {
   const navigate = useNavigate();
   const source = useSource();
   const occurrence = source.lookupOccurrence(props.config.occurrence);
@@ -386,7 +386,7 @@ function ConceptEdit(props: ConceptEditProps) {
   );
 }
 
-function ConceptInline() {
+function ClassificationInline() {
   return null;
 }
 

@@ -423,7 +423,7 @@ uiConfiguration: >-
       ]
     },
     "criteriaConfigs": [{
-      "type":"concept",
+      "type":"classification",
       "id": "tanagra-conditions",
       "title":"Condition",
       "conceptSet": true,
@@ -445,7 +445,7 @@ uiConfiguration: >-
       "classification": "condition"
     },
     {
-      "type":"concept",
+      "type":"classification",
       "id": "tanagra-procedures",
       "title":"Procedure",
       "conceptSet": true,
@@ -467,7 +467,7 @@ uiConfiguration: >-
       "classification": "procedure"
     },
     {
-      "type":"concept",
+      "type":"classification",
       "id": "tanagra-observations",
       "title":"Observation",
       "conceptSet": true,
@@ -484,7 +484,7 @@ uiConfiguration: >-
       "classification": "observation"
     },
     {
-      "type":"concept",
+      "type":"classification",
       "id": "tanagra-drugs",
       "title":"Drug",
       "conceptSet": true,
