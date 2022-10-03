@@ -246,7 +246,7 @@ function ParticipantsGroup(props: {
         >
           <Loading status={groupCountState} size="small">
             <Typography variant="subtitle1">
-              Group count: {groupCountState.data?.toLocaleString()}
+              Requirement count: {groupCountState.data?.toLocaleString()}
             </Typography>
           </Loading>
         </Box>
