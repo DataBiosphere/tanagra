@@ -416,8 +416,7 @@ uiConfiguration: >-
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept name"},
-        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"concept_name","width":"100%","title":"Condition"},
         {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
@@ -425,7 +424,7 @@ uiConfiguration: >-
       ],
       "hierarchyColumns": [
         {"key": "concept_name", "width": "100%", "title": "Condition"},
-        {"key": "concept_id", "width": 120, "title": "Concept ID"},
+        {"key": "concept_code", "width": 120, "title": "Code"},
         {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "occurrence": "condition_occurrence",
@@ -438,8 +437,7 @@ uiConfiguration: >-
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept name"},
-        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"concept_name","width":"100%","title":"Procedure"},
         {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
@@ -447,7 +445,7 @@ uiConfiguration: >-
       ],
       "hierarchyColumns": [
         {"key": "concept_name", "width": "100%", "title": "Procedure"},
-        {"key": "concept_id", "width": 120, "title": "Concept ID"},
+        {"key": "concept_code", "width": 120, "title": "Code"},
         {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "occurrence": "procedure_occurrence",
@@ -460,8 +458,7 @@ uiConfiguration: >-
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept name"},
-        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"concept_name","width":"100%","title":"Observation"},
         {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
@@ -477,16 +474,15 @@ uiConfiguration: >-
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept name"},
-        {"key":"concept_id","width":100,"title":"Concept ID"},
+        {"key":"concept_name","width":"100%","title":"Ingredient/Drug"},
         {"key":"standard_concept","width":120,"title":"Source/standard"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
         {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "hierarchyColumns": [
-        {"key": "concept_name", "width": "100%", "title": "Drug"},
-        {"key": "concept_id", "width": 120, "title": "Concept ID"},
+        {"key": "concept_name", "width": "100%", "title": "Ingredient"},
+        {"key": "concept_code", "width": 120, "title": "Code"},
         {"key":"person_count","width":120,"title":"Roll-up count"}
       ],
       "occurrence": "ingredient_occurrence",
@@ -574,7 +570,7 @@ uiConfiguration: >-
     "criteriaSearchConfig": {
       "criteriaTypeWidth": 120,
       "columns": [
-        {"key":"concept_name","width":"100%","title":"Concept Name"},
+        {"key":"concept_name","width":"100%","title":"Name"},
         {"key":"vocabulary_id","width":120,"title":"Vocab"},
         {"key":"concept_code","width":120,"title":"Code"},
         {"key":"person_count","width":120,"title":"Roll-up Count"}

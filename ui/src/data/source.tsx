@@ -183,6 +183,9 @@ export class BackendSource implements Source {
     );
 
     const ra = [...requestedAttributes];
+    if (!ra.includes(classification.entityAttribute)) {
+      ra.push(classification.entityAttribute);
+    }
     if (classification?.hierarchical) {
       ra.push(
         makePathAttribute(classification.entityAttribute),
