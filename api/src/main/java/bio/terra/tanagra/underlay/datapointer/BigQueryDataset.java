@@ -26,14 +26,25 @@ public final class BigQueryDataset extends DataPointer {
   private final String projectId;
   private final String datasetId;
   private final String queryProjectId;
+  private final String dataflowServiceAccountEmail;
+  private final String dataflowTempLocation;
+
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
 
-  private BigQueryDataset(String name, String projectId, String datasetId, String queryProjectId) {
+  private BigQueryDataset(
+      String name,
+      String projectId,
+      String datasetId,
+      String queryProjectId,
+      String dataflowServiceAccountEmail,
+      String dataflowTempLocation) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
     this.queryProjectId = queryProjectId;
+    this.dataflowServiceAccountEmail = dataflowServiceAccountEmail;
+    this.dataflowTempLocation = dataflowTempLocation;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -51,8 +62,15 @@ public final class BigQueryDataset extends DataPointer {
     if (queryProjectId == null || queryProjectId.isEmpty()) {
       queryProjectId = serialized.getProjectId();
     }
+
+    // TODO: Check if the Dataflow temp location is a valid GCS path, if specified.
     return new BigQueryDataset(
-        serialized.getName(), serialized.getProjectId(), serialized.getDatasetId(), queryProjectId);
+        serialized.getName(),
+        serialized.getProjectId(),
+        serialized.getDatasetId(),
+        queryProjectId,
+        serialized.getDataflowServiceAccountEmail(),
+        serialized.getDataflowTempLocation());
   }
 
   @Override
@@ -158,5 +176,13 @@ public final class BigQueryDataset extends DataPointer {
 
   public String getQueryProjectId() {
     return queryProjectId;
+  }
+
+  public String getDataflowServiceAccountEmail() {
+    return dataflowServiceAccountEmail;
+  }
+
+  public String getDataflowTempLocation() {
+    return dataflowTempLocation;
   }
 }

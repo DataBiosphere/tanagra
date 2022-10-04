@@ -2,6 +2,7 @@ package bio.terra.tanagra.serialization.datapointer;
 
 import bio.terra.tanagra.serialization.UFDataPointer;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -11,16 +12,21 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFBigQueryDataset.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFBigQueryDataset extends UFDataPointer {
   private final String projectId;
   private final String datasetId;
   private final String queryProjectId;
+  private final String dataflowServiceAccountEmail;
+  private final String dataflowTempLocation;
 
   public UFBigQueryDataset(BigQueryDataset dataPointer) {
     super(dataPointer);
     this.projectId = dataPointer.getProjectId();
     this.datasetId = dataPointer.getDatasetId();
     this.queryProjectId = dataPointer.getQueryProjectId();
+    this.dataflowServiceAccountEmail = dataPointer.getDataflowServiceAccountEmail();
+    this.dataflowTempLocation = dataPointer.getDataflowTempLocation();
   }
 
   private UFBigQueryDataset(Builder builder) {
@@ -28,6 +34,8 @@ public class UFBigQueryDataset extends UFDataPointer {
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.queryProjectId = builder.queryProjectId;
+    this.dataflowServiceAccountEmail = builder.dataflowServiceAccountEmail;
+    this.dataflowTempLocation = builder.dataflowTempLocation;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -35,6 +43,8 @@ public class UFBigQueryDataset extends UFDataPointer {
     private String projectId;
     private String datasetId;
     private String queryProjectId;
+    private String dataflowServiceAccountEmail;
+    private String dataflowTempLocation;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -48,6 +58,16 @@ public class UFBigQueryDataset extends UFDataPointer {
 
     public Builder queryProjectId(String queryProjectId) {
       this.queryProjectId = queryProjectId;
+      return this;
+    }
+
+    public Builder dataflowServiceAccountEmail(String dataflowServiceAccountEmail) {
+      this.dataflowServiceAccountEmail = dataflowServiceAccountEmail;
+      return this;
+    }
+
+    public Builder dataflowTempLocation(String dataflowTempLocation) {
+      this.dataflowTempLocation = dataflowTempLocation;
       return this;
     }
 
@@ -74,5 +94,13 @@ public class UFBigQueryDataset extends UFDataPointer {
 
   public String getQueryProjectId() {
     return queryProjectId;
+  }
+
+  public String getDataflowServiceAccountEmail() {
+    return dataflowServiceAccountEmail;
+  }
+
+  public String getDataflowTempLocation() {
+    return dataflowTempLocation;
   }
 }

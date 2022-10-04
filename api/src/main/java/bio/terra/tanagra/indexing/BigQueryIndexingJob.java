@@ -16,6 +16,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import org.apache.beam.runners.dataflow.DataflowRunner;
+import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.MoreObjects;
@@ -124,20 +126,29 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
   }
 
   protected BigQueryOptions buildDataflowPipelineOptions(BigQueryDataset outputBQDataset) {
+    // If the BQ dataset defines a service account, then specify that.
+    // Otherwise, try to get the service account email for the application default credentials.
+    String serviceAccountEmail = outputBQDataset.getDataflowServiceAccountEmail();
+    if (serviceAccountEmail == null) {
+      serviceAccountEmail = getAppDefaultSAEmail();
+    }
+    LOGGER.info("Dataflow service account: {}", serviceAccountEmail);
+
+    DataflowPipelineOptions dataflowOptions =
+        PipelineOptionsFactory.create().as(DataflowPipelineOptions.class);
+    dataflowOptions.setRunner(DataflowRunner.class);
+    dataflowOptions.setProject(outputBQDataset.getProjectId());
     // TODO: Allow overriding the default region.
-    String[] args = {
-      "--runner=dataflow",
-      "--project=" + outputBQDataset.getProjectId(),
-      "--region=" + DEFAULT_REGION,
-      "--serviceAccount=" + getAppDefaultSAEmail(),
-    };
-    // TODO: Use PipelineOptionsFactory.create() instead of fromArgs().
-    // PipelineOptionsFactory.create() doesn't seem to call the default factory classes, while
-    // fromArgs() does.
-    BigQueryOptions options =
-        PipelineOptionsFactory.fromArgs(args).withValidation().as(BigQueryOptions.class);
-    options.setJobName(getDataflowJobName());
-    return options;
+    dataflowOptions.setRegion(DEFAULT_REGION);
+    dataflowOptions.setServiceAccount(serviceAccountEmail);
+    dataflowOptions.setJobName(getDataflowJobName());
+
+    if (outputBQDataset.getDataflowTempLocation() != null) {
+      dataflowOptions.setTempLocation(outputBQDataset.getDataflowTempLocation());
+      LOGGER.info("Dataflow temp location: {}", dataflowOptions.getTempLocation());
+    }
+
+    return dataflowOptions;
   }
 
   /** Build a name for the Dataflow job that will be visible in the Cloud Console. */
