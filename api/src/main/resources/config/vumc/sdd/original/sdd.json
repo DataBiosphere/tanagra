@@ -8,7 +8,9 @@
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "victr-tanagra-test",
-      "datasetId": "sdstatic_index" } ],
+      "datasetId": "sdstatic_index",
+      "dataflowServiceAccountEmail": "tanagra-indexing-runner@victr-tanagra-test.iam.gserviceaccount.com",
+      "dataflowTempLocation": "gs://dataflow-indexing-victr-tanagra-test/temp/" } ],
   "entities": [
     "brand.json",
     "condition.json",
