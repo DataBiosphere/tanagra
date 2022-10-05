@@ -19,7 +19,7 @@ import { MergedDataEntry, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohortAndGroup, useUnderlay } from "hooks";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { cohortURL, criteriaURL } from "router";
 import { CriteriaConfig } from "underlaysSlice";
 import { createCriteria, getCriteriaPlugin, searchCriteria } from "./cohort";
@@ -31,7 +31,7 @@ export function AddCriteria() {
   const dispatch = useAppDispatch();
   const { cohort, group } = useCohortAndGroup();
 
-  const [query, setQuery] = useState<string>("");
+  const query = useSearchParams()[0].get("search");
   const [showResults, setShowResults] = useState<boolean>(false);
   const [data, setData] = useState<TreeGridData>({});
 
@@ -144,10 +144,7 @@ export function AddCriteria() {
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
-      <Search
-        placeholder="Search criteria or select from the options below"
-        onSearch={setQuery}
-      />
+      <Search placeholder="Search criteria or select from the options below" />
       <ActionBar title={"Add criteria"} />
       {showResults ? (
         <Loading status={searchState}>
