@@ -950,11 +950,8 @@ components:
         name:
           description: Name
           type: string
-        description:
-          description: Description
-          type: string
-        uiConfiguration:
-          description: UI configuration
+        displayName:
+          description: Display name
           type: string
       required:
         - name

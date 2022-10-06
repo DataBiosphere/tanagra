@@ -37,8 +37,7 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
   private ApiUnderlayV2 toApiObject(Underlay underlay) {
     return new ApiUnderlayV2()
         .name(underlay.getName())
-        // TODO: Add description and UI configuration to underlay config files.
-        .description("")
-        .uiConfiguration("");
+        // TODO: Add display name to underlay config files.
+        .displayName(underlay.getName());
   }
 }
