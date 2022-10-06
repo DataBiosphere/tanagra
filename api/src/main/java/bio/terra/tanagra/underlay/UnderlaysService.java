@@ -47,4 +47,12 @@ public class UnderlaysService {
     }
     return underlaysMap.get(name);
   }
+
+  public Entity getEntity(String underlayName, String entityName) {
+    Underlay underlay = getUnderlay(underlayName);
+    if (!underlay.getEntities().containsKey(entityName)) {
+      throw new NotFoundException("Entity not found: " + underlayName + ", " + entityName);
+    }
+    return underlay.getEntity(entityName);
+  }
 }
