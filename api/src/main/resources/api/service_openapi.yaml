@@ -950,13 +950,14 @@ components:
         name:
           description: Name
           type: string
-          required: true
         description:
           description: Description
           type: string
         uiConfiguration:
           description: UI configuration
           type: string
+      required:
+        - name
 
     UnderlayListV2:
       type: object
