@@ -38,6 +38,7 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
     return new ApiUnderlayV2()
         .name(underlay.getName())
         // TODO: Add display name to underlay config files.
-        .displayName(underlay.getName());
+        .displayName(underlay.getName())
+        .primaryEntity(underlay.getPrimaryEntity().getName());
   }
 }

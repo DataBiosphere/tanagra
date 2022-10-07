@@ -215,6 +215,44 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/underlays/{underlayName}/entities":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+    get:
+      summary: List the entities in an underlay
+      operationId: listEntitiesV2
+      tags: [EntitiesV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities/{entityName}":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    get:
+      summary: Get an entity
+      operationId: getEntityV2
+      tags: [EntitiesV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
   #########################UNDERLAY CONFIG V2 [END]###################################
 
 components:
@@ -258,6 +296,14 @@ components:
       name: underlayName
       in: path
       description: Name of the underlay
+      required: true
+      schema:
+        type: string
+
+    EntityNameV2:
+      name: entityName
+      in: path
+      description: Name of the entity
       required: true
       schema:
         type: string
@@ -953,8 +999,12 @@ components:
         displayName:
           description: Display name
           type: string
+        primaryEntity:
+          description: Primary entity name
+          type: string
       required:
         - name
+        - primaryEntity
 
     UnderlayListV2:
       type: object
@@ -964,6 +1014,106 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UnderlayV2"
+
+    EntityV2:
+      type: object
+      description: Entity
+      properties:
+        name:
+          description: Name
+          type: string
+        idAttribute:
+          description: ID attribute name
+          type: string
+        attributes:
+          description: List of attributes
+          type: array
+          items:
+            $ref: "#/components/schemas/AttributeV2"
+      required:
+        - name
+        - idAttribute
+
+    EntityListV2:
+      type: object
+      description: List of entities
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntityV2"
+
+    AttributeV2:
+      description: Entity attribute
+      type: object
+      properties:
+        name:
+          description: Name
+          type: string
+        type:
+          description: Attribute type
+          type: string
+          enum: ["SIMPLE", "KEY_AND_DISPLAY"]
+        dataType:
+          description: Data type
+          type: string
+          enum: ["INT64", "STRING", "BOOLEAN"]
+        displayHint:
+          type: object
+          description: Display hint calculated from source data
+          properties:
+            enumHint:
+              $ref: "#/components/schemas/DisplayHintEnumV2"
+            numericRangeHint:
+              $ref: "#/components/schemas/DisplayHintNumericRangeV2"
+          nullable: true
+
+    DisplayHintEnumV2:
+      type: object
+      description: Enumeration of possible values and display strings
+      properties:
+        enumHintValues:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValueDisplayV2"
+
+    DisplayHintNumericRangeV2:
+      type: object
+      description: Maximum and minimum values
+      properties:
+        min:
+          description: Max value
+          type: integer
+          format: int64
+        max:
+          description: Min value
+          type: integer
+          format: int64
+
+    ValueDisplayV2:
+      type: object
+      description: Attribute value and optional display string
+      properties:
+        value:
+          description: Literal value
+          $ref: "#/components/schemas/LiteralV2"
+        display:
+          type: string
+          description: Optional display string
+          nullable: true
+
+    LiteralV2:
+      type: object
+      description: Literal
+      nullable: true
+      properties:
+        boolVal:
+          type: boolean
+        int64Val:
+          type: integer
+          format: int64
+        stringVal:
+          type: string
 
     ErrorReportV2:
       type: object

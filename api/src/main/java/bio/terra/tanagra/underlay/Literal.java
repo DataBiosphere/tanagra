@@ -87,4 +87,8 @@ public class Literal implements SQLExpression {
   public Boolean getBooleanVal() {
     return dataType.equals(DataType.BOOLEAN) ? booleanVal : null;
   }
+
+  public DataType getDataType() {
+    return dataType;
+  }
 }
