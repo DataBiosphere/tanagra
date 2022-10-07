@@ -51,6 +51,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
   private ApiEntityV2 toApiObject(Entity entity) {
     return new ApiEntityV2()
         .name(entity.getName())
+        .idAttribute(entity.getIdAttribute().getName())
         .attributes(
             entity.getAttributes().stream().map(a -> toApiObject(a)).collect(Collectors.toList()));
   }
