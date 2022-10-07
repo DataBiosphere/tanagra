@@ -1,8 +1,8 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
+import { useActionBarBackURL } from "actionBar";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
@@ -27,8 +27,8 @@ import {
 import { useAsyncWithApi } from "errors";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
-import React, { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useCallback, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { CriteriaConfig } from "underlaysSlice";
 import { useImmer } from "use-immer";
 
@@ -132,6 +132,39 @@ function keyForNode(node: ClassificationNode): DataKey {
   return key;
 }
 
+type SearchData = {
+  // The query entered in the search box.
+  query?: string;
+  // The ancestor list of the item to view the hierarchy for.
+  hierarchy?: DataKey[];
+};
+
+function useSearchData() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const searchData = useMemo(() => {
+    const param = searchParams.get("search");
+    return JSON.parse(!!param ? atob(param) : "{}");
+  }, [searchParams]);
+
+  const updateSearchData = useCallback(
+    (update: (data?: SearchData) => void) => {
+      setSearchParams(
+        searchParamsFromData(
+          produce<SearchData | undefined>(searchData, update)
+        )
+      );
+    },
+    [searchData, setSearchParams]
+  );
+
+  return [searchData, updateSearchData];
+}
+
+function searchParamsFromData(data?: SearchData) {
+  return new URLSearchParams({ search: btoa(JSON.stringify(data ?? {})) });
+}
+
 type ClassificationEditProps = {
   data: Data;
   config: Config;
@@ -147,9 +180,14 @@ function ClassificationEdit(props: ClassificationEditProps) {
   );
   const updateCriteria = useUpdateCriteria();
 
-  const [hierarchy, setHierarchy] = useState<DataKey[] | undefined>();
-  const [query, setQuery] = useState<string>("");
+  const [searchData, updateSearchData] = useSearchData();
   const [data, updateData] = useImmer<TreeGridData>({});
+
+  useActionBarBackURL(
+    searchData.hierarchy
+      ? `.?${searchParamsFromData({ query: searchData.query })}`
+      : undefined
+  );
 
   const processEntities = useCallback(
     (
@@ -167,7 +205,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 <IconButton
                   size="small"
                   onClick={() => {
-                    setHierarchy(node.ancestors);
+                    updateSearchData((data: SearchData) => {
+                      data.hierarchy = node.ancestors;
+                    });
                   }}
                 >
                   <AccountTreeIcon fontSize="inherit" />
@@ -207,7 +247,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         }
       });
     },
-    []
+    [updateSearchData]
   );
 
   const attributes = useMemo(
@@ -219,34 +259,17 @@ function ClassificationEdit(props: ClassificationEditProps) {
     updateData(() => ({}));
     return source
       .searchClassification(attributes, occurrence.id, classification.id, {
-        query: !hierarchy ? query : undefined,
-        includeGroupings: !hierarchy,
+        query:
+          !searchData?.hierarchy && !!searchData?.query
+            ? searchData?.query
+            : undefined,
+        includeGroupings: !searchData?.hierarchy,
       })
-      .then((res) => processEntities(res, hierarchy));
-  }, [source, attributes, processEntities, hierarchy, query]);
+      .then((res) => processEntities(res, searchData?.hierarchy));
+  }, [source, attributes, processEntities, searchData]);
   const classificationState = useAsyncWithApi<void>(fetchClassification);
 
-  const hierarchyColumns = useMemo(() => {
-    const columns: TreeGridColumn[] = [
-      ...(props.config.hierarchyColumns ?? []),
-    ];
-    if (columns.length > 0) {
-      columns[0] = {
-        ...columns[0],
-        title: (
-          <Button
-            variant="contained"
-            onClick={() => {
-              setHierarchy(undefined);
-            }}
-          >
-            Return to List
-          </Button>
-        ),
-      };
-    }
-    return columns;
-  }, [props.config.hierarchyColumns]);
+  const hierarchyColumns = props.config.hierarchyColumns ?? [];
 
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
@@ -268,10 +291,15 @@ function ClassificationEdit(props: ClassificationEditProps) {
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
-      {!hierarchy && (
+      {!searchData?.hierarchy && (
         <Search
           placeholder="Search by code or description"
-          onSearch={setQuery}
+          onSearch={(query: string) => {
+            updateSearchData((data: SearchData) => {
+              data.query = query;
+            });
+          }}
+          initialValue={searchData?.query}
         />
       )}
       <Loading status={classificationState}>
@@ -283,9 +311,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
           />
         ) : (
           <TreeGrid
-            columns={hierarchy ? hierarchyColumns : allColumns}
+            columns={!!searchData?.hierarchy ? hierarchyColumns : allColumns}
             data={data}
-            defaultExpanded={hierarchy}
+            defaultExpanded={searchData?.hierarchy}
             rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
               // TODO(tjennison): Make TreeGridData's type generic so we can avoid
               // this type assertion. Also consider passing the TreeGridItem to
@@ -362,7 +390,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     item.node
                   )
                   .then((res) => {
-                    processEntities(res, hierarchy, key);
+                    processEntities(res, searchData?.hierarchy, key);
                   });
               } else {
                 return source
@@ -375,7 +403,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     }
                   )
                   .then((res) => {
-                    processEntities(res, hierarchy, key);
+                    processEntities(res, searchData?.hierarchy, key);
                   });
               }
             }}

@@ -253,7 +253,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
-
   #########################UNDERLAY CONFIG V2 [END]###################################
 
 components:
