@@ -16,6 +16,10 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "tanagra.underlay")
 public class UnderlayConfiguration {
+  // The list of underlay config files in the resources/config directory. (e.g.
+  // 'broad/aou_synthetic/expanded/aou_synthetic.json')
+  private List<String> underlayFiles = new ArrayList<>();
+
   /** Paths to {@link Underlay} prototext files to load. */
   private List<String> underlayPrototextFiles = new ArrayList<>();
 
@@ -24,6 +28,14 @@ public class UnderlayConfiguration {
    * the standard protobuf json encoder.
    */
   private List<String> underlayYamlFiles = new ArrayList<>();
+
+  public List<String> getUnderlayFiles() {
+    return underlayFiles;
+  }
+
+  public void setUnderlayFiles(List<String> underlayFiles) {
+    this.underlayFiles = underlayFiles;
+  }
 
   public List<String> getUnderlayPrototextFiles() {
     return underlayPrototextFiles;

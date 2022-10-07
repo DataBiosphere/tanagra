@@ -180,6 +180,43 @@ paths:
         200:
           $ref: "#/components/responses/SearchEntityCountsResponse"
 
+  #########################UNDERLAY CONFIG V2 [START]#################################
+  "/v2/underlays":
+    get:
+      summary: List the underlays
+      operationId: listUnderlaysV2
+      tags: [UnderlaysV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnderlayListV2"
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+    get:
+      summary: Get an underlay
+      operationId: getUnderlayV2
+      tags: [UnderlaysV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnderlayV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #########################UNDERLAY CONFIG V2 [END]###################################
+
 components:
   parameters:
     Underlay:
@@ -215,6 +252,17 @@ components:
       description: An opaque pagination token to retrieve a specific page of results
       schema:
         type: string
+
+  #########################UNDERLAY CONFIG V2 [START]#################################
+    UnderlayNameV2:
+      name: underlayName
+      in: path
+      description: Name of the underlay
+      required: true
+      schema:
+        type: string
+  #########################UNDERLAY CONFIG V2 [END]###################################
+
 
   responses:
     GetEntityResponse:
@@ -265,6 +313,23 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/SqlQuery"
+
+  #########################UNDERLAY CONFIG V2 [START]#################################
+    NotFound:
+      description: Not found (or unauthorized)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReport'
+
+    ServerError:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReport'
+  #########################UNDERLAY CONFIG V2 [END]###################################
+
 
   schemas:
     Attribute:
@@ -876,3 +941,40 @@ components:
         - id
         - title
       additionalProperties: true
+
+    #########################UNDERLAY CONFIG V2 [START]#################################
+    UnderlayV2:
+      type: object
+      description: Underlay
+      properties:
+        name:
+          description: Name
+          type: string
+        displayName:
+          description: Display name
+          type: string
+      required:
+        - name
+
+    UnderlayListV2:
+      type: object
+      description: List of underlays
+      properties:
+        underlays:
+          type: array
+          items:
+            $ref: "#/components/schemas/UnderlayV2"
+
+    ErrorReportV2:
+      type: object
+      required: [message, statusCode, causes]
+      properties:
+        message:
+          type: string
+        statusCode:
+          type: integer
+        causes:
+          type: array
+          items:
+            type: string
+    #########################UNDERLAY CONFIG V2 [END]###################################
