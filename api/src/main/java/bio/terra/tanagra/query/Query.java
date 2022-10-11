@@ -13,6 +13,7 @@ public class Query implements SQLExpression {
   private final List<TableVariable> tables;
   private final FilterVariable where;
   private final List<FieldVariable> orderBy;
+  private final OrderByDirection orderByDirection;
   private final List<FieldVariable> groupBy;
   private final Integer limit;
 
@@ -21,6 +22,7 @@ public class Query implements SQLExpression {
     this.tables = builder.tables;
     this.where = builder.where;
     this.orderBy = builder.orderBy;
+    this.orderByDirection = builder.orderByDirection;
     this.groupBy = builder.groupBy;
     this.limit = builder.limit;
   }
@@ -75,14 +77,19 @@ public class Query implements SQLExpression {
 
     if (orderBy != null) {
       // render each ORDER BY FieldVariable and join them into a single string
-      String orderBySQL =
+      String orderByFieldsSQL =
           orderBy.stream().map(fv -> fv.renderSqlForOrderBy()).collect(Collectors.joining(", "));
+      String orderByDirectionSQL =
+          orderByDirection == null
+              ? OrderByDirection.ASCENDING.renderSQL()
+              : orderByDirection.renderSQL();
 
-      template = "${sql} ORDER BY ${orderBySQL}";
+      template = "${sql} ORDER BY ${orderByFieldsSQL} ${orderByDirectionSQL}";
       params =
           ImmutableMap.<String, String>builder()
               .put("sql", sql)
-              .put("orderBySQL", orderBySQL)
+              .put("orderByFieldsSQL", orderByFieldsSQL)
+              .put("orderByDirectionSQL", orderByDirectionSQL)
               .build();
       sql = StringSubstitutor.replace(template, params);
     }
@@ -109,6 +116,7 @@ public class Query implements SQLExpression {
     private List<TableVariable> tables;
     private FilterVariable where;
     private List<FieldVariable> orderBy;
+    private OrderByDirection orderByDirection;
     private List<FieldVariable> groupBy;
     private Integer limit;
 
@@ -129,6 +137,11 @@ public class Query implements SQLExpression {
 
     public Builder orderBy(List<FieldVariable> orderBy) {
       this.orderBy = orderBy;
+      return this;
+    }
+
+    public Builder orderByDirection(OrderByDirection orderByDirection) {
+      this.orderByDirection = orderByDirection;
       return this;
     }
 

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.serialization.displayhint;
 
 import bio.terra.tanagra.serialization.UFLiteral;
-import bio.terra.tanagra.underlay.displayhint.ValueDisplay;
+import bio.terra.tanagra.underlay.ValueDisplay;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 

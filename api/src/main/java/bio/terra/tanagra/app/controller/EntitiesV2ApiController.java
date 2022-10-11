@@ -8,16 +8,12 @@ import bio.terra.tanagra.generated.model.ApiDisplayHintEnumV2;
 import bio.terra.tanagra.generated.model.ApiDisplayHintNumericRangeV2;
 import bio.terra.tanagra.generated.model.ApiEntityListV2;
 import bio.terra.tanagra.generated.model.ApiEntityV2;
-import bio.terra.tanagra.generated.model.ApiLiteralV2;
-import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.underlay.UnderlaysService;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
-import bio.terra.tanagra.underlay.displayhint.ValueDisplay;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +73,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
                 new ApiDisplayHintEnumV2()
                     .enumHintValues(
                         enumVals.getValueDisplays().stream()
-                            .map(vd -> toApiObject(vd))
+                            .map(vd -> ApiConversionUtils.toApiObject(vd))
                             .collect(Collectors.toList())));
       case RANGE:
         NumericRange numericRange = (NumericRange) displayHint;
@@ -88,25 +84,6 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
                     .max(numericRange.getMaxVal()));
       default:
         throw new SystemException("Unknown display hint type: " + displayHint.getType());
-    }
-  }
-
-  private ApiValueDisplayV2 toApiObject(ValueDisplay valueDisplay) {
-    return new ApiValueDisplayV2()
-        .value(toApiObject(valueDisplay.getValue()))
-        .display(valueDisplay.getDisplay());
-  }
-
-  private ApiLiteralV2 toApiObject(Literal literal) {
-    switch (literal.getDataType()) {
-      case INT64:
-        return new ApiLiteralV2().int64Val(literal.getInt64Val());
-      case STRING:
-        return new ApiLiteralV2().stringVal(literal.getStringVal());
-      case BOOLEAN:
-        return new ApiLiteralV2().boolVal(literal.getBooleanVal());
-      default:
-        throw new SystemException("Unknown literal data type: " + literal.getDataType());
     }
   }
 }

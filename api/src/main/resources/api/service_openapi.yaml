@@ -253,6 +253,33 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities/{entityName}/instances":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Query entity instances
+      operationId: queryInstances
+      tags: [InstancesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
   #########################UNDERLAY CONFIG V2 [END]###################################
 
 components:
@@ -1044,8 +1071,8 @@ components:
             $ref: "#/components/schemas/EntityV2"
 
     AttributeV2:
-      description: Entity attribute
       type: object
+      description: Entity attribute
       properties:
         name:
           description: Name
@@ -1114,6 +1141,51 @@ components:
           format: int64
         stringVal:
           type: string
+
+    QueryV2:
+      type: object
+      description: Query for entity instances
+      properties:
+        includeAttributes:
+          description: Attributes to include in the returned instances
+          type: array
+          items:
+            type: string
+        orderBy:
+          type: object
+          description: Attributes and direction to order the results by
+          properties:
+            attributes:
+              type: array
+              items:
+                type: string
+            direction:
+              description: Defaults to ascending
+              type: string
+              enum: ["ASCENDING", "DESCENDING"]
+          nullable: true
+        limit:
+          description: The maximum number of results to return. Defaults to 250.
+          type: integer
+
+    InstanceV2:
+      type: object
+      description: A map of entity attribute names to their value for this instance
+      additionalProperties:
+        type: object
+        nullable: true
+        $ref: "#/components/schemas/ValueDisplayV2"
+
+    InstanceListV2:
+      type: object
+      description: List of instances
+      properties:
+        sql:
+          type: string
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/InstanceV2"
 
     ErrorReportV2:
       type: object

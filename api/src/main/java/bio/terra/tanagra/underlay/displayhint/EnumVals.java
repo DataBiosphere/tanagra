@@ -17,6 +17,7 @@ import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
