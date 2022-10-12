@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.tablefilter;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.BinaryFilterVariable;
 import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.serialization.tablefilter.UFBinaryFilter;
 import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.Literal;
@@ -12,11 +12,11 @@ import java.util.List;
 
 public final class BinaryFilter extends TableFilter {
   private final FieldPointer field;
-  private final TableFilter.BinaryOperator operator;
+  private final BinaryFilterVariable.BinaryOperator operator;
   private final Literal value;
 
   private BinaryFilter(
-      FieldPointer fieldPointer, TableFilter.BinaryOperator operator, Literal value) {
+      FieldPointer fieldPointer, BinaryFilterVariable.BinaryOperator operator, Literal value) {
     this.field = fieldPointer;
     this.operator = operator;
     this.value = value;
@@ -50,7 +50,7 @@ public final class BinaryFilter extends TableFilter {
     return field;
   }
 
-  public BinaryOperator getOperator() {
+  public BinaryFilterVariable.BinaryOperator getOperator() {
     return operator;
   }
 

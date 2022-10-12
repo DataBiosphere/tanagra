@@ -1183,12 +1183,14 @@ components:
       properties:
         filterType:
           type: string
-          enum: ["ATTRIBUTE"]
+          enum: ["ATTRIBUTE", "TEXT"]
         filterUnion:
           type: object
           properties:
             attributeFilter:
               $ref: "#/components/schemas/AttributeFilterV2"
+            textFilter:
+              $ref: "#/components/schemas/TextFilterV2"
 
     AttributeFilterV2:
       type: object
@@ -1201,6 +1203,21 @@ components:
           enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
         value:
           $ref: "#/components/schemas/LiteralV2"
+
+    TextFilterV2:
+      type: object
+      description: Filter on a text search (e.g. person sounds like Joe)
+      properties:
+        matchType:
+          type: string
+          enum: ["EXACT_MATCH", "FUZZY_MATCH"]
+        attribute:
+          type: string
+          description: |
+            Attribute to match on. If not specified, then we match on whatever is specified in the text search mapping config.
+            Currently, fuzzy match only works on a single attribute (i.e. you must specify this field for fuzzy match).
+        text:
+          type: string
 
     InstanceV2:
       type: object

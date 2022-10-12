@@ -19,6 +19,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.underlay.ValueDisplay;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,7 +43,7 @@ public class QuerysService {
       OrderByDirection orderByDirection,
       int limit) {
     TableVariable entityTableVar = TableVariable.forPrimary(entityMapping.getTablePointer());
-    List<TableVariable> tableVars = List.of(entityTableVar);
+    List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
 
     // build the SELECT field variables and column schemas from attributes
     List<FieldVariable> selectFieldVars = new ArrayList<>();

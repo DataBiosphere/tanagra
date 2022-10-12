@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.tablefilter;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.ArrayFilterVariable;
 import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.filtervariable.ArrayFilterVariable;
 import bio.terra.tanagra.serialization.tablefilter.UFArrayFilter;
 import bio.terra.tanagra.underlay.TableFilter;
 import bio.terra.tanagra.underlay.TablePointer;
@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class ArrayFilter extends TableFilter {
-  private final TableFilter.LogicalOperator operator;
+  private final ArrayFilterVariable.LogicalOperator operator;
   private final List<TableFilter> subfilters;
 
-  private ArrayFilter(LogicalOperator operator, List<TableFilter> subfilters) {
+  private ArrayFilter(ArrayFilterVariable.LogicalOperator operator, List<TableFilter> subfilters) {
     this.operator = operator;
     this.subfilters = subfilters;
   }
@@ -47,7 +47,7 @@ public final class ArrayFilter extends TableFilter {
             .collect(Collectors.toList()));
   }
 
-  public LogicalOperator getOperator() {
+  public ArrayFilterVariable.LogicalOperator getOperator() {
     return operator;
   }
 
