@@ -1,6 +1,8 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
@@ -50,7 +52,7 @@ public final class AttributeMapping {
                     .setJoinCanBeEmpty(true) // Allow null display names.
                 : new FieldPointer.Builder()
                     .tablePointer(tablePointer)
-                    .columnName(DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName())
+                    .columnName(getDisplayMappingAlias(attribute.getName()))
                     .build();
         return new AttributeMapping(value, display);
       default:
@@ -66,9 +68,26 @@ public final class AttributeMapping {
     }
 
     FieldVariable displayVariable =
-        display.buildVariable(
-            primaryTable, tableVariables, DEFAULT_DISPLAY_MAPPING_PREFIX + attributeName);
+        display.buildVariable(primaryTable, tableVariables, getDisplayMappingAlias(attributeName));
     return List.of(valueVariable, displayVariable);
+  }
+
+  public List<ColumnSchema> buildColumnSchemas(
+      String attributeName, Literal.DataType attributeDataType) {
+    ColumnSchema valueColSchema =
+        new ColumnSchema(
+            attributeName, CellValue.SQLDataType.fromUnderlayDataType(attributeDataType));
+    if (!hasDisplay()) {
+      return List.of(valueColSchema);
+    }
+
+    ColumnSchema displayColSchema =
+        new ColumnSchema(getDisplayMappingAlias(attributeName), CellValue.SQLDataType.STRING);
+    return List.of(valueColSchema, displayColSchema);
+  }
+
+  public static String getDisplayMappingAlias(String attributeName) {
+    return DEFAULT_DISPLAY_MAPPING_PREFIX + attributeName;
   }
 
   public Literal.DataType computeDataType() {
@@ -90,6 +109,14 @@ public final class AttributeMapping {
         return EnumVals.computeForField(attribute.getDataType(), value);
       default:
         throw new InvalidConfigException("Unknown attribute data type: " + attribute.getDataType());
+    }
+  }
+
+  public List<FieldPointer> getFieldPointers() {
+    if (hasDisplay()) {
+      return List.of(value, display);
+    } else {
+      return List.of(value);
     }
   }
 

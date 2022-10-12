@@ -1,10 +1,10 @@
 package bio.terra.tanagra.app.controller;
 
+import bio.terra.tanagra.api.UnderlaysService;
 import bio.terra.tanagra.generated.controller.UnderlaysV2Api;
 import bio.terra.tanagra.generated.model.ApiUnderlayListV2;
 import bio.terra.tanagra.generated.model.ApiUnderlayV2;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.UnderlaysService;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

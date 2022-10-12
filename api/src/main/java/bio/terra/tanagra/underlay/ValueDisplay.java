@@ -1,12 +1,16 @@
-package bio.terra.tanagra.underlay.displayhint;
+package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.displayhint.UFValueDisplay;
-import bio.terra.tanagra.underlay.Literal;
 
 public class ValueDisplay {
   private final Literal value;
   private final String display;
+
+  public ValueDisplay(Literal value) {
+    this.value = value;
+    this.display = null;
+  }
 
   public ValueDisplay(Literal value, String display) {
     this.value = value;
