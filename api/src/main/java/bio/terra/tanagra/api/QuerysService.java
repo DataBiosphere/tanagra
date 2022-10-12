@@ -1,7 +1,17 @@
-package bio.terra.tanagra.query;
+package bio.terra.tanagra.api;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.QueryResult;
+import bio.terra.tanagra.query.RowResult;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -15,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,14 +35,12 @@ public class QuerysService {
   private static final Logger LOGGER = LoggerFactory.getLogger(QuerysService.class);
 
   public QueryRequest buildInstancesQuery(
-      Entity entity,
+      EntityMapping entityMapping,
       List<Attribute> selectAttributes,
+      @Nullable EntityFilter filter,
       List<Attribute> orderByAttributes,
       OrderByDirection orderByDirection,
       int limit) {
-    // TODO: Allow building queries against the source data mapping also.
-    EntityMapping entityMapping = entity.getIndexDataMapping();
-
     TableVariable entityTableVar = TableVariable.forPrimary(entityMapping.getTablePointer());
     List<TableVariable> tableVars = List.of(entityTableVar);
 
@@ -47,8 +56,8 @@ public class QuerysService {
                   attributeMapping.buildFieldVariables(
                       entityTableVar, tableVars, attribute.getName()));
               columnSchemas.addAll(
-                      attributeMapping.buildColumnSchemas(
-                              attribute.getName(), attribute.getDataType()));
+                  attributeMapping.buildColumnSchemas(
+                      attribute.getName(), attribute.getDataType()));
             });
 
     // build the ORDER BY field variables from attributes
@@ -62,23 +71,27 @@ public class QuerysService {
                 })
             .collect(Collectors.toList());
 
+    // build the WHERE filter variables from the entity filter
+    FilterVariable filterVar =
+        filter == null ? null : filter.getFilterVariable(entityTableVar, tableVars);
+
     Query query =
         new Query.Builder()
             .select(selectFieldVars)
             .tables(tableVars)
+            .where(filterVar)
             .orderBy(orderByFieldVars)
             .orderByDirection(orderByDirection)
             .limit(limit)
             .build();
     LOGGER.info("Generated query: {}", query.renderSQL());
-    
+
     return new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
   }
 
   public List<Map<String, ValueDisplay>> runInstancesQuery(
-      Entity entity, List<Attribute> selectAttributes, QueryRequest queryRequest) {
-    // TODO: Allow running queries against the source data mapping also.
-    DataPointer dataPointer = entity.getIndexDataMapping().getTablePointer().getDataPointer();
+      EntityMapping entityMapping, List<Attribute> selectAttributes, QueryRequest queryRequest) {
+    DataPointer dataPointer = entityMapping.getTablePointer().getDataPointer();
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
     List<Map<String, ValueDisplay>> instances = new ArrayList<>();

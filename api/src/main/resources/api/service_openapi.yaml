@@ -1082,9 +1082,7 @@ components:
           type: string
           enum: ["SIMPLE", "KEY_AND_DISPLAY"]
         dataType:
-          description: Data type
-          type: string
-          enum: ["INT64", "STRING", "BOOLEAN"]
+          $ref: "#/components/schemas/DataTypeV2"
         displayHint:
           type: object
           description: Display hint calculated from source data
@@ -1131,16 +1129,25 @@ components:
 
     LiteralV2:
       type: object
-      description: Literal
+      description: Union of references to each value type. Exactly one will be populated based on the dataType.
       nullable: true
       properties:
-        boolVal:
-          type: boolean
-        int64Val:
-          type: integer
-          format: int64
-        stringVal:
-          type: string
+        dataType:
+          $ref: "#/components/schemas/DataTypeV2"
+        valueUnion:
+          type: object
+          properties:
+            boolVal:
+              type: boolean
+            int64Val:
+              type: integer
+              format: int64
+            stringVal:
+              type: string
+
+    DataTypeV2:
+      type: string
+      enum: ["INT64", "STRING", "BOOLEAN"]
 
     QueryV2:
       type: object
@@ -1151,6 +1158,8 @@ components:
           type: array
           items:
             type: string
+        filter:
+          $ref: "#/components/schemas/FilterV2"
         orderBy:
           type: object
           description: Attributes and direction to order the results by
@@ -1167,6 +1176,31 @@ components:
         limit:
           description: The maximum number of results to return. Defaults to 250.
           type: integer
+
+    FilterV2:
+      type: object
+      description: Union of references to each filter type. Exactly one will be populated based on the filterType.
+      properties:
+        filterType:
+          type: string
+          enum: ["ATTRIBUTE"]
+        filterUnion:
+          type: object
+          properties:
+            attributeFilter:
+              $ref: "#/components/schemas/AttributeFilterV2"
+
+    AttributeFilterV2:
+      type: object
+      description: Filter on an attribute value (e.g. color=red)
+      properties:
+        attribute:
+          type: string
+        operator:
+          type: string
+          enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
+        value:
+          $ref: "#/components/schemas/LiteralV2"
 
     InstanceV2:
       type: object

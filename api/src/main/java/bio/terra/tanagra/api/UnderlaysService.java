@@ -1,9 +1,11 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.api;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.FileIO;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
