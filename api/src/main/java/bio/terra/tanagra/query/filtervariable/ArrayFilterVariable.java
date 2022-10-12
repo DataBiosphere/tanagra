@@ -1,15 +1,16 @@
-package bio.terra.tanagra.query;
+package bio.terra.tanagra.query.filtervariable;
 
-import bio.terra.tanagra.underlay.TableFilter;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.SQLExpression;
+import bio.terra.tanagra.query.TableVariable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArrayFilterVariable extends FilterVariable {
-  private final TableFilter.LogicalOperator operator;
+  private final LogicalOperator operator;
   private final List<FilterVariable> subfilters;
 
-  public ArrayFilterVariable(
-      TableFilter.LogicalOperator operator, List<FilterVariable> subfilters) {
+  public ArrayFilterVariable(LogicalOperator operator, List<FilterVariable> subfilters) {
     this.operator = operator;
     this.subfilters = subfilters;
   }
@@ -26,5 +27,15 @@ public class ArrayFilterVariable extends FilterVariable {
   @Override
   public List<TableVariable> getTableVariables() {
     return null;
+  }
+
+  public enum LogicalOperator implements SQLExpression {
+    AND,
+    OR;
+
+    @Override
+    public String renderSQL() {
+      return name();
+    }
   }
 }

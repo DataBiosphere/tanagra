@@ -61,7 +61,7 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
-    if (groupBy != null) {
+    if (groupBy != null && !groupBy.isEmpty()) {
       // render each GROUP BY FieldVariable and join them into a single string
       String groupBySQL =
           groupBy.stream().map(fv -> fv.renderSqlForOrderBy()).collect(Collectors.joining(", "));
@@ -75,7 +75,7 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
-    if (orderBy != null) {
+    if (orderBy != null && !orderBy.isEmpty()) {
       // render each ORDER BY FieldVariable and join them into a single string
       String orderByFieldsSQL =
           orderBy.stream().map(fv -> fv.renderSqlForOrderBy()).collect(Collectors.joining(", "));

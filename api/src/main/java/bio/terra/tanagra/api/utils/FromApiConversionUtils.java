@@ -3,8 +3,10 @@ package bio.terra.tanagra.api.utils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAttributeFilterV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
+import bio.terra.tanagra.generated.model.ApiTextFilterV2;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.underlay.Literal;
-import bio.terra.tanagra.underlay.TableFilter;
 
 public final class FromApiConversionUtils {
   private FromApiConversionUtils() {}
@@ -22,8 +24,20 @@ public final class FromApiConversionUtils {
     }
   }
 
-  public static TableFilter.BinaryOperator fromApiObject(
+  public static BinaryFilterVariable.BinaryOperator fromApiObject(
       ApiAttributeFilterV2.OperatorEnum apiOperator) {
-    return TableFilter.BinaryOperator.valueOf(apiOperator.name());
+    return BinaryFilterVariable.BinaryOperator.valueOf(apiOperator.name());
+  }
+
+  public static FunctionFilterVariable.FunctionTemplate fromApiObject(
+      ApiTextFilterV2.MatchTypeEnum apiMatchType) {
+    switch (apiMatchType) {
+      case EXACT_MATCH:
+        return FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH;
+      case FUZZY_MATCH:
+        return FunctionFilterVariable.FunctionTemplate.TEXT_FUZZY_MATCH;
+      default:
+        throw new SystemException("Unknown API text match type: " + apiMatchType.name());
+    }
   }
 }

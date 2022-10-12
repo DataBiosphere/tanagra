@@ -169,9 +169,11 @@ public final class TextSearchMapping {
             .build();
 
     TableVariable idTextPairsTableVar = TableVariable.forPrimary(idTextPairsTable);
-    FieldVariable idFieldVar = new FieldVariable(idField, idTextPairsTableVar);
+    FieldVariable idFieldVar =
+        new FieldVariable(idField, idTextPairsTableVar, TEXT_SEARCH_ID_COLUMN_NAME);
     FieldVariable concatenatedTextFieldVar =
-        new FieldVariable(concatenatedTextField, idTextPairsTableVar);
+        new FieldVariable(
+            concatenatedTextField, idTextPairsTableVar, TEXT_SEARCH_STRING_COLUMN_NAME);
     return new Query.Builder()
         .select(List.of(idFieldVar, concatenatedTextFieldVar))
         .tables(List.of(idTextPairsTableVar))

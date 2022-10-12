@@ -1,5 +1,6 @@
 package bio.terra.tanagra.serialization.tablefilter;
 
+import bio.terra.tanagra.query.filtervariable.ArrayFilterVariable;
 import bio.terra.tanagra.serialization.UFTableFilter;
 import bio.terra.tanagra.underlay.TableFilter;
 import bio.terra.tanagra.underlay.TablePointer;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  */
 @JsonDeserialize(builder = UFArrayFilter.Builder.class)
 public class UFArrayFilter extends UFTableFilter {
-  private final TableFilter.LogicalOperator operator;
+  private final ArrayFilterVariable.LogicalOperator operator;
   private final List<UFTableFilter> subfilters;
 
   public UFArrayFilter(ArrayFilter arrayFilter) {
@@ -35,10 +36,10 @@ public class UFArrayFilter extends UFTableFilter {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFTableFilter.Builder {
-    private TableFilter.LogicalOperator operator;
+    private ArrayFilterVariable.LogicalOperator operator;
     private List<UFTableFilter> subfilters;
 
-    public Builder operator(TableFilter.LogicalOperator operator) {
+    public Builder operator(ArrayFilterVariable.LogicalOperator operator) {
       this.operator = operator;
       return this;
     }
@@ -61,7 +62,7 @@ public class UFArrayFilter extends UFTableFilter {
     return ArrayFilter.fromSerialized(this, tablePointer);
   }
 
-  public TableFilter.LogicalOperator getOperator() {
+  public ArrayFilterVariable.LogicalOperator getOperator() {
     return operator;
   }
 

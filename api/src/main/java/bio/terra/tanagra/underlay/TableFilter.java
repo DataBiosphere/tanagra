@@ -2,7 +2,6 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FilterVariable;
-import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFTableFilter;
 import bio.terra.tanagra.serialization.tablefilter.UFArrayFilter;
@@ -16,38 +15,6 @@ public abstract class TableFilter {
   public enum Type {
     BINARY,
     ARRAY
-  }
-
-  public enum BinaryOperator implements SQLExpression {
-    EQUALS("="),
-    NOT_EQUALS("!="),
-    LESS_THAN("<"),
-    GREATER_THAN(">"),
-    LESS_THAN_OR_EQUAL("<="),
-    GREATER_THAN_OR_EQUAL(">="),
-    IS("IS"),
-    IS_NOT("IS NOT");
-
-    private String sql;
-
-    BinaryOperator(String sql) {
-      this.sql = sql;
-    }
-
-    @Override
-    public String renderSQL() {
-      return sql;
-    }
-  }
-
-  public enum LogicalOperator implements SQLExpression {
-    AND,
-    OR;
-
-    @Override
-    public String renderSQL() {
-      return name();
-    }
   }
 
   public abstract Type getType();
