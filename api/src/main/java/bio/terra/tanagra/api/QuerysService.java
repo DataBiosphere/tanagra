@@ -17,6 +17,7 @@ import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import com.google.common.collect.Lists;
@@ -131,5 +132,13 @@ public class QuerysService {
           "Attribute not found: " + entity.getName() + ", " + attributeName);
     }
     return attribute;
+  }
+
+  public HierarchyMapping getHierarchy(EntityMapping entityMapping, String hierarchyName) {
+    HierarchyMapping hierarchyMapping = entityMapping.getHierarchyMappings().get(hierarchyName);
+    if (hierarchyMapping == null) {
+      throw new NotFoundException("Hierarchy not found: " + hierarchyName);
+    }
+    return hierarchyMapping;
   }
 }

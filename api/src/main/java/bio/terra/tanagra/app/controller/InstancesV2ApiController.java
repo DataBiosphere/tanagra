@@ -4,13 +4,16 @@ import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.api.QuerysService;
 import bio.terra.tanagra.api.UnderlaysService;
 import bio.terra.tanagra.api.entityfilter.AttributeFilter;
+import bio.terra.tanagra.api.entityfilter.HierarchyAncestorFilter;
+import bio.terra.tanagra.api.entityfilter.HierarchyParentFilter;
+import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
 import bio.terra.tanagra.api.entityfilter.TextFilter;
 import bio.terra.tanagra.api.utils.FromApiConversionUtils;
 import bio.terra.tanagra.api.utils.ToApiConversionUtils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.ApiAttributeFilterV2;
-import bio.terra.tanagra.generated.model.ApiFilterV2;
+import bio.terra.tanagra.generated.model.ApiHierarchyFilterV2;
 import bio.terra.tanagra.generated.model.ApiInstanceListV2;
 import bio.terra.tanagra.generated.model.ApiInstanceV2;
 import bio.terra.tanagra.generated.model.ApiQueryV2;
@@ -20,6 +23,7 @@ import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,32 +67,65 @@ public class InstancesV2ApiController implements InstancesV2Api {
 
     EntityFilter entityFilter = null;
     if (body.getFilter() != null) {
-      if (body.getFilter().getFilterType().equals(ApiFilterV2.FilterTypeEnum.ATTRIBUTE)) {
-        ApiAttributeFilterV2 apiAttributeFilter =
-            body.getFilter().getFilterUnion().getAttributeFilter();
-        entityFilter =
-            new AttributeFilter(
-                entity,
-                entityMapping,
-                querysService.getAttribute(entity, apiAttributeFilter.getAttribute()),
-                FromApiConversionUtils.fromApiObject(apiAttributeFilter.getOperator()),
-                FromApiConversionUtils.fromApiObject(apiAttributeFilter.getValue()));
-      } else if (body.getFilter().getFilterType().equals(ApiFilterV2.FilterTypeEnum.TEXT)) {
-        ApiTextFilterV2 apiTextFilter = body.getFilter().getFilterUnion().getTextFilter();
-        TextFilter.Builder textFilterBuilder =
-            new TextFilter.Builder()
-                .entity(entity)
-                .entityMapping(entityMapping)
-                .functionTemplate(
-                    FromApiConversionUtils.fromApiObject(apiTextFilter.getMatchType()))
-                .text(apiTextFilter.getText());
-        if (apiTextFilter.getAttribute() != null) {
-          textFilterBuilder.attribute(
-              querysService.getAttribute(entity, apiTextFilter.getAttribute()));
-        }
-        entityFilter = textFilterBuilder.build();
-      } else {
-        throw new SystemException("Unknown API filter type: " + body.getFilter().getFilterType());
+      switch (body.getFilter().getFilterType()) {
+        case ATTRIBUTE:
+          ApiAttributeFilterV2 apiAttributeFilter =
+              body.getFilter().getFilterUnion().getAttributeFilter();
+          entityFilter =
+              new AttributeFilter(
+                  entity,
+                  entityMapping,
+                  querysService.getAttribute(entity, apiAttributeFilter.getAttribute()),
+                  FromApiConversionUtils.fromApiObject(apiAttributeFilter.getOperator()),
+                  FromApiConversionUtils.fromApiObject(apiAttributeFilter.getValue()));
+          break;
+        case TEXT:
+          ApiTextFilterV2 apiTextFilter = body.getFilter().getFilterUnion().getTextFilter();
+          TextFilter.Builder textFilterBuilder =
+              new TextFilter.Builder()
+                  .entity(entity)
+                  .entityMapping(entityMapping)
+                  .functionTemplate(
+                      FromApiConversionUtils.fromApiObject(apiTextFilter.getMatchType()))
+                  .text(apiTextFilter.getText());
+          if (apiTextFilter.getAttribute() != null) {
+            textFilterBuilder.attribute(
+                querysService.getAttribute(entity, apiTextFilter.getAttribute()));
+          }
+          entityFilter = textFilterBuilder.build();
+          break;
+        case HIERARCHY:
+          ApiHierarchyFilterV2 apiHierarchyFilter =
+              body.getFilter().getFilterUnion().getHierarchyFilter();
+          HierarchyMapping hierarchyMapping =
+              querysService.getHierarchy(entityMapping, apiHierarchyFilter.getHierarchy());
+          switch (apiHierarchyFilter.getOperator()) {
+            case IS_ROOT:
+              entityFilter = new HierarchyRootFilter(entity, entityMapping, hierarchyMapping);
+              break;
+            case CHILD_OF:
+              entityFilter =
+                  new HierarchyParentFilter(
+                      entity,
+                      entityMapping,
+                      hierarchyMapping,
+                      FromApiConversionUtils.fromApiObject(apiHierarchyFilter.getValue()));
+              break;
+            case DESCENDANT_OF_INCLUSIVE:
+              entityFilter =
+                  new HierarchyAncestorFilter(
+                      entity,
+                      entityMapping,
+                      hierarchyMapping,
+                      FromApiConversionUtils.fromApiObject(apiHierarchyFilter.getValue()));
+              break;
+            default:
+              throw new SystemException(
+                  "Unknown API hierarchy filter operator: " + apiHierarchyFilter.getOperator());
+          }
+          break;
+        default:
+          throw new SystemException("Unknown API filter type: " + body.getFilter().getFilterType());
       }
     }
 

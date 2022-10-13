@@ -1176,6 +1176,7 @@ components:
         limit:
           description: The maximum number of results to return. Defaults to 250.
           type: integer
+          default: 250
 
     FilterV2:
       type: object
@@ -1183,7 +1184,7 @@ components:
       properties:
         filterType:
           type: string
-          enum: ["ATTRIBUTE", "TEXT"]
+          enum: ["ATTRIBUTE", "TEXT", "HIERARCHY"]
         filterUnion:
           type: object
           properties:
@@ -1191,6 +1192,8 @@ components:
               $ref: "#/components/schemas/AttributeFilterV2"
             textFilter:
               $ref: "#/components/schemas/TextFilterV2"
+            hierarchyFilter:
+              $ref: "#/components/schemas/HierarchyFilterV2"
 
     AttributeFilterV2:
       type: object
@@ -1218,6 +1221,19 @@ components:
             Currently, fuzzy match only works on a single attribute (i.e. you must specify this field for fuzzy match).
         text:
           type: string
+
+    HierarchyFilterV2:
+      type: object
+      description: Filter on a hierarchy (e.g. descendant of id=12)
+      properties:
+        hierarchy:
+          description: Name of the hierarchy
+          type: string
+        operator:
+          type: string
+          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT"]
+        value:
+          $ref: "#/components/schemas/LiteralV2"
 
     InstanceV2:
       type: object
