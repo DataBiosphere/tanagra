@@ -9,6 +9,10 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.underlay.hierarchyfield.IsMember;
+import bio.terra.tanagra.underlay.hierarchyfield.IsRoot;
+import bio.terra.tanagra.underlay.hierarchyfield.NumChildren;
+import bio.terra.tanagra.underlay.hierarchyfield.Path;
 
 public final class FromApiConversionUtils {
   private FromApiConversionUtils() {}
@@ -46,12 +50,14 @@ public final class FromApiConversionUtils {
   public static HierarchyField fromApiObject(
       String hierarchyName, ApiQueryV2IncludeHierarchyFields.FieldsEnum apiHierarchyField) {
     switch (apiHierarchyField) {
+      case IS_MEMBER:
+        return new IsMember(hierarchyName);
       case IS_ROOT:
-        return new HierarchyField(hierarchyName, HierarchyField.FieldName.IS_ROOT);
+        return new IsRoot(hierarchyName);
       case PATH:
-        return new HierarchyField(hierarchyName, HierarchyField.FieldName.PATH);
+        return new Path(hierarchyName);
       case NUM_CHILDREN:
-        return new HierarchyField(hierarchyName, HierarchyField.FieldName.NUM_CHILDREN);
+        return new NumChildren(hierarchyName);
       default:
         throw new SystemException("Unknown API hierarchy field: " + apiHierarchyField);
     }

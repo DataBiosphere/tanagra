@@ -6,7 +6,6 @@ import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.HierarchyField;
-import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Literal;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Collections;
@@ -56,14 +55,13 @@ public final class EntityInstance {
 
     Map<HierarchyField, ValueDisplay> hierarchyFieldValues = new HashMap<>();
     for (HierarchyField selectedHierarchyField : selectedHierarchyFields) {
-      CellValue cellValue =
-          rowResult.get(HierarchyMapping.getHierarchyFieldAlias(selectedHierarchyField));
+      CellValue cellValue = rowResult.get(selectedHierarchyField.getHierarchyFieldAlias());
       if (cellValue == null) {
         throw new SystemException(
             "Hierarchy field column not found: "
                 + selectedHierarchyField.getHierarchyName()
                 + ", "
-                + selectedHierarchyField.getFieldName());
+                + selectedHierarchyField.getType());
       }
       hierarchyFieldValues.put(selectedHierarchyField, new ValueDisplay(cellValue.getLiteral()));
     }

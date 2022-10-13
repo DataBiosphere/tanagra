@@ -1,9 +1,6 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.SQLExpression;
@@ -17,9 +14,10 @@ public final class HierarchyMapping {
   public static final String PARENT_FIELD_NAME = "parent";
   public static final String ANCESTOR_FIELD_NAME = "ancestor";
   public static final String DESCENDANT_FIELD_NAME = "descendant";
-  private static final String PATH_FIELD_NAME = "path";
-  private static final String NUM_CHILDREN_FIELD_NAME = "num_children";
-  private static final String IS_ROOT_FIELD_NAME = "is_root";
+  public static final String PATH_FIELD_NAME = "path";
+  public static final String NUM_CHILDREN_FIELD_NAME = "num_children";
+  public static final String IS_ROOT_FIELD_NAME = "is_root";
+  public static final String IS_MEMBER_FIELD_NAME = "is_member";
   private static final AuxiliaryData CHILD_PARENT_AUXILIARY_DATA =
       new AuxiliaryData("childParent", List.of(CHILD_FIELD_NAME, PARENT_FIELD_NAME));
   private static final AuxiliaryData ROOT_NODES_FILTER_AUXILIARY_DATA =
@@ -144,33 +142,13 @@ public final class HierarchyMapping {
         .build();
   }
 
-  public FieldVariable buildFieldVariableFromEntityId(
-      HierarchyField hierarchyField,
-      FieldPointer entityIdFieldPointer,
-      TableVariable entityTableVar,
-      List<TableVariable> tableVars) {
-    switch (hierarchyField.getFieldName()) {
-      case IS_ROOT:
-        return buildIsRootFieldPointerFromEntityId(entityIdFieldPointer)
-            .buildVariable(entityTableVar, tableVars, getHierarchyFieldAlias(hierarchyField));
-      case PATH:
-        return buildPathNumChildrenFieldPointerFromEntityId(entityIdFieldPointer, PATH_FIELD_NAME)
-            .buildVariable(entityTableVar, tableVars, getHierarchyFieldAlias(hierarchyField));
-      case NUM_CHILDREN:
-        return buildPathNumChildrenFieldPointerFromEntityId(
-                entityIdFieldPointer, NUM_CHILDREN_FIELD_NAME)
-            .buildVariable(entityTableVar, tableVars, getHierarchyFieldAlias(hierarchyField));
-      default:
-        throw new SystemException("Unknown hierarchy field: " + hierarchyField.getFieldName());
-    }
-  }
-
   /** Build a field pointer to the PATH or NUM_CHILDREN field, foreign key'd off the entity ID. */
-  private FieldPointer buildPathNumChildrenFieldPointerFromEntityId(
+  public FieldPointer buildPathNumChildrenFieldPointerFromEntityId(
       FieldPointer entityIdFieldPointer, String fieldName) {
     FieldPointer fieldInAuxTable = pathNumChildren.getFieldPointers().get(fieldName);
     FieldPointer idFieldInAuxTable = pathNumChildren.getFieldPointers().get(ID_FIELD_NAME);
 
+    // TODO: Handle the case where the path field is in the same table (i.e. not FK'd).
     return new FieldPointer.Builder()
         .tablePointer(entityIdFieldPointer.getTablePointer())
         .columnName(entityIdFieldPointer.getColumnName())
@@ -178,51 +156,6 @@ public final class HierarchyMapping {
         .foreignKeyColumnName(idFieldInAuxTable.getColumnName())
         .foreignColumnName(fieldInAuxTable.getColumnName())
         .build();
-  }
-
-  /** Build a field pointer to the IS_ROOT field, foreign key'd off the entity ID. */
-  private FieldPointer buildIsRootFieldPointerFromEntityId(FieldPointer entityIdFieldPointer) {
-    // Currently, this is a calculated field. IS_ROOT means path="".
-    FieldPointer pathFieldPointer =
-        buildPathNumChildrenFieldPointerFromEntityId(entityIdFieldPointer, PATH_FIELD_NAME);
-
-    return new FieldPointer.Builder()
-        .tablePointer(pathFieldPointer.getTablePointer())
-        .columnName(pathFieldPointer.getColumnName())
-        .foreignTablePointer(pathFieldPointer.getForeignTablePointer())
-        .foreignKeyColumnName(pathFieldPointer.getForeignKeyColumnName())
-        .foreignColumnName(pathFieldPointer.getForeignColumnName())
-        .sqlFunctionWrapper("(${fieldSql} IS NOT NULL AND ${fieldSql}='')")
-        .build();
-  }
-
-  public static String getHierarchyFieldAlias(HierarchyField hierarchyField) {
-    switch (hierarchyField.getFieldName()) {
-      case IS_ROOT:
-        return hierarchyField.getColumnNamePrefix() + IS_ROOT_FIELD_NAME;
-      case PATH:
-        return hierarchyField.getColumnNamePrefix() + PATH_FIELD_NAME;
-      case NUM_CHILDREN:
-        return hierarchyField.getColumnNamePrefix() + NUM_CHILDREN_FIELD_NAME;
-      default:
-        throw new SystemException("Unknown hierarchy field: " + hierarchyField.getFieldName());
-    }
-  }
-
-  public ColumnSchema buildColumnSchema(HierarchyField hierarchyField) {
-    switch (hierarchyField.getFieldName()) {
-      case IS_ROOT:
-        return new ColumnSchema(
-            getHierarchyFieldAlias(hierarchyField), CellValue.SQLDataType.BOOLEAN);
-      case PATH:
-        return new ColumnSchema(
-            getHierarchyFieldAlias(hierarchyField), CellValue.SQLDataType.STRING);
-      case NUM_CHILDREN:
-        return new ColumnSchema(
-            getHierarchyFieldAlias(hierarchyField), CellValue.SQLDataType.INT64);
-      default:
-        throw new SystemException("Unknown hierarchy field: " + hierarchyField.getFieldName());
-    }
   }
 
   public AuxiliaryDataMapping getChildParent() {

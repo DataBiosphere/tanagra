@@ -11,6 +11,7 @@ import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.underlay.hierarchyfield.Path;
 import java.util.List;
 
 public class HierarchyRootFilter extends EntityFilter {
@@ -31,12 +32,10 @@ public class HierarchyRootFilter extends EntityFilter {
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
     FieldPointer entityIdFieldPointer = getEntityMapping().getIdAttributeMapping().getValue();
+    HierarchyField pathField = new Path(hierarchyName);
     FieldVariable pathFieldVar =
-        hierarchyMapping.buildFieldVariableFromEntityId(
-            new HierarchyField(hierarchyName, HierarchyField.FieldName.PATH),
-            entityIdFieldPointer,
-            entityTableVar,
-            tableVars);
+        pathField.buildFieldVariableFromEntityId(
+            hierarchyMapping, entityIdFieldPointer, entityTableVar, tableVars);
 
     // IS_ROOT translates to path=""
     return new BinaryFilterVariable(

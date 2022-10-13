@@ -203,7 +203,10 @@ public class InstancesV2ApiController implements InstancesV2Api {
             new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchyName());
         hierarchyFieldSets.put(hierarchyField.getHierarchyName(), hierarchyFieldSet);
       }
-      switch (hierarchyField.getFieldName()) {
+      switch (hierarchyField.getType()) {
+        case IS_MEMBER:
+          hierarchyFieldSet.isMember(valueDisplay.getValue().getBooleanVal());
+          break;
         case IS_ROOT:
           hierarchyFieldSet.isRoot(valueDisplay.getValue().getBooleanVal());
           break;
@@ -214,7 +217,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
           hierarchyFieldSet.numChildren(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
           break;
         default:
-          throw new SystemException("Unknown hierarchy field: " + hierarchyField.getFieldName());
+          throw new SystemException("Unknown hierarchy field type: " + hierarchyField.getType());
       }
     }
 

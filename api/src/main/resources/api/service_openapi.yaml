@@ -1171,7 +1171,7 @@ components:
               type: array
               items:
                 type: string
-                enum: ["PATH", "NUM_CHILDREN", "IS_ROOT"]
+                enum: ["IS_MEMBER", "PATH", "NUM_CHILDREN", "IS_ROOT"]
         filter:
           $ref: "#/components/schemas/FilterV2"
         orderBy:
@@ -1253,20 +1253,22 @@ components:
       type: object
       properties:
         attributes:
-          description: A map of entity attribute names to their value for this instance
+          description: A map of entity attribute names to their value for this instance. Only the attributes requested are populated.
           type: object
           additionalProperties:
             type: object
             nullable: true
             $ref: "#/components/schemas/ValueDisplayV2"
         hierarchyFields:
-          description: Hierarchy field values for this instance. One set of values per hierarchy.
+          description: Hierarchy field values for this instance. One set of values per hierarchy. Only the values requested are populated.
           type: array
           items:
             type: object
             properties:
               hierarchy:
                 type: string
+              isMember:
+                type: boolean
               path:
                 type: string
               numChildren:

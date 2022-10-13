@@ -68,9 +68,9 @@ public class QuerysService {
               HierarchyMapping hierarchyMapping =
                   entityMapping.getHierarchyMapping(hierarchyField.getHierarchyName());
               selectFieldVars.add(
-                  hierarchyMapping.buildFieldVariableFromEntityId(
-                      hierarchyField, entityIdFieldPointer, entityTableVar, tableVars));
-              columnSchemas.add(hierarchyMapping.buildColumnSchema(hierarchyField));
+                  hierarchyField.buildFieldVariableFromEntityId(
+                      hierarchyMapping, entityIdFieldPointer, entityTableVar, tableVars));
+              columnSchemas.add(hierarchyField.buildColumnSchema());
             });
 
     // build the ORDER BY field variables from attributes
