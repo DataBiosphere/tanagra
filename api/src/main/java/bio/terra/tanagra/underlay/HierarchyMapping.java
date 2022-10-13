@@ -9,14 +9,22 @@ import bio.terra.tanagra.serialization.UFHierarchyMapping;
 import java.util.List;
 
 public final class HierarchyMapping {
+  private static final String ID_FIELD_NAME = "id";
+  public static final String CHILD_FIELD_NAME = "child";
+  public static final String PARENT_FIELD_NAME = "parent";
+  public static final String ANCESTOR_FIELD_NAME = "ancestor";
+  public static final String DESCENDANT_FIELD_NAME = "descendant";
+  private static final String PATH_FIELD_NAME = "path";
+  private static final String NUM_CHILDREN_FIELD_NAME = "num_children";
   private static final AuxiliaryData CHILD_PARENT_AUXILIARY_DATA =
-      new AuxiliaryData("childParent", List.of("child", "parent"));
+      new AuxiliaryData("childParent", List.of(CHILD_FIELD_NAME, PARENT_FIELD_NAME));
   private static final AuxiliaryData ROOT_NODES_FILTER_AUXILIARY_DATA =
-      new AuxiliaryData("rootNodesFilter", List.of("id"));
+      new AuxiliaryData("rootNodesFilter", List.of(ID_FIELD_NAME));
   private static final AuxiliaryData ANCESTOR_DESCENDANT_AUXILIARY_DATA =
-      new AuxiliaryData("ancestorDescendant", List.of("ancestor", "descendant"));
+      new AuxiliaryData("ancestorDescendant", List.of(ANCESTOR_FIELD_NAME, DESCENDANT_FIELD_NAME));
   private static final AuxiliaryData PATH_NUM_CHILDREN_AUXILIARY_DATA =
-      new AuxiliaryData("pathNumChildren", List.of("id", "path", "num_children"));
+      new AuxiliaryData(
+          "pathNumChildren", List.of(ID_FIELD_NAME, PATH_FIELD_NAME, NUM_CHILDREN_FIELD_NAME));
 
   private final AuxiliaryDataMapping childParent;
   private final AuxiliaryDataMapping rootNodesFilter;
@@ -84,10 +92,14 @@ public final class HierarchyMapping {
     TableVariable childParentTableVar = TableVariable.forPrimary(childParent.getTablePointer());
     FieldVariable childFieldVar =
         new FieldVariable(
-            childParent.getFieldPointers().get("child"), childParentTableVar, childFieldAlias);
+            childParent.getFieldPointers().get(CHILD_FIELD_NAME),
+            childParentTableVar,
+            childFieldAlias);
     FieldVariable parentFieldVar =
         new FieldVariable(
-            childParent.getFieldPointers().get("parent"), childParentTableVar, parentFieldAlias);
+            childParent.getFieldPointers().get(PARENT_FIELD_NAME),
+            childParentTableVar,
+            parentFieldAlias);
     return new Query.Builder()
         .select(List.of(childFieldVar, parentFieldVar))
         .tables(List.of(childParentTableVar))
@@ -99,7 +111,9 @@ public final class HierarchyMapping {
         TableVariable.forPrimary(rootNodesFilter.getTablePointer());
     FieldVariable idFieldVar =
         new FieldVariable(
-            rootNodesFilter.getFieldPointers().get("id"), possibleRootNodesTableVar, idFieldAlias);
+            rootNodesFilter.getFieldPointers().get(ID_FIELD_NAME),
+            possibleRootNodesTableVar,
+            idFieldAlias);
     return new Query.Builder()
         .select(List.of(idFieldVar))
         .tables(List.of(possibleRootNodesTableVar))
@@ -112,17 +126,29 @@ public final class HierarchyMapping {
         TableVariable.forPrimary(ancestorDescendant.getTablePointer());
     FieldVariable ancestorFieldVar =
         new FieldVariable(
-            ancestorDescendant.getFieldPointers().get("ancestor"),
+            ancestorDescendant.getFieldPointers().get(ANCESTOR_FIELD_NAME),
             ancestorDescendantTableVar,
             ancestorFieldAlias);
     FieldVariable descendantFieldVar =
         new FieldVariable(
-            ancestorDescendant.getFieldPointers().get("descendant"),
+            ancestorDescendant.getFieldPointers().get(DESCENDANT_FIELD_NAME),
             ancestorDescendantTableVar,
             descendantFieldAlias);
     return new Query.Builder()
         .select(List.of(ancestorFieldVar, descendantFieldVar))
         .tables(List.of(ancestorDescendantTableVar))
+        .build();
+  }
+
+  public FieldPointer buildPathFieldPointerFromEntityId(FieldPointer entityIdFieldPointer) {
+    FieldPointer pathFieldInAuxTable = pathNumChildren.getFieldPointers().get(PATH_FIELD_NAME);
+    FieldPointer idFieldInAuxTable = pathNumChildren.getFieldPointers().get(ID_FIELD_NAME);
+
+    return new FieldPointer.Builder()
+        .columnName(entityIdFieldPointer.getColumnName())
+        .foreignTablePointer(pathNumChildren.getTablePointer())
+        .foreignKeyColumnName(idFieldInAuxTable.getColumnName())
+        .foreignColumnName(pathFieldInAuxTable.getColumnName())
         .build();
   }
 
