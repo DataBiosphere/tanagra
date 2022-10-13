@@ -1159,11 +1159,12 @@ components:
           items:
             type: string
         includeHierarchyFields:
-          description: Hierarchy fields to include in the returned instances
+          description: Hierarchy fields to include in the returned instances. All fields will be returned for each hierarchy specified.
           type: object
           properties:
             hierarchies:
               type: array
+              description: Hierarchy names
               items:
                 type: string
             fields:
@@ -1259,16 +1260,19 @@ components:
             nullable: true
             $ref: "#/components/schemas/ValueDisplayV2"
         hierarchyFields:
-          description: Hierarchy field values for this instance
-          type: object
-          properties:
-            path:
-              type: string
-              nullable: true
-            numChildren:
-              type: integer
-            isRoot:
-              type: boolean
+          description: Hierarchy field values for this instance. One set of values per hierarchy.
+          type: array
+          items:
+            type: object
+            properties:
+              hierarchy:
+                type: string
+              path:
+                type: string
+              numChildren:
+                type: integer
+              isRoot:
+                type: boolean
 
     InstanceListV2:
       type: object

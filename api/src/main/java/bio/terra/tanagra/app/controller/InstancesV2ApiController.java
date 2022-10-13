@@ -190,26 +190,36 @@ public class InstancesV2ApiController implements InstancesV2Api {
           ToApiConversionUtils.toApiObject(attributeValue.getValue()));
     }
 
-    ApiInstanceV2HierarchyFields hierarchyFields = new ApiInstanceV2HierarchyFields();
+    Map<String, ApiInstanceV2HierarchyFields> hierarchyFieldSets = new HashMap<>();
     for (Map.Entry<HierarchyField, ValueDisplay> hierarchyFieldValue :
         entityInstance.getHierarchyFieldValues().entrySet()) {
-      switch (hierarchyFieldValue.getKey().getFieldName()) {
+      HierarchyField hierarchyField = hierarchyFieldValue.getKey();
+      ValueDisplay valueDisplay = hierarchyFieldValue.getValue();
+
+      ApiInstanceV2HierarchyFields hierarchyFieldSet =
+          hierarchyFieldSets.get(hierarchyField.getHierarchyName());
+      if (hierarchyFieldSet == null) {
+        hierarchyFieldSet =
+            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchyName());
+        hierarchyFieldSets.put(hierarchyField.getHierarchyName(), hierarchyFieldSet);
+      }
+      switch (hierarchyField.getFieldName()) {
         case IS_ROOT:
-          hierarchyFields.isRoot(hierarchyFieldValue.getValue().getValue().getBooleanVal());
+          hierarchyFieldSet.isRoot(valueDisplay.getValue().getBooleanVal());
           break;
         case PATH:
-          hierarchyFields.path(hierarchyFieldValue.getValue().getValue().getStringVal());
+          hierarchyFieldSet.path(valueDisplay.getValue().getStringVal());
           break;
         case NUM_CHILDREN:
-          hierarchyFields.numChildren(
-              Math.toIntExact(hierarchyFieldValue.getValue().getValue().getInt64Val()));
+          hierarchyFieldSet.numChildren(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
           break;
         default:
-          throw new SystemException(
-              "Unknown hierarchy field: " + hierarchyFieldValue.getKey().getFieldName());
+          throw new SystemException("Unknown hierarchy field: " + hierarchyField.getFieldName());
       }
     }
 
-    return instance.attributes(attributes).hierarchyFields(hierarchyFields);
+    return instance
+        .attributes(attributes)
+        .hierarchyFields(hierarchyFieldSets.values().stream().collect(Collectors.toList()));
   }
 }
