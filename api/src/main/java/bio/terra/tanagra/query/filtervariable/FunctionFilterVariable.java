@@ -25,7 +25,7 @@ public class FunctionFilterVariable extends FilterVariable {
   public String renderSQL() {
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
-            .put("fieldVariable", fieldVariable.renderSQL())
+            .put("fieldVariable", fieldVariable.renderSqlForWhere())
             .put("value", value.renderSQL())
             .build();
     return StringSubstitutor.replace(functionTemplate.getSqlTemplate(), params);

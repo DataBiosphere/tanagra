@@ -3,9 +3,11 @@ package bio.terra.tanagra.api.utils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAttributeFilterV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
+import bio.terra.tanagra.generated.model.ApiQueryV2IncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiTextFilterV2;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
+import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.Literal;
 
 public final class FromApiConversionUtils {
@@ -38,6 +40,20 @@ public final class FromApiConversionUtils {
         return FunctionFilterVariable.FunctionTemplate.TEXT_FUZZY_MATCH;
       default:
         throw new SystemException("Unknown API text match type: " + apiMatchType.name());
+    }
+  }
+
+  public static HierarchyField fromApiObject(
+      String hierarchyName, ApiQueryV2IncludeHierarchyFields.FieldsEnum apiHierarchyField) {
+    switch (apiHierarchyField) {
+      case IS_ROOT:
+        return new HierarchyField(hierarchyName, HierarchyField.FieldName.IS_ROOT);
+      case PATH:
+        return new HierarchyField(hierarchyName, HierarchyField.FieldName.PATH);
+      case NUM_CHILDREN:
+        return new HierarchyField(hierarchyName, HierarchyField.FieldName.NUM_CHILDREN);
+      default:
+        throw new SystemException("Unknown API hierarchy field: " + apiHierarchyField);
     }
   }
 }

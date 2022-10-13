@@ -1,7 +1,6 @@
 package bio.terra.tanagra.api;
 
 import bio.terra.common.exception.NotFoundException;
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldVariable;
@@ -17,15 +16,13 @@ import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.FieldPointer;
+import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.underlay.Literal;
-import bio.terra.tanagra.underlay.ValueDisplay;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -39,6 +36,7 @@ public class QuerysService {
   public QueryRequest buildInstancesQuery(
       EntityMapping entityMapping,
       List<Attribute> selectAttributes,
+      List<HierarchyField> selectHierarchyFields,
       @Nullable EntityFilter filter,
       List<Attribute> orderByAttributes,
       OrderByDirection orderByDirection,
@@ -60,6 +58,19 @@ public class QuerysService {
               columnSchemas.addAll(
                   attributeMapping.buildColumnSchemas(
                       attribute.getName(), attribute.getDataType()));
+            });
+
+    // build the additional SELECT field variables and column schemas from hierarchy fields
+    FieldPointer entityIdFieldPointer = entityMapping.getIdAttributeMapping().getValue();
+    selectHierarchyFields.stream()
+        .forEach(
+            hierarchyField -> {
+              HierarchyMapping hierarchyMapping =
+                  entityMapping.getHierarchyMapping(hierarchyField.getHierarchyName());
+              selectFieldVars.add(
+                  hierarchyMapping.buildFieldVariableFromEntityId(
+                      hierarchyField, entityIdFieldPointer, entityTableVar, tableVars));
+              columnSchemas.add(hierarchyMapping.buildColumnSchema(hierarchyField));
             });
 
     // build the ORDER BY field variables from attributes
@@ -91,36 +102,20 @@ public class QuerysService {
     return new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
   }
 
-  public List<Map<String, ValueDisplay>> runInstancesQuery(
-      EntityMapping entityMapping, List<Attribute> selectAttributes, QueryRequest queryRequest) {
+  public List<EntityInstance> runInstancesQuery(
+      EntityMapping entityMapping,
+      List<Attribute> selectAttributes,
+      List<HierarchyField> selectHierarchyFields,
+      QueryRequest queryRequest) {
     DataPointer dataPointer = entityMapping.getTablePointer().getDataPointer();
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
-    List<Map<String, ValueDisplay>> instances = new ArrayList<>();
+    List<EntityInstance> instances = new ArrayList<>();
     Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
     while (rowResultsItr.hasNext()) {
-      RowResult rowResult = rowResultsItr.next();
-
-      Map<String, ValueDisplay> instance = new HashMap<>();
-      for (Attribute selectAttribute : selectAttributes) {
-        Literal value = rowResult.get(selectAttribute.getName()).getLiteral();
-        switch (selectAttribute.getType()) {
-          case SIMPLE:
-            instance.put(selectAttribute.getName(), new ValueDisplay(value));
-            break;
-          case KEY_AND_DISPLAY:
-            String display =
-                rowResult
-                    .get(AttributeMapping.getDisplayMappingAlias(selectAttribute.getName()))
-                    .getString()
-                    .get();
-            instance.put(selectAttribute.getName(), new ValueDisplay(value, display));
-            break;
-          default:
-            throw new SystemException("Unknown attribute type: " + selectAttribute.getType());
-        }
-      }
-      instances.add(instance);
+      instances.add(
+          EntityInstance.fromRowResult(
+              rowResultsItr.next(), selectAttributes, selectHierarchyFields));
     }
     return instances;
   }

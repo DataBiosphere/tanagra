@@ -1158,6 +1158,19 @@ components:
           type: array
           items:
             type: string
+        includeHierarchyFields:
+          description: Hierarchy fields to include in the returned instances
+          type: object
+          properties:
+            hierarchies:
+              type: array
+              items:
+                type: string
+            fields:
+              type: array
+              items:
+                type: string
+                enum: ["PATH", "NUM_CHILDREN", "IS_ROOT"]
         filter:
           $ref: "#/components/schemas/FilterV2"
         orderBy:
@@ -1237,11 +1250,25 @@ components:
 
     InstanceV2:
       type: object
-      description: A map of entity attribute names to their value for this instance
-      additionalProperties:
-        type: object
-        nullable: true
-        $ref: "#/components/schemas/ValueDisplayV2"
+      properties:
+        attributes:
+          description: A map of entity attribute names to their value for this instance
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+        hierarchyFields:
+          description: Hierarchy field values for this instance
+          type: object
+          properties:
+            path:
+              type: string
+              nullable: true
+            numChildren:
+              type: integer
+            isRoot:
+              type: boolean
 
     InstanceListV2:
       type: object
