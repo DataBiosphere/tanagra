@@ -26,7 +26,7 @@ public class BinaryFilterVariable extends FilterVariable {
     String template = "${fieldSQL} ${operator} ${value}";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
-            .put("fieldSQL", fieldVariable.renderSQL())
+            .put("fieldSQL", fieldVariable.renderSqlForWhere())
             .put("operator", operator.renderSQL())
             .put("value", value.renderSQL())
             .build();

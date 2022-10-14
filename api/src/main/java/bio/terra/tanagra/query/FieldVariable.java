@@ -5,8 +5,11 @@ import bio.terra.tanagra.underlay.FieldPointer;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FieldVariable implements SQLExpression {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FieldVariable.class);
   private final FieldPointer fieldPointer;
   private final TableVariable tableVariable;
   private String alias;
@@ -24,14 +27,18 @@ public class FieldVariable implements SQLExpression {
 
   @Override
   public String renderSQL() {
-    return renderSQL(true);
+    return renderSQL(true, true);
   }
 
   public String renderSqlForOrderBy() {
-    return renderSQL(false);
+    return renderSQL(false, false);
   }
 
-  private String renderSQL(boolean useAliasAndFunctionWrapper) {
+  public String renderSqlForWhere() {
+    return renderSQL(false, true);
+  }
+
+  private String renderSQL(boolean useAlias, boolean useFunctionWrapper) {
     String template = "${tableAlias}.${columnName}";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
@@ -44,7 +51,8 @@ public class FieldVariable implements SQLExpression {
       throw new SystemException("TODO: implement embedded selects " + sql);
     }
 
-    if (fieldPointer.hasSqlFunctionWrapper() && useAliasAndFunctionWrapper) {
+    if (fieldPointer.hasSqlFunctionWrapper() && useFunctionWrapper) {
+      LOGGER.info("Found sql function wrapper: " + fieldPointer.getSqlFunctionWrapper());
       final String substitutionVar = "${fieldSql}";
       if (fieldPointer.getSqlFunctionWrapper().contains(substitutionVar)) {
         template = fieldPointer.getSqlFunctionWrapper();
@@ -60,7 +68,7 @@ public class FieldVariable implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
-    if (alias != null && useAliasAndFunctionWrapper) {
+    if (alias != null && useAlias) {
       template = "${fieldSql} AS ${fieldAlias}";
       params =
           ImmutableMap.<String, String>builder()

@@ -14,8 +14,10 @@ public final class HierarchyMapping {
   public static final String PARENT_FIELD_NAME = "parent";
   public static final String ANCESTOR_FIELD_NAME = "ancestor";
   public static final String DESCENDANT_FIELD_NAME = "descendant";
-  private static final String PATH_FIELD_NAME = "path";
-  private static final String NUM_CHILDREN_FIELD_NAME = "num_children";
+  public static final String PATH_FIELD_NAME = "path";
+  public static final String NUM_CHILDREN_FIELD_NAME = "num_children";
+  public static final String IS_ROOT_FIELD_NAME = "is_root";
+  public static final String IS_MEMBER_FIELD_NAME = "is_member";
   private static final AuxiliaryData CHILD_PARENT_AUXILIARY_DATA =
       new AuxiliaryData("childParent", List.of(CHILD_FIELD_NAME, PARENT_FIELD_NAME));
   private static final AuxiliaryData ROOT_NODES_FILTER_AUXILIARY_DATA =
@@ -140,15 +142,19 @@ public final class HierarchyMapping {
         .build();
   }
 
-  public FieldPointer buildPathFieldPointerFromEntityId(FieldPointer entityIdFieldPointer) {
-    FieldPointer pathFieldInAuxTable = pathNumChildren.getFieldPointers().get(PATH_FIELD_NAME);
+  /** Build a field pointer to the PATH or NUM_CHILDREN field, foreign key'd off the entity ID. */
+  public FieldPointer buildPathNumChildrenFieldPointerFromEntityId(
+      FieldPointer entityIdFieldPointer, String fieldName) {
+    FieldPointer fieldInAuxTable = pathNumChildren.getFieldPointers().get(fieldName);
     FieldPointer idFieldInAuxTable = pathNumChildren.getFieldPointers().get(ID_FIELD_NAME);
 
+    // TODO: Handle the case where the path field is in the same table (i.e. not FK'd).
     return new FieldPointer.Builder()
+        .tablePointer(entityIdFieldPointer.getTablePointer())
         .columnName(entityIdFieldPointer.getColumnName())
         .foreignTablePointer(pathNumChildren.getTablePointer())
         .foreignKeyColumnName(idFieldInAuxTable.getColumnName())
-        .foreignColumnName(pathFieldInAuxTable.getColumnName())
+        .foreignColumnName(fieldInAuxTable.getColumnName())
         .build();
   }
 

@@ -42,7 +42,7 @@ public class SubQueryFilterVariable extends FilterVariable {
     String template = "${fieldSQL} ${operator} (${subQuerySQL})";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
-            .put("fieldSQL", fieldVariable.renderSQL())
+            .put("fieldSQL", fieldVariable.renderSqlForWhere())
             .put("operator", operator.renderSQL())
             .put("subQuerySQL", subQuery.renderSQL())
             .build();

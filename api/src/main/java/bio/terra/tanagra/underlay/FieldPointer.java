@@ -84,7 +84,11 @@ public class FieldPointer {
                   foreignTablePointer, foreignKeyColumnName, primaryTableColumn);
       tableVariables.add(foreignTable);
       return new FieldVariable(
-          new Builder().tablePointer(foreignTablePointer).columnName(foreignColumnName).build(),
+          new Builder()
+              .tablePointer(foreignTablePointer)
+              .columnName(foreignColumnName)
+              .sqlFunctionWrapper(sqlFunctionWrapper)
+              .build(),
           foreignTable,
           alias);
     } else {
