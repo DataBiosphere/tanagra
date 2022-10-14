@@ -35,4 +35,28 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
 
         return (results != null);
     }
+
+    @Override
+    public boolean grantAccess(User user, IControlledAccessArtifact artifact) {
+        SqlParameterSource params = new MapSqlParameterSource()
+            .addValue("user_id", user.getIdentifier())
+            .addValue("artifact_type", artifact.getAccessControlType())
+            .addValue("artifact_id", artifact.getIdentifier());
+
+        int status = jdbcTemplate.update("INSERT (user_id, artifact_type, artifact_id) VALUES (:user_id, :artifact_type, :artifact_id) INTO artifact_acl ON CONFLICT DO NOTHING", params);
+
+        return (status == 1);
+    }
+
+    @Override
+    public boolean revokeAccess(User user, IControlledAccessArtifact artifact) {
+        SqlParameterSource params = new MapSqlParameterSource()
+            .addValue("user_id", user.getIdentifier())
+            .addValue("artifact_type", artifact.getAccessControlType())
+            .addValue("artifact_id", artifact.getIdentifier());
+
+        int status = jdbcTemplate.update("DELETE FROM artifact_acl WHERE user_id = :user_id AND artifact_type = :artifact_type AND artifact_id = :artifact_id", params);
+
+        return (status == 1);
+    }
 }
