@@ -45,7 +45,7 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
 
         int status = jdbcTemplate.update("INSERT (user_id, artifact_type, artifact_id) VALUES (:user_id, :artifact_type, :artifact_id) INTO artifact_acl ON CONFLICT DO NOTHING", params);
 
-        return (status == 1);
+        return (status != 0);
     }
 
     @Override
