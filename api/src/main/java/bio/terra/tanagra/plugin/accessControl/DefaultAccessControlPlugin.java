@@ -31,7 +31,7 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
             .addValue("asset_type", asset.getAccessControlType())
             .addValue("asset_id", asset.getIdentifier());
 
-        String results = jdbcTemplate.queryForObject("SELECT 1 FROM tanagra_acl WHERE user_id = :user_id AND asset_type = :asset_type AND asset_id = :asset_id", params, String.class);
+        String results = jdbcTemplate.queryForObject("SELECT 1 FROM asset_acl WHERE user_id = :user_id AND asset_type = :asset_type AND asset_id = :asset_id", params, String.class);
 
         return (results != null);
     }
