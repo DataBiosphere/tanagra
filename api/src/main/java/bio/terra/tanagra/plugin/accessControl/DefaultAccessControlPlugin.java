@@ -25,13 +25,13 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
     }
 
     @Override
-    public boolean checkAccess(User user, IControlledAccessAsset asset) {
+    public boolean checkAccess(User user, IControlledAccessArtifact artifact) {
         SqlParameterSource params = new MapSqlParameterSource()
             .addValue("user_id", user.getIdentifier())
-            .addValue("asset_type", asset.getAccessControlType())
-            .addValue("asset_id", asset.getIdentifier());
+            .addValue("artifact_type", artifact.getAccessControlType())
+            .addValue("artifact_id", artifact.getIdentifier());
 
-        String results = jdbcTemplate.queryForObject("SELECT 1 FROM asset_acl WHERE user_id = :user_id AND asset_type = :asset_type AND asset_id = :asset_id", params, String.class);
+        String results = jdbcTemplate.queryForObject("SELECT 1 FROM artifact_acl WHERE user_id = :user_id AND artifact_type = :artifact_type AND artifact_id = :artifact_id", params, String.class);
 
         return (results != null);
     }

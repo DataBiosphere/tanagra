@@ -1,9 +1,9 @@
 package bio.terra.tanagra.plugin.accessControl.example;
 
-import bio.terra.tanagra.plugin.accessControl.IControlledAccessAsset;
+import bio.terra.tanagra.plugin.accessControl.IControlledAccessArtifact;
 
 // TODO: Rename once naming is finalized
-public class StudySlashWorkspace implements IControlledAccessAsset {
+public class StudySlashWorkspace implements IControlledAccessArtifact {
     public final String ACCESS_CONTROL_TYPE = "study-slash-workspace";
 
     @Override
