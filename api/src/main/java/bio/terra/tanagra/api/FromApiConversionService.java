@@ -1,19 +1,24 @@
 package bio.terra.tanagra.api;
 
 import bio.terra.tanagra.api.entityfilter.AttributeFilter;
+import bio.terra.tanagra.api.entityfilter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.entityfilter.BooleanNotFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyAncestorFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyParentFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
 import bio.terra.tanagra.api.entityfilter.RelationshipFilter;
 import bio.terra.tanagra.api.entityfilter.TextFilter;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAttributeFilterV2;
+import bio.terra.tanagra.generated.model.ApiBooleanLogicFilterV2;
 import bio.terra.tanagra.generated.model.ApiFilterV2;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilterV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiQueryV2IncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilterV2;
 import bio.terra.tanagra.generated.model.ApiTextFilterV2;
+import bio.terra.tanagra.query.filtervariable.ArrayFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
@@ -28,6 +33,8 @@ import bio.terra.tanagra.underlay.hierarchyfield.IsRoot;
 import bio.terra.tanagra.underlay.hierarchyfield.NumChildren;
 import bio.terra.tanagra.underlay.hierarchyfield.Path;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -114,6 +121,38 @@ public final class FromApiConversionService {
             relatedEntity.getIndexDataMapping(),
             relationshipMapping,
             subFilter);
+      case BOOLEAN_LOGIC:
+        ApiBooleanLogicFilterV2 apiBooleanLogicFilter =
+            apiFilter.getFilterUnion().getBooleanLogicFilter();
+        List<EntityFilter> subFilters =
+            apiBooleanLogicFilter.getSubfilters().stream()
+                .map(
+                    apiSubFilter ->
+                        fromApiObject(apiSubFilter, entity, entityMapping, underlayName))
+                .collect(Collectors.toList());
+        switch (apiBooleanLogicFilter.getOperator()) {
+          case NOT:
+            if (subFilters.size() != 1) {
+              throw new InvalidQueryException(
+                  "Boolean logic operator NOT can only have one sub-filter specified");
+            }
+            return new BooleanNotFilter(entity, entityMapping, subFilters.get(0));
+          case OR:
+          case AND:
+            if (subFilters.size() < 2) { // NOPMD - Allow using a literal in this conditional.
+              throw new InvalidQueryException(
+                  "Boolean logic operators OR, AND must have more than one sub-filter specified");
+            }
+            return new BooleanAndOrFilter(
+                entity,
+                entityMapping,
+                ArrayFilterVariable.LogicalOperator.valueOf(
+                    apiBooleanLogicFilter.getOperator().name()),
+                subFilters);
+          default:
+            throw new SystemException(
+                "Unknown boolean logic operator: " + apiBooleanLogicFilter.getOperator());
+        }
       default:
         throw new SystemException("Unknown API filter type: " + apiFilter.getFilterType());
     }
