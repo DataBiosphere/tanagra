@@ -1194,11 +1194,11 @@ components:
 
     FilterV2:
       type: object
-      description: Union of references to each filter type. Exactly one will be populated based on the filterType.
+      description: Union of references to each filter type. Exactly one should be specified based on the filterType.
       properties:
         filterType:
           type: string
-          enum: ["ATTRIBUTE", "TEXT", "HIERARCHY"]
+          enum: ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP"]
         filterUnion:
           type: object
           properties:
@@ -1208,6 +1208,8 @@ components:
               $ref: "#/components/schemas/TextFilterV2"
             hierarchyFilter:
               $ref: "#/components/schemas/HierarchyFilterV2"
+            relationshipFilter:
+              $ref: "#/components/schemas/RelationshipFilterV2"
 
     AttributeFilterV2:
       type: object
@@ -1248,6 +1250,15 @@ components:
           enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT"]
         value:
           $ref: "#/components/schemas/LiteralV2"
+
+    RelationshipFilterV2:
+      type: object
+      description: Filter on a relationship between entities (e.g. condition occurrences where condition=diabetes)
+      properties:
+        entity:
+          type: string
+        subfilter:
+          $ref: "#/components/schemas/FilterV2"
 
     InstanceV2:
       type: object

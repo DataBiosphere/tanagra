@@ -82,6 +82,8 @@ public class FieldPointer {
                   foreignTablePointer, foreignKeyColumnName, primaryTableColumn)
               : TableVariable.forJoined(
                   foreignTablePointer, foreignKeyColumnName, primaryTableColumn);
+      // TODO: Check if there is already a table variable with the same JOIN criteria, so we don't
+      // JOIN the same table for each field we need from it.
       tableVariables.add(foreignTable);
       return new FieldVariable(
           new Builder()
