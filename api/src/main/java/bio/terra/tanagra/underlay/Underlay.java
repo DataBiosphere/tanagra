@@ -82,17 +82,15 @@ public final class Underlay {
     }
 
     String uiConfig = serialized.getUiConfig();
-    if (serialized.getUiConfigFile() != null) {
+    if (uiConfig == null && serialized.getUiConfigFile() != null) {
       // read in UI config from file
-      if (serialized.getUiConfigFile() != null) {
-        Path uiConfigFilePath =
-            FileIO.getInputParentDir()
-                .resolve(UI_CONFIG_DIRECTORY_NAME)
-                .resolve(serialized.getUiConfigFile());
-        uiConfig =
-            FileUtils.readStringFromFile(
-                FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
-      }
+      Path uiConfigFilePath =
+          FileIO.getInputParentDir()
+              .resolve(UI_CONFIG_DIRECTORY_NAME)
+              .resolve(serialized.getUiConfigFile());
+      uiConfig =
+          FileUtils.readStringFromFile(
+              FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
 
     return new Underlay(
