@@ -1,6 +1,9 @@
 package bio.terra.tanagra.api;
 
+import static bio.terra.tanagra.api.EntityInstanceCount.DEFAULT_COUNT_COLUMN_NAME;
+
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldVariable;
@@ -123,6 +126,71 @@ public class QuerysService {
               rowResultsItr.next(), selectAttributes, selectHierarchyFields));
     }
     return instances;
+  }
+
+  public QueryRequest buildInstanceCountsQuery(
+      EntityMapping entityMapping, List<Attribute> attributes, @Nullable EntityFilter filter) {
+    TableVariable entityTableVar = TableVariable.forPrimary(entityMapping.getTablePointer());
+    List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
+
+    // Use the same attributes for SELECT, GROUP BY, and ORDER BY.
+    // Build the field variables and column schemas from attributes.
+    List<FieldVariable> attributeFieldVars = new ArrayList<>();
+    List<ColumnSchema> columnSchemas = new ArrayList<>();
+    attributes.stream()
+        .forEach(
+            attribute -> {
+              AttributeMapping attributeMapping =
+                  entityMapping.getAttributeMapping(attribute.getName());
+              attributeFieldVars.addAll(
+                  attributeMapping.buildFieldVariables(
+                      entityTableVar, tableVars, attribute.getName()));
+              columnSchemas.addAll(
+                  attributeMapping.buildColumnSchemas(
+                      attribute.getName(), attribute.getDataType()));
+            });
+
+    // Additionally, build a count field variable and column schema to SELECT.
+    List<FieldVariable> selectFieldVars = new ArrayList<>(attributeFieldVars);
+    FieldPointer entityIdFieldPointer = entityMapping.getIdAttributeMapping().getValue();
+    FieldPointer countFieldPointer =
+        new FieldPointer.Builder()
+            .tablePointer(entityIdFieldPointer.getTablePointer())
+            .columnName(entityIdFieldPointer.getColumnName())
+            .sqlFunctionWrapper("COUNT")
+            .build();
+    selectFieldVars.add(
+        countFieldPointer.buildVariable(entityTableVar, tableVars, DEFAULT_COUNT_COLUMN_NAME));
+    columnSchemas.add(new ColumnSchema(DEFAULT_COUNT_COLUMN_NAME, CellValue.SQLDataType.INT64));
+
+    // Build the WHERE filter variables from the entity filter.
+    FilterVariable filterVar =
+        filter == null ? null : filter.getFilterVariable(entityTableVar, tableVars);
+
+    Query query =
+        new Query.Builder()
+            .select(selectFieldVars)
+            .tables(tableVars)
+            .where(filterVar)
+            .groupBy(attributeFieldVars)
+            .orderBy(attributeFieldVars)
+            .build();
+    LOGGER.info("Generated query: {}", query.renderSQL());
+
+    return new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
+  }
+
+  public List<EntityInstanceCount> runInstanceCountsQuery(
+      EntityMapping entityMapping, List<Attribute> attributes, QueryRequest queryRequest) {
+    DataPointer dataPointer = entityMapping.getTablePointer().getDataPointer();
+    QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
+
+    List<EntityInstanceCount> instanceCounts = new ArrayList<>();
+    Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
+    while (rowResultsItr.hasNext()) {
+      instanceCounts.add(EntityInstanceCount.fromRowResult(rowResultsItr.next(), attributes));
+    }
+    return instanceCounts;
   }
 
   public Attribute getAttribute(Entity entity, String attributeName) {
