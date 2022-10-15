@@ -1029,6 +1029,9 @@ components:
         primaryEntity:
           description: Primary entity name
           type: string
+        uiConfiguration:
+          description: UI configuration
+          type: string
       required:
         - name
         - primaryEntity

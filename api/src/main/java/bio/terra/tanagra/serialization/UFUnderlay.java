@@ -22,6 +22,8 @@ public class UFUnderlay {
   private final List<String> entities;
   private final List<String> entityGroups;
   private final String primaryEntity;
+  private final String uiConfig;
+  private final String uiConfigFile;
 
   public UFUnderlay(Underlay underlay) {
     this.name = underlay.getName();
@@ -38,6 +40,10 @@ public class UFUnderlay {
             .map(entityGroupName -> entityGroupName + OUTPUT_UNDERLAY_FILE_EXTENSION)
             .collect(Collectors.toList());
     this.primaryEntity = underlay.getPrimaryEntity().getName();
+    this.uiConfig = underlay.getUIConfig();
+    // Separate file for UI config string available for input/deserialization, not
+    // output/re-serialization.
+    this.uiConfigFile = null;
   }
 
   private UFUnderlay(Builder builder) {
@@ -46,6 +52,8 @@ public class UFUnderlay {
     this.entities = builder.entities;
     this.entityGroups = builder.entityGroups;
     this.primaryEntity = builder.primaryEntity;
+    this.uiConfig = builder.uiConfig;
+    this.uiConfigFile = builder.uiConfigFile;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -55,6 +63,8 @@ public class UFUnderlay {
     private List<String> entities;
     private List<String> entityGroups;
     private String primaryEntity;
+    private String uiConfig;
+    private String uiConfigFile;
 
     public Builder name(String name) {
       this.name = name;
@@ -78,6 +88,16 @@ public class UFUnderlay {
 
     public Builder primaryEntity(String primaryEntity) {
       this.primaryEntity = primaryEntity;
+      return this;
+    }
+
+    public Builder uiConfig(String uiConfig) {
+      this.uiConfig = uiConfig;
+      return this;
+    }
+
+    public Builder uiConfigFile(String uiConfigFile) {
+      this.uiConfigFile = uiConfigFile;
       return this;
     }
 
@@ -105,5 +125,13 @@ public class UFUnderlay {
 
   public String getPrimaryEntity() {
     return primaryEntity;
+  }
+
+  public String getUiConfig() {
+    return uiConfig;
+  }
+
+  public String getUiConfigFile() {
+    return uiConfigFile;
   }
 }
