@@ -280,6 +280,32 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/underlays/{underlayName}/entities/{entityName}/counts":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Count entity instances
+      operationId: countInstances
+      tags: [InstancesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceCountListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
   #########################UNDERLAY CONFIG V2 [END]###################################
 
 components:
@@ -1191,9 +1217,23 @@ components:
               enum: ["ASCENDING", "DESCENDING"]
           nullable: true
         limit:
-          description: The maximum number of results to return. Defaults to 250.
           type: integer
+          description: Maximum number of results to return. Defaults to 250.
           default: 250
+
+    CountQueryV2:
+      type: object
+      description: Count entity instances
+      properties:
+        attributes:
+          description: |
+            Attributes to group by. One count will be returned for each possible combination of attribute values 
+            (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
+          type: array
+          items:
+            type: string
+        filter:
+          $ref: "#/components/schemas/FilterV2"
 
     FilterV2:
       type: object
@@ -1312,10 +1352,34 @@ components:
       properties:
         sql:
           type: string
-        entities:
+        instances:
           type: array
           items:
             $ref: "#/components/schemas/InstanceV2"
+
+    InstanceCountV2:
+      type: object
+      properties:
+        count:
+          type: integer
+        attributes:
+          description: A map of entity attribute names to their value for this group.
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+
+    InstanceCountListV2:
+      type: object
+      description: List of instance counts
+      properties:
+        sql:
+          type: string
+        instanceCounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/InstanceCountV2"
 
     ErrorReportV2:
       type: object
