@@ -1,7 +1,6 @@
 package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.underlay.FieldPointer;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;

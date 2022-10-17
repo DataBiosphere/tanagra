@@ -3,6 +3,7 @@ package bio.terra.tanagra.underlay;
 import static bio.terra.tanagra.query.Query.TANAGRA_FIELD_PREFIX;
 
 import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.TableVariable;
 import java.util.List;

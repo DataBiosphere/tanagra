@@ -2,9 +2,12 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.SQLExpression;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.UnionQuery;
 import bio.terra.tanagra.serialization.UFTextSearchMapping;

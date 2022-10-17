@@ -2,8 +2,10 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
 import bio.terra.tanagra.serialization.UFEntityMapping;
@@ -17,8 +19,9 @@ import java.util.stream.Collectors;
 
 public final class EntityMapping {
   private final TablePointer tablePointer;
-  private final Map<String, AttributeMapping> attributeMappings;
   private TextSearchMapping textSearchMapping;
+
+  private final Map<String, AttributeMapping> attributeMappings;
   private Map<String, HierarchyMapping> hierarchyMappings;
   private final Attribute idAttribute;
 

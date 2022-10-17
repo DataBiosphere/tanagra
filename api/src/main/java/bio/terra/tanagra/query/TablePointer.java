@@ -1,13 +1,9 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.FilterVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.SQLExpression;
-import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFTablePointer;
+import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.utils.FileUtils;
 import com.google.common.base.Strings;
 import java.nio.file.Path;
@@ -18,13 +14,13 @@ public final class TablePointer implements SQLExpression {
 
   private final DataPointer dataPointer;
   private final String tableName;
-  private final TableFilter tableFilter;
+  private final Filter filter;
   private final String sql;
 
   private TablePointer(Builder builder) {
     this.dataPointer = builder.dataPointer;
     this.tableName = builder.tableName;
-    this.tableFilter = builder.tableFilter;
+    this.filter = builder.filter;
     this.sql = builder.sql;
   }
 
@@ -61,11 +57,11 @@ public final class TablePointer implements SQLExpression {
     if (serialized.getFilter() == null) {
       return tablePointer;
     } else {
-      TableFilter tableFilter = serialized.getFilter().deserializeToInternal(tablePointer);
+      Filter filter = serialized.getFilter().deserializeToInternal(tablePointer);
       return new Builder()
           .dataPointer(dataPointer)
           .tableName(serialized.getTable())
-          .tableFilter(tableFilter)
+          .tableFilter(filter)
           .build();
     }
   }
@@ -79,11 +75,11 @@ public final class TablePointer implements SQLExpression {
   }
 
   public boolean hasTableFilter() {
-    return tableFilter != null;
+    return filter != null;
   }
 
-  public TableFilter getTableFilter() {
-    return tableFilter;
+  public Filter getTableFilter() {
+    return filter;
   }
 
   public boolean isRawSql() {
@@ -146,14 +142,14 @@ public final class TablePointer implements SQLExpression {
     int hash = 5;
     hash = 37 * hash + (this.dataPointer != null ? this.dataPointer.hashCode() : 0);
     hash = 37 * hash + (this.tableName != null ? this.tableName.hashCode() : 0);
-    hash = 37 * hash + (this.tableFilter != null ? this.tableFilter.hashCode() : 0);
+    hash = 37 * hash + (this.filter != null ? this.filter.hashCode() : 0);
     return hash;
   }
 
   public static class Builder {
     private DataPointer dataPointer;
     private String tableName;
-    private TableFilter tableFilter;
+    private Filter filter;
     private String sql;
 
     public Builder dataPointer(DataPointer dataPointer) {
@@ -166,8 +162,8 @@ public final class TablePointer implements SQLExpression {
       return this;
     }
 
-    public Builder tableFilter(TableFilter tableFilter) {
-      this.tableFilter = tableFilter;
+    public Builder tableFilter(Filter filter) {
+      this.filter = filter;
       return this;
     }
 

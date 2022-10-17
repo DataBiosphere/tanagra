@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.serialization.UFAttribute;
 import com.google.common.base.Strings;
 

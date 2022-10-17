@@ -9,7 +9,7 @@ import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.GraphUtils;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.query.TablePointer;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;

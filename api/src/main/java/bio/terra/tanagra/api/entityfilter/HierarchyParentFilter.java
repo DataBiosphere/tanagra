@@ -13,9 +13,9 @@ import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
 import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.underlay.FieldPointer;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.query.Literal;
 import java.util.List;
 
 public class HierarchyParentFilter extends EntityFilter {

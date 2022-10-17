@@ -1,8 +1,6 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFFieldPointer;
 import com.google.common.base.Strings;
 import java.util.List;

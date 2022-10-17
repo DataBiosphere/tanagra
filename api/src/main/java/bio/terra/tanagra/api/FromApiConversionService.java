@@ -18,7 +18,7 @@ import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiQueryV2IncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilterV2;
 import bio.terra.tanagra.generated.model.ApiTextFilterV2;
-import bio.terra.tanagra.query.filtervariable.ArrayFilterVariable;
+import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
@@ -26,7 +26,7 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.hierarchyfield.IsMember;
 import bio.terra.tanagra.underlay.hierarchyfield.IsRoot;
@@ -146,7 +146,7 @@ public final class FromApiConversionService {
             return new BooleanAndOrFilter(
                 entity,
                 entityMapping,
-                ArrayFilterVariable.LogicalOperator.valueOf(
+                BooleanAndOrFilterVariable.LogicalOperator.valueOf(
                     apiBooleanLogicFilter.getOperator().name()),
                 subFilters);
           default:

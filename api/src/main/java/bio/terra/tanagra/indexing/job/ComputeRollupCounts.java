@@ -9,7 +9,7 @@ import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.ROLLUP_COUNT_COL
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.BigQueryUtils;
 import bio.terra.tanagra.indexing.job.beam.CountUtils;
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;

@@ -1,16 +1,14 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.FilterVariable;
-import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.serialization.UFTableFilter;
-import bio.terra.tanagra.serialization.tablefilter.UFArrayFilter;
-import bio.terra.tanagra.serialization.tablefilter.UFBinaryFilter;
-import bio.terra.tanagra.underlay.tablefilter.ArrayFilter;
-import bio.terra.tanagra.underlay.tablefilter.BinaryFilter;
+import bio.terra.tanagra.query.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.serialization.UFFilter;
+import bio.terra.tanagra.serialization.filter.UFBooleanAndOrFilter;
+import bio.terra.tanagra.serialization.filter.UFBinaryFilter;
+import bio.terra.tanagra.query.filter.BinaryFilter;
 import java.util.List;
 
-public abstract class TableFilter {
+public abstract class Filter {
   /** Enum for the types of table filters supported by Tanagra. */
   public enum Type {
     BINARY,
@@ -22,12 +20,12 @@ public abstract class TableFilter {
   public abstract FilterVariable buildVariable(
       TableVariable primaryTable, List<TableVariable> tables);
 
-  public UFTableFilter serialize() {
+  public UFFilter serialize() {
     switch (getType()) {
       case BINARY:
         return new UFBinaryFilter((BinaryFilter) this);
       case ARRAY:
-        return new UFArrayFilter((ArrayFilter) this);
+        return new UFBooleanAndOrFilter((BooleanAndOrFilter) this);
       default:
         throw new SystemException("Unknown table filter type: " + getType());
     }

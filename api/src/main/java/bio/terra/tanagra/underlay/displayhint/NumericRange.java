@@ -14,8 +14,8 @@ import bio.terra.tanagra.serialization.UFDisplayHint;
 import bio.terra.tanagra.serialization.displayhint.UFNumericRange;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
-import bio.terra.tanagra.underlay.FieldPointer;
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.TablePointer;
 import java.util.ArrayList;
 import java.util.List;
 

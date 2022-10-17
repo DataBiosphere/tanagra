@@ -13,7 +13,7 @@
     "tablePointer": {
       "table": "concept",
       "filter": {
-        "type": "ARRAY",
+        "type": "BOOLEAN_AND_OR",
         "operator": "AND",
         "subfilters": [
           { "type": "BINARY",

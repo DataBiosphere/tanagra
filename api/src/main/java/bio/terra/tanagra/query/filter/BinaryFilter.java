@@ -1,16 +1,16 @@
-package bio.terra.tanagra.underlay.tablefilter;
+package bio.terra.tanagra.query.filter;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.serialization.tablefilter.UFBinaryFilter;
-import bio.terra.tanagra.underlay.FieldPointer;
-import bio.terra.tanagra.underlay.Literal;
-import bio.terra.tanagra.underlay.TableFilter;
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.serialization.filter.UFBinaryFilter;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.Filter;
+import bio.terra.tanagra.query.TablePointer;
 import java.util.List;
 
-public final class BinaryFilter extends TableFilter {
+public final class BinaryFilter extends Filter {
   private final FieldPointer field;
   private final BinaryFilterVariable.BinaryOperator operator;
   private final Literal value;

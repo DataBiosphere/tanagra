@@ -1,11 +1,11 @@
-package bio.terra.tanagra.serialization.tablefilter;
+package bio.terra.tanagra.serialization.filter;
 
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.serialization.UFFieldPointer;
 import bio.terra.tanagra.serialization.UFLiteral;
-import bio.terra.tanagra.serialization.UFTableFilter;
-import bio.terra.tanagra.underlay.TablePointer;
-import bio.terra.tanagra.underlay.tablefilter.BinaryFilter;
+import bio.terra.tanagra.serialization.UFFilter;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.filter.BinaryFilter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFBinaryFilter.Builder.class)
-public class UFBinaryFilter extends UFTableFilter {
+public class UFBinaryFilter extends UFFilter {
   private final UFFieldPointer field;
   private final BinaryFilterVariable.BinaryOperator operator;
   private final UFLiteral value;
@@ -36,7 +36,7 @@ public class UFBinaryFilter extends UFTableFilter {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends UFTableFilter.Builder {
+  public static class Builder extends UFFilter.Builder {
     private UFFieldPointer field;
     private BinaryFilterVariable.BinaryOperator operator;
     private UFLiteral value;

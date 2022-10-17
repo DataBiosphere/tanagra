@@ -26,6 +26,8 @@ public final class Entity {
   private final String name;
   private final String idAttributeName;
   private final Map<String, Attribute> attributes;
+
+
   private final EntityMapping sourceDataMapping;
   private final EntityMapping indexDataMapping;
 

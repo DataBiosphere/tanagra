@@ -1,6 +1,5 @@
 package bio.terra.tanagra.query;
 
-import bio.terra.tanagra.underlay.TablePointer;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;

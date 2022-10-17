@@ -6,7 +6,7 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.underlay.FieldPointer;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import java.util.List;

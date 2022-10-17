@@ -8,7 +8,7 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.underlay.FieldPointer;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.RelationshipMapping;
 import com.google.common.collect.Lists;
 import java.util.List;
