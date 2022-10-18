@@ -36,7 +36,7 @@ public class UFEntityMapping {
     this.attributeMappings = attributeMappings;
 
     this.textSearchMapping =
-        entityMapping.getEntity().hasTextSearch()
+        entityMapping.getEntity().getTextSearch().isEnabled()
             ? new UFTextSearchMapping(
                 entityMapping
                     .getEntity()

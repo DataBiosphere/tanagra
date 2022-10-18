@@ -7,8 +7,6 @@ import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 
@@ -18,12 +16,7 @@ public class AttributeFilter extends EntityFilter {
   private final Literal value;
 
   public AttributeFilter(
-      Entity entity,
-      EntityMapping entityMapping,
-      Attribute attribute,
-      BinaryFilterVariable.BinaryOperator operator,
-      Literal value) {
-    super(entity, entityMapping);
+      Attribute attribute, BinaryFilterVariable.BinaryOperator operator, Literal value) {
     this.attribute = attribute;
     this.operator = operator;
     this.value = value;

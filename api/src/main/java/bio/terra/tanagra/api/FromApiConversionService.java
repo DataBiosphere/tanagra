@@ -27,8 +27,6 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
-import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.hierarchyfield.IsMember;
 import bio.terra.tanagra.underlay.hierarchyfield.IsRoot;
@@ -57,8 +55,6 @@ public final class FromApiConversionService {
       case ATTRIBUTE:
         ApiAttributeFilterV2 apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
         return new AttributeFilter(
-            entity,
-            entityMapping,
             querysService.getAttribute(entity, apiAttributeFilter.getAttribute()),
             FromApiConversionService.fromApiObject(apiAttributeFilter.getOperator()),
             FromApiConversionService.fromApiObject(apiAttributeFilter.getValue()));
@@ -66,8 +62,7 @@ public final class FromApiConversionService {
         ApiTextFilterV2 apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
         TextFilter.Builder textFilterBuilder =
             new TextFilter.Builder()
-                .entity(entity)
-                .entityMapping(entityMapping)
+                .textSearch(entity.getTextSearch())
                 .functionTemplate(
                     FromApiConversionService.fromApiObject(apiTextFilter.getMatchType()))
                 .text(apiTextFilter.getText());
@@ -79,23 +74,15 @@ public final class FromApiConversionService {
       case HIERARCHY:
         ApiHierarchyFilterV2 apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
         Hierarchy hierarchy = querysService.getHierarchy(entity, apiHierarchyFilter.getHierarchy());
-        HierarchyMapping hierarchyMapping = hierarchy.getMapping(Underlay.MappingType.INDEX);
         switch (apiHierarchyFilter.getOperator()) {
           case IS_ROOT:
-            return new HierarchyRootFilter(
-                entity, entityMapping, hierarchyMapping, apiHierarchyFilter.getHierarchy());
+            return new HierarchyRootFilter(hierarchy);
           case CHILD_OF:
             return new HierarchyParentFilter(
-                entity,
-                entityMapping,
-                hierarchyMapping,
-                FromApiConversionService.fromApiObject(apiHierarchyFilter.getValue()));
+                hierarchy, FromApiConversionService.fromApiObject(apiHierarchyFilter.getValue()));
           case DESCENDANT_OF_INCLUSIVE:
             return new HierarchyAncestorFilter(
-                entity,
-                entityMapping,
-                hierarchyMapping,
-                FromApiConversionService.fromApiObject(apiHierarchyFilter.getValue()));
+                hierarchy, FromApiConversionService.fromApiObject(apiHierarchyFilter.getValue()));
           default:
             throw new SystemException(
                 "Unknown API hierarchy filter operator: " + apiHierarchyFilter.getOperator());
@@ -115,15 +102,8 @@ public final class FromApiConversionService {
 
         Collection<EntityGroup> entityGroups =
             underlaysService.getUnderlay(underlayName).getEntityGroups().values();
-        RelationshipMapping relationshipMapping =
-            querysService.getRelationshipMapping(entityGroups, entity, relatedEntity);
         return new RelationshipFilter(
-            entity,
-            relatedEntity,
-            entityMapping,
-            relatedEntity.getMapping(Underlay.MappingType.INDEX),
-            relationshipMapping,
-            subFilter);
+            querysService.getRelationship(entityGroups, entity, relatedEntity), subFilter);
       case BOOLEAN_LOGIC:
         ApiBooleanLogicFilterV2 apiBooleanLogicFilter =
             apiFilter.getFilterUnion().getBooleanLogicFilter();
@@ -139,7 +119,7 @@ public final class FromApiConversionService {
               throw new InvalidQueryException(
                   "Boolean logic operator NOT can only have one sub-filter specified");
             }
-            return new BooleanNotFilter(entity, entityMapping, subFilters.get(0));
+            return new BooleanNotFilter(subFilters.get(0));
           case OR:
           case AND:
             if (subFilters.size() < 2) { // NOPMD - Allow using a literal in this conditional.
@@ -147,8 +127,6 @@ public final class FromApiConversionService {
                   "Boolean logic operators OR, AND must have more than one sub-filter specified");
             }
             return new BooleanAndOrFilter(
-                entity,
-                entityMapping,
                 BooleanAndOrFilterVariable.LogicalOperator.valueOf(
                     apiBooleanLogicFilter.getOperator().name()),
                 subFilters);
@@ -195,13 +173,13 @@ public final class FromApiConversionService {
       String hierarchyName, ApiQueryV2IncludeHierarchyFields.FieldsEnum apiHierarchyField) {
     switch (apiHierarchyField) {
       case IS_MEMBER:
-        return new IsMember(hierarchyName);
+        return new IsMember();
       case IS_ROOT:
-        return new IsRoot(hierarchyName);
+        return new IsRoot();
       case PATH:
-        return new Path(hierarchyName);
+        return new Path();
       case NUM_CHILDREN:
-        return new NumChildren(hierarchyName);
+        return new NumChildren();
       default:
         throw new SystemException("Unknown API hierarchy field: " + apiHierarchyField);
     }

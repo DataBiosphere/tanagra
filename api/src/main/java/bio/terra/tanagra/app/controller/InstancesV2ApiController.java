@@ -139,11 +139,11 @@ public class InstancesV2ApiController implements InstancesV2Api {
       ValueDisplay valueDisplay = hierarchyFieldValue.getValue();
 
       ApiInstanceV2HierarchyFields hierarchyFieldSet =
-          hierarchyFieldSets.get(hierarchyField.getHierarchyName());
+          hierarchyFieldSets.get(hierarchyField.getHierarchy().getName());
       if (hierarchyFieldSet == null) {
         hierarchyFieldSet =
-            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchyName());
-        hierarchyFieldSets.put(hierarchyField.getHierarchyName(), hierarchyFieldSet);
+            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchy().getName());
+        hierarchyFieldSets.put(hierarchyField.getHierarchy().getName(), hierarchyFieldSet);
       }
       switch (hierarchyField.getType()) {
         case IS_MEMBER:

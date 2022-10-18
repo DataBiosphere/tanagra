@@ -13,23 +13,16 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
 import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.underlay.HierarchyMapping;
+import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 
 public class HierarchyParentFilter extends EntityFilter {
-  private final HierarchyMapping hierarchyMapping;
+  private final Hierarchy hierarchy;
   private final Literal nodeId;
 
-  public HierarchyParentFilter(
-      Entity entity,
-      EntityMapping entityMapping,
-      HierarchyMapping hierarchyMapping,
-      Literal nodeId) {
-    super(entity, entityMapping);
-    this.hierarchyMapping = hierarchyMapping;
+  public HierarchyParentFilter(Hierarchy hierarchy, Literal nodeId) {
+    this.hierarchy = hierarchy;
     this.nodeId = nodeId;
   }
 
@@ -37,11 +30,12 @@ public class HierarchyParentFilter extends EntityFilter {
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
     FieldPointer entityIdFieldPointer =
-        getEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
+        hierarchy.getEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
 
     // build a query to get a node's children:
     //   SELECT child FROM childParentTable WHERE parent=nodeId
-    AuxiliaryDataMapping childParentAuxData = hierarchyMapping.getChildParent();
+    AuxiliaryDataMapping childParentAuxData =
+        hierarchy.getMapping(Underlay.MappingType.INDEX).getChildParent();
     TableVariable childParentTableVar =
         TableVariable.forPrimary(childParentAuxData.getTablePointer());
     FieldVariable childFieldVar =

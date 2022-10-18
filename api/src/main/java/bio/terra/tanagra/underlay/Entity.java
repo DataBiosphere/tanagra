@@ -122,7 +122,7 @@ public final class Entity {
             });
 
     // Source+index text search mapping.
-    TextSearch textSearch = null;
+    TextSearch textSearch = new TextSearch();
     if (serialized.getSourceDataMapping().getTextSearchMapping() != null) {
       TextSearchMapping sourceTextSearchMapping =
           TextSearchMapping.fromSerialized(
@@ -157,7 +157,8 @@ public final class Entity {
                 HierarchyMapping sourceMapping =
                     HierarchyMapping.fromSerialized(
                         sourceHierarchyMappingSerialized.getValue(),
-                        sourceDataMapping.getTablePointer().getDataPointer());
+                        sourceDataMapping.getTablePointer().getDataPointer(),
+                        Underlay.MappingType.SOURCE);
                 HierarchyMapping indexMapping =
                     indexHierarchyMappingsSerialized == null
                         ? HierarchyMapping.defaultIndexMapping(
@@ -167,7 +168,8 @@ public final class Entity {
                         : HierarchyMapping.fromSerialized(
                             indexHierarchyMappingsSerialized.get(
                                 sourceHierarchyMappingSerialized.getKey()),
-                            indexDataMapping.getTablePointer().getDataPointer());
+                            indexDataMapping.getTablePointer().getDataPointer(),
+                            Underlay.MappingType.INDEX);
                 hierarchies.put(
                     sourceHierarchyMappingSerialized.getKey(),
                     new Hierarchy(
@@ -190,6 +192,7 @@ public final class Entity {
     if (textSearch != null) {
       textSearch.initialize(entity);
     }
+    hierarchies.values().stream().forEach(hierarchy -> hierarchy.initialize(entity));
 
     return entity;
   }
@@ -214,7 +217,7 @@ public final class Entity {
   public List<IndexingJob> getIndexingJobs() {
     List<IndexingJob> jobs = new ArrayList<>();
     jobs.add(new DenormalizeEntityInstances(this));
-    if (hasTextSearch()) {
+    if (textSearch.isEnabled()) {
       jobs.add(new BuildTextSearchStrings(this));
     }
     getHierarchies().stream()
@@ -256,15 +259,11 @@ public final class Entity {
   }
 
   public boolean hasHierarchies() {
-    return hierarchies != null;
+    return hierarchies != null && !hierarchies.isEmpty();
   }
 
   public TextSearch getTextSearch() {
     return textSearch;
-  }
-
-  public boolean hasTextSearch() {
-    return textSearch != null;
   }
 
   public EntityMapping getMapping(Underlay.MappingType mappingType) {

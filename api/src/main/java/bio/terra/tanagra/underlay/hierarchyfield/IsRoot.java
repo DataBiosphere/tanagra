@@ -13,10 +13,6 @@ import bio.terra.tanagra.underlay.HierarchyMapping;
 import java.util.List;
 
 public class IsRoot extends HierarchyField {
-  public IsRoot(String hierarchyName) {
-    super(hierarchyName);
-  }
-
   @Override
   public Type getType() {
     return Type.IS_ROOT;
@@ -35,13 +31,11 @@ public class IsRoot extends HierarchyField {
   @Override
   public FieldVariable buildFieldVariableFromEntityId(
       HierarchyMapping hierarchyMapping,
-      FieldPointer entityIdFieldPointer,
       TableVariable entityTableVar,
       List<TableVariable> tableVars) {
     // Currently, this is a calculated field. IS_ROOT means path IS NOT NULL AND path=''.
     FieldPointer pathFieldPointer =
-        hierarchyMapping.buildPathNumChildrenFieldPointerFromEntityId(
-            entityIdFieldPointer, PATH_FIELD_NAME);
+        hierarchyMapping.buildPathNumChildrenFieldPointerFromEntityId(PATH_FIELD_NAME);
 
     // TODO: Handle the case where the path field is in the same table (i.e. not FK'd).
     return new FieldPointer.Builder()

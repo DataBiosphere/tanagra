@@ -59,7 +59,7 @@ public final class EntityInstance {
       if (cellValue == null) {
         throw new SystemException(
             "Hierarchy field column not found: "
-                + selectedHierarchyField.getHierarchyName()
+                + selectedHierarchyField.getHierarchy().getName()
                 + ", "
                 + selectedHierarchyField.getType());
       }

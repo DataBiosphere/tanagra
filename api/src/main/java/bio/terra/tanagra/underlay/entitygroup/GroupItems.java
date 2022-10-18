@@ -31,29 +31,24 @@ public class GroupItems extends EntityGroup {
       UFEntityGroup serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities) {
+    // Entities.
     Entity entity1 = getDeserializedEntity(serialized, GROUP_ENTITY_NAME, entities);
     Entity entityM = getDeserializedEntity(serialized, ITEMS_ENTITY_NAME, entities);
 
+    // Relationships.
     Map<String, Relationship> relationships =
         Map.of(
             GROUP_ITEMS_RELATIONSHIP_NAME,
             new Relationship(GROUP_ITEMS_RELATIONSHIP_NAME, entity1, entityM));
+
+    // Auxiliary data.
     Map<String, AuxiliaryData> auxiliaryData = Collections.emptyMap();
 
+    // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
-        EntityGroupMapping.fromSerializedForSourceData(
-            serialized.getSourceDataMapping(),
-            dataPointers,
-            relationships,
-            auxiliaryData,
-            serialized.getName());
+        EntityGroupMapping.fromSerialized(serialized.getSourceDataMapping(), dataPointers);
     EntityGroupMapping indexDataMapping =
-        EntityGroupMapping.fromSerializedForIndexData(
-            serialized.getIndexDataMapping(),
-            dataPointers,
-            relationships,
-            auxiliaryData,
-            serialized.getName());
+        EntityGroupMapping.fromSerialized(serialized.getIndexDataMapping(), dataPointers);
 
     Builder builder = new Builder();
     builder
@@ -62,7 +57,16 @@ public class GroupItems extends EntityGroup {
         .auxiliaryData(auxiliaryData)
         .sourceDataMapping(sourceDataMapping)
         .indexDataMapping(indexDataMapping);
-    return builder.groupEntity(entity1).itemsEntity(entityM).build();
+    GroupItems groupItems = builder.groupEntity(entity1).itemsEntity(entityM).build();
+
+    sourceDataMapping.initialize(groupItems);
+    indexDataMapping.initialize(groupItems);
+
+    // Source+index relationship, auxiliary data mappings.
+    EntityGroup.deserializeRelationshipMappings(serialized, groupItems);
+    EntityGroup.deserializeAuxiliaryDataMappings(serialized, groupItems);
+
+    return groupItems;
   }
 
   @Override

@@ -4,8 +4,6 @@ import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityMapping;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,11 +12,7 @@ public class BooleanAndOrFilter extends EntityFilter {
   private final List<EntityFilter> subFilters;
 
   public BooleanAndOrFilter(
-      Entity entity,
-      EntityMapping entityMapping,
-      BooleanAndOrFilterVariable.LogicalOperator operator,
-      List<EntityFilter> subFilters) {
-    super(entity, entityMapping);
+      BooleanAndOrFilterVariable.LogicalOperator operator, List<EntityFilter> subFilters) {
     this.operator = operator;
     this.subFilters = subFilters;
   }

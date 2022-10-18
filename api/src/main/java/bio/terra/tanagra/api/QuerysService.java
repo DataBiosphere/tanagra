@@ -24,7 +24,6 @@ import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Relationship;
-import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -65,23 +64,17 @@ public class QuerysService {
             });
 
     // build the additional SELECT field variables and column schemas from hierarchy fields
-    FieldPointer entityIdFieldPointer =
-        entityQueryRequest
-            .getEntity()
-            .getIdAttribute()
-            .getMapping(entityQueryRequest.getMappingType())
-            .getValue();
     entityQueryRequest.getSelectHierarchyFields().stream()
         .forEach(
             hierarchyField -> {
               HierarchyMapping hierarchyMapping =
                   entityQueryRequest
                       .getEntity()
-                      .getHierarchy(hierarchyField.getHierarchyName())
+                      .getHierarchy(hierarchyField.getHierarchy().getName())
                       .getMapping(entityQueryRequest.getMappingType());
               selectFieldVars.add(
                   hierarchyField.buildFieldVariableFromEntityId(
-                      hierarchyMapping, entityIdFieldPointer, entityTableVar, tableVars));
+                      hierarchyMapping, entityTableVar, tableVars));
               columnSchemas.add(hierarchyField.buildColumnSchema());
             });
 
@@ -219,12 +212,12 @@ public class QuerysService {
     return hierarchy;
   }
 
-  public RelationshipMapping getRelationshipMapping(
+  public Relationship getRelationship(
       Collection<EntityGroup> entityGroups, Entity entity, Entity relatedEntity) {
     for (EntityGroup entityGroup : entityGroups) {
       Optional<Relationship> relationship = entityGroup.getRelationship(entity, relatedEntity);
       if (relationship.isPresent()) {
-        return entityGroup.getSourceDataMapping().getRelationshipMapping(relationship.get());
+        return relationship.get();
       }
     }
     throw new NotFoundException(

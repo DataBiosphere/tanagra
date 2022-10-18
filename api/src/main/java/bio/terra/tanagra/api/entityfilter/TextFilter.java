@@ -9,19 +9,19 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.TextSearch;
 import bio.terra.tanagra.underlay.TextSearchMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 
 public class TextFilter extends EntityFilter {
+  private final TextSearch textSearch;
   private final FunctionFilterVariable.FunctionTemplate functionTemplate;
   private final String text;
   private final Attribute attribute;
 
   public TextFilter(Builder builder) {
-    super(builder.entity, builder.entityMapping);
+    this.textSearch = builder.textSearch;
     this.functionTemplate = builder.functionTemplate;
     this.text = builder.text;
     this.attribute = builder.attribute;
@@ -33,12 +33,11 @@ public class TextFilter extends EntityFilter {
     FieldVariable textSearchFieldVar;
     if (attribute == null) {
       // search against the string defined by the text search mapping
-      if (!getEntity().hasTextSearch()) {
+      if (!textSearch.getEntity().getTextSearch().isEnabled()) {
         throw new InvalidQueryException(
-            "Text search is not enabled for entity: " + getEntity().getName());
+            "Text search is not enabled for entity: " + textSearch.getEntity().getName());
       }
-      TextSearchMapping textSearchMapping =
-          getEntity().getTextSearch().getMapping(Underlay.MappingType.INDEX);
+      TextSearchMapping textSearchMapping = textSearch.getMapping(Underlay.MappingType.INDEX);
       if (!textSearchMapping.definedBySearchString()) {
         throw new InvalidQueryException(
             "Only text search mapping to a single search string field is currently supported");
@@ -64,19 +63,13 @@ public class TextFilter extends EntityFilter {
   }
 
   public static class Builder {
-    private Entity entity;
-    private EntityMapping entityMapping;
+    private TextSearch textSearch;
     private FunctionFilterVariable.FunctionTemplate functionTemplate;
     private String text;
     private Attribute attribute;
 
-    public Builder entity(Entity entity) {
-      this.entity = entity;
-      return this;
-    }
-
-    public Builder entityMapping(EntityMapping entityMapping) {
-      this.entityMapping = entityMapping;
+    public Builder textSearch(TextSearch textSearch) {
+      this.textSearch = textSearch;
       return this;
     }
 

@@ -3,13 +3,16 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.serialization.UFAuxiliaryDataMapping;
 import bio.terra.tanagra.serialization.UFEntityGroup;
+import bio.terra.tanagra.serialization.UFRelationshipMapping;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +46,7 @@ public abstract class EntityGroup {
       Map<String, Entity> entities,
       String primaryEntityName)
       throws IOException {
-    // read in entity group file
+    // Read in entity group file.
     Path entityGroupFilePath =
         FileIO.getInputParentDir()
             .resolve(ENTITY_GROUP_DIRECTORY_NAME)
@@ -79,6 +82,118 @@ public abstract class EntityGroup {
     return entity;
   }
 
+  protected static void deserializeRelationshipMappings(
+      UFEntityGroup serialized, EntityGroup entityGroup) {
+    // Source+index relationship mappings.
+    Map<String, RelationshipMapping> sourceRelationshipMappings = new HashMap<>();
+    Map<String, RelationshipMapping> indexRelationshipMappings = new HashMap<>();
+
+    Map<String, UFRelationshipMapping> serializedSourceRelationshipMappings =
+        serialized.getSourceDataMapping().getRelationshipMappings() == null
+            ? new HashMap<>()
+            : serialized.getSourceDataMapping().getRelationshipMappings();
+    for (Relationship relationship : entityGroup.getRelationships().values()) {
+      if (!serializedSourceRelationshipMappings.containsKey(relationship.getName())) {
+        throw new InvalidConfigException(
+            "Relationship mapping for " + relationship.getName() + " is undefined");
+      }
+      sourceRelationshipMappings.put(
+          relationship.getName(),
+          RelationshipMapping.fromSerialized(
+              serializedSourceRelationshipMappings.get(relationship.getName()),
+              entityGroup.getMapping(Underlay.MappingType.SOURCE).getDataPointer()));
+      // TODO: Copy relationship mapping from source to index dataset.
+      indexRelationshipMappings.put(
+          relationship.getName(),
+          RelationshipMapping.fromSerialized(
+              serializedSourceRelationshipMappings.get(relationship.getName()),
+              entityGroup.getMapping(Underlay.MappingType.SOURCE).getDataPointer()));
+    }
+    serializedSourceRelationshipMappings
+        .keySet()
+        .forEach(
+            srm -> {
+              if (entityGroup.getRelationships().values().stream()
+                      .filter(r -> r.getName().equals(srm))
+                      .findFirst()
+                  == null) {
+                throw new InvalidConfigException("Unexpected relationship mapping: " + srm);
+              }
+            });
+
+    entityGroup.getRelationships().values().stream()
+        .forEach(
+            relationship -> {
+              relationship.initialize(
+                  sourceRelationshipMappings.get(relationship.getName()),
+                  indexRelationshipMappings.get(relationship.getName()),
+                  entityGroup);
+            });
+  }
+
+  protected static void deserializeAuxiliaryDataMappings(
+      UFEntityGroup serialized, EntityGroup entityGroup) {
+    // Source+index auxiliary data mappings.
+    Map<String, AuxiliaryDataMapping> sourceMappings = new HashMap<>();
+    Map<String, AuxiliaryDataMapping> indexMappings = new HashMap<>();
+
+    DataPointer sourceDataPointer =
+        entityGroup.getMapping(Underlay.MappingType.SOURCE).getDataPointer();
+    DataPointer indexDataPointer =
+        entityGroup.getMapping(Underlay.MappingType.INDEX).getDataPointer();
+
+    Map<String, UFAuxiliaryDataMapping> serializedSourceMappings =
+        serialized.getSourceDataMapping().getAuxiliaryDataMappings() == null
+            ? new HashMap<>()
+            : serialized.getSourceDataMapping().getAuxiliaryDataMappings();
+    Map<String, UFAuxiliaryDataMapping> serializedIndexMappings =
+        serialized.getIndexDataMapping().getAuxiliaryDataMappings() == null
+            ? new HashMap<>()
+            : serialized.getIndexDataMapping().getAuxiliaryDataMappings();
+    for (AuxiliaryData auxiliaryData : entityGroup.getAuxiliaryData().values()) {
+      if (serializedSourceMappings.containsKey(auxiliaryData.getName())) {
+        sourceMappings.put(
+            auxiliaryData.getName(),
+            AuxiliaryDataMapping.fromSerialized(
+                serializedSourceMappings.get(auxiliaryData.getName()),
+                sourceDataPointer,
+                auxiliaryData));
+      }
+      if (serializedIndexMappings.containsKey(auxiliaryData.getName())) {
+        indexMappings.put(
+            auxiliaryData.getName(),
+            AuxiliaryDataMapping.fromSerialized(
+                serializedIndexMappings.get(auxiliaryData.getName()),
+                indexDataPointer,
+                auxiliaryData));
+      } else {
+        indexMappings.put(
+            auxiliaryData.getName(),
+            AuxiliaryDataMapping.defaultIndexMapping(
+                auxiliaryData, entityGroup.getName() + "_", indexDataPointer));
+      }
+    }
+    sourceMappings
+        .keySet()
+        .forEach(
+            srad -> {
+              if (entityGroup.getAuxiliaryData().values().stream()
+                      .filter(ad -> ad.getName().equals(srad))
+                      .findFirst()
+                  == null) {
+                throw new InvalidConfigException("Unexpected auxiliary data mapping: " + srad);
+              }
+            });
+
+    entityGroup.getAuxiliaryData().values().stream()
+        .forEach(
+            auxiliaryData -> {
+              auxiliaryData.initialize(
+                  sourceMappings.get(auxiliaryData.getName()),
+                  indexMappings.get(auxiliaryData.getName()));
+            });
+  }
+
   public abstract Type getType();
 
   public abstract Map<String, Entity> getEntities();
@@ -107,12 +222,12 @@ public abstract class EntityGroup {
     return Collections.unmodifiableMap(auxiliaryData);
   }
 
-  public EntityGroupMapping getSourceDataMapping() {
-    return sourceDataMapping;
+  public AuxiliaryData getAuxiliaryData(String name) {
+    return auxiliaryData.get(name);
   }
 
-  public EntityGroupMapping getIndexDataMapping() {
-    return indexDataMapping;
+  public EntityGroupMapping getMapping(Underlay.MappingType mappingType) {
+    return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
   }
 
   protected abstract static class Builder {

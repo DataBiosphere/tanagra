@@ -137,7 +137,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
   @VisibleForTesting
   public TablePointer getOutputTablePointer() {
     return ((CriteriaOccurrence) getEntityGroup())
-        .getCriteriaPrimaryRollupCountAuxiliaryDataMapping()
+        .getCriteriaPrimaryRollupAuxiliaryData()
+        .getMapping(Underlay.MappingType.INDEX)
         .getTablePointer();
   }
 

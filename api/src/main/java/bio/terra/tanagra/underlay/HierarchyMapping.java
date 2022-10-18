@@ -34,20 +34,28 @@ public final class HierarchyMapping {
   private final AuxiliaryDataMapping rootNodesFilter;
   private final AuxiliaryDataMapping ancestorDescendant;
   private final AuxiliaryDataMapping pathNumChildren;
+  private final Underlay.MappingType mappingType;
+  private Hierarchy hierarchy;
 
   private HierarchyMapping(
       AuxiliaryDataMapping childParent,
       AuxiliaryDataMapping rootNodesFilter,
       AuxiliaryDataMapping ancestorDescendant,
-      AuxiliaryDataMapping pathNumChildren) {
+      AuxiliaryDataMapping pathNumChildren,
+      Underlay.MappingType mappingType) {
     this.childParent = childParent;
     this.rootNodesFilter = rootNodesFilter;
     this.ancestorDescendant = ancestorDescendant;
     this.pathNumChildren = pathNumChildren;
+    this.mappingType = mappingType;
+  }
+
+  public void initialize(Hierarchy hierarchy) {
+    this.hierarchy = hierarchy;
   }
 
   public static HierarchyMapping fromSerialized(
-      UFHierarchyMapping serialized, DataPointer dataPointer) {
+      UFHierarchyMapping serialized, DataPointer dataPointer, Underlay.MappingType mappingType) {
     if (serialized.getChildParent() == null) {
       throw new InvalidConfigException("Child parent pairs are undefined");
     }
@@ -71,7 +79,8 @@ public final class HierarchyMapping {
             ? null
             : AuxiliaryDataMapping.fromSerialized(
                 serialized.getPathNumChildren(), dataPointer, PATH_NUM_CHILDREN_AUXILIARY_DATA);
-    return new HierarchyMapping(childParent, rootNodesFilter, ancestorDescendant, pathNumChildren);
+    return new HierarchyMapping(
+        childParent, rootNodesFilter, ancestorDescendant, pathNumChildren, mappingType);
   }
 
   public static HierarchyMapping defaultIndexMapping(
@@ -89,7 +98,8 @@ public final class HierarchyMapping {
         AuxiliaryDataMapping.defaultIndexMapping(
             PATH_NUM_CHILDREN_AUXILIARY_DATA, tablePrefix, dataPointer);
 
-    return new HierarchyMapping(childParent, null, ancestorDescendant, pathNumChildren);
+    return new HierarchyMapping(
+        childParent, null, ancestorDescendant, pathNumChildren, Underlay.MappingType.INDEX);
   }
 
   public SQLExpression queryChildParentPairs(String childFieldAlias, String parentFieldAlias) {
@@ -145,10 +155,12 @@ public final class HierarchyMapping {
   }
 
   /** Build a field pointer to the PATH or NUM_CHILDREN field, foreign key'd off the entity ID. */
-  public FieldPointer buildPathNumChildrenFieldPointerFromEntityId(
-      FieldPointer entityIdFieldPointer, String fieldName) {
+  public FieldPointer buildPathNumChildrenFieldPointerFromEntityId(String fieldName) {
     FieldPointer fieldInAuxTable = pathNumChildren.getFieldPointers().get(fieldName);
     FieldPointer idFieldInAuxTable = pathNumChildren.getFieldPointers().get(ID_FIELD_NAME);
+
+    FieldPointer entityIdFieldPointer =
+        hierarchy.getEntity().getIdAttribute().getMapping(mappingType).getValue();
 
     // TODO: Handle the case where the path field is in the same table (i.e. not FK'd).
     return new FieldPointer.Builder()
