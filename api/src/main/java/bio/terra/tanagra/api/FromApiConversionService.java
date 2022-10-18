@@ -15,7 +15,6 @@ import bio.terra.tanagra.generated.model.ApiBooleanLogicFilterV2;
 import bio.terra.tanagra.generated.model.ApiFilterV2;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilterV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
-import bio.terra.tanagra.generated.model.ApiQueryV2IncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilterV2;
 import bio.terra.tanagra.generated.model.ApiTextFilterV2;
 import bio.terra.tanagra.query.Literal;
@@ -26,12 +25,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.Hierarchy;
-import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.hierarchyfield.IsMember;
-import bio.terra.tanagra.underlay.hierarchyfield.IsRoot;
-import bio.terra.tanagra.underlay.hierarchyfield.NumChildren;
-import bio.terra.tanagra.underlay.hierarchyfield.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -166,22 +160,6 @@ public final class FromApiConversionService {
         return FunctionFilterVariable.FunctionTemplate.TEXT_FUZZY_MATCH;
       default:
         throw new SystemException("Unknown API text match type: " + apiMatchType.name());
-    }
-  }
-
-  public static HierarchyField fromApiObject(
-      String hierarchyName, ApiQueryV2IncludeHierarchyFields.FieldsEnum apiHierarchyField) {
-    switch (apiHierarchyField) {
-      case IS_MEMBER:
-        return new IsMember();
-      case IS_ROOT:
-        return new IsRoot();
-      case PATH:
-        return new Path();
-      case NUM_CHILDREN:
-        return new NumChildren();
-      default:
-        throw new SystemException("Unknown API hierarchy field: " + apiHierarchyField);
     }
   }
 }

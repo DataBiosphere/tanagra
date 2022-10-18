@@ -23,6 +23,7 @@ import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
@@ -71,12 +72,12 @@ public class InstancesV2ApiController implements InstancesV2Api {
       body.getIncludeHierarchyFields().getHierarchies().stream()
           .forEach(
               hierarchyName -> {
+                Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
                 body.getIncludeHierarchyFields().getFields().stream()
                     .forEach(
                         hierarchyFieldName ->
                             selectHierarchyFields.add(
-                                FromApiConversionService.fromApiObject(
-                                    hierarchyName, hierarchyFieldName)));
+                                hierarchy.getField(HierarchyField.Type.valueOf(hierarchyName))));
               });
     }
 

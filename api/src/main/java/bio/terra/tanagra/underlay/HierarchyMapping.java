@@ -5,7 +5,6 @@ import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.SQLExpression;
-import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFHierarchyMapping;
 import java.util.List;
@@ -84,9 +83,8 @@ public final class HierarchyMapping {
   }
 
   public static HierarchyMapping defaultIndexMapping(
-      String entityName, String hierarchyName, TablePointer tablePointer) {
+      String entityName, String hierarchyName, DataPointer dataPointer) {
     String tablePrefix = entityName + "_" + hierarchyName + "_";
-    DataPointer dataPointer = tablePointer.getDataPointer();
 
     AuxiliaryDataMapping childParent =
         AuxiliaryDataMapping.defaultIndexMapping(

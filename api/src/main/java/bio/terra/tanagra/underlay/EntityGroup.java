@@ -222,10 +222,6 @@ public abstract class EntityGroup {
     return Collections.unmodifiableMap(auxiliaryData);
   }
 
-  public AuxiliaryData getAuxiliaryData(String name) {
-    return auxiliaryData.get(name);
-  }
-
   public EntityGroupMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
   }

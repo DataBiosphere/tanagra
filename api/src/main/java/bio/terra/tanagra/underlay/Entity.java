@@ -95,87 +95,18 @@ public final class Entity {
             Underlay.MappingType.INDEX);
 
     // Source+index attribute mappings.
-    for (Attribute attribute : attributes.values()) {
-      AttributeMapping sourceAttributeMapping =
-          AttributeMapping.fromSerialized(
-              serialized.getSourceDataMapping().getAttributeMappings().get(attribute.getName()),
-              sourceDataMapping.getTablePointer(),
-              attribute);
-      AttributeMapping indexAttributeMapping =
-          serialized.getIndexDataMapping().getAttributeMappings() != null
-              ? AttributeMapping.fromSerialized(
-                  serialized.getIndexDataMapping().getAttributeMappings().get(attribute.getName()),
-                  indexDataMapping.getTablePointer(),
-                  attribute)
-              : AttributeMapping.fromSerialized(
-                  null, indexDataMapping.getTablePointer(), attribute);
-      attribute.initialize(sourceAttributeMapping, indexAttributeMapping);
-    }
-    serialized.getSourceDataMapping().getAttributeMappings().keySet().stream()
-        .forEach(
-            serializedAttributeName -> {
-              if (!attributes.containsKey(serializedAttributeName)) {
-                throw new InvalidConfigException(
-                    "A source mapping is defined for a non-existent attribute: "
-                        + serializedAttributeName);
-              }
-            });
+    deserializeAttributeMappings(serialized, sourceDataMapping, indexDataMapping, attributes);
 
     // Source+index text search mapping.
-    TextSearch textSearch = new TextSearch();
-    if (serialized.getSourceDataMapping().getTextSearchMapping() != null) {
-      TextSearchMapping sourceTextSearchMapping =
-          TextSearchMapping.fromSerialized(
-              serialized.getSourceDataMapping().getTextSearchMapping(),
-              sourceDataMapping.getTablePointer(),
-              attributes,
-              Underlay.MappingType.SOURCE);
-      TextSearchMapping indexTextSearchMapping =
-          serialized.getIndexDataMapping().getTextSearchMapping() == null
-              ? TextSearchMapping.defaultIndexMapping(
-                  serialized.getName(),
-                  indexDataMapping.getTablePointer(),
-                  attributes.get(serialized.getIdAttribute()))
-              : TextSearchMapping.fromSerialized(
-                  serialized.getIndexDataMapping().getTextSearchMapping(),
-                  indexDataMapping.getTablePointer(),
-                  attributes,
-                  Underlay.MappingType.INDEX);
-      textSearch = new TextSearch(sourceTextSearchMapping, indexTextSearchMapping);
-    }
+    TextSearch textSearch =
+        deserializeTextSearch(serialized, sourceDataMapping, indexDataMapping, attributes);
 
     // Source+index hierarchy mappings.
-    Map<String, UFHierarchyMapping> sourceHierarchyMappingsSerialized =
-        serialized.getSourceDataMapping().getHierarchyMappings();
-    Map<String, UFHierarchyMapping> indexHierarchyMappingsSerialized =
-        serialized.getIndexDataMapping().getHierarchyMappings();
-    Map<String, Hierarchy> hierarchies = new HashMap<>();
-    if (sourceHierarchyMappingsSerialized != null) {
-      sourceHierarchyMappingsSerialized.entrySet().stream()
-          .forEach(
-              sourceHierarchyMappingSerialized -> {
-                HierarchyMapping sourceMapping =
-                    HierarchyMapping.fromSerialized(
-                        sourceHierarchyMappingSerialized.getValue(),
-                        sourceDataMapping.getTablePointer().getDataPointer(),
-                        Underlay.MappingType.SOURCE);
-                HierarchyMapping indexMapping =
-                    indexHierarchyMappingsSerialized == null
-                        ? HierarchyMapping.defaultIndexMapping(
-                            serialized.getName(),
-                            sourceHierarchyMappingSerialized.getKey(),
-                            indexDataMapping.getTablePointer())
-                        : HierarchyMapping.fromSerialized(
-                            indexHierarchyMappingsSerialized.get(
-                                sourceHierarchyMappingSerialized.getKey()),
-                            indexDataMapping.getTablePointer().getDataPointer(),
-                            Underlay.MappingType.INDEX);
-                hierarchies.put(
-                    sourceHierarchyMappingSerialized.getKey(),
-                    new Hierarchy(
-                        sourceHierarchyMappingSerialized.getKey(), sourceMapping, indexMapping));
-              });
-    }
+    Map<String, Hierarchy> hierarchies =
+        deserializeHierarchies(
+            serialized,
+            sourceDataMapping.getTablePointer().getDataPointer(),
+            indexDataMapping.getTablePointer().getDataPointer());
 
     Entity entity =
         new Entity(
@@ -195,6 +126,101 @@ public final class Entity {
     hierarchies.values().stream().forEach(hierarchy -> hierarchy.initialize(entity));
 
     return entity;
+  }
+
+  private static void deserializeAttributeMappings(
+      UFEntity serialized,
+      EntityMapping sourceMapping,
+      EntityMapping indexMapping,
+      Map<String, Attribute> attributes) {
+    for (Attribute attribute : attributes.values()) {
+      AttributeMapping sourceAttributeMapping =
+          AttributeMapping.fromSerialized(
+              serialized.getSourceDataMapping().getAttributeMappings().get(attribute.getName()),
+              sourceMapping.getTablePointer(),
+              attribute);
+      AttributeMapping indexAttributeMapping =
+          serialized.getIndexDataMapping().getAttributeMappings() != null
+              ? AttributeMapping.fromSerialized(
+                  serialized.getIndexDataMapping().getAttributeMappings().get(attribute.getName()),
+                  indexMapping.getTablePointer(),
+                  attribute)
+              : AttributeMapping.fromSerialized(null, indexMapping.getTablePointer(), attribute);
+      attribute.initialize(sourceAttributeMapping, indexAttributeMapping);
+    }
+    serialized.getSourceDataMapping().getAttributeMappings().keySet().stream()
+        .forEach(
+            serializedAttributeName -> {
+              if (!attributes.containsKey(serializedAttributeName)) {
+                throw new InvalidConfigException(
+                    "A source mapping is defined for a non-existent attribute: "
+                        + serializedAttributeName);
+              }
+            });
+  }
+
+  private static TextSearch deserializeTextSearch(
+      UFEntity serialized,
+      EntityMapping sourceMapping,
+      EntityMapping indexMapping,
+      Map<String, Attribute> attributes) {
+    if (serialized.getSourceDataMapping().getTextSearchMapping() == null) {
+      return new TextSearch();
+    }
+    TextSearchMapping sourceTextSearchMapping =
+        TextSearchMapping.fromSerialized(
+            serialized.getSourceDataMapping().getTextSearchMapping(),
+            sourceMapping.getTablePointer(),
+            attributes,
+            Underlay.MappingType.SOURCE);
+    TextSearchMapping indexTextSearchMapping =
+        serialized.getIndexDataMapping().getTextSearchMapping() == null
+            ? TextSearchMapping.defaultIndexMapping(
+                serialized.getName(),
+                indexMapping.getTablePointer(),
+                attributes.get(serialized.getIdAttribute()))
+            : TextSearchMapping.fromSerialized(
+                serialized.getIndexDataMapping().getTextSearchMapping(),
+                indexMapping.getTablePointer(),
+                attributes,
+                Underlay.MappingType.INDEX);
+    return new TextSearch(sourceTextSearchMapping, indexTextSearchMapping);
+  }
+
+  private static Map<String, Hierarchy> deserializeHierarchies(
+      UFEntity serialized, DataPointer sourceDataPointer, DataPointer indexDataPointer) {
+    Map<String, UFHierarchyMapping> sourceHierarchyMappingsSerialized =
+        serialized.getSourceDataMapping().getHierarchyMappings();
+    Map<String, UFHierarchyMapping> indexHierarchyMappingsSerialized =
+        serialized.getIndexDataMapping().getHierarchyMappings();
+    Map<String, Hierarchy> hierarchies = new HashMap<>();
+    if (sourceHierarchyMappingsSerialized != null) {
+      sourceHierarchyMappingsSerialized.entrySet().stream()
+          .forEach(
+              sourceHierarchyMappingSerialized -> {
+                HierarchyMapping sourceMapping =
+                    HierarchyMapping.fromSerialized(
+                        sourceHierarchyMappingSerialized.getValue(),
+                        sourceDataPointer,
+                        Underlay.MappingType.SOURCE);
+                HierarchyMapping indexMapping =
+                    indexHierarchyMappingsSerialized == null
+                        ? HierarchyMapping.defaultIndexMapping(
+                            serialized.getName(),
+                            sourceHierarchyMappingSerialized.getKey(),
+                            indexDataPointer)
+                        : HierarchyMapping.fromSerialized(
+                            indexHierarchyMappingsSerialized.get(
+                                sourceHierarchyMappingSerialized.getKey()),
+                            indexDataPointer,
+                            Underlay.MappingType.INDEX);
+                hierarchies.put(
+                    sourceHierarchyMappingSerialized.getKey(),
+                    new Hierarchy(
+                        sourceHierarchyMappingSerialized.getKey(), sourceMapping, indexMapping));
+              });
+    }
+    return hierarchies;
   }
 
   public void scanSourceData() {
