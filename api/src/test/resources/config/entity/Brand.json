@@ -12,10 +12,10 @@
     "tablePointer": {
       "table": "concept",
       "filter": {
-        "type": "ARRAY",
+        "type": "BOOLEAN_AND_OR",
         "operator": "AND",
         "subfilters": [
-          { "type": "ARRAY",
+          { "type": "BOOLEAN_AND_OR",
             "operator": "OR",
             "subfilters": [
               {  "type": "BINARY",

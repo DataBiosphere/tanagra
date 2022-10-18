@@ -1,7 +1,6 @@
 package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.SystemException;
-
 import java.util.Optional;
 import java.util.OptionalLong;
 

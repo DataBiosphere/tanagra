@@ -1,10 +1,10 @@
 package bio.terra.tanagra.serialization.filter;
 
+import bio.terra.tanagra.query.Filter;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.serialization.UFFilter;
-import bio.terra.tanagra.query.Filter;
-import bio.terra.tanagra.query.TablePointer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
@@ -25,7 +25,9 @@ public class UFBooleanAndOrFilter extends UFFilter {
     super(booleanAndOrFilter);
     this.operator = booleanAndOrFilter.getOperator();
     this.subfilters =
-        booleanAndOrFilter.getSubfilters().stream().map(sf -> sf.serialize()).collect(Collectors.toList());
+        booleanAndOrFilter.getSubfilters().stream()
+            .map(sf -> sf.serialize())
+            .collect(Collectors.toList());
   }
 
   private UFBooleanAndOrFilter(Builder builder) {

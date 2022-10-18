@@ -2,10 +2,10 @@ package bio.terra.tanagra.api;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Collections;
 import java.util.HashMap;

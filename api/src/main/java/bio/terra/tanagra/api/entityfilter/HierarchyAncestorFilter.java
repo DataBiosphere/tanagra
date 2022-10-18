@@ -4,19 +4,20 @@ import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.ANCESTOR_COLUMN_
 import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.DESCENDANT_COLUMN_NAME;
 
 import bio.terra.tanagra.api.EntityFilter;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
 import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 
 public class HierarchyAncestorFilter extends EntityFilter {
@@ -36,7 +37,8 @@ public class HierarchyAncestorFilter extends EntityFilter {
   @Override
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
-    FieldPointer entityIdFieldPointer = getEntityMapping().getIdAttributeMapping().getValue();
+    FieldPointer entityIdFieldPointer =
+        getEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
 
     // build a query to get a node's descendants:
     //   SELECT descendant FROM ancestorDescendantTable WHERE ancestor=nodeId
@@ -76,6 +78,7 @@ public class HierarchyAncestorFilter extends EntityFilter {
     //   WHERE entityId IN (SELECT descendant FROM ancestorDescendantTable WHERE ancestor=nodeId)
     //   OR entityId=nodeId
     return new BooleanAndOrFilterVariable(
-        BooleanAndOrFilterVariable.LogicalOperator.OR, List.of(justDescendantsFilterVar, itselfFilterVar));
+        BooleanAndOrFilterVariable.LogicalOperator.OR,
+        List.of(justDescendantsFilterVar, itselfFilterVar));
   }
 }

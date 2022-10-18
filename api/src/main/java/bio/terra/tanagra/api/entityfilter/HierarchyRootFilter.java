@@ -1,16 +1,17 @@
 package bio.terra.tanagra.api.entityfilter;
 
 import bio.terra.tanagra.api.EntityFilter;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.hierarchyfield.Path;
 import java.util.List;
 
@@ -31,7 +32,8 @@ public class HierarchyRootFilter extends EntityFilter {
   @Override
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
-    FieldPointer entityIdFieldPointer = getEntityMapping().getIdAttributeMapping().getValue();
+    FieldPointer entityIdFieldPointer =
+        getEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
     HierarchyField pathField = new Path(hierarchyName);
     FieldVariable pathFieldVar =
         pathField.buildFieldVariableFromEntityId(

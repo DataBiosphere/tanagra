@@ -1,6 +1,7 @@
 package bio.terra.tanagra.serialization;
 
 import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.Underlay;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
@@ -26,8 +27,8 @@ public class UFEntity {
         entity.getAttributes().stream()
             .map(attr -> new UFAttribute(attr))
             .collect(Collectors.toList());
-    this.sourceDataMapping = new UFEntityMapping(entity.getSourceDataMapping());
-    this.indexDataMapping = new UFEntityMapping(entity.getIndexDataMapping());
+    this.sourceDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.SOURCE));
+    this.indexDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.INDEX));
   }
 
   private UFEntity(Builder builder) {

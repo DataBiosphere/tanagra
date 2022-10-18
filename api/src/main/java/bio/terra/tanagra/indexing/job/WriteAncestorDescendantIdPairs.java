@@ -8,8 +8,9 @@ import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.PARENT_COLUMN_NA
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.GraphUtils;
 import bio.terra.tanagra.query.SQLExpression;
-import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.Underlay;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -68,8 +69,8 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   public void run(boolean isDryRun) {
     SQLExpression selectChildParentIdPairs =
         getEntity()
-            .getSourceDataMapping()
-            .getHierarchyMapping(hierarchyName)
+            .getHierarchy(hierarchyName)
+            .getMapping(Underlay.MappingType.SOURCE)
             .queryChildParentPairs(CHILD_COLUMN_NAME, PARENT_COLUMN_NAME);
     String sql = selectChildParentIdPairs.renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", sql);
@@ -109,8 +110,8 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   @VisibleForTesting
   public TablePointer getOutputTablePointer() {
     return getEntity()
-        .getIndexDataMapping()
-        .getHierarchyMapping(hierarchyName)
+        .getHierarchy(hierarchyName)
+        .getMapping(Underlay.MappingType.INDEX)
         .getAncestorDescendant()
         .getTablePointer();
   }

@@ -31,7 +31,7 @@ public final class AttributeMapping {
   }
 
   public static AttributeMapping fromSerialized(
-          @Nullable UFAttributeMapping serialized, TablePointer tablePointer, Attribute attribute) {
+      @Nullable UFAttributeMapping serialized, TablePointer tablePointer, Attribute attribute) {
     // if the value is defined, then deserialize it
     // otherwise generate a default attribute mapping: a column with the same name as the attribute
     FieldPointer value =

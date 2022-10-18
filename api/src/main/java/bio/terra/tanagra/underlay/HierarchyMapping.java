@@ -47,7 +47,7 @@ public final class HierarchyMapping {
   }
 
   public static HierarchyMapping fromSerialized(
-      UFHierarchyMapping serialized, String hierarchyName, DataPointer dataPointer) {
+      UFHierarchyMapping serialized, DataPointer dataPointer) {
     if (serialized.getChildParent() == null) {
       throw new InvalidConfigException("Child parent pairs are undefined");
     }

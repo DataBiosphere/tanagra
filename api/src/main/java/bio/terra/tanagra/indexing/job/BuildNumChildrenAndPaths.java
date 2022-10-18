@@ -9,9 +9,10 @@ import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.PATH_COLUMN_NAME
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.BigQueryUtils;
 import bio.terra.tanagra.indexing.job.beam.PathUtils;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
@@ -79,13 +80,13 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   public void run(boolean isDryRun) {
     String selectAllIdsSql =
         getEntity()
-            .getSourceDataMapping()
+            .getMapping(Underlay.MappingType.SOURCE)
             .queryAttributes(Map.of(ID_COLUMN_NAME, getEntity().getIdAttribute()))
             .renderSQL();
     LOGGER.info("select all ids SQL: {}", selectAllIdsSql);
 
     HierarchyMapping sourceHierarchyMapping =
-        getEntity().getSourceDataMapping().getHierarchyMapping(hierarchyName);
+        getEntity().getHierarchy(hierarchyName).getMapping(Underlay.MappingType.SOURCE);
     String selectChildParentIdPairsSql =
         sourceHierarchyMapping
             .queryChildParentPairs(CHILD_COLUMN_NAME, PARENT_COLUMN_NAME)
@@ -130,8 +131,8 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   @VisibleForTesting
   public TablePointer getOutputTablePointer() {
     return getEntity()
-        .getIndexDataMapping()
-        .getHierarchyMapping(hierarchyName)
+        .getHierarchy(hierarchyName)
+        .getMapping(Underlay.MappingType.INDEX)
         .getPathNumChildren()
         .getTablePointer();
   }

@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Underlay {
+  public enum MappingType {
+    SOURCE,
+    INDEX
+  }
+
   private static final String UI_CONFIG_DIRECTORY_NAME = "ui";
 
   private final String name;

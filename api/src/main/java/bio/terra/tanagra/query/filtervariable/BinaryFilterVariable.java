@@ -2,9 +2,9 @@ package bio.terra.tanagra.query.filtervariable;
 
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.Literal;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;

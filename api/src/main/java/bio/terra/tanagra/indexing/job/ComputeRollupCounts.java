@@ -10,6 +10,7 @@ import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.BigQueryUtils;
 import bio.terra.tanagra.indexing.job.beam.CountUtils;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
@@ -74,7 +75,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
     String selectAllCriteriaIdsSql =
         entityGroup
             .getCriteriaEntity()
-            .getSourceDataMapping()
+            .getMapping(Underlay.MappingType.SOURCE)
             .queryAttributes(
                 Map.of(ID_COLUMN_NAME, entityGroup.getCriteriaEntity().getIdAttribute()))
             .renderSQL();
@@ -90,8 +91,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
       selectCriteriaAncestorDescendantIdPairsSql =
           entityGroup
               .getCriteriaEntity()
-              .getIndexDataMapping()
-              .getHierarchyMapping(hierarchyName)
+              .getHierarchy(hierarchyName)
+              .getMapping(Underlay.MappingType.INDEX)
               .queryAncestorDescendantPairs(ANCESTOR_COLUMN_NAME, DESCENDANT_COLUMN_NAME)
               .renderSQL();
     }

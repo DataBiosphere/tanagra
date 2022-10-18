@@ -23,37 +23,33 @@ public final class TextSearchMapping {
       new AuxiliaryData(
           "textsearch", List.of(TEXT_SEARCH_ID_COLUMN_NAME, TEXT_SEARCH_STRING_COLUMN_NAME));
 
-  private List<Attribute> attributes;
-  private FieldPointer searchString;
-  private AuxiliaryDataMapping searchStringTable;
-  private final Attribute idAttribute;
+  private final List<Attribute> attributes;
+  private final FieldPointer searchString;
+  private final AuxiliaryDataMapping searchStringTable;
+  private final Underlay.MappingType mappingType;
+  private TextSearch textSearch;
 
-  private TextSearchMapping(List<Attribute> attributes, Attribute idAttribute) {
-    this.attributes = attributes;
-    this.idAttribute = idAttribute;
+  private TextSearchMapping(Builder builder) {
+    this.attributes = builder.attributes;
+    this.searchString = builder.searchString;
+    this.searchStringTable = builder.searchStringTable;
+    this.mappingType = builder.mappingType;
   }
 
-  private TextSearchMapping(FieldPointer searchString, Attribute idAttribute) {
-    this.searchString = searchString;
-    this.idAttribute = idAttribute;
-  }
-
-  private TextSearchMapping(AuxiliaryDataMapping searchStringTable, Attribute idAttribute) {
-    this.searchStringTable = searchStringTable;
-    this.idAttribute = idAttribute;
+  public void initialize(TextSearch textSearch) {
+    this.textSearch = textSearch;
   }
 
   public static TextSearchMapping fromSerialized(
       UFTextSearchMapping serialized,
       TablePointer tablePointer,
       Map<String, Attribute> entityAttributes,
-      String idAttributeName) {
+      Underlay.MappingType mappingType) {
     if (serialized.getAttributes() != null && serialized.getSearchString() != null) {
       throw new InvalidConfigException(
           "Text search mapping can be defined by either attributes or a search string, not both");
     }
 
-    Attribute idAttribute = entityAttributes.get(idAttributeName);
     if (serialized.getAttributes() != null) {
       if (serialized.getAttributes().size() == 0) {
         throw new InvalidConfigException("Text search mapping list of attributes is empty");
@@ -62,13 +58,13 @@ public final class TextSearchMapping {
           serialized.getAttributes().stream()
               .map(a -> entityAttributes.get(a))
               .collect(Collectors.toList());
-      return new TextSearchMapping(attributesForTextSearch, idAttribute);
+      return new Builder().attributes(attributesForTextSearch).mappingType(mappingType).build();
     }
 
     if (serialized.getSearchString() != null) {
       FieldPointer searchStringField =
           FieldPointer.fromSerialized(serialized.getSearchString(), tablePointer);
-      return new TextSearchMapping(searchStringField, idAttribute);
+      return new Builder().searchString(searchStringField).mappingType(mappingType).build();
     }
 
     if (serialized.getSearchStringTable() != null) {
@@ -77,7 +73,7 @@ public final class TextSearchMapping {
               serialized.getSearchStringTable(),
               tablePointer.getDataPointer(),
               TEXT_SEARCH_STRING_AUXILIARY_DATA);
-      return new TextSearchMapping(searchStringTable, idAttribute);
+      return new Builder().searchStringTable(searchStringTable).mappingType(mappingType).build();
     }
 
     throw new InvalidConfigException("Text search mapping is empty");
@@ -93,18 +89,20 @@ public final class TextSearchMapping {
             tablePrefix + TEXT_SEARCH_STRING_AUXILIARY_DATA.getName(),
             tablePointer.getDataPointer());
 
-    return new TextSearchMapping(
-        new FieldPointer.Builder()
-            .tablePointer(tablePointer)
-            .columnName(idAttribute.getName())
-            .foreignTablePointer(idTextStringTable)
-            .foreignKeyColumnName(TEXT_SEARCH_ID_COLUMN_NAME)
-            .foreignColumnName(TEXT_SEARCH_STRING_COLUMN_NAME)
-            .build(),
-        idAttribute);
+    return new Builder()
+        .searchString(
+            new FieldPointer.Builder()
+                .tablePointer(tablePointer)
+                .columnName(idAttribute.getName())
+                .foreignTablePointer(idTextStringTable)
+                .foreignKeyColumnName(TEXT_SEARCH_ID_COLUMN_NAME)
+                .foreignColumnName(TEXT_SEARCH_STRING_COLUMN_NAME)
+                .build())
+        .mappingType(Underlay.MappingType.INDEX)
+        .build();
   }
 
-  public Query queryTextSearchStrings(EntityMapping entityMapping) {
+  public Query queryTextSearchStrings() {
     SQLExpression idAllTextPairs;
     if (definedByAttributes()) {
       // TODO: Allow specifying non-STRING attributes, but wrap them in CAST to STRING.
@@ -124,18 +122,24 @@ public final class TextSearchMapping {
               getAttributes().stream()
                   .map(
                       attr ->
-                          entityMapping.queryAttributes(
-                              Map.of(
-                                  TEXT_SEARCH_ID_COLUMN_NAME,
-                                  idAttribute,
-                                  TEXT_SEARCH_STRING_COLUMN_NAME,
-                                  attr)))
+                          textSearch
+                              .getEntity()
+                              .getMapping(mappingType)
+                              .queryAttributes(
+                                  Map.of(
+                                      TEXT_SEARCH_ID_COLUMN_NAME,
+                                      textSearch.getEntity().getIdAttribute(),
+                                      TEXT_SEARCH_STRING_COLUMN_NAME,
+                                      attr)))
                   .collect(Collectors.toList()));
     } else if (definedBySearchString()) {
       idAllTextPairs =
-          entityMapping.queryAttributesAndFields(
-              Map.of(TEXT_SEARCH_ID_COLUMN_NAME, idAttribute),
-              Map.of(TEXT_SEARCH_STRING_COLUMN_NAME, getSearchString()));
+          textSearch
+              .getEntity()
+              .getMapping(mappingType)
+              .queryAttributesAndFields(
+                  Map.of(TEXT_SEARCH_ID_COLUMN_NAME, textSearch.getEntity().getIdAttribute()),
+                  Map.of(TEXT_SEARCH_STRING_COLUMN_NAME, getSearchString()));
     } else if (definedBySearchStringAuxiliaryData()) {
       TableVariable searchStringTableVar =
           TableVariable.forPrimary(searchStringTable.getTablePointer());
@@ -158,7 +162,8 @@ public final class TextSearchMapping {
 
     TablePointer idTextPairsTable =
         TablePointer.fromRawSql(
-            idAllTextPairs.renderSQL(), entityMapping.getTablePointer().getDataPointer());
+            idAllTextPairs.renderSQL(),
+            textSearch.getEntity().getMapping(mappingType).getTablePointer().getDataPointer());
     FieldPointer idField =
         new FieldPointer.Builder()
             .tablePointer(idTextPairsTable)
@@ -184,9 +189,9 @@ public final class TextSearchMapping {
         .build();
   }
 
-  public TablePointer getTablePointer(EntityMapping entityMapping) {
+  public TablePointer getTablePointer() {
     if (definedByAttributes()) {
-      return entityMapping.getTablePointer();
+      return textSearch.getEntity().getMapping(mappingType).getTablePointer();
     } else if (definedBySearchString()) {
       return searchString.getForeignTablePointer();
     } else if (definedBySearchStringAuxiliaryData()) {
@@ -218,5 +223,36 @@ public final class TextSearchMapping {
 
   public AuxiliaryDataMapping getSearchStringTable() {
     return searchStringTable;
+  }
+
+  public static class Builder {
+    private List<Attribute> attributes;
+    private FieldPointer searchString;
+    private AuxiliaryDataMapping searchStringTable;
+    private Underlay.MappingType mappingType;
+
+    public Builder attributes(List<Attribute> attributes) {
+      this.attributes = attributes;
+      return this;
+    }
+
+    public Builder searchString(FieldPointer searchString) {
+      this.searchString = searchString;
+      return this;
+    }
+
+    public Builder searchStringTable(AuxiliaryDataMapping searchStringTable) {
+      this.searchStringTable = searchStringTable;
+      return this;
+    }
+
+    public Builder mappingType(Underlay.MappingType mappingType) {
+      this.mappingType = mappingType;
+      return this;
+    }
+
+    public TextSearchMapping build() {
+      return new TextSearchMapping(this);
+    }
   }
 }

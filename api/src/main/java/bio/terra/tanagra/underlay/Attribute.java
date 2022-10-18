@@ -17,12 +17,19 @@ public final class Attribute {
   private final Type type;
   private Literal.DataType dataType;
   private DisplayHint displayHint;
+  private AttributeMapping sourceMapping;
+  private AttributeMapping indexMapping;
 
   private Attribute(String name, Type type, Literal.DataType dataType, DisplayHint displayHint) {
     this.name = name;
     this.type = type;
     this.dataType = dataType;
     this.displayHint = displayHint;
+  }
+
+  public void initialize(AttributeMapping sourceMapping, AttributeMapping indexMapping) {
+    this.sourceMapping = sourceMapping;
+    this.indexMapping = indexMapping;
   }
 
   public static Attribute fromSerialized(UFAttribute serialized) {
@@ -37,7 +44,6 @@ public final class Attribute {
         serialized.getName(), serialized.getType(), serialized.getDataType(), displayHint);
   }
 
-  // getters
   public String getName() {
     return name;
   }
@@ -62,7 +68,7 @@ public final class Attribute {
     this.displayHint = displayHint;
   }
 
-  public boolean hasDisplayHint() {
-    return displayHint != null;
+  public AttributeMapping getMapping(Underlay.MappingType mappingType) {
+    return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceMapping : indexMapping;
   }
 }

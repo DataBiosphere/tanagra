@@ -1,9 +1,9 @@
 package bio.terra.tanagra.serialization;
 
-import bio.terra.tanagra.serialization.filter.UFBooleanAndOrFilter;
-import bio.terra.tanagra.serialization.filter.UFBinaryFilter;
 import bio.terra.tanagra.query.Filter;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.serialization.filter.UFBinaryFilter;
+import bio.terra.tanagra.serialization.filter.UFBooleanAndOrFilter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

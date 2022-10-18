@@ -6,9 +6,9 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
-import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.QueryResult;
@@ -20,11 +20,12 @@ import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,25 +42,20 @@ import org.springframework.stereotype.Component;
 public class QuerysService {
   private static final Logger LOGGER = LoggerFactory.getLogger(QuerysService.class);
 
-  public QueryRequest buildInstancesQuery(
-      EntityMapping entityMapping,
-      List<Attribute> selectAttributes,
-      List<HierarchyField> selectHierarchyFields,
-      @Nullable EntityFilter filter,
-      List<Attribute> orderByAttributes,
-      OrderByDirection orderByDirection,
-      int limit) {
+  public QueryRequest buildInstancesQuery(EntityQueryRequest entityQueryRequest) {
+    EntityMapping entityMapping =
+        entityQueryRequest.getEntity().getMapping(entityQueryRequest.getMappingType());
     TableVariable entityTableVar = TableVariable.forPrimary(entityMapping.getTablePointer());
     List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
 
     // build the SELECT field variables and column schemas from attributes
     List<FieldVariable> selectFieldVars = new ArrayList<>();
     List<ColumnSchema> columnSchemas = new ArrayList<>();
-    selectAttributes.stream()
+    entityQueryRequest.getSelectAttributes().stream()
         .forEach(
             attribute -> {
               AttributeMapping attributeMapping =
-                  entityMapping.getAttributeMapping(attribute.getName());
+                  attribute.getMapping(entityQueryRequest.getMappingType());
               selectFieldVars.addAll(
                   attributeMapping.buildFieldVariables(
                       entityTableVar, tableVars, attribute.getName()));
@@ -69,12 +65,20 @@ public class QuerysService {
             });
 
     // build the additional SELECT field variables and column schemas from hierarchy fields
-    FieldPointer entityIdFieldPointer = entityMapping.getIdAttributeMapping().getValue();
-    selectHierarchyFields.stream()
+    FieldPointer entityIdFieldPointer =
+        entityQueryRequest
+            .getEntity()
+            .getIdAttribute()
+            .getMapping(entityQueryRequest.getMappingType())
+            .getValue();
+    entityQueryRequest.getSelectHierarchyFields().stream()
         .forEach(
             hierarchyField -> {
               HierarchyMapping hierarchyMapping =
-                  entityMapping.getHierarchyMapping(hierarchyField.getHierarchyName());
+                  entityQueryRequest
+                      .getEntity()
+                      .getHierarchy(hierarchyField.getHierarchyName())
+                      .getMapping(entityQueryRequest.getMappingType());
               selectFieldVars.add(
                   hierarchyField.buildFieldVariableFromEntityId(
                       hierarchyMapping, entityIdFieldPointer, entityTableVar, tableVars));
@@ -83,18 +87,20 @@ public class QuerysService {
 
     // build the ORDER BY field variables from attributes
     List<FieldVariable> orderByFieldVars =
-        orderByAttributes.stream()
+        entityQueryRequest.getOrderByAttributes().stream()
             .map(
-                attribute -> {
-                  AttributeMapping attributeMapping =
-                      entityMapping.getAttributeMapping(attribute.getName());
-                  return attributeMapping.getValue().buildVariable(entityTableVar, tableVars);
-                })
+                attribute ->
+                    attribute
+                        .getMapping(entityQueryRequest.getMappingType())
+                        .getValue()
+                        .buildVariable(entityTableVar, tableVars))
             .collect(Collectors.toList());
 
     // build the WHERE filter variables from the entity filter
     FilterVariable filterVar =
-        filter == null ? null : filter.getFilterVariable(entityTableVar, tableVars);
+        entityQueryRequest.getFilter() == null
+            ? null
+            : entityQueryRequest.getFilter().getFilterVariable(entityTableVar, tableVars);
 
     Query query =
         new Query.Builder()
@@ -102,8 +108,8 @@ public class QuerysService {
             .tables(tableVars)
             .where(filterVar)
             .orderBy(orderByFieldVars)
-            .orderByDirection(orderByDirection)
-            .limit(limit)
+            .orderByDirection(entityQueryRequest.getOrderByDirection())
+            .limit(entityQueryRequest.getLimit())
             .build();
     LOGGER.info("Generated query: {}", query.renderSQL());
 
@@ -129,7 +135,10 @@ public class QuerysService {
   }
 
   public QueryRequest buildInstanceCountsQuery(
-      EntityMapping entityMapping, List<Attribute> attributes, @Nullable EntityFilter filter) {
+      Entity entity,
+      EntityMapping entityMapping,
+      List<Attribute> attributes,
+      @Nullable EntityFilter filter) {
     TableVariable entityTableVar = TableVariable.forPrimary(entityMapping.getTablePointer());
     List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
 
@@ -140,8 +149,7 @@ public class QuerysService {
     attributes.stream()
         .forEach(
             attribute -> {
-              AttributeMapping attributeMapping =
-                  entityMapping.getAttributeMapping(attribute.getName());
+              AttributeMapping attributeMapping = attribute.getMapping(Underlay.MappingType.INDEX);
               attributeFieldVars.addAll(
                   attributeMapping.buildFieldVariables(
                       entityTableVar, tableVars, attribute.getName()));
@@ -152,7 +160,8 @@ public class QuerysService {
 
     // Additionally, build a count field variable and column schema to SELECT.
     List<FieldVariable> selectFieldVars = new ArrayList<>(attributeFieldVars);
-    FieldPointer entityIdFieldPointer = entityMapping.getIdAttributeMapping().getValue();
+    FieldPointer entityIdFieldPointer =
+        entity.getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
     FieldPointer countFieldPointer =
         new FieldPointer.Builder()
             .tablePointer(entityIdFieldPointer.getTablePointer())
@@ -202,12 +211,12 @@ public class QuerysService {
     return attribute;
   }
 
-  public HierarchyMapping getHierarchy(EntityMapping entityMapping, String hierarchyName) {
-    HierarchyMapping hierarchyMapping = entityMapping.getHierarchyMappings().get(hierarchyName);
-    if (hierarchyMapping == null) {
+  public Hierarchy getHierarchy(Entity entity, String hierarchyName) {
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
+    if (hierarchy == null) {
       throw new NotFoundException("Hierarchy not found: " + hierarchyName);
     }
-    return hierarchyMapping;
+    return hierarchy;
   }
 
   public RelationshipMapping getRelationshipMapping(

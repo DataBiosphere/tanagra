@@ -18,16 +18,18 @@ import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiQueryV2IncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilterV2;
 import bio.terra.tanagra.generated.model.ApiTextFilterV2;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.hierarchyfield.IsMember;
 import bio.terra.tanagra.underlay.hierarchyfield.IsRoot;
 import bio.terra.tanagra.underlay.hierarchyfield.NumChildren;
@@ -76,8 +78,8 @@ public final class FromApiConversionService {
         return textFilterBuilder.build();
       case HIERARCHY:
         ApiHierarchyFilterV2 apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
-        HierarchyMapping hierarchyMapping =
-            querysService.getHierarchy(entityMapping, apiHierarchyFilter.getHierarchy());
+        Hierarchy hierarchy = querysService.getHierarchy(entity, apiHierarchyFilter.getHierarchy());
+        HierarchyMapping hierarchyMapping = hierarchy.getMapping(Underlay.MappingType.INDEX);
         switch (apiHierarchyFilter.getOperator()) {
           case IS_ROOT:
             return new HierarchyRootFilter(
@@ -108,7 +110,7 @@ public final class FromApiConversionService {
             fromApiObject(
                 apiRelationshipFilter.getSubfilter(),
                 relatedEntity,
-                relatedEntity.getIndexDataMapping(),
+                relatedEntity.getMapping(Underlay.MappingType.INDEX),
                 underlayName);
 
         Collection<EntityGroup> entityGroups =
@@ -117,8 +119,9 @@ public final class FromApiConversionService {
             querysService.getRelationshipMapping(entityGroups, entity, relatedEntity);
         return new RelationshipFilter(
             entity,
+            relatedEntity,
             entityMapping,
-            relatedEntity.getIndexDataMapping(),
+            relatedEntity.getMapping(Underlay.MappingType.INDEX),
             relationshipMapping,
             subFilter);
       case BOOLEAN_LOGIC:

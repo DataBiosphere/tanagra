@@ -1,11 +1,11 @@
 package bio.terra.tanagra.serialization.filter;
 
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.serialization.UFFieldPointer;
-import bio.terra.tanagra.serialization.UFLiteral;
-import bio.terra.tanagra.serialization.UFFilter;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.filter.BinaryFilter;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.serialization.UFFieldPointer;
+import bio.terra.tanagra.serialization.UFFilter;
+import bio.terra.tanagra.serialization.UFLiteral;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 

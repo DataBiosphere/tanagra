@@ -2,8 +2,9 @@ package bio.terra.tanagra.indexing.job;
 
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,9 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
   @Override
   public void run(boolean isDryRun) {
     Query selectAllAttributes =
-        getEntity().getSourceDataMapping().queryAttributes(getEntity().getAttributes());
+        getEntity()
+            .getMapping(Underlay.MappingType.SOURCE)
+            .queryAttributes(getEntity().getAttributes());
     String sql = selectAllAttributes.renderSQL();
     LOGGER.info("select all attributes SQL: {}", sql);
 
@@ -33,6 +36,6 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
   @Override
   @VisibleForTesting
   public TablePointer getOutputTablePointer() {
-    return getEntity().getIndexDataMapping().getTablePointer();
+    return getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer();
   }
 }

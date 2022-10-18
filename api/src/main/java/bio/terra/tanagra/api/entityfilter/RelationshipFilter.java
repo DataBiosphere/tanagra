@@ -1,6 +1,7 @@
 package bio.terra.tanagra.api.entityfilter;
 
 import bio.terra.tanagra.api.EntityFilter;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Query;
@@ -8,8 +9,8 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.slf4j.Logger;
@@ -18,17 +19,20 @@ import org.slf4j.LoggerFactory;
 public class RelationshipFilter extends EntityFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(RelationshipFilter.class);
 
+  private final Entity relatedEntity;
   private final EntityMapping relatedEntityMapping;
   private final RelationshipMapping relationshipMapping;
   private final EntityFilter subFilter;
 
   public RelationshipFilter(
       Entity entity,
+      Entity relatedEntity,
       EntityMapping entityMapping,
       EntityMapping relatedEntityMapping,
       RelationshipMapping relationshipMapping,
       EntityFilter subFilter) {
     super(entity, entityMapping);
+    this.relatedEntity = relatedEntity;
     this.relatedEntityMapping = relatedEntityMapping;
     this.relationshipMapping = relationshipMapping;
     this.subFilter = subFilter;
@@ -37,7 +41,8 @@ public class RelationshipFilter extends EntityFilter {
   @Override
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
-    FieldPointer entityIdFieldPointer = getEntityMapping().getIdAttributeMapping().getValue();
+    FieldPointer entityIdFieldPointer =
+        getEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
 
     // build a query to get all related entity instance ids:
     //   SELECT relatedEntityId FROM relatedEntityTable WHERE subFilter
@@ -46,8 +51,9 @@ public class RelationshipFilter extends EntityFilter {
     List<TableVariable> relatedEntityTableVars = Lists.newArrayList(relatedEntityTableVar);
 
     FieldVariable relatedEntityIdFieldVar =
-        relatedEntityMapping
-            .getIdAttributeMapping()
+        relatedEntity
+            .getIdAttribute()
+            .getMapping(Underlay.MappingType.INDEX)
             .getValue()
             .buildVariable(relatedEntityTableVar, relatedEntityTableVars);
     FilterVariable relatedEntityFilterVar =

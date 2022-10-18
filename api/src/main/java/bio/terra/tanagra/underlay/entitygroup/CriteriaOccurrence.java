@@ -106,9 +106,9 @@ public class CriteriaOccurrence extends EntityGroup {
 
   @Override
   public List<IndexingJob> getIndexingJobs() {
-    if (criteriaEntity.getSourceDataMapping().hasHierarchyMappings()) {
-      return criteriaEntity.getSourceDataMapping().getHierarchyMappings().keySet().stream()
-          .map(hierarchyName -> new ComputeRollupCounts(this, hierarchyName))
+    if (criteriaEntity.hasHierarchies()) {
+      return criteriaEntity.getHierarchies().stream()
+          .map(hierarchy -> new ComputeRollupCounts(this, hierarchy.getName()))
           .collect(Collectors.toList());
     } else {
       return List.of(new ComputeRollupCounts(this));
