@@ -56,11 +56,8 @@ public class QuerysService {
               AttributeMapping attributeMapping =
                   attribute.getMapping(entityQueryRequest.getMappingType());
               selectFieldVars.addAll(
-                  attributeMapping.buildFieldVariables(
-                      entityTableVar, tableVars, attribute.getName()));
-              columnSchemas.addAll(
-                  attributeMapping.buildColumnSchemas(
-                      attribute.getName(), attribute.getDataType()));
+                  attributeMapping.buildFieldVariables(entityTableVar, tableVars));
+              columnSchemas.addAll(attributeMapping.buildColumnSchemas());
             });
 
     // build the additional SELECT field variables and column schemas from hierarchy fields
@@ -144,11 +141,8 @@ public class QuerysService {
             attribute -> {
               AttributeMapping attributeMapping = attribute.getMapping(Underlay.MappingType.INDEX);
               attributeFieldVars.addAll(
-                  attributeMapping.buildFieldVariables(
-                      entityTableVar, tableVars, attribute.getName()));
-              columnSchemas.addAll(
-                  attributeMapping.buildColumnSchemas(
-                      attribute.getName(), attribute.getDataType()));
+                  attributeMapping.buildFieldVariables(entityTableVar, tableVars));
+              columnSchemas.addAll(attributeMapping.buildColumnSchemas());
             });
 
     // Additionally, build a count field variable and column schema to SELECT.

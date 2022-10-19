@@ -11,6 +11,7 @@ import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.UnionQuery;
 import bio.terra.tanagra.serialization.UFTextSearchMapping;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -104,58 +105,37 @@ public final class TextSearchMapping {
 
   public Query queryTextSearchStrings() {
     SQLExpression idAllTextPairs;
+    FieldPointer entityIdField =
+        textSearch.getEntity().getIdAttribute().getMapping(mappingType).getValue();
     if (definedByAttributes()) {
-      // TODO: Allow specifying non-STRING attributes, but wrap them in CAST to STRING.
-      getAttributes()
-          .forEach(
-              attr -> {
-                if (!attr.getDataType().equals(Literal.DataType.STRING)) {
-                  throw new InvalidConfigException(
-                      "All text search attributes must have datatype STRING: "
-                          + attr.getName()
-                          + ","
-                          + attr.getDataType());
-                }
-              });
       idAllTextPairs =
           new UnionQuery(
               getAttributes().stream()
                   .map(
-                      attr ->
-                          textSearch
-                              .getEntity()
-                              .getMapping(mappingType)
-                              .queryAttributes(
-                                  Map.of(
-                                      TEXT_SEARCH_ID_COLUMN_NAME,
-                                      textSearch.getEntity().getIdAttribute(),
-                                      TEXT_SEARCH_STRING_COLUMN_NAME,
-                                      attr)))
+                      attribute -> {
+                        FieldPointer textField;
+                        if (Attribute.Type.SIMPLE.equals(attribute.getType())) {
+                          textField = attribute.getMapping(mappingType).getValue();
+                          if (!Literal.DataType.STRING.equals(attribute.getDataType())) {
+                            textField =
+                                textField
+                                    .toBuilder()
+                                    .sqlFunctionWrapper("CAST(${fieldSql} AS STRING)")
+                                    .build();
+                          }
+                        } else {
+                          textField = attribute.getMapping(mappingType).getDisplay();
+                        }
+                        return buildIdTextPairsQuery(entityIdField, textField);
+                      })
                   .collect(Collectors.toList()));
     } else if (definedBySearchString()) {
-      idAllTextPairs =
-          textSearch
-              .getEntity()
-              .getMapping(mappingType)
-              .queryAttributesAndFields(
-                  Map.of(TEXT_SEARCH_ID_COLUMN_NAME, textSearch.getEntity().getIdAttribute()),
-                  Map.of(TEXT_SEARCH_STRING_COLUMN_NAME, getSearchString()));
+      idAllTextPairs = buildIdTextPairsQuery(entityIdField, getSearchString());
     } else if (definedBySearchStringAuxiliaryData()) {
-      TableVariable searchStringTableVar =
-          TableVariable.forPrimary(searchStringTable.getTablePointer());
-      List<TableVariable> tableVars = List.of(searchStringTableVar);
-      FieldVariable idFieldVar =
-          searchStringTable
-              .getFieldPointers()
-              .get(TEXT_SEARCH_ID_COLUMN_NAME)
-              .buildVariable(searchStringTableVar, tableVars);
-      FieldVariable textFieldVar =
-          searchStringTable
-              .getFieldPointers()
-              .get(TEXT_SEARCH_STRING_COLUMN_NAME)
-              .buildVariable(searchStringTableVar, tableVars);
       idAllTextPairs =
-          new Query.Builder().select(List.of(idFieldVar, textFieldVar)).tables(tableVars).build();
+          buildIdTextPairsQuery(
+              searchStringTable.getFieldPointers().get(TEXT_SEARCH_ID_COLUMN_NAME),
+              searchStringTable.getFieldPointers().get(TEXT_SEARCH_STRING_COLUMN_NAME));
     } else {
       throw new SystemException("Unknown text search mapping type");
     }
@@ -186,6 +166,21 @@ public final class TextSearchMapping {
         .select(List.of(idFieldVar, concatenatedTextFieldVar))
         .tables(List.of(idTextPairsTableVar))
         .groupBy(List.of(idFieldVar))
+        .build();
+  }
+
+  private Query buildIdTextPairsQuery(FieldPointer entityIdField, FieldPointer textField) {
+    TableVariable entityTableVar = TableVariable.forPrimary(entityIdField.getTablePointer());
+    List<TableVariable> tableVars = new ArrayList<>();
+    tableVars.add(entityTableVar);
+
+    FieldVariable textFieldVar =
+        textField.buildVariable(entityTableVar, tableVars, TEXT_SEARCH_STRING_COLUMN_NAME);
+    FieldVariable entityIdFieldVar =
+        entityIdField.buildVariable(entityTableVar, tableVars, TEXT_SEARCH_ID_COLUMN_NAME);
+    return new Query.Builder()
+        .select(List.of(entityIdFieldVar, textFieldVar))
+        .tables(tableVars)
         .build();
   }
 

@@ -4,7 +4,10 @@ import bio.terra.tanagra.underlay.hierarchyfield.IsMember;
 import bio.terra.tanagra.underlay.hierarchyfield.IsRoot;
 import bio.terra.tanagra.underlay.hierarchyfield.NumChildren;
 import bio.terra.tanagra.underlay.hierarchyfield.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Hierarchy {
   private final String name;
@@ -41,6 +44,10 @@ public class Hierarchy {
 
   public Entity getEntity() {
     return entity;
+  }
+
+  public List<HierarchyField> getFields() {
+    return Collections.unmodifiableList(fields.values().stream().collect(Collectors.toList()));
   }
 
   public HierarchyField getField(HierarchyField.Type type) {

@@ -30,6 +30,8 @@ public final class Attribute {
   public void initialize(AttributeMapping sourceMapping, AttributeMapping indexMapping) {
     this.sourceMapping = sourceMapping;
     this.indexMapping = indexMapping;
+    sourceMapping.initialize(this);
+    indexMapping.initialize(this);
   }
 
   public static Attribute fromSerialized(UFAttribute serialized) {

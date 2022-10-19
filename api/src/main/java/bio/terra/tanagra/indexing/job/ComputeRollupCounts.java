@@ -17,7 +17,6 @@ import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
-import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -76,8 +75,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
         entityGroup
             .getCriteriaEntity()
             .getMapping(Underlay.MappingType.SOURCE)
-            .queryAttributes(
-                Map.of(ID_COLUMN_NAME, entityGroup.getCriteriaEntity().getIdAttribute()))
+            .queryIds(ID_COLUMN_NAME)
             .renderSQL();
     LOGGER.info("select all criteria ids SQL: {}", selectAllCriteriaIdsSql);
 

@@ -1,7 +1,6 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
@@ -10,8 +9,6 @@ import bio.terra.tanagra.serialization.UFEntityMapping;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public final class EntityMapping {
   private final TablePointer tablePointer;
@@ -50,54 +47,31 @@ public final class EntityMapping {
     return new EntityMapping(tablePointer, mappingType);
   }
 
-  public Query queryAttributes(List<Attribute> selectedAttributes) {
-    return queryAttributesAndFields(selectedAttributes, null);
+  public Query queryIds(String alias) {
+    List<TableVariable> tables = new ArrayList<>();
+    TableVariable primaryTable = TableVariable.forPrimary(tablePointer);
+    tables.add(primaryTable);
+
+    FieldVariable idFieldVar =
+        getEntity()
+            .getIdAttribute()
+            .getMapping(mappingType)
+            .getValue()
+            .buildVariable(primaryTable, tables, alias);
+    return new Query.Builder().select(List.of(idFieldVar)).tables(tables).build();
   }
 
-  public Query queryAttributes(Map<String, Attribute> selectedAttributes) {
-    return queryAttributesAndFields(selectedAttributes, null);
-  }
-
-  private Query queryAttributesAndFields(
-      List<Attribute> selectedAttributes, List<FieldPointer> selectedFields) {
-    Map<String, Attribute> nameToAttribute =
-        selectedAttributes == null
-            ? null
-            : selectedAttributes.stream()
-                .collect(Collectors.toMap(Attribute::getName, Function.identity()));
-    Map<String, FieldPointer> nameToFieldPointer =
-        selectedFields == null
-            ? null
-            : selectedFields.stream()
-                .collect(Collectors.toMap(FieldPointer::getColumnName, Function.identity()));
-    return queryAttributesAndFields(nameToAttribute, nameToFieldPointer);
-  }
-
-  public Query queryAttributesAndFields(
-      Map<String, Attribute> selectedAttributes, Map<String, FieldPointer> selectedFields) {
+  public Query queryAllAttributes() {
     List<TableVariable> tables = new ArrayList<>();
     TableVariable primaryTable = TableVariable.forPrimary(tablePointer);
     tables.add(primaryTable);
 
     List<FieldVariable> select = new ArrayList<>();
-    if (selectedAttributes != null) {
-      selectedAttributes.entrySet().stream()
-          .forEach(
-              nameToAttr ->
-                  select.addAll(
-                      entity
-                          .getAttribute(nameToAttr.getKey())
-                          .getMapping(mappingType)
-                          .buildFieldVariables(primaryTable, tables, nameToAttr.getKey())));
-    }
-    if (selectedFields != null) {
-      selectedFields.entrySet().stream()
-          .forEach(
-              nameToFP ->
-                  select.add(
-                      nameToFP.getValue().buildVariable(primaryTable, tables, nameToFP.getKey())));
-    }
-
+    getEntity().getAttributes().stream()
+        .forEach(
+            attribute ->
+                select.addAll(
+                    attribute.getMapping(mappingType).buildFieldVariables(primaryTable, tables)));
     return new Query.Builder().select(select).tables(tables).build();
   }
 

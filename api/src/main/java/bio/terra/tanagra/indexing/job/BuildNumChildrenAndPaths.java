@@ -20,7 +20,6 @@ import com.google.api.services.bigquery.model.TableSchema;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -79,10 +78,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   @Override
   public void run(boolean isDryRun) {
     String selectAllIdsSql =
-        getEntity()
-            .getMapping(Underlay.MappingType.SOURCE)
-            .queryAttributes(Map.of(ID_COLUMN_NAME, getEntity().getIdAttribute()))
-            .renderSQL();
+        getEntity().getMapping(Underlay.MappingType.SOURCE).queryIds(ID_COLUMN_NAME).renderSQL();
     LOGGER.info("select all ids SQL: {}", selectAllIdsSql);
 
     HierarchyMapping sourceHierarchyMapping =
