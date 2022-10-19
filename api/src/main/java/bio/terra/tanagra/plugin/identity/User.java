@@ -1,4 +1,4 @@
-package bio.terra.tanagra.plugin.accessControl.example;
+package bio.terra.tanagra.plugin.identity;
 
 public class User {
   private String identifier;

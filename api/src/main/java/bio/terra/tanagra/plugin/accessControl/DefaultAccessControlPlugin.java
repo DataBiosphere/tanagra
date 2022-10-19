@@ -1,7 +1,7 @@
 package bio.terra.tanagra.plugin.accessControl;
 
 import bio.terra.tanagra.plugin.PluginConfig;
-import bio.terra.tanagra.plugin.accessControl.example.User;
+import bio.terra.tanagra.plugin.identity.User;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 import bio.terra.tanagra.service.jdbc.DataSourceId;
 import org.springframework.beans.factory.annotation.Autowired;

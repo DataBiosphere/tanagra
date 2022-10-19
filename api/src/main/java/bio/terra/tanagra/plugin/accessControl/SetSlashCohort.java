@@ -1,6 +1,4 @@
-package bio.terra.tanagra.plugin.accessControl.example;
-
-import bio.terra.tanagra.plugin.accessControl.IControlledAccessArtifact;
+package bio.terra.tanagra.plugin.accessControl;
 
 // TODO: Rename once naming is finalized
 public class SetSlashCohort implements IControlledAccessArtifact {

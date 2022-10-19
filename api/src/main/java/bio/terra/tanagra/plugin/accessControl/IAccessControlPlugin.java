@@ -1,7 +1,7 @@
 package bio.terra.tanagra.plugin.accessControl;
 
 import bio.terra.tanagra.plugin.IPlugin;
-import bio.terra.tanagra.plugin.accessControl.example.User;
+import bio.terra.tanagra.plugin.identity.User;
 
 public interface IAccessControlPlugin extends IPlugin {
   public abstract boolean checkAccess(User user, IControlledAccessArtifact artifact);
