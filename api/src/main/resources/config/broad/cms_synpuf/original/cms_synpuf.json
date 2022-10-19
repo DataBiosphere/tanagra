@@ -31,5 +31,6 @@
     "ingredient_person_occurrence.json",
     "observation_person_occurrence.json",
     "procedure_person_occurrence.json"
-  ]
+  ],
+  "uiConfigFile": "top_level.json"
 }

@@ -134,4 +134,8 @@ public final class EntityGroupMapping {
   public Map<String, AuxiliaryDataMapping> getAuxiliaryDataMappings() {
     return Collections.unmodifiableMap(auxiliaryDataMappings);
   }
+
+  public RelationshipMapping getRelationshipMapping(Relationship relationship) {
+    return relationshipMappings.get(relationship.getName());
+  }
 }

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class EntityGroup {
   /** Enum for the types of entity groups supported by Tanagra. */
@@ -90,6 +91,16 @@ public abstract class EntityGroup {
 
   public Map<String, Relationship> getRelationships() {
     return Collections.unmodifiableMap(relationships);
+  }
+
+  public Optional<Relationship> getRelationship(Entity fromEntity, Entity toEntity) {
+    for (Relationship relationship : relationships.values()) {
+      if (relationship.getEntityA().equals(fromEntity)
+          && relationship.getEntityB().equals(toEntity)) {
+        return Optional.of(relationship);
+      }
+    }
+    return Optional.empty();
   }
 
   public Map<String, AuxiliaryData> getAuxiliaryData() {
