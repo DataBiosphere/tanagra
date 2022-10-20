@@ -1,12 +1,12 @@
-package bio.terra.tanagra.plugin.accessControl;
+package bio.terra.tanagra.plugin.accesscontrol;
 
 // TODO: Rename once naming is finalized
 public class SetSlashCohort implements IControlledAccessArtifact {
-  public final String ACCESS_CONTROL_TYPE = "set-slash-cohort";
+  private final String accessControlType = "set-slash-cohort";
 
   @Override
   public String getAccessControlType() {
-    return ACCESS_CONTROL_TYPE;
+    return accessControlType;
   }
 
   @Override

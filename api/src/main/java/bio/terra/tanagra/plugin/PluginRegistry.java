@@ -1,7 +1,7 @@
 package bio.terra.tanagra.plugin;
 
-import bio.terra.tanagra.plugin.accessControl.DefaultAccessControlPlugin;
-import bio.terra.tanagra.plugin.accessControl.IAccessControlPlugin;
+import bio.terra.tanagra.plugin.accesscontrol.DefaultAccessControlPlugin;
+import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.identity.DefaultIdentityPlugin;
 import bio.terra.tanagra.plugin.identity.IIdentityPlugin;
 import java.util.HashMap;
@@ -9,7 +9,11 @@ import java.util.HashMap;
 public class PluginRegistry {
   private static HashMap<String, IPlugin> availablePlugins;
 
-  public static void Discover() {
+  private PluginRegistry() {
+    // not called, required to pass checkstyle
+  }
+
+  public static void discover() {
     // TODO: Discover available plugins
 
     availablePlugins =

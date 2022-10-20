@@ -1,4 +1,4 @@
-package bio.terra.tanagra.plugin.accessControl;
+package bio.terra.tanagra.plugin.accesscontrol;
 
 import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.identity.User;
@@ -37,7 +37,7 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
             params,
             String.class);
 
-    return (results != null);
+    return results != null;
   }
 
   @Override
@@ -53,7 +53,7 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
             "INSERT (user_id, artifact_type, artifact_id) VALUES (:user_id, :artifact_type, :artifact_id) INTO artifact_acl ON CONFLICT DO NOTHING",
             params);
 
-    return (status != 0);
+    return status != 0;
   }
 
   @Override
@@ -69,6 +69,6 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
             "DELETE FROM artifact_acl WHERE user_id = :user_id AND artifact_type = :artifact_type AND artifact_id = :artifact_id",
             params);
 
-    return (status == 1);
+    return status == 1;
   }
 }
