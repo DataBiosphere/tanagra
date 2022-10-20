@@ -4,6 +4,8 @@ import ConceptSetEdit from "conceptSetEdit";
 import Edit from "edit";
 import { GroupOverview } from "groupOverview";
 import { PathError } from "hooks";
+import NewConceptSet from "newConceptSet";
+import NewCriteria from "newCriteria";
 import { Overview } from "overview";
 import { ErrorBoundary } from "react-error-boundary";
 import { Route, Routes, useNavigate } from "react-router-dom";
@@ -20,10 +22,12 @@ export function AppRouter() {
           <Route path="cohorts/:cohortId/:groupId" element={<Overview />}>
             <Route index element={<GroupOverview />} />
             <Route path="add" element={<AddCriteria />} />
+            <Route path="new/:configId" element={<NewCriteria />} />
             <Route path="edit/:criteriaId" element={<Edit />} />
           </Route>
+          <Route path="conceptSets/new/:configId" element={<NewConceptSet />} />
           <Route
-            path="conceptSets/:conceptSetId"
+            path="conceptSets/edit/:conceptSetId"
             element={<ConceptSetEdit />}
           />
         </Route>
@@ -48,8 +52,16 @@ export function conceptSetURL(conceptSetId: string) {
   return "conceptSets/" + conceptSetId;
 }
 
+export function newConceptSetURL(configId: string) {
+  return `conceptSets/new/${configId}`;
+}
+
 export function criteriaURL(criteriaId: string) {
   return `edit/${criteriaId}`;
+}
+
+export function newCriteriaURL(configId: string) {
+  return `new/${configId}`;
 }
 
 // TODO(tjennison): Make a prettier 404 page.

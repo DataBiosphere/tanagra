@@ -24,7 +24,6 @@ import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
-import { insertConceptSet } from "conceptSetsSlice";
 import { findEntity } from "data/configuration";
 import { Filter, makeArrayFilter } from "data/filter";
 import { useSource } from "data/source";
@@ -38,7 +37,7 @@ import React, {
   useState,
 } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { cohortURL, conceptSetURL } from "router";
+import { cohortURL, conceptSetURL, newConceptSetURL } from "router";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 
@@ -118,10 +117,7 @@ export function Datasets() {
   };
 
   const onInsertConceptSet = (criteria: tanagra.Criteria) => {
-    const {
-      payload: { id },
-    } = dispatch(insertConceptSet(underlay.name, criteria));
-    navigate(conceptSetURL(id));
+    navigate(newConceptSetURL(criteria.config.id));
   };
 
   const [menu, showInsertConceptSet] = useMenu({
