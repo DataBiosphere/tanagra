@@ -24,11 +24,11 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
   }
 
   @Override
-  public boolean checkAccess(User user, IControlledAccessArtifact artifact) {
+  public boolean checkAccess(User user, IArtifact artifact) {
     SqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("user_id", user.getIdentifier())
-            .addValue("artifact_type", artifact.getAccessControlType())
+            .addValue("artifact_type", artifact.getArtifactType())
             .addValue("artifact_id", artifact.getIdentifier());
 
     String results =
@@ -41,11 +41,11 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
   }
 
   @Override
-  public boolean grantAccess(User user, IControlledAccessArtifact artifact) {
+  public boolean grantAccess(User user, IArtifact artifact) {
     SqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("user_id", user.getIdentifier())
-            .addValue("artifact_type", artifact.getAccessControlType())
+            .addValue("artifact_type", artifact.getArtifactType())
             .addValue("artifact_id", artifact.getIdentifier());
 
     int status =
@@ -57,11 +57,11 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
   }
 
   @Override
-  public boolean revokeAccess(User user, IControlledAccessArtifact artifact) {
+  public boolean revokeAccess(User user, IArtifact artifact) {
     SqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("user_id", user.getIdentifier())
-            .addValue("artifact_type", artifact.getAccessControlType())
+            .addValue("artifact_type", artifact.getArtifactType())
             .addValue("artifact_id", artifact.getIdentifier());
 
     int status =

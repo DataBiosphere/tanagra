@@ -25,6 +25,7 @@ public class PluginRegistry {
         };
 
     availablePlugins.get(IAccessControlPlugin.class.getName()).init(new PluginConfig());
+    availablePlugins.get(IIdentityPlugin.class.getName()).init(new PluginConfig());
   }
 
   @SuppressWarnings("unchecked")

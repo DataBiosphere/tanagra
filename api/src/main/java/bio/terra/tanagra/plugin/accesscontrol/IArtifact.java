@@ -1,7 +1,7 @@
 package bio.terra.tanagra.plugin.accesscontrol;
 
-public interface IControlledAccessArtifact {
-  String getAccessControlType();
+public interface IArtifact {
+  String getArtifactType();
 
   String getIdentifier();
 }
