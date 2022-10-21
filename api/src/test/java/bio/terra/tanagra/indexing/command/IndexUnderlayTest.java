@@ -16,7 +16,6 @@ public class IndexUnderlayTest {
     FileUtils.createDirectoryIfNonexistent(FileIO.getOutputParentDir());
 
     Indexer indexer = Indexer.deserializeUnderlay("underlay/Omop.json");
-    indexer.scanSourceData();
 
     indexer.serializeUnderlay();
     indexer.writeSerializedUnderlay();

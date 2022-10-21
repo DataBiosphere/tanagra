@@ -59,6 +59,9 @@ starts a local server on `localhost:8080`.
 See [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) for the Swagger API page.
 
 ### Adding dependencies
+**UPDATE: Dependency locking has been temporarily disabled because it's causing problems for collaborators. 
+Planning to debug and add this back once we've debugged the problems.**
+
 We use [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html)
 for building with deterministic dependencies. When adding a new dependency, use
 ```
