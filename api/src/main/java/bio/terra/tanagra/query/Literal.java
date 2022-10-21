@@ -1,8 +1,7 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.serialization.UFLiteral;
 import com.google.common.base.Strings;
 import java.util.stream.Stream;

@@ -9,14 +9,14 @@ import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.ROLLUP_COUNT_COL
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.BigQueryUtils;
 import bio.terra.tanagra.indexing.job.beam.CountUtils;
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
-import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -74,9 +74,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
     String selectAllCriteriaIdsSql =
         entityGroup
             .getCriteriaEntity()
-            .getSourceDataMapping()
-            .queryAttributes(
-                Map.of(ID_COLUMN_NAME, entityGroup.getCriteriaEntity().getIdAttribute()))
+            .getMapping(Underlay.MappingType.SOURCE)
+            .queryIds(ID_COLUMN_NAME)
             .renderSQL();
     LOGGER.info("select all criteria ids SQL: {}", selectAllCriteriaIdsSql);
 
@@ -90,8 +89,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
       selectCriteriaAncestorDescendantIdPairsSql =
           entityGroup
               .getCriteriaEntity()
-              .getIndexDataMapping()
-              .getHierarchyMapping(hierarchyName)
+              .getHierarchy(hierarchyName)
+              .getMapping(Underlay.MappingType.INDEX)
               .queryAncestorDescendantPairs(ANCESTOR_COLUMN_NAME, DESCENDANT_COLUMN_NAME)
               .renderSQL();
     }
@@ -136,7 +135,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
   @VisibleForTesting
   public TablePointer getOutputTablePointer() {
     return ((CriteriaOccurrence) getEntityGroup())
-        .getCriteriaPrimaryRollupCountAuxiliaryDataMapping()
+        .getCriteriaPrimaryRollupAuxiliaryData()
+        .getMapping(Underlay.MappingType.INDEX)
         .getTablePointer();
   }
 

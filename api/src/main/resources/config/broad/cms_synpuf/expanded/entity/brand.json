@@ -30,7 +30,7 @@
     "tablePointer" : {
       "table" : "concept",
       "filter" : {
-        "type" : "ARRAY",
+        "type" : "BOOLEAN_AND_OR",
         "operator" : "AND",
         "subfilters" : [ {
           "type" : "BINARY",
@@ -58,7 +58,7 @@
           "operator" : "IS",
           "value" : { }
         }, {
-          "type" : "ARRAY",
+          "type" : "BOOLEAN_AND_OR",
           "operator" : "OR",
           "subfilters" : [ {
             "type" : "BINARY",

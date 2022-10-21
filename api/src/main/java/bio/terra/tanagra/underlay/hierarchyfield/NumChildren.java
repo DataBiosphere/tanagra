@@ -6,16 +6,11 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.underlay.FieldPointer;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import java.util.List;
 
 public class NumChildren extends HierarchyField {
-  public NumChildren(String hierarchyName) {
-    super(hierarchyName);
-  }
-
   @Override
   public Type getType() {
     return Type.NUM_CHILDREN;
@@ -34,11 +29,10 @@ public class NumChildren extends HierarchyField {
   @Override
   public FieldVariable buildFieldVariableFromEntityId(
       HierarchyMapping hierarchyMapping,
-      FieldPointer entityIdFieldPointer,
       TableVariable entityTableVar,
       List<TableVariable> tableVars) {
     return hierarchyMapping
-        .buildPathNumChildrenFieldPointerFromEntityId(entityIdFieldPointer, NUM_CHILDREN_FIELD_NAME)
+        .buildPathNumChildrenFieldPointerFromEntityId(NUM_CHILDREN_FIELD_NAME)
         .buildVariable(entityTableVar, tableVars, getHierarchyFieldAlias());
   }
 }

@@ -5,7 +5,7 @@ import bio.terra.tanagra.generated.model.ApiDataTypeV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2ValueUnion;
 import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
-import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.ValueDisplay;
 
 public final class ToApiConversionUtils {

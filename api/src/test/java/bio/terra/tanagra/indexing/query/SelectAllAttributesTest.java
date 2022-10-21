@@ -26,10 +26,10 @@ public class SelectAllAttributesTest {
   void person() throws IOException {
     Entity person = Entity.fromJSON("Person.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        person.getSourceDataMapping().queryAttributes(person.getAttributes()).renderSQL(),
+        person.getMapping(Underlay.MappingType.SOURCE).queryAllAttributes().renderSQL(),
         "query/person_source_selectAllAttributes.sql");
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        person.getIndexDataMapping().queryAttributes(person.getAttributes()).renderSQL(),
+        person.getMapping(Underlay.MappingType.INDEX).queryAllAttributes().renderSQL(),
         "query/person_index_selectAllAttributes.sql");
   }
 
@@ -37,10 +37,10 @@ public class SelectAllAttributesTest {
   void condition() throws IOException {
     Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        condition.getSourceDataMapping().queryAttributes(condition.getAttributes()).renderSQL(),
+        condition.getMapping(Underlay.MappingType.SOURCE).queryAllAttributes().renderSQL(),
         "query/condition_source_selectAllAttributes.sql");
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        condition.getIndexDataMapping().queryAttributes(condition.getAttributes()).renderSQL(),
+        condition.getMapping(Underlay.MappingType.INDEX).queryAllAttributes().renderSQL(),
         "query/condition_index_selectAllAttributes.sql");
   }
 }

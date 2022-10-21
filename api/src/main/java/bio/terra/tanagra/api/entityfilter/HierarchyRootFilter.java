@@ -3,39 +3,28 @@ package bio.terra.tanagra.api.entityfilter;
 import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityMapping;
-import bio.terra.tanagra.underlay.FieldPointer;
+import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
-import bio.terra.tanagra.underlay.HierarchyMapping;
-import bio.terra.tanagra.underlay.Literal;
-import bio.terra.tanagra.underlay.hierarchyfield.Path;
+import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 
 public class HierarchyRootFilter extends EntityFilter {
-  private final HierarchyMapping hierarchyMapping;
-  private final String hierarchyName;
+  private final Hierarchy hierarchy;
 
-  public HierarchyRootFilter(
-      Entity entity,
-      EntityMapping entityMapping,
-      HierarchyMapping hierarchyMapping,
-      String hierarchyName) {
-    super(entity, entityMapping);
-    this.hierarchyMapping = hierarchyMapping;
-    this.hierarchyName = hierarchyName;
+  public HierarchyRootFilter(Hierarchy hierarchy) {
+    this.hierarchy = hierarchy;
   }
 
   @Override
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
-    FieldPointer entityIdFieldPointer = getEntityMapping().getIdAttributeMapping().getValue();
-    HierarchyField pathField = new Path(hierarchyName);
+    HierarchyField pathField = hierarchy.getField(HierarchyField.Type.PATH);
     FieldVariable pathFieldVar =
         pathField.buildFieldVariableFromEntityId(
-            hierarchyMapping, entityIdFieldPointer, entityTableVar, tableVars);
+            hierarchy.getMapping(Underlay.MappingType.INDEX), entityTableVar, tableVars);
 
     // IS_ROOT translates to path=""
     return new BinaryFilterVariable(

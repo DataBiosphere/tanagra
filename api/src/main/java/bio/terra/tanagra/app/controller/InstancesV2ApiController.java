@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller;
 import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.api.EntityInstance;
 import bio.terra.tanagra.api.EntityInstanceCount;
+import bio.terra.tanagra.api.EntityQueryRequest;
 import bio.terra.tanagra.api.FromApiConversionService;
 import bio.terra.tanagra.api.QuerysService;
 import bio.terra.tanagra.api.UnderlaysService;
@@ -22,7 +23,9 @@ import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +57,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
       String underlayName, String entityName, ApiQueryV2 body) {
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     // TODO: Allow building queries against the source data mapping also.
-    EntityMapping entityMapping = entity.getIndexDataMapping();
+    EntityMapping entityMapping = entity.getMapping(Underlay.MappingType.INDEX);
 
     List<Attribute> selectAttributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
@@ -69,12 +72,12 @@ public class InstancesV2ApiController implements InstancesV2Api {
       body.getIncludeHierarchyFields().getHierarchies().stream()
           .forEach(
               hierarchyName -> {
+                Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
                 body.getIncludeHierarchyFields().getFields().stream()
                     .forEach(
                         hierarchyFieldName ->
                             selectHierarchyFields.add(
-                                FromApiConversionService.fromApiObject(
-                                    hierarchyName, hierarchyFieldName)));
+                                hierarchy.getField(HierarchyField.Type.valueOf(hierarchyName))));
               });
     }
 
@@ -97,13 +100,16 @@ public class InstancesV2ApiController implements InstancesV2Api {
 
     QueryRequest queryRequest =
         querysService.buildInstancesQuery(
-            entityMapping,
-            selectAttributes,
-            selectHierarchyFields,
-            entityFilter,
-            orderByAttributes,
-            orderByDirection,
-            body.getLimit());
+            new EntityQueryRequest.Builder()
+                .entity(entity)
+                .mappingType(Underlay.MappingType.INDEX)
+                .selectAttributes(selectAttributes)
+                .selectHierarchyFields(selectHierarchyFields)
+                .filter(entityFilter)
+                .orderByAttributes(orderByAttributes)
+                .orderByDirection(orderByDirection)
+                .limit(body.getLimit())
+                .build());
     List<EntityInstance> entityInstances =
         querysService.runInstancesQuery(
             entityMapping, selectAttributes, selectHierarchyFields, queryRequest);
@@ -134,11 +140,11 @@ public class InstancesV2ApiController implements InstancesV2Api {
       ValueDisplay valueDisplay = hierarchyFieldValue.getValue();
 
       ApiInstanceV2HierarchyFields hierarchyFieldSet =
-          hierarchyFieldSets.get(hierarchyField.getHierarchyName());
+          hierarchyFieldSets.get(hierarchyField.getHierarchy().getName());
       if (hierarchyFieldSet == null) {
         hierarchyFieldSet =
-            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchyName());
-        hierarchyFieldSets.put(hierarchyField.getHierarchyName(), hierarchyFieldSet);
+            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchy().getName());
+        hierarchyFieldSets.put(hierarchyField.getHierarchy().getName(), hierarchyFieldSet);
       }
       switch (hierarchyField.getType()) {
         case IS_MEMBER:
@@ -168,7 +174,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
       String underlayName, String entityName, ApiCountQueryV2 body) {
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     // TODO: Allow building queries against the source data mapping also.
-    EntityMapping entityMapping = entity.getIndexDataMapping();
+    EntityMapping entityMapping = entity.getMapping(Underlay.MappingType.INDEX);
 
     List<Attribute> attributes = new ArrayList<>();
     if (body.getAttributes() != null) {
@@ -186,7 +192,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
     }
 
     QueryRequest queryRequest =
-        querysService.buildInstanceCountsQuery(entityMapping, attributes, entityFilter);
+        querysService.buildInstanceCountsQuery(entity, entityMapping, attributes, entityFilter);
     List<EntityInstanceCount> entityInstanceCounts =
         querysService.runInstanceCountsQuery(entityMapping, attributes, queryRequest);
 

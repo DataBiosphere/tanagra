@@ -35,7 +35,7 @@ public class InvalidEntityMappingTest {
             () -> Entity.fromJSON("MappingNonExistentAttribute.json", dataPointers));
     LOGGER.info("expected exception", ex);
     Assertions.assertTrue(
-        ex.getMessage().startsWith("A mapping is defined for a non-existent attribute"));
+        ex.getMessage().startsWith("A source mapping is defined for a non-existent attribute"));
   }
 
   @Test

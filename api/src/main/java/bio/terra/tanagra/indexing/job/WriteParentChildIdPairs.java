@@ -2,8 +2,9 @@ package bio.terra.tanagra.indexing.job;
 
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.SQLExpression;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,8 @@ public class WriteParentChildIdPairs extends BigQueryIndexingJob {
   public void run(boolean isDryRun) {
     SQLExpression selectChildParentIdPairs =
         getEntity()
-            .getSourceDataMapping()
-            .getHierarchyMapping(hierarchyName)
+            .getHierarchy(hierarchyName)
+            .getMapping(Underlay.MappingType.SOURCE)
             .queryChildParentPairs("child", "parent");
     String sql = selectChildParentIdPairs.renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", sql);
@@ -40,8 +41,8 @@ public class WriteParentChildIdPairs extends BigQueryIndexingJob {
   @VisibleForTesting
   public TablePointer getOutputTablePointer() {
     return getEntity()
-        .getIndexDataMapping()
-        .getHierarchyMapping(hierarchyName)
+        .getHierarchy(hierarchyName)
+        .getMapping(Underlay.MappingType.INDEX)
         .getChildParent()
         .getTablePointer();
   }

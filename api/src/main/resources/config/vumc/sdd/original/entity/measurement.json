@@ -13,10 +13,10 @@
     "tablePointer": {
       "table": "concept",
       "filter": {
-        "type": "ARRAY",
+        "type": "BOOLEAN_AND_OR",
         "operator": "OR",
         "subfilters": [
-          { "type": "ARRAY",
+          { "type": "BOOLEAN_AND_OR",
             "operator": "AND",
             "subfilters": [
               { "type": "BINARY",
@@ -27,14 +27,14 @@
                 "field": { "column": "vocabulary_id" },
                 "operator": "EQUALS",
                 "value": { "stringVal": "SNOMED" } } ] },
-          { "type": "ARRAY",
+          { "type": "BOOLEAN_AND_OR",
             "operator": "AND",
             "subfilters": [
               { "type": "BINARY",
                 "field": { "column": "vocabulary_id" },
                 "operator": "EQUALS",
                 "value": { "stringVal": "LOINC" } },
-              { "type": "ARRAY",
+              { "type": "BOOLEAN_AND_OR",
                 "operator": "OR",
                 "subfilters": [
                   { "type": "BINARY",
@@ -69,10 +69,10 @@
           "tablePointer": {
             "table": "concept",
             "filter": {
-              "type": "ARRAY",
+              "type": "BOOLEAN_AND_OR",
               "operator": "OR",
               "subfilters": [
-                { "type": "ARRAY",
+                { "type": "BOOLEAN_AND_OR",
                   "operator": "AND",
                   "subfilters": [
                     { "type": "BINARY",
@@ -83,7 +83,7 @@
                       "field": { "column": "vocabulary_id" },
                       "operator": "EQUALS",
                       "value": { "stringVal": "SNOMED" } } ] },
-                { "type": "ARRAY",
+                { "type": "BOOLEAN_AND_OR",
                   "operator": "AND",
                   "subfilters": [
                     { "type": "BINARY",

@@ -15,10 +15,10 @@ public abstract class HierarchyField {
     IS_ROOT
   }
 
-  private final String hierarchyName;
+  private Hierarchy hierarchy;
 
-  protected HierarchyField(String hierarchyName) {
-    this.hierarchyName = hierarchyName;
+  public void initialize(Hierarchy hierarchy) {
+    this.hierarchy = hierarchy;
   }
 
   public abstract Type getType();
@@ -29,15 +29,14 @@ public abstract class HierarchyField {
 
   public abstract FieldVariable buildFieldVariableFromEntityId(
       HierarchyMapping hierarchyMapping,
-      FieldPointer entityIdFieldPointer,
       TableVariable entityTableVar,
       List<TableVariable> tableVars);
 
   protected String getColumnNamePrefix() {
-    return TANAGRA_FIELD_PREFIX + hierarchyName + "_";
+    return TANAGRA_FIELD_PREFIX + hierarchy.getName() + "_";
   }
 
-  public String getHierarchyName() {
-    return hierarchyName;
+  public Hierarchy getHierarchy() {
+    return hierarchy;
   }
 }

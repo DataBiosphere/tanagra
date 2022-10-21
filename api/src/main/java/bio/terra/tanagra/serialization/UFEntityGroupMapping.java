@@ -1,6 +1,7 @@
 package bio.terra.tanagra.serialization;
 
 import bio.terra.tanagra.underlay.EntityGroupMapping;
+import bio.terra.tanagra.underlay.Underlay;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -23,19 +24,22 @@ public class UFEntityGroupMapping {
     this.dataPointer = entityGroupMapping.getDataPointer().getName();
 
     Map<String, UFRelationshipMapping> relationshipMappings = new HashMap<>();
-    entityGroupMapping.getRelationshipMappings().entrySet().stream()
+    entityGroupMapping.getEntityGroup().getRelationships().values().stream()
         .forEach(
-            rMpg -> {
-              relationshipMappings.put(rMpg.getKey(), new UFRelationshipMapping(rMpg.getValue()));
+            relationship -> {
+              relationshipMappings.put(
+                  relationship.getName(),
+                  new UFRelationshipMapping(relationship.getMapping(Underlay.MappingType.SOURCE)));
             });
     this.relationshipMappings = relationshipMappings;
 
     Map<String, UFAuxiliaryDataMapping> auxiliaryDataMappings = new HashMap<>();
-    entityGroupMapping.getAuxiliaryDataMappings().entrySet().stream()
+    entityGroupMapping.getEntityGroup().getAuxiliaryData().values().stream()
         .forEach(
-            adMpg -> {
+            auxiliaryData -> {
               auxiliaryDataMappings.put(
-                  adMpg.getKey(), new UFAuxiliaryDataMapping(adMpg.getValue()));
+                  auxiliaryData.getName(),
+                  new UFAuxiliaryDataMapping(auxiliaryData.getMapping(Underlay.MappingType.INDEX)));
             });
     this.auxiliaryDataMappings = auxiliaryDataMappings;
   }

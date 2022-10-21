@@ -2,11 +2,11 @@ package bio.terra.tanagra.api;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.HierarchyField;
-import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +43,10 @@ public final class EntityInstance {
         case KEY_AND_DISPLAY:
           String display =
               rowResult
-                  .get(AttributeMapping.getDisplayMappingAlias(selectedAttribute.getName()))
+                  .get(
+                      selectedAttribute
+                          .getMapping(Underlay.MappingType.INDEX)
+                          .getDisplayMappingAlias())
                   .getString()
                   .get();
           attributeValues.put(selectedAttribute, new ValueDisplay(value, display));
@@ -59,7 +62,7 @@ public final class EntityInstance {
       if (cellValue == null) {
         throw new SystemException(
             "Hierarchy field column not found: "
-                + selectedHierarchyField.getHierarchyName()
+                + selectedHierarchyField.getHierarchy().getName()
                 + ", "
                 + selectedHierarchyField.getType());
       }
