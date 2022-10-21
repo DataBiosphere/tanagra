@@ -3,7 +3,6 @@ package bio.terra.tanagra.indexing.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
@@ -57,8 +56,6 @@ public class IndexEntityGroupTest {
     assertTrue(computeRollupCounts.isPresent(), "ComputeRollupCounts indexing job generated");
     assertEquals(
         "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_person_occurrence_criteriaPrimaryRollupCount",
-        ((BigQueryIndexingJob) computeRollupCounts.get())
-            .getOutputTablePointer()
-            .getPathForIndexing());
+        ((ComputeRollupCounts) computeRollupCounts.get()).getTempTable().getPathForIndexing());
   }
 }

@@ -4,7 +4,7 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "STRING"
+    "dataType" : "DATE"
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",

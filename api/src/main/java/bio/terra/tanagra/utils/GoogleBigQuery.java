@@ -12,8 +12,10 @@ import com.google.cloud.bigquery.JobInfo;
 import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.Schema;
+import com.google.cloud.bigquery.StandardTableDefinition;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.TableInfo;
 import com.google.cloud.bigquery.TableResult;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -114,21 +116,56 @@ public final class GoogleBigQuery {
   }
 
   /**
-   * Create a new table from the results of a query.
+   * Create a new empty table from a schema.
    *
    * @param destinationTable the destination project+dataset+table id
+   * @param schema the table schema
+   * @param isDryRun true if this is a dry run and no table should actually be created
+   * @return the result of the BQ query job
+   */
+  public Table createTableFromSchema(TableId destinationTable, Schema schema, boolean isDryRun) {
+    TableInfo tableInfo = TableInfo.of(destinationTable, StandardTableDefinition.of(schema));
+    LOGGER.info("schema: {}", schema);
+    if (isDryRun) {
+      // TODO: Can we validate the schema here or something?
+      return null;
+    } else {
+      return callWithRetries(
+          () -> bigQuery.create(tableInfo), "Retryable error creating table from schema");
+    }
+  }
+
+  /**
+   * Create a new table from the results of a query.
+   *
    * @param query the SQL string
+   * @param destinationTable the destination project+dataset+table id
    * @param isDryRun true if this is a dry run and no table should actually be created
    * @return the result of the BQ query job
    */
   public TableResult createTableFromQuery(
       TableId destinationTable, String query, boolean isDryRun) {
-    QueryJobConfiguration queryConfig =
+    return runUpdateQuery(
         QueryJobConfiguration.newBuilder(query)
             .setDestinationTable(destinationTable)
             .setDryRun(isDryRun)
-            .build();
+            .build(),
+        isDryRun);
+  }
 
+  /**
+   * Run an insert or update query.
+   *
+   * @param query the SQL string
+   * @param isDryRun true if this is a dry run and no table should actually be created
+   * @return the result of the BQ query job
+   */
+  public TableResult runInsertUpdateQuery(String query, boolean isDryRun) {
+    return runUpdateQuery(
+        QueryJobConfiguration.newBuilder(query).setDryRun(isDryRun).build(), isDryRun);
+  }
+
+  private TableResult runUpdateQuery(QueryJobConfiguration queryConfig, boolean isDryRun) {
     if (isDryRun) {
       Job job = bigQuery.create(JobInfo.of(queryConfig));
       JobStatistics.QueryStatistics statistics = job.getStatistics();
@@ -137,8 +174,7 @@ public final class GoogleBigQuery {
           statistics.getTotalBytesProcessed());
       return null;
     } else {
-      return callWithRetries(
-          () -> bigQuery.query(queryConfig), "Retryable error creating table from query");
+      return callWithRetries(() -> bigQuery.query(queryConfig), "Retryable error running query");
     }
   }
 

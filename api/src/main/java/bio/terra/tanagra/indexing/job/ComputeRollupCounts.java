@@ -98,7 +98,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
         "select all criteria ancestor - descendant id pairs SQL: {}",
         selectCriteriaAncestorDescendantIdPairsSql);
 
-    Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(getOutputDataPointer()));
+    Pipeline pipeline =
+        Pipeline.create(buildDataflowPipelineOptions(getBQDataPointer(getTempTable())));
 
     // read in the criteria ids and the criteria-primary id pairs from BQ
     PCollection<Long> criteriaIdsPC =
@@ -124,7 +125,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
         CountUtils.countDistinct(criteriaIdsPC, occurrenceCriteriaIdPairsPC);
 
     // write the (id, count) rows to BQ
-    writeCountsToBQ(nodeCountKVsPC, getOutputTablePointer());
+    writeCountsToBQ(nodeCountKVsPC, getTempTable());
 
     if (!isDryRun) {
       pipeline.run().waitUntilFinish();
@@ -132,8 +133,21 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
   }
 
   @Override
+  public void clean(boolean isDryRun) {
+    if (checkTableExists(getTempTable())) {
+      deleteTable(getTempTable(), isDryRun);
+    }
+  }
+
+  @Override
+  public JobStatus checkStatus() {
+    // Check if the table already exists. We don't expect this to be a long-running operation, so
+    // there is no IN_PROGRESS state for this job.
+    return checkTableExists(getTempTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
+  }
+
   @VisibleForTesting
-  public TablePointer getOutputTablePointer() {
+  public TablePointer getTempTable() {
     return ((CriteriaOccurrence) getEntityGroup())
         .getCriteriaPrimaryRollupAuxiliaryData()
         .getMapping(Underlay.MappingType.INDEX)

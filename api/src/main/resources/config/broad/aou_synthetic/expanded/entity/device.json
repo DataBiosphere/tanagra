@@ -177,10 +177,7 @@
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "id",
-        "foreignTable" : "device_textsearch",
-        "foreignKey" : "id",
-        "foreignColumn" : "text"
+        "column" : "text"
       }
     },
     "hierarchyMappings" : { }

@@ -51,7 +51,7 @@ public class FieldVariable implements SQLExpression {
     }
 
     if (fieldPointer.hasSqlFunctionWrapper() && useFunctionWrapper) {
-      LOGGER.info("Found sql function wrapper: " + fieldPointer.getSqlFunctionWrapper());
+      LOGGER.debug("Found sql function wrapper: " + fieldPointer.getSqlFunctionWrapper());
       final String substitutionVar = "${fieldSql}";
       if (fieldPointer.getSqlFunctionWrapper().contains(substitutionVar)) {
         template = fieldPointer.getSqlFunctionWrapper();
@@ -82,6 +82,17 @@ public class FieldVariable implements SQLExpression {
 
   public String getAlias() {
     return alias == null ? "" : alias;
+  }
+
+  public String getAliasOrColumnName() {
+    if (alias != null) {
+      return alias;
+    }
+    if (!fieldPointer.isForeignKey()) {
+      return fieldPointer.getColumnName();
+    } else {
+      return fieldPointer.getForeignColumnName();
+    }
   }
 
   public FieldPointer getFieldPointer() {

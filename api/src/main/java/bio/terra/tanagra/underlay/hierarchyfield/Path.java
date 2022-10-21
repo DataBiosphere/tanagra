@@ -1,7 +1,5 @@
 package bio.terra.tanagra.underlay.hierarchyfield;
 
-import static bio.terra.tanagra.underlay.HierarchyMapping.PATH_FIELD_NAME;
-
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldVariable;
@@ -17,13 +15,8 @@ public class Path extends HierarchyField {
   }
 
   @Override
-  public String getHierarchyFieldAlias() {
-    return getColumnNamePrefix() + PATH_FIELD_NAME;
-  }
-
-  @Override
   public ColumnSchema buildColumnSchema() {
-    return new ColumnSchema(getHierarchyFieldAlias(), CellValue.SQLDataType.STRING);
+    return new ColumnSchema(getFieldAlias(), CellValue.SQLDataType.STRING);
   }
 
   @Override
@@ -32,7 +25,7 @@ public class Path extends HierarchyField {
       TableVariable entityTableVar,
       List<TableVariable> tableVars) {
     return hierarchyMapping
-        .buildPathNumChildrenFieldPointerFromEntityId(PATH_FIELD_NAME)
-        .buildVariable(entityTableVar, tableVars, getHierarchyFieldAlias());
+        .getPathField()
+        .buildVariable(entityTableVar, tableVars, getFieldAlias());
   }
 }

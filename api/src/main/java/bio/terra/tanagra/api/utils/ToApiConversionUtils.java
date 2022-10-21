@@ -28,6 +28,9 @@ public final class ToApiConversionUtils {
             new ApiLiteralV2ValueUnion().stringVal(literal.getStringVal()));
       case BOOLEAN:
         return apiLiteral.valueUnion(new ApiLiteralV2ValueUnion().boolVal(literal.getBooleanVal()));
+      case DATE:
+        return apiLiteral.valueUnion(
+            new ApiLiteralV2ValueUnion().dateVal(literal.getDateValAsString()));
       default:
         throw new SystemException("Unknown literal data type: " + literal.getDataType());
     }

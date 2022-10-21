@@ -10,11 +10,6 @@
       "valueDisplays" : [ {
         "value" : { },
         "display" : "Source"
-      }, {
-        "value" : {
-          "stringVal" : "S"
-        },
-        "display" : "Standard"
       } ]
     }
   }, {
@@ -162,10 +157,7 @@
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "id",
-        "foreignTable" : "brand_textsearch",
-        "foreignKey" : "id",
-        "foreignColumn" : "text"
+        "column" : "text"
       }
     },
     "hierarchyMappings" : { }

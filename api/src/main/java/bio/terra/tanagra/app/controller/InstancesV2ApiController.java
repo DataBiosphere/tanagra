@@ -77,7 +77,8 @@ public class InstancesV2ApiController implements InstancesV2Api {
                     .forEach(
                         hierarchyFieldName ->
                             selectHierarchyFields.add(
-                                hierarchy.getField(HierarchyField.Type.valueOf(hierarchyName))));
+                                hierarchy.getField(
+                                    HierarchyField.Type.valueOf(hierarchyFieldName.name()))));
               });
     }
 

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query;
 
+import bio.terra.tanagra.exception.SystemException;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,16 +42,29 @@ public class Query implements SQLExpression {
             .map(fv -> fv.renderSQL())
             .collect(Collectors.joining(", "));
 
-    // render each TableVariable and join them into a single string
-    String fromSQL = tables.stream().map(tv -> tv.renderSQL()).collect(Collectors.joining(" "));
-
-    String template = "SELECT ${selectSQL} FROM ${fromSQL}";
+    // render the primary TableVariable
+    String template = "SELECT ${selectSQL} FROM ${primaryTableFromSQL}";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
             .put("selectSQL", selectSQL)
-            .put("fromSQL", fromSQL)
+            .put("primaryTableFromSQL", getPrimaryTable().renderSQL())
             .build();
     String sql = StringSubstitutor.replace(template, params);
+
+    // render the join TableVariables
+    if (tables.size() > 1) {
+      String joinTablesFromSQL =
+          tables.stream()
+              .map(tv -> tv.isPrimary() ? "" : tv.renderSQL())
+              .collect(Collectors.joining(" "));
+      template = "${sql} ${joinTablesFromSQL}";
+      params =
+          ImmutableMap.<String, String>builder()
+              .put("sql", sql)
+              .put("joinTablesFromSQL", joinTablesFromSQL)
+              .build();
+      sql = StringSubstitutor.replace(template, params);
+    }
 
     // render the FilterVariable
     if (where != null) {
@@ -111,6 +125,16 @@ public class Query implements SQLExpression {
 
   public List<FieldVariable> getSelect() {
     return Collections.unmodifiableList(select);
+  }
+
+  public TableVariable getPrimaryTable() {
+    List<TableVariable> primaryTable =
+        tables.stream().filter(table -> table.isPrimary()).collect(Collectors.toList());
+    if (primaryTable.size() != 1) {
+      throw new SystemException(
+          "Query can only have one primary table, but found " + primaryTable.size());
+    }
+    return primaryTable.get(0);
   }
 
   public static class Builder {

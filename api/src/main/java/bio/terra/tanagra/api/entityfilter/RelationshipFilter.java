@@ -64,19 +64,16 @@ public class RelationshipFilter extends EntityFilter {
     RelationshipMapping indexMapping = relationship.getMapping(Underlay.MappingType.INDEX);
     if (indexMapping
         .getTablePointer()
-        .getTableName()
         .equals(
-            relationship
-                .getEntityA()
-                .getMapping(Underlay.MappingType.INDEX)
-                .getTablePointer()
-                .getTableName())) {
-      // datasets.
+            relationship.getEntityA().getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
       LOGGER.info("Relationship table is the same as the entity table");
       // build a filter variable for the entity table on the sub query
       //  WHERE relatedEntityId IN (SELECT relatedEntityId FROM relatedEntityTable WHERE subFilter)
       FieldVariable toEntityIdFieldVar =
-          indexMapping.getToEntityId().buildVariable(entityTableVar, tableVars);
+          relationship
+              .getMapping(Underlay.MappingType.SOURCE)
+              .getToEntityId()
+              .buildVariable(entityTableVar, tableVars);
       return new SubQueryFilterVariable(
           toEntityIdFieldVar, SubQueryFilterVariable.Operator.IN, relatedEntityQuery);
     } else {

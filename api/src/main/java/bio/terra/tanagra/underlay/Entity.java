@@ -5,6 +5,7 @@ import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
+import bio.terra.tanagra.indexing.job.CreateEntityTable;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
 import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
 import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
@@ -105,8 +106,9 @@ public final class Entity {
     Map<String, Hierarchy> hierarchies =
         deserializeHierarchies(
             serialized,
-            sourceDataMapping.getTablePointer().getDataPointer(),
-            indexDataMapping.getTablePointer().getDataPointer());
+            sourceDataMapping,
+            indexDataMapping,
+            attributes.get(serialized.getIdAttribute()).getMapping(Underlay.MappingType.INDEX));
 
     Entity entity =
         new Entity(
@@ -175,10 +177,7 @@ public final class Entity {
             Underlay.MappingType.SOURCE);
     TextSearchMapping indexTextSearchMapping =
         serialized.getIndexDataMapping().getTextSearchMapping() == null
-            ? TextSearchMapping.defaultIndexMapping(
-                serialized.getName(),
-                indexMapping.getTablePointer(),
-                attributes.get(serialized.getIdAttribute()))
+            ? TextSearchMapping.defaultIndexMapping(indexMapping.getTablePointer())
             : TextSearchMapping.fromSerialized(
                 serialized.getIndexDataMapping().getTextSearchMapping(),
                 indexMapping.getTablePointer(),
@@ -188,7 +187,10 @@ public final class Entity {
   }
 
   private static Map<String, Hierarchy> deserializeHierarchies(
-      UFEntity serialized, DataPointer sourceDataPointer, DataPointer indexDataPointer) {
+      UFEntity serialized,
+      EntityMapping sourceEntityMapping,
+      EntityMapping indexEntityMapping,
+      AttributeMapping idAttribute) {
     Map<String, UFHierarchyMapping> sourceHierarchyMappingsSerialized =
         serialized.getSourceDataMapping().getHierarchyMappings();
     Map<String, UFHierarchyMapping> indexHierarchyMappingsSerialized =
@@ -201,18 +203,18 @@ public final class Entity {
                 HierarchyMapping sourceMapping =
                     HierarchyMapping.fromSerialized(
                         sourceHierarchyMappingSerialized.getValue(),
-                        sourceDataPointer,
+                        sourceEntityMapping.getTablePointer().getDataPointer(),
                         Underlay.MappingType.SOURCE);
                 HierarchyMapping indexMapping =
                     indexHierarchyMappingsSerialized == null
                         ? HierarchyMapping.defaultIndexMapping(
                             serialized.getName(),
                             sourceHierarchyMappingSerialized.getKey(),
-                            indexDataPointer)
+                            idAttribute.getValue())
                         : HierarchyMapping.fromSerialized(
                             indexHierarchyMappingsSerialized.get(
                                 sourceHierarchyMappingSerialized.getKey()),
-                            indexDataPointer,
+                            indexEntityMapping.getTablePointer().getDataPointer(),
                             Underlay.MappingType.INDEX);
                 hierarchies.put(
                     sourceHierarchyMappingSerialized.getKey(),
@@ -242,6 +244,7 @@ public final class Entity {
 
   public List<IndexingJob> getIndexingJobs() {
     List<IndexingJob> jobs = new ArrayList<>();
+    jobs.add(new CreateEntityTable(this));
     jobs.add(new DenormalizeEntityInstances(this));
     if (textSearch.isEnabled()) {
       jobs.add(new BuildTextSearchStrings(this));

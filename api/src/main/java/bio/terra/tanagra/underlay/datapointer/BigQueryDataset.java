@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay.datapointer;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Literal;
@@ -142,14 +143,31 @@ public final class BigQueryDataset extends DataPointer {
     }
 
     LegacySQLTypeName fieldType = tableSchema.getFields().get(columnName).getType();
-    if (LegacySQLTypeName.STRING.equals(fieldType) || LegacySQLTypeName.DATE.equals(fieldType)) {
+    if (LegacySQLTypeName.STRING.equals(fieldType)) {
       return Literal.DataType.STRING;
     } else if (LegacySQLTypeName.INTEGER.equals(fieldType)) {
       return Literal.DataType.INT64;
     } else if (LegacySQLTypeName.BOOLEAN.equals(fieldType)) {
       return Literal.DataType.BOOLEAN;
+    } else if (LegacySQLTypeName.DATE.equals(fieldType)) {
+      return Literal.DataType.DATE;
     } else {
       throw new SystemException("BigQuery SQL data type not supported: " + fieldType);
+    }
+  }
+
+  public static LegacySQLTypeName fromSqlDataType(CellValue.SQLDataType sqlDataType) {
+    switch (sqlDataType) {
+      case STRING:
+        return LegacySQLTypeName.STRING;
+      case INT64:
+        return LegacySQLTypeName.INTEGER;
+      case BOOLEAN:
+        return LegacySQLTypeName.BOOLEAN;
+      case DATE:
+        return LegacySQLTypeName.DATE;
+      default:
+        throw new SystemException("SQL data type not supported for BigQuery: " + sqlDataType);
     }
   }
 

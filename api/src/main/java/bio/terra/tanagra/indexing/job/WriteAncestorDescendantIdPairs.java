@@ -14,7 +14,6 @@ import bio.terra.tanagra.underlay.Underlay;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -75,7 +74,8 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
     String sql = selectChildParentIdPairs.renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", sql);
 
-    Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(getOutputDataPointer()));
+    Pipeline pipeline =
+        Pipeline.create(buildDataflowPipelineOptions(getBQDataPointer(getAuxiliaryTable())));
     PCollection<KV<Long, Long>> relationships =
         pipeline
             .apply(
@@ -95,7 +95,7 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
         .apply(ParDo.of(new KVToTableRow()))
         .apply(
             BigQueryIO.writeTableRows()
-                .to(getOutputTablePointer().getPathForIndexing())
+                .to(getAuxiliaryTable().getPathForIndexing())
                 .withSchema(ANCESTOR_DESCENDANT_TABLE_SCHEMA)
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
@@ -107,8 +107,19 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
   }
 
   @Override
-  @VisibleForTesting
-  public TablePointer getOutputTablePointer() {
+  public void clean(boolean isDryRun) {
+    if (checkTableExists(getAuxiliaryTable())) {
+      deleteTable(getAuxiliaryTable(), isDryRun);
+    }
+  }
+
+  @Override
+  public JobStatus checkStatus() {
+    // Check if the table already exists.
+    return checkTableExists(getAuxiliaryTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
+  }
+
+  public TablePointer getAuxiliaryTable() {
     return getEntity()
         .getHierarchy(hierarchyName)
         .getMapping(Underlay.MappingType.INDEX)

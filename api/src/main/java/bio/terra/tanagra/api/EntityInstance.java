@@ -58,7 +58,7 @@ public final class EntityInstance {
 
     Map<HierarchyField, ValueDisplay> hierarchyFieldValues = new HashMap<>();
     for (HierarchyField selectedHierarchyField : selectedHierarchyFields) {
-      CellValue cellValue = rowResult.get(selectedHierarchyField.getHierarchyFieldAlias());
+      CellValue cellValue = rowResult.get(selectedHierarchyField.getFieldAlias());
       if (cellValue == null) {
         throw new SystemException(
             "Hierarchy field column not found: "

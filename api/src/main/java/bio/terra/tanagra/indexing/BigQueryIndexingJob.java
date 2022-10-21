@@ -2,25 +2,42 @@ package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.UpdateFromSelect;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.bigquery.Table;
-import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.BigQueryException;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.MoreObjects;
+import org.apache.http.HttpStatus;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -65,66 +82,140 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
   }
 
   @VisibleForTesting
-  public abstract TablePointer getOutputTablePointer();
+  public TablePointer getEntityIndexTable() {
+    return getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer();
+  }
 
-  protected BigQueryDataset getOutputDataPointer() {
-    DataPointer outputDataPointer = getOutputTablePointer().getDataPointer();
+  protected BigQueryDataset getBQDataPointer(TablePointer tablePointer) {
+    DataPointer outputDataPointer = tablePointer.getDataPointer();
     if (!(outputDataPointer instanceof BigQueryDataset)) {
       throw new InvalidConfigException("Entity indexing job only supports BigQuery");
     }
     return (BigQueryDataset) outputDataPointer;
   }
 
-  @Override
-  public JobStatus checkStatus() {
-    // Check if the table already exists. We don't expect this to be a long-running operation, so
-    // there is no IN_PROGRESS state for this job.
-    TablePointer outputTable = getOutputTablePointer();
-    BigQueryDataset outputBQDataset = getOutputDataPointer();
-    LOGGER.info(
-        "output BQ table: project={}, dataset={}, table={}",
-        outputBQDataset.getProjectId(),
-        outputBQDataset.getDatasetId(),
-        outputTable.getTableName());
-    GoogleBigQuery googleBigQuery = outputBQDataset.getBigQueryService();
-    Optional<Table> tableOpt =
-        googleBigQuery.getTable(
-            outputBQDataset.getProjectId(),
-            outputBQDataset.getDatasetId(),
-            outputTable.getTableName());
-    return tableOpt.isPresent() ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
-  }
-
-  @Override
-  public void clean(boolean isDryRun) {
-    // Delete the output table.
-    BigQueryDataset outputBQDataset = getOutputDataPointer();
+  protected void deleteTable(TablePointer tablePointer, boolean isDryRun) {
+    BigQueryDataset outputBQDataset = getBQDataPointer(tablePointer);
     if (isDryRun) {
-      LOGGER.info(
-          "Delete table: {}, {}, {}",
-          outputBQDataset.getProjectId(),
-          outputBQDataset.getDatasetId(),
-          getOutputTablePointer().getTableName());
+      LOGGER.info("Delete table: {}", tablePointer.getPathForIndexing());
     } else {
-      getOutputDataPointer()
+      getBQDataPointer(tablePointer)
           .getBigQueryService()
           .deleteTable(
               outputBQDataset.getProjectId(),
               outputBQDataset.getDatasetId(),
-              getOutputTablePointer().getTableName());
+              tablePointer.getTableName());
     }
   }
 
-  protected void createTableFromSql(TablePointer outputTable, String sql, boolean isDryRun) {
-    BigQueryDataset outputBQDataset = getOutputDataPointer();
-    TableId destinationTable =
-        TableId.of(
+  // -----Helper methods for checking whether a job has run already.-------
+  protected boolean checkTableExists(TablePointer tablePointer) {
+    BigQueryDataset outputBQDataset = getBQDataPointer(tablePointer);
+    LOGGER.info(
+        "output BQ table: project={}, dataset={}, table={}",
+        outputBQDataset.getProjectId(),
+        outputBQDataset.getDatasetId(),
+        tablePointer.getTableName());
+    GoogleBigQuery googleBigQuery = outputBQDataset.getBigQueryService();
+    return googleBigQuery
+        .getTable(
             outputBQDataset.getProjectId(),
             outputBQDataset.getDatasetId(),
-            outputTable.getTableName());
-    outputBQDataset.getBigQueryService().createTableFromQuery(destinationTable, sql, isDryRun);
+            tablePointer.getTableName())
+        .isPresent();
   }
 
+  protected boolean checkOneNotNullRowExists(FieldPointer field, ColumnSchema columnSchema) {
+    // Check if the table has at least 1 row with a non-null field value.
+    TableVariable outputTableVar = TableVariable.forPrimary(field.getTablePointer());
+    List<TableVariable> tableVars = Lists.newArrayList(outputTableVar);
+
+    FieldVariable fieldVar = field.buildVariable(outputTableVar, tableVars);
+    FilterVariable fieldNotNull =
+        new BinaryFilterVariable(
+            fieldVar, BinaryFilterVariable.BinaryOperator.IS_NOT, new Literal((String) null));
+    Query query =
+        new Query.Builder()
+            .select(List.of(fieldVar))
+            .tables(tableVars)
+            .where(fieldNotNull)
+            .limit(1)
+            .build();
+
+    ColumnHeaderSchema columnHeaderSchema = new ColumnHeaderSchema(List.of(columnSchema));
+    QueryRequest queryRequest = new QueryRequest(query.renderSQL(), columnHeaderSchema);
+    QueryResult queryResult =
+        getBQDataPointer(field.getTablePointer()).getQueryExecutor().execute(queryRequest);
+
+    return queryResult.getRowResults().iterator().hasNext();
+  }
+
+  // -----Helper methods for running insert/update jobs in BigQuery directly (i.e. not via
+  // Dataflow).-------
+  protected void updateEntityTableFromSelect(
+      Query selectQuery,
+      Map<String, FieldVariable> updateFieldMap,
+      String selectIdFieldName,
+      boolean isDryRun) {
+    // Build a TableVariable for the (output) entity table that we want to update.
+    List<TableVariable> outputTables = new ArrayList<>();
+    TableVariable entityTable =
+        TableVariable.forPrimary(
+            getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer());
+    outputTables.add(entityTable);
+
+    // Build a map of (output) update FieldVariable -> (input) selected FieldVariable.
+    Map<FieldVariable, FieldVariable> updateFields = new HashMap<>();
+    for (Map.Entry<String, FieldVariable> updateToSelect : updateFieldMap.entrySet()) {
+      String updateFieldName = updateToSelect.getKey();
+      FieldVariable selectField = updateToSelect.getValue();
+      FieldVariable updateField =
+          new FieldPointer.Builder()
+              .tablePointer(entityTable.getTablePointer())
+              .columnName(updateFieldName)
+              .build()
+              .buildVariable(entityTable, outputTables);
+      updateFields.put(updateField, selectField);
+    }
+
+    // Build a FieldVariable for the id field in the (output) entity table.
+    FieldVariable updateIdField =
+        getEntity()
+            .getIdAttribute()
+            .getMapping(Underlay.MappingType.INDEX)
+            .getValue()
+            .buildVariable(entityTable, outputTables);
+
+    // Get the FieldVariable for the id field in the input table.
+    FieldVariable selectIdField =
+        selectQuery.getSelect().stream()
+            .filter(fv -> fv.getAliasOrColumnName().equals(selectIdFieldName))
+            .findFirst()
+            .get();
+
+    UpdateFromSelect updateQuery =
+        new UpdateFromSelect(entityTable, updateFields, selectQuery, updateIdField, selectIdField);
+    LOGGER.info("Generated SQL: {}", updateQuery.renderSQL());
+    try {
+      insertUpdateTableFromSelect(updateQuery.renderSQL(), isDryRun);
+    } catch (BigQueryException bqEx) {
+      if (bqEx.getCode() == HttpStatus.SC_NOT_FOUND) {
+        LOGGER.info(
+            "Query dry run failed because table has not been created yet: {}",
+            bqEx.getError().getMessage());
+      } else {
+        throw bqEx;
+      }
+    }
+  }
+
+  protected void insertUpdateTableFromSelect(String sql, boolean isDryRun) {
+    getBQDataPointer(getEntityIndexTable())
+        .getBigQueryService()
+        .runInsertUpdateQuery(sql, isDryRun);
+  }
+
+  // -----Helper methods for running Dataflow jobs that read/write to BigQuery.-------
   protected BigQueryOptions buildDataflowPipelineOptions(BigQueryDataset outputBQDataset) {
     // If the BQ dataset defines a service account, then specify that.
     // Otherwise, try to get the service account email for the application default credentials.
@@ -186,5 +277,9 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     }
 
     return "";
+  }
+
+  protected String getTempTableName(String suffix) {
+    return getEntity().getName() + "_" + suffix;
   }
 }

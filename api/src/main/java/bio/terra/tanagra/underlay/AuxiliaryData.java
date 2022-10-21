@@ -30,4 +30,8 @@ public class AuxiliaryData {
   public AuxiliaryDataMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceMapping : indexMapping;
   }
+
+  public AuxiliaryData cloneWithoutMappings() {
+    return new AuxiliaryData(name, List.copyOf(fields));
+  }
 }

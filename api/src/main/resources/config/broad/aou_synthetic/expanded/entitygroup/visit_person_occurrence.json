@@ -31,11 +31,48 @@
         }
       }
     },
-    "auxiliaryDataMappings" : { }
+    "auxiliaryDataMappings" : {
+      "criteriaPrimaryRollupCount" : {
+        "tablePointer" : {
+          "table" : "visit_person_occurrence_criteriaPrimaryRollupCount"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "rollup_count" : {
+            "column" : "rollup_count"
+          }
+        }
+      }
+    }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
-    "relationshipMappings" : { },
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "tablePointer" : {
+          "table" : "visit_occurrence"
+        },
+        "fromEntityId" : {
+          "column" : "visit_occurrence_id"
+        },
+        "toEntityId" : {
+          "column" : "visit_concept_id"
+        }
+      },
+      "occurrenceToPrimary" : {
+        "tablePointer" : {
+          "table" : "visit_occurrence"
+        },
+        "fromEntityId" : {
+          "column" : "visit_occurrence_id"
+        },
+        "toEntityId" : {
+          "column" : "person_id"
+        }
+      }
+    },
     "auxiliaryDataMappings" : {
       "criteriaPrimaryRollupCount" : {
         "tablePointer" : {
