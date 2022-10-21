@@ -1173,10 +1173,13 @@ components:
               format: int64
             stringVal:
               type: string
+            dateVal:
+              type: string
+              description: Format YYYY-MM-DD
 
     DataTypeV2:
       type: string
-      enum: ["INT64", "STRING", "BOOLEAN"]
+      enum: ["INT64", "STRING", "BOOLEAN", "DATE"]
 
     QueryV2:
       type: object

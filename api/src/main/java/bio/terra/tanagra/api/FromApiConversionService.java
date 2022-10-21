@@ -141,6 +141,8 @@ public final class FromApiConversionService {
         return new Literal(apiLiteral.getValueUnion().getStringVal());
       case BOOLEAN:
         return new Literal(apiLiteral.getValueUnion().isBoolVal());
+      case DATE:
+        return Literal.forDate(apiLiteral.getValueUnion().getDateVal());
       default:
         throw new SystemException("Unknown API data type: " + apiLiteral.getDataType());
     }

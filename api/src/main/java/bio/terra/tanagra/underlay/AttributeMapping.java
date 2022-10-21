@@ -81,11 +81,13 @@ public final class AttributeMapping {
     return List.of(valueVariable, displayVariable);
   }
 
+  public ColumnSchema buildValueColumnSchema() {
+    return new ColumnSchema(
+        attribute.getName(), CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType()));
+  }
+
   public List<ColumnSchema> buildColumnSchemas() {
-    ColumnSchema valueColSchema =
-        new ColumnSchema(
-            attribute.getName(),
-            CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType()));
+    ColumnSchema valueColSchema = buildValueColumnSchema();
     if (!hasDisplay()) {
       return List.of(valueColSchema);
     }
@@ -116,6 +118,9 @@ public final class AttributeMapping {
         return NumericRange.computeForField(value);
       case STRING:
         return EnumVals.computeForField(attribute.getDataType(), value);
+      case DATE:
+        // TODO: Compute a date range display hint.
+        return null;
       default:
         throw new InvalidConfigException("Unknown attribute data type: " + attribute.getDataType());
     }

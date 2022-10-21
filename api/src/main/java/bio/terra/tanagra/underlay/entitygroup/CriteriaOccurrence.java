@@ -66,7 +66,7 @@ public class CriteriaOccurrence extends EntityGroup {
     Map<String, AuxiliaryData> auxiliaryData =
         Map.of(
             CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME,
-            CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA);
+            CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA.cloneWithoutMappings());
 
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =

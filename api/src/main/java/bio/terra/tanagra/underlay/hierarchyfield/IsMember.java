@@ -1,8 +1,5 @@
 package bio.terra.tanagra.underlay.hierarchyfield;
 
-import static bio.terra.tanagra.underlay.HierarchyMapping.IS_MEMBER_FIELD_NAME;
-import static bio.terra.tanagra.underlay.HierarchyMapping.PATH_FIELD_NAME;
-
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
@@ -19,13 +16,8 @@ public class IsMember extends HierarchyField {
   }
 
   @Override
-  public String getHierarchyFieldAlias() {
-    return getColumnNamePrefix() + IS_MEMBER_FIELD_NAME;
-  }
-
-  @Override
   public ColumnSchema buildColumnSchema() {
-    return new ColumnSchema(getHierarchyFieldAlias(), CellValue.SQLDataType.BOOLEAN);
+    return new ColumnSchema(getFieldAlias(), CellValue.SQLDataType.BOOLEAN);
   }
 
   @Override
@@ -34,8 +26,7 @@ public class IsMember extends HierarchyField {
       TableVariable entityTableVar,
       List<TableVariable> tableVars) {
     // Currently, this is a calculated field. IS_MEMBER means path IS NOT NULL.
-    FieldPointer pathFieldPointer =
-        hierarchyMapping.buildPathNumChildrenFieldPointerFromEntityId(PATH_FIELD_NAME);
+    FieldPointer pathFieldPointer = hierarchyMapping.getPathField();
 
     // TODO: Handle the case where the path field is in the same table (i.e. not FK'd).
     return new FieldPointer.Builder()
@@ -46,6 +37,6 @@ public class IsMember extends HierarchyField {
         .foreignColumnName(pathFieldPointer.getForeignColumnName())
         .sqlFunctionWrapper("(${fieldSql} IS NOT NULL)")
         .build()
-        .buildVariable(entityTableVar, tableVars, getHierarchyFieldAlias());
+        .buildVariable(entityTableVar, tableVars, getFieldAlias());
   }
 }

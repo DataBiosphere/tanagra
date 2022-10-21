@@ -31,11 +31,48 @@
         }
       }
     },
-    "auxiliaryDataMappings" : { }
+    "auxiliaryDataMappings" : {
+      "criteriaPrimaryRollupCount" : {
+        "tablePointer" : {
+          "table" : "measurement_person_occurrence_criteriaPrimaryRollupCount"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "rollup_count" : {
+            "column" : "rollup_count"
+          }
+        }
+      }
+    }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
-    "relationshipMappings" : { },
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "tablePointer" : {
+          "table" : "measurement"
+        },
+        "fromEntityId" : {
+          "column" : "measurement_id"
+        },
+        "toEntityId" : {
+          "column" : "measurement_concept_id"
+        }
+      },
+      "occurrenceToPrimary" : {
+        "tablePointer" : {
+          "table" : "measurement"
+        },
+        "fromEntityId" : {
+          "column" : "measurement_id"
+        },
+        "toEntityId" : {
+          "column" : "person_id"
+        }
+      }
+    },
     "auxiliaryDataMappings" : {
       "criteriaPrimaryRollupCount" : {
         "tablePointer" : {

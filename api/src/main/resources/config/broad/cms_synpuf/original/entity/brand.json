@@ -47,7 +47,7 @@
         "display": {
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
-    "textSearchMapping": { "attributes": [ "name", "concept_code" ] }
+    "textSearchMapping": { "attributes": [ "name", "id", "concept_code" ] }
   },
 
   "indexDataMapping": {

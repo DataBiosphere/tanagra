@@ -31,11 +31,48 @@
         }
       }
     },
-    "auxiliaryDataMappings" : { }
+    "auxiliaryDataMappings" : {
+      "criteriaPrimaryRollupCount" : {
+        "tablePointer" : {
+          "table" : "device_person_occurrence_criteriaPrimaryRollupCount"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "rollup_count" : {
+            "column" : "rollup_count"
+          }
+        }
+      }
+    }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
-    "relationshipMappings" : { },
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "tablePointer" : {
+          "table" : "device_exposure"
+        },
+        "fromEntityId" : {
+          "column" : "device_exposure_id"
+        },
+        "toEntityId" : {
+          "column" : "device_concept_id"
+        }
+      },
+      "occurrenceToPrimary" : {
+        "tablePointer" : {
+          "table" : "device_exposure"
+        },
+        "fromEntityId" : {
+          "column" : "device_exposure_id"
+        },
+        "toEntityId" : {
+          "column" : "person_id"
+        }
+      }
+    },
     "auxiliaryDataMappings" : {
       "criteriaPrimaryRollupCount" : {
         "tablePointer" : {

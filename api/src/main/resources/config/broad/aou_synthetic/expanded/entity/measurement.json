@@ -298,10 +298,7 @@
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "id",
-        "foreignTable" : "measurement_textsearch",
-        "foreignKey" : "id",
-        "foreignColumn" : "text"
+        "column" : "text"
       }
     },
     "hierarchyMappings" : {
@@ -334,14 +331,14 @@
         },
         "pathNumChildren" : {
           "tablePointer" : {
-            "table" : "measurement_standard_pathNumChildren"
+            "table" : "measurement"
           },
           "fieldPointers" : {
             "path" : {
-              "column" : "path"
+              "column" : "t_standard_path"
             },
             "num_children" : {
-              "column" : "num_children"
+              "column" : "t_standard_num_children"
             },
             "id" : {
               "column" : "id"

@@ -5,7 +5,7 @@ import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
-import com.google.common.annotations.VisibleForTesting;
+import com.google.cloud.bigquery.TableId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +34,30 @@ public class WriteParentChildIdPairs extends BigQueryIndexingJob {
     String sql = selectChildParentIdPairs.renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", sql);
 
-    createTableFromSql(getOutputTablePointer(), sql, isDryRun);
+    TableId destinationTable =
+        TableId.of(
+            getBQDataPointer(getAuxiliaryTable()).getProjectId(),
+            getBQDataPointer(getAuxiliaryTable()).getDatasetId(),
+            getAuxiliaryTable().getTableName());
+    getBQDataPointer(getAuxiliaryTable())
+        .getBigQueryService()
+        .createTableFromQuery(destinationTable, sql, isDryRun);
   }
 
   @Override
-  @VisibleForTesting
-  public TablePointer getOutputTablePointer() {
+  public void clean(boolean isDryRun) {
+    if (checkTableExists(getAuxiliaryTable())) {
+      deleteTable(getAuxiliaryTable(), isDryRun);
+    }
+  }
+
+  @Override
+  public JobStatus checkStatus() {
+    // Check if the table already exists.
+    return checkTableExists(getAuxiliaryTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
+  }
+
+  public TablePointer getAuxiliaryTable() {
     return getEntity()
         .getHierarchy(hierarchyName)
         .getMapping(Underlay.MappingType.INDEX)

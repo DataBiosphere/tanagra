@@ -6,11 +6,17 @@ import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.NUMCHILDREN_COLU
 import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.PARENT_COLUMN_NAME;
 import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.PATH_COLUMN_NAME;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.BigQueryUtils;
 import bio.terra.tanagra.indexing.job.beam.PathUtils;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.Hierarchy;
+import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
@@ -18,8 +24,10 @@ import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import com.google.common.annotations.VisibleForTesting;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -40,6 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(BuildNumChildrenAndPaths.class);
+  private static final String TEMP_TABLE_SUFFIX = "pathNumChildren";
 
   // The default table schema for the id-path-numChildren output table.
   private static final TableSchema PATH_NUMCHILDREN_TABLE_SCHEMA =
@@ -77,6 +86,63 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
 
   @Override
   public void run(boolean isDryRun) {
+    // If the temp table hasn't been written yet, run the Dataflow job.
+    if (!checkTableExists(getTempTable())) {
+      writeFieldsToTempTable(isDryRun);
+    } else {
+      LOGGER.info("Temp table has already been written.");
+    }
+
+    // Dataflow jobs can only write new rows to BigQuery, so in this second step, copy over the
+    // path/numChildren values to the corresponding columns in the entity table.
+    copyFieldsToEntityTable(isDryRun);
+  }
+
+  @Override
+  public void clean(boolean isDryRun) {
+    if (checkTableExists(getTempTable())) {
+      deleteTable(getTempTable(), isDryRun);
+    }
+    // CreateEntityTable will delete the entity table, which includes all the rows updated by this
+    // job.
+  }
+
+  @Override
+  public JobStatus checkStatus() {
+    // Check if the temp table already exists.
+    if (!checkTableExists(getTempTable())) {
+      return JobStatus.NOT_STARTED;
+    }
+
+    // Check if the entity table already exists.
+    if (!checkTableExists(getEntityIndexTable())) {
+      return JobStatus.NOT_STARTED;
+    }
+
+    // Check if the table has at least 1 row where path IS NOT NULL.
+    HierarchyMapping indexMapping =
+        getEntity().getHierarchy(hierarchyName).getMapping(Underlay.MappingType.INDEX);
+    ColumnSchema pathColumnSchema =
+        getEntity()
+            .getHierarchy(hierarchyName)
+            .getField(HierarchyField.Type.PATH)
+            .buildColumnSchema();
+    return checkOneNotNullRowExists(indexMapping.getPathField(), pathColumnSchema)
+        ? JobStatus.COMPLETE
+        : JobStatus.NOT_STARTED;
+  }
+
+  @VisibleForTesting
+  public TablePointer getTempTable() {
+    // Define a temporary table to write the id/path/num_children information to.
+    // We can't write directly to the entity table because the Beam BigQuery library doesn't support
+    // updating existing rows.
+    return TablePointer.fromTableName(
+        getTempTableName(hierarchyName + "_" + TEMP_TABLE_SUFFIX),
+        getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer());
+  }
+
+  private void writeFieldsToTempTable(boolean isDryRun) {
     String selectAllIdsSql =
         getEntity().getMapping(Underlay.MappingType.SOURCE).queryIds(ID_COLUMN_NAME).renderSQL();
     LOGGER.info("select all ids SQL: {}", selectAllIdsSql);
@@ -89,7 +155,7 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
             .renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", selectChildParentIdPairsSql);
 
-    BigQueryDataset outputBQDataset = getOutputDataPointer();
+    BigQueryDataset outputBQDataset = getBQDataPointer(getTempTable());
     Pipeline pipeline = Pipeline.create(buildDataflowPipelineOptions(outputBQDataset));
 
     // read in the nodes and the child-parent relationships from BQ
@@ -116,21 +182,11 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
         filterRootNodes(sourceHierarchyMapping, pipeline, nodePrunedPathKVsPC);
 
     // write the node-{path, numChildren} pairs to BQ
-    writePathAndNumChildrenToBQ(outputNodePathKVsPC, nodeNumChildrenKVsPC, getOutputTablePointer());
+    writePathAndNumChildrenToBQ(outputNodePathKVsPC, nodeNumChildrenKVsPC, getTempTable());
 
     if (!isDryRun) {
       pipeline.run().waitUntilFinish();
     }
-  }
-
-  @Override
-  @VisibleForTesting
-  public TablePointer getOutputTablePointer() {
-    return getEntity()
-        .getHierarchy(hierarchyName)
-        .getMapping(Underlay.MappingType.INDEX)
-        .getPathNumChildren()
-        .getTablePointer();
   }
 
   /** Filter the root nodes, if a root nodes filter is specified by the hierarchy mapping. */
@@ -205,5 +261,46 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
             .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
             .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
             .withMethod(BigQueryIO.Write.Method.FILE_LOADS));
+  }
+
+  private void copyFieldsToEntityTable(boolean isDryRun) {
+    // Copy the fields to the entity table.
+    Hierarchy hierarchy = getEntity().getHierarchy(hierarchyName);
+    HierarchyMapping indexMapping = hierarchy.getMapping(Underlay.MappingType.INDEX);
+
+    // Build a query for the id-path-num_children tuples that we want to select.
+    Query idPathNumChildrenTuples = HierarchyMapping.queryPathNumChildrenPairs(getTempTable());
+
+    // Build a map of (output) update field name -> (input) selected FieldVariable.
+    // This map only contains two items, because we're only updating the path and numChildren
+    // fields.
+    Map<String, FieldVariable> updateFields = new HashMap<>();
+    String updatePathFieldName = indexMapping.getPathField().getColumnName();
+    FieldVariable selectPathField =
+        idPathNumChildrenTuples.getSelect().stream()
+            .filter(fv -> fv.getAliasOrColumnName().equals(PATH_COLUMN_NAME))
+            .findFirst()
+            .get();
+    updateFields.put(updatePathFieldName, selectPathField);
+
+    String updateNumChildrenFieldName = indexMapping.getNumChildrenField().getColumnName();
+    FieldVariable selectNumChildrenField =
+        idPathNumChildrenTuples.getSelect().stream()
+            .filter(fv -> fv.getAliasOrColumnName().equals(NUMCHILDREN_COLUMN_NAME))
+            .findFirst()
+            .get();
+    updateFields.put(updateNumChildrenFieldName, selectNumChildrenField);
+
+    // Check that the path field is not in a different table from the entity table.
+    if (indexMapping.getPathField().isForeignKey()
+        || !indexMapping
+            .getPathField()
+            .getTablePointer()
+            .equals(getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
+      throw new SystemException(
+          "Indexing path, num_children information only supports an index mapping to a column in the entity table");
+    }
+
+    updateEntityTableFromSelect(idPathNumChildrenTuples, updateFields, ID_COLUMN_NAME, isDryRun);
   }
 }

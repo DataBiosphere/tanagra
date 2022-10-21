@@ -49,13 +49,16 @@ public final class TableVariable implements SQLExpression {
 
   @Override
   public String renderSQL() {
-    String template = "${tablePath} AS ${tableAlias}";
-    Map<String, String> params =
-        ImmutableMap.<String, String>builder()
-            .put("tablePath", tablePointer.renderSQL())
-            .put("tableAlias", alias)
-            .build();
-    String sql = StringSubstitutor.replace(template, params);
+    String sql = tablePointer.renderSQL();
+
+    String template;
+    Map<String, String> params;
+    if (alias != null) {
+      template = "${sql} AS ${tableAlias}";
+      params =
+          ImmutableMap.<String, String>builder().put("sql", sql).put("tableAlias", alias).build();
+      sql = StringSubstitutor.replace(template, params);
+    }
 
     if (joinField != null) {
       template =
@@ -106,5 +109,13 @@ public final class TableVariable implements SQLExpression {
 
   private void setAlias(String alias) {
     this.alias = alias;
+  }
+
+  public TablePointer getTablePointer() {
+    return tablePointer;
+  }
+
+  public boolean isPrimary() {
+    return joinField == null;
   }
 }

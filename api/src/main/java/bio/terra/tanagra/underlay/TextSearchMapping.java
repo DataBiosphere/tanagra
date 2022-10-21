@@ -2,6 +2,8 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Literal;
@@ -18,8 +20,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class TextSearchMapping {
-  private static final String TEXT_SEARCH_ID_COLUMN_NAME = "id";
-  private static final String TEXT_SEARCH_STRING_COLUMN_NAME = "text";
+  public static final String TEXT_SEARCH_ID_COLUMN_NAME = "id";
+  public static final String TEXT_SEARCH_STRING_COLUMN_NAME = "text";
   private static final AuxiliaryData TEXT_SEARCH_STRING_AUXILIARY_DATA =
       new AuxiliaryData(
           "textsearch", List.of(TEXT_SEARCH_ID_COLUMN_NAME, TEXT_SEARCH_STRING_COLUMN_NAME));
@@ -80,24 +82,12 @@ public final class TextSearchMapping {
     throw new InvalidConfigException("Text search mapping is empty");
   }
 
-  public static TextSearchMapping defaultIndexMapping(
-      String entityName, TablePointer tablePointer, Attribute idAttribute) {
-    // TODO: Change default index mapping to be a field in the same table as the denormalized entity
-    // instances.
-    String tablePrefix = entityName + "_";
-    TablePointer idTextStringTable =
-        TablePointer.fromTableName(
-            tablePrefix + TEXT_SEARCH_STRING_AUXILIARY_DATA.getName(),
-            tablePointer.getDataPointer());
-
+  public static TextSearchMapping defaultIndexMapping(TablePointer tablePointer) {
     return new Builder()
         .searchString(
             new FieldPointer.Builder()
                 .tablePointer(tablePointer)
-                .columnName(idAttribute.getName())
-                .foreignTablePointer(idTextStringTable)
-                .foreignKeyColumnName(TEXT_SEARCH_ID_COLUMN_NAME)
-                .foreignColumnName(TEXT_SEARCH_STRING_COLUMN_NAME)
+                .columnName(TEXT_SEARCH_STRING_COLUMN_NAME)
                 .build())
         .mappingType(Underlay.MappingType.INDEX)
         .build();
@@ -188,7 +178,7 @@ public final class TextSearchMapping {
     if (definedByAttributes()) {
       return textSearch.getEntity().getMapping(mappingType).getTablePointer();
     } else if (definedBySearchString()) {
-      return searchString.getForeignTablePointer();
+      return searchString.getTablePointer();
     } else if (definedBySearchStringAuxiliaryData()) {
       return searchStringTable.getTablePointer();
     } else {
@@ -218,6 +208,10 @@ public final class TextSearchMapping {
 
   public AuxiliaryDataMapping getSearchStringTable() {
     return searchStringTable;
+  }
+
+  public ColumnSchema buildTextColumnSchema() {
+    return new ColumnSchema(TEXT_SEARCH_STRING_COLUMN_NAME, CellValue.SQLDataType.STRING);
   }
 
   public static class Builder {
