@@ -1,6 +1,5 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
-import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.AuxiliaryData;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -8,9 +7,9 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
+import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class GroupItems extends EntityGroup {
@@ -39,16 +38,19 @@ public class GroupItems extends EntityGroup {
     Map<String, Relationship> relationships =
         Map.of(
             GROUP_ITEMS_RELATIONSHIP_NAME,
-            new Relationship(GROUP_ITEMS_RELATIONSHIP_NAME, entity1, entityM));
+            new Relationship(
+                GROUP_ITEMS_RELATIONSHIP_NAME, entity1, entityM, Collections.emptyList()));
 
     // Auxiliary data.
     Map<String, AuxiliaryData> auxiliaryData = Collections.emptyMap();
 
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
-        EntityGroupMapping.fromSerialized(serialized.getSourceDataMapping(), dataPointers);
+        EntityGroupMapping.fromSerialized(
+            serialized.getSourceDataMapping(), dataPointers, Underlay.MappingType.SOURCE);
     EntityGroupMapping indexDataMapping =
-        EntityGroupMapping.fromSerialized(serialized.getIndexDataMapping(), dataPointers);
+        EntityGroupMapping.fromSerialized(
+            serialized.getIndexDataMapping(), dataPointers, Underlay.MappingType.INDEX);
 
     Builder builder = new Builder();
     builder
@@ -64,7 +66,6 @@ public class GroupItems extends EntityGroup {
 
     // Source+index relationship, auxiliary data mappings.
     EntityGroup.deserializeRelationshipMappings(serialized, groupItems);
-    EntityGroup.deserializeAuxiliaryDataMappings(serialized, groupItems);
 
     return groupItems;
   }
@@ -75,15 +76,8 @@ public class GroupItems extends EntityGroup {
   }
 
   @Override
-  public Map<String, Entity> getEntities() {
+  public Map<String, Entity> getEntityMap() {
     return ImmutableMap.of(GROUP_ENTITY_NAME, groupEntity, ITEMS_ENTITY_NAME, itemsEntity);
-  }
-
-  @Override
-  public List<IndexingJob> getIndexingJobs() {
-    // TODO: Add a new indexing job to write the group-item id pairs to a separate table, or a new
-    // column in the group denormalized entity instances table.
-    return Collections.emptyList();
   }
 
   private static class Builder extends EntityGroup.Builder {

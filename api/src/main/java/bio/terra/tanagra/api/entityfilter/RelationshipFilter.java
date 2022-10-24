@@ -7,6 +7,7 @@ import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
+import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
@@ -18,10 +19,18 @@ import org.slf4j.LoggerFactory;
 public class RelationshipFilter extends EntityFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(RelationshipFilter.class);
 
+  private final Entity selectEntity;
+  private final Entity filterEntity;
   private final Relationship relationship;
   private final EntityFilter subFilter;
 
-  public RelationshipFilter(Relationship relationship, EntityFilter subFilter) {
+  public RelationshipFilter(
+      Entity selectEntity, Relationship relationship, EntityFilter subFilter) {
+    this.selectEntity = selectEntity;
+    this.filterEntity =
+        relationship.getEntityA().equals(selectEntity)
+            ? relationship.getEntityB()
+            : relationship.getEntityA();
     this.relationship = relationship;
     this.subFilter = subFilter;
   }
@@ -30,22 +39,17 @@ public class RelationshipFilter extends EntityFilter {
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
     FieldPointer entityIdFieldPointer =
-        relationship
-            .getEntityA()
-            .getIdAttribute()
-            .getMapping(Underlay.MappingType.INDEX)
-            .getValue();
+        selectEntity.getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
 
     // build a query to get all related entity instance ids:
     //   SELECT relatedEntityId FROM relatedEntityTable WHERE subFilter
     TableVariable relatedEntityTableVar =
         TableVariable.forPrimary(
-            relationship.getEntityB().getMapping(Underlay.MappingType.INDEX).getTablePointer());
+            filterEntity.getMapping(Underlay.MappingType.INDEX).getTablePointer());
     List<TableVariable> relatedEntityTableVars = Lists.newArrayList(relatedEntityTableVar);
 
     FieldVariable relatedEntityIdFieldVar =
-        relationship
-            .getEntityB()
+        filterEntity
             .getIdAttribute()
             .getMapping(Underlay.MappingType.INDEX)
             .getValue()
@@ -63,38 +67,41 @@ public class RelationshipFilter extends EntityFilter {
 
     RelationshipMapping indexMapping = relationship.getMapping(Underlay.MappingType.INDEX);
     if (indexMapping
-        .getTablePointer()
-        .equals(
-            relationship.getEntityA().getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
+        .getIdPairsTable()
+        .equals(selectEntity.getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
       LOGGER.info("Relationship table is the same as the entity table");
       // build a filter variable for the entity table on the sub query
       //  WHERE relatedEntityId IN (SELECT relatedEntityId FROM relatedEntityTable WHERE subFilter)
-      FieldVariable toEntityIdFieldVar =
+      FieldVariable filterEntityIdFieldVar =
           relationship
               .getMapping(Underlay.MappingType.SOURCE)
-              .getToEntityId()
+              .getIdPairsId(filterEntity)
               .buildVariable(entityTableVar, tableVars);
       return new SubQueryFilterVariable(
-          toEntityIdFieldVar, SubQueryFilterVariable.Operator.IN, relatedEntityQuery);
+          filterEntityIdFieldVar, SubQueryFilterVariable.Operator.IN, relatedEntityQuery);
     } else {
       LOGGER.info("Relationship table is different from the entity table");
       // build another query to get all entity instance ids from the relationship table:
       //  SELECT fromEntityId FROM relationshipTable WHERE
       //  toEntityId IN (SELECT relatedEntityId FROM relatedEntityTable WHERE subFilter)
-      TableVariable relationshipTableVar = TableVariable.forPrimary(indexMapping.getTablePointer());
+      TableVariable relationshipTableVar = TableVariable.forPrimary(indexMapping.getIdPairsTable());
       List<TableVariable> relationshipTableVars = Lists.newArrayList(relationshipTableVar);
 
-      FieldVariable fromEntityIdFieldVar =
-          indexMapping.getFromEntityId().buildVariable(relationshipTableVar, relationshipTableVars);
-      FieldVariable toEntityIdFieldVar =
-          indexMapping.getToEntityId().buildVariable(relationshipTableVar, relationshipTableVars);
+      FieldVariable selectEntityIdFieldVar =
+          indexMapping
+              .getIdPairsId(selectEntity)
+              .buildVariable(relationshipTableVar, relationshipTableVars);
+      FieldVariable filterEntityIdFieldVar =
+          indexMapping
+              .getIdPairsId(filterEntity)
+              .buildVariable(relationshipTableVar, relationshipTableVars);
       SubQueryFilterVariable relationshipFilterVar =
           new SubQueryFilterVariable(
-              toEntityIdFieldVar, SubQueryFilterVariable.Operator.IN, relatedEntityQuery);
+              filterEntityIdFieldVar, SubQueryFilterVariable.Operator.IN, relatedEntityQuery);
 
       Query relationshipQuery =
           new Query.Builder()
-              .select(List.of(fromEntityIdFieldVar))
+              .select(List.of(selectEntityIdFieldVar))
               .tables(relationshipTableVars)
               .where(relationshipFilterVar)
               .build();

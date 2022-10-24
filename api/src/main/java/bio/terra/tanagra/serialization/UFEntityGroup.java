@@ -24,7 +24,7 @@ public class UFEntityGroup {
     this.type = entityGroup.getType();
     this.name = entityGroup.getName();
     Map<String, String> entities = new HashMap<>();
-    entityGroup.getEntities().entrySet().stream()
+    entityGroup.getEntityMap().entrySet().stream()
         .forEach(e -> entities.put(e.getKey(), e.getValue().getName()));
     this.entities = entities;
     this.sourceDataMapping =

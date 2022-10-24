@@ -28,7 +28,6 @@ public class IsRoot extends HierarchyField {
     // Currently, this is a calculated field. IS_ROOT means path IS NOT NULL AND path=''.
     FieldPointer pathFieldPointer = hierarchyMapping.getPathField();
 
-    // TODO: Handle the case where the path field is in the same table (i.e. not FK'd).
     return new FieldPointer.Builder()
         .tablePointer(pathFieldPointer.getTablePointer())
         .columnName(pathFieldPointer.getColumnName())

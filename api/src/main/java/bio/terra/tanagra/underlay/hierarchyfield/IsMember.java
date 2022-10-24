@@ -28,7 +28,6 @@ public class IsMember extends HierarchyField {
     // Currently, this is a calculated field. IS_MEMBER means path IS NOT NULL.
     FieldPointer pathFieldPointer = hierarchyMapping.getPathField();
 
-    // TODO: Handle the case where the path field is in the same table (i.e. not FK'd).
     return new FieldPointer.Builder()
         .tablePointer(pathFieldPointer.getTablePointer())
         .columnName(pathFieldPointer.getColumnName())

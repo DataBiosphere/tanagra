@@ -97,7 +97,7 @@ public final class FromApiConversionService {
         Collection<EntityGroup> entityGroups =
             underlaysService.getUnderlay(underlayName).getEntityGroups().values();
         return new RelationshipFilter(
-            querysService.getRelationship(entityGroups, entity, relatedEntity), subFilter);
+            entity, querysService.getRelationship(entityGroups, entity, relatedEntity), subFilter);
       case BOOLEAN_LOGIC:
         ApiBooleanLogicFilterV2 apiBooleanLogicFilter =
             apiFilter.getFilterUnion().getBooleanLogicFilter();
