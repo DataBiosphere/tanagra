@@ -4,7 +4,6 @@ import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.identity.User;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 import bio.terra.tanagra.service.jdbc.DataSourceId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -13,10 +12,8 @@ public class DefaultAccessControlPlugin implements IAccessControlPlugin {
   private PluginConfig config;
   private NamedParameterJdbcTemplate jdbcTemplate;
 
-  @Autowired private DataSourceFactory dataSourceFactory;
-
   @Override
-  public void init(PluginConfig config) {
+  public void init(DataSourceFactory dataSourceFactory, PluginConfig config) {
     this.config = config;
 
     DataSourceId dataSourceId = DataSourceId.create(this.config.getValue("datasource-id"));

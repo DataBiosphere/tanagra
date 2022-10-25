@@ -15,6 +15,18 @@ spring:
     static-locations: classpath:/api/
 
 tanagra:
+  jdbc:
+    dataSources:
+      - dataSourceId: test-plugin-data-source
+        url: ${TANAGRA_PLUGIN_ACL_DATASOURCE_CONNECTIONSTRING}
+        username: ${TANAGRA_PLUGIN_ACL_DATASOURCE_USERNAME}
+        password: ${TANAGRA_PLUGIN_ACL_DATASOURCE_PASSWORD}
+  pluggable:
+    plugins:
+      accessControlPlugin:
+        type: bio.terra.tanagra.plugin.accesscontrol.DefaultAccessControlPlugin
+        parameters:
+          datasource-id: test-plugin-data-source
   underlay:
     # TODO(tjennison): Split these for different environments.
     underlay-yaml-files: ["underlays/aou_synthetic.yaml", "underlays/synpuf.yaml", "underlays/sd.yaml", "underlays/test/aou_synthetic.yaml"]
