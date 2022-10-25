@@ -24,7 +24,7 @@ tanagra:
   pluggable:
     plugins:
       accessControlPlugin:
-        type: bio.terra.tanagra.plugin.accesscontrol.DefaultAccessControlPlugin
+        type: bio.terra.tanagra.plugin.vumc.AccessControlPlugin
         parameters:
           datasource-id: test-plugin-data-source
   underlay:

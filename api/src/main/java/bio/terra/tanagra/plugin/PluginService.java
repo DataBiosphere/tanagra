@@ -1,5 +1,11 @@
 package bio.terra.tanagra.plugin;
 
+import static org.springframework.util.StringUtils.capitalize;
+
+import bio.terra.tanagra.plugin.accesscontrol.DefaultAccessControlPlugin;
+import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
+import bio.terra.tanagra.plugin.identity.DefaultIdentityPlugin;
+import bio.terra.tanagra.plugin.identity.IIdentityPlugin;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +14,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PluginService {
-  private final HashMap<String, IPlugin> availablePlugins = new HashMap<>();
+  private final HashMap<String, IPlugin> availablePlugins =
+      new HashMap<>() {
+        {
+          put(IAccessControlPlugin.class.getName(), new DefaultAccessControlPlugin());
+          put(IIdentityPlugin.class.getName(), new DefaultIdentityPlugin());
+        }
+      };
 
   private final PluggableConfiguration configuration;
   private final DataSourceFactory dataSourceFactory;
@@ -30,12 +42,14 @@ public class PluginService {
   private void loadPlugins() throws PluginException {
     try {
       for (Map.Entry<String, PluginConfig> p : configuration.getPlugins().entrySet()) {
+        String key = "I" + capitalize(p.getKey());
+
         Class<?> pluginClass = Class.forName(p.getValue().getType());
         IPlugin plugin = (IPlugin) pluginClass.getConstructor().newInstance();
 
         plugin.init(dataSourceFactory, p.getValue());
 
-        availablePlugins.put(p.getKey(), plugin);
+        availablePlugins.put(key, plugin);
       }
     } catch (Exception e) {
       throw new PluginException(e);

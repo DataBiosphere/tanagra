@@ -4,11 +4,9 @@ import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 
 public class DefaultIdentityPlugin implements IIdentityPlugin {
-  private PluginConfig config;
-
   @Override
   public void init(DataSourceFactory dataSourceFactory, PluginConfig config) {
-    this.config = config;
+    // do nothing
   }
 
   @Override
