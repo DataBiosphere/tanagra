@@ -1,7 +1,6 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.serialization.UFEntityGroup;
-import bio.terra.tanagra.underlay.AuxiliaryData;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
@@ -41,9 +40,6 @@ public class GroupItems extends EntityGroup {
             new Relationship(
                 GROUP_ITEMS_RELATIONSHIP_NAME, entity1, entityM, Collections.emptyList()));
 
-    // Auxiliary data.
-    Map<String, AuxiliaryData> auxiliaryData = Collections.emptyMap();
-
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
         EntityGroupMapping.fromSerialized(
@@ -56,7 +52,6 @@ public class GroupItems extends EntityGroup {
     builder
         .name(serialized.getName())
         .relationships(relationships)
-        .auxiliaryData(auxiliaryData)
         .sourceDataMapping(sourceDataMapping)
         .indexDataMapping(indexDataMapping);
     GroupItems groupItems = builder.groupEntity(entity1).itemsEntity(entityM).build();

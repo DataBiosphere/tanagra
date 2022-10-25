@@ -8,9 +8,12 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
+import bio.terra.tanagra.underlay.RelationshipField;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.relationshipfield.Count;
+import bio.terra.tanagra.underlay.relationshipfield.DisplayHints;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +54,7 @@ public class CriteriaOccurrence extends EntityGroup {
                 OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
                 occurrenceEntity,
                 criteriaEntity,
-                List.of(new Count(criteriaEntity))),
+                buildRelationshipFieldList(criteriaEntity)),
             OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
             new Relationship(
                 OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
@@ -63,7 +66,7 @@ public class CriteriaOccurrence extends EntityGroup {
                 CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
                 criteriaEntity,
                 primaryEntity,
-                List.of(new Count(criteriaEntity))));
+                buildRelationshipFieldList(criteriaEntity)));
 
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
@@ -95,6 +98,22 @@ public class CriteriaOccurrence extends EntityGroup {
     return criteriaOccurrence;
   }
 
+  private static List<RelationshipField> buildRelationshipFieldList(Entity entity) {
+    List<RelationshipField> fields = new ArrayList<>();
+    fields.add(new Count(entity));
+    fields.add(new DisplayHints(entity));
+
+    if (entity.hasHierarchies()) {
+      entity.getHierarchies().stream()
+          .forEach(
+              hierarchy -> {
+                fields.add(new Count(entity, hierarchy));
+                fields.add(new DisplayHints(entity, hierarchy));
+              });
+    }
+    return fields;
+  }
+
   @Override
   public EntityGroup.Type getType() {
     return Type.CRITERIA_OCCURRENCE;
@@ -116,18 +135,18 @@ public class CriteriaOccurrence extends EntityGroup {
     jobs.add(new ComputeRollupCounts(criteriaEntity, getOccurrenceCriteriaRelationship(), null));
 
     // If the criteria entity has a hierarchy, then also compute the counts for each hierarchy.
-    //    if (criteriaEntity.hasHierarchies()) {
-    //      criteriaEntity.getHierarchies().stream()
-    //          .forEach(
-    //              hierarchy -> {
-    //                jobs.add(
-    //                    new ComputeRollupCounts(
-    //                        criteriaEntity, getCriteriaPrimaryRelationship(), hierarchy));
-    //                jobs.add(
-    //                    new ComputeRollupCounts(
-    //                        criteriaEntity, getOccurrenceCriteriaRelationship(), hierarchy));
-    //              });
-    //    }
+    if (criteriaEntity.hasHierarchies()) {
+      criteriaEntity.getHierarchies().stream()
+          .forEach(
+              hierarchy -> {
+                jobs.add(
+                    new ComputeRollupCounts(
+                        criteriaEntity, getCriteriaPrimaryRelationship(), hierarchy));
+                jobs.add(
+                    new ComputeRollupCounts(
+                        criteriaEntity, getOccurrenceCriteriaRelationship(), hierarchy));
+              });
+    }
 
     return jobs;
   }

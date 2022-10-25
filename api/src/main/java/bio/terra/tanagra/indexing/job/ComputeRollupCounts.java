@@ -5,6 +5,7 @@ import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.COUNT_ID_COLUMN_
 import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.DESCENDANT_COLUMN_NAME;
 import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.ID_COLUMN_NAME;
 import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.ROLLUP_COUNT_COLUMN_NAME;
+import static bio.terra.tanagra.indexing.job.beam.BigQueryUtils.ROLLUP_DISPLAY_HINTS_COLUMN_NAME;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
@@ -50,7 +51,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
 
   private static final String TEMP_TABLE_PREFIX = "rollup_";
 
-  // The default table schema for the id-rollupCount output table.
+  // The default table schema for the id-rollupCount-rollupDisplayHints output table.
   private static final TableSchema ROLLUP_COUNT_TABLE_SCHEMA =
       new TableSchema()
           .setFields(
@@ -62,6 +63,10 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
                   new TableFieldSchema()
                       .setName(ROLLUP_COUNT_COLUMN_NAME)
                       .setType("INTEGER")
+                      .setMode("REQUIRED"),
+                  new TableFieldSchema()
+                      .setName(ROLLUP_DISPLAY_HINTS_COLUMN_NAME)
+                      .setType("STRING")
                       .setMode("REQUIRED")));
 
   private final Relationship relationship;
@@ -92,7 +97,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
     }
 
     // Dataflow jobs can only write new rows to BigQuery, so in this second step, copy over the
-    // rollup counts to the corresponding columns in the entity table.
+    // rollup information to the corresponding columns in the entity table.
     copyFieldsToEntityTable(isDryRun);
   }
 
@@ -117,12 +122,14 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
       return JobStatus.NOT_STARTED;
     }
 
-    // Check if the table has at least 1 row where path IS NOT NULL.
+    // Check if the table has at least 1 row where count IS NOT NULL.
     RelationshipMapping indexMapping = relationship.getMapping(Underlay.MappingType.INDEX);
     ColumnSchema countColumnSchema =
-        relationship.getField(RelationshipField.Type.COUNT, getRollupEntity()).buildColumnSchema();
+        relationship
+            .getField(RelationshipField.Type.COUNT, getRollupEntity(), hierarchy)
+            .buildColumnSchema();
     return checkOneNotNullRowExists(
-            indexMapping.getRollupCount(getRollupEntity()), countColumnSchema)
+            indexMapping.getRollupInfo(getRollupEntity(), hierarchy).getCount(), countColumnSchema)
         ? JobStatus.COMPLETE
         : JobStatus.NOT_STARTED;
   }
@@ -145,14 +152,14 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
     Pipeline pipeline =
         Pipeline.create(buildDataflowPipelineOptions(getBQDataPointer(getTempTable())));
 
-    // Read in the rollup ids from BQ.
+    // Read in the rollup entity ids from BQ.
     Query rollupIds =
         getRollupEntity().getMapping(Underlay.MappingType.SOURCE).queryIds(ID_COLUMN_NAME);
     LOGGER.info("select all rollup entity ids SQL: {}", rollupIds.renderSQL());
     PCollection<Long> rollupIdsPC =
         BigQueryUtils.readNodesFromBQ(pipeline, rollupIds.renderSQL(), "rollupIds");
 
-    // Read in the rollup-counted id pairs from BQ.
+    // Read in the rollup-counted entity id pairs from BQ.
     boolean rollupEntityIsA = relationship.getEntityA().equals(getEntity());
     String rollupEntityIdAlias = rollupEntityIsA ? ID_COLUMN_NAME : COUNT_ID_COLUMN_NAME;
     String countedEntityIdAlias = rollupEntityIsA ? COUNT_ID_COLUMN_NAME : ID_COLUMN_NAME;
@@ -203,7 +210,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
       PCollection<KV<Long, Long>> nodeCountKVs, TablePointer outputBQTable) {
     PCollection<TableRow> nodeCountBQRows =
         nodeCountKVs.apply(
-            "build (id, rollup_count) pcollection of BQ rows",
+            "build (id, rollup_count, rollup_displayHints) pcollection of BQ rows",
             ParDo.of(
                 new DoFn<KV<Long, Long>, TableRow>() {
                   @ProcessElement
@@ -212,12 +219,15 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
                     context.output(
                         new TableRow()
                             .set(ID_COLUMN_NAME, element.getKey())
-                            .set(ROLLUP_COUNT_COLUMN_NAME, element.getValue()));
+                            .set(ROLLUP_COUNT_COLUMN_NAME, element.getValue())
+                            .set(
+                                ROLLUP_DISPLAY_HINTS_COLUMN_NAME,
+                                "[DISPLAY_HINTS placeholder JSON string]"));
                   }
                 }));
 
     nodeCountBQRows.apply(
-        "insert the (id, rollup_count) rows into BQ",
+        "insert the (id, rollup_count, rollup_displayHints) rows into BQ",
         BigQueryIO.writeTableRows()
             .to(outputBQTable.getPathForIndexing())
             .withSchema(ROLLUP_COUNT_TABLE_SCHEMA)
@@ -227,36 +237,60 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
   }
 
   private void copyFieldsToEntityTable(boolean isDryRun) {
-    // Build a query for the id-rollup_count pairs that we want to select.
-    Query idCountPairs = queryIdRollupPairs(getTempTable());
-    LOGGER.info("select all id-count pairs SQL: {}", idCountPairs.renderSQL());
+    // Build a query for the id-rollup_count-rollup_displayHints tuples that we want to select.
+    Query idCountDisplayHintsTuples = queryIdRollupTuples(getTempTable());
+    LOGGER.info(
+        "select all id-count-displayHints tuples SQL: {}", idCountDisplayHintsTuples.renderSQL());
 
     // Build a map of (output) update field name -> (input) selected FieldVariable.
-    // This map only contains one item, because we're only updating the count field.
+    // This map only contains two items, because we're only updating the count and display_hints
+    // fields.
     RelationshipMapping indexMapping = relationship.getMapping(Underlay.MappingType.INDEX);
     Map<String, FieldVariable> updateFields = new HashMap<>();
-    String updateCountFieldName = indexMapping.getRollupCount(getRollupEntity()).getColumnName();
+
+    String updateCountFieldName =
+        indexMapping.getRollupInfo(getRollupEntity(), hierarchy).getCount().getColumnName();
     FieldVariable selectCountField =
-        idCountPairs.getSelect().stream()
+        idCountDisplayHintsTuples.getSelect().stream()
             .filter(fv -> fv.getAliasOrColumnName().equals(ROLLUP_COUNT_COLUMN_NAME))
             .findFirst()
             .get();
     updateFields.put(updateCountFieldName, selectCountField);
 
-    // Check that the count field is not in a different table from the entity table.
-    if (indexMapping.getRollupCount(getRollupEntity()).isForeignKey()
+    String updateDisplayHintsFieldName =
+        indexMapping.getRollupInfo(getRollupEntity(), hierarchy).getDisplayHints().getColumnName();
+    FieldVariable selectDisplayHintsField =
+        idCountDisplayHintsTuples.getSelect().stream()
+            .filter(fv -> fv.getAliasOrColumnName().equals(ROLLUP_DISPLAY_HINTS_COLUMN_NAME))
+            .findFirst()
+            .get();
+    updateFields.put(updateDisplayHintsFieldName, selectDisplayHintsField);
+
+    // Check that the count and display_hints fields are not in a different table from the entity
+    // table.
+    if (indexMapping.getRollupInfo(getRollupEntity(), hierarchy).getCount().isForeignKey()
         || !indexMapping
-            .getRollupCount(getRollupEntity())
+            .getRollupInfo(getRollupEntity(), hierarchy)
+            .getCount()
             .getTablePointer()
             .equals(getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
       throw new SystemException(
           "Indexing rollup count information only supports an index mapping to a column in the entity table");
     }
+    if (indexMapping.getRollupInfo(getRollupEntity(), hierarchy).getDisplayHints().isForeignKey()
+        || !indexMapping
+            .getRollupInfo(getRollupEntity(), hierarchy)
+            .getDisplayHints()
+            .getTablePointer()
+            .equals(getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
+      throw new SystemException(
+          "Indexing rollup display hints information only supports an index mapping to a column in the entity table");
+    }
 
-    updateEntityTableFromSelect(idCountPairs, updateFields, ID_COLUMN_NAME, isDryRun);
+    updateEntityTableFromSelect(idCountDisplayHintsTuples, updateFields, ID_COLUMN_NAME, isDryRun);
   }
 
-  public static Query queryIdRollupPairs(TablePointer tablePointer) {
+  public static Query queryIdRollupTuples(TablePointer tablePointer) {
     TableVariable tempTableVar = TableVariable.forPrimary(tablePointer);
     List<TableVariable> inputTables = Lists.newArrayList(tempTableVar);
     FieldVariable selectIdFieldVar =
@@ -271,8 +305,14 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
             .columnName(ROLLUP_COUNT_COLUMN_NAME)
             .build()
             .buildVariable(tempTableVar, inputTables);
+    FieldVariable selectDisplayHintsFieldVar =
+        new FieldPointer.Builder()
+            .tablePointer(tablePointer)
+            .columnName(ROLLUP_DISPLAY_HINTS_COLUMN_NAME)
+            .build()
+            .buildVariable(tempTableVar, inputTables);
     return new Query.Builder()
-        .select(List.of(selectIdFieldVar, selectCountFieldVar))
+        .select(List.of(selectIdFieldVar, selectCountFieldVar, selectDisplayHintsFieldVar))
         .tables(inputTables)
         .build();
   }

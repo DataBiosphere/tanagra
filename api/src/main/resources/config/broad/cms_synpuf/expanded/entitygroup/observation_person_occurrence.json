@@ -9,41 +9,43 @@
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
       "occurrenceToCriteria" : {
-        "tablePointer" : {
+        "idPairsTable" : {
           "table" : "observation"
         },
-        "fromEntityId" : {
+        "idPairsIdA" : {
           "column" : "observation_id"
         },
-        "toEntityId" : {
+        "idPairsIdB" : {
           "column" : "observation_concept_id"
-        }
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "observation"
+        },
+        "idPairsIdA" : {
+          "column" : "observation_concept_id"
+        },
+        "idPairsIdB" : {
+          "column" : "person_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
       },
       "occurrenceToPrimary" : {
-        "tablePointer" : {
+        "idPairsTable" : {
           "table" : "observation"
         },
-        "fromEntityId" : {
+        "idPairsIdA" : {
           "column" : "observation_id"
         },
-        "toEntityId" : {
+        "idPairsIdB" : {
           "column" : "person_id"
-        }
-      }
-    },
-    "auxiliaryDataMappings" : {
-      "criteriaPrimaryRollupCount" : {
-        "tablePointer" : {
-          "table" : "observation_person_occurrence_criteriaPrimaryRollupCount"
         },
-        "fieldPointers" : {
-          "id" : {
-            "column" : "id"
-          },
-          "rollup_count" : {
-            "column" : "rollup_count"
-          }
-        }
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
       }
     }
   },
@@ -51,39 +53,131 @@
     "dataPointer" : "index_dataset",
     "relationshipMappings" : {
       "occurrenceToCriteria" : {
-        "tablePointer" : {
-          "table" : "observation"
+        "idPairsTable" : {
+          "table" : "idpairs_observation_occurrence_observation"
         },
-        "fromEntityId" : {
-          "column" : "observation_id"
+        "idPairsIdA" : {
+          "column" : "id_observation_occurrence"
         },
-        "toEntityId" : {
-          "column" : "observation_concept_id"
+        "idPairsIdB" : {
+          "column" : "id_observation"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_observation"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_observation_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation_occurrence"
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_observation_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_observation"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_observation"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation"
+            }
+          }
         }
       },
       "occurrenceToPrimary" : {
-        "tablePointer" : {
-          "table" : "observation"
+        "idPairsTable" : {
+          "table" : "idpairs_observation_occurrence_person"
         },
-        "fromEntityId" : {
-          "column" : "observation_id"
+        "idPairsIdA" : {
+          "column" : "id_observation_occurrence"
         },
-        "toEntityId" : {
-          "column" : "person_id"
-        }
-      }
-    },
-    "auxiliaryDataMappings" : {
-      "criteriaPrimaryRollupCount" : {
-        "tablePointer" : {
-          "table" : "observation_person_occurrence_criteriaPrimaryRollupCount"
+        "idPairsIdB" : {
+          "column" : "id_person"
         },
-        "fieldPointers" : {
-          "id" : {
-            "column" : "id"
-          },
-          "rollup_count" : {
-            "column" : "rollup_count"
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_observation_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation_occurrence"
+            }
           }
         }
       }

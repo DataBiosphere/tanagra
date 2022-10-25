@@ -22,6 +22,7 @@ public final class BigQueryUtils {
   public static final String NUMCHILDREN_COLUMN_NAME = "num_children";
   public static final String COUNT_ID_COLUMN_NAME = "count_id";
   public static final String ROLLUP_COUNT_COLUMN_NAME = "rollup_count";
+  public static final String ROLLUP_DISPLAY_HINTS_COLUMN_NAME = "rollup_displayhints";
 
   private BigQueryUtils() {}
 

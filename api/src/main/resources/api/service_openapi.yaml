@@ -1204,6 +1204,22 @@ components:
               items:
                 type: string
                 enum: ["IS_MEMBER", "PATH", "NUM_CHILDREN", "IS_ROOT"]
+        includeRelationshipFields:
+          description: Relationship fields to include in the returned instances.
+          type: array
+          items:
+            type: object
+            description: Related entity and optional hierarchy
+            properties:
+              relatedEntity:
+                type: string
+              hierarchy:
+                type: string
+              fields:
+                type: array
+                items:
+                  type: string
+                  enum: ["COUNT", "DISPLAY_HINTS"]
         filter:
           $ref: "#/components/schemas/FilterV2"
         orderBy:
@@ -1348,6 +1364,20 @@ components:
                 type: integer
               isRoot:
                 type: boolean
+        relationshipFields:
+          description: Relationship field values for this instance. Only the values requested are populated.
+          type: array
+          items:
+            type: object
+            properties:
+              relatedEntity:
+                type: string
+              hierarchy:
+                type: string
+              count:
+                type: integer
+              displayHints:
+                type: string
 
     InstanceListV2:
       type: object

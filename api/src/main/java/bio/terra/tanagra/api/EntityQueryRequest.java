@@ -4,6 +4,7 @@ import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyField;
+import bio.terra.tanagra.underlay.RelationshipField;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ public class EntityQueryRequest {
   private final Underlay.MappingType mappingType;
   private final List<Attribute> selectAttributes;
   private final List<HierarchyField> selectHierarchyFields;
+  private final List<RelationshipField> selectRelationshipFields;
   private final EntityFilter filter;
   private final List<Attribute> orderByAttributes;
   private final OrderByDirection orderByDirection;
@@ -23,6 +25,7 @@ public class EntityQueryRequest {
     this.mappingType = builder.mappingType;
     this.selectAttributes = builder.selectAttributes;
     this.selectHierarchyFields = builder.selectHierarchyFields;
+    this.selectRelationshipFields = builder.selectRelationshipFields;
     this.filter = builder.filter;
     this.orderByAttributes = builder.orderByAttributes;
     this.orderByDirection = builder.orderByDirection;
@@ -43,6 +46,10 @@ public class EntityQueryRequest {
 
   public List<HierarchyField> getSelectHierarchyFields() {
     return Collections.unmodifiableList(selectHierarchyFields);
+  }
+
+  public List<RelationshipField> getSelectRelationshipFields() {
+    return Collections.unmodifiableList(selectRelationshipFields);
   }
 
   public EntityFilter getFilter() {
@@ -66,6 +73,7 @@ public class EntityQueryRequest {
     private Underlay.MappingType mappingType;
     private List<Attribute> selectAttributes;
     private List<HierarchyField> selectHierarchyFields;
+    private List<RelationshipField> selectRelationshipFields;
     private EntityFilter filter;
     private List<Attribute> orderByAttributes;
     private OrderByDirection orderByDirection;
@@ -88,6 +96,11 @@ public class EntityQueryRequest {
 
     public Builder selectHierarchyFields(List<HierarchyField> selectHierarchyFields) {
       this.selectHierarchyFields = selectHierarchyFields;
+      return this;
+    }
+
+    public Builder selectRelationshipFields(List<RelationshipField> selectRelationshipFields) {
+      this.selectRelationshipFields = selectRelationshipFields;
       return this;
     }
 

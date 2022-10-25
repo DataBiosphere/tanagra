@@ -2,13 +2,15 @@ package bio.terra.tanagra.underlay;
 
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Relationship {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(Relationship.class);
   private final String name;
   private final Entity entityA;
   private final Entity entityB;
-  private List<RelationshipField> fields;
+  private final List<RelationshipField> fields;
 
   private RelationshipMapping sourceMapping;
   private RelationshipMapping indexMapping;
@@ -37,6 +39,10 @@ public class Relationship {
     return name;
   }
 
+  public Entity getRelatedEntity(Entity entity) {
+    return entityA.equals(entity) ? entityB : entityA;
+  }
+
   public Entity getEntityA() {
     return entityA;
   }
@@ -49,9 +55,20 @@ public class Relationship {
     return Collections.unmodifiableList(fields);
   }
 
-  public RelationshipField getField(RelationshipField.Type type, Entity entity) {
+  public RelationshipField getField(
+      RelationshipField.Type type, Entity entity, Hierarchy hierarchy) {
+    LOGGER.info(
+        "get relationship field: {}, {}, {}",
+        type,
+        entity.getName(),
+        hierarchy == null ? "null" : hierarchy.getName());
     return fields.stream()
-        .filter(field -> field.getEntity().equals(entity) && field.getType().equals(type))
+        .filter(
+            field ->
+                field.getType().equals(type)
+                    && field.getEntity().equals(entity)
+                    && ((hierarchy == null && field.getHierarchy() == null)
+                        || (hierarchy != null && hierarchy.equals(field.getHierarchy()))))
         .findFirst()
         .get();
   }

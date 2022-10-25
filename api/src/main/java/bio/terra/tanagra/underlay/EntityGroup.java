@@ -3,6 +3,7 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.indexing.job.WriteRelationshipIdPairs;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
@@ -15,12 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class EntityGroup {
-  private static final Logger LOGGER = LoggerFactory.getLogger(EntityGroup.class);
-
   /** Enum for the types of entity groups supported by Tanagra. */
   public enum Type {
     GROUP_ITEMS,
@@ -127,12 +124,12 @@ public abstract class EntityGroup {
     List<IndexingJob> jobs = new ArrayList<>();
 
     // for each relationship, write the index relationship mapping
-    for (Relationship relationship : getRelationships().values()) {
-      // - if the source relationship mapping table = one of the entity tables, then just populate a
-      // new column on that entity table
-      // - if not, then just copy the table over
-      //      jobs.add(new WriteRelationshipIdPairs(relationship));
-    }
+    getRelationships().values().stream()
+        .forEach(
+            // TODO: If the source relationship mapping table = one of the entity tables, then just
+            // populate a
+            // new column on that entity table, instead of always writing a new table.
+            relationship -> jobs.add(new WriteRelationshipIdPairs(relationship)));
 
     return jobs;
   }
@@ -156,7 +153,7 @@ public abstract class EntityGroup {
     }
     return Optional.empty();
   }
-  
+
   public EntityGroupMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
   }
@@ -164,7 +161,6 @@ public abstract class EntityGroup {
   protected abstract static class Builder {
     private String name;
     private Map<String, Relationship> relationships;
-    private Map<String, AuxiliaryData> auxiliaryData;
     private EntityGroupMapping sourceDataMapping;
     private EntityGroupMapping indexDataMapping;
 
@@ -175,11 +171,6 @@ public abstract class EntityGroup {
 
     public Builder relationships(Map<String, Relationship> relationships) {
       this.relationships = relationships;
-      return this;
-    }
-
-    public Builder auxiliaryData(Map<String, AuxiliaryData> auxiliaryData) {
-      this.auxiliaryData = auxiliaryData;
       return this;
     }
 

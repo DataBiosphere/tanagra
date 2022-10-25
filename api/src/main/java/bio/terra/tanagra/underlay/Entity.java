@@ -242,7 +242,7 @@ public final class Entity {
 
               // generate the display hint
               if (!isIdAttribute(attribute)) {
-                // attribute.setDisplayHint(attributeMapping.computeDisplayHint());
+                attribute.setDisplayHint(attributeMapping.computeDisplayHint());
               }
             });
   }
@@ -309,6 +309,13 @@ public final class Entity {
                     .filter(relationship -> relationship.includesEntity(this))
                     .forEach(relationship -> relationships.add(relationship)));
     return relationships;
+  }
+
+  public Relationship getRelationship(Entity relatedEntity) {
+    return getRelationships().stream()
+        .filter(relationship -> relationship.includesEntity(relatedEntity))
+        .findFirst()
+        .get();
   }
 
   public EntityMapping getMapping(Underlay.MappingType mappingType) {

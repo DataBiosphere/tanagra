@@ -24,6 +24,8 @@ import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Relationship;
+import bio.terra.tanagra.underlay.RelationshipField;
+import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -75,6 +77,20 @@ public class QuerysService {
               columnSchemas.add(hierarchyField.buildColumnSchema());
             });
 
+    // build the additional SELECT field variables and column schemas from relationship fields
+    entityQueryRequest.getSelectRelationshipFields().stream()
+        .forEach(
+            relationshipField -> {
+              RelationshipMapping relationshipMapping =
+                  relationshipField
+                      .getRelationship()
+                      .getMapping(entityQueryRequest.getMappingType());
+              selectFieldVars.add(
+                  relationshipField.buildFieldVariableFromEntityId(
+                      relationshipMapping, entityTableVar, tableVars));
+              columnSchemas.add(relationshipField.buildColumnSchema());
+            });
+
     // build the ORDER BY field variables from attributes
     List<FieldVariable> orderByFieldVars =
         entityQueryRequest.getOrderByAttributes().stream()
@@ -110,6 +126,7 @@ public class QuerysService {
       EntityMapping entityMapping,
       List<Attribute> selectAttributes,
       List<HierarchyField> selectHierarchyFields,
+      List<RelationshipField> selectRelationshipFields,
       QueryRequest queryRequest) {
     DataPointer dataPointer = entityMapping.getTablePointer().getDataPointer();
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
@@ -119,7 +136,10 @@ public class QuerysService {
     while (rowResultsItr.hasNext()) {
       instances.add(
           EntityInstance.fromRowResult(
-              rowResultsItr.next(), selectAttributes, selectHierarchyFields));
+              rowResultsItr.next(),
+              selectAttributes,
+              selectHierarchyFields,
+              selectRelationshipFields));
     }
     return instances;
   }

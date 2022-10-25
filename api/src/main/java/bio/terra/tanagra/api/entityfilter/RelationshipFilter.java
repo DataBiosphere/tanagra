@@ -73,10 +73,7 @@ public class RelationshipFilter extends EntityFilter {
       // build a filter variable for the entity table on the sub query
       //  WHERE relatedEntityId IN (SELECT relatedEntityId FROM relatedEntityTable WHERE subFilter)
       FieldVariable filterEntityIdFieldVar =
-          relationship
-              .getMapping(Underlay.MappingType.SOURCE)
-              .getIdPairsId(filterEntity)
-              .buildVariable(entityTableVar, tableVars);
+          indexMapping.getIdPairsId(filterEntity).buildVariable(entityTableVar, tableVars);
       return new SubQueryFilterVariable(
           filterEntityIdFieldVar, SubQueryFilterVariable.Operator.IN, relatedEntityQuery);
     } else {
