@@ -4,12 +4,12 @@ import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.IArtifact;
 import bio.terra.tanagra.plugin.identity.User;
-import bio.terra.tanagra.service.jdbc.DataSourceFactory;
+import javax.sql.DataSource;
 
 public class OpenAccessControlPlugin implements IAccessControlPlugin {
 
   @Override
-  public void init(DataSourceFactory dataSourceFactory, PluginConfig config) {
+  public void init(PluginConfig config, DataSource dataSource) {
     // do nothing
   }
 

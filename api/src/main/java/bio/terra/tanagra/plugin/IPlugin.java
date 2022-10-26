@@ -1,7 +1,7 @@
 package bio.terra.tanagra.plugin;
 
-import bio.terra.tanagra.service.jdbc.DataSourceFactory;
+import javax.sql.DataSource;
 
 public interface IPlugin {
-  void init(DataSourceFactory dataSoruceFactory, PluginConfig config);
+  void init(PluginConfig config, DataSource dataSource);
 }

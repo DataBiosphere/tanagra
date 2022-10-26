@@ -4,8 +4,7 @@ import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.IArtifact;
 import bio.terra.tanagra.plugin.identity.User;
-import bio.terra.tanagra.service.jdbc.DataSourceFactory;
-import bio.terra.tanagra.service.jdbc.DataSourceId;
+import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -15,11 +14,9 @@ public class SimpleAccessControlPlugin implements IAccessControlPlugin {
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Override
-  public void init(DataSourceFactory dataSourceFactory, PluginConfig config) {
+  public void init(PluginConfig config, DataSource dataSource) {
     this.config = config;
-
-    DataSourceId dataSourceId = DataSourceId.create(this.config.getValue("datasource-id"));
-    jdbcTemplate = new NamedParameterJdbcTemplate(dataSourceFactory.getDataSource(dataSourceId));
+    this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
 
   @Override
