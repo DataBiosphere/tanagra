@@ -9,14 +9,19 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "tablePointer": { "table": "procedure_occurrence" },
-        "fromEntityId": { "column": "procedure_occurrence_id" },
-        "toEntityId":  { "column": "procedure_concept_id" }
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "procedure_concept_id" }
       },
       "occurrenceToPrimary": {
-        "tablePointer": { "table": "procedure_occurrence" },
-        "fromEntityId": { "column": "procedure_occurrence_id" },
-        "toEntityId":  { "column": "person_id" }
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
       }
     }
   },

@@ -6,10 +6,12 @@ import java.util.Map;
 
 public final class EntityGroupMapping {
   private final DataPointer dataPointer;
+  private final Underlay.MappingType mappingType;
   private EntityGroup entityGroup;
 
-  private EntityGroupMapping(DataPointer dataPointer) {
+  private EntityGroupMapping(DataPointer dataPointer, Underlay.MappingType mappingType) {
     this.dataPointer = dataPointer;
+    this.mappingType = mappingType;
   }
 
   public void initialize(EntityGroup entityGroup) {
@@ -17,7 +19,9 @@ public final class EntityGroupMapping {
   }
 
   public static EntityGroupMapping fromSerialized(
-      UFEntityGroupMapping serialized, Map<String, DataPointer> dataPointers) {
+      UFEntityGroupMapping serialized,
+      Map<String, DataPointer> dataPointers,
+      Underlay.MappingType mappingType) {
     if (serialized.getDataPointer() == null || serialized.getDataPointer().isEmpty()) {
       throw new InvalidConfigException("No Data Pointer defined");
     }
@@ -26,11 +30,15 @@ public final class EntityGroupMapping {
     }
     DataPointer dataPointer = dataPointers.get(serialized.getDataPointer());
 
-    return new EntityGroupMapping(dataPointer);
+    return new EntityGroupMapping(dataPointer, mappingType);
   }
 
   public DataPointer getDataPointer() {
     return dataPointer;
+  }
+
+  public Underlay.MappingType getMappingType() {
+    return mappingType;
   }
 
   public EntityGroup getEntityGroup() {

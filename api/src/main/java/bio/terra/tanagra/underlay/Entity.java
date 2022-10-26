@@ -31,6 +31,7 @@ public final class Entity {
   private final TextSearch textSearch;
   private final EntityMapping sourceDataMapping;
   private final EntityMapping indexDataMapping;
+  private Underlay underlay;
 
   private Entity(
       String name,
@@ -47,6 +48,10 @@ public final class Entity {
     this.textSearch = textSearch;
     this.sourceDataMapping = sourceDataMapping;
     this.indexDataMapping = indexDataMapping;
+  }
+
+  public void initialize(Underlay underlay) {
+    this.underlay = underlay;
   }
 
   public static Entity fromJSON(String entityFileName, Map<String, DataPointer> dataPointers)
@@ -237,7 +242,7 @@ public final class Entity {
 
               // generate the display hint
               if (!isIdAttribute(attribute)) {
-                attribute.setDisplayHint(attributeMapping.computeDisplayHint(attribute));
+                attribute.setDisplayHint(attributeMapping.computeDisplayHint());
               }
             });
   }
@@ -293,6 +298,24 @@ public final class Entity {
 
   public TextSearch getTextSearch() {
     return textSearch;
+  }
+
+  public List<Relationship> getRelationships() {
+    List<Relationship> relationships = new ArrayList<>();
+    underlay.getEntityGroups().values().stream()
+        .forEach(
+            entityGroup ->
+                entityGroup.getRelationships().values().stream()
+                    .filter(relationship -> relationship.includesEntity(this))
+                    .forEach(relationship -> relationships.add(relationship)));
+    return relationships;
+  }
+
+  public Relationship getRelationship(Entity relatedEntity) {
+    return getRelationships().stream()
+        .filter(relationship -> relationship.includesEntity(relatedEntity))
+        .findFirst()
+        .get();
   }
 
   public EntityMapping getMapping(Underlay.MappingType mappingType) {

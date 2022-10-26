@@ -61,7 +61,17 @@ public class CreateEntityTable extends BigQueryIndexingJob {
                       hierarchy.getField(HierarchyField.Type.NUM_CHILDREN).buildColumnSchema()));
             });
 
-    // create an empty table with this schema
+    // Build field schemas for relationship fields: count, display_hints.
+    getEntity().getRelationships().stream()
+        .forEach(
+            relationship ->
+                relationship.getFields().stream()
+                    .filter(relationshipField -> relationshipField.getEntity().equals(getEntity()))
+                    .forEach(
+                        relationshipField ->
+                            fields.add(fromColumnSchema(relationshipField.buildColumnSchema()))));
+
+    // Create an empty table with this schema.
     BigQueryDataset outputBQDataset = getBQDataPointer(getEntityIndexTable());
     TableId destinationTable =
         TableId.of(

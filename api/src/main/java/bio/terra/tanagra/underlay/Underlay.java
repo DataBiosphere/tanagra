@@ -98,8 +98,13 @@ public final class Underlay {
               FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
 
-    return new Underlay(
-        serialized.getName(), dataPointers, entities, primaryEntity, entityGroups, uiConfig);
+    Underlay underlay =
+        new Underlay(
+            serialized.getName(), dataPointers, entities, primaryEntity, entityGroups, uiConfig);
+
+    underlay.getEntities().values().stream().forEach(entity -> entity.initialize(underlay));
+
+    return underlay;
   }
 
   public String getName() {

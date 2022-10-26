@@ -17,7 +17,6 @@ import bio.terra.tanagra.query.UpdateFromSelect;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.utils.GoogleBigQuery;
@@ -55,16 +54,9 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
   protected static final int DEFAULT_MAX_HIERARCHY_DEPTH = 64;
 
   private final Entity entity;
-  private final EntityGroup entityGroup;
 
   protected BigQueryIndexingJob(Entity entity) {
     this.entity = entity;
-    this.entityGroup = null;
-  }
-
-  protected BigQueryIndexingJob(EntityGroup entityGroup) {
-    this.entity = null;
-    this.entityGroup = entityGroup;
   }
 
   @Override
@@ -75,10 +67,6 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
   protected Entity getEntity() {
     return entity;
-  }
-
-  protected EntityGroup getEntityGroup() {
-    return entityGroup;
   }
 
   @VisibleForTesting

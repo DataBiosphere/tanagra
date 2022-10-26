@@ -106,7 +106,7 @@ public final class AttributeMapping {
     return dataPointer.lookupDatatype(value);
   }
 
-  public DisplayHint computeDisplayHint(Attribute attribute) {
+  public DisplayHint computeDisplayHint() {
     if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
       return EnumVals.computeForField(attribute.getDataType(), value, display);
     }

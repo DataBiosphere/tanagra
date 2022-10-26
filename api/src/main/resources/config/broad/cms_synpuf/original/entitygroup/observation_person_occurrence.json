@@ -9,14 +9,19 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "tablePointer": { "table": "observation" },
-        "fromEntityId": { "column": "observation_id" },
-        "toEntityId":  { "column": "observation_concept_id" }
+        "idPairsTable": { "table": "observation" },
+        "idPairsIdA": { "column": "observation_id" },
+        "idPairsIdB":  { "column": "observation_concept_id" }
       },
       "occurrenceToPrimary": {
-        "tablePointer": { "table": "observation" },
-        "fromEntityId": { "column": "observation_id" },
-        "toEntityId":  { "column": "person_id" }
+        "idPairsTable": { "table": "observation" },
+        "idPairsIdA": { "column": "observation_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "table": "observation" },
+        "idPairsIdA": { "column": "observation_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
       }
     }
   },
