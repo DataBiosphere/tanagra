@@ -41,15 +41,21 @@ public class EntityQueryRequest {
   }
 
   public List<Attribute> getSelectAttributes() {
-    return Collections.unmodifiableList(selectAttributes);
+    return selectAttributes == null
+        ? Collections.emptyList()
+        : Collections.unmodifiableList(selectAttributes);
   }
 
   public List<HierarchyField> getSelectHierarchyFields() {
-    return Collections.unmodifiableList(selectHierarchyFields);
+    return selectHierarchyFields == null
+        ? Collections.emptyList()
+        : Collections.unmodifiableList(selectHierarchyFields);
   }
 
   public List<RelationshipField> getSelectRelationshipFields() {
-    return Collections.unmodifiableList(selectRelationshipFields);
+    return selectRelationshipFields == null
+        ? Collections.emptyList()
+        : Collections.unmodifiableList(selectRelationshipFields);
   }
 
   public EntityFilter getFilter() {
@@ -57,7 +63,9 @@ public class EntityQueryRequest {
   }
 
   public List<Attribute> getOrderByAttributes() {
-    return Collections.unmodifiableList(orderByAttributes);
+    return orderByAttributes == null
+        ? Collections.emptyList()
+        : Collections.unmodifiableList(orderByAttributes);
   }
 
   public OrderByDirection getOrderByDirection() {

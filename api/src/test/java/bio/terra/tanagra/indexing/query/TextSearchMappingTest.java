@@ -31,6 +31,6 @@ public class TextSearchMappingTest {
             .getMapping(Underlay.MappingType.SOURCE)
             .queryTextSearchStrings()
             .renderSQL(),
-        "query/condition_source_textSearch.sql");
+        "sql/omop/condition_source_textSearch.sql");
   }
 }
