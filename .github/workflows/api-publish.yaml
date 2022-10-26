@@ -20,9 +20,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Auth with gcloud
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@main
         with:
-          version: '270.0.0'
+          version: '407.0.0'
           service_account_email: ${{ secrets.GCR_PUBLISH_EMAIL }}
           service_account_key: ${{ secrets.GCR_PUBLISH_KEY_B64 }}
       - name: Auth Docker for gcloud
