@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class BaseQueryTest extends BaseSpringUnitTest {
-  protected static int DEFAULT_LIMIT = 30;
+  protected static final int DEFAULT_LIMIT = 30;
 
   @Autowired protected UnderlaysService underlaysService;
   @Autowired protected QuerysService querysService;
