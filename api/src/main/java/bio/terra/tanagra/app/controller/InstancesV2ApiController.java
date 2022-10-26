@@ -93,19 +93,29 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 Entity relatedEntity =
                     underlaysService.getEntity(
                         underlayName, includeRelationshipField.getRelatedEntity());
-                Hierarchy hierarchy =
-                    includeRelationshipField.getHierarchy() == null
-                        ? null
-                        : entity.getHierarchy(includeRelationshipField.getHierarchy());
-                Relationship relationship = entity.getRelationship(relatedEntity);
-                includeRelationshipField.getFields().stream()
+                List<Hierarchy> hierarchies = new ArrayList<>();
+                hierarchies.add(null); // Always return the NO_HIERARCHY rollups.
+                if (includeRelationshipField.getHierarchies() != null
+                    && !includeRelationshipField.getHierarchies().isEmpty()) {
+                  includeRelationshipField.getHierarchies().stream()
+                      .forEach(
+                          hierarchyName -> hierarchies.add(entity.getHierarchy(hierarchyName)));
+                }
+
+                hierarchies.stream()
                     .forEach(
-                        relationshipFieldName ->
-                            selectRelationshipFields.add(
-                                relationship.getField(
-                                    RelationshipField.Type.valueOf(relationshipFieldName.name()),
-                                    entity,
-                                    hierarchy)));
+                        hierarchy -> {
+                          Relationship relationship = entity.getRelationship(relatedEntity);
+                          includeRelationshipField.getFields().stream()
+                              .forEach(
+                                  relationshipFieldName ->
+                                      selectRelationshipFields.add(
+                                          relationship.getField(
+                                              RelationshipField.Type.valueOf(
+                                                  relationshipFieldName.name()),
+                                              entity,
+                                              hierarchy)));
+                        });
               });
     }
 
@@ -213,7 +223,10 @@ public class InstancesV2ApiController implements InstancesV2Api {
                         .getRelationship()
                         .getRelatedEntity(relationshipField.getEntity())
                         .getName())
-                .hierarchy(relationshipField.getHierarchyName());
+                .hierarchy(
+                    relationshipField.getHierarchy() == null
+                        ? null
+                        : relationshipField.getHierarchy().getName());
         relationshipFieldSets.put(relationshipField.getName(), relationshipFieldSet);
       }
       switch (relationshipField.getType()) {

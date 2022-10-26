@@ -1209,12 +1209,15 @@ components:
           type: array
           items:
             type: object
-            description: Related entity and optional hierarchy
+            description: Related entity and optional hierarchies. Per-node rollups are always returned.
             properties:
               relatedEntity:
                 type: string
-              hierarchy:
-                type: string
+              hierarchies:
+                type: array
+                description: Hierarchy names
+                items:
+                  type: string
               fields:
                 type: array
                 items:

@@ -83,12 +83,6 @@ public abstract class RelationshipField {
   }
 
   public String getName() {
-    return getType()
-        + "_"
-        + relationship.getName()
-        + "_"
-        + entity.getName()
-        + "_"
-        + getHierarchyName();
+    return relationship.getName() + "_" + entity.getName() + "_" + getHierarchyName();
   }
 }
