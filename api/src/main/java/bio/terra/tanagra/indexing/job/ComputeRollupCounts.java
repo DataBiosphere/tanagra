@@ -67,7 +67,7 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
                   new TableFieldSchema()
                       .setName(ROLLUP_DISPLAY_HINTS_COLUMN_NAME)
                       .setType("STRING")
-                      .setMode("REQUIRED")));
+                      .setMode("NULLABLE")));
 
   private final Relationship relationship;
   private final Hierarchy hierarchy;

@@ -30,8 +30,12 @@ public class WriteRelationshipIdPairs extends BigQueryIndexingJob {
 
   @Override
   public void run(boolean isDryRun) {
+    String idAAlias =
+        relationship.getMapping(Underlay.MappingType.INDEX).getIdPairsIdA().getColumnName();
+    String idBAlias =
+        relationship.getMapping(Underlay.MappingType.INDEX).getIdPairsIdB().getColumnName();
     SQLExpression selectRelationshipIdPairs =
-        relationship.getMapping(Underlay.MappingType.SOURCE).queryIdPairs("idA", "idB");
+        relationship.getMapping(Underlay.MappingType.SOURCE).queryIdPairs(idAAlias, idBAlias);
     String sql = selectRelationshipIdPairs.renderSQL();
     LOGGER.info("select all relationship id pairs SQL: {}", sql);
 

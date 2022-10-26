@@ -95,7 +95,18 @@ public final class Indexer {
 
   public void runJobsForEntity(String name, boolean isDryRun) {
     LOGGER.info("RUN entity: {}", name);
-    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndRun(isDryRun));
+    underlay
+        .getEntity(name)
+        .getIndexingJobs()
+        .forEach(
+            ij -> {
+              try {
+                ij.checkStatusAndRun(isDryRun);
+              } catch (Exception ex) {
+                LOGGER.error("Error running indexing job for entity: {}", ij.getName());
+                LOGGER.error("Exception thrown: {}", ex);
+              }
+            });
   }
 
   public void runJobsForAllEntityGroups(boolean isDryRun) {
@@ -106,7 +117,18 @@ public final class Indexer {
 
   public void runJobsForEntityGroup(String name, boolean isDryRun) {
     LOGGER.info("RUN entity group: {}", name);
-    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndRun(isDryRun));
+    underlay
+        .getEntityGroup(name)
+        .getIndexingJobs()
+        .forEach(
+            ij -> {
+              try {
+                ij.checkStatusAndRun(isDryRun);
+              } catch (Exception ex) {
+                LOGGER.error("Error running indexing job for entity group: {}", ij.getName());
+                LOGGER.error("Exception thrown: {}", ex);
+              }
+            });
   }
 
   public void cleanAllEntities(boolean isDryRun) {
@@ -115,7 +137,18 @@ public final class Indexer {
 
   public void cleanEntity(String name, boolean isDryRun) {
     LOGGER.info("CLEAN entity: {}", name);
-    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndClean(isDryRun));
+    underlay
+        .getEntity(name)
+        .getIndexingJobs()
+        .forEach(
+            ij -> {
+              try {
+                ij.checkStatusAndClean(isDryRun);
+              } catch (Exception ex) {
+                LOGGER.error("Error running clean job for entity: {}", ij.getName());
+                LOGGER.error("Exception thrown: {}", ex);
+              }
+            });
   }
 
   public void cleanAllEntityGroups(boolean isDryRun) {
@@ -126,7 +159,18 @@ public final class Indexer {
 
   public void cleanEntityGroup(String name, boolean isDryRun) {
     LOGGER.info("CLEAN entity group: {}", name);
-    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndClean(isDryRun));
+    underlay
+        .getEntityGroup(name)
+        .getIndexingJobs()
+        .forEach(
+            ij -> {
+              try {
+                ij.checkStatusAndClean(isDryRun);
+              } catch (Exception ex) {
+                LOGGER.error("Error running clean job for entity group: {}", ij.getName());
+                LOGGER.error("Exception thrown: {}", ex);
+              }
+            });
   }
 
   public Underlay getUnderlay() {
