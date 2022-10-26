@@ -1,9 +1,11 @@
-package bio.terra.tanagra.plugin.identity;
+package bio.terra.tanagra.plugin.included;
 
 import bio.terra.tanagra.plugin.PluginConfig;
+import bio.terra.tanagra.plugin.identity.IIdentityPlugin;
+import bio.terra.tanagra.plugin.identity.User;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 
-public class DefaultIdentityPlugin implements IIdentityPlugin {
+public class NoIdentityPlugin implements IIdentityPlugin {
   @Override
   public void init(DataSourceFactory dataSourceFactory, PluginConfig config) {
     // do nothing

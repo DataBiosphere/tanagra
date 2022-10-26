@@ -1,10 +1,12 @@
-package bio.terra.tanagra.plugin.accesscontrol;
+package bio.terra.tanagra.plugin.included;
 
 import bio.terra.tanagra.plugin.PluginConfig;
+import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
+import bio.terra.tanagra.plugin.accesscontrol.IArtifact;
 import bio.terra.tanagra.plugin.identity.User;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 
-public class DefaultAccessControlPlugin implements IAccessControlPlugin {
+public class OpenAccessControlPlugin implements IAccessControlPlugin {
 
   @Override
   public void init(DataSourceFactory dataSourceFactory, PluginConfig config) {

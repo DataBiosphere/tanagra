@@ -1,4 +1,4 @@
-package bio.terra.tanagra.plugin.vumc;
+package bio.terra.tanagra.plugin.included;
 
 import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
-public class AccessControlPlugin implements IAccessControlPlugin {
+public class SimpleAccessControlPlugin implements IAccessControlPlugin {
   private PluginConfig config;
   private NamedParameterJdbcTemplate jdbcTemplate;
 

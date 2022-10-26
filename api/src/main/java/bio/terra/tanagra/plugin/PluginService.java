@@ -2,10 +2,10 @@ package bio.terra.tanagra.plugin;
 
 import static org.springframework.util.StringUtils.capitalize;
 
-import bio.terra.tanagra.plugin.accesscontrol.DefaultAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
-import bio.terra.tanagra.plugin.identity.DefaultIdentityPlugin;
 import bio.terra.tanagra.plugin.identity.IIdentityPlugin;
+import bio.terra.tanagra.plugin.included.DefaultAccessControlPlugin;
+import bio.terra.tanagra.plugin.included.DefaultIdentityPlugin;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +34,8 @@ public class PluginService {
     loadPlugins();
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends IPlugin> T getPlugin(Class c) {
-    return (T) availablePlugins.get(c.getName());
+  public IPlugin getPlugin(Class<? extends IPlugin> c) {
+    return availablePlugins.get(c.getName());
   }
 
   private void loadPlugins() throws PluginException {
