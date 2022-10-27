@@ -141,6 +141,14 @@ public final class Underlay {
     return entityGroups.get(name);
   }
 
+  public EntityGroup getEntityGroup(EntityGroup.Type type, Entity entity) {
+    return entityGroups.values().stream()
+        .filter(
+            entityGroup -> type.equals(entityGroup.getType()) && entityGroup.includesEntity(entity))
+        .findFirst()
+        .get();
+  }
+
   public String getUIConfig() {
     return uiConfig;
   }

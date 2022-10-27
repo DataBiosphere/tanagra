@@ -120,6 +120,10 @@ public abstract class EntityGroup {
 
   public abstract Map<String, Entity> getEntityMap();
 
+  public boolean includesEntity(Entity entity) {
+    return getEntityMap().values().stream().filter(e -> entity.equals(e)).findFirst().isPresent();
+  }
+
   public List<IndexingJob> getIndexingJobs() {
     List<IndexingJob> jobs = new ArrayList<>();
 

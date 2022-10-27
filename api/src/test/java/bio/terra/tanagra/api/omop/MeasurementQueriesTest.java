@@ -1,64 +1,29 @@
 package bio.terra.tanagra.api.omop;
 
-import bio.terra.tanagra.api.BaseQueryTest;
+import bio.terra.tanagra.api.BaseQueriesTest;
 import bio.terra.tanagra.api.EntityQueryRequest;
 import bio.terra.tanagra.api.entityfilter.AttributeFilter;
 import bio.terra.tanagra.api.entityfilter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.entityfilter.HierarchyAncestorFilter;
-import bio.terra.tanagra.api.entityfilter.HierarchyParentFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
-import bio.terra.tanagra.api.entityfilter.TextFilter;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public abstract class MeasurementQueriesTest extends BaseQueryTest {
-  @Test
-  void noFilter() throws IOException {
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .limit(DEFAULT_LIMIT)
-            .build();
-    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
-        "sql/" + getSqlDirectoryName() + "/measurement-noFilter.sql");
-  }
-
+public abstract class MeasurementQueriesTest extends BaseQueriesTest {
   @Test
   void textFilter() throws IOException {
     // filter for "measurement" entity instances that match the search term "hematocrit"
     // i.e. measurements that have a name or synonym that includes "hematocrit"
-    TextFilter textFilter =
-        new TextFilter.Builder()
-            .textSearch(getEntity().getTextSearch())
-            .functionTemplate(FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH)
-            .text("hematocrit")
-            .build();
-
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .filter(textFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
-    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
-        "sql/" + getSqlDirectoryName() + "/measurement-textFilter.sql");
+    textFilter("hematocrit");
   }
 
   @Test
-  void hierarchyRootFilterLOINC() throws IOException {
+  void hierarchyRootFilterLoinc() throws IOException {
     // filter for "measurement" entity instances that are root nodes in the "standard" hierarchy
     HierarchyRootFilter hierarchyRootFilter =
         new HierarchyRootFilter(getEntity().getHierarchy("standard"));
@@ -91,7 +56,7 @@ public abstract class MeasurementQueriesTest extends BaseQueryTest {
   }
 
   @Test
-  void hierarchyRootFilterSNOMED() throws IOException {
+  void hierarchyRootFilterSnomed() throws IOException {
     // filter for "measurement" entity instances that are root nodes in the "standard" hierarchy
     HierarchyRootFilter hierarchyRootFilter =
         new HierarchyRootFilter(getEntity().getHierarchy("standard"));
@@ -129,21 +94,7 @@ public abstract class MeasurementQueriesTest extends BaseQueryTest {
     // instance with concept_id=37072239
     // i.e. give me all the children of "Glucose tolerance 2 hours panel | Serum or Plasma |
     // Challenge Bank Panels"
-    HierarchyParentFilter hierarchyParentFilter =
-        new HierarchyParentFilter(getEntity().getHierarchy("standard"), new Literal(37_072_239L));
-
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy("standard").getFields())
-            .filter(hierarchyParentFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
-    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
-        "sql/" + getSqlDirectoryName() + "/measurement-hierarchyParentFilter.sql");
+    hierarchyParentFilter("standard", 37_072_239L, "glucoseTolerance");
   }
 
   @Test
@@ -151,21 +102,7 @@ public abstract class MeasurementQueriesTest extends BaseQueryTest {
     // filter for "measurement" entity instances that are descendants of the "measurement" entity
     // instance with concept_id=37048668
     // i.e. give me all the descendants of "Glucose tolerance 2 hours panel"
-    HierarchyAncestorFilter hierarchyAncestorFilter =
-        new HierarchyAncestorFilter(getEntity().getHierarchy("standard"), new Literal(37_048_668L));
-
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy("standard").getFields())
-            .filter(hierarchyAncestorFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
-    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
-        "sql/" + getSqlDirectoryName() + "/measurement-hierarchyAncestorFilter.sql");
+    hierarchyAncestorFilter("standard", 37_048_668L, "glucoseTolerance");
   }
 
   @Override
