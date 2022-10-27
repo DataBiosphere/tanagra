@@ -14,7 +14,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-public abstract class OmopDeviceOccurrenceTest extends BaseQueryTest {
+public abstract class DeviceOccurrenceQueriesTest extends BaseQueryTest {
   @Test
   void longLegCast() throws IOException {
     Entity deviceEntity = underlaysService.getEntity(getUnderlayName(), "device");

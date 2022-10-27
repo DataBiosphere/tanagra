@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public abstract class OmopConditionOccurrenceTest extends BaseQueryTest {
+public abstract class ConditionOccurrenceQueriesTest extends BaseQueryTest {
   @Test
   void diabetes() throws IOException {
     Entity conditionEntity = underlaysService.getEntity(getUnderlayName(), "condition");

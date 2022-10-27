@@ -9,7 +9,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-public abstract class OmopDeviceTest extends BaseQueryTest {
+public abstract class ObservationQueriesTest extends BaseQueryTest {
   @Test
   void noFilter() throws IOException {
     EntityQueryRequest entityQueryRequest =
@@ -21,18 +21,18 @@ public abstract class OmopDeviceTest extends BaseQueryTest {
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         querysService.buildInstancesQuery(entityQueryRequest).getSql(),
-        "sql/" + getSqlDirectoryName() + "/device-noFilter.sql");
+        "sql/" + getSqlDirectoryName() + "/observation-noFilter.sql");
   }
 
   @Test
   void textFilter() throws IOException {
-    // filter for "device" entity instances that match the search term "hearing aid"
-    // i.e. devices that have a name or synonym that includes "hearing aid"
+    // filter for "observation" entity instances that match the search term "smoke"
+    // i.e. observations that have a name or synonym that includes "smoke"
     TextFilter textFilter =
         new TextFilter.Builder()
             .textSearch(getEntity().getTextSearch())
             .functionTemplate(FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH)
-            .text("hearing aid")
+            .text("smoke")
             .build();
 
     EntityQueryRequest entityQueryRequest =
@@ -45,11 +45,11 @@ public abstract class OmopDeviceTest extends BaseQueryTest {
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         querysService.buildInstancesQuery(entityQueryRequest).getSql(),
-        "sql/" + getSqlDirectoryName() + "/device-textFilter.sql");
+        "sql/" + getSqlDirectoryName() + "/observation-textFilter.sql");
   }
 
   @Override
   protected String getEntityName() {
-    return "device";
+    return "observation";
   }
 }

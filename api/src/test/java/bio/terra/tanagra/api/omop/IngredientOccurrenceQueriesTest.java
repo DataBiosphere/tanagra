@@ -14,7 +14,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-public abstract class OmopIngredientOccurrenceTest extends BaseQueryTest {
+public abstract class IngredientOccurrenceQueriesTest extends BaseQueryTest {
   @Test
   void longLegCast() throws IOException {
     Entity ingredientEntity = underlaysService.getEntity(getUnderlayName(), "ingredient");
