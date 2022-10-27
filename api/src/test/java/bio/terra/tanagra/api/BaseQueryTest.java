@@ -20,6 +20,10 @@ public abstract class BaseQueryTest extends BaseSpringUnitTest {
 
   protected abstract String getUnderlayName();
 
+  protected String getSqlDirectoryName() {
+    return getUnderlayName().replace("_", "");
+  }
+
   protected abstract String getEntityName();
 
   protected Entity getEntity() {
