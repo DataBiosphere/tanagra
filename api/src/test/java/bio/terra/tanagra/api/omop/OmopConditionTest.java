@@ -1,10 +1,12 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
+import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public abstract class ConditionQueriesTest extends BaseQueriesTest {
+public abstract class OmopConditionTest extends BaseQueriesTest {
   @Test
   void textFilter() throws IOException {
     // filter for "condition" entity instances that match the search term "sense of smell absent"
@@ -32,6 +34,30 @@ public abstract class ConditionQueriesTest extends BaseQueriesTest {
     // instance with concept_id=201826
     // i.e. give me all the descendants of "Type 2 diabetes mellitus"
     hierarchyAncestorFilter("standard", 201_826L, "diabetes");
+  }
+
+  @Test
+  void cohort() throws IOException {
+    // Cohort of people with >=1 occurrence of condition = "Type 2 diabetes mellitus".
+    singleCriteriaCohort(getEntity(), "diabetes", 201_826L);
+  }
+
+  @Test
+  void dataset() throws IOException {
+    // Condition occurrences for cohort of people with >=1 occurrence of condition = "Type 2
+    // diabetes mellitus".
+    allOccurrencesForSingleCriteriaCohort(getEntity(), "diabetes", 201_826L);
+  }
+
+  @Test
+  void datasetTwoCriteria() throws IOException {
+    // Condition occurrences for cohort of people with >=1 occurrence of condition = "Type 2
+    // diabetes mellitus" AND >=1 occurrence of condition = "Sepsis".
+    allOccurrencesForSingleCriteriaCohort(
+        getEntity(),
+        "diabetesAndSepsis",
+        List.of(201_826L, 132_797L),
+        BooleanAndOrFilterVariable.LogicalOperator.AND);
   }
 
   @Override

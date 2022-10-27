@@ -1,1 +1,0 @@
-SELECT d.device AS device, d.end_date AS end_date, d.id AS id, d.person_id AS person_id, d.source_criteria_id AS source_criteria_id, d.source_value AS source_value, d.start_date AS start_date, d.t_display_device AS t_display_device, d.visit_occurrence_id AS visit_occurrence_id FROM `broad-tanagra-dev.cmssynpuf_index`.device_occurrence AS d LIMIT 30

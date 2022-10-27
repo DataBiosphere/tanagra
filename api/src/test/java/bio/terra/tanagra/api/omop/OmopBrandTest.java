@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.BaseQueriesTest;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-public abstract class BrandQueriesTest extends BaseQueriesTest {
+public abstract class OmopBrandTest extends BaseQueriesTest {
   @Test
   void textFilter() throws IOException {
     // filter for "brand" entity instances that match the search term "paracetamol"

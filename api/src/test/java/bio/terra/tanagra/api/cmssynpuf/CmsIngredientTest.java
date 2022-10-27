@@ -1,6 +1,8 @@
 package bio.terra.tanagra.api.cmssynpuf;
 
-public class ProcedureQueriesTest extends bio.terra.tanagra.api.omop.ProcedureQueriesTest {
+import bio.terra.tanagra.api.omop.OmopIngredientTest;
+
+public class CmsIngredientTest extends OmopIngredientTest {
   @Override
   protected String getUnderlayName() {
     return "cms_synpuf";

@@ -1,6 +1,8 @@
 package bio.terra.tanagra.api.cmssynpuf;
 
-public class BrandQueriesTest extends bio.terra.tanagra.api.omop.BrandQueriesTest {
+import bio.terra.tanagra.api.omop.OmopBrandTest;
+
+public class CmsBrandTest extends OmopBrandTest {
   @Override
   protected String getUnderlayName() {
     return "cms_synpuf";

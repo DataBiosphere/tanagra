@@ -13,7 +13,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-public abstract class IngredientQueriesTest extends BaseQueriesTest {
+public abstract class OmopIngredientTest extends BaseQueriesTest {
   @Test
   void textFilter() throws IOException {
     // filter for "ingredient" entity instances that match the search term "alcohol"
@@ -73,6 +73,18 @@ public abstract class IngredientQueriesTest extends BaseQueriesTest {
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         querysService.buildInstancesQuery(entityQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/ingredient-relationshipFilter.sql");
+  }
+
+  @Test
+  void cohort() throws IOException {
+    // Cohort of people with >=1 occurrence of ingredient = "Ibuprofen".
+    singleCriteriaCohort(getEntity(), "ibuprofen", 1_177_480L);
+  }
+
+  @Test
+  void dataset() throws IOException {
+    // Ingredient occurrences for cohort of people with >=1 occurrence of ingredient = "Ibuprofen".
+    allOccurrencesForSingleCriteriaCohort(getEntity(), "ibuprofen", 1_177_480L);
   }
 
   @Override

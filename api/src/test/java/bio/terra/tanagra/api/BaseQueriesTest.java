@@ -3,12 +3,14 @@ package bio.terra.tanagra.api;
 import static bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator.EQUALS;
 
 import bio.terra.tanagra.api.entityfilter.AttributeFilter;
+import bio.terra.tanagra.api.entityfilter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyAncestorFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyParentFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
 import bio.terra.tanagra.api.entityfilter.RelationshipFilter;
 import bio.terra.tanagra.api.entityfilter.TextFilter;
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
@@ -17,6 +19,8 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,39 +164,24 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             + "-hierarchyAncestorFilter.sql");
   }
 
-  protected void allOccurrencesForPrimariesWithACriteria(long criteriaEntityId, String criteriaName)
+  protected void allOccurrencesForSingleCriteriaCohort(
+      Entity criteriaEntity, String description, long criteriaEntityId) throws IOException {
+    allOccurrencesForSingleCriteriaCohort(
+        criteriaEntity,
+        description,
+        List.of(criteriaEntityId),
+        BooleanAndOrFilterVariable.LogicalOperator.OR);
+  }
+
+  protected void allOccurrencesForSingleCriteriaCohort(
+      Entity criteriaEntity,
+      String description,
+      List<Long> criteriaEntityIds,
+      BooleanAndOrFilterVariable.LogicalOperator logicalOperator)
       throws IOException {
-    // Find the CRITERIA_OCCURRENCE entity group for this entity.
-    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
-    EntityGroup entityGroup =
-        underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, getEntity());
-    CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
-
-    // Filter for criteria entity instances that have id=criteriaEntityId.
-    // e.g. Condition "Type 2 diabetes mellitus".
-    AttributeFilter criteria =
-        new AttributeFilter(
-            criteriaOccurrence.getCriteriaEntity().getAttribute("id"),
-            EQUALS,
-            new Literal(criteriaEntityId));
-
-    // Filter for occurrence entity instances that are related to criteria entity instances that
-    // have id=criteriaEntityId.
-    // e.g. Occurrences of "Type 2 diabetes mellitus".
-    RelationshipFilter occurrencesOfCriteria =
-        new RelationshipFilter(
-            criteriaOccurrence.getOccurrenceEntity(),
-            criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-            criteria);
-
-    // Filter for primary entity instances that are related to occurrence entity instances that are
-    // related to criteria entity instances that have id=criteriaEntityId.
-    // e.g. People with occurrences of "Type 2 diabetes mellitus".
-    RelationshipFilter primaryWithOccurrencesOfCriteria =
-        new RelationshipFilter(
-            criteriaOccurrence.getPrimaryEntity(),
-            criteriaOccurrence.getOccurrencePrimaryRelationship(),
-            occurrencesOfCriteria);
+    CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
+    EntityFilter cohortFilter =
+        buildCohortFilter(criteriaOccurrence, criteriaEntityIds, logicalOperator);
 
     // Filter for occurrence entity instances that are related to primary entity instances that are
     // related to occurrence entity instances that are related to criteria entity instances that
@@ -200,18 +189,18 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     // e.g. Occurrences of any condition for people with at least one occurrence of "Type 2 diabetes
     // mellitus". This set of occurrences will include non-diabetes condition occurrences, such as
     // covid.
-    RelationshipFilter allOccurrencesForPrimaryWithOccurrencesOfCriteria =
+    RelationshipFilter allOccurrencesForCohort =
         new RelationshipFilter(
             criteriaOccurrence.getOccurrenceEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(),
-            primaryWithOccurrencesOfCriteria);
+            cohortFilter);
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
             .entity(criteriaOccurrence.getOccurrenceEntity())
             .mappingType(Underlay.MappingType.INDEX)
             .selectAttributes(criteriaOccurrence.getOccurrenceEntity().getAttributes())
-            .filter(allOccurrencesForPrimaryWithOccurrencesOfCriteria)
+            .filter(allOccurrencesForCohort)
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
@@ -221,7 +210,102 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             + "/"
             + criteriaOccurrence.getOccurrenceEntity().getName().replace("_", "")
             + "-"
-            + criteriaName
+            + description
             + ".sql");
+  }
+
+  protected void singleCriteriaCohort(
+      Entity criteriaEntity, String description, long criteriaEntityId) throws IOException {
+    singleCriteriaCohort(
+        criteriaEntity,
+        description,
+        List.of(criteriaEntityId),
+        BooleanAndOrFilterVariable.LogicalOperator.OR);
+  }
+
+  protected void singleCriteriaCohort(
+      Entity criteriaEntity,
+      String description,
+      List<Long> criteriaEntityIds,
+      BooleanAndOrFilterVariable.LogicalOperator logicalOperator)
+      throws IOException {
+    CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
+    EntityFilter cohortFilter =
+        buildCohortFilter(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+
+    EntityQueryRequest entityQueryRequest =
+        new EntityQueryRequest.Builder()
+            .entity(criteriaOccurrence.getPrimaryEntity())
+            .mappingType(Underlay.MappingType.INDEX)
+            .selectAttributes(criteriaOccurrence.getPrimaryEntity().getAttributes())
+            .filter(cohortFilter)
+            .limit(DEFAULT_LIMIT)
+            .build();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        "sql/"
+            + getSqlDirectoryName()
+            + "/"
+            + criteriaOccurrence.getPrimaryEntity().getName().replace("_", "")
+            + "-"
+            + description
+            + ".sql");
+  }
+
+  /** Lookup the CRITERIA_OCCURRENCE entity group for the given criteria entity. */
+  private CriteriaOccurrence getCriteriaOccurrenceEntityGroup(Entity criteriaEntity) {
+    // Find the CRITERIA_OCCURRENCE entity group for this entity. We need to lookup the entity group
+    // with the criteria entity, not the primary entity, because the primary entity will be a member
+    // of many groups.
+    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    EntityGroup entityGroup =
+        underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, criteriaEntity);
+    return (CriteriaOccurrence) entityGroup;
+  }
+
+  /** Build a RelationshipFilter for a cohort. */
+  private EntityFilter buildCohortFilter(
+      CriteriaOccurrence criteriaOccurrence,
+      List<Long> criteriaEntityIds,
+      BooleanAndOrFilterVariable.LogicalOperator logicalOperator) {
+
+    List<EntityFilter> criteriaFilters =
+        criteriaEntityIds.stream()
+            .map(
+                criteriaEntityId -> {
+                  // Filter for criteria entity instances that have id=criteriaEntityId.
+                  // e.g. Condition "Type 2 diabetes mellitus".
+                  AttributeFilter criteria =
+                      new AttributeFilter(
+                          criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
+                          EQUALS,
+                          new Literal(criteriaEntityId));
+
+                  // Filter for occurrence entity instances that are related to criteria entity
+                  // instances that
+                  // have id=criteriaEntityId.
+                  // e.g. Occurrences of "Type 2 diabetes mellitus".
+                  RelationshipFilter occurrencesOfCriteria =
+                      new RelationshipFilter(
+                          criteriaOccurrence.getOccurrenceEntity(),
+                          criteriaOccurrence.getOccurrenceCriteriaRelationship(),
+                          criteria);
+
+                  // Filter for primary entity instances that are related to occurrence entity
+                  // instances that are
+                  // related to criteria entity instances that have id=criteriaEntityId.
+                  // e.g. People with occurrences of "Type 2 diabetes mellitus".
+                  return new RelationshipFilter(
+                      criteriaOccurrence.getPrimaryEntity(),
+                      criteriaOccurrence.getOccurrencePrimaryRelationship(),
+                      occurrencesOfCriteria);
+                })
+            .collect(Collectors.toList());
+
+    if (criteriaFilters.size() == 1) {
+      return criteriaFilters.get(0);
+    } else {
+      return new BooleanAndOrFilter(logicalOperator, criteriaFilters);
+    }
   }
 }

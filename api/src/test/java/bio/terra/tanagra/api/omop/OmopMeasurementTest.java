@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public abstract class MeasurementQueriesTest extends BaseQueriesTest {
+public abstract class OmopMeasurementTest extends BaseQueriesTest {
   @Test
   void textFilter() throws IOException {
     // filter for "measurement" entity instances that match the search term "hematocrit"
@@ -103,6 +103,20 @@ public abstract class MeasurementQueriesTest extends BaseQueriesTest {
     // instance with concept_id=37048668
     // i.e. give me all the descendants of "Glucose tolerance 2 hours panel"
     hierarchyAncestorFilter("standard", 37_048_668L, "glucoseTolerance");
+  }
+
+  @Test
+  void cohort() throws IOException {
+    // Cohort of people with >=1 occurrence of measurement = "Hematocrit [Volume Fraction] of
+    // Blood".
+    singleCriteriaCohort(getEntity(), "hematocrit", 3_009_542L);
+  }
+
+  @Test
+  void dataset() throws IOException {
+    // Measurement occurrences for cohort of people with >=1 occurrence of measurement = "Hematocrit
+    // [Volume Fraction] of Blood".
+    allOccurrencesForSingleCriteriaCohort(getEntity(), "hematocrit", 3_009_542L);
   }
 
   @Override
