@@ -60,6 +60,13 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
         BooleanAndOrFilterVariable.LogicalOperator.AND);
   }
 
+  @Test
+  void cohortCount() throws IOException {
+    // Count the number of people with >=1 occurrence of condition = "Type 2 diabetes mellitus",
+    // grouped by ethnicity.
+    countSingleCriteriaCohort(getEntity(), "diabetes", List.of("gender", "race"), 201_826L);
+  }
+
   @Override
   protected String getEntityName() {
     return "condition";
