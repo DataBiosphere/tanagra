@@ -23,9 +23,7 @@ import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
-import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.Hierarchy;
-import bio.terra.tanagra.underlay.Underlay;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,8 +41,7 @@ public final class FromApiConversionService {
     this.querysService = querysService;
   }
 
-  public EntityFilter fromApiObject(
-      ApiFilterV2 apiFilter, Entity entity, EntityMapping entityMapping, String underlayName) {
+  public EntityFilter fromApiObject(ApiFilterV2 apiFilter, Entity entity, String underlayName) {
     switch (apiFilter.getFilterType()) {
       case ATTRIBUTE:
         ApiAttributeFilterV2 apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
@@ -88,11 +85,7 @@ public final class FromApiConversionService {
             underlaysService.getEntity(underlayName, apiRelationshipFilter.getEntity());
         // TODO: Allow building queries against the source data mapping also.
         EntityFilter subFilter =
-            fromApiObject(
-                apiRelationshipFilter.getSubfilter(),
-                relatedEntity,
-                relatedEntity.getMapping(Underlay.MappingType.INDEX),
-                underlayName);
+            fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlayName);
 
         Collection<EntityGroup> entityGroups =
             underlaysService.getUnderlay(underlayName).getEntityGroups().values();
@@ -103,9 +96,7 @@ public final class FromApiConversionService {
             apiFilter.getFilterUnion().getBooleanLogicFilter();
         List<EntityFilter> subFilters =
             apiBooleanLogicFilter.getSubfilters().stream()
-                .map(
-                    apiSubFilter ->
-                        fromApiObject(apiSubFilter, entity, entityMapping, underlayName))
+                .map(apiSubFilter -> fromApiObject(apiSubFilter, entity, underlayName))
                 .collect(Collectors.toList());
         switch (apiBooleanLogicFilter.getOperator()) {
           case NOT:

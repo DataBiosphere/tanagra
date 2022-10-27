@@ -10,10 +10,12 @@ import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
 import bio.terra.tanagra.api.entityfilter.RelationshipFilter;
 import bio.terra.tanagra.api.entityfilter.TextFilter;
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
+import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
@@ -21,6 +23,7 @@ import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -252,15 +255,70 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             + ".sql");
   }
 
+  protected void countSingleCriteriaCohort(
+      Entity criteriaEntity,
+      String description,
+      List<String> groupByAttributes,
+      long criteriaEntityId)
+      throws IOException {
+    countSingleCriteriaCohort(
+        criteriaEntity,
+        description,
+        groupByAttributes,
+        List.of(criteriaEntityId),
+        BooleanAndOrFilterVariable.LogicalOperator.OR);
+  }
+
+  protected void countSingleCriteriaCohort(
+      Entity criteriaEntity,
+      String description,
+      List<String> groupByAttributes,
+      List<Long> criteriaEntityIds,
+      BooleanAndOrFilterVariable.LogicalOperator logicalOperator)
+      throws IOException {
+    CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
+    EntityFilter cohortFilter =
+        buildCohortFilter(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+    count(criteriaOccurrence.getPrimaryEntity(), description, groupByAttributes, cohortFilter);
+  }
+
+  protected void count(Entity entityToCount, String description, List<String> groupByAttributes)
+      throws IOException {
+    count(entityToCount, description, groupByAttributes, null);
+  }
+
+  private void count(
+      Entity entityToCount,
+      String description,
+      List<String> groupByAttributes,
+      @Nullable EntityFilter cohortFilter)
+      throws IOException {
+    List<Attribute> groupBy =
+        groupByAttributes.stream()
+            .map(attributeName -> entityToCount.getAttribute(attributeName))
+            .collect(Collectors.toList());
+    QueryRequest entityCountRequest =
+        querysService.buildInstanceCountsQuery(
+            entityToCount, Underlay.MappingType.INDEX, groupBy, cohortFilter);
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        entityCountRequest.getSql(),
+        "sql/"
+            + getSqlDirectoryName()
+            + "/"
+            + entityToCount.getName().replace("_", "")
+            + "-"
+            + description
+            + "-count.sql");
+  }
+
   /** Lookup the CRITERIA_OCCURRENCE entity group for the given criteria entity. */
   private CriteriaOccurrence getCriteriaOccurrenceEntityGroup(Entity criteriaEntity) {
     // Find the CRITERIA_OCCURRENCE entity group for this entity. We need to lookup the entity group
     // with the criteria entity, not the primary entity, because the primary entity will be a member
     // of many groups.
     Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
-    EntityGroup entityGroup =
+    return (CriteriaOccurrence)
         underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, criteriaEntity);
-    return (CriteriaOccurrence) entityGroup;
   }
 
   /** Build a RelationshipFilter for a cohort. */

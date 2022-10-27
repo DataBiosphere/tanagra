@@ -131,9 +131,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
 
     EntityFilter entityFilter = null;
     if (body.getFilter() != null) {
-      entityFilter =
-          fromApiConversionService.fromApiObject(
-              body.getFilter(), entity, entityMapping, underlayName);
+      entityFilter = fromApiConversionService.fromApiObject(body.getFilter(), entity, underlayName);
     }
 
     QueryRequest queryRequest =
@@ -252,8 +250,6 @@ public class InstancesV2ApiController implements InstancesV2Api {
   public ResponseEntity<ApiInstanceCountListV2> countInstances(
       String underlayName, String entityName, ApiCountQueryV2 body) {
     Entity entity = underlaysService.getEntity(underlayName, entityName);
-    // TODO: Allow building queries against the source data mapping also.
-    EntityMapping entityMapping = entity.getMapping(Underlay.MappingType.INDEX);
 
     List<Attribute> attributes = new ArrayList<>();
     if (body.getAttributes() != null) {
@@ -265,15 +261,17 @@ public class InstancesV2ApiController implements InstancesV2Api {
 
     EntityFilter entityFilter = null;
     if (body.getFilter() != null) {
-      entityFilter =
-          fromApiConversionService.fromApiObject(
-              body.getFilter(), entity, entityMapping, underlayName);
+      entityFilter = fromApiConversionService.fromApiObject(body.getFilter(), entity, underlayName);
     }
 
     QueryRequest queryRequest =
-        querysService.buildInstanceCountsQuery(entity, entityMapping, attributes, entityFilter);
+        querysService.buildInstanceCountsQuery(
+            entity, Underlay.MappingType.INDEX, attributes, entityFilter);
     List<EntityInstanceCount> entityInstanceCounts =
-        querysService.runInstanceCountsQuery(entityMapping, attributes, queryRequest);
+        querysService.runInstanceCountsQuery(
+            entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer(),
+            attributes,
+            queryRequest);
 
     return ResponseEntity.ok(
         new ApiInstanceCountListV2()
