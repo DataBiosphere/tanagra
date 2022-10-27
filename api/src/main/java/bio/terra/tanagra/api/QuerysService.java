@@ -123,12 +123,11 @@ public class QuerysService {
   }
 
   public List<EntityInstance> runInstancesQuery(
-      EntityMapping entityMapping,
+      DataPointer dataPointer,
       List<Attribute> selectAttributes,
       List<HierarchyField> selectHierarchyFields,
       List<RelationshipField> selectRelationshipFields,
       QueryRequest queryRequest) {
-    DataPointer dataPointer = entityMapping.getTablePointer().getDataPointer();
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
     List<EntityInstance> instances = new ArrayList<>();

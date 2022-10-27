@@ -22,8 +22,8 @@ import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.Relationship;
@@ -59,9 +59,6 @@ public class InstancesV2ApiController implements InstancesV2Api {
   public ResponseEntity<ApiInstanceListV2> queryInstances(
       String underlayName, String entityName, ApiQueryV2 body) {
     Entity entity = underlaysService.getEntity(underlayName, entityName);
-    // TODO: Allow building queries against the source data mapping also.
-    EntityMapping entityMapping = entity.getMapping(Underlay.MappingType.INDEX);
-
     List<Attribute> selectAttributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
       selectAttributes =
@@ -147,9 +144,11 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 .orderByDirection(orderByDirection)
                 .limit(body.getLimit())
                 .build());
+    DataPointer indexDataPointer =
+        entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer();
     List<EntityInstance> entityInstances =
         querysService.runInstancesQuery(
-            entityMapping,
+            indexDataPointer,
             selectAttributes,
             selectHierarchyFields,
             selectRelationshipFields,
