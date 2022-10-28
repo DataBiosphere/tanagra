@@ -1,14 +1,16 @@
 {
-  "name": "aou_synthetic",
+  "name": "verily_aou_synthetic",
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
-      "projectId": "broad-tanagra-dev",
-      "datasetId": "aou_synthetic_SR2019q4r4" },
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "aou_synthetic_SR2019q4r4",
+      "queryProjectId": "verily-tanagra-dev" },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
-      "projectId": "broad-tanagra-dev",
-      "datasetId": "aousynthetic_index" } ],
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "aou_synthetic_indexes",
+      "dataflowServiceAccountEmail": "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com" } ],
   "entities": [
     "brand.json",
     "condition.json",

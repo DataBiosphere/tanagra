@@ -18,4 +18,4 @@ tanagra:
   underlay:
     # TODO(tjennison): Split these for different environments.
     underlay-yaml-files: ["underlays/aou_synthetic.yaml", "underlays/synpuf.yaml", "underlays/sd.yaml", "underlays/test/aou_synthetic.yaml"]
-    underlay-files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json" ]
+    underlay-files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json", "verily/aou_synthetic/expanded/verily_aou_synthetic.json", "verily/cms_synpuf/expanded/verily_cms_synpuf.json" ]

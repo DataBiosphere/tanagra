@@ -3,42 +3,40 @@ import * as tanagra from "./tanagra-api";
 
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
 class FakeUnderlaysApi {
-  async listUnderlays(): Promise<tanagra.ListUnderlaysResponse> {
-    const columns = [
-      { key: "concept_name", width: "100%", title: "Concept name" },
-    ];
+  async listUnderlaysV2(): Promise<tanagra.UnderlayListV2> {
+    const columns = [{ key: "name", width: "100%", title: "Concept name" }];
 
     const uiConfiguration = {
       dataConfig: {
         primaryEntity: {
           entity: "person",
-          key: "person_id",
+          key: "id",
         },
         occurrences: [
           {
             id: "condition_occurrence",
             entity: "condition_occurrence",
-            key: "concept_id",
+            key: "id",
             classifications: [
               {
                 id: "condition",
                 attribute: "condition_concept_id",
                 entity: "condition",
-                entityAttribute: "concept_id",
-                hierarchical: true,
+                entityAttribute: "id",
+                hierarchy: "standard",
               },
             ],
           },
           {
             id: "observation_occurrence",
             entity: "observation_occurrence",
-            key: "concept_id",
+            key: "id",
             classifications: [
               {
                 id: "observation",
                 attribute: "observation_concept_id",
                 entity: "observation",
-                entityAttribute: "concept_id",
+                entityAttribute: "id",
               },
             ],
           },
@@ -67,7 +65,7 @@ class FakeUnderlaysApi {
           type: "attribute",
           id: "tanagra-race",
           title: "Race",
-          attribute: "race_concept_id",
+          attribute: "race",
         },
         {
           type: "attribute",
@@ -79,168 +77,193 @@ class FakeUnderlaysApi {
       criteriaSearchConfig: {
         criteriaTypeWidth: 120,
         columns: [
-          { key: "concept_name", width: "100%", title: "Concept name" },
-          { key: "person_count", width: 120, title: "Roll-up count" },
+          { key: "name", width: "100%", title: "Concept name" },
+          { key: "t_rollup_count", width: 120, title: "Roll-up count" },
         ],
       },
     };
 
-    return new Promise<tanagra.ListUnderlaysResponse>((resolve) => {
-      resolve({
-        underlays: [
-          {
-            name: "underlay_name",
-            entityNames: ["person"],
-            uiConfiguration: JSON.stringify(uiConfiguration),
-          },
-        ],
-      });
-    });
+    return {
+      underlays: [
+        {
+          name: "underlay_name",
+          displayName: "Test Underlay",
+          primaryEntity: "person",
+          uiConfiguration: JSON.stringify(uiConfiguration),
+        },
+      ],
+    };
   }
 }
 
 class FakeEntitiesApi {
-  async listEntities(): Promise<tanagra.ListEntitiesResponse> {
-    return new Promise<tanagra.ListEntitiesResponse>((resolve) => {
-      resolve({
-        entities: [
-          {
-            name: "person",
-            attributes: [
-              {
-                name: "attribute_name",
-                dataType: tanagra.DataType.Int64,
-                attributeFilterHint: {
-                  integerBoundsHint: {
-                    min: 1,
-                    max: 10,
-                  },
-                },
-              },
-              {
-                name: "race_concept_id",
-                dataType: tanagra.DataType.Int64,
-                attributeFilterHint: {
-                  enumHint: {
-                    enumHintValues: [
-                      {
-                        displayName: "Asian",
-                        description: "",
-                        attributeValue: {
-                          int64Val: 8515,
-                        },
-                      },
-                      {
-                        displayName: "Black or African American",
-                        description: "",
-                        attributeValue: {
-                          int64Val: 8516,
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-              {
-                name: "year_of_birth",
-                dataType: tanagra.DataType.Int64,
-                attributeFilterHint: {
-                  integerBoundsHint: {
-                    min: 21,
-                    max: 79,
-                  },
-                },
-              },
-            ],
-          },
-          {
-            name: "condition_occurrence",
-            attributes: [
-              {
-                name: "attribute_name",
-                dataType: tanagra.DataType.Int64,
-                attributeFilterHint: {
-                  enumHint: {
-                    enumHintValues: [
-                      {
-                        displayName: "Yes",
-                        description: "Yes description",
-                        attributeValue: {
-                          int64Val: 2001,
-                        },
-                      },
-                      {
-                        displayName: "No",
-                        description: "No description",
-                        attributeValue: {
-                          int64Val: 2002,
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          },
-        ],
-      });
-    });
+  async listEntitiesV2(): Promise<tanagra.EntityListV2> {
+    return {
+      entities: [
+        {
+          name: "person",
+          idAttribute: "id",
+          attributes: [
+            {
+              name: "id",
+              dataType: tanagra.DataTypeV2.Int64,
+            },
+            {
+              name: "race",
+              dataType: tanagra.DataTypeV2.Int64,
+            },
+            {
+              name: "year_of_birth",
+              dataType: tanagra.DataTypeV2.Int64,
+            },
+          ],
+        },
+        {
+          name: "condition_occurrence",
+          idAttribute: "concept_id",
+          attributes: [
+            {
+              name: "id",
+              dataType: tanagra.DataTypeV2.Int64,
+            },
+            {
+              name: "name",
+              dataType: tanagra.DataTypeV2.String,
+            },
+          ],
+        },
+      ],
+    };
   }
 }
 
-class FakeEntityInstancesApi {
-  async searchEntityInstances(): Promise<tanagra.SearchEntityInstancesResponse> {
-    return new Promise<tanagra.SearchEntityInstancesResponse>((resolve) => {
-      resolve({
-        instances: [
-          {
-            concept_name: {
-              stringVal: "test concept",
+class FakeInstancesApi {
+  async queryInstances(): Promise<tanagra.InstanceListV2> {
+    return {
+      sql: "SELECT * FROM table WHERE xyz;",
+      instances: [
+        {
+          relationshipFields: [
+            {
+              count: 42,
             },
-            concept_id: {
-              int64Val: 1234,
+          ],
+          attributes: {
+            id: {
+              value: {
+                dataType: tanagra.DataTypeV2.Int64,
+                valueUnion: {
+                  int64Val: 1234,
+                },
+              },
+            },
+            name: {
+              value: {
+                dataType: tanagra.DataTypeV2.String,
+                valueUnion: {
+                  stringVal: "test concept",
+                },
+              },
             },
           },
-        ],
-      });
-    });
-  }
-
-  async generateDatasetSqlQuery(): Promise<tanagra.SqlQuery> {
-    return new Promise<tanagra.SqlQuery>((resolve) => {
-      resolve({ query: "SELECT * FROM table WHERE xyz;" });
-    });
+        },
+      ],
+    };
   }
 }
 
 class FakeEntityCountsApi {
-  async searchEntityCounts(): Promise<tanagra.SearchEntityCountsResponse> {
-    return new Promise<tanagra.SearchEntityCountsResponse>((resolve) => {
-      resolve({
-        counts: [
-          {
-            count: 52,
-            definition: {
-              gender_concept_id: {
-                int64Val: 45880669,
+  async countInstances(): Promise<tanagra.InstanceCountListV2> {
+    return {
+      instanceCounts: [
+        {
+          count: 52,
+          attributes: {
+            gender: {
+              display: "Female",
+              value: {
+                dataType: tanagra.DataTypeV2.Int64,
+                valueUnion: {
+                  int64Val: 8515,
+                },
               },
-              gender: {
-                stringVal: "Female",
+            },
+            race: {
+              display: "Black or African American",
+              value: {
+                dataType: tanagra.DataTypeV2.Int64,
+                valueUnion: {
+                  int64Val: 8516,
+                },
               },
-              race: {
-                stringVal: "Black or African American",
-              },
-              race_concept_id: {
-                int64Val: 8516,
-              },
-              year_of_birth: {
-                int64Val: 2000,
+            },
+            year_of_birth: {
+              value: {
+                dataType: tanagra.DataTypeV2.Int64,
+                valueUnion: {
+                  int64Val: 1999,
+                },
               },
             },
           },
-        ],
-      });
-    });
+        },
+      ],
+    };
+  }
+}
+
+class FakeHintsApi {
+  async queryHints(): Promise<tanagra.DisplayHintListV2> {
+    return {
+      displayHints: [
+        {
+          attribute: {
+            name: "race",
+          },
+          displayHint: {
+            enumHint: {
+              enumHintValues: [
+                {
+                  enumVal: {
+                    display: "Asian",
+                    value: {
+                      dataType: tanagra.DataTypeV2.Int64,
+                      valueUnion: {
+                        int64Val: 8515,
+                      },
+                    },
+                  },
+                  count: 123,
+                },
+                {
+                  enumVal: {
+                    display: "Black or African American",
+                    value: {
+                      dataType: tanagra.DataTypeV2.Int64,
+                      valueUnion: {
+                        int64Val: 8516,
+                      },
+                    },
+                  },
+                  count: 456,
+                },
+              ],
+            },
+          },
+        },
+        {
+          attribute: {
+            name: "year_of_birth",
+          },
+          displayHint: {
+            numericRangeHint: {
+              min: 21,
+              max: 79,
+            },
+          },
+        },
+      ],
+    };
   }
 }
 
@@ -262,18 +285,22 @@ function apiForEnvironment<Real, Fake>(
 }
 
 export const UnderlaysApiContext = apiForEnvironment(
-  tanagra.UnderlaysApi,
+  tanagra.UnderlaysV2Api,
   FakeUnderlaysApi
 );
 export const EntityInstancesApiContext = apiForEnvironment(
-  tanagra.EntityInstancesApi,
-  FakeEntityInstancesApi
+  tanagra.InstancesV2Api,
+  FakeInstancesApi
 );
 export const EntitiesApiContext = apiForEnvironment(
-  tanagra.EntitiesApi,
+  tanagra.EntitiesV2Api,
   FakeEntitiesApi
 );
 export const EntityCountsApiContext = apiForEnvironment(
   tanagra.EntityCountsApi,
   FakeEntityCountsApi
+);
+export const HintsApiContext = apiForEnvironment(
+  tanagra.HintsV2Api,
+  FakeHintsApi
 );

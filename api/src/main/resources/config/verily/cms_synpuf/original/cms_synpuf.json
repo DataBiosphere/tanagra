@@ -1,15 +1,16 @@
 {
-  "name": "cms_synpuf",
+  "name": "verily_cms_synpuf",
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
       "projectId": "bigquery-public-data",
       "datasetId": "cms_synthetic_patient_data_omop",
-      "queryProjectId": "broad-tanagra-dev" },
+      "queryProjectId": "verily-tanagra-dev" },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
-      "projectId": "broad-tanagra-dev",
-      "datasetId": "cmssynpuf_index" } ],
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "cms_synpuf_indexes",
+      "dataflowServiceAccountEmail": "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com" } ],
   "entities": [
     "brand.json",
     "condition.json",

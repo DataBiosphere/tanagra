@@ -274,7 +274,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
       ...props.config.columns,
-      ...(classification.hierarchical
+      ...(!!classification.hierarchy
         ? [{ key: "view_hierarchy", width: 70, title: "Hierarchy" }]
         : []),
     ],

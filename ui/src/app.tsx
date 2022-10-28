@@ -23,41 +23,33 @@ export default function App() {
 
   const underlaysState = useAsyncWithApi(
     useCallback(async () => {
-      const res = await underlaysApi.listUnderlays({});
+      const res = await underlaysApi.listUnderlaysV2({});
       if (!res?.underlays || res.underlays.length == 0) {
         throw new Error("No underlays are configured.");
       }
 
-      const entitiesResList = await Promise.all(
-        res.underlays.map((u) => {
-          if (!u.name) {
-            throw new Error("Unnamed underlay.");
+      const underlays = await Promise.all(
+        res.underlays.map(async (underlay) => {
+          const entitiesRes = await entitiesApi.listEntitiesV2({
+            underlayName: underlay.name,
+          });
+          if (!entitiesRes?.entities) {
+            throw new Error(`No entities in underlay ${underlay.name}`);
           }
-          return entitiesApi.listEntities({ underlayName: u.name });
+
+          if (!underlay.uiConfiguration) {
+            throw new Error(`No UI configuration in underlay ${name}`);
+          }
+
+          return {
+            name: underlay.name,
+            displayName: underlay.displayName ?? underlay.name,
+            primaryEntity: underlay.primaryEntity,
+            entities: entitiesRes.entities,
+            uiConfiguration: JSON.parse(underlay.uiConfiguration),
+          };
         })
       );
-
-      const underlays = entitiesResList.map((entitiesRes, i) => {
-        const name = res.underlays?.[i]?.name;
-        if (!name) {
-          throw new Error("Unnamed underlay.");
-        }
-        if (!entitiesRes.entities) {
-          throw new Error(`No entities in underlay ${name}`);
-        }
-
-        const uiConfiguration = res.underlays?.[i]?.uiConfiguration;
-        if (!uiConfiguration) {
-          throw new Error(`No UI configuration in underlay ${name}`);
-        }
-
-        return {
-          name,
-          primaryEntity: "person",
-          entities: entitiesRes.entities,
-          uiConfiguration: JSON.parse(uiConfiguration),
-        };
-      });
 
       await fetchUserData(dispatch, underlays);
 

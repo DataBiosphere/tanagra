@@ -445,36 +445,10 @@ function DemographicCharts({ open }: DemographicChartsProps) {
   const fetchDemographicData = useCallback(async () => {
     const groupByAttributes =
       underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
-    const additionalSelectedAttributes = new Set<string>();
-    underlay.uiConfiguration.demographicChartConfigs.chartConfigs.forEach(
-      (config) => {
-        config.primaryProperties.forEach((property) => {
-          if (!groupByAttributes.includes(property.key)) {
-            additionalSelectedAttributes.add(property.key);
-          }
-        });
-
-        if (
-          config.stackedProperty &&
-          !groupByAttributes.includes(config.stackedProperty.key)
-        ) {
-          additionalSelectedAttributes.add(config.stackedProperty.key);
-        }
-      }
-    );
-
-    // TODO(neelismail): Remove guard for age property key when API provides age support
-    if (additionalSelectedAttributes.has("age")) {
-      additionalSelectedAttributes.delete("age");
-      if (!groupByAttributes.includes("year_of_birth")) {
-        additionalSelectedAttributes.add("year_of_birth");
-      }
-    }
 
     const demographicData = await source.filterCount(
       generateCohortFilter(cohort),
-      groupByAttributes,
-      Array.from(additionalSelectedAttributes)
+      groupByAttributes
     );
 
     const chartConfigs =
