@@ -159,12 +159,20 @@ public class CriteriaOccurrence extends EntityGroup {
     return primaryEntity;
   }
 
+  public Entity getOccurrenceEntity() {
+    return occurrenceEntity;
+  }
+
   public Relationship getCriteriaPrimaryRelationship() {
     return relationships.get(CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME);
   }
 
   public Relationship getOccurrenceCriteriaRelationship() {
     return relationships.get(OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME);
+  }
+
+  public Relationship getOccurrencePrimaryRelationship() {
+    return relationships.get(OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME);
   }
 
   private static class Builder extends EntityGroup.Builder {

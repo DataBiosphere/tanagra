@@ -123,12 +123,11 @@ public class QuerysService {
   }
 
   public List<EntityInstance> runInstancesQuery(
-      EntityMapping entityMapping,
+      DataPointer dataPointer,
       List<Attribute> selectAttributes,
       List<HierarchyField> selectHierarchyFields,
       List<RelationshipField> selectRelationshipFields,
       QueryRequest queryRequest) {
-    DataPointer dataPointer = entityMapping.getTablePointer().getDataPointer();
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
     List<EntityInstance> instances = new ArrayList<>();
@@ -146,10 +145,11 @@ public class QuerysService {
 
   public QueryRequest buildInstanceCountsQuery(
       Entity entity,
-      EntityMapping entityMapping,
+      Underlay.MappingType mappingType,
       List<Attribute> attributes,
       @Nullable EntityFilter filter) {
-    TableVariable entityTableVar = TableVariable.forPrimary(entityMapping.getTablePointer());
+    TableVariable entityTableVar =
+        TableVariable.forPrimary(entity.getMapping(mappingType).getTablePointer());
     List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
 
     // Use the same attributes for SELECT, GROUP BY, and ORDER BY.
@@ -197,8 +197,7 @@ public class QuerysService {
   }
 
   public List<EntityInstanceCount> runInstanceCountsQuery(
-      EntityMapping entityMapping, List<Attribute> attributes, QueryRequest queryRequest) {
-    DataPointer dataPointer = entityMapping.getTablePointer().getDataPointer();
+      DataPointer dataPointer, List<Attribute> attributes, QueryRequest queryRequest) {
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
     List<EntityInstanceCount> instanceCounts = new ArrayList<>();
