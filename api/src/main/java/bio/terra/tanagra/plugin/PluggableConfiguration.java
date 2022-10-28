@@ -16,6 +16,10 @@ public class PluggableConfiguration {
   }
 
   public Map<String, PluginConfig> getPlugins() {
-    return plugins;
+    return this.plugins;
+  }
+
+  public boolean isConfigured() {
+    return this.plugins != null && !plugins.isEmpty();
   }
 }

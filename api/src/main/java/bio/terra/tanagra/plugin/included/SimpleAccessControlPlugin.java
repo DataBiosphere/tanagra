@@ -10,22 +10,16 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 public class SimpleAccessControlPlugin implements IAccessControlPlugin {
-  private PluginConfig config;
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Override
   public void init(PluginConfig config, DataSource dataSource) {
-    this.config = config;
     this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
 
   @Override
   public boolean checkAccess(User user, IArtifact artifact) {
-    SqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("user_id", user.getIdentifier())
-            .addValue("artifact_type", artifact.getArtifactType())
-            .addValue("artifact_id", artifact.getIdentifier());
+    SqlParameterSource params = getIdentifierParams(user, artifact);
 
     String results =
         jdbcTemplate.queryForObject(
@@ -38,11 +32,7 @@ public class SimpleAccessControlPlugin implements IAccessControlPlugin {
 
   @Override
   public boolean grantAccess(User user, IArtifact artifact) {
-    SqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("user_id", user.getIdentifier())
-            .addValue("artifact_type", artifact.getArtifactType())
-            .addValue("artifact_id", artifact.getIdentifier());
+    SqlParameterSource params = getIdentifierParams(user, artifact);
 
     int status =
         jdbcTemplate.update(
@@ -54,11 +44,7 @@ public class SimpleAccessControlPlugin implements IAccessControlPlugin {
 
   @Override
   public boolean revokeAccess(User user, IArtifact artifact) {
-    SqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("user_id", user.getIdentifier())
-            .addValue("artifact_type", artifact.getArtifactType())
-            .addValue("artifact_id", artifact.getIdentifier());
+    SqlParameterSource params = getIdentifierParams(user, artifact);
 
     int status =
         jdbcTemplate.update(
@@ -66,5 +52,12 @@ public class SimpleAccessControlPlugin implements IAccessControlPlugin {
             params);
 
     return status == 1;
+  }
+
+  private SqlParameterSource getIdentifierParams(User user, IArtifact artifact) {
+    return new MapSqlParameterSource()
+        .addValue("user_id", user.getIdentifier())
+        .addValue("artifact_type", artifact.getArtifactType())
+        .addValue("artifact_id", artifact.getIdentifier());
   }
 }

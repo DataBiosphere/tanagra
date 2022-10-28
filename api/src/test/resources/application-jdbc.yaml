@@ -3,13 +3,19 @@
 tanagra:
   jdbc:
     dataSources:
+      # In a production instance, these values should be set with environment variables,
+      # either directly eg. TANAGRA_JDBC_DATA_SOURCES_0_PASSWORD, or injection eg. ${YOUR_ENV_VARIABLE}
       - dataSourceId: test-data-source
         url: jdbc:postgresql://127.0.0.1:5432/tanagra
         username: dbuser
-        # In a production instance, the password should be set with an environment variable,
-        # e.g. TANAGRA_JDBC_DATA_SOURCES_0_PASSWORD
         password: dbpwd
       - dataSourceId: test-plugin-data-source
-        url: ${TANAGRA_PLUGIN_ACL_DATASOURCE_CONNECTIONSTRING}
-        username: ${TANAGRA_PLUGIN_ACL_DATASOURCE_USERNAME}
-        password: ${TANAGRA_PLUGIN_ACL_DATASOURCE_PASSWORD}
+        url: jdbc:postgresql://127.0.0.1:5432/tanagra
+        username: dbuser
+        password: dbpwd
+  pluggable:
+    plugins:
+      accessControlPlugin:
+        type: bio.terra.tanagra.plugin.included.SimpleAccessControlPlugin
+        parameters:
+          datasource-id: test-plugin-data-source

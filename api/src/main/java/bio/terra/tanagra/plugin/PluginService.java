@@ -21,13 +21,11 @@ public class PluginService {
   private final PluggableConfiguration configuration;
   private final DataSourceFactory dataSourceFactory;
 
-  private final HashMap<String, IPlugin> availablePlugins =
-      new HashMap<>() {
-        {
-          put(IAccessControlPlugin.class.getName(), new DefaultAccessControlPlugin());
-          put(IIdentityPlugin.class.getName(), new DefaultIdentityPlugin());
-        }
-      };
+  private final Map<String, IPlugin> availablePlugins =
+      new HashMap<>(
+          Map.of(
+              IAccessControlPlugin.class.getName(), new DefaultAccessControlPlugin(),
+              IIdentityPlugin.class.getName(), new DefaultIdentityPlugin()));
 
   @Autowired
   public PluginService(PluggableConfiguration configuration, DataSourceFactory dataSourceFactory)
@@ -38,23 +36,25 @@ public class PluginService {
     loadPlugins();
   }
 
-  public IPlugin getPlugin(Class<? extends IPlugin> c) {
-    return availablePlugins.get(c.getName());
+  public <T extends IPlugin> T getPlugin(Class<T> c) {
+    return c.cast(availablePlugins.get(c.getName()));
   }
 
   private void loadPlugins() throws PluginException {
     try {
-      for (Map.Entry<String, PluginConfig> p : configuration.getPlugins().entrySet()) {
-        String key = "I" + capitalize(p.getKey());
-        PluginConfig config = p.getValue();
-        DataSource dataSource = getDataSource(config.getValue(PLUGIN_DATASOURCE_PARAMETER));
+      if (configuration.isConfigured()) {
+        for (Map.Entry<String, PluginConfig> p : configuration.getPlugins().entrySet()) {
+          String key = "I" + capitalize(p.getKey());
+          PluginConfig config = p.getValue();
+          DataSource dataSource = getDataSource(config.getValue(PLUGIN_DATASOURCE_PARAMETER));
 
-        Class<?> pluginClass = Class.forName(p.getValue().getType());
-        IPlugin plugin = (IPlugin) pluginClass.getConstructor().newInstance();
+          Class<?> pluginClass = Class.forName(p.getValue().getType());
+          IPlugin plugin = (IPlugin) pluginClass.getConstructor().newInstance();
 
-        plugin.init(config, dataSource);
+          plugin.init(config, dataSource);
 
-        availablePlugins.put(key, plugin);
+          availablePlugins.put(key, plugin);
+        }
       }
     } catch (Exception e) {
       throw new PluginException(e);
