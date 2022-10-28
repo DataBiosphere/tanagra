@@ -1,8 +1,6 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFFieldPointer;
 import com.google.common.base.Strings;
 import java.util.List;
@@ -98,6 +96,17 @@ public class FieldPointer {
     }
   }
 
+  public Builder toBuilder() {
+    return new Builder()
+        .tablePointer(tablePointer)
+        .columnName(columnName)
+        .foreignTablePointer(foreignTablePointer)
+        .foreignKeyColumnName(foreignKeyColumnName)
+        .foreignColumnName(foreignColumnName)
+        .joinCanBeEmpty(joinCanBeEmpty)
+        .sqlFunctionWrapper(sqlFunctionWrapper);
+  }
+
   public boolean isForeignKey() {
     return foreignTablePointer != null;
   }
@@ -133,10 +142,6 @@ public class FieldPointer {
 
   public TablePointer getTablePointer() {
     return tablePointer;
-  }
-
-  public boolean isAllFields() {
-    return ALL_FIELDS_COLUMN_NAME.equals(columnName);
   }
 
   public static class Builder {

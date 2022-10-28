@@ -71,7 +71,8 @@ class FakeUnderlaysApi {
         },
         {
           type: "attribute",
-          title: "Year at birth",
+          id: "tanagra-year_of_birth",
+          title: "Year of birth",
           attribute: "year_of_birth",
         },
       ],

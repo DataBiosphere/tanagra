@@ -26,7 +26,7 @@ public class RawSqlTablePointerTest {
   void allIngredients() throws IOException {
     Entity ingredient = Entity.fromJSON("RawSqlTable.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        ingredient.getSourceDataMapping().queryAttributes(ingredient.getAttributes()).renderSQL(),
+        ingredient.getMapping(Underlay.MappingType.SOURCE).queryAllAttributes().renderSQL(),
         "query/rawsql_source_allInstances.sql");
   }
 }

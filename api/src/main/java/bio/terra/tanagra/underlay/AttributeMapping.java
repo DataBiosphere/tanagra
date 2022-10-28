@@ -3,7 +3,10 @@ package bio.terra.tanagra.underlay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
@@ -16,6 +19,7 @@ public final class AttributeMapping {
 
   private final FieldPointer value;
   private final FieldPointer display;
+  private Attribute attribute;
 
   private AttributeMapping(FieldPointer value) {
     this.value = value;
@@ -25,6 +29,10 @@ public final class AttributeMapping {
   private AttributeMapping(FieldPointer value, FieldPointer display) {
     this.value = value;
     this.display = display;
+  }
+
+  public void initialize(Attribute attribute) {
+    this.attribute = attribute;
   }
 
   public static AttributeMapping fromSerialized(
@@ -52,7 +60,7 @@ public final class AttributeMapping {
                     .setJoinCanBeEmpty(true) // Allow null display names.
                 : new FieldPointer.Builder()
                     .tablePointer(tablePointer)
-                    .columnName(getDisplayMappingAlias(attribute.getName()))
+                    .columnName(DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName())
                     .build();
         return new AttributeMapping(value, display);
       default:
@@ -61,33 +69,36 @@ public final class AttributeMapping {
   }
 
   public List<FieldVariable> buildFieldVariables(
-      TableVariable primaryTable, List<TableVariable> tableVariables, String attributeName) {
-    FieldVariable valueVariable = value.buildVariable(primaryTable, tableVariables, attributeName);
+      TableVariable primaryTable, List<TableVariable> tableVariables) {
+    FieldVariable valueVariable =
+        value.buildVariable(primaryTable, tableVariables, attribute.getName());
     if (!hasDisplay()) {
       return List.of(valueVariable);
     }
 
     FieldVariable displayVariable =
-        display.buildVariable(primaryTable, tableVariables, getDisplayMappingAlias(attributeName));
+        display.buildVariable(primaryTable, tableVariables, getDisplayMappingAlias());
     return List.of(valueVariable, displayVariable);
   }
 
-  public List<ColumnSchema> buildColumnSchemas(
-      String attributeName, Literal.DataType attributeDataType) {
-    ColumnSchema valueColSchema =
-        new ColumnSchema(
-            attributeName, CellValue.SQLDataType.fromUnderlayDataType(attributeDataType));
+  public ColumnSchema buildValueColumnSchema() {
+    return new ColumnSchema(
+        attribute.getName(), CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType()));
+  }
+
+  public List<ColumnSchema> buildColumnSchemas() {
+    ColumnSchema valueColSchema = buildValueColumnSchema();
     if (!hasDisplay()) {
       return List.of(valueColSchema);
     }
 
     ColumnSchema displayColSchema =
-        new ColumnSchema(getDisplayMappingAlias(attributeName), CellValue.SQLDataType.STRING);
+        new ColumnSchema(getDisplayMappingAlias(), CellValue.SQLDataType.STRING);
     return List.of(valueColSchema, displayColSchema);
   }
 
-  public static String getDisplayMappingAlias(String attributeName) {
-    return DEFAULT_DISPLAY_MAPPING_PREFIX + attributeName;
+  public String getDisplayMappingAlias() {
+    return DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName();
   }
 
   public Literal.DataType computeDataType() {
@@ -95,7 +106,7 @@ public final class AttributeMapping {
     return dataPointer.lookupDatatype(value);
   }
 
-  public DisplayHint computeDisplayHint(Attribute attribute) {
+  public DisplayHint computeDisplayHint() {
     if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
       return EnumVals.computeForField(attribute.getDataType(), value, display);
     }
@@ -107,6 +118,9 @@ public final class AttributeMapping {
         return NumericRange.computeForField(value);
       case STRING:
         return EnumVals.computeForField(attribute.getDataType(), value);
+      case DATE:
+        // TODO: Compute a date range display hint.
+        return null;
       default:
         throw new InvalidConfigException("Unknown attribute data type: " + attribute.getDataType());
     }

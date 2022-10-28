@@ -1,6 +1,6 @@
 package bio.terra.tanagra.serialization;
 
-import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.query.Literal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -16,17 +16,20 @@ public class UFLiteral {
   private final String stringVal;
   private final Long int64Val;
   private final Boolean booleanVal;
+  private final String dateVal;
 
   public UFLiteral(Literal literal) {
     this.stringVal = literal.getStringVal();
     this.int64Val = literal.getInt64Val();
     this.booleanVal = literal.getBooleanVal();
+    this.dateVal = literal.getDateValAsString();
   }
 
   private UFLiteral(Builder builder) {
     this.stringVal = builder.stringVal;
     this.int64Val = builder.int64Val;
     this.booleanVal = builder.booleanVal;
+    this.dateVal = builder.dateVal;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -34,6 +37,7 @@ public class UFLiteral {
     private String stringVal;
     private Long int64Val;
     private Boolean booleanVal;
+    private String dateVal;
 
     public Builder stringVal(String stringVal) {
       this.stringVal = stringVal;
@@ -47,6 +51,11 @@ public class UFLiteral {
 
     public Builder booleanVal(Boolean booleanVal) {
       this.booleanVal = booleanVal;
+      return this;
+    }
+
+    public Builder dateVal(String dateVal) {
+      this.dateVal = dateVal;
       return this;
     }
 
@@ -66,5 +75,9 @@ public class UFLiteral {
 
   public Boolean getBooleanVal() {
     return booleanVal;
+  }
+
+  public String getDateVal() {
+    return dateVal;
   }
 }

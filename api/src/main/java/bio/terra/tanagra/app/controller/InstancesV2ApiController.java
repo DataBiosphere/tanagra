@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller;
 import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.api.EntityInstance;
 import bio.terra.tanagra.api.EntityInstanceCount;
+import bio.terra.tanagra.api.EntityQueryRequest;
 import bio.terra.tanagra.api.FromApiConversionService;
 import bio.terra.tanagra.api.QuerysService;
 import bio.terra.tanagra.api.UnderlaysService;
@@ -15,6 +16,7 @@ import bio.terra.tanagra.generated.model.ApiInstanceCountV2;
 import bio.terra.tanagra.generated.model.ApiInstanceListV2;
 import bio.terra.tanagra.generated.model.ApiInstanceV2;
 import bio.terra.tanagra.generated.model.ApiInstanceV2HierarchyFields;
+import bio.terra.tanagra.generated.model.ApiInstanceV2RelationshipFields;
 import bio.terra.tanagra.generated.model.ApiQueryV2;
 import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
 import bio.terra.tanagra.query.OrderByDirection;
@@ -22,7 +24,11 @@ import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityMapping;
+import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
+import bio.terra.tanagra.underlay.Relationship;
+import bio.terra.tanagra.underlay.RelationshipField;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +60,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
       String underlayName, String entityName, ApiQueryV2 body) {
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     // TODO: Allow building queries against the source data mapping also.
-    EntityMapping entityMapping = entity.getIndexDataMapping();
+    EntityMapping entityMapping = entity.getMapping(Underlay.MappingType.INDEX);
 
     List<Attribute> selectAttributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
@@ -69,12 +75,47 @@ public class InstancesV2ApiController implements InstancesV2Api {
       body.getIncludeHierarchyFields().getHierarchies().stream()
           .forEach(
               hierarchyName -> {
+                Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
                 body.getIncludeHierarchyFields().getFields().stream()
                     .forEach(
                         hierarchyFieldName ->
                             selectHierarchyFields.add(
-                                FromApiConversionService.fromApiObject(
-                                    hierarchyName, hierarchyFieldName)));
+                                hierarchy.getField(
+                                    HierarchyField.Type.valueOf(hierarchyFieldName.name()))));
+              });
+    }
+    List<RelationshipField> selectRelationshipFields = new ArrayList<>();
+    if (body.getIncludeRelationshipFields() != null) {
+      // for each related entity, return all the fields specified
+      body.getIncludeRelationshipFields().stream()
+          .forEach(
+              includeRelationshipField -> {
+                Entity relatedEntity =
+                    underlaysService.getEntity(
+                        underlayName, includeRelationshipField.getRelatedEntity());
+                List<Hierarchy> hierarchies = new ArrayList<>();
+                hierarchies.add(null); // Always return the NO_HIERARCHY rollups.
+                if (includeRelationshipField.getHierarchies() != null
+                    && !includeRelationshipField.getHierarchies().isEmpty()) {
+                  includeRelationshipField.getHierarchies().stream()
+                      .forEach(
+                          hierarchyName -> hierarchies.add(entity.getHierarchy(hierarchyName)));
+                }
+
+                hierarchies.stream()
+                    .forEach(
+                        hierarchy -> {
+                          Relationship relationship = entity.getRelationship(relatedEntity);
+                          includeRelationshipField.getFields().stream()
+                              .forEach(
+                                  relationshipFieldName ->
+                                      selectRelationshipFields.add(
+                                          relationship.getField(
+                                              RelationshipField.Type.valueOf(
+                                                  relationshipFieldName.name()),
+                                              entity,
+                                              hierarchy)));
+                        });
               });
     }
 
@@ -97,16 +138,24 @@ public class InstancesV2ApiController implements InstancesV2Api {
 
     QueryRequest queryRequest =
         querysService.buildInstancesQuery(
+            new EntityQueryRequest.Builder()
+                .entity(entity)
+                .mappingType(Underlay.MappingType.INDEX)
+                .selectAttributes(selectAttributes)
+                .selectHierarchyFields(selectHierarchyFields)
+                .selectRelationshipFields(selectRelationshipFields)
+                .filter(entityFilter)
+                .orderByAttributes(orderByAttributes)
+                .orderByDirection(orderByDirection)
+                .limit(body.getLimit())
+                .build());
+    List<EntityInstance> entityInstances =
+        querysService.runInstancesQuery(
             entityMapping,
             selectAttributes,
             selectHierarchyFields,
-            entityFilter,
-            orderByAttributes,
-            orderByDirection,
-            body.getLimit());
-    List<EntityInstance> entityInstances =
-        querysService.runInstancesQuery(
-            entityMapping, selectAttributes, selectHierarchyFields, queryRequest);
+            selectRelationshipFields,
+            queryRequest);
 
     return ResponseEntity.ok(
         new ApiInstanceListV2()
@@ -134,11 +183,11 @@ public class InstancesV2ApiController implements InstancesV2Api {
       ValueDisplay valueDisplay = hierarchyFieldValue.getValue();
 
       ApiInstanceV2HierarchyFields hierarchyFieldSet =
-          hierarchyFieldSets.get(hierarchyField.getHierarchyName());
+          hierarchyFieldSets.get(hierarchyField.getHierarchy().getName());
       if (hierarchyFieldSet == null) {
         hierarchyFieldSet =
-            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchyName());
-        hierarchyFieldSets.put(hierarchyField.getHierarchyName(), hierarchyFieldSet);
+            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchy().getName());
+        hierarchyFieldSets.put(hierarchyField.getHierarchy().getName(), hierarchyFieldSet);
       }
       switch (hierarchyField.getType()) {
         case IS_MEMBER:
@@ -158,9 +207,45 @@ public class InstancesV2ApiController implements InstancesV2Api {
       }
     }
 
+    Map<String, ApiInstanceV2RelationshipFields> relationshipFieldSets = new HashMap<>();
+    for (Map.Entry<RelationshipField, ValueDisplay> relationshipFieldValue :
+        entityInstance.getRelationshipFieldValues().entrySet()) {
+      RelationshipField relationshipField = relationshipFieldValue.getKey();
+      ValueDisplay valueDisplay = relationshipFieldValue.getValue();
+
+      ApiInstanceV2RelationshipFields relationshipFieldSet =
+          relationshipFieldSets.get(relationshipField.getName());
+      if (relationshipFieldSet == null) {
+        relationshipFieldSet =
+            new ApiInstanceV2RelationshipFields()
+                .relatedEntity(
+                    relationshipField
+                        .getRelationship()
+                        .getRelatedEntity(relationshipField.getEntity())
+                        .getName())
+                .hierarchy(
+                    relationshipField.getHierarchy() == null
+                        ? null
+                        : relationshipField.getHierarchy().getName());
+        relationshipFieldSets.put(relationshipField.getName(), relationshipFieldSet);
+      }
+      switch (relationshipField.getType()) {
+        case COUNT:
+          relationshipFieldSet.count(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
+          break;
+        case DISPLAY_HINTS:
+          relationshipFieldSet.displayHints(valueDisplay.getValue().getStringVal());
+          break;
+        default:
+          throw new SystemException(
+              "Unknown relationship field type: " + relationshipField.getType());
+      }
+    }
+
     return instance
         .attributes(attributes)
-        .hierarchyFields(hierarchyFieldSets.values().stream().collect(Collectors.toList()));
+        .hierarchyFields(hierarchyFieldSets.values().stream().collect(Collectors.toList()))
+        .relationshipFields(relationshipFieldSets.values().stream().collect(Collectors.toList()));
   }
 
   @Override
@@ -168,7 +253,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
       String underlayName, String entityName, ApiCountQueryV2 body) {
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     // TODO: Allow building queries against the source data mapping also.
-    EntityMapping entityMapping = entity.getIndexDataMapping();
+    EntityMapping entityMapping = entity.getMapping(Underlay.MappingType.INDEX);
 
     List<Attribute> attributes = new ArrayList<>();
     if (body.getAttributes() != null) {
@@ -186,7 +271,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
     }
 
     QueryRequest queryRequest =
-        querysService.buildInstanceCountsQuery(entityMapping, attributes, entityFilter);
+        querysService.buildInstanceCountsQuery(entity, entityMapping, attributes, entityFilter);
     List<EntityInstanceCount> entityInstanceCounts =
         querysService.runInstanceCountsQuery(entityMapping, attributes, queryRequest);
 

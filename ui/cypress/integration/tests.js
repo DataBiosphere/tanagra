@@ -19,7 +19,7 @@ describe("Basic tests", () => {
     cy.get(".MuiBackdrop-root").click();
 
     cy.get("button:Contains(Add criteria)").first().click();
-    cy.get("button:Contains(Year at birth)").click();
+    cy.get("button:Contains(Year of birth)").click();
     cy.get(".MuiInput-input").first().type("{selectall}30");
 
     cy.get("button:Contains(Add criteria)").last().click();

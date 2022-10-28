@@ -9,9 +9,9 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "groupToItems": {
-        "tablePointer": { "table": "concept_relationship" },
-        "fromEntityId": { "column": "concept_id_1" },
-        "toEntityId":  { "column": "concept_id_2" }
+        "idPairsTable": { "table": "concept_relationship" },
+        "idPairsIdA": { "column": "concept_id_1" },
+        "idPairsIdB":  { "column": "concept_id_2" }
       }
     }
   },

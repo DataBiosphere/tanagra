@@ -1,9 +1,9 @@
 package bio.terra.tanagra.serialization;
 
-import bio.terra.tanagra.serialization.tablefilter.UFArrayFilter;
-import bio.terra.tanagra.serialization.tablefilter.UFBinaryFilter;
-import bio.terra.tanagra.underlay.TableFilter;
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.query.Filter;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.serialization.filter.UFBinaryFilter;
+import bio.terra.tanagra.serialization.filter.UFBooleanAndOrFilter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -20,37 +20,37 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
     property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = UFBinaryFilter.class, name = "BINARY"),
-  @JsonSubTypes.Type(value = UFArrayFilter.class, name = "ARRAY")
+  @JsonSubTypes.Type(value = UFBooleanAndOrFilter.class, name = "BOOLEAN_AND_OR")
 })
-@JsonDeserialize(builder = UFTableFilter.Builder.class)
-public abstract class UFTableFilter {
-  private final TableFilter.Type type;
+@JsonDeserialize(builder = UFFilter.Builder.class)
+public abstract class UFFilter {
+  private final Filter.Type type;
 
-  public UFTableFilter(TableFilter tableFilter) {
-    this.type = tableFilter.getType();
+  public UFFilter(Filter filter) {
+    this.type = filter.getType();
   }
 
-  protected UFTableFilter(Builder builder) {
+  protected UFFilter(Builder builder) {
     this.type = builder.type;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public abstract static class Builder {
-    private TableFilter.Type type;
+    private Filter.Type type;
 
-    public Builder type(TableFilter.Type type) {
+    public Builder type(Filter.Type type) {
       this.type = type;
       return this;
     }
 
     /** Call the private constructor. */
-    public abstract UFTableFilter build();
+    public abstract UFFilter build();
   }
 
   /** Deserialize to the internal representation of the table filter. */
-  public abstract TableFilter deserializeToInternal(TablePointer tablePointer);
+  public abstract Filter deserializeToInternal(TablePointer tablePointer);
 
-  public TableFilter.Type getType() {
+  public Filter.Type getType() {
     return type;
   }
 }

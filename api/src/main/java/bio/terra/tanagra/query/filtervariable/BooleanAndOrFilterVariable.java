@@ -6,11 +6,11 @@ import bio.terra.tanagra.query.TableVariable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ArrayFilterVariable extends FilterVariable {
+public class BooleanAndOrFilterVariable extends FilterVariable {
   private final LogicalOperator operator;
   private final List<FilterVariable> subfilters;
 
-  public ArrayFilterVariable(LogicalOperator operator, List<FilterVariable> subfilters) {
+  public BooleanAndOrFilterVariable(LogicalOperator operator, List<FilterVariable> subfilters) {
     this.operator = operator;
     this.subfilters = subfilters;
   }

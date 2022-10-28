@@ -8,6 +8,7 @@ import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
+import bio.terra.tanagra.indexing.job.CreateEntityTable;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
 import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
 import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
@@ -38,15 +39,19 @@ public class IndexEntityTest {
     Entity person = Entity.fromJSON("Person.json", dataPointers);
     List<IndexingJob> jobs = person.getIndexingJobs();
 
-    assertEquals(1, jobs.size(), "one indexing job generated");
+    assertEquals(2, jobs.size(), "two indexing jobs generated");
     IndexingJob job = jobs.get(0);
+    assertEquals(
+        CreateEntityTable.class, job.getClass(), "CreateEntityTable indexing job generated");
+
+    job = jobs.get(1);
     assertEquals(
         DenormalizeEntityInstances.class,
         job.getClass(),
         "DenormalizeEntityInstances indexing job generated");
     assertEquals(
         "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.person",
-        ((BigQueryIndexingJob) job).getOutputTablePointer().getPathForIndexing());
+        ((BigQueryIndexingJob) job).getEntityIndexTable().getPathForIndexing());
   }
 
   @Test
@@ -54,7 +59,11 @@ public class IndexEntityTest {
     Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     List<IndexingJob> jobs = condition.getIndexingJobs();
 
-    assertEquals(5, jobs.size(), "five indexing jobs generated");
+    assertEquals(6, jobs.size(), "six indexing jobs generated");
+
+    Optional<IndexingJob> createEntityTable =
+        jobs.stream().filter(job -> job.getClass().equals(CreateEntityTable.class)).findFirst();
+    assertTrue(createEntityTable.isPresent(), "CreateEntityTable indexing job generated");
 
     Optional<IndexingJob> denormalizeEntityInstances =
         jobs.stream()
@@ -66,7 +75,7 @@ public class IndexEntityTest {
     assertEquals(
         "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition",
         ((BigQueryIndexingJob) denormalizeEntityInstances.get())
-            .getOutputTablePointer()
+            .getEntityIndexTable()
             .getPathForIndexing());
 
     Optional<IndexingJob> buildTextSearchStrings =
@@ -74,11 +83,6 @@ public class IndexEntityTest {
             .filter(job -> job.getClass().equals(BuildTextSearchStrings.class))
             .findFirst();
     assertTrue(buildTextSearchStrings.isPresent(), "BuildTextSearchStrings indexing job generated");
-    assertEquals(
-        "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_textsearch",
-        ((BigQueryIndexingJob) buildTextSearchStrings.get())
-            .getOutputTablePointer()
-            .getPathForIndexing());
 
     Optional<IndexingJob> writeParentChildIdPairs =
         jobs.stream()
@@ -88,8 +92,8 @@ public class IndexEntityTest {
         writeParentChildIdPairs.isPresent(), "WriteParentChildIdPairs indexing job generated");
     assertEquals(
         "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_standard_childParent",
-        ((BigQueryIndexingJob) writeParentChildIdPairs.get())
-            .getOutputTablePointer()
+        ((WriteParentChildIdPairs) writeParentChildIdPairs.get())
+            .getAuxiliaryTable()
             .getPathForIndexing());
 
     Optional<IndexingJob> writeAncestorDescendantIdPairs =
@@ -101,8 +105,8 @@ public class IndexEntityTest {
         "WriteAncestorDescendantIdPairs indexing job generated");
     assertEquals(
         "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_standard_ancestorDescendant",
-        ((BigQueryIndexingJob) writeAncestorDescendantIdPairs.get())
-            .getOutputTablePointer()
+        ((WriteAncestorDescendantIdPairs) writeAncestorDescendantIdPairs.get())
+            .getAuxiliaryTable()
             .getPathForIndexing());
 
     Optional<IndexingJob> buildNumChildrenAndPaths =
@@ -113,8 +117,8 @@ public class IndexEntityTest {
         buildNumChildrenAndPaths.isPresent(), "BuildNumChildrenAndPaths indexing job generated");
     assertEquals(
         "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition_standard_pathNumChildren",
-        ((BigQueryIndexingJob) buildNumChildrenAndPaths.get())
-            .getOutputTablePointer()
+        ((BuildNumChildrenAndPaths) buildNumChildrenAndPaths.get())
+            .getTempTable()
             .getPathForIndexing());
   }
 }

@@ -12,7 +12,7 @@
     "tablePointer": {
       "table": "concept",
       "filter": {
-        "type": "ARRAY",
+        "type": "BOOLEAN_AND_OR",
         "operator": "AND",
         "subfilters": [
           { "type": "BINARY",
@@ -27,7 +27,7 @@
             "field": { "column": "invalid_reason" },
             "operator": "IS",
             "value": { "stringVal": null } },
-          { "type": "ARRAY",
+          { "type": "BOOLEAN_AND_OR",
             "operator": "OR",
             "subfilters": [
               { "type": "BINARY",

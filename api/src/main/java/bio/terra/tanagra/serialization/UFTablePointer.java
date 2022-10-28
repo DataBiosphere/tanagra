@@ -1,6 +1,6 @@
 package bio.terra.tanagra.serialization;
 
-import bio.terra.tanagra.underlay.TablePointer;
+import bio.terra.tanagra.query.TablePointer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFTablePointer {
   private final String table;
-  private final UFTableFilter filter;
+  private final UFFilter filter;
   private final String rawSql;
   private final String rawSqlFile;
 
@@ -37,7 +37,7 @@ public class UFTablePointer {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String table;
-    private UFTableFilter filter;
+    private UFFilter filter;
     private String rawSql;
     private String rawSqlFile;
 
@@ -46,7 +46,7 @@ public class UFTablePointer {
       return this;
     }
 
-    public Builder filter(UFTableFilter filter) {
+    public Builder filter(UFFilter filter) {
       this.filter = filter;
       return this;
     }
@@ -71,7 +71,7 @@ public class UFTablePointer {
     return table;
   }
 
-  public UFTableFilter getFilter() {
+  public UFFilter getFilter() {
     return filter;
   }
 

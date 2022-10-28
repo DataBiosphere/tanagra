@@ -15,7 +15,7 @@
     "tablePointer" : {
       "table" : "concept",
       "filter" : {
-        "type" : "ARRAY",
+        "type" : "BOOLEAN_AND_OR",
         "operator" : "AND",
         "subfilters" : [ {
           "type" : "BINARY",
@@ -86,10 +86,7 @@
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "id",
-        "foreignTable" : "visit_textsearch",
-        "foreignKey" : "id",
-        "foreignColumn" : "text"
+        "column" : "text"
       }
     },
     "hierarchyMappings" : { }

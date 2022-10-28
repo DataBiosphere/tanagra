@@ -58,10 +58,10 @@
     "tablePointer" : {
       "table" : "concept",
       "filter" : {
-        "type" : "ARRAY",
+        "type" : "BOOLEAN_AND_OR",
         "operator" : "OR",
         "subfilters" : [ {
-          "type" : "ARRAY",
+          "type" : "BOOLEAN_AND_OR",
           "operator" : "AND",
           "subfilters" : [ {
             "type" : "BINARY",
@@ -83,7 +83,7 @@
             }
           } ]
         }, {
-          "type" : "ARRAY",
+          "type" : "BOOLEAN_AND_OR",
           "operator" : "AND",
           "subfilters" : [ {
             "type" : "BINARY",
@@ -95,7 +95,7 @@
               "stringVal" : "LOINC"
             }
           }, {
-            "type" : "ARRAY",
+            "type" : "BOOLEAN_AND_OR",
             "operator" : "OR",
             "subfilters" : [ {
               "type" : "BINARY",
@@ -200,10 +200,10 @@
           "tablePointer" : {
             "table" : "concept",
             "filter" : {
-              "type" : "ARRAY",
+              "type" : "BOOLEAN_AND_OR",
               "operator" : "OR",
               "subfilters" : [ {
-                "type" : "ARRAY",
+                "type" : "BOOLEAN_AND_OR",
                 "operator" : "AND",
                 "subfilters" : [ {
                   "type" : "BINARY",
@@ -225,7 +225,7 @@
                   }
                 } ]
               }, {
-                "type" : "ARRAY",
+                "type" : "BOOLEAN_AND_OR",
                 "operator" : "AND",
                 "subfilters" : [ {
                   "type" : "BINARY",
@@ -298,10 +298,7 @@
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "id",
-        "foreignTable" : "measurement_textsearch",
-        "foreignKey" : "id",
-        "foreignColumn" : "text"
+        "column" : "text"
       }
     },
     "hierarchyMappings" : {
@@ -334,14 +331,14 @@
         },
         "pathNumChildren" : {
           "tablePointer" : {
-            "table" : "measurement_standard_pathNumChildren"
+            "table" : "measurement"
           },
           "fieldPointers" : {
             "path" : {
-              "column" : "path"
+              "column" : "t_standard_path"
             },
             "num_children" : {
-              "column" : "num_children"
+              "column" : "t_standard_num_children"
             },
             "id" : {
               "column" : "id"

@@ -2,34 +2,28 @@ package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFEntityGroup;
-import bio.terra.tanagra.underlay.AuxiliaryData;
-import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
-import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.RelationshipField;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.relationshipfield.Count;
+import bio.terra.tanagra.underlay.relationshipfield.DisplayHints;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CriteriaOccurrence extends EntityGroup {
   private static final String CRITERIA_ENTITY_NAME = "criteria";
   private static final String OCCURRENCE_ENTITY_NAME = "occurrence";
   private static final String OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME = "occurrenceToCriteria";
   private static final String OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME = "occurrenceToPrimary";
-
-  private static final String CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME =
-      "criteriaPrimaryRollupCount";
-  private static final AuxiliaryData CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA =
-      new AuxiliaryData(
-          CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME, List.of("id", "rollup_count"));
+  private static final String CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME = "criteriaToPrimary";
 
   private final Entity criteriaEntity;
   private final Entity occurrenceEntity;
@@ -47,50 +41,77 @@ public class CriteriaOccurrence extends EntityGroup {
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
       String primaryEntityName) {
+    // Entities.
     Entity criteriaEntity = getDeserializedEntity(serialized, CRITERIA_ENTITY_NAME, entities);
     Entity occurrenceEntity = getDeserializedEntity(serialized, OCCURRENCE_ENTITY_NAME, entities);
     Entity primaryEntity = entities.get(primaryEntityName);
 
+    // Relationships.
     Map<String, Relationship> relationships =
         Map.of(
             OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
-                new Relationship(
-                    OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME, occurrenceEntity, criteriaEntity),
+            new Relationship(
+                OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
+                occurrenceEntity,
+                criteriaEntity,
+                buildRelationshipFieldList(criteriaEntity)),
             OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
-                new Relationship(
-                    OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME, occurrenceEntity, primaryEntity));
-    Map<String, AuxiliaryData> auxiliaryData =
-        Map.of(
-            CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME,
-            CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA);
+            new Relationship(
+                OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
+                occurrenceEntity,
+                primaryEntity,
+                Collections.emptyList()),
+            CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
+            new Relationship(
+                CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
+                criteriaEntity,
+                primaryEntity,
+                buildRelationshipFieldList(criteriaEntity)));
 
+    // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
-        EntityGroupMapping.fromSerializedForSourceData(
-            serialized.getSourceDataMapping(),
-            dataPointers,
-            relationships,
-            auxiliaryData,
-            serialized.getName());
+        EntityGroupMapping.fromSerialized(
+            serialized.getSourceDataMapping(), dataPointers, Underlay.MappingType.SOURCE);
     EntityGroupMapping indexDataMapping =
-        EntityGroupMapping.fromSerializedForIndexData(
-            serialized.getIndexDataMapping(),
-            dataPointers,
-            relationships,
-            auxiliaryData,
-            serialized.getName());
+        EntityGroupMapping.fromSerialized(
+            serialized.getIndexDataMapping(), dataPointers, Underlay.MappingType.INDEX);
 
     Builder builder = new Builder();
     builder
         .name(serialized.getName())
         .relationships(relationships)
-        .auxiliaryData(auxiliaryData)
         .sourceDataMapping(sourceDataMapping)
         .indexDataMapping(indexDataMapping);
-    return builder
-        .criteriaEntity(criteriaEntity)
-        .occurrenceEntity(occurrenceEntity)
-        .primaryEntity(primaryEntity)
-        .build();
+    CriteriaOccurrence criteriaOccurrence =
+        builder
+            .criteriaEntity(criteriaEntity)
+            .occurrenceEntity(occurrenceEntity)
+            .primaryEntity(primaryEntity)
+            .build();
+
+    sourceDataMapping.initialize(criteriaOccurrence);
+    indexDataMapping.initialize(criteriaOccurrence);
+
+    // Source+index relationship mappings.
+    EntityGroup.deserializeRelationshipMappings(serialized, criteriaOccurrence);
+
+    return criteriaOccurrence;
+  }
+
+  private static List<RelationshipField> buildRelationshipFieldList(Entity entity) {
+    List<RelationshipField> fields = new ArrayList<>();
+    fields.add(new Count(entity));
+    fields.add(new DisplayHints(entity));
+
+    if (entity.hasHierarchies()) {
+      entity.getHierarchies().stream()
+          .forEach(
+              hierarchy -> {
+                fields.add(new Count(entity, hierarchy));
+                fields.add(new DisplayHints(entity, hierarchy));
+              });
+    }
+    return fields;
   }
 
   @Override
@@ -99,91 +120,51 @@ public class CriteriaOccurrence extends EntityGroup {
   }
 
   @Override
-  public Map<String, Entity> getEntities() {
+  public Map<String, Entity> getEntityMap() {
     return ImmutableMap.of(
         CRITERIA_ENTITY_NAME, criteriaEntity, OCCURRENCE_ENTITY_NAME, occurrenceEntity);
   }
 
   @Override
   public List<IndexingJob> getIndexingJobs() {
-    if (criteriaEntity.getSourceDataMapping().hasHierarchyMappings()) {
-      return criteriaEntity.getSourceDataMapping().getHierarchyMappings().keySet().stream()
-          .map(hierarchyName -> new ComputeRollupCounts(this, hierarchyName))
-          .collect(Collectors.toList());
-    } else {
-      return List.of(new ComputeRollupCounts(this));
+    List<IndexingJob> jobs = super.getIndexingJobs();
+
+    // Compute the criteria rollup counts for both the criteria-primary and criteria-occurrence
+    // relationships.
+    jobs.add(new ComputeRollupCounts(criteriaEntity, getCriteriaPrimaryRelationship(), null));
+    jobs.add(new ComputeRollupCounts(criteriaEntity, getOccurrenceCriteriaRelationship(), null));
+
+    // If the criteria entity has a hierarchy, then also compute the counts for each hierarchy.
+    if (criteriaEntity.hasHierarchies()) {
+      criteriaEntity.getHierarchies().stream()
+          .forEach(
+              hierarchy -> {
+                jobs.add(
+                    new ComputeRollupCounts(
+                        criteriaEntity, getCriteriaPrimaryRelationship(), hierarchy));
+                jobs.add(
+                    new ComputeRollupCounts(
+                        criteriaEntity, getOccurrenceCriteriaRelationship(), hierarchy));
+              });
     }
+
+    return jobs;
   }
 
   public Entity getCriteriaEntity() {
     return criteriaEntity;
   }
 
-  public Entity getOccurrenceEntity() {
-    return occurrenceEntity;
-  }
-
   public Entity getPrimaryEntity() {
     return primaryEntity;
   }
 
-  public RelationshipMapping getOccurrenceToCriteriaRelationshipMapping() {
-    return sourceDataMapping
-        .getRelationshipMappings()
-        .get(OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME);
+  public Relationship getCriteriaPrimaryRelationship() {
+    return relationships.get(CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME);
   }
 
-  public RelationshipMapping getOccurrenceToPrimaryRelationshipMapping() {
-    return sourceDataMapping.getRelationshipMappings().get(OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME);
-  }
-
-  public AuxiliaryDataMapping getCriteriaPrimaryRollupCountAuxiliaryDataMapping() {
-    return indexDataMapping
-        .getAuxiliaryDataMappings()
-        .get(CRITERIA_PRIMARY_ROLLUP_COUNT_AUXILIARY_DATA_NAME);
-  }
-
-  public Query queryCriteriaPrimaryPairs(String criteriaIdAlias, String primaryIdAlias) {
-    RelationshipMapping occToPriRelationshipMapping = getOccurrenceToPrimaryRelationshipMapping();
-    RelationshipMapping occToCriRelationshipMapping = getOccurrenceToCriteriaRelationshipMapping();
-
-    TableVariable occToPriTableVar =
-        TableVariable.forPrimary(occToPriRelationshipMapping.getTablePointer());
-    FieldVariable priIdFieldVar =
-        new FieldVariable(
-            occToPriRelationshipMapping.getToEntityId(), occToPriTableVar, primaryIdAlias);
-
-    if (occToPriRelationshipMapping
-        .getTablePointer()
-        .equals(occToCriRelationshipMapping.getTablePointer())) {
-      // if the two relationship mappings are in the same table, then just select from a single
-      // table
-      FieldVariable criIdFieldVar =
-          new FieldVariable(
-              occToCriRelationshipMapping.getToEntityId(), occToPriTableVar, criteriaIdAlias);
-      return new Query.Builder()
-          .select(List.of(criIdFieldVar, priIdFieldVar))
-          .tables(List.of(occToPriTableVar))
-          .build();
-    } else {
-      // otherwise, join the two tables
-      // SELECT primaryId, criteriaId FROM occurrencePrimaryTable
-      // JOIN occurrenceCriteriaTable ON occurrenceCriteriaTable.occurrenceId =
-      // occurrencePrimaryTable.occurrenceId
-      TableVariable occToCriTableVar =
-          TableVariable.forJoined(
-              occToCriRelationshipMapping.getTablePointer(),
-              getOccurrenceToCriteriaRelationshipMapping().getFromEntityId().getColumnName(),
-              new FieldVariable(
-                  getOccurrenceToPrimaryRelationshipMapping().getFromEntityId(), occToPriTableVar));
-      FieldVariable criIdFieldVar =
-          new FieldVariable(
-              occToCriRelationshipMapping.getToEntityId(), occToCriTableVar, criteriaIdAlias);
-      return new Query.Builder()
-          .select(List.of(criIdFieldVar, priIdFieldVar))
-          .tables(List.of(occToPriTableVar, occToCriTableVar))
-          .build();
-    }
+  public Relationship getOccurrenceCriteriaRelationship() {
+    return relationships.get(OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME);
   }
 
   private static class Builder extends EntityGroup.Builder {

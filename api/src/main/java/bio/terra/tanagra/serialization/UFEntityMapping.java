@@ -26,23 +26,31 @@ public class UFEntityMapping {
     this.tablePointer = new UFTablePointer(entityMapping.getTablePointer());
 
     Map<String, UFAttributeMapping> attributeMappings = new HashMap<>();
-    entityMapping.getAttributeMappings().entrySet().stream()
+    entityMapping.getEntity().getAttributes().stream()
         .forEach(
-            attrMpg -> {
-              attributeMappings.put(attrMpg.getKey(), new UFAttributeMapping(attrMpg.getValue()));
+            attribute -> {
+              attributeMappings.put(
+                  attribute.getName(),
+                  new UFAttributeMapping(attribute.getMapping(entityMapping.getMappingType())));
             });
     this.attributeMappings = attributeMappings;
 
     this.textSearchMapping =
-        entityMapping.hasTextSearchMapping()
-            ? new UFTextSearchMapping(entityMapping.getTextSearchMapping())
+        entityMapping.getEntity().getTextSearch().isEnabled()
+            ? new UFTextSearchMapping(
+                entityMapping
+                    .getEntity()
+                    .getTextSearch()
+                    .getMapping(entityMapping.getMappingType()))
             : null;
 
     Map<String, UFHierarchyMapping> hierarchyMappings = new HashMap<>();
-    entityMapping.getHierarchyMappings().entrySet().stream()
+    entityMapping.getEntity().getHierarchies().stream()
         .forEach(
-            hierMpg -> {
-              hierarchyMappings.put(hierMpg.getKey(), new UFHierarchyMapping(hierMpg.getValue()));
+            hierarchy -> {
+              hierarchyMappings.put(
+                  hierarchy.getName(),
+                  new UFHierarchyMapping(hierarchy.getMapping(entityMapping.getMappingType())));
             });
     this.hierarchyMappings = hierarchyMappings;
   }

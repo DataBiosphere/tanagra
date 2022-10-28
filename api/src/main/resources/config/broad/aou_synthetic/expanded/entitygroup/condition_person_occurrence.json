@@ -9,44 +9,203 @@
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
       "occurrenceToCriteria" : {
-        "tablePointer" : {
+        "idPairsTable" : {
           "table" : "condition_occurrence"
         },
-        "fromEntityId" : {
+        "idPairsIdA" : {
           "column" : "condition_occurrence_id"
         },
-        "toEntityId" : {
+        "idPairsIdB" : {
           "column" : "condition_concept_id"
-        }
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "condition_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "condition_concept_id"
+        },
+        "idPairsIdB" : {
+          "column" : "person_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
       },
       "occurrenceToPrimary" : {
-        "tablePointer" : {
+        "idPairsTable" : {
           "table" : "condition_occurrence"
         },
-        "fromEntityId" : {
+        "idPairsIdA" : {
           "column" : "condition_occurrence_id"
         },
-        "toEntityId" : {
+        "idPairsIdB" : {
           "column" : "person_id"
-        }
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
       }
-    },
-    "auxiliaryDataMappings" : { }
+    }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
-    "relationshipMappings" : { },
-    "auxiliaryDataMappings" : {
-      "criteriaPrimaryRollupCount" : {
-        "tablePointer" : {
-          "table" : "condition_person_occurrence_criteriaPrimaryRollupCount"
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "idpairs_condition_occurrence_condition"
         },
-        "fieldPointers" : {
-          "id" : {
-            "column" : "id"
+        "idPairsIdA" : {
+          "column" : "id_condition_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_condition"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "condition_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_condition"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_condition"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "standard" : {
+            "table" : {
+              "table" : "condition"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_condition_occurrence_standard"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_condition_occurrence_standard"
+            }
           },
-          "rollup_count" : {
-            "column" : "rollup_count"
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "condition"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_condition_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_condition_occurrence"
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_condition_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_condition"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "standard" : {
+            "table" : {
+              "table" : "condition"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person_standard"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person_standard"
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "condition"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_condition"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_condition"
+            }
+          }
+        }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_condition_occurrence_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_condition_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "condition_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_condition_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_condition_occurrence"
+            }
           }
         }
       }

@@ -20,7 +20,7 @@ import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohortAndGroup, useUnderlay } from "hooks";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { cohortURL, criteriaURL } from "router";
+import { cohortURL, newCriteriaURL } from "router";
 import { CriteriaConfig } from "underlaysSlice";
 import { createCriteria, getCriteriaPlugin, searchCriteria } from "./cohort";
 
@@ -75,18 +75,18 @@ export function AddCriteria() {
   const onClick = useCallback(
     (config: CriteriaConfig, dataEntry?: DataEntry) => {
       const criteria = createCriteria(source, config, dataEntry);
-      dispatch(
-        insertCriteria({
-          cohortId: cohort.id,
-          groupId: group.id,
-          criteria,
-        })
-      );
-      navigate(
-        !!getCriteriaPlugin(criteria).renderEdit && !dataEntry
-          ? "../" + criteriaURL(criteria.id)
-          : "../../" + cohortURL(cohort.id, group.id)
-      );
+      if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
+        navigate("../" + newCriteriaURL(config.id));
+      } else {
+        dispatch(
+          insertCriteria({
+            cohortId: cohort.id,
+            groupId: group.id,
+            criteria,
+          })
+        );
+        navigate("../../" + cohortURL(cohort.id, group.id));
+      }
     },
     [source, cohort.id, group.id]
   );

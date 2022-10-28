@@ -9,14 +9,19 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "tablePointer": { "table": "measurement" },
-        "fromEntityId": { "column": "measurement_id" },
-        "toEntityId":  { "column": "measurement_concept_id" }
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "measurement_concept_id" }
       },
       "occurrenceToPrimary": {
-        "tablePointer": { "table": "measurement" },
-        "fromEntityId": { "column": "measurement_id" },
-        "toEntityId":  { "column": "person_id" }
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
       }
     }
   },

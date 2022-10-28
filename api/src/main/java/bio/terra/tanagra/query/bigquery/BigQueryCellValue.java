@@ -3,7 +3,7 @@ package bio.terra.tanagra.query.bigquery;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.query.Literal;
 import com.google.cloud.bigquery.FieldValue;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -52,6 +52,8 @@ class BigQueryCellValue implements CellValue {
         return new Literal(fieldValue.isNull() ? null : fieldValue.getStringValue());
       case BOOLEAN:
         return new Literal(fieldValue.getBooleanValue());
+      case DATE:
+        return Literal.forDate(fieldValue.getStringValue());
       default:
         throw new SystemException("Unknown data type: " + dataType);
     }

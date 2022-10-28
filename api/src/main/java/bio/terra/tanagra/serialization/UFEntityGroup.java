@@ -1,6 +1,7 @@
 package bio.terra.tanagra.serialization;
 
 import bio.terra.tanagra.underlay.EntityGroup;
+import bio.terra.tanagra.underlay.Underlay;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.HashMap;
@@ -23,11 +24,13 @@ public class UFEntityGroup {
     this.type = entityGroup.getType();
     this.name = entityGroup.getName();
     Map<String, String> entities = new HashMap<>();
-    entityGroup.getEntities().entrySet().stream()
+    entityGroup.getEntityMap().entrySet().stream()
         .forEach(e -> entities.put(e.getKey(), e.getValue().getName()));
     this.entities = entities;
-    this.sourceDataMapping = new UFEntityGroupMapping(entityGroup.getSourceDataMapping());
-    this.indexDataMapping = new UFEntityGroupMapping(entityGroup.getIndexDataMapping());
+    this.sourceDataMapping =
+        new UFEntityGroupMapping(entityGroup.getMapping(Underlay.MappingType.SOURCE));
+    this.indexDataMapping =
+        new UFEntityGroupMapping(entityGroup.getMapping(Underlay.MappingType.INDEX));
   }
 
   private UFEntityGroup(Builder builder) {

@@ -30,7 +30,7 @@
     "tablePointer" : {
       "table" : "concept",
       "filter" : {
-        "type" : "ARRAY",
+        "type" : "BOOLEAN_AND_OR",
         "operator" : "AND",
         "subfilters" : [ {
           "type" : "BINARY",
@@ -58,7 +58,7 @@
           "operator" : "IS",
           "value" : { }
         }, {
-          "type" : "ARRAY",
+          "type" : "BOOLEAN_AND_OR",
           "operator" : "OR",
           "subfilters" : [ {
             "type" : "BINARY",
@@ -109,7 +109,7 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "name", "concept_code" ]
+      "attributes" : [ "name", "id", "concept_code" ]
     },
     "hierarchyMappings" : { }
   },
@@ -145,10 +145,7 @@
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "id",
-        "foreignTable" : "brand_textsearch",
-        "foreignKey" : "id",
-        "foreignColumn" : "text"
+        "column" : "text"
       }
     },
     "hierarchyMappings" : { }

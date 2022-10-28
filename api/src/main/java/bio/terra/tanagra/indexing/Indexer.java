@@ -7,6 +7,7 @@ import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.utils.HttpUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -95,7 +96,10 @@ public final class Indexer {
 
   public void runJobsForEntity(String name, boolean isDryRun) {
     LOGGER.info("RUN entity: {}", name);
-    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndRun(isDryRun));
+    underlay
+        .getEntity(name)
+        .getIndexingJobs()
+        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndRun(isDryRun), ij.getName()));
   }
 
   public void runJobsForAllEntityGroups(boolean isDryRun) {
@@ -106,7 +110,10 @@ public final class Indexer {
 
   public void runJobsForEntityGroup(String name, boolean isDryRun) {
     LOGGER.info("RUN entity group: {}", name);
-    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndRun(isDryRun));
+    underlay
+        .getEntityGroup(name)
+        .getIndexingJobs()
+        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndRun(isDryRun), ij.getName()));
   }
 
   public void cleanAllEntities(boolean isDryRun) {
@@ -115,7 +122,10 @@ public final class Indexer {
 
   public void cleanEntity(String name, boolean isDryRun) {
     LOGGER.info("CLEAN entity: {}", name);
-    underlay.getEntity(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndClean(isDryRun));
+    underlay
+        .getEntity(name)
+        .getIndexingJobs()
+        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndClean(isDryRun), ij.getName()));
   }
 
   public void cleanAllEntityGroups(boolean isDryRun) {
@@ -126,10 +136,30 @@ public final class Indexer {
 
   public void cleanEntityGroup(String name, boolean isDryRun) {
     LOGGER.info("CLEAN entity group: {}", name);
-    underlay.getEntityGroup(name).getIndexingJobs().forEach(ij -> ij.checkStatusAndClean(isDryRun));
+    underlay
+        .getEntityGroup(name)
+        .getIndexingJobs()
+        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndClean(isDryRun), ij.getName()));
   }
 
   public Underlay getUnderlay() {
     return underlay;
+  }
+
+  /**
+   * Execute an indexing job. If an exception is thrown, make sure the error message and stack trace
+   * are logged.
+   *
+   * @param runJob function with no return value
+   * @param jobName name of the indexing job to include in log statements
+   */
+  private void tolerateJobExceptions(
+      HttpUtils.RunnableWithCheckedException<Exception> runJob, String jobName) {
+    try {
+      runJob.run();
+    } catch (Exception ex) {
+      LOGGER.error("Error running indexing job: {}", jobName);
+      LOGGER.error("Exception thrown: {}", ex);
+    }
   }
 }

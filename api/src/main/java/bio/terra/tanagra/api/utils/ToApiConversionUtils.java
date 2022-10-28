@@ -5,7 +5,7 @@ import bio.terra.tanagra.generated.model.ApiDataTypeV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2ValueUnion;
 import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
-import bio.terra.tanagra.underlay.Literal;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.ValueDisplay;
 
 public final class ToApiConversionUtils {
@@ -28,6 +28,9 @@ public final class ToApiConversionUtils {
             new ApiLiteralV2ValueUnion().stringVal(literal.getStringVal()));
       case BOOLEAN:
         return apiLiteral.valueUnion(new ApiLiteralV2ValueUnion().boolVal(literal.getBooleanVal()));
+      case DATE:
+        return apiLiteral.valueUnion(
+            new ApiLiteralV2ValueUnion().dateVal(literal.getDateValAsString()));
       default:
         throw new SystemException("Unknown literal data type: " + literal.getDataType());
     }

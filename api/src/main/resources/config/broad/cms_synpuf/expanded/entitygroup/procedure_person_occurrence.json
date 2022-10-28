@@ -9,44 +9,203 @@
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
       "occurrenceToCriteria" : {
-        "tablePointer" : {
+        "idPairsTable" : {
           "table" : "procedure_occurrence"
         },
-        "fromEntityId" : {
+        "idPairsIdA" : {
           "column" : "procedure_occurrence_id"
         },
-        "toEntityId" : {
+        "idPairsIdB" : {
           "column" : "procedure_concept_id"
-        }
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "procedure_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "procedure_concept_id"
+        },
+        "idPairsIdB" : {
+          "column" : "person_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
       },
       "occurrenceToPrimary" : {
-        "tablePointer" : {
+        "idPairsTable" : {
           "table" : "procedure_occurrence"
         },
-        "fromEntityId" : {
+        "idPairsIdA" : {
           "column" : "procedure_occurrence_id"
         },
-        "toEntityId" : {
+        "idPairsIdB" : {
           "column" : "person_id"
-        }
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
       }
-    },
-    "auxiliaryDataMappings" : { }
+    }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
-    "relationshipMappings" : { },
-    "auxiliaryDataMappings" : {
-      "criteriaPrimaryRollupCount" : {
-        "tablePointer" : {
-          "table" : "procedure_person_occurrence_criteriaPrimaryRollupCount"
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "idpairs_procedure_occurrence_procedure"
         },
-        "fieldPointers" : {
-          "id" : {
-            "column" : "id"
+        "idPairsIdA" : {
+          "column" : "id_procedure_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_procedure"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "procedure_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_procedure"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_procedure"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "standard" : {
+            "table" : {
+              "table" : "procedure"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_procedure_occurrence_standard"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_procedure_occurrence_standard"
+            }
           },
-          "rollup_count" : {
-            "column" : "rollup_count"
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "procedure"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_procedure_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_procedure_occurrence"
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_procedure_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_procedure"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "standard" : {
+            "table" : {
+              "table" : "procedure"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person_standard"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person_standard"
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "procedure"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_procedure"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_procedure"
+            }
+          }
+        }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_procedure_occurrence_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_procedure_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "procedure_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_procedure_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_procedure_occurrence"
+            }
           }
         }
       }

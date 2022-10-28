@@ -1,6 +1,8 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.serialization.UFDataPointer;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;

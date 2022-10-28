@@ -1,10 +1,10 @@
-package bio.terra.tanagra.underlay;
+package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.serialization.UFLiteral;
 import com.google.common.base.Strings;
+import java.sql.Date;
 import java.util.stream.Stream;
 
 public class Literal implements SQLExpression {
@@ -12,13 +12,15 @@ public class Literal implements SQLExpression {
   public enum DataType {
     INT64,
     STRING,
-    BOOLEAN
+    BOOLEAN,
+    DATE
   }
 
   private final Literal.DataType dataType;
   private String stringVal;
   private long int64Val;
   private boolean booleanVal;
+  private Date dateVal;
 
   public Literal(String stringVal) {
     this.dataType = DataType.STRING;
@@ -35,15 +37,28 @@ public class Literal implements SQLExpression {
     this.booleanVal = booleanVal;
   }
 
+  private Literal(Date dateVal) {
+    this.dataType = DataType.DATE;
+    this.dateVal = dateVal;
+  }
+
+  public static Literal forDate(String dateVal) {
+    return new Literal(Date.valueOf(dateVal));
+  }
+
   public static Literal fromSerialized(UFLiteral serialized) {
     boolean stringValDefined = !Strings.isNullOrEmpty(serialized.getStringVal());
     boolean int64ValDefined = serialized.getInt64Val() != null;
     boolean booleanValDefined = serialized.getBooleanVal() != null;
+    boolean dateValDefiend = serialized.getDateVal() != null;
 
     long numDefined =
-        Stream.of(stringValDefined, int64ValDefined, booleanValDefined).filter(b -> b).count();
+        Stream.of(stringValDefined, int64ValDefined, booleanValDefined, dateValDefiend)
+            .filter(b -> b)
+            .count();
     if (numDefined == 0) {
-      return new Literal(null);
+      // TODO: Make a static NULL Literal instance, instead of overloading the String value.
+      return new Literal((String) null);
     } else if (numDefined > 1) {
       throw new InvalidConfigException("More than one literal value defined");
     }
@@ -52,8 +67,10 @@ public class Literal implements SQLExpression {
       return new Literal(serialized.getStringVal());
     } else if (int64ValDefined) {
       return new Literal(serialized.getInt64Val());
-    } else {
+    } else if (booleanValDefined) {
       return new Literal(serialized.getBooleanVal());
+    } else {
+      return Literal.forDate(serialized.getDateVal());
     }
   }
 
@@ -67,6 +84,8 @@ public class Literal implements SQLExpression {
         return String.valueOf(int64Val);
       case BOOLEAN:
         return String.valueOf(booleanVal);
+      case DATE:
+        return "DATE('" + dateVal.toString() + "')";
       default:
         throw new SystemException("Unknown Literal data type");
     }
@@ -86,6 +105,14 @@ public class Literal implements SQLExpression {
           "This value will be used in constructing a SQL string, not used directly in a Java conditional")
   public Boolean getBooleanVal() {
     return dataType.equals(DataType.BOOLEAN) ? booleanVal : null;
+  }
+
+  public Date getDateVal() {
+    return dataType.equals(DataType.DATE) ? dateVal : null;
+  }
+
+  public String getDateValAsString() {
+    return dataType.equals(DataType.DATE) ? dateVal.toString() : null;
   }
 
   public DataType getDataType() {

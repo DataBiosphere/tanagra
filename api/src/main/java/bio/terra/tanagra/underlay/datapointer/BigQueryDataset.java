@@ -2,16 +2,17 @@ package bio.terra.tanagra.underlay.datapointer;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryExecutor;
+import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.underlay.DataPointer;
-import bio.terra.tanagra.underlay.FieldPointer;
-import bio.terra.tanagra.underlay.Literal;
-import bio.terra.tanagra.underlay.TablePointer;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.LegacySQLTypeName;
@@ -142,14 +143,31 @@ public final class BigQueryDataset extends DataPointer {
     }
 
     LegacySQLTypeName fieldType = tableSchema.getFields().get(columnName).getType();
-    if (LegacySQLTypeName.STRING.equals(fieldType) || LegacySQLTypeName.DATE.equals(fieldType)) {
+    if (LegacySQLTypeName.STRING.equals(fieldType)) {
       return Literal.DataType.STRING;
     } else if (LegacySQLTypeName.INTEGER.equals(fieldType)) {
       return Literal.DataType.INT64;
     } else if (LegacySQLTypeName.BOOLEAN.equals(fieldType)) {
       return Literal.DataType.BOOLEAN;
+    } else if (LegacySQLTypeName.DATE.equals(fieldType)) {
+      return Literal.DataType.DATE;
     } else {
       throw new SystemException("BigQuery SQL data type not supported: " + fieldType);
+    }
+  }
+
+  public static LegacySQLTypeName fromSqlDataType(CellValue.SQLDataType sqlDataType) {
+    switch (sqlDataType) {
+      case STRING:
+        return LegacySQLTypeName.STRING;
+      case INT64:
+        return LegacySQLTypeName.INTEGER;
+      case BOOLEAN:
+        return LegacySQLTypeName.BOOLEAN;
+      case DATE:
+        return LegacySQLTypeName.DATE;
+      default:
+        throw new SystemException("SQL data type not supported for BigQuery: " + sqlDataType);
     }
   }
 
