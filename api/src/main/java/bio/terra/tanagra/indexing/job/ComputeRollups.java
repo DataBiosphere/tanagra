@@ -13,11 +13,13 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
-import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.Count;
+import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.Filter;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.Max;
 import org.apache.beam.sdk.transforms.Min;
+import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.transforms.join.CoGbkResult;
 import org.apache.beam.sdk.transforms.join.CoGroupByKey;
 import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
@@ -39,7 +41,19 @@ public class ComputeRollups extends BigQueryIndexingJob {
               List.of(
                   new TableFieldSchema().setName("id").setType("INTEGER").setMode("NULLABLE"),
                   new TableFieldSchema().setName("min").setType("FLOAT").setMode("NULLABLE"),
-                  new TableFieldSchema().setName("max").setType("FLOAT").setMode("NULLABLE")));
+                  new TableFieldSchema().setName("max").setType("FLOAT").setMode("NULLABLE"),
+                  new TableFieldSchema()
+                      .setName("enumValue")
+                      .setType("INTEGER")
+                      .setMode("NULLABLE"),
+                  new TableFieldSchema()
+                      .setName("enumDisplay")
+                      .setType("STRING")
+                      .setMode("NULLABLE"),
+                  new TableFieldSchema()
+                      .setName("enumCount")
+                      .setType("INTEGER")
+                      .setMode("NULLABLE")));
 
   public ComputeRollups(Entity entity) {
     super(entity);
@@ -63,6 +77,7 @@ public class ComputeRollups extends BigQueryIndexingJob {
     Pipeline pipeline =
         Pipeline.create(buildDataflowPipelineOptions(getBQDataPointer(getAuxiliaryTable())));
 
+    // Read in all instances.
     PCollection<TableRow> allInstances =
         pipeline.apply(
             BigQueryIO.readTableRows()
@@ -71,10 +86,9 @@ public class ComputeRollups extends BigQueryIndexingJob {
                 .usingStandardSql());
 
     String criteriaIdName = "measurement_concept_id";
-    String occurrenceIdName = "measurement_id";
     String primaryIdName = "person_id";
 
-    // for integer type attributes:
+    // for numeric range display hints:
     String integerAttributeName = "value_as_number";
     //   - remove rows with a null value
     PCollection<TableRow> integerNotNullInstances =
@@ -97,7 +111,7 @@ public class ComputeRollups extends BigQueryIndexingJob {
     PCollection<KV<Long, Double>> criteriaMinPairs = criteriaValuePairs.apply(Min.doublesPerKey());
     //   - combine-max by key: [key] criteriaId, [value] max attr value
     PCollection<KV<Long, Double>> criteriaMaxPairs = criteriaValuePairs.apply(Max.doublesPerKey());
-    //   - group by key, pardo for each key: [key] criteriaId, [value] min and max attr value
+    //   - group by [key] criteriaId: [values] min, max
     final TupleTag<Double> minTag = new TupleTag<>();
     final TupleTag<Double> maxTag = new TupleTag<>();
     PCollection<KV<Long, CoGbkResult>> criteriaAndMinMax =
@@ -127,24 +141,155 @@ public class ComputeRollups extends BigQueryIndexingJob {
             .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
             .withMethod(BigQueryIO.Write.Method.FILE_LOADS));
 
-    // for string type attributes:
+    // for enum display hints:
     String enumValueAttributeName = "value_as_concept_id";
     String enumDisplayAttributeName = "concept_name";
     //   - remove rows with a null value
-    //    PCollection<TableRow> enumNotNullInstances =
-    //            allInstances.apply(
-    //                    Filter.by(
-    //                            tableRow ->
-    //                                    tableRow.get(criteriaIdName) != null));
-    //   - build key-value pairs: [key] criteriaId+attribute value/display, [value] person id
-
-    //   - distinct (remove duplicate persons):  [key] criteriaId+attribute value-attribute display,
-    // [value] person id
-    //   - count by key: [key] criteriaId+attribute value-attribute display, [value] num person ids
+    PCollection<TableRow> enumValueNotNullInstances =
+        allInstances.apply(
+            Filter.by(
+                tableRow ->
+                    tableRow.get(criteriaIdName) != null
+                        && tableRow.get(enumValueAttributeName) != null));
+    //   - build key-value pairs: [key] criteriaId+attribute value/display, [value] primaryId
+    PCollection<KV<EnumValueInstance<Long>, Long>> criteriaEnumPrimaryPairs =
+        enumValueNotNullInstances.apply(
+            MapElements.into(
+                    TypeDescriptors.kvs(
+                        new TypeDescriptor<EnumValueInstance<Long>>() {}, TypeDescriptors.longs()))
+                .via(
+                    tableRow -> {
+                      Long criteriaId = Long.parseLong((String) tableRow.get(criteriaIdName));
+                      Long enumValue =
+                          Long.parseLong((String) tableRow.get(enumValueAttributeName));
+                      String enumDisplay = (String) tableRow.get(enumDisplayAttributeName);
+                      Long primaryId = Long.parseLong((String) tableRow.get(primaryIdName));
+                      return KV.of(
+                          new EnumValueInstance<Long>(criteriaId, enumValue, enumDisplay),
+                          primaryId);
+                    }));
+    //   - build key-value pairs for criteriaId+enum value/display: [key] serialized format (by
+    // built-in functions), [value] deserialized object:
+    //     [key] "criteriaId-value-display", [value] criteria+enum value/display
+    PCollection<KV<String, EnumValueInstance<Long>>> serializedAndDeserialized =
+        criteriaEnumPrimaryPairs.apply(
+            MapElements.into(
+                    TypeDescriptors.kvs(
+                        TypeDescriptors.strings(),
+                        new TypeDescriptor<EnumValueInstance<Long>>() {}))
+                .via(
+                    enumValueInstancePrimaryPair ->
+                        KV.of(
+                            enumValueInstancePrimaryPair.getKey().toString(),
+                            enumValueInstancePrimaryPair.getKey())));
+    //   - build key-value pairs: [key] serialized criteriaId+enum value/display, [value] primaryId
+    PCollection<KV<String, Long>> serializedPrimaryPairs =
+        criteriaEnumPrimaryPairs.apply(
+            MapElements.into(
+                    TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.longs()))
+                .via(
+                    enumValueInstancePrimaryPair ->
+                        KV.of(
+                            enumValueInstancePrimaryPair.getKey().toString(),
+                            enumValueInstancePrimaryPair.getValue())));
+    //   - distinct (remove duplicate persons):  [key] serialized criteriaId+enum value/display,
+    // [value] primaryId
+    PCollection<KV<String, Long>> distinctSerializedPrimaryPairs =
+        serializedPrimaryPairs.apply(Distinct.create());
+    //   - count by key: [key] serialized criteriaId+enum value/display, [value] num primaryId
+    PCollection<KV<String, Long>> serializedCountPairs =
+        distinctSerializedPrimaryPairs.apply(Count.perKey());
+    //   - group by [key] serialized criteriaId+enum value/display: [values] deserialized object,
+    // num primaryId
+    final TupleTag<EnumValueInstance<Long>> deserializedTag = new TupleTag<>();
+    final TupleTag<Long> numPrimaryIdTag = new TupleTag<>();
+    PCollection<KV<String, CoGbkResult>> serializedAndDeserializedNumPrimaryId =
+        KeyedPCollectionTuple.of(deserializedTag, serializedAndDeserialized)
+            .and(numPrimaryIdTag, serializedCountPairs)
+            .apply(CoGroupByKey.create());
+    //   - build BQ rows to insert: (id=criteriaId, enumValue=enumValue, enumDisplay=enumDisplay,
+    // enumCount=count)
+    PCollection<TableRow> bqEnumCountRows =
+        serializedAndDeserializedNumPrimaryId.apply(
+            MapElements.into(TypeDescriptor.of(TableRow.class))
+                .via(
+                    cogb -> {
+                      EnumValueInstance<Long> deserialized =
+                          cogb.getValue().getAll(deserializedTag).iterator().next();
+                      Long count = cogb.getValue().getOnly(numPrimaryIdTag);
+                      return new TableRow()
+                          .set("id", deserialized.getCriteriaId())
+                          .set("enumValue", deserialized.getEnumValue())
+                          .set("enumDisplay", deserialized.getEnumDisplay())
+                          .set("enumCount", count);
+                    }));
     //   - write rows to BQ: (criteriaId, attributeName, value, display, numPrimaryIds)
+    bqEnumCountRows.apply(
+        BigQueryIO.writeTableRows()
+            .to(getAuxiliaryTable().getPathForIndexing())
+            .withSchema(ROLLUPS_TABLE_SCHEMA)
+            .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
+            .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
+            .withMethod(BigQueryIO.Write.Method.FILE_LOADS));
 
     if (!isDryRun) {
       pipeline.run().waitUntilFinish();
+    }
+  }
+
+  static class EnumValueInstance<T> implements Serializable {
+    Long criteriaId;
+    T enumValue;
+    String enumDisplay;
+
+    public EnumValueInstance(Long criteriaId, T enumValue, String enumDisplay) {
+      this.criteriaId = criteriaId;
+      this.enumValue = enumValue;
+      this.enumDisplay = enumDisplay;
+    }
+
+    public Long getCriteriaId() {
+      return criteriaId;
+    }
+
+    public T getEnumValue() {
+      return enumValue;
+    }
+
+    public String getEnumDisplay() {
+      return enumDisplay;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof EnumValueInstance)) return false;
+      EnumValueInstance<?> that = (EnumValueInstance<?>) o;
+      return criteriaId.equals(that.criteriaId)
+          && Objects.equals(enumValue, that.enumValue)
+          && Objects.equals(enumDisplay, that.enumDisplay);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(criteriaId, enumValue, enumDisplay);
+    }
+
+    @Override
+    public String toString() {
+      return criteriaId
+          + " - "
+          + (enumValue == null ? "null" : enumValue.toString())
+          + " - "
+          + enumDisplay;
+    }
+  }
+
+  static class SerializeEnumValueInstance<T>
+      implements SerializableFunction<KV<EnumValueInstance<Long>, Long>, String> {
+    @Override
+    public String apply(KV<EnumValueInstance<Long>, Long> input) {
+      return input.getKey().toString() + ", " + input.getValue();
     }
   }
 
