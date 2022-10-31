@@ -20,6 +20,22 @@ paths:
         500:
           description: Service is broken
 
+  #########################ADMIN UI PATHS [START]#################################
+  "/admin/workspaces":
+    get:
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageToken"
+      # TODO authorization
+      security: [ ]
+      summary: Lists the workspaces.
+      operationId: listWorkspaces
+      tags: [ Admin ]
+      responses:
+        200:
+          $ref: "#/components/responses/ListWorkspacesResponse"
+  #########################ADMIN UI PATHS [END]#################################
+
   "/underlays":
     get:
       parameters:
@@ -364,6 +380,15 @@ components:
 
 
   responses:
+    #########################ADMIN UI RESPONSES [START]###################################
+    ListWorkspacesResponse:
+      description: Response to list the workspaces.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ListWorkspacesResponse"
+    #########################ADMIN UI RESPONSES [END]###################################
+
     GetEntityResponse:
       description: Response to get an entities.
       content:
@@ -431,6 +456,19 @@ components:
 
 
   schemas:
+    #########################ADMIN UI SCHEMAS [START]###################################
+    ListWorkspacesResponse:
+      type: object
+      description: A response for a list of Workspaces.
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Workspace"
+        nextPageToken:
+          $ref: "#/components/schemas/NextPageToken"
+    #########################ADMIN UI SCHEMAS [START]###################################
+
     Attribute:
       description: An attribute of an entity.
       type: object
@@ -1430,3 +1468,14 @@ components:
           items:
             type: string
     #########################UNDERLAY CONFIG V2 [END]###################################
+
+    #########################ADMIN UI [START]###################################
+    Workspace:
+      type: object
+      x-implements: [ 'bio.terra.tanagra.plugin.accesscontrol.IArtifiact' ]
+      properties:
+        identifier:
+          type: string
+        name:
+          type: string
+    #########################ADMIN UI [END]###################################
