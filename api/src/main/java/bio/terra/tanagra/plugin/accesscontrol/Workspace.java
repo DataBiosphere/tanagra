@@ -2,8 +2,9 @@ package bio.terra.tanagra.plugin.accesscontrol;
 
 public class Workspace implements IArtifact {
   private final String identifier;
+  private String name;
 
-  Workspace(String identifier) {
+  public Workspace(String identifier) {
     this.identifier = identifier;
   }
 
@@ -15,5 +16,13 @@ public class Workspace implements IArtifact {
   @Override
   public String getIdentifier() {
     return identifier;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getName() {
+    return this.name;
   }
 }
