@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.IndexingJob;
-import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
+import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -131,22 +131,27 @@ public class CriteriaOccurrence extends EntityGroup {
 
     // Compute the criteria rollup counts for both the criteria-primary and criteria-occurrence
     // relationships.
-    jobs.add(new ComputeRollupCounts(criteriaEntity, getCriteriaPrimaryRelationship(), null));
-    jobs.add(new ComputeRollupCounts(criteriaEntity, getOccurrenceCriteriaRelationship(), null));
+    //    jobs.add(new ComputeRollupCounts(criteriaEntity, getCriteriaPrimaryRelationship(), null));
+    //    jobs.add(new ComputeRollupCounts(criteriaEntity, getOccurrenceCriteriaRelationship(),
+    // null));
+    //
+    //    // If the criteria entity has a hierarchy, then also compute the counts for each
+    // hierarchy.
+    //    if (criteriaEntity.hasHierarchies()) {
+    //      criteriaEntity.getHierarchies().stream()
+    //          .forEach(
+    //              hierarchy -> {
+    //                jobs.add(
+    //                    new ComputeRollupCounts(
+    //                        criteriaEntity, getCriteriaPrimaryRelationship(), hierarchy));
+    //                jobs.add(
+    //                    new ComputeRollupCounts(
+    //                        criteriaEntity, getOccurrenceCriteriaRelationship(), hierarchy));
+    //              });
+    //    }
 
-    // If the criteria entity has a hierarchy, then also compute the counts for each hierarchy.
-    if (criteriaEntity.hasHierarchies()) {
-      criteriaEntity.getHierarchies().stream()
-          .forEach(
-              hierarchy -> {
-                jobs.add(
-                    new ComputeRollupCounts(
-                        criteriaEntity, getCriteriaPrimaryRelationship(), hierarchy));
-                jobs.add(
-                    new ComputeRollupCounts(
-                        criteriaEntity, getOccurrenceCriteriaRelationship(), hierarchy));
-              });
-    }
+    // Compute display hints for the occurrence entity.
+    jobs.add(new ComputeDisplayHints(this));
 
     return jobs;
   }
