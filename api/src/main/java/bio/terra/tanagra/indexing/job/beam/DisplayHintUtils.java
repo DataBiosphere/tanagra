@@ -22,8 +22,10 @@ public final class DisplayHintUtils<T> {
       PCollection<KV<Long, Double>> criteriaValuePairs) {
     // Combine-min by key: [key] criteriaId, [value] min attr value
     PCollection<KV<Long, Double>> criteriaMinPairs = criteriaValuePairs.apply(Min.doublesPerKey());
+
     // Combine-max by key: [key] criteriaId, [value] max attr value
     PCollection<KV<Long, Double>> criteriaMaxPairs = criteriaValuePairs.apply(Max.doublesPerKey());
+
     // Group by [key] criteriaId: [values] min, max
     final TupleTag<Double> minTag = new TupleTag<>();
     final TupleTag<Double> maxTag = new TupleTag<>();
@@ -31,6 +33,7 @@ public final class DisplayHintUtils<T> {
         KeyedPCollectionTuple.of(minTag, criteriaMinPairs)
             .and(maxTag, criteriaMaxPairs)
             .apply(CoGroupByKey.create());
+
     // Build NumericRange object per criteriaId to return.
     return criteriaAndMinMax.apply(
         MapElements.into(TypeDescriptor.of(IdNumericRange.class))
@@ -128,7 +131,8 @@ public final class DisplayHintUtils<T> {
 
   public static class IdEnumValue implements Serializable {
     private final Long id;
-    // TODO: Parameterize this class based on the type of the enum value. I couldn't get Beam to recognize the coder for this class when it's a generic type.
+    // TODO: Parameterize this class based on the type of the enum value. I couldn't get Beam to
+    // recognize the coder for this class when it's a generic type.
     private final String enumValue;
     private final String enumDisplay;
     private long count;

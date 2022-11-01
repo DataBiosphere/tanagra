@@ -151,6 +151,8 @@ public final class BigQueryDataset extends DataPointer {
       return Literal.DataType.BOOLEAN;
     } else if (LegacySQLTypeName.DATE.equals(fieldType)) {
       return Literal.DataType.DATE;
+    } else if (LegacySQLTypeName.FLOAT.equals(fieldType)) {
+      return Literal.DataType.DOUBLE;
     } else {
       throw new SystemException("BigQuery SQL data type not supported: " + fieldType);
     }
@@ -166,6 +168,8 @@ public final class BigQueryDataset extends DataPointer {
         return LegacySQLTypeName.BOOLEAN;
       case DATE:
         return LegacySQLTypeName.DATE;
+      case FLOAT:
+        return LegacySQLTypeName.FLOAT;
       default:
         throw new SystemException("SQL data type not supported for BigQuery: " + sqlDataType);
     }

@@ -2,7 +2,9 @@ package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.serialization.UFEntityGroup;
+import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
@@ -151,7 +153,7 @@ public class CriteriaOccurrence extends EntityGroup {
     //    }
 
     // Compute display hints for the occurrence entity.
-    jobs.add(new ComputeDisplayHints(this));
+    jobs.add(new ComputeDisplayHints(this, List.of()));
 
     return jobs;
   }

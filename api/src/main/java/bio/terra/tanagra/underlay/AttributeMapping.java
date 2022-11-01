@@ -119,7 +119,8 @@ public final class AttributeMapping {
       case STRING:
         return EnumVals.computeForField(attribute.getDataType(), value);
       case DATE:
-        // TODO: Compute a date range display hint.
+      case DOUBLE:
+        // TODO: Compute display hints for other data types.
         return null;
       default:
         throw new InvalidConfigException("Unknown attribute data type: " + attribute.getDataType());
