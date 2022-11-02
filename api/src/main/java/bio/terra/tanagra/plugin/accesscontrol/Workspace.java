@@ -1,6 +1,6 @@
 package bio.terra.tanagra.plugin.accesscontrol;
 
-public class Workspace implements IArtifact {
+public class Workspace implements IAccessControlledEntity {
   private final String identifier;
   private String name;
 
@@ -9,7 +9,7 @@ public class Workspace implements IArtifact {
   }
 
   @Override
-  public String getArtifactType() {
+  public String getAccessControlType() {
     return this.getClass().getSimpleName();
   }
 

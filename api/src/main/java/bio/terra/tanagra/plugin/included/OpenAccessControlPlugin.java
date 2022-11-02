@@ -1,11 +1,10 @@
 package bio.terra.tanagra.plugin.included;
 
-import java.util.List;
-
 import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlledEntity;
 import bio.terra.tanagra.plugin.identity.User;
+import java.util.List;
 import javax.sql.DataSource;
 
 public class OpenAccessControlPlugin implements IAccessControlPlugin {

@@ -20,9 +20,14 @@ public class AdminController implements AdminApi {
   }
 
   @Override
-  public ResponseEntity<ApiListWorkspacesResponse> listWorkspaces(
-      Integer pageSize, String pageToken) {
-    List<Workspace> workspaces = workspaceService.search();
+  public ResponseEntity<ApiListWorkspacesResponse> listWorkspaces(Integer pageSize, Integer page) {
+    return searchWorkspaces("", pageSize, page);
+  }
+
+  @Override
+  public ResponseEntity<ApiListWorkspacesResponse> searchWorkspaces(
+      String searchTerm, Integer pageSize, Integer page) {
+    List<Workspace> workspaces = workspaceService.search(searchTerm, pageSize, page);
     List<ApiWorkspace> apiWorkspaces = workspaceService.toApiList(workspaces);
 
     return ResponseEntity.ok(new ApiListWorkspacesResponse().entities(apiWorkspaces));

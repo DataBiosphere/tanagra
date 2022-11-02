@@ -4,7 +4,7 @@ import bio.terra.tanagra.generated.model.ApiWorkspace;
 import bio.terra.tanagra.plugin.PluginService;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.Workspace;
-import java.util.ArrayList;
+import bio.terra.tanagra.service.artifact.ArtifactService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,21 +12,23 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class WorkspaceService {
-  private final PluginService pluginService;
+  private static final int DEFAULT_PAGE_SIZE = 25;
+
+  private final ArtifactService artifactService;
+  private final IAccessControlPlugin accessControlPlugin;
 
   @Autowired
-  public WorkspaceService(PluginService pluginService) {
-    this.pluginService = pluginService;
+  public WorkspaceService(ArtifactService artifactService, PluginService pluginService) {
+    this.artifactService = artifactService;
+    this.accessControlPlugin = pluginService.getPlugin(IAccessControlPlugin.class);
   }
 
-  public List<Workspace> search() {
-    pluginService.getPlugin(IAccessControlPlugin.class);
+  public List<Workspace> search(String searchTerm, Integer pageSize, Integer page) {
+    int brandNewPageSizeToMakePmdHappy = pageSize == 0 ? DEFAULT_PAGE_SIZE : pageSize;
 
-    Workspace workspace = new Workspace("aaa");
-    workspace.setName("aaa");
-
-    List<Workspace> workspaces = new ArrayList<>();
-    workspaces.add(workspace);
+    List<Workspace> workspaces =
+        artifactService.searchWorkspaces(searchTerm, brandNewPageSizeToMakePmdHappy, page);
+    accessControlPlugin.hydrate(workspaces);
 
     return workspaces;
   }

@@ -25,11 +25,26 @@ paths:
     get:
       parameters:
         - $ref: "#/components/parameters/PageSize"
-        - $ref: "#/components/parameters/PageToken"
+        - $ref: "#/components/parameters/Page"
       # TODO authorization
       security: [ ]
-      summary: Lists the workspaces.
+      summary: Lists all workspaces
       operationId: listWorkspaces
+      tags: [ Admin ]
+      responses:
+        200:
+          $ref: "#/components/responses/ListWorkspacesResponse"
+
+  "/admin/workspaces/{searchTerm}":
+    get:
+      parameters:
+        - $ref: "#/components/parameters/SearchTerm"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Page"
+      # TODO authorization
+      security: [ ]
+      summary: Search workspaces
+      operationId: searchWorkspaces
       tags: [ Admin ]
       responses:
         200:
@@ -326,6 +341,25 @@ paths:
 
 components:
   parameters:
+    #########################ADMIN UI PARAMETERS [START]###################################
+    SearchTerm:
+      name: searchTerm
+      in: path
+      description: The term to search for
+      required: true
+      schema:
+        type: string
+
+    Page:
+      name: page
+      in: query
+      description: The index of the results page to return
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    #########################ADMIN UI PARAMETERS [END]###################################
+
     Underlay:
       name: underlayName
       in: path

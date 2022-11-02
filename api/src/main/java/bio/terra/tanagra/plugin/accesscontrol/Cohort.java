@@ -1,6 +1,6 @@
 package bio.terra.tanagra.plugin.accesscontrol;
 
-public class Cohort implements IArtifact {
+public class Cohort implements IAccessControlledEntity {
   private final String identifier;
 
   Cohort(String identifier) {
@@ -8,7 +8,7 @@ public class Cohort implements IArtifact {
   }
 
   @Override
-  public String getArtifactType() {
+  public String getAccessControlType() {
     return this.getClass().getSimpleName();
   }
 

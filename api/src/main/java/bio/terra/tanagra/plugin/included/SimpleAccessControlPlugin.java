@@ -56,7 +56,9 @@ public class SimpleAccessControlPlugin implements IAccessControlPlugin {
   }
 
   @Override
-  public void hydrate(List<? extends IAccessControlledEntity> entity) {}
+  public void hydrate(List<? extends IAccessControlledEntity> entities) {
+    // TODO: hydrate entities
+  }
 
   private SqlParameterSource getIdentifierParams(User user, IAccessControlledEntity entity) {
     return new MapSqlParameterSource()
