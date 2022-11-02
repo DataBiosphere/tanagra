@@ -4,9 +4,9 @@ import bio.terra.tanagra.plugin.IPlugin;
 import bio.terra.tanagra.plugin.identity.User;
 
 public interface IAccessControlPlugin extends IPlugin {
-  boolean checkAccess(User user, IArtifact artifact);
+  boolean checkAccess(User user, IAccessControlled artifact);
 
-  boolean grantAccess(User user, IArtifact artifact);
+  boolean grantAccess(User user, IAccessControlled artifact);
 
-  boolean revokeAccess(User user, IArtifact artifact);
+  boolean revokeAccess(User user, IAccessControlled artifact);
 }
