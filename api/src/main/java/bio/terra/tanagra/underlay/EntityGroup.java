@@ -4,10 +4,9 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.FileIO;
 import bio.terra.tanagra.indexing.IndexingJob;
 import bio.terra.tanagra.indexing.job.WriteRelationshipIdPairs;
+import bio.terra.tanagra.serialization.UFAuxiliaryDataMapping;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
-import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
-import bio.terra.tanagra.underlay.entitygroup.GroupItems;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -52,32 +51,7 @@ public abstract class EntityGroup {
     UFEntityGroup serialized =
         JacksonMapper.readFileIntoJavaObject(
             FileIO.getGetFileInputStreamFunction().apply(entityGroupFilePath), UFEntityGroup.class);
-    if (serialized.getEntities().size() == 0) {
-      throw new InvalidConfigException("There are no entities defined");
-    }
-    switch (serialized.getType()) {
-      case GROUP_ITEMS:
-        return GroupItems.fromSerialized(serialized, dataPointers, entities);
-      case CRITERIA_OCCURRENCE:
-        return CriteriaOccurrence.fromSerialized(
-            serialized, dataPointers, entities, primaryEntityName);
-      default:
-        throw new InvalidConfigException("Unknown entity group type: " + serialized.getType());
-    }
-  }
-
-  protected static Entity getDeserializedEntity(
-      UFEntityGroup serialized, String entityKey, Map<String, Entity> entities) {
-    String entityName = serialized.getEntities().get(entityKey);
-    if (entityName == null || entityName.isEmpty()) {
-      throw new InvalidConfigException(entityKey + " entity is undefined in entity group");
-    }
-    Entity entity = entities.get(entityName);
-    if (entity == null) {
-      throw new InvalidConfigException(
-          entityKey + " entity not found in set of entities: " + entityName);
-    }
-    return entity;
+    return serialized.deserializeToInternal(dataPointers, entities, primaryEntityName);
   }
 
   protected static void deserializeRelationshipMappings(
@@ -116,6 +90,46 @@ public abstract class EntityGroup {
     }
   }
 
+  protected static void deserializeAuxiliaryDataMappings(
+      UFEntityGroup serialized, EntityGroup entityGroup) {
+    DataPointer sourceDataPointer =
+        entityGroup.getMapping(Underlay.MappingType.SOURCE).getDataPointer();
+    DataPointer indexDataPointer =
+        entityGroup.getMapping(Underlay.MappingType.INDEX).getDataPointer();
+
+    // Source+index auxiliary data mappings.
+    for (AuxiliaryData auxData : entityGroup.getAuxiliaryData()) {
+      Map<String, UFAuxiliaryDataMapping> sourceAuxDataMappings =
+          serialized.getSourceDataMapping().getAuxiliaryDataMappings();
+      AuxiliaryDataMapping sourceMapping =
+          sourceAuxDataMappings == null || sourceAuxDataMappings.isEmpty()
+              ? null
+              : AuxiliaryDataMapping.fromSerialized(
+                  serialized
+                      .getSourceDataMapping()
+                      .getAuxiliaryDataMappings()
+                      .get(auxData.getName()),
+                  sourceDataPointer,
+                  auxData);
+
+      Map<String, UFAuxiliaryDataMapping> indexAuxDataMappings =
+          serialized.getIndexDataMapping().getAuxiliaryDataMappings();
+      AuxiliaryDataMapping indexMapping =
+          indexAuxDataMappings == null || indexAuxDataMappings.isEmpty()
+              ? AuxiliaryDataMapping.defaultIndexMapping(
+                  auxData, entityGroup.getName() + "_", indexDataPointer)
+              : AuxiliaryDataMapping.fromSerialized(
+                  serialized
+                      .getIndexDataMapping()
+                      .getAuxiliaryDataMappings()
+                      .get(auxData.getName()),
+                  indexDataPointer,
+                  auxData);
+
+      auxData.initialize(sourceMapping, indexMapping);
+    }
+  }
+
   public abstract Type getType();
 
   public abstract Map<String, Entity> getEntityMap();
@@ -131,8 +145,7 @@ public abstract class EntityGroup {
     getRelationships().values().stream()
         .forEach(
             // TODO: If the source relationship mapping table = one of the entity tables, then just
-            // populate a
-            // new column on that entity table, instead of always writing a new table.
+            // populate a new column on that entity table, instead of always writing a new table.
             relationship -> jobs.add(new WriteRelationshipIdPairs(relationship)));
 
     return jobs;
@@ -161,6 +174,12 @@ public abstract class EntityGroup {
   public EntityGroupMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
   }
+
+  public List<AuxiliaryData> getAuxiliaryData() {
+    return Collections.emptyList();
+  }
+
+  public abstract UFEntityGroup serialize();
 
   protected abstract static class Builder {
     private String name;

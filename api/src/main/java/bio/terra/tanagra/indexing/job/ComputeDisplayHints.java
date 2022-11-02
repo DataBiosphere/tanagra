@@ -1,6 +1,6 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.DisplayHintUtils;
 import bio.terra.tanagra.query.Query;
@@ -8,8 +8,6 @@ import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.displayhint.EnumVals;
-import bio.terra.tanagra.underlay.displayhint.NumericRange;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
@@ -62,13 +60,13 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
                       .setMode("NULLABLE")));
 
   private final CriteriaOccurrence criteriaOccurrence;
-  private final List<Attribute> occurrenceAttributes;
+  private final List<Attribute> modifierAttributes;
 
   public ComputeDisplayHints(
-      CriteriaOccurrence criteriaOccurrence, List<Attribute> occurrenceAttributes) {
+      CriteriaOccurrence criteriaOccurrence, List<Attribute> modifierAttributes) {
     super(criteriaOccurrence.getOccurrenceEntity());
     this.criteriaOccurrence = criteriaOccurrence;
-    this.occurrenceAttributes = occurrenceAttributes;
+    this.modifierAttributes = modifierAttributes;
   }
 
   @Override
@@ -100,31 +98,25 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
                 .getMapping(Underlay.MappingType.SOURCE),
             pipeline);
 
-    Attribute numericAttr = criteriaOccurrence.getOccurrenceEntity().getAttribute("value_numeric");
-    numericRangeHint(occCriIdPairs, occAllAttrs, numericAttr);
-
-    Attribute enumAttr = criteriaOccurrence.getOccurrenceEntity().getAttribute("value_enum");
-    enumValHint(occCriIdPairs, occPriIdPairs, occAllAttrs, enumAttr);
-
-//    for (Attribute attr : occurrenceAttributes) {
-//      if (Attribute.Type.KEY_AND_DISPLAY.equals(attr.getType())) {
-//        enumValHint(occCriIdPairs, occPriIdPairs, occAllAttrs, attr);
-//      } else {
-//        switch (attr.getDataType()) {
-//          case BOOLEAN:
-//          case STRING:
-//          case DATE:
-//            // TODO: Calculate display hints for other data types.
-//            continue;
-//          case INT64:
-//          case DOUBLE:
-//            numericRangeHint(occCriIdPairs, occAllAttrs, attr);
-//            break;
-//          default:
-//            throw new InvalidConfigException("Unknown attribute data type: " + attr.getDataType());
-//        }
-//      }
-//    }
+    for (Attribute attr : modifierAttributes) {
+      if (Attribute.Type.KEY_AND_DISPLAY.equals(attr.getType())) {
+        enumValHint(occCriIdPairs, occPriIdPairs, occAllAttrs, attr);
+      } else {
+        switch (attr.getDataType()) {
+          case BOOLEAN:
+          case STRING:
+          case DATE:
+            // TODO: Calculate display hints for other data types.
+            continue;
+          case INT64:
+          case DOUBLE:
+            numericRangeHint(occCriIdPairs, occAllAttrs, attr);
+            break;
+          default:
+            throw new SystemException("Unknown attribute data type: " + attr.getDataType());
+        }
+      }
+    }
 
     if (!isDryRun) {
       pipeline.run().waitUntilFinish();
@@ -145,9 +137,10 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
   }
 
   public TablePointer getAuxiliaryTable() {
-    return TablePointer.fromTableName(
-        "rollups_entity",
-        getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer());
+    return criteriaOccurrence
+        .getModifierAuxiliaryData()
+        .getMapping(Underlay.MappingType.INDEX)
+        .getTablePointer();
   }
 
   private PCollection<KV<Long, TableRow>> readInOccAllAttrs(Pipeline pipeline) {
@@ -163,8 +156,8 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
         .apply(
             BigQueryIO.readTableRows()
                 .fromQuery(
-                    occAllAttrsQ.renderSQL()
-                        + " WHERE m.measurement_concept_id IN (3022318, 4301868)")
+                    occAllAttrsQ
+                        .renderSQL())
                 .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
                 .usingStandardSql())
         .apply(

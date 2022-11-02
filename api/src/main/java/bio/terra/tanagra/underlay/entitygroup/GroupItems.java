@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
-import bio.terra.tanagra.serialization.UFEntityGroup;
+import bio.terra.tanagra.serialization.entitygroup.UFGroupItems;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
@@ -26,19 +26,19 @@ public class GroupItems extends EntityGroup {
   }
 
   public static GroupItems fromSerialized(
-      UFEntityGroup serialized,
+      UFGroupItems serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities) {
     // Entities.
-    Entity entity1 = getDeserializedEntity(serialized, GROUP_ENTITY_NAME, entities);
-    Entity entityM = getDeserializedEntity(serialized, ITEMS_ENTITY_NAME, entities);
+    Entity groupEntity = entities.get(serialized.getGroupEntity());
+    Entity itemsEntity = entities.get(serialized.getItemsEntity());
 
     // Relationships.
     Map<String, Relationship> relationships =
         Map.of(
             GROUP_ITEMS_RELATIONSHIP_NAME,
             new Relationship(
-                GROUP_ITEMS_RELATIONSHIP_NAME, entity1, entityM, Collections.emptyList()));
+                GROUP_ITEMS_RELATIONSHIP_NAME, groupEntity, itemsEntity, Collections.emptyList()));
 
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
@@ -54,7 +54,7 @@ public class GroupItems extends EntityGroup {
         .relationships(relationships)
         .sourceDataMapping(sourceDataMapping)
         .indexDataMapping(indexDataMapping);
-    GroupItems groupItems = builder.groupEntity(entity1).itemsEntity(entityM).build();
+    GroupItems groupItems = builder.groupEntity(groupEntity).itemsEntity(itemsEntity).build();
 
     sourceDataMapping.initialize(groupItems);
     indexDataMapping.initialize(groupItems);
@@ -68,6 +68,19 @@ public class GroupItems extends EntityGroup {
   @Override
   public EntityGroup.Type getType() {
     return Type.GROUP_ITEMS;
+  }
+
+  public Entity getGroupEntity() {
+    return groupEntity;
+  }
+
+  public Entity getItemsEntity() {
+    return itemsEntity;
+  }
+
+  @Override
+  public UFGroupItems serialize() {
+    return new UFGroupItems(this);
   }
 
   @Override

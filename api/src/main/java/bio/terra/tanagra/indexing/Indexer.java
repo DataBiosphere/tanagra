@@ -59,7 +59,7 @@ public final class Indexer {
             .collect(Collectors.toList());
     expandedEntityGroups =
         underlay.getEntityGroups().values().stream()
-            .map(eg -> new UFEntityGroup(eg))
+            .map(eg -> eg.serialize())
             .collect(Collectors.toList());
   }
 

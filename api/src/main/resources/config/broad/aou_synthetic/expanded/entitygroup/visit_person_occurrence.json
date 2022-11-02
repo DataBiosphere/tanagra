@@ -1,10 +1,6 @@
 {
   "type" : "CRITERIA_OCCURRENCE",
   "name" : "visit_person_occurrence",
-  "entities" : {
-    "criteria" : "visit",
-    "occurrence" : "visit_occurrence"
-  },
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
@@ -47,7 +43,8 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       }
-    }
+    },
+    "auxiliaryDataMappings" : { }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
@@ -181,6 +178,10 @@
           }
         }
       }
-    }
-  }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "visit",
+  "occurrenceEntity" : "visit_occurrence",
+  "modifierAttributes" : [ ]
 }

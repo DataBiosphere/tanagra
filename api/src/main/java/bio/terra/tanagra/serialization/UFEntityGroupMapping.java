@@ -17,6 +17,7 @@ import java.util.Map;
 public class UFEntityGroupMapping {
   private final String dataPointer;
   private final Map<String, UFRelationshipMapping> relationshipMappings;
+  private final Map<String, UFAuxiliaryDataMapping> auxiliaryDataMappings;
 
   public UFEntityGroupMapping(EntityGroupMapping entityGroupMapping) {
     this.dataPointer = entityGroupMapping.getDataPointer().getName();
@@ -24,24 +25,39 @@ public class UFEntityGroupMapping {
     Map<String, UFRelationshipMapping> relationshipMappings = new HashMap<>();
     entityGroupMapping.getEntityGroup().getRelationships().values().stream()
         .forEach(
-            relationship -> {
-              relationshipMappings.put(
-                  relationship.getName(),
-                  new UFRelationshipMapping(
-                      relationship.getMapping(entityGroupMapping.getMappingType())));
-            });
+            relationship ->
+                relationshipMappings.put(
+                    relationship.getName(),
+                    new UFRelationshipMapping(
+                        relationship.getMapping(entityGroupMapping.getMappingType()))));
     this.relationshipMappings = relationshipMappings;
+
+    Map<String, UFAuxiliaryDataMapping> auxiliaryDataMappings = new HashMap<>();
+    entityGroupMapping.getEntityGroup().getAuxiliaryData().stream()
+        .forEach(
+            auxData -> {
+              if (auxData.getMapping(entityGroupMapping.getMappingType()) == null) {
+                return;
+              }
+              auxiliaryDataMappings.put(
+                  auxData.getName(),
+                  new UFAuxiliaryDataMapping(
+                      auxData.getMapping(entityGroupMapping.getMappingType())));
+            });
+    this.auxiliaryDataMappings = auxiliaryDataMappings;
   }
 
   private UFEntityGroupMapping(Builder builder) {
     this.dataPointer = builder.dataPointer;
     this.relationshipMappings = builder.relationshipMappings;
+    this.auxiliaryDataMappings = builder.auxiliaryDataMappings;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String dataPointer;
     private Map<String, UFRelationshipMapping> relationshipMappings;
+    private Map<String, UFAuxiliaryDataMapping> auxiliaryDataMappings;
 
     public Builder dataPointer(String dataPointer) {
       this.dataPointer = dataPointer;
@@ -53,7 +69,12 @@ public class UFEntityGroupMapping {
       return this;
     }
 
-    /** Call the private constructor. */
+    public Builder auxiliaryDataMappings(
+        Map<String, UFAuxiliaryDataMapping> auxiliaryDataMappings) {
+      this.auxiliaryDataMappings = auxiliaryDataMappings;
+      return this;
+    }
+
     public UFEntityGroupMapping build() {
       return new UFEntityGroupMapping(this);
     }
@@ -65,5 +86,9 @@ public class UFEntityGroupMapping {
 
   public Map<String, UFRelationshipMapping> getRelationshipMappings() {
     return relationshipMappings;
+  }
+
+  public Map<String, UFAuxiliaryDataMapping> getAuxiliaryDataMappings() {
+    return auxiliaryDataMappings;
   }
 }

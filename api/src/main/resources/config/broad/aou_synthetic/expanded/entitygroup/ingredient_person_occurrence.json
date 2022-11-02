@@ -1,10 +1,6 @@
 {
   "type" : "CRITERIA_OCCURRENCE",
   "name" : "ingredient_person_occurrence",
-  "entities" : {
-    "criteria" : "ingredient",
-    "occurrence" : "ingredient_occurrence"
-  },
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
@@ -47,7 +43,8 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       }
-    }
+    },
+    "auxiliaryDataMappings" : { }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
@@ -209,6 +206,10 @@
           }
         }
       }
-    }
-  }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "ingredient",
+  "occurrenceEntity" : "ingredient_occurrence",
+  "modifierAttributes" : [ ]
 }

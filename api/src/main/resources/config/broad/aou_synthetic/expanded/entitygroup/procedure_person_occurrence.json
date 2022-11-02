@@ -1,10 +1,6 @@
 {
   "type" : "CRITERIA_OCCURRENCE",
   "name" : "procedure_person_occurrence",
-  "entities" : {
-    "criteria" : "procedure",
-    "occurrence" : "procedure_occurrence"
-  },
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
@@ -47,7 +43,8 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       }
-    }
+    },
+    "auxiliaryDataMappings" : { }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
@@ -209,6 +206,10 @@
           }
         }
       }
-    }
-  }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "procedure",
+  "occurrenceEntity" : "procedure_occurrence",
+  "modifierAttributes" : [ ]
 }
