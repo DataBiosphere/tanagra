@@ -91,28 +91,25 @@ public final class DisplayHintUtils<T> {
         KeyedPCollectionTuple.of(deserializedTag, serializedAndDeserialized)
             .and(numPrimaryIdTag, serializedCountPairs)
             .apply(CoGroupByKey.create());
-    PCollection<IdEnumValue> idEnumValues =
-        serializedAndDeserializedNumPrimaryId
-            .apply(
-                Filter.by(
-                    cogb ->
-                        cogb.getValue() != null
-                            && cogb.getValue().getAll(deserializedTag).iterator().hasNext()))
-            .apply(
-                MapElements.into(new TypeDescriptor<IdEnumValue>() {})
-                    .via(
-                        cogb -> {
-                          IdEnumValue deserialized =
-                              cogb.getValue().getAll(deserializedTag).iterator().next();
-                          Long count = cogb.getValue().getOnly(numPrimaryIdTag);
-                          return new IdEnumValue(
-                                  deserialized.getId(),
-                                  deserialized.getEnumValue(),
-                                  deserialized.getEnumDisplay())
-                              .count(count);
-                        }));
-
-    return idEnumValues;
+    return serializedAndDeserializedNumPrimaryId
+        .apply(
+            Filter.by(
+                cogb ->
+                    cogb.getValue() != null
+                        && cogb.getValue().getAll(deserializedTag).iterator().hasNext()))
+        .apply(
+            MapElements.into(new TypeDescriptor<IdEnumValue>() {})
+                .via(
+                    cogb -> {
+                      IdEnumValue deserialized =
+                          cogb.getValue().getAll(deserializedTag).iterator().next();
+                      Long count = cogb.getValue().getOnly(numPrimaryIdTag);
+                      return new IdEnumValue(
+                              deserialized.getId(),
+                              deserialized.getEnumValue(),
+                              deserialized.getEnumDisplay())
+                          .count(count);
+                    }));
   }
 
   public static class IdNumericRange implements Serializable {
