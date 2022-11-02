@@ -6,7 +6,8 @@
     { "type": "SIMPLE", "name": "person_id" },
     { "type": "KEY_AND_DISPLAY", "name": "measurement" },
     { "type": "SIMPLE", "name": "date" },
-    { "type": "KEY_AND_DISPLAY", "name": "value" },
+    { "type": "SIMPLE", "name": "value_numeric" },
+    { "type": "KEY_AND_DISPLAY", "name": "value_enum" },
     { "type": "KEY_AND_DISPLAY", "name": "unit" },
     { "type": "SIMPLE", "name": "visit_occurrence_id" },
     { "type": "SIMPLE", "name": "source_value" },
@@ -25,7 +26,8 @@
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
       "date": { "value": { "column": "measurement_date" } },
-      "value": {
+      "value_numeric": { "value": { "column": "value_as_number" } },
+      "value_enum": {
         "value": { "column": "value_as_concept_id" },
         "display": {
           "column": "value_as_concept_id",

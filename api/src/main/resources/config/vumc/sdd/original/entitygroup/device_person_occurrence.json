@@ -1,22 +1,25 @@
 {
   "name": "device_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
-  "entities": {
-    "criteria": "device",
-    "occurrence": "device_occurrence"
-  },
+  "criteriaEntity": "device",
+  "occurrenceEntity": "device_occurrence",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "tablePointer": { "table": "device_exposure" },
-        "fromEntityId": { "column": "device_exposure_id" },
-        "toEntityId":  { "column": "device_concept_id" }
+        "idPairsTable": { "table": "device_exposure" },
+        "idPairsIdA": { "column": "device_exposure_id" },
+        "idPairsIdB":  { "column": "device_concept_id" }
       },
       "occurrenceToPrimary": {
-        "tablePointer": { "table": "device_exposure" },
-        "fromEntityId": { "column": "device_exposure_id" },
-        "toEntityId":  { "column": "person_id" }
+        "idPairsTable": { "table": "device_exposure" },
+        "idPairsIdA": { "column": "device_exposure_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "table": "device_exposure" },
+        "idPairsIdA": { "column": "device_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
       }
     }
   },

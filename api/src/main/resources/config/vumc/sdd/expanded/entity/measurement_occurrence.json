@@ -4,7 +4,7 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "STRING"
+    "dataType" : "DATE"
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "unit",
@@ -32,8 +32,12 @@
     "name" : "id",
     "dataType" : "INT64"
   }, {
+    "type" : "SIMPLE",
+    "name" : "value_numeric",
+    "dataType" : "DOUBLE"
+  }, {
     "type" : "KEY_AND_DISPLAY",
-    "name" : "value",
+    "name" : "value_enum",
     "dataType" : "INT64"
   }, {
     "type" : "KEY_AND_DISPLAY",
@@ -90,7 +94,12 @@
           "column" : "measurement_id"
         }
       },
-      "value" : {
+      "value_numeric" : {
+        "value" : {
+          "column" : "value_as_number"
+        }
+      },
+      "value_enum" : {
         "value" : {
           "column" : "value_as_concept_id"
         },
@@ -159,12 +168,17 @@
           "column" : "id"
         }
       },
-      "value" : {
+      "value_numeric" : {
         "value" : {
-          "column" : "value"
+          "column" : "value_numeric"
+        }
+      },
+      "value_enum" : {
+        "value" : {
+          "column" : "value_enum"
         },
         "display" : {
-          "column" : "t_display_value"
+          "column" : "t_display_value_enum"
         }
       },
       "measurement" : {

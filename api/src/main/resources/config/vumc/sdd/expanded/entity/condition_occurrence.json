@@ -4,7 +4,7 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "end_date",
-    "dataType" : "STRING"
+    "dataType" : "DATE"
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "condition",
@@ -58,7 +58,7 @@
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
-    "dataType" : "STRING"
+    "dataType" : "DATE"
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",

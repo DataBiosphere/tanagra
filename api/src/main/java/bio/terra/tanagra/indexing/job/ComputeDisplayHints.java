@@ -155,9 +155,7 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
     return pipeline
         .apply(
             BigQueryIO.readTableRows()
-                .fromQuery(
-                    occAllAttrsQ
-                        .renderSQL())
+                .fromQuery(occAllAttrsQ.renderSQL())
                 .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
                 .usingStandardSql())
         .apply(
