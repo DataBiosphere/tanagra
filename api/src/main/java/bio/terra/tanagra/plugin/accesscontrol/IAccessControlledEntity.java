@@ -1,6 +1,6 @@
 package bio.terra.tanagra.plugin.accesscontrol;
 
-public interface IAccessControlled {
+public interface IAccessControlledEntity {
   String getAccessControlType();
 
   String getIdentifier();
