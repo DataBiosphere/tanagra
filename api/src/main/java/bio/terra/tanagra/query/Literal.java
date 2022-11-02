@@ -13,7 +13,8 @@ public class Literal implements SQLExpression {
     INT64,
     STRING,
     BOOLEAN,
-    DATE
+    DATE,
+    DOUBLE
   }
 
   private final Literal.DataType dataType;
@@ -21,6 +22,7 @@ public class Literal implements SQLExpression {
   private long int64Val;
   private boolean booleanVal;
   private Date dateVal;
+  private double doubleVal;
 
   public Literal(String stringVal) {
     this.dataType = DataType.STRING;
@@ -42,6 +44,11 @@ public class Literal implements SQLExpression {
     this.dateVal = dateVal;
   }
 
+  public Literal(double doubleVal) {
+    this.dataType = DataType.DOUBLE;
+    this.doubleVal = doubleVal;
+  }
+
   public static Literal forDate(String dateVal) {
     return new Literal(Date.valueOf(dateVal));
   }
@@ -51,9 +58,15 @@ public class Literal implements SQLExpression {
     boolean int64ValDefined = serialized.getInt64Val() != null;
     boolean booleanValDefined = serialized.getBooleanVal() != null;
     boolean dateValDefiend = serialized.getDateVal() != null;
+    boolean doubleValDefined = serialized.getDoubleVal() != null;
 
     long numDefined =
-        Stream.of(stringValDefined, int64ValDefined, booleanValDefined, dateValDefiend)
+        Stream.of(
+                stringValDefined,
+                int64ValDefined,
+                booleanValDefined,
+                dateValDefiend,
+                doubleValDefined)
             .filter(b -> b)
             .count();
     if (numDefined == 0) {
@@ -69,8 +82,10 @@ public class Literal implements SQLExpression {
       return new Literal(serialized.getInt64Val());
     } else if (booleanValDefined) {
       return new Literal(serialized.getBooleanVal());
-    } else {
+    } else if (dateValDefiend) {
       return Literal.forDate(serialized.getDateVal());
+    } else {
+      return new Literal(serialized.getDoubleVal());
     }
   }
 
@@ -86,6 +101,8 @@ public class Literal implements SQLExpression {
         return String.valueOf(booleanVal);
       case DATE:
         return "DATE('" + dateVal.toString() + "')";
+      case DOUBLE:
+        return "FLOAT('" + doubleVal + "')";
       default:
         throw new SystemException("Unknown Literal data type");
     }
@@ -113,6 +130,10 @@ public class Literal implements SQLExpression {
 
   public String getDateValAsString() {
     return dataType.equals(DataType.DATE) ? dateVal.toString() : null;
+  }
+
+  public Double getDoubleVal() {
+    return dataType.equals(DataType.DOUBLE) ? doubleVal : null;
   }
 
   public DataType getDataType() {

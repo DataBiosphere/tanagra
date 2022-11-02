@@ -1,10 +1,6 @@
 {
   "type" : "GROUP_ITEMS",
   "name" : "brand_ingredient",
-  "entities" : {
-    "items" : "ingredient",
-    "group" : "brand"
-  },
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
@@ -21,7 +17,8 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       }
-    }
+    },
+    "auxiliaryDataMappings" : { }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
@@ -83,6 +80,9 @@
           }
         }
       }
-    }
-  }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "groupEntity" : "brand",
+  "itemsEntity" : "ingredient"
 }

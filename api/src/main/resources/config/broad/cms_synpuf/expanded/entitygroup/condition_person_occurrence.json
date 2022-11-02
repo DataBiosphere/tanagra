@@ -1,10 +1,6 @@
 {
   "type" : "CRITERIA_OCCURRENCE",
   "name" : "condition_person_occurrence",
-  "entities" : {
-    "criteria" : "condition",
-    "occurrence" : "condition_occurrence"
-  },
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
@@ -47,7 +43,8 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       }
-    }
+    },
+    "auxiliaryDataMappings" : { }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
@@ -209,6 +206,10 @@
           }
         }
       }
-    }
-  }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "condition",
+  "occurrenceEntity" : "condition_occurrence",
+  "modifierAttributes" : [ ]
 }

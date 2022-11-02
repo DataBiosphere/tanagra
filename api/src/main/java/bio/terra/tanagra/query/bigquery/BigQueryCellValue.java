@@ -54,6 +54,8 @@ class BigQueryCellValue implements CellValue {
         return new Literal(fieldValue.getBooleanValue());
       case DATE:
         return Literal.forDate(fieldValue.getStringValue());
+      case DOUBLE:
+        return new Literal(fieldValue.getDoubleValue());
       default:
         throw new SystemException("Unknown data type: " + dataType);
     }

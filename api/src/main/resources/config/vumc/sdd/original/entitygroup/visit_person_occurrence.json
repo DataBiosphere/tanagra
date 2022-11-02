@@ -1,22 +1,25 @@
 {
   "name": "visit_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
-  "entities": {
-    "criteria": "visit",
-    "occurrence": "visit_occurrence"
-  },
+  "criteriaEntity": "visit",
+  "occurrenceEntity": "visit_occurrence",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "tablePointer": { "table": "visit_occurrence" },
-        "fromEntityId": { "column": "visit_occurrence_id" },
-        "toEntityId":  { "column": "visit_concept_id" }
+        "idPairsTable": { "table": "visit_occurrence" },
+        "idPairsIdA": { "column": "visit_occurrence_id" },
+        "idPairsIdB":  { "column": "visit_concept_id" }
       },
       "occurrenceToPrimary": {
-        "tablePointer": { "table": "visit_occurrence" },
-        "fromEntityId": { "column": "visit_occurrence_id" },
-        "toEntityId":  { "column": "person_id" }
+        "idPairsTable": { "table": "visit_occurrence" },
+        "idPairsIdA": { "column": "visit_occurrence_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "table": "visit_occurrence" },
+        "idPairsIdA": { "column": "visit_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
       }
     }
   },

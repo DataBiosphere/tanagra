@@ -1,10 +1,8 @@
 {
   "name": "brand_ingredient",
   "type": "GROUP_ITEMS",
-  "entities": {
-    "group": "brand",
-    "items": "ingredient"
-  },
+  "groupEntity": "brand",
+  "itemsEntity": "ingredient",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {

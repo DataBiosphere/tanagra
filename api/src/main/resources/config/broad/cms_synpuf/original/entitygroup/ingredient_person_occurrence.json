@@ -1,10 +1,8 @@
 {
   "name": "ingredient_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
-  "entities": {
-    "criteria": "ingredient",
-    "occurrence": "ingredient_occurrence"
-  },
+  "criteriaEntity": "ingredient",
+  "occurrenceEntity": "ingredient_occurrence",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {

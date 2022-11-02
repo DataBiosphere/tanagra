@@ -1,10 +1,6 @@
 {
   "type" : "CRITERIA_OCCURRENCE",
   "name" : "device_person_occurrence",
-  "entities" : {
-    "criteria" : "device",
-    "occurrence" : "device_occurrence"
-  },
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
@@ -47,7 +43,8 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       }
-    }
+    },
+    "auxiliaryDataMappings" : { }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
@@ -181,6 +178,10 @@
           }
         }
       }
-    }
-  }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "device",
+  "occurrenceEntity" : "device_occurrence",
+  "modifierAttributes" : [ ]
 }

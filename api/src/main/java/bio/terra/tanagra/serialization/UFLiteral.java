@@ -17,12 +17,14 @@ public class UFLiteral {
   private final Long int64Val;
   private final Boolean booleanVal;
   private final String dateVal;
+  private final Double doubleVal;
 
   public UFLiteral(Literal literal) {
     this.stringVal = literal.getStringVal();
     this.int64Val = literal.getInt64Val();
     this.booleanVal = literal.getBooleanVal();
     this.dateVal = literal.getDateValAsString();
+    this.doubleVal = literal.getDoubleVal();
   }
 
   private UFLiteral(Builder builder) {
@@ -30,6 +32,7 @@ public class UFLiteral {
     this.int64Val = builder.int64Val;
     this.booleanVal = builder.booleanVal;
     this.dateVal = builder.dateVal;
+    this.doubleVal = builder.doubleVal;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -38,6 +41,7 @@ public class UFLiteral {
     private Long int64Val;
     private Boolean booleanVal;
     private String dateVal;
+    private Double doubleVal;
 
     public Builder stringVal(String stringVal) {
       this.stringVal = stringVal;
@@ -56,6 +60,11 @@ public class UFLiteral {
 
     public Builder dateVal(String dateVal) {
       this.dateVal = dateVal;
+      return this;
+    }
+
+    public Builder doubleVal(Double doubleVal) {
+      this.doubleVal = doubleVal;
       return this;
     }
 
@@ -79,5 +88,9 @@ public class UFLiteral {
 
   public String getDateVal() {
     return dateVal;
+  }
+
+  public Double getDoubleVal() {
+    return doubleVal;
   }
 }

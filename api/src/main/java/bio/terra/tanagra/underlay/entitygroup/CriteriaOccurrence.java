@@ -1,8 +1,11 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
 import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
-import bio.terra.tanagra.serialization.UFEntityGroup;
+import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
+import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.AuxiliaryData;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CriteriaOccurrence extends EntityGroup {
   private static final String CRITERIA_ENTITY_NAME = "criteria";
@@ -25,26 +29,53 @@ public class CriteriaOccurrence extends EntityGroup {
   private static final String OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME = "occurrenceToPrimary";
   private static final String CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME = "criteriaToPrimary";
 
+  private static final AuxiliaryData MODIFIER_AUXILIARY_DATA =
+      new AuxiliaryData(
+          "modifiers",
+          List.of(
+              "entity_id",
+              "attribute_name",
+              "min",
+              "max",
+              "enum_value",
+              "enum_display",
+              "enum_count"));
+
   private final Entity criteriaEntity;
   private final Entity occurrenceEntity;
   private final Entity primaryEntity;
+  private final List<Attribute> modifierAttributes;
+  private final AuxiliaryData modifierAuxiliaryData;
 
   private CriteriaOccurrence(Builder builder) {
     super(builder);
     this.criteriaEntity = builder.criteriaEntity;
     this.occurrenceEntity = builder.occurrenceEntity;
     this.primaryEntity = builder.primaryEntity;
+    this.modifierAttributes = builder.modifierAttributes;
+    boolean hasModifierAttributes =
+        builder.modifierAttributes != null && !builder.modifierAttributes.isEmpty();
+    this.modifierAuxiliaryData =
+        hasModifierAttributes ? MODIFIER_AUXILIARY_DATA.cloneWithoutMappings() : null;
   }
 
   public static CriteriaOccurrence fromSerialized(
-      UFEntityGroup serialized,
+      UFCriteriaOccurrence serialized,
       Map<String, DataPointer> dataPointers,
       Map<String, Entity> entities,
       String primaryEntityName) {
     // Entities.
-    Entity criteriaEntity = getDeserializedEntity(serialized, CRITERIA_ENTITY_NAME, entities);
-    Entity occurrenceEntity = getDeserializedEntity(serialized, OCCURRENCE_ENTITY_NAME, entities);
+    Entity criteriaEntity = entities.get(serialized.getCriteriaEntity());
+    Entity occurrenceEntity = entities.get(serialized.getOccurrenceEntity());
     Entity primaryEntity = entities.get(primaryEntityName);
+
+    // Modifier attributes.
+    List<Attribute> modifierAttributes =
+        serialized.getModifierAttributes() == null
+            ? Collections.emptyList()
+            : serialized.getModifierAttributes().stream()
+                .map(attrName -> occurrenceEntity.getAttribute(attrName))
+                .collect(Collectors.toList());
 
     // Relationships.
     Map<String, Relationship> relationships =
@@ -87,6 +118,7 @@ public class CriteriaOccurrence extends EntityGroup {
             .criteriaEntity(criteriaEntity)
             .occurrenceEntity(occurrenceEntity)
             .primaryEntity(primaryEntity)
+            .modifierAttributes(modifierAttributes)
             .build();
 
     sourceDataMapping.initialize(criteriaOccurrence);
@@ -94,6 +126,9 @@ public class CriteriaOccurrence extends EntityGroup {
 
     // Source+index relationship mappings.
     EntityGroup.deserializeRelationshipMappings(serialized, criteriaOccurrence);
+
+    // Source+index auxiliary data mappings.
+    EntityGroup.deserializeAuxiliaryDataMappings(serialized, criteriaOccurrence);
 
     return criteriaOccurrence;
   }
@@ -134,7 +169,8 @@ public class CriteriaOccurrence extends EntityGroup {
     jobs.add(new ComputeRollupCounts(criteriaEntity, getCriteriaPrimaryRelationship(), null));
     jobs.add(new ComputeRollupCounts(criteriaEntity, getOccurrenceCriteriaRelationship(), null));
 
-    // If the criteria entity has a hierarchy, then also compute the counts for each hierarchy.
+    // If the criteria entity has a hierarchy, then also compute the counts for each
+    // hierarchy.
     if (criteriaEntity.hasHierarchies()) {
       criteriaEntity.getHierarchies().stream()
           .forEach(
@@ -146,6 +182,11 @@ public class CriteriaOccurrence extends EntityGroup {
                     new ComputeRollupCounts(
                         criteriaEntity, getOccurrenceCriteriaRelationship(), hierarchy));
               });
+    }
+
+    // Compute display hints for the occurrence entity.
+    if (!modifierAttributes.isEmpty()) {
+      jobs.add(new ComputeDisplayHints(this, modifierAttributes));
     }
 
     return jobs;
@@ -161,6 +202,24 @@ public class CriteriaOccurrence extends EntityGroup {
 
   public Entity getOccurrenceEntity() {
     return occurrenceEntity;
+  }
+
+  public List<Attribute> getModifierAttributes() {
+    return Collections.unmodifiableList(modifierAttributes);
+  }
+
+  public AuxiliaryData getModifierAuxiliaryData() {
+    return modifierAuxiliaryData;
+  }
+
+  @Override
+  public List<AuxiliaryData> getAuxiliaryData() {
+    return modifierAuxiliaryData == null ? Collections.emptyList() : List.of(modifierAuxiliaryData);
+  }
+
+  @Override
+  public UFCriteriaOccurrence serialize() {
+    return new UFCriteriaOccurrence(this);
   }
 
   public Relationship getCriteriaPrimaryRelationship() {
@@ -179,6 +238,7 @@ public class CriteriaOccurrence extends EntityGroup {
     private Entity criteriaEntity;
     private Entity occurrenceEntity;
     private Entity primaryEntity;
+    private List<Attribute> modifierAttributes;
 
     public Builder criteriaEntity(Entity criteriaEntity) {
       this.criteriaEntity = criteriaEntity;
@@ -192,6 +252,11 @@ public class CriteriaOccurrence extends EntityGroup {
 
     public Builder primaryEntity(Entity primaryEntity) {
       this.primaryEntity = primaryEntity;
+      return this;
+    }
+
+    public Builder modifierAttributes(List<Attribute> modifierAttributes) {
+      this.modifierAttributes = modifierAttributes;
       return this;
     }
 

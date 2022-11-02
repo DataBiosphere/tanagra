@@ -1,10 +1,8 @@
 {
   "name": "procedure_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
-  "entities": {
-    "criteria": "procedure",
-    "occurrence": "procedure_occurrence"
-  },
+  "criteriaEntity": "procedure",
+  "occurrenceEntity": "procedure_occurrence",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
