@@ -1,15 +1,24 @@
 package bio.terra.tanagra.api.utils;
 
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.generated.model.ApiAttributeV2;
 import bio.terra.tanagra.generated.model.ApiDataTypeV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2ValueUnion;
 import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 
 public final class ToApiConversionUtils {
   private ToApiConversionUtils() {}
+
+  public static ApiAttributeV2 toApiObject(Attribute attribute) {
+    return new ApiAttributeV2()
+        .name(attribute.getName())
+        .type(ApiAttributeV2.TypeEnum.fromValue(attribute.getType().name()))
+        .dataType(ApiDataTypeV2.fromValue(attribute.getDataType().name()));
+  }
 
   public static ApiValueDisplayV2 toApiObject(ValueDisplay valueDisplay) {
     return new ApiValueDisplayV2()

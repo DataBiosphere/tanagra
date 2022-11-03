@@ -238,16 +238,10 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UnderlayNameV2"
       - $ref: "#/components/parameters/EntityNameV2"
-    post:
-      summary: Get an entity and display hints for its attributes.
+    get:
+      summary: Get an entity
       operationId: getEntityV2
       tags: [EntitiesV2]
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SingletonRelationshipFilterV2'
       responses:
         200:
           description: OK
@@ -307,6 +301,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InstanceCountListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities/{entityName}/hints":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Query entity display hints
+      operationId: queryHints
+      tags: [HintsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HintQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisplayHintListV2"
         404:
           $ref: '#/components/responses/NotFound'
         500:
@@ -1118,43 +1138,6 @@ components:
           enum: ["SIMPLE", "KEY_AND_DISPLAY"]
         dataType:
           $ref: "#/components/schemas/DataTypeV2"
-        displayHint:
-          type: object
-          description: Display hint calculated from source data
-          properties:
-            enumHint:
-              $ref: "#/components/schemas/DisplayHintEnumV2"
-            numericRangeHint:
-              $ref: "#/components/schemas/DisplayHintNumericRangeV2"
-          nullable: true
-
-    DisplayHintEnumV2:
-      type: object
-      description: Enumeration of possible values, display strings, and counts
-      properties:
-        enumHintValues:
-          type: array
-          items:
-            type: object
-            description: Enum value and count
-            properties:
-              enumVal:
-                $ref: "#/components/schemas/ValueDisplayV2"
-              count:
-                type: integer
-
-    DisplayHintNumericRangeV2:
-      type: object
-      description: Maximum and minimum values
-      properties:
-        min:
-          description: Max value
-          type: number
-          format: int64
-        max:
-          description: Min value
-          type: number
-          format: int64
 
     ValueDisplayV2:
       type: object
@@ -1271,6 +1254,22 @@ components:
         filter:
           $ref: "#/components/schemas/FilterV2"
 
+    HintQueryV2:
+      type: object
+      description: Get display hints
+      properties:
+        relatedEntity:
+          description: |
+            A single related entity to filter the display hints on 
+            (e.g. hints for condition occurrences where condition id=11)
+          type: object
+          properties:
+            name:
+              type: string
+              description: Related entity name
+            id:
+              $ref: "#/components/schemas/LiteralV2"
+
     FilterV2:
       type: object
       description: Union of references to each filter type. Exactly one should be specified based on the filterType.
@@ -1355,18 +1354,6 @@ components:
           items:
             $ref: "#/components/schemas/FilterV2"
 
-    SingletonRelationshipFilterV2:
-      type: object
-      description: Filter on a single related entity (e.g. condition occurrences where condition id=11)
-      properties:
-        relatedEntity:
-          type: string
-          description: |
-            Optionally filter the attribute display hints by a related entity instance
-            (e.g. Display hints for measurement occurrences where measurement id=11).
-        relatedEntityId:
-          $ref: "#/components/schemas/LiteralV2"
-
     InstanceV2:
       type: object
       properties:
@@ -1442,6 +1429,60 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/InstanceCountV2"
+
+    DisplayHintV2:
+      type: object
+      description: Display hint for entity attribute
+      properties:
+        attribute:
+          $ref: "#/components/schemas/AttributeV2"
+        displayHint:
+          type: object
+          description: Display hint calculated from source data
+          properties:
+            enumHint:
+              $ref: "#/components/schemas/DisplayHintEnumV2"
+            numericRangeHint:
+              $ref: "#/components/schemas/DisplayHintNumericRangeV2"
+
+    DisplayHintEnumV2:
+      type: object
+      description: Enumeration of possible values, display strings, and counts
+      properties:
+        enumHintValues:
+          type: array
+          items:
+            type: object
+            description: Enum value and count
+            properties:
+              enumVal:
+                $ref: "#/components/schemas/ValueDisplayV2"
+              count:
+                type: integer
+
+    DisplayHintNumericRangeV2:
+      type: object
+      description: Maximum and minimum values
+      properties:
+        min:
+          description: Max value
+          type: number
+          format: double
+        max:
+          description: Min value
+          type: number
+          format: double
+
+    DisplayHintListV2:
+      type: object
+      description: List of display hints
+      properties:
+        sql:
+          type: string
+        displayHints:
+          type: array
+          items:
+            $ref: "#/components/schemas/DisplayHintV2"
 
     ErrorReportV2:
       type: object
