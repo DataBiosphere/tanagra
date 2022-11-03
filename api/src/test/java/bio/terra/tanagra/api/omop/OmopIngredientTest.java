@@ -28,6 +28,12 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
   }
 
   @Test
+  void hierarchyMemberFilter() throws IOException {
+    // filter for "ingredient" entity instances that are members of the "standard" hierarchy
+    hierarchyMemberFilter("standard");
+  }
+
+  @Test
   void hierarchyParentFilter() throws IOException {
     // filter for "ingredient" entity instances that are children of the "ingredient" entity
     // instance with concept_id=21603396
