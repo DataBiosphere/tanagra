@@ -14,7 +14,7 @@
           },
           "display" : "Standard"
         },
-        "count" : -1
+        "count" : 149719
       } ]
     }
   }, {
@@ -30,7 +30,7 @@
           },
           "display" : "Current Procedural Terminology version 4 (AMA)"
         },
-        "count" : -1
+        "count" : 629
       }, {
         "enumVal" : {
           "value" : {
@@ -38,7 +38,7 @@
           },
           "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "count" : -1
+        "count" : 1489
       }, {
         "enumVal" : {
           "value" : {
@@ -46,7 +46,7 @@
           },
           "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
         },
-        "count" : -1
+        "count" : 16762
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +54,7 @@
           },
           "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "count" : -1
+        "count" : 130839
       } ]
     }
   }, {

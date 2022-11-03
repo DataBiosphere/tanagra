@@ -7,21 +7,30 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : ""
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
         },
-        "display" : "Unknown"
+        "count" : 458585
       }, {
-        "value" : {
-          "stringVal" : "C"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
         },
-        "display" : "Unknown"
+        "count" : 3064
       }, {
-        "value" : {
-          "stringVal" : "S"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
         },
-        "display" : "Standard"
+        "count" : 262341
       } ]
     }
   }, {
@@ -30,136 +39,214 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "CCAM"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CCAM"
+          },
+          "display" : "CCAM"
         },
-        "display" : "CCAM"
+        "count" : 10206
       }, {
-        "value" : {
-          "stringVal" : "CIEL"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CIEL"
+          },
+          "display" : "CIEL"
         },
-        "display" : "CIEL"
+        "count" : 648
       }, {
-        "value" : {
-          "stringVal" : "CIM10"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CIM10"
+          },
+          "display" : "CIM10"
         },
-        "display" : "CIM10"
+        "count" : 195
       }, {
-        "value" : {
-          "stringVal" : "CPT4"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "CPT4"
         },
-        "display" : "CPT4"
+        "count" : 13143
       }, {
-        "value" : {
-          "stringVal" : "EDI"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "EDI"
+          },
+          "display" : "EDI"
         },
-        "display" : "EDI"
+        "count" : 249785
       }, {
-        "value" : {
-          "stringVal" : "HCPCS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "HCPCS"
         },
-        "display" : "HCPCS"
+        "count" : 1289
       }, {
-        "value" : {
-          "stringVal" : "HemOnc"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HemOnc"
+          },
+          "display" : "HemOnc"
         },
-        "display" : "HemOnc"
+        "count" : 92
       }, {
-        "value" : {
-          "stringVal" : "ICD10"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10"
+          },
+          "display" : "ICD10"
         },
-        "display" : "ICD10"
+        "count" : 161
       }, {
-        "value" : {
-          "stringVal" : "ICD10CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10CM"
+          },
+          "display" : "ICD10CM"
         },
-        "display" : "ICD10CM"
+        "count" : 6
       }, {
-        "value" : {
-          "stringVal" : "ICD10CN"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10CN"
+          },
+          "display" : "ICD10CN"
         },
-        "display" : "ICD10CN"
+        "count" : 386
       }, {
-        "value" : {
-          "stringVal" : "ICD10GM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10GM"
+          },
+          "display" : "ICD10GM"
         },
-        "display" : "ICD10GM"
+        "count" : 157
       }, {
-        "value" : {
-          "stringVal" : "ICD10PCS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10PCS"
+          },
+          "display" : "ICD10PCS"
         },
-        "display" : "ICD10PCS"
+        "count" : 194874
       }, {
-        "value" : {
-          "stringVal" : "ICD9CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9CM"
+          },
+          "display" : "ICD9CM"
         },
-        "display" : "ICD9CM"
+        "count" : 177
       }, {
-        "value" : {
-          "stringVal" : "ICD9Proc"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9Proc"
+          },
+          "display" : "ICD9Proc"
         },
-        "display" : "ICD9Proc"
+        "count" : 4657
       }, {
-        "value" : {
-          "stringVal" : "ICD9ProcCN"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9ProcCN"
+          },
+          "display" : "ICD9ProcCN"
         },
-        "display" : "ICD9ProcCN"
+        "count" : 13385
       }, {
-        "value" : {
-          "stringVal" : "KCD7"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "KCD7"
+          },
+          "display" : "KCD7"
         },
-        "display" : "KCD7"
+        "count" : 165
       }, {
-        "value" : {
-          "stringVal" : "MeSH"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "MeSH"
+          },
+          "display" : "MeSH"
         },
-        "display" : "MeSH"
+        "count" : 951
       }, {
-        "value" : {
-          "stringVal" : "NAACCR"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NAACCR"
+          },
+          "display" : "NAACCR"
         },
-        "display" : "NAACCR"
+        "count" : 710
       }, {
-        "value" : {
-          "stringVal" : "Nebraska Lexicon"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nebraska Lexicon"
+          },
+          "display" : "Nebraska Lexicon"
         },
-        "display" : "Nebraska Lexicon"
+        "count" : 72683
       }, {
-        "value" : {
-          "stringVal" : "OMOP Extension"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP Extension"
+          },
+          "display" : "OMOP Extension"
         },
-        "display" : "OMOP Extension"
+        "count" : 1
       }, {
-        "value" : {
-          "stringVal" : "OPCS4"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OPCS4"
+          },
+          "display" : "OPCS4"
         },
-        "display" : "OPCS4"
+        "count" : 9750
       }, {
-        "value" : {
-          "stringVal" : "OPS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OPS"
+          },
+          "display" : "OPS"
         },
-        "display" : "OPS"
+        "count" : 41101
       }, {
-        "value" : {
-          "stringVal" : "OXMIS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OXMIS"
+          },
+          "display" : "OXMIS"
         },
-        "display" : "OXMIS"
+        "count" : 1193
       }, {
-        "value" : {
-          "stringVal" : "Read"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Read"
+          },
+          "display" : "Read"
         },
-        "display" : "Read"
+        "count" : 20973
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "SNOMED"
         },
-        "display" : "SNOMED"
+        "count" : 86910
       }, {
-        "value" : {
-          "stringVal" : "SNOMED Veterinary"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED Veterinary"
+          },
+          "display" : "SNOMED Veterinary"
         },
-        "display" : "SNOMED Veterinary"
+        "count" : 392
       } ]
     }
   }, {

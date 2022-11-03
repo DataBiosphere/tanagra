@@ -15,8 +15,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 0,
-      "maxVal" : 365
+      "minVal" : 0.0,
+      "maxVal" : 365.0
     }
   }, {
     "type" : "SIMPLE",
@@ -24,8 +24,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 501343,
-      "maxVal" : 46365900
+      "minVal" : 501343.0,
+      "maxVal" : 4.63659E7
     }
   }, {
     "type" : "SIMPLE",
@@ -33,144 +33,228 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : null
-      }, {
-        "value" : {
-          "stringVal" : "Allergic res"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : null
         },
-        "display" : "Allergic res"
+        "count" : 0
       }, {
-        "value" : {
-          "stringVal" : "Alternate tx"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Allergic res"
+          },
+          "display" : "Allergic res"
         },
-        "display" : "Alternate tx"
+        "count" : 4846
       }, {
-        "value" : {
-          "stringVal" : "Anes Stop"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Alternate tx"
+          },
+          "display" : "Alternate tx"
         },
-        "display" : "Anes Stop"
+        "count" : 84029
       }, {
-        "value" : {
-          "stringVal" : "Availability"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Anes Stop"
+          },
+          "display" : "Anes Stop"
         },
-        "display" : "Availability"
+        "count" : 2863009
       }, {
-        "value" : {
-          "stringVal" : "CONTACT "
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Availability"
+          },
+          "display" : "Availability"
         },
-        "display" : "CONTACT "
+        "count" : 6600
       }, {
-        "value" : {
-          "stringVal" : "Cleanup"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CONTACT "
+          },
+          "display" : "CONTACT "
         },
-        "display" : "Cleanup"
+        "count" : 614
       }, {
-        "value" : {
-          "stringVal" : "Cost of medi"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Cleanup"
+          },
+          "display" : "Cleanup"
         },
-        "display" : "Cost of medi"
+        "count" : 399229
       }, {
-        "value" : {
-          "stringVal" : "DC'd by othr"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Cost of medi"
+          },
+          "display" : "Cost of medi"
         },
-        "display" : "DC'd by othr"
+        "count" : 9054
       }, {
-        "value" : {
-          "stringVal" : "Dose adjustm"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DC'd by othr"
+          },
+          "display" : "DC'd by othr"
         },
-        "display" : "Dose adjustm"
+        "count" : 164096
       }, {
-        "value" : {
-          "stringVal" : "Drug interac"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Dose adjustm"
+          },
+          "display" : "Dose adjustm"
         },
-        "display" : "Drug interac"
+        "count" : 110534
       }, {
-        "value" : {
-          "stringVal" : "Duplicate or"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Drug interac"
+          },
+          "display" : "Drug interac"
         },
-        "display" : "Duplicate or"
+        "count" : 1982
       }, {
-        "value" : {
-          "stringVal" : "Error"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Duplicate or"
+          },
+          "display" : "Duplicate or"
         },
-        "display" : "Error"
+        "count" : 523173
       }, {
-        "value" : {
-          "stringVal" : "Expired"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Error"
+          },
+          "display" : "Error"
         },
-        "display" : "Expired"
+        "count" : 238189
       }, {
-        "value" : {
-          "stringVal" : "Formulary"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Expired"
+          },
+          "display" : "Expired"
         },
-        "display" : "Formulary"
+        "count" : 151543
       }, {
-        "value" : {
-          "stringVal" : "NON-ADHEREN"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Formulary"
+          },
+          "display" : "Formulary"
         },
-        "display" : "NON-ADHEREN"
+        "count" : 25726
       }, {
-        "value" : {
-          "stringVal" : "Other"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NON-ADHEREN"
+          },
+          "display" : "NON-ADHEREN"
         },
-        "display" : "Other"
+        "count" : 9253
       }, {
-        "value" : {
-          "stringVal" : "PATIENT DISC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Other"
+          },
+          "display" : "Other"
         },
-        "display" : "PATIENT DISC"
+        "count" : 195756
       }, {
-        "value" : {
-          "stringVal" : "Paradoxical "
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PATIENT DISC"
+          },
+          "display" : "PATIENT DISC"
         },
-        "display" : "Paradoxical "
+        "count" : 6654423
       }, {
-        "value" : {
-          "stringVal" : "Pregnancy"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Paradoxical "
+          },
+          "display" : "Paradoxical "
         },
-        "display" : "Pregnancy"
+        "count" : 275
       }, {
-        "value" : {
-          "stringVal" : "RETURNED TO "
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Pregnancy"
+          },
+          "display" : "Pregnancy"
         },
-        "display" : "RETURNED TO "
+        "count" : 1116
       }, {
-        "value" : {
-          "stringVal" : "Reorder"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "RETURNED TO "
+          },
+          "display" : "RETURNED TO "
         },
-        "display" : "Reorder"
+        "count" : 19246
       }, {
-        "value" : {
-          "stringVal" : "SE"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Reorder"
+          },
+          "display" : "Reorder"
         },
-        "display" : "SE"
+        "count" : 4317260
       }, {
-        "value" : {
-          "stringVal" : "STOP TAKING "
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SE"
+          },
+          "display" : "SE"
         },
-        "display" : "STOP TAKING "
+        "count" : 40002
       }, {
-        "value" : {
-          "stringVal" : "SURGERY"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "STOP TAKING "
+          },
+          "display" : "STOP TAKING "
         },
-        "display" : "SURGERY"
+        "count" : 402507
       }, {
-        "value" : {
-          "stringVal" : "Stop Med"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SURGERY"
+          },
+          "display" : "SURGERY"
         },
-        "display" : "Stop Med"
+        "count" : 921
       }, {
-        "value" : {
-          "stringVal" : "TRANSFER"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Stop Med"
+          },
+          "display" : "Stop Med"
         },
-        "display" : "TRANSFER"
+        "count" : 123398
       }, {
-        "value" : {
-          "stringVal" : "Therapy comp"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "TRANSFER"
+          },
+          "display" : "TRANSFER"
         },
-        "display" : "Therapy comp"
+        "count" : 571939
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Therapy comp"
+          },
+          "display" : "Therapy comp"
+        },
+        "count" : 2198773
       } ]
     }
   }, {
@@ -179,8 +263,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 0,
-      "maxVal" : 93888520
+      "minVal" : 0.0,
+      "maxVal" : 9.388852E7
     }
   }, {
     "type" : "SIMPLE",
@@ -192,8 +276,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1,
-      "maxVal" : 36135
+      "minVal" : 1.0,
+      "maxVal" : 36135.0
     }
   }, {
     "type" : "SIMPLE",
@@ -205,8 +289,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1,
-      "maxVal" : 5227737
+      "minVal" : 1.0,
+      "maxVal" : 5227737.0
     }
   }, {
     "type" : "SIMPLE",

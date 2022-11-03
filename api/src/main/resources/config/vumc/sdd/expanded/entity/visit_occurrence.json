@@ -11,8 +11,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 2000093142,
-      "maxVal" : 2004794154
+      "minVal" : 2.000093142E9,
+      "maxVal" : 2.004794154E9
     }
   }, {
     "type" : "SIMPLE",
@@ -24,26 +24,38 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 9203
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
         },
-        "display" : "Emergency Room Visit"
+        "count" : 1690886
       }, {
-        "value" : {
-          "int64Val" : 9201
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
         },
-        "display" : "Inpatient Visit"
+        "count" : 3078021
       }, {
-        "value" : {
-          "int64Val" : 0
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
         },
-        "display" : "No matching concept"
+        "count" : 1077644
       }, {
-        "value" : {
-          "int64Val" : 9202
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
         },
-        "display" : "Outpatient Visit"
+        "count" : 57044408
       } ]
     }
   }, {
@@ -52,441 +64,702 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "0"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "0"
+          },
+          "display" : "0"
+        },
+        "count" : 10
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "1"
+          },
+          "display" : "1"
+        },
+        "count" : 95
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "10"
+          },
+          "display" : "10"
+        },
+        "count" : 806601
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "2"
+          },
+          "display" : "2"
+        },
+        "count" : 396579
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "3"
+          },
+          "display" : "3"
+        },
+        "count" : 66882
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "4"
+          },
+          "display" : "4"
+        },
+        "count" : 73037
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "5"
+          },
+          "display" : "5"
+        },
+        "count" : 40791
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "6"
+          },
+          "display" : "6"
+        },
+        "count" : 701
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "7"
+          },
+          "display" : "7"
+        },
+        "count" : 236934
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "8"
+          },
+          "display" : "8"
+        },
+        "count" : 26854
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "9"
+          },
+          "display" : "9"
+        },
+        "count" : 63067
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "A"
+          },
+          "display" : "A"
+        },
+        "count" : 447030
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Ancillary Procedure"
+          },
+          "display" : "Ancillary Procedure"
         },
-        "display" : "0"
+        "count" : 336027
       }, {
-        "value" : {
-          "stringVal" : "1"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Anesthesia"
+          },
+          "display" : "Anesthesia"
         },
-        "display" : "1"
+        "count" : 503253
       }, {
-        "value" : {
-          "stringVal" : "10"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Anesthesia Event"
+          },
+          "display" : "Anesthesia Event"
         },
-        "display" : "10"
+        "count" : 509269
       }, {
-        "value" : {
-          "stringVal" : "2"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Anticoagulation Visit"
+          },
+          "display" : "Anticoagulation Visit"
         },
-        "display" : "2"
+        "count" : 294628
       }, {
-        "value" : {
-          "stringVal" : "3"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "B"
+          },
+          "display" : "B"
         },
-        "display" : "3"
+        "count" : 33677
       }, {
-        "value" : {
-          "stringVal" : "4"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "BMT Presentation"
+          },
+          "display" : "BMT Presentation"
         },
-        "display" : "4"
+        "count" : 12
       }, {
-        "value" : {
-          "stringVal" : "5"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Behavioral Health Series"
+          },
+          "display" : "Behavioral Health Series"
         },
-        "display" : "5"
+        "count" : 2
       }, {
-        "value" : {
-          "stringVal" : "6"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "C"
         },
-        "display" : "6"
+        "count" : 537037
       }, {
-        "value" : {
-          "stringVal" : "7"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Clinical Support"
+          },
+          "display" : "Clinical Support"
         },
-        "display" : "7"
+        "count" : 229373
       }, {
-        "value" : {
-          "stringVal" : "8"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Consult"
+          },
+          "display" : "Consult"
         },
-        "display" : "8"
+        "count" : 177342
       }, {
-        "value" : {
-          "stringVal" : "9"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "D"
+          },
+          "display" : "D"
         },
-        "display" : "9"
+        "count" : 232318
       }, {
-        "value" : {
-          "stringVal" : "A"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Device Check"
+          },
+          "display" : "Device Check"
         },
-        "display" : "A"
+        "count" : 74193
       }, {
-        "value" : {
-          "stringVal" : "Ancillary Procedure"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "E"
+          },
+          "display" : "E"
         },
-        "display" : "Ancillary Procedure"
+        "count" : 1350672
       }, {
-        "value" : {
-          "stringVal" : "Anesthesia"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Education"
+          },
+          "display" : "Education"
         },
-        "display" : "Anesthesia"
+        "count" : 26932
       }, {
-        "value" : {
-          "stringVal" : "Anesthesia Event"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Emergency"
+          },
+          "display" : "Emergency"
         },
-        "display" : "Anesthesia Event"
+        "count" : 340214
       }, {
-        "value" : {
-          "stringVal" : "Anticoagulation Visit"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Evaluation"
+          },
+          "display" : "Evaluation"
         },
-        "display" : "Anticoagulation Visit"
+        "count" : 134620
       }, {
-        "value" : {
-          "stringVal" : "B"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "External Hospital Admission"
+          },
+          "display" : "External Hospital Admission"
         },
-        "display" : "B"
+        "count" : 222
       }, {
-        "value" : {
-          "stringVal" : "BMT Presentation"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "F"
+          },
+          "display" : "F"
         },
-        "display" : "BMT Presentation"
+        "count" : 26
       }, {
-        "value" : {
-          "stringVal" : "Behavioral Health Series"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Follow-Up"
+          },
+          "display" : "Follow-Up"
         },
-        "display" : "Behavioral Health Series"
+        "count" : 132450
       }, {
-        "value" : {
-          "stringVal" : "C"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "G"
+          },
+          "display" : "G"
         },
-        "display" : "C"
+        "count" : 355082
       }, {
-        "value" : {
-          "stringVal" : "Clinical Support"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "H"
+          },
+          "display" : "H"
         },
-        "display" : "Clinical Support"
+        "count" : 19113
       }, {
-        "value" : {
-          "stringVal" : "Consult"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Hospice"
+          },
+          "display" : "Hospice"
         },
-        "display" : "Consult"
+        "count" : 322
       }, {
-        "value" : {
-          "stringVal" : "D"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Hospice F2F Visit"
+          },
+          "display" : "Hospice F2F Visit"
         },
-        "display" : "D"
+        "count" : 7
       }, {
-        "value" : {
-          "stringVal" : "Device Check"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "I"
+          },
+          "display" : "I"
         },
-        "display" : "Device Check"
+        "count" : 920609
       }, {
-        "value" : {
-          "stringVal" : "E"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Infusion"
+          },
+          "display" : "Infusion"
         },
-        "display" : "E"
+        "count" : 222006
       }, {
-        "value" : {
-          "stringVal" : "Education"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Inpatient"
+          },
+          "display" : "Inpatient"
         },
-        "display" : "Education"
+        "count" : 267518
       }, {
-        "value" : {
-          "stringVal" : "Emergency"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "J"
+          },
+          "display" : "J"
         },
-        "display" : "Emergency"
+        "count" : 25527
       }, {
-        "value" : {
-          "stringVal" : "Evaluation"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "K"
+          },
+          "display" : "K"
         },
-        "display" : "Evaluation"
+        "count" : 11122
       }, {
-        "value" : {
-          "stringVal" : "External Hospital Admission"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "L"
+          },
+          "display" : "L"
         },
-        "display" : "External Hospital Admission"
+        "count" : 31288
       }, {
-        "value" : {
-          "stringVal" : "F"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Lab"
+          },
+          "display" : "Lab"
         },
-        "display" : "F"
+        "count" : 1535333
       }, {
-        "value" : {
-          "stringVal" : "Follow-Up"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Lab Requisition"
+          },
+          "display" : "Lab Requisition"
         },
-        "display" : "Follow-Up"
+        "count" : 15106
       }, {
-        "value" : {
-          "stringVal" : "G"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Lab Specimen"
+          },
+          "display" : "Lab Specimen"
         },
-        "display" : "G"
+        "count" : 177180
       }, {
-        "value" : {
-          "stringVal" : "H"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Lactation Encounter"
+          },
+          "display" : "Lactation Encounter"
         },
-        "display" : "H"
+        "count" : 9864
       }, {
-        "value" : {
-          "stringVal" : "Hospice"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "M"
+          },
+          "display" : "M"
         },
-        "display" : "Hospice"
+        "count" : 12
       }, {
-        "value" : {
-          "stringVal" : "Hospice F2F Visit"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Medication Management"
+          },
+          "display" : "Medication Management"
         },
-        "display" : "Hospice F2F Visit"
+        "count" : 45661
       }, {
-        "value" : {
-          "stringVal" : "I"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Mobile Behavioral Health"
+          },
+          "display" : "Mobile Behavioral Health"
         },
-        "display" : "I"
+        "count" : 65749
       }, {
-        "value" : {
-          "stringVal" : "Infusion"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NULL"
+          },
+          "display" : "NULL"
         },
-        "display" : "Infusion"
+        "count" : 13869438
       }, {
-        "value" : {
-          "stringVal" : "Inpatient"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Newborn"
+          },
+          "display" : "Newborn"
         },
-        "display" : "Inpatient"
+        "count" : 150
       }, {
-        "value" : {
-          "stringVal" : "J"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nuclear Medicine"
+          },
+          "display" : "Nuclear Medicine"
         },
-        "display" : "J"
+        "count" : 10927
       }, {
-        "value" : {
-          "stringVal" : "K"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nurse Only"
+          },
+          "display" : "Nurse Only"
         },
-        "display" : "K"
+        "count" : 182857
       }, {
-        "value" : {
-          "stringVal" : "L"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nurse Triage"
+          },
+          "display" : "Nurse Triage"
         },
-        "display" : "L"
+        "count" : 46544
       }, {
-        "value" : {
-          "stringVal" : "Lab"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nutrition"
+          },
+          "display" : "Nutrition"
         },
-        "display" : "Lab"
+        "count" : 81148
       }, {
-        "value" : {
-          "stringVal" : "Lab Requisition"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "O"
+          },
+          "display" : "O"
         },
-        "display" : "Lab Requisition"
+        "count" : 635991
       }, {
-        "value" : {
-          "stringVal" : "Lab Specimen"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OP"
+          },
+          "display" : "OP"
         },
-        "display" : "Lab Specimen"
+        "count" : 127974
       }, {
-        "value" : {
-          "stringVal" : "Lactation Encounter"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Observation"
+          },
+          "display" : "Observation"
         },
-        "display" : "Lactation Encounter"
+        "count" : 51247
       }, {
-        "value" : {
-          "stringVal" : "M"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Office Visit"
+          },
+          "display" : "Office Visit"
         },
-        "display" : "M"
+        "count" : 6472561
       }, {
-        "value" : {
-          "stringVal" : "Medication Management"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Ophth After Hours"
+          },
+          "display" : "Ophth After Hours"
         },
-        "display" : "Medication Management"
+        "count" : 1264
       }, {
-        "value" : {
-          "stringVal" : "Mobile Behavioral Health"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Ophth Exam"
+          },
+          "display" : "Ophth Exam"
         },
-        "display" : "Mobile Behavioral Health"
+        "count" : 14082
       }, {
-        "value" : {
-          "stringVal" : "NULL"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Outpatient"
+          },
+          "display" : "Outpatient"
         },
-        "display" : "NULL"
+        "count" : 1542812
       }, {
-        "value" : {
-          "stringVal" : "Newborn"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "P"
+          },
+          "display" : "P"
         },
-        "display" : "Newborn"
+        "count" : 55
       }, {
-        "value" : {
-          "stringVal" : "Nuclear Medicine"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PA"
+          },
+          "display" : "PA"
         },
-        "display" : "Nuclear Medicine"
+        "count" : 2303
       }, {
-        "value" : {
-          "stringVal" : "Nurse Only"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PV"
+          },
+          "display" : "PV"
         },
-        "display" : "Nurse Only"
+        "count" : 149483
       }, {
-        "value" : {
-          "stringVal" : "Nurse Triage"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Postpartum Visit"
+          },
+          "display" : "Postpartum Visit"
         },
-        "display" : "Nurse Triage"
+        "count" : 23
       }, {
-        "value" : {
-          "stringVal" : "Nutrition"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Procedure visit"
+          },
+          "display" : "Procedure visit"
         },
-        "display" : "Nutrition"
+        "count" : 273087
       }, {
-        "value" : {
-          "stringVal" : "O"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Q"
+          },
+          "display" : "Q"
         },
-        "display" : "O"
+        "count" : 42
       }, {
-        "value" : {
-          "stringVal" : "OP"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "R"
+          },
+          "display" : "R"
         },
-        "display" : "OP"
+        "count" : 20595
       }, {
-        "value" : {
-          "stringVal" : "Observation"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Radiation Oncology"
+          },
+          "display" : "Radiation Oncology"
         },
-        "display" : "Observation"
+        "count" : 17419
       }, {
-        "value" : {
-          "stringVal" : "Office Visit"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Radiation/Oncology Series"
+          },
+          "display" : "Radiation/Oncology Series"
         },
-        "display" : "Office Visit"
+        "count" : 90875
       }, {
-        "value" : {
-          "stringVal" : "Ophth After Hours"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Retail"
+          },
+          "display" : "Retail"
         },
-        "display" : "Ophth After Hours"
+        "count" : 22514
       }, {
-        "value" : {
-          "stringVal" : "Ophth Exam"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Routine Prenatal"
+          },
+          "display" : "Routine Prenatal"
         },
-        "display" : "Ophth Exam"
+        "count" : 247568
       }, {
-        "value" : {
-          "stringVal" : "Outpatient"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "S"
         },
-        "display" : "Outpatient"
+        "count" : 218377
       }, {
-        "value" : {
-          "stringVal" : "P"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Same Day Procedure"
+          },
+          "display" : "Same Day Procedure"
         },
-        "display" : "P"
+        "count" : 413700
       }, {
-        "value" : {
-          "stringVal" : "PA"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Social Work"
+          },
+          "display" : "Social Work"
         },
-        "display" : "PA"
+        "count" : 53441
       }, {
-        "value" : {
-          "stringVal" : "PV"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Specialty Pharmacy Services"
+          },
+          "display" : "Specialty Pharmacy Services"
         },
-        "display" : "PV"
+        "count" : 19546
       }, {
-        "value" : {
-          "stringVal" : "Postpartum Visit"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Surgery"
+          },
+          "display" : "Surgery"
         },
-        "display" : "Postpartum Visit"
+        "count" : 603899
       }, {
-        "value" : {
-          "stringVal" : "Procedure visit"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Surgery Admit"
+          },
+          "display" : "Surgery Admit"
         },
-        "display" : "Procedure visit"
+        "count" : 12370
       }, {
-        "value" : {
-          "stringVal" : "Q"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "T"
+          },
+          "display" : "T"
         },
-        "display" : "Q"
+        "count" : 547
       }, {
-        "value" : {
-          "stringVal" : "R"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Telemedicine"
+          },
+          "display" : "Telemedicine"
         },
-        "display" : "R"
+        "count" : 373210
       }, {
-        "value" : {
-          "stringVal" : "Radiation Oncology"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Therapy/Rehab Series"
+          },
+          "display" : "Therapy/Rehab Series"
         },
-        "display" : "Radiation Oncology"
+        "count" : 19
       }, {
-        "value" : {
-          "stringVal" : "Radiation/Oncology Series"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Treatment"
+          },
+          "display" : "Treatment"
         },
-        "display" : "Radiation/Oncology Series"
+        "count" : 356694
       }, {
-        "value" : {
-          "stringVal" : "Retail"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "V"
+          },
+          "display" : "V"
         },
-        "display" : "Retail"
+        "count" : 270621
       }, {
-        "value" : {
-          "stringVal" : "Routine Prenatal"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "W"
+          },
+          "display" : "W"
         },
-        "display" : "Routine Prenatal"
+        "count" : 85
       }, {
-        "value" : {
-          "stringVal" : "S"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "X"
+          },
+          "display" : "X"
         },
-        "display" : "S"
+        "count" : 25932590
       }, {
-        "value" : {
-          "stringVal" : "Same Day Procedure"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Y"
+          },
+          "display" : "Y"
         },
-        "display" : "Same Day Procedure"
+        "count" : 2510
       }, {
-        "value" : {
-          "stringVal" : "Social Work"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Z"
+          },
+          "display" : "Z"
         },
-        "display" : "Social Work"
-      }, {
-        "value" : {
-          "stringVal" : "Specialty Pharmacy Services"
-        },
-        "display" : "Specialty Pharmacy Services"
-      }, {
-        "value" : {
-          "stringVal" : "Surgery"
-        },
-        "display" : "Surgery"
-      }, {
-        "value" : {
-          "stringVal" : "Surgery Admit"
-        },
-        "display" : "Surgery Admit"
-      }, {
-        "value" : {
-          "stringVal" : "T"
-        },
-        "display" : "T"
-      }, {
-        "value" : {
-          "stringVal" : "Telemedicine"
-        },
-        "display" : "Telemedicine"
-      }, {
-        "value" : {
-          "stringVal" : "Therapy/Rehab Series"
-        },
-        "display" : "Therapy/Rehab Series"
-      }, {
-        "value" : {
-          "stringVal" : "Treatment"
-        },
-        "display" : "Treatment"
-      }, {
-        "value" : {
-          "stringVal" : "V"
-        },
-        "display" : "V"
-      }, {
-        "value" : {
-          "stringVal" : "W"
-        },
-        "display" : "W"
-      }, {
-        "value" : {
-          "stringVal" : "X"
-        },
-        "display" : "X"
-      }, {
-        "value" : {
-          "stringVal" : "Y"
-        },
-        "display" : "Y"
-      }, {
-        "value" : {
-          "stringVal" : "Z"
-        },
-        "display" : "Z"
+        "count" : 44
       } ]
     }
   }, {
@@ -495,8 +768,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1,
-      "maxVal" : 5227737
+      "minVal" : 1.0,
+      "maxVal" : 5227737.0
     }
   }, {
     "type" : "SIMPLE",

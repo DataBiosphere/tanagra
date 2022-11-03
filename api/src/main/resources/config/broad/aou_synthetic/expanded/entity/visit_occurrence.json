@@ -31,7 +31,7 @@
           },
           "display" : "10 ML Morphine 0.2 MG/ML Prefilled Syringe Box of 10"
         },
-        "count" : -1
+        "count" : 21
       }, {
         "enumVal" : {
           "value" : {
@@ -39,7 +39,7 @@
           },
           "display" : "2000 ML benzyl benzoate 250 MG/ML Topical Solution"
         },
-        "count" : -1
+        "count" : 60
       }, {
         "enumVal" : {
           "value" : {
@@ -47,7 +47,7 @@
           },
           "display" : "Ambulance Visit"
         },
-        "count" : -1
+        "count" : 1746
       }, {
         "enumVal" : {
           "value" : {
@@ -55,7 +55,7 @@
           },
           "display" : "Ambulatory Clinic/Center"
         },
-        "count" : -1
+        "count" : 80437
       }, {
         "enumVal" : {
           "value" : {
@@ -63,7 +63,7 @@
           },
           "display" : "Ambulatory Rehabilitation Visit"
         },
-        "count" : -1
+        "count" : 179
       }, {
         "enumVal" : {
           "value" : {
@@ -71,7 +71,7 @@
           },
           "display" : "Amiodarone 50 MG/ML Oral Suspension"
         },
-        "count" : -1
+        "count" : 10
       }, {
         "enumVal" : {
           "value" : {
@@ -79,7 +79,7 @@
           },
           "display" : "Cholecalciferol 50000 UNT Oral Capsule [Aciferol D3] Box of 10 by Rhodes"
         },
-        "count" : -1
+        "count" : 2
       }, {
         "enumVal" : {
           "value" : {
@@ -87,7 +87,7 @@
           },
           "display" : "Chondroitin Sulfates 400 MG / Glucosamine 500 MG Oral Tablet [Joint-Flex] Box of 60"
         },
-        "count" : -1
+        "count" : 32
       }, {
         "enumVal" : {
           "value" : {
@@ -95,7 +95,7 @@
           },
           "display" : "Daptomycin 500 MG Injection Box of 1"
         },
-        "count" : -1
+        "count" : 100
       }, {
         "enumVal" : {
           "value" : {
@@ -103,7 +103,7 @@
           },
           "display" : "Diphenhydramine 25 MG Oral Tablet by Ennogen"
         },
-        "count" : -1
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -111,7 +111,7 @@
           },
           "display" : "Emergency Room Visit"
         },
-        "count" : -1
+        "count" : 439748
       }, {
         "enumVal" : {
           "value" : {
@@ -119,7 +119,7 @@
           },
           "display" : "Emergency Room and Inpatient Visit"
         },
-        "count" : -1
+        "count" : 25323
       }, {
         "enumVal" : {
           "value" : {
@@ -127,7 +127,7 @@
           },
           "display" : "Ergocalciferol 300000 UNT/ML Prefilled Syringe Box of 10"
         },
-        "count" : -1
+        "count" : 75
       }, {
         "enumVal" : {
           "value" : {
@@ -135,7 +135,7 @@
           },
           "display" : "Home Visit"
         },
-        "count" : -1
+        "count" : 40500
       }, {
         "enumVal" : {
           "value" : {
@@ -143,7 +143,7 @@
           },
           "display" : "Inpatient Visit"
         },
-        "count" : -1
+        "count" : 568911
       }, {
         "enumVal" : {
           "value" : {
@@ -151,7 +151,7 @@
           },
           "display" : "Laboratory Visit"
         },
-        "count" : -1
+        "count" : 1850
       }, {
         "enumVal" : {
           "value" : {
@@ -159,7 +159,7 @@
           },
           "display" : "Modifier"
         },
-        "count" : -1
+        "count" : 30318
       }, {
         "enumVal" : {
           "value" : {
@@ -167,7 +167,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : -1
+        "count" : 1340218
       }, {
         "enumVal" : {
           "value" : {
@@ -175,7 +175,7 @@
           },
           "display" : "Non-hospital institution Visit"
         },
-        "count" : -1
+        "count" : 22
       }, {
         "enumVal" : {
           "value" : {
@@ -183,7 +183,7 @@
           },
           "display" : "Office Visit"
         },
-        "count" : -1
+        "count" : 629739
       }, {
         "enumVal" : {
           "value" : {
@@ -191,7 +191,7 @@
           },
           "display" : "Other ambulatory visit"
         },
-        "count" : -1
+        "count" : 4720
       }, {
         "enumVal" : {
           "value" : {
@@ -199,7 +199,7 @@
           },
           "display" : "Outpatient Visit"
         },
-        "count" : -1
+        "count" : 9929594
       }, {
         "enumVal" : {
           "value" : {
@@ -207,7 +207,7 @@
           },
           "display" : "Pharmacy visit"
         },
-        "count" : -1
+        "count" : 25279
       }, {
         "enumVal" : {
           "value" : {
@@ -215,7 +215,7 @@
           },
           "display" : "Risperidone 0.5 MG Oral Tablet by Consilient"
         },
-        "count" : -1
+        "count" : 17
       }, {
         "enumVal" : {
           "value" : {
@@ -223,7 +223,7 @@
           },
           "display" : "Visit derived from EHR record"
         },
-        "count" : -1
+        "count" : 856887
       } ]
     }
   }, {

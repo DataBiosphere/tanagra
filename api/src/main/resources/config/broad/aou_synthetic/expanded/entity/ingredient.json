@@ -12,7 +12,7 @@
           "value" : { },
           "display" : "Source"
         },
-        "count" : -1
+        "count" : 0
       }, {
         "enumVal" : {
           "value" : {
@@ -20,7 +20,7 @@
           },
           "display" : "Unknown"
         },
-        "count" : -1
+        "count" : 6335
       }, {
         "enumVal" : {
           "value" : {
@@ -28,7 +28,7 @@
           },
           "display" : "Standard"
         },
-        "count" : -1
+        "count" : 14566
       } ]
     }
   }, {
@@ -44,7 +44,7 @@
           },
           "display" : "RxNorm (NLM)"
         },
-        "count" : -1
+        "count" : 15575
       }, {
         "enumVal" : {
           "value" : {
@@ -52,7 +52,7 @@
           },
           "display" : "RxNorm Extension (OMOP)"
         },
-        "count" : -1
+        "count" : 1978
       }, {
         "enumVal" : {
           "value" : {
@@ -60,7 +60,7 @@
           },
           "display" : "WHO Anatomic Therapeutic Chemical Classification"
         },
-        "count" : -1
+        "count" : 6335
       } ]
     }
   }, {

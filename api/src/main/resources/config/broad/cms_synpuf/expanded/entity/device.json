@@ -14,7 +14,7 @@
           },
           "display" : "Standard"
         },
-        "count" : -1
+        "count" : 18134
       } ]
     }
   }, {
@@ -30,7 +30,7 @@
           },
           "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "count" : -1
+        "count" : 2828
       }, {
         "enumVal" : {
           "value" : {
@@ -38,7 +38,7 @@
           },
           "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "count" : -1
+        "count" : 15306
       } ]
     }
   }, {

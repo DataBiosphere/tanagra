@@ -18,7 +18,7 @@
           },
           "display" : "IU/L"
         },
-        "count" : -1
+        "count" : 5
       }, {
         "enumVal" : {
           "value" : {
@@ -26,7 +26,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : -1
+        "count" : 35011492
       }, {
         "enumVal" : {
           "value" : {
@@ -34,7 +34,7 @@
           },
           "display" : "Seconds"
         },
-        "count" : -1
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -42,7 +42,7 @@
           },
           "display" : "copies per milliliter"
         },
-        "count" : -1
+        "count" : 231
       }, {
         "enumVal" : {
           "value" : {
@@ -50,7 +50,7 @@
           },
           "display" : "day"
         },
-        "count" : -1
+        "count" : 2028
       }, {
         "enumVal" : {
           "value" : {
@@ -58,7 +58,7 @@
           },
           "display" : "degree"
         },
-        "count" : -1
+        "count" : 55
       }, {
         "enumVal" : {
           "value" : {
@@ -66,7 +66,7 @@
           },
           "display" : "degree Celsius"
         },
-        "count" : -1
+        "count" : 53
       }, {
         "enumVal" : {
           "value" : {
@@ -74,7 +74,7 @@
           },
           "display" : "index"
         },
-        "count" : -1
+        "count" : 88
       }, {
         "enumVal" : {
           "value" : {
@@ -82,7 +82,7 @@
           },
           "display" : "liter"
         },
-        "count" : -1
+        "count" : 15
       }, {
         "enumVal" : {
           "value" : {
@@ -90,7 +90,7 @@
           },
           "display" : "meter"
         },
-        "count" : -1
+        "count" : 66
       }, {
         "enumVal" : {
           "value" : {
@@ -98,7 +98,7 @@
           },
           "display" : "mg/dL"
         },
-        "count" : -1
+        "count" : 26047
       }, {
         "enumVal" : {
           "value" : {
@@ -106,7 +106,7 @@
           },
           "display" : "microgram per gram"
         },
-        "count" : -1
+        "count" : 23
       }, {
         "enumVal" : {
           "value" : {
@@ -114,7 +114,7 @@
           },
           "display" : "milliliter"
         },
-        "count" : -1
+        "count" : 87
       }, {
         "enumVal" : {
           "value" : {
@@ -122,7 +122,7 @@
           },
           "display" : "millimeter"
         },
-        "count" : -1
+        "count" : 55
       }, {
         "enumVal" : {
           "value" : {
@@ -130,7 +130,7 @@
           },
           "display" : "millimeter mercury column"
         },
-        "count" : -1
+        "count" : 36
       }, {
         "enumVal" : {
           "value" : {
@@ -138,7 +138,7 @@
           },
           "display" : "millimole per liter"
         },
-        "count" : -1
+        "count" : 22
       }, {
         "enumVal" : {
           "value" : {
@@ -146,7 +146,7 @@
           },
           "display" : "million per cubic millimeter"
         },
-        "count" : -1
+        "count" : 957
       }, {
         "enumVal" : {
           "value" : {
@@ -154,7 +154,7 @@
           },
           "display" : "mmHg"
         },
-        "count" : -1
+        "count" : 63
       }, {
         "enumVal" : {
           "value" : {
@@ -162,7 +162,7 @@
           },
           "display" : "ng/dL"
         },
-        "count" : -1
+        "count" : 7
       }, {
         "enumVal" : {
           "value" : {
@@ -170,7 +170,7 @@
           },
           "display" : "ounce (apothecary)"
         },
-        "count" : -1
+        "count" : 25481
       }, {
         "enumVal" : {
           "value" : {
@@ -178,7 +178,7 @@
           },
           "display" : "per microliter"
         },
-        "count" : -1
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -186,7 +186,7 @@
           },
           "display" : "percent"
         },
-        "count" : -1
+        "count" : 360
       }, {
         "enumVal" : {
           "value" : {
@@ -194,7 +194,7 @@
           },
           "display" : "pg/mL"
         },
-        "count" : -1
+        "count" : 1235
       }, {
         "enumVal" : {
           "value" : {
@@ -202,7 +202,7 @@
           },
           "display" : "picomole per liter"
         },
-        "count" : -1
+        "count" : 3
       }, {
         "enumVal" : {
           "value" : {
@@ -210,7 +210,7 @@
           },
           "display" : "second"
         },
-        "count" : -1
+        "count" : 7
       }, {
         "enumVal" : {
           "value" : {
@@ -218,7 +218,7 @@
           },
           "display" : "titer"
         },
-        "count" : -1
+        "count" : 534
       }, {
         "enumVal" : {
           "value" : {
@@ -226,7 +226,7 @@
           },
           "display" : "ug/dL"
         },
-        "count" : -1
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -234,7 +234,7 @@
           },
           "display" : "unit"
         },
-        "count" : -1
+        "count" : 908557
       }, {
         "enumVal" : {
           "value" : {
@@ -242,7 +242,7 @@
           },
           "display" : "unit per milliliter"
         },
-        "count" : -1
+        "count" : 164
       }, {
         "enumVal" : {
           "value" : {
@@ -250,7 +250,7 @@
           },
           "display" : "volume percent"
         },
-        "count" : -1
+        "count" : 7
       }, {
         "enumVal" : {
           "value" : {
@@ -258,7 +258,7 @@
           },
           "display" : "year"
         },
-        "count" : -1
+        "count" : 129781
       } ]
     }
   }, {

@@ -7,26 +7,38 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : ""
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
         },
-        "display" : "Unknown"
+        "count" : 101999
       }, {
-        "value" : {
-          "stringVal" : "C"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
         },
-        "display" : "Unknown"
+        "count" : 40193
       }, {
-        "value" : {
-          "stringVal" : "NULL"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NULL"
+          },
+          "display" : "Unknown"
         },
-        "display" : "Unknown"
+        "count" : 9
       }, {
-        "value" : {
-          "stringVal" : "S"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
         },
-        "display" : "Standard"
+        "count" : 73948
       } ]
     }
   }, {
@@ -35,16 +47,22 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "LOINC"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "LOINC"
+          },
+          "display" : "LOINC"
         },
-        "display" : "LOINC"
+        "count" : 186150
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "SNOMED"
         },
-        "display" : "SNOMED"
+        "count" : 29999
       } ]
     }
   }, {

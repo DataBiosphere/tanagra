@@ -12,7 +12,7 @@
           "value" : { },
           "display" : "Source"
         },
-        "count" : -1
+        "count" : 0
       }, {
         "enumVal" : {
           "value" : {
@@ -20,7 +20,7 @@
           },
           "display" : "Standard"
         },
-        "count" : -1
+        "count" : 97214
       } ]
     }
   }, {
@@ -36,7 +36,7 @@
           },
           "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "count" : -1
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -44,7 +44,7 @@
           },
           "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
-        "count" : -1
+        "count" : 16632
       }, {
         "enumVal" : {
           "value" : {
@@ -52,7 +52,7 @@
           },
           "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "count" : -1
+        "count" : 108038
       }, {
         "enumVal" : {
           "value" : {
@@ -60,7 +60,7 @@
           },
           "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "count" : -1
+        "count" : 148722
       } ]
     }
   }, {

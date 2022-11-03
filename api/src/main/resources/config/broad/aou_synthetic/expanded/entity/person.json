@@ -14,7 +14,7 @@
           },
           "display" : "Female"
         },
-        "count" : -1
+        "count" : 142307
       }, {
         "enumVal" : {
           "value" : {
@@ -22,7 +22,7 @@
           },
           "display" : "Male"
         },
-        "count" : -1
+        "count" : 87099
       }, {
         "enumVal" : {
           "value" : {
@@ -30,7 +30,7 @@
           },
           "display" : "Not man only, not woman only, prefer not to answer, or skipped"
         },
-        "count" : -1
+        "count" : 5119
       } ]
     }
   }, {
@@ -46,7 +46,7 @@
           },
           "display" : "Another single population"
         },
-        "count" : -1
+        "count" : 5443
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +54,7 @@
           },
           "display" : "Asian"
         },
-        "count" : -1
+        "count" : 7476
       }, {
         "enumVal" : {
           "value" : {
@@ -62,7 +62,7 @@
           },
           "display" : "Black or African American"
         },
-        "count" : -1
+        "count" : 46967
       }, {
         "enumVal" : {
           "value" : {
@@ -70,7 +70,7 @@
           },
           "display" : "I prefer not to answer"
         },
-        "count" : -1
+        "count" : 1614
       }, {
         "enumVal" : {
           "value" : {
@@ -78,7 +78,7 @@
           },
           "display" : "More than one population"
         },
-        "count" : -1
+        "count" : 10727
       }, {
         "enumVal" : {
           "value" : {
@@ -86,7 +86,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : -1
+        "count" : 37524
       }, {
         "enumVal" : {
           "value" : {
@@ -94,7 +94,7 @@
           },
           "display" : "None of these"
         },
-        "count" : -1
+        "count" : 2465
       }, {
         "enumVal" : {
           "value" : {
@@ -102,7 +102,7 @@
           },
           "display" : "PMI: Skip"
         },
-        "count" : -1
+        "count" : 1584
       }, {
         "enumVal" : {
           "value" : {
@@ -110,7 +110,7 @@
           },
           "display" : "White"
         },
-        "count" : -1
+        "count" : 120725
       } ]
     }
   }, {
@@ -126,7 +126,7 @@
           },
           "display" : "Hispanic or Latino"
         },
-        "count" : -1
+        "count" : 44673
       }, {
         "enumVal" : {
           "value" : {
@@ -134,7 +134,7 @@
           },
           "display" : "Not Hispanic or Latino"
         },
-        "count" : -1
+        "count" : 184189
       }, {
         "enumVal" : {
           "value" : {
@@ -142,7 +142,7 @@
           },
           "display" : "PMI: Prefer Not To Answer"
         },
-        "count" : -1
+        "count" : 1614
       }, {
         "enumVal" : {
           "value" : {
@@ -150,7 +150,7 @@
           },
           "display" : "PMI: Skip"
         },
-        "count" : -1
+        "count" : 1584
       }, {
         "enumVal" : {
           "value" : {
@@ -158,7 +158,7 @@
           },
           "display" : "What Race Ethnicity: Race Ethnicity None Of These"
         },
-        "count" : -1
+        "count" : 2465
       } ]
     }
   }, {
@@ -178,7 +178,7 @@
           },
           "display" : "Female"
         },
-        "count" : -1
+        "count" : 143479
       }, {
         "enumVal" : {
           "value" : {
@@ -186,7 +186,7 @@
           },
           "display" : "Male"
         },
-        "count" : -1
+        "count" : 87821
       }, {
         "enumVal" : {
           "value" : {
@@ -194,7 +194,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : -1
+        "count" : 257
       }, {
         "enumVal" : {
           "value" : {
@@ -202,7 +202,7 @@
           },
           "display" : "Not male, not female, prefer not to answer, or skipped"
         },
-        "count" : -1
+        "count" : 2968
       } ]
     }
   }, {

@@ -12,7 +12,7 @@
           "value" : { },
           "display" : "Source"
         },
-        "count" : -1
+        "count" : 0
       }, {
         "enumVal" : {
           "value" : {
@@ -20,7 +20,7 @@
           },
           "display" : "Standard"
         },
-        "count" : -1
+        "count" : 172324
       } ]
     }
   }, {
@@ -36,7 +36,7 @@
           },
           "display" : "AllOfUs_PPI (Columbia)"
         },
-        "count" : -1
+        "count" : 74
       }, {
         "enumVal" : {
           "value" : {
@@ -44,7 +44,7 @@
           },
           "display" : "Columbia International eHealth Laboratory (Columbia University)"
         },
-        "count" : -1
+        "count" : 38818
       }, {
         "enumVal" : {
           "value" : {
@@ -52,7 +52,7 @@
           },
           "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "count" : -1
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -60,7 +60,7 @@
           },
           "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
         },
-        "count" : -1
+        "count" : 61790
       }, {
         "enumVal" : {
           "value" : {
@@ -68,7 +68,7 @@
           },
           "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
-        "count" : -1
+        "count" : 15733
       }, {
         "enumVal" : {
           "value" : {
@@ -76,7 +76,7 @@
           },
           "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "count" : -1
+        "count" : 90462
       }, {
         "enumVal" : {
           "value" : {
@@ -84,7 +84,7 @@
           },
           "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "count" : -1
+        "count" : 166684
       } ]
     }
   }, {

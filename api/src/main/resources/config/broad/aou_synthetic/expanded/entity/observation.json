@@ -14,7 +14,7 @@
           },
           "display" : "Standard"
         },
-        "count" : -1
+        "count" : 142229
       } ]
     }
   }, {
@@ -30,7 +30,7 @@
           },
           "display" : "Ambulatory Payment Classification (CMS)"
         },
-        "count" : -1
+        "count" : 715
       }, {
         "enumVal" : {
           "value" : {
@@ -38,7 +38,7 @@
           },
           "display" : "AoU_General"
         },
-        "count" : -1
+        "count" : 11
       }, {
         "enumVal" : {
           "value" : {
@@ -46,7 +46,7 @@
           },
           "display" : "Current Procedural Terminology version 4 (AMA)"
         },
-        "count" : -1
+        "count" : 1083
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +54,7 @@
           },
           "display" : "Diagnosis-related group (CMS)"
         },
-        "count" : -1
+        "count" : 752
       }, {
         "enumVal" : {
           "value" : {
@@ -62,7 +62,7 @@
           },
           "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "count" : -1
+        "count" : 2667
       }, {
         "enumVal" : {
           "value" : {
@@ -70,7 +70,7 @@
           },
           "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
         },
-        "count" : -1
+        "count" : 398
       }, {
         "enumVal" : {
           "value" : {
@@ -78,7 +78,7 @@
           },
           "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
         },
-        "count" : -1
+        "count" : 6978
       }, {
         "enumVal" : {
           "value" : {
@@ -86,7 +86,7 @@
           },
           "display" : "Major Diagnostic Categories (CMS)"
         },
-        "count" : -1
+        "count" : 26
       }, {
         "enumVal" : {
           "value" : {
@@ -94,7 +94,7 @@
           },
           "display" : "National Patient-Centered Clinical Research Network (PCORI)"
         },
-        "count" : -1
+        "count" : 2
       }, {
         "enumVal" : {
           "value" : {
@@ -102,7 +102,7 @@
           },
           "display" : "National Uniform Claim Committee Health Care Provider Taxonomy Code Set (NUCC)"
         },
-        "count" : -1
+        "count" : 4
       }, {
         "enumVal" : {
           "value" : {
@@ -110,7 +110,7 @@
           },
           "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "count" : -1
+        "count" : 128425
       } ]
     }
   }, {

@@ -14,7 +14,7 @@
           },
           "display" : "FEMALE"
         },
-        "count" : -1
+        "count" : 1292861
       }, {
         "enumVal" : {
           "value" : {
@@ -22,7 +22,7 @@
           },
           "display" : "MALE"
         },
-        "count" : -1
+        "count" : 1033995
       } ]
     }
   }, {
@@ -38,7 +38,7 @@
           },
           "display" : "Black or African American"
         },
-        "count" : -1
+        "count" : 247723
       }, {
         "enumVal" : {
           "value" : {
@@ -46,7 +46,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : -1
+        "count" : 152425
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +54,7 @@
           },
           "display" : "White"
         },
-        "count" : -1
+        "count" : 1926708
       } ]
     }
   }, {
@@ -70,7 +70,7 @@
           },
           "display" : "Hispanic or Latino"
         },
-        "count" : -1
+        "count" : 54453
       }, {
         "enumVal" : {
           "value" : {
@@ -78,7 +78,7 @@
           },
           "display" : "Not Hispanic or Latino"
         },
-        "count" : -1
+        "count" : 2272403
       } ]
     }
   }, {
@@ -91,8 +91,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1909,
-      "maxVal" : 1983
+      "minVal" : 1909.0,
+      "maxVal" : 1983.0
     }
   } ],
   "sourceDataMapping" : {

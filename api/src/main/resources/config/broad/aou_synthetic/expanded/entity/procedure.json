@@ -12,7 +12,7 @@
           "value" : { },
           "display" : "Source"
         },
-        "count" : -1
+        "count" : 0
       }, {
         "enumVal" : {
           "value" : {
@@ -20,7 +20,7 @@
           },
           "display" : "Unknown"
         },
-        "count" : -1
+        "count" : 3064
       }, {
         "enumVal" : {
           "value" : {
@@ -28,7 +28,7 @@
           },
           "display" : "Standard"
         },
-        "count" : -1
+        "count" : 258789
       } ]
     }
   }, {
@@ -44,7 +44,7 @@
           },
           "display" : "Columbia International eHealth Laboratory (Columbia University)"
         },
-        "count" : -1
+        "count" : 648
       }, {
         "enumVal" : {
           "value" : {
@@ -52,7 +52,7 @@
           },
           "display" : "Current Procedural Terminology version 4 (AMA)"
         },
-        "count" : -1
+        "count" : 13148
       }, {
         "enumVal" : {
           "value" : {
@@ -60,7 +60,7 @@
           },
           "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "count" : -1
+        "count" : 1289
       }, {
         "enumVal" : {
           "value" : {
@@ -68,7 +68,7 @@
           },
           "display" : "ICD-10 Procedure Coding System (CMS)"
         },
-        "count" : -1
+        "count" : 193773
       }, {
         "enumVal" : {
           "value" : {
@@ -76,7 +76,7 @@
           },
           "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
-        "count" : -1
+        "count" : 283
       }, {
         "enumVal" : {
           "value" : {
@@ -84,7 +84,7 @@
           },
           "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 3 (NCHS)"
         },
-        "count" : -1
+        "count" : 4657
       }, {
         "enumVal" : {
           "value" : {
@@ -92,7 +92,7 @@
           },
           "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "count" : -1
+        "count" : 9
       }, {
         "enumVal" : {
           "value" : {
@@ -100,7 +100,7 @@
           },
           "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "count" : -1
+        "count" : 78887
       } ]
     }
   }, {
