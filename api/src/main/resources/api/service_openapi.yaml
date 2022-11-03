@@ -1260,8 +1260,9 @@ components:
       properties:
         relatedEntity:
           description: |
-            A single related entity to filter the display hints on 
-            (e.g. hints for condition occurrences where condition id=11)
+            Optional related entity.
+            If specified, then we return hints computed across related instances (e.g. condition occurrences where condition id=11).
+            Otherwise, we return hints computed across all instances (e.g. all persons).
           type: object
           properties:
             name:
