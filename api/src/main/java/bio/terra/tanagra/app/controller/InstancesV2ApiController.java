@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller;
 import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.api.EntityInstance;
 import bio.terra.tanagra.api.EntityInstanceCount;
+import bio.terra.tanagra.api.EntityQueryOrderBy;
 import bio.terra.tanagra.api.EntityQueryRequest;
 import bio.terra.tanagra.api.FromApiConversionService;
 import bio.terra.tanagra.api.QuerysService;
@@ -103,27 +104,41 @@ public class InstancesV2ApiController implements InstancesV2Api {
                     .forEach(
                         hierarchy -> {
                           Relationship relationship = entity.getRelationship(relatedEntity);
-                          includeRelationshipField.getFields().stream()
-                              .forEach(
-                                  relationshipFieldName ->
-                                      selectRelationshipFields.add(
-                                          relationship.getField(
-                                              RelationshipField.Type.valueOf(
-                                                  relationshipFieldName.name()),
-                                              entity,
-                                              hierarchy)));
+                          selectRelationshipFields.add(
+                              relationship.getField(
+                                  RelationshipField.Type.COUNT, entity, hierarchy));
                         });
               });
     }
 
-    List<Attribute> orderByAttributes = new ArrayList<>();
-    OrderByDirection orderByDirection = OrderByDirection.ASCENDING;
-    if (body.getOrderBy() != null) {
-      orderByAttributes =
-          body.getOrderBy().getAttributes().stream()
-              .map(attrName -> querysService.getAttribute(entity, attrName))
-              .collect(Collectors.toList());
-      orderByDirection = OrderByDirection.valueOf(body.getOrderBy().getDirection().name());
+    List<EntityQueryOrderBy> entityOrderBys = new ArrayList<>();
+    if (body.getOrderBys() != null) {
+      body.getOrderBys().stream()
+          .forEach(
+              orderBy -> {
+                OrderByDirection direction =
+                    orderBy.getDirection() == null
+                        ? OrderByDirection.ASCENDING
+                        : OrderByDirection.valueOf(orderBy.getDirection().name());
+                String attrName = orderBy.getAttribute();
+                if (attrName != null) {
+                  entityOrderBys.add(
+                      new EntityQueryOrderBy(
+                          querysService.getAttribute(entity, attrName), direction));
+                } else {
+                  Entity relatedEntity =
+                      underlaysService.getEntity(
+                          underlayName, orderBy.getRelationshipField().getRelatedEntity());
+                  Relationship relationship = entity.getRelationship(relatedEntity);
+
+                  String hierName = orderBy.getRelationshipField().getHierarchy();
+                  Hierarchy hierarchy = hierName == null ? null : entity.getHierarchy(hierName);
+                  entityOrderBys.add(
+                      new EntityQueryOrderBy(
+                          relationship.getField(RelationshipField.Type.COUNT, entity, hierarchy),
+                          direction));
+                }
+              });
     }
 
     EntityFilter entityFilter = null;
@@ -140,8 +155,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 .selectHierarchyFields(selectHierarchyFields)
                 .selectRelationshipFields(selectRelationshipFields)
                 .filter(entityFilter)
-                .orderByAttributes(orderByAttributes)
-                .orderByDirection(orderByDirection)
+                .orderBys(entityOrderBys)
                 .limit(body.getLimit())
                 .build());
     DataPointer indexDataPointer =
