@@ -14,31 +14,30 @@ import java.util.stream.Collectors;
  */
 @JsonDeserialize(builder = UFEnumVals.Builder.class)
 public class UFEnumVals extends UFDisplayHint {
-  private final List<UFValueDisplay> valueDisplays;
+  private final List<UFEnumVal> enumVals;
 
   public UFEnumVals(EnumVals displayHint) {
     super(displayHint);
-    this.valueDisplays =
-        displayHint.getValueDisplays().stream()
-            .map(vd -> new UFValueDisplay(vd))
+    this.enumVals =
+        displayHint.getEnumValsList().stream()
+            .map(ev -> new UFEnumVal(ev))
             .collect(Collectors.toList());
   }
 
   private UFEnumVals(Builder builder) {
     super(builder);
-    this.valueDisplays = builder.valueDisplays;
+    this.enumVals = builder.enumVals;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFDisplayHint.Builder {
-    private List<UFValueDisplay> valueDisplays;
+    private List<UFEnumVal> enumVals;
 
-    public Builder valueDisplays(List<UFValueDisplay> valueDisplays) {
-      this.valueDisplays = valueDisplays;
+    public Builder enumVals(List<UFEnumVal> enumVals) {
+      this.enumVals = enumVals;
       return this;
     }
 
-    /** Call the private constructor. */
     @Override
     public UFEnumVals build() {
       return new UFEnumVals(this);
@@ -51,7 +50,7 @@ public class UFEnumVals extends UFDisplayHint {
     return EnumVals.fromSerialized(this);
   }
 
-  public List<UFValueDisplay> getValueDisplays() {
-    return valueDisplays;
+  public List<UFEnumVal> getEnumVals() {
+    return enumVals;
   }
 }

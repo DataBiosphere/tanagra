@@ -7,11 +7,14 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "S"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
         },
-        "display" : "Standard"
+        "count" : 18134
       } ]
     }
   }, {
@@ -20,16 +23,22 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "HCPCS"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "display" : "Healthcare Common Procedure Coding System (CMS)"
+        "count" : 2828
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        "count" : 15306
       } ]
     }
   }, {

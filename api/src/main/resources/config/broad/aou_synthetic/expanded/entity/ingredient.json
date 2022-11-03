@@ -7,19 +7,28 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : "Source"
-      }, {
-        "value" : {
-          "stringVal" : "C"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : "Source"
         },
-        "display" : "Unknown"
+        "count" : 0
       }, {
-        "value" : {
-          "stringVal" : "S"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
         },
-        "display" : "Standard"
+        "count" : 6335
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 14566
       } ]
     }
   }, {
@@ -28,21 +37,30 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "RxNorm"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "RxNorm"
+          },
+          "display" : "RxNorm (NLM)"
         },
-        "display" : "RxNorm (NLM)"
+        "count" : 15575
       }, {
-        "value" : {
-          "stringVal" : "RxNorm Extension"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "RxNorm Extension"
+          },
+          "display" : "RxNorm Extension (OMOP)"
         },
-        "display" : "RxNorm Extension (OMOP)"
+        "count" : 1978
       }, {
-        "value" : {
-          "stringVal" : "ATC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ATC"
+          },
+          "display" : "WHO Anatomic Therapeutic Chemical Classification"
         },
-        "display" : "WHO Anatomic Therapeutic Chemical Classification"
+        "count" : 6335
       } ]
     }
   }, {

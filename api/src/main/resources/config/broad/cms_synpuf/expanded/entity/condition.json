@@ -7,14 +7,20 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : "Source"
-      }, {
-        "value" : {
-          "stringVal" : "S"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : "Source"
         },
-        "display" : "Standard"
+        "count" : 0
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 97214
       } ]
     }
   }, {
@@ -23,26 +29,38 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "HCPCS"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "display" : "Healthcare Common Procedure Coding System (CMS)"
+        "count" : 1
       }, {
-        "value" : {
-          "stringVal" : "ICD9CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9CM"
+          },
+          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
-        "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
+        "count" : 16632
       }, {
-        "value" : {
-          "stringVal" : "ICD10CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10CM"
+          },
+          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
+        "count" : 108038
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        "count" : 148722
       } ]
     }
   }, {

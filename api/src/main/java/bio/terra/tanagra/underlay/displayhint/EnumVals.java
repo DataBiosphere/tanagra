@@ -30,23 +30,25 @@ import org.slf4j.LoggerFactory;
 public final class EnumVals extends DisplayHint {
   private static final Logger LOGGER = LoggerFactory.getLogger(EnumVals.class);
   private static final String ENUM_VALUE_COLUMN_ALIAS = "enumVal";
+  private static final String ENUM_COUNT_COLUMN_ALIAS = "enumCount";
+  private static final String ENUM_DISPLAY_COLUMN_ALIAS = "enumDisplay";
   private static final int MAX_ENUM_VALS_FOR_DISPLAY_HINT = 100;
 
-  private final List<ValueDisplay> valueDisplays;
+  private final List<EnumVal> enumValsList;
 
-  public EnumVals(List<ValueDisplay> valueDisplays) {
-    this.valueDisplays = valueDisplays;
+  public EnumVals(List<EnumVal> enumValsList) {
+    this.enumValsList = enumValsList;
   }
 
   public static EnumVals fromSerialized(UFEnumVals serialized) {
-    if (serialized.getValueDisplays() == null) {
-      throw new InvalidConfigException("Enum values map is undefined");
+    if (serialized.getEnumVals() == null) {
+      throw new InvalidConfigException("Enum values list is undefined");
     }
-    List<ValueDisplay> valueDisplays =
-        serialized.getValueDisplays().stream()
-            .map(vd -> ValueDisplay.fromSerialized(vd))
+    List<EnumVal> enumVals =
+        serialized.getEnumVals().stream()
+            .map(ev -> EnumVal.fromSerialized(ev))
             .collect(Collectors.toList());
-    return new EnumVals(valueDisplays);
+    return new EnumVals(enumVals);
   }
 
   @Override
@@ -59,14 +61,14 @@ public final class EnumVals extends DisplayHint {
     return new UFEnumVals(this);
   }
 
-  public List<ValueDisplay> getValueDisplays() {
-    return Collections.unmodifiableList(valueDisplays);
+  public List<EnumVal> getEnumValsList() {
+    return Collections.unmodifiableList(enumValsList);
   }
 
   /**
    * Build a query to fetch a set of distinct values, up to the maximum allowed. e.g.
    *
-   * <p>SELECT c.standard_concept AS enumVal
+   * <p>SELECT c.standard_concept AS enumVal, count(*) AS enumCount
    *
    * <p>FROM concept AS c
    *
@@ -81,19 +83,22 @@ public final class EnumVals extends DisplayHint {
     List<ColumnSchema> columnSchemas =
         List.of(
             new ColumnSchema(
-                ENUM_VALUE_COLUMN_ALIAS, CellValue.SQLDataType.fromUnderlayDataType(dataType)));
+                ENUM_VALUE_COLUMN_ALIAS, CellValue.SQLDataType.fromUnderlayDataType(dataType)),
+            new ColumnSchema(ENUM_COUNT_COLUMN_ALIAS, CellValue.SQLDataType.INT64));
 
     DataPointer dataPointer = value.getTablePointer().getDataPointer();
     QueryRequest queryRequest =
         new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
-    List<String> enumStringVals = new ArrayList<>();
+    List<EnumVal> enumVals = new ArrayList<>();
     Iterator<RowResult> rowResultIter = queryResult.getRowResults().iterator();
     while (rowResultIter.hasNext()) {
-      enumStringVals.add(
-          rowResultIter.next().get(ENUM_VALUE_COLUMN_ALIAS).getString().orElse(null));
-      if (enumStringVals.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
+      RowResult rowResult = rowResultIter.next();
+      String val = rowResult.get(ENUM_VALUE_COLUMN_ALIAS).getString().orElse(null);
+      long count = rowResult.get(ENUM_COUNT_COLUMN_ALIAS).getLong().getAsLong();
+      enumVals.add(new EnumVal(new ValueDisplay(val), count));
+      if (enumVals.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
         // if there are more than the max number of values, then skip the display hint
         LOGGER.info(
             "Skipping enum values display hint because there are >{} possible values: {}",
@@ -102,18 +107,17 @@ public final class EnumVals extends DisplayHint {
         return null;
       }
     }
-    return new EnumVals(
-        enumStringVals.stream().map(esv -> new ValueDisplay(esv)).collect(Collectors.toList()));
+    return new EnumVals(enumVals);
   }
 
   /**
    * Build a query to fetch a set of distinct values and their display strings, up to the maximum
    * allowed. e.g.
    *
-   * <p>SELECT x.enumVal, v.vocabulary_name AS enumDisplay
+   * <p>SELECT x.enumVal, x.enumCount, v.vocabulary_name AS enumDisplay
    *
-   * <p>FROM (SELECT c.vocabulary_id AS enumVal FROM concept GROUP BY c.vocabulary_id ORDER BY
-   * c.vocabulary_id) AS x
+   * <p>FROM (SELECT c.vocabulary_id AS enumVal, count(*) AS enumCount FROM concept GROUP BY
+   * c.vocabulary_id ORDER BY c.vocabulary_id) AS x
    *
    * <p>JOIN vocabulary as v
    *
@@ -136,6 +140,11 @@ public final class EnumVals extends DisplayHint {
             .tablePointer(possibleValsTable)
             .columnName(ENUM_VALUE_COLUMN_ALIAS)
             .build();
+    FieldPointer possibleCountField =
+        new FieldPointer.Builder()
+            .tablePointer(possibleValsTable)
+            .columnName(ENUM_COUNT_COLUMN_ALIAS)
+            .build();
     FieldPointer possibleDisplayField =
         new FieldPointer.Builder()
             .tablePointer(possibleValsTable)
@@ -151,14 +160,15 @@ public final class EnumVals extends DisplayHint {
     TableVariable primaryTable = TableVariable.forPrimary(possibleValsTable);
     tables.add(primaryTable);
 
-    final String enumDisplayColumnAlias = "enumDisplay";
     FieldVariable valueFieldVar =
         possibleValField.buildVariable(primaryTable, tables, ENUM_VALUE_COLUMN_ALIAS);
+    FieldVariable countFieldVar =
+        possibleCountField.buildVariable(primaryTable, tables, ENUM_COUNT_COLUMN_ALIAS);
     FieldVariable displayFieldVar =
-        possibleDisplayField.buildVariable(primaryTable, tables, enumDisplayColumnAlias);
+        possibleDisplayField.buildVariable(primaryTable, tables, ENUM_DISPLAY_COLUMN_ALIAS);
     Query query =
         new Query.Builder()
-            .select(List.of(valueFieldVar, displayFieldVar))
+            .select(List.of(valueFieldVar, countFieldVar, displayFieldVar))
             .tables(tables)
             .orderBy(List.of(new OrderByVariable(displayFieldVar)))
             .limit(MAX_ENUM_VALS_FOR_DISPLAY_HINT + 1)
@@ -170,7 +180,8 @@ public final class EnumVals extends DisplayHint {
         List.of(
             new ColumnSchema(
                 ENUM_VALUE_COLUMN_ALIAS, CellValue.SQLDataType.fromUnderlayDataType(dataType)),
-            new ColumnSchema(enumDisplayColumnAlias, CellValue.SQLDataType.STRING));
+            new ColumnSchema(ENUM_COUNT_COLUMN_ALIAS, CellValue.SQLDataType.INT64),
+            new ColumnSchema(ENUM_DISPLAY_COLUMN_ALIAS, CellValue.SQLDataType.STRING));
 
     // run the query
     QueryRequest queryRequest =
@@ -178,16 +189,18 @@ public final class EnumVals extends DisplayHint {
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
     // iterate through the query results, building the list of enum values
-    List<ValueDisplay> valueDisplays = new ArrayList<>();
+    List<EnumVal> enumVals = new ArrayList<>();
     Iterator<RowResult> rowResultIter = queryResult.getRowResults().iterator();
     while (rowResultIter.hasNext()) {
       RowResult rowResult = rowResultIter.next();
       CellValue cellValue = rowResult.get(ENUM_VALUE_COLUMN_ALIAS);
-      valueDisplays.add(
-          new ValueDisplay(
-              cellValue.getLiteral(),
-              rowResult.get(enumDisplayColumnAlias).getString().orElse(null)));
-      if (valueDisplays.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
+      enumVals.add(
+          new EnumVal(
+              new ValueDisplay(
+                  cellValue.getLiteral(),
+                  rowResult.get(ENUM_DISPLAY_COLUMN_ALIAS).getString().orElse(null)),
+              rowResult.get(ENUM_COUNT_COLUMN_ALIAS).getLong().getAsLong()));
+      if (enumVals.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
         // if there are more than the max number of values, then skip the display hint
         LOGGER.info(
             "Skipping enum values display hint because there are >{} possible values: {}",
@@ -196,7 +209,7 @@ public final class EnumVals extends DisplayHint {
         return null;
       }
     }
-    return new EnumVals(valueDisplays);
+    return new EnumVals(enumVals);
   }
 
   private static Query queryPossibleEnumVals(FieldPointer value) {
@@ -204,11 +217,16 @@ public final class EnumVals extends DisplayHint {
     TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
     nestedQueryTables.add(nestedPrimaryTable);
 
-    final String possibleValAlias = ENUM_VALUE_COLUMN_ALIAS;
     FieldVariable nestedValueFieldVar =
-        value.buildVariable(nestedPrimaryTable, nestedQueryTables, possibleValAlias);
+        value.buildVariable(nestedPrimaryTable, nestedQueryTables, ENUM_VALUE_COLUMN_ALIAS);
+
+    FieldPointer countFieldPointer = value.toBuilder().sqlFunctionWrapper("COUNT").build();
+    FieldVariable nestedCountFieldVar =
+        countFieldPointer.buildVariable(
+            nestedPrimaryTable, nestedQueryTables, ENUM_COUNT_COLUMN_ALIAS);
+
     return new Query.Builder()
-        .select(List.of(nestedValueFieldVar))
+        .select(List.of(nestedValueFieldVar, nestedCountFieldVar))
         .tables(nestedQueryTables)
         .orderBy(List.of(new OrderByVariable(nestedValueFieldVar)))
         .groupBy(List.of(nestedValueFieldVar))

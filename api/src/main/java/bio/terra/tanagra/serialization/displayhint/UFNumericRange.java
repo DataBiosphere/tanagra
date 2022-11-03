@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonDeserialize(builder = UFNumericRange.Builder.class)
 public class UFNumericRange extends UFDisplayHint {
-  private final Long minVal;
-  private final Long maxVal;
+  private final Double minVal;
+  private final Double maxVal;
 
   public UFNumericRange(NumericRange displayHint) {
     super(displayHint);
@@ -29,15 +29,15 @@ public class UFNumericRange extends UFDisplayHint {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFDisplayHint.Builder {
-    private Long minVal;
-    private Long maxVal;
+    private Double minVal;
+    private Double maxVal;
 
-    public Builder minVal(Long minVal) {
+    public Builder minVal(Double minVal) {
       this.minVal = minVal;
       return this;
     }
 
-    public Builder maxVal(Long maxVal) {
+    public Builder maxVal(Double maxVal) {
       this.maxVal = maxVal;
       return this;
     }
@@ -55,11 +55,11 @@ public class UFNumericRange extends UFDisplayHint {
     return NumericRange.fromSerialized(this);
   }
 
-  public Long getMinVal() {
+  public Double getMinVal() {
     return minVal;
   }
 
-  public Long getMaxVal() {
+  public Double getMaxVal() {
     return maxVal;
   }
 }

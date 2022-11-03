@@ -11,8 +11,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 0,
-      "maxVal" : 5542608719
+      "minVal" : 0.0,
+      "maxVal" : 5.542608719E9
     }
   }, {
     "type" : "SIMPLE",
@@ -24,131 +24,206 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 21039000
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21039000
+          },
+          "display" : "10 ML Morphine 0.2 MG/ML Prefilled Syringe Box of 10"
         },
-        "display" : "10 ML Morphine 0.2 MG/ML Prefilled Syringe Box of 10"
+        "count" : 21
       }, {
-        "value" : {
-          "int64Val" : 21050000
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21050000
+          },
+          "display" : "2000 ML benzyl benzoate 250 MG/ML Topical Solution"
         },
-        "display" : "2000 ML benzyl benzoate 250 MG/ML Topical Solution"
+        "count" : 60
       }, {
-        "value" : {
-          "int64Val" : 581478
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581478
+          },
+          "display" : "Ambulance Visit"
         },
-        "display" : "Ambulance Visit"
+        "count" : 1746
       }, {
-        "value" : {
-          "int64Val" : 38004207
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38004207
+          },
+          "display" : "Ambulatory Clinic/Center"
         },
-        "display" : "Ambulatory Clinic/Center"
+        "count" : 80437
       }, {
-        "value" : {
-          "int64Val" : 581479
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581479
+          },
+          "display" : "Ambulatory Rehabilitation Visit"
         },
-        "display" : "Ambulatory Rehabilitation Visit"
+        "count" : 179
       }, {
-        "value" : {
-          "int64Val" : 21056626
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21056626
+          },
+          "display" : "Amiodarone 50 MG/ML Oral Suspension"
         },
-        "display" : "Amiodarone 50 MG/ML Oral Suspension"
+        "count" : 10
       }, {
-        "value" : {
-          "int64Val" : 21090200
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090200
+          },
+          "display" : "Cholecalciferol 50000 UNT Oral Capsule [Aciferol D3] Box of 10 by Rhodes"
         },
-        "display" : "Cholecalciferol 50000 UNT Oral Capsule [Aciferol D3] Box of 10 by Rhodes"
+        "count" : 2
       }, {
-        "value" : {
-          "int64Val" : 21090300
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090300
+          },
+          "display" : "Chondroitin Sulfates 400 MG / Glucosamine 500 MG Oral Tablet [Joint-Flex] Box of 60"
         },
-        "display" : "Chondroitin Sulfates 400 MG / Glucosamine 500 MG Oral Tablet [Joint-Flex] Box of 60"
+        "count" : 32
       }, {
-        "value" : {
-          "int64Val" : 21036000
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21036000
+          },
+          "display" : "Daptomycin 500 MG Injection Box of 1"
         },
-        "display" : "Daptomycin 500 MG Injection Box of 1"
+        "count" : 100
       }, {
-        "value" : {
-          "int64Val" : 21090500
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090500
+          },
+          "display" : "Diphenhydramine 25 MG Oral Tablet by Ennogen"
         },
-        "display" : "Diphenhydramine 25 MG Oral Tablet by Ennogen"
+        "count" : 1
       }, {
-        "value" : {
-          "int64Val" : 9203
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
         },
-        "display" : "Emergency Room Visit"
+        "count" : 439748
       }, {
-        "value" : {
-          "int64Val" : 262
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 262
+          },
+          "display" : "Emergency Room and Inpatient Visit"
         },
-        "display" : "Emergency Room and Inpatient Visit"
+        "count" : 25323
       }, {
-        "value" : {
-          "int64Val" : 21090400
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090400
+          },
+          "display" : "Ergocalciferol 300000 UNT/ML Prefilled Syringe Box of 10"
         },
-        "display" : "Ergocalciferol 300000 UNT/ML Prefilled Syringe Box of 10"
+        "count" : 75
       }, {
-        "value" : {
-          "int64Val" : 581476
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581476
+          },
+          "display" : "Home Visit"
         },
-        "display" : "Home Visit"
+        "count" : 40500
       }, {
-        "value" : {
-          "int64Val" : 9201
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
         },
-        "display" : "Inpatient Visit"
+        "count" : 568911
       }, {
-        "value" : {
-          "int64Val" : 32036
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 32036
+          },
+          "display" : "Laboratory Visit"
         },
-        "display" : "Laboratory Visit"
+        "count" : 1850
       }, {
-        "value" : {
-          "int64Val" : 12
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 12
+          },
+          "display" : "Modifier"
         },
-        "display" : "Modifier"
+        "count" : 30318
       }, {
-        "value" : {
-          "int64Val" : 0
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
         },
-        "display" : "No matching concept"
+        "count" : 1340218
       }, {
-        "value" : {
-          "int64Val" : 42898160
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 42898160
+          },
+          "display" : "Non-hospital institution Visit"
         },
-        "display" : "Non-hospital institution Visit"
+        "count" : 22
       }, {
-        "value" : {
-          "int64Val" : 581477
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581477
+          },
+          "display" : "Office Visit"
         },
-        "display" : "Office Visit"
+        "count" : 629739
       }, {
-        "value" : {
-          "int64Val" : 44814711
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814711
+          },
+          "display" : "Other ambulatory visit"
         },
-        "display" : "Other ambulatory visit"
+        "count" : 4720
       }, {
-        "value" : {
-          "int64Val" : 9202
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
         },
-        "display" : "Outpatient Visit"
+        "count" : 9929594
       }, {
-        "value" : {
-          "int64Val" : 581458
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581458
+          },
+          "display" : "Pharmacy visit"
         },
-        "display" : "Pharmacy visit"
+        "count" : 25279
       }, {
-        "value" : {
-          "int64Val" : 21033000
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21033000
+          },
+          "display" : "Risperidone 0.5 MG Oral Tablet by Consilient"
         },
-        "display" : "Risperidone 0.5 MG Oral Tablet by Consilient"
+        "count" : 17
       }, {
-        "value" : {
-          "int64Val" : 44818518
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44818518
+          },
+          "display" : "Visit derived from EHR record"
         },
-        "display" : "Visit derived from EHR record"
+        "count" : 856887
       } ]
     }
   }, {
@@ -161,8 +236,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 20201234,
-      "maxVal" : 20435758
+      "minVal" : 2.0201234E7,
+      "maxVal" : 2.0435758E7
     }
   }, {
     "type" : "SIMPLE",

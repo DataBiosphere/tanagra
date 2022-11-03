@@ -7,19 +7,28 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : "Source"
-      }, {
-        "value" : {
-          "stringVal" : "C"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : "Source"
         },
-        "display" : "Unknown"
+        "count" : 0
       }, {
-        "value" : {
-          "stringVal" : "S"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
         },
-        "display" : "Standard"
+        "count" : 2990
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 61581
       } ]
     }
   }, {
@@ -28,36 +37,54 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "CPT4"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "Current Procedural Terminology version 4 (AMA)"
         },
-        "display" : "Current Procedural Terminology version 4 (AMA)"
+        "count" : 13070
       }, {
-        "value" : {
-          "stringVal" : "HCPCS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "display" : "Healthcare Common Procedure Coding System (CMS)"
+        "count" : 981
       }, {
-        "value" : {
-          "stringVal" : "ICD9CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9CM"
+          },
+          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
-        "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
+        "count" : 1318
       }, {
-        "value" : {
-          "stringVal" : "ICD9Proc"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9Proc"
+          },
+          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 3 (NCHS)"
         },
-        "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 3 (NCHS)"
+        "count" : 4657
       }, {
-        "value" : {
-          "stringVal" : "ICD10CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10CM"
+          },
+          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
+        "count" : 6
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        "count" : 74959
       } ]
     }
   }, {

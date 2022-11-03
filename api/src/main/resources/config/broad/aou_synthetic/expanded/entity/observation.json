@@ -7,11 +7,14 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "S"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
         },
-        "display" : "Standard"
+        "count" : 142229
       } ]
     }
   }, {
@@ -20,61 +23,94 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "APC"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APC"
+          },
+          "display" : "Ambulatory Payment Classification (CMS)"
         },
-        "display" : "Ambulatory Payment Classification (CMS)"
+        "count" : 715
       }, {
-        "value" : {
-          "stringVal" : "AoU_General"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "AoU_General"
+          },
+          "display" : "AoU_General"
         },
-        "display" : "AoU_General"
+        "count" : 11
       }, {
-        "value" : {
-          "stringVal" : "CPT4"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "Current Procedural Terminology version 4 (AMA)"
         },
-        "display" : "Current Procedural Terminology version 4 (AMA)"
+        "count" : 1083
       }, {
-        "value" : {
-          "stringVal" : "DRG"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DRG"
+          },
+          "display" : "Diagnosis-related group (CMS)"
         },
-        "display" : "Diagnosis-related group (CMS)"
+        "count" : 752
       }, {
-        "value" : {
-          "stringVal" : "HCPCS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "display" : "Healthcare Common Procedure Coding System (CMS)"
+        "count" : 2667
       }, {
-        "value" : {
-          "stringVal" : "ICDO3"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICDO3"
+          },
+          "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
         },
-        "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
+        "count" : 398
       }, {
-        "value" : {
-          "stringVal" : "LOINC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "LOINC"
+          },
+          "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
         },
-        "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
+        "count" : 6978
       }, {
-        "value" : {
-          "stringVal" : "MDC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "MDC"
+          },
+          "display" : "Major Diagnostic Categories (CMS)"
         },
-        "display" : "Major Diagnostic Categories (CMS)"
+        "count" : 26
       }, {
-        "value" : {
-          "stringVal" : "PCORNet"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PCORNet"
+          },
+          "display" : "National Patient-Centered Clinical Research Network (PCORI)"
         },
-        "display" : "National Patient-Centered Clinical Research Network (PCORI)"
+        "count" : 2
       }, {
-        "value" : {
-          "stringVal" : "NUCC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NUCC"
+          },
+          "display" : "National Uniform Claim Committee Health Care Provider Taxonomy Code Set (NUCC)"
         },
-        "display" : "National Uniform Claim Committee Health Care Provider Taxonomy Code Set (NUCC)"
+        "count" : 4
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        "count" : 128425
       } ]
     }
   }, {

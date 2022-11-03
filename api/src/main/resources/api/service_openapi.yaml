@@ -306,6 +306,32 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/underlays/{underlayName}/entities/{entityName}/hints":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Query entity display hints
+      operationId: queryHints
+      tags: [HintsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HintQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisplayHintListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
   #########################UNDERLAY CONFIG V2 [END]###################################
 
 components:
@@ -1112,37 +1138,6 @@ components:
           enum: ["SIMPLE", "KEY_AND_DISPLAY"]
         dataType:
           $ref: "#/components/schemas/DataTypeV2"
-        displayHint:
-          type: object
-          description: Display hint calculated from source data
-          properties:
-            enumHint:
-              $ref: "#/components/schemas/DisplayHintEnumV2"
-            numericRangeHint:
-              $ref: "#/components/schemas/DisplayHintNumericRangeV2"
-          nullable: true
-
-    DisplayHintEnumV2:
-      type: object
-      description: Enumeration of possible values and display strings
-      properties:
-        enumHintValues:
-          type: array
-          items:
-            $ref: "#/components/schemas/ValueDisplayV2"
-
-    DisplayHintNumericRangeV2:
-      type: object
-      description: Maximum and minimum values
-      properties:
-        min:
-          description: Max value
-          type: integer
-          format: int64
-        max:
-          description: Min value
-          type: integer
-          format: int64
 
     ValueDisplayV2:
       type: object
@@ -1258,6 +1253,23 @@ components:
             type: string
         filter:
           $ref: "#/components/schemas/FilterV2"
+
+    HintQueryV2:
+      type: object
+      description: Get display hints
+      properties:
+        relatedEntity:
+          description: |
+            Optional related entity.
+            If specified, then we return hints computed across related instances (e.g. condition occurrences where condition id=11).
+            Otherwise, we return hints computed across all instances (e.g. all persons).
+          type: object
+          properties:
+            name:
+              type: string
+              description: Related entity name
+            id:
+              $ref: "#/components/schemas/LiteralV2"
 
     FilterV2:
       type: object
@@ -1418,6 +1430,60 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/InstanceCountV2"
+
+    DisplayHintV2:
+      type: object
+      description: Display hint for entity attribute
+      properties:
+        attribute:
+          $ref: "#/components/schemas/AttributeV2"
+        displayHint:
+          type: object
+          description: Display hint calculated from source data
+          properties:
+            enumHint:
+              $ref: "#/components/schemas/DisplayHintEnumV2"
+            numericRangeHint:
+              $ref: "#/components/schemas/DisplayHintNumericRangeV2"
+
+    DisplayHintEnumV2:
+      type: object
+      description: Enumeration of possible values, display strings, and counts
+      properties:
+        enumHintValues:
+          type: array
+          items:
+            type: object
+            description: Enum value and count
+            properties:
+              enumVal:
+                $ref: "#/components/schemas/ValueDisplayV2"
+              count:
+                type: integer
+
+    DisplayHintNumericRangeV2:
+      type: object
+      description: Maximum and minimum values
+      properties:
+        min:
+          description: Max value
+          type: number
+          format: double
+        max:
+          description: Min value
+          type: number
+          format: double
+
+    DisplayHintListV2:
+      type: object
+      description: List of display hints
+      properties:
+        sql:
+          type: string
+        displayHints:
+          type: array
+          items:
+            $ref: "#/components/schemas/DisplayHintV2"
 
     ErrorReportV2:
       type: object

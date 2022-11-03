@@ -7,11 +7,14 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "S"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
         },
-        "display" : "Standard"
+        "count" : 162296
       } ]
     }
   }, {
@@ -20,91 +23,142 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "APC"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APC"
+          },
+          "display" : "APC"
         },
-        "display" : "APC"
+        "count" : 715
       }, {
-        "value" : {
-          "stringVal" : "CPT4"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "CPT4"
         },
-        "display" : "CPT4"
+        "count" : 1083
       }, {
-        "value" : {
-          "stringVal" : "DRG"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DRG"
+          },
+          "display" : "DRG"
         },
-        "display" : "DRG"
+        "count" : 752
       }, {
-        "value" : {
-          "stringVal" : "HCPCS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "HCPCS"
         },
-        "display" : "HCPCS"
+        "count" : 2667
       }, {
-        "value" : {
-          "stringVal" : "ICDO3"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICDO3"
+          },
+          "display" : "ICDO3"
         },
-        "display" : "ICDO3"
+        "count" : 49
       }, {
-        "value" : {
-          "stringVal" : "LOINC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "LOINC"
+          },
+          "display" : "LOINC"
         },
-        "display" : "LOINC"
+        "count" : 7087
       }, {
-        "value" : {
-          "stringVal" : "MDC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "MDC"
+          },
+          "display" : "MDC"
         },
-        "display" : "MDC"
+        "count" : 26
       }, {
-        "value" : {
-          "stringVal" : "NAACCR"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NAACCR"
+          },
+          "display" : "NAACCR"
         },
-        "display" : "NAACCR"
+        "count" : 96
       }, {
-        "value" : {
-          "stringVal" : "NUCC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NUCC"
+          },
+          "display" : "NUCC"
         },
-        "display" : "NUCC"
+        "count" : 4
       }, {
-        "value" : {
-          "stringVal" : "Nebraska Lexicon"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nebraska Lexicon"
+          },
+          "display" : "Nebraska Lexicon"
         },
-        "display" : "Nebraska Lexicon"
+        "count" : 1004
       }, {
-        "value" : {
-          "stringVal" : "OMOP Extension"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP Extension"
+          },
+          "display" : "OMOP Extension"
         },
-        "display" : "OMOP Extension"
+        "count" : 107
       }, {
-        "value" : {
-          "stringVal" : "OPCS4"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OPCS4"
+          },
+          "display" : "OPCS4"
         },
-        "display" : "OPCS4"
+        "count" : 56
       }, {
-        "value" : {
-          "stringVal" : "PCORNet"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PCORNet"
+          },
+          "display" : "PCORNet"
         },
-        "display" : "PCORNet"
+        "count" : 2
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "SNOMED"
         },
-        "display" : "SNOMED"
+        "count" : 117406
       }, {
-        "value" : {
-          "stringVal" : "SNOMED Veterinary"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED Veterinary"
+          },
+          "display" : "SNOMED Veterinary"
         },
-        "display" : "SNOMED Veterinary"
+        "count" : 27401
       }, {
-        "value" : {
-          "stringVal" : "UB04 Pri Typ of Adm"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "UB04 Pri Typ of Adm"
+          },
+          "display" : "UB04 Pri Typ of Adm"
         },
-        "display" : "UB04 Pri Typ of Adm"
+        "count" : 6
       }, {
-        "value" : {
-          "stringVal" : "UK Biobank"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "UK Biobank"
+          },
+          "display" : "UK Biobank"
         },
-        "display" : "UK Biobank"
+        "count" : 3835
       } ]
     }
   }, {

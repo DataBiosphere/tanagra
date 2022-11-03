@@ -7,21 +7,30 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 45878463
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45878463
+          },
+          "display" : "Female"
         },
-        "display" : "Female"
+        "count" : 142307
       }, {
-        "value" : {
-          "int64Val" : 45880669
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45880669
+          },
+          "display" : "Male"
         },
-        "display" : "Male"
+        "count" : 87099
       }, {
-        "value" : {
-          "int64Val" : 2000000002
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000002
+          },
+          "display" : "Not man only, not woman only, prefer not to answer, or skipped"
         },
-        "display" : "Not man only, not woman only, prefer not to answer, or skipped"
+        "count" : 5119
       } ]
     }
   }, {
@@ -30,51 +39,78 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 2000000001
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000001
+          },
+          "display" : "Another single population"
         },
-        "display" : "Another single population"
+        "count" : 5443
       }, {
-        "value" : {
-          "int64Val" : 8515
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8515
+          },
+          "display" : "Asian"
         },
-        "display" : "Asian"
+        "count" : 7476
       }, {
-        "value" : {
-          "int64Val" : 8516
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8516
+          },
+          "display" : "Black or African American"
         },
-        "display" : "Black or African American"
+        "count" : 46967
       }, {
-        "value" : {
-          "int64Val" : 1177221
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 1177221
+          },
+          "display" : "I prefer not to answer"
         },
-        "display" : "I prefer not to answer"
+        "count" : 1614
       }, {
-        "value" : {
-          "int64Val" : 2000000008
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000008
+          },
+          "display" : "More than one population"
         },
-        "display" : "More than one population"
+        "count" : 10727
       }, {
-        "value" : {
-          "int64Val" : 0
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
         },
-        "display" : "No matching concept"
+        "count" : 37524
       }, {
-        "value" : {
-          "int64Val" : 45882607
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45882607
+          },
+          "display" : "None of these"
         },
-        "display" : "None of these"
+        "count" : 2465
       }, {
-        "value" : {
-          "int64Val" : 903096
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 903096
+          },
+          "display" : "PMI: Skip"
         },
-        "display" : "PMI: Skip"
+        "count" : 1584
       }, {
-        "value" : {
-          "int64Val" : 8527
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8527
+          },
+          "display" : "White"
         },
-        "display" : "White"
+        "count" : 120725
       } ]
     }
   }, {
@@ -83,31 +119,46 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 38003563
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003563
+          },
+          "display" : "Hispanic or Latino"
         },
-        "display" : "Hispanic or Latino"
+        "count" : 44673
       }, {
-        "value" : {
-          "int64Val" : 38003564
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003564
+          },
+          "display" : "Not Hispanic or Latino"
         },
-        "display" : "Not Hispanic or Latino"
+        "count" : 184189
       }, {
-        "value" : {
-          "int64Val" : 903079
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 903079
+          },
+          "display" : "PMI: Prefer Not To Answer"
         },
-        "display" : "PMI: Prefer Not To Answer"
+        "count" : 1614
       }, {
-        "value" : {
-          "int64Val" : 903096
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 903096
+          },
+          "display" : "PMI: Skip"
         },
-        "display" : "PMI: Skip"
+        "count" : 1584
       }, {
-        "value" : {
-          "int64Val" : 1586148
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 1586148
+          },
+          "display" : "What Race Ethnicity: Race Ethnicity None Of These"
         },
-        "display" : "What Race Ethnicity: Race Ethnicity None Of These"
+        "count" : 2465
       } ]
     }
   }, {
@@ -120,26 +171,38 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 45878463
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45878463
+          },
+          "display" : "Female"
         },
-        "display" : "Female"
+        "count" : 143479
       }, {
-        "value" : {
-          "int64Val" : 45880669
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45880669
+          },
+          "display" : "Male"
         },
-        "display" : "Male"
+        "count" : 87821
       }, {
-        "value" : {
-          "int64Val" : 0
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
         },
-        "display" : "No matching concept"
+        "count" : 257
       }, {
-        "value" : {
-          "int64Val" : 2000000009
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000009
+          },
+          "display" : "Not male, not female, prefer not to answer, or skipped"
         },
-        "display" : "Not male, not female, prefer not to answer, or skipped"
+        "count" : 2968
       } ]
     }
   }, {
@@ -148,8 +211,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1930,
-      "maxVal" : 2001
+      "minVal" : 1930.0,
+      "maxVal" : 2001.0
     }
   } ],
   "sourceDataMapping" : {

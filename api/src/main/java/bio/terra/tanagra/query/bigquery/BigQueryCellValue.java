@@ -6,6 +6,7 @@ import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
 import com.google.cloud.bigquery.FieldValue;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.OptionalLong;
 
 /** A {@link CellValue} for BigQuery's {@link FieldValue}. */
@@ -40,6 +41,18 @@ class BigQueryCellValue implements CellValue {
   public Optional<String> getString() {
     assertDataTypeIs(SQLDataType.STRING);
     return fieldValue.isNull() ? Optional.empty() : Optional.of(fieldValue.getStringValue());
+  }
+
+  @Override
+  @SuppressWarnings("PMD.PreserveStackTrace")
+  public OptionalDouble getDouble() {
+    try {
+      return fieldValue.isNull()
+          ? OptionalDouble.empty()
+          : OptionalDouble.of(fieldValue.getDoubleValue());
+    } catch (NumberFormatException nfEx) {
+      throw new SystemException("Unable to format as number", nfEx);
+    }
   }
 
   @Override

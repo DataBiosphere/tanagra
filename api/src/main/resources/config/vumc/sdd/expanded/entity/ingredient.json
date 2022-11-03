@@ -7,21 +7,30 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : ""
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
         },
-        "display" : "Unknown"
+        "count" : 3151
       }, {
-        "value" : {
-          "stringVal" : "C"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
         },
-        "display" : "Unknown"
+        "count" : 6335
       }, {
-        "value" : {
-          "stringVal" : "S"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
         },
-        "display" : "Standard"
+        "count" : 15565
       } ]
     }
   }, {
@@ -30,21 +39,30 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "ATC"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ATC"
+          },
+          "display" : "ATC"
         },
-        "display" : "ATC"
+        "count" : 6335
       }, {
-        "value" : {
-          "stringVal" : "RxNorm"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "RxNorm"
+          },
+          "display" : "RxNorm"
         },
-        "display" : "RxNorm"
+        "count" : 16622
       }, {
-        "value" : {
-          "stringVal" : "RxNorm Extension"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "RxNorm Extension"
+          },
+          "display" : "RxNorm Extension"
         },
-        "display" : "RxNorm Extension"
+        "count" : 2094
       } ]
     }
   }, {

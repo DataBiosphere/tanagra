@@ -7,14 +7,20 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : "Source"
-      }, {
-        "value" : {
-          "stringVal" : "S"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : "Source"
         },
-        "display" : "Standard"
+        "count" : 0
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 172324
       } ]
     }
   }, {
@@ -23,41 +29,62 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "PPI"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PPI"
+          },
+          "display" : "AllOfUs_PPI (Columbia)"
         },
-        "display" : "AllOfUs_PPI (Columbia)"
+        "count" : 74
       }, {
-        "value" : {
-          "stringVal" : "CIEL"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CIEL"
+          },
+          "display" : "Columbia International eHealth Laboratory (Columbia University)"
         },
-        "display" : "Columbia International eHealth Laboratory (Columbia University)"
+        "count" : 38818
       }, {
-        "value" : {
-          "stringVal" : "HCPCS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "display" : "Healthcare Common Procedure Coding System (CMS)"
+        "count" : 1
       }, {
-        "value" : {
-          "stringVal" : "ICDO3"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICDO3"
+          },
+          "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
         },
-        "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
+        "count" : 61790
       }, {
-        "value" : {
-          "stringVal" : "ICD9CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9CM"
+          },
+          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
-        "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
+        "count" : 15733
       }, {
-        "value" : {
-          "stringVal" : "ICD10CM"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10CM"
+          },
+          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
+        "count" : 90462
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        "count" : 166684
       } ]
     }
   }, {

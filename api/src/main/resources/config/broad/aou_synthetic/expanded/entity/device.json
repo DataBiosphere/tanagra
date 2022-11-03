@@ -7,11 +7,14 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "S"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
         },
-        "display" : "Standard"
+        "count" : 214183
       } ]
     }
   }, {
@@ -20,26 +23,38 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "CPT4"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "Current Procedural Terminology version 4 (AMA)"
         },
-        "display" : "Current Procedural Terminology version 4 (AMA)"
+        "count" : 24
       }, {
-        "value" : {
-          "stringVal" : "HCPCS"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
-        "display" : "Healthcare Common Procedure Coding System (CMS)"
+        "count" : 4634
       }, {
-        "value" : {
-          "stringVal" : "NDC"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NDC"
+          },
+          "display" : "National Drug Code (FDA and manufacturers)"
         },
-        "display" : "National Drug Code (FDA and manufacturers)"
+        "count" : 10582
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        "count" : 198943
       } ]
     }
   }, {

@@ -11,8 +11,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 0,
-      "maxVal" : 46274116
+      "minVal" : 0.0,
+      "maxVal" : 4.6274116E7
     }
   }, {
     "type" : "SIMPLE",
@@ -20,8 +20,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 2020475,
-      "maxVal" : 15995732
+      "minVal" : 2020475.0,
+      "maxVal" : 1.5995732E7
     }
   }, {
     "type" : "SIMPLE",
@@ -41,8 +41,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 20201235,
-      "maxVal" : 20435757
+      "minVal" : 2.0201235E7,
+      "maxVal" : 2.0435757E7
     }
   }, {
     "type" : "SIMPLE",
