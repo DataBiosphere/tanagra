@@ -4,6 +4,7 @@ import bio.terra.tanagra.api.entityfilter.AttributeFilter;
 import bio.terra.tanagra.api.entityfilter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.entityfilter.BooleanNotFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyAncestorFilter;
+import bio.terra.tanagra.api.entityfilter.HierarchyMemberFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyParentFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
 import bio.terra.tanagra.api.entityfilter.RelationshipFilter;
@@ -68,6 +69,8 @@ public final class FromApiConversionService {
         switch (apiHierarchyFilter.getOperator()) {
           case IS_ROOT:
             return new HierarchyRootFilter(hierarchy);
+          case IS_MEMBER:
+            return new HierarchyMemberFilter(hierarchy);
           case CHILD_OF:
             return new HierarchyParentFilter(
                 hierarchy, FromApiConversionService.fromApiObject(apiHierarchyFilter.getValue()));

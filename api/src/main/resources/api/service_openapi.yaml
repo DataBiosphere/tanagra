@@ -1316,7 +1316,7 @@ components:
           type: string
         operator:
           type: string
-          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT"]
+          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER"]
         value:
           $ref: "#/components/schemas/LiteralV2"
 

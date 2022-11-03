@@ -19,6 +19,12 @@ public abstract class OmopProcedureTest extends BaseQueriesTest {
   }
 
   @Test
+  void hierarchyMemberFilter() throws IOException {
+    // filter for "procedure" entity instances that are members of the "standard" hierarchy
+    hierarchyMemberFilter("standard");
+  }
+
+  @Test
   void hierarchyParentFilter() throws IOException {
     // filter for "procedure" entity instances that are children of the "procedure" entity
     // instance with concept_id=4179181
