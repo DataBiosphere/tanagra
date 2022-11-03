@@ -1,6 +1,5 @@
 package bio.terra.tanagra.api;
 
-import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyField;
@@ -16,8 +15,7 @@ public class EntityQueryRequest {
   private final List<HierarchyField> selectHierarchyFields;
   private final List<RelationshipField> selectRelationshipFields;
   private final EntityFilter filter;
-  private final List<Attribute> orderByAttributes;
-  private final OrderByDirection orderByDirection;
+  private final List<EntityQueryOrderBy> orderBys;
   private final int limit;
 
   private EntityQueryRequest(Builder builder) {
@@ -27,8 +25,7 @@ public class EntityQueryRequest {
     this.selectHierarchyFields = builder.selectHierarchyFields;
     this.selectRelationshipFields = builder.selectRelationshipFields;
     this.filter = builder.filter;
-    this.orderByAttributes = builder.orderByAttributes;
-    this.orderByDirection = builder.orderByDirection;
+    this.orderBys = builder.orderBys;
     this.limit = builder.limit;
   }
 
@@ -62,14 +59,8 @@ public class EntityQueryRequest {
     return filter;
   }
 
-  public List<Attribute> getOrderByAttributes() {
-    return orderByAttributes == null
-        ? Collections.emptyList()
-        : Collections.unmodifiableList(orderByAttributes);
-  }
-
-  public OrderByDirection getOrderByDirection() {
-    return orderByDirection;
+  public List<EntityQueryOrderBy> getOrderBys() {
+    return orderBys == null ? Collections.emptyList() : Collections.unmodifiableList(orderBys);
   }
 
   public int getLimit() {
@@ -83,8 +74,7 @@ public class EntityQueryRequest {
     private List<HierarchyField> selectHierarchyFields;
     private List<RelationshipField> selectRelationshipFields;
     private EntityFilter filter;
-    private List<Attribute> orderByAttributes;
-    private OrderByDirection orderByDirection;
+    private List<EntityQueryOrderBy> orderBys;
     private int limit;
 
     public Builder entity(Entity entity) {
@@ -117,13 +107,8 @@ public class EntityQueryRequest {
       return this;
     }
 
-    public Builder orderByAttributes(List<Attribute> orderByAttributes) {
-      this.orderByAttributes = orderByAttributes;
-      return this;
-    }
-
-    public Builder orderByDirection(OrderByDirection orderByDirection) {
-      this.orderByDirection = orderByDirection;
+    public Builder orderBys(List<EntityQueryOrderBy> orderBys) {
+      this.orderBys = orderBys;
       return this;
     }
 

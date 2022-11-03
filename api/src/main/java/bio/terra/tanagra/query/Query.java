@@ -15,8 +15,7 @@ public class Query implements SQLExpression {
   private final List<FieldVariable> select;
   private final List<TableVariable> tables;
   private final FilterVariable where;
-  private final List<FieldVariable> orderBy;
-  private final OrderByDirection orderByDirection;
+  private final List<OrderByVariable> orderBy;
   private final List<FieldVariable> groupBy;
   private final Integer limit;
 
@@ -25,7 +24,6 @@ public class Query implements SQLExpression {
     this.tables = builder.tables;
     this.where = builder.where;
     this.orderBy = builder.orderBy;
-    this.orderByDirection = builder.orderByDirection;
     this.groupBy = builder.groupBy;
     this.limit = builder.limit;
   }
@@ -93,19 +91,14 @@ public class Query implements SQLExpression {
 
     if (orderBy != null && !orderBy.isEmpty()) {
       // render each ORDER BY FieldVariable and join them into a single string
-      String orderByFieldsSQL =
-          orderBy.stream().map(fv -> fv.renderSqlForOrderBy()).collect(Collectors.joining(", "));
-      String orderByDirectionSQL =
-          orderByDirection == null
-              ? OrderByDirection.ASCENDING.renderSQL()
-              : orderByDirection.renderSQL();
+      String orderBySQL =
+          orderBy.stream().map(obv -> obv.renderSQL()).collect(Collectors.joining(", "));
 
-      template = "${sql} ORDER BY ${orderByFieldsSQL} ${orderByDirectionSQL}";
+      template = "${sql} ORDER BY ${orderBySQL}";
       params =
           ImmutableMap.<String, String>builder()
               .put("sql", sql)
-              .put("orderByFieldsSQL", orderByFieldsSQL)
-              .put("orderByDirectionSQL", orderByDirectionSQL)
+              .put("orderBySQL", orderBySQL)
               .build();
       sql = StringSubstitutor.replace(template, params);
     }
@@ -141,8 +134,7 @@ public class Query implements SQLExpression {
     private List<FieldVariable> select;
     private List<TableVariable> tables;
     private FilterVariable where;
-    private List<FieldVariable> orderBy;
-    private OrderByDirection orderByDirection;
+    private List<OrderByVariable> orderBy;
     private List<FieldVariable> groupBy;
     private Integer limit;
 
@@ -161,13 +153,8 @@ public class Query implements SQLExpression {
       return this;
     }
 
-    public Builder orderBy(List<FieldVariable> orderBy) {
+    public Builder orderBy(List<OrderByVariable> orderBy) {
       this.orderBy = orderBy;
-      return this;
-    }
-
-    public Builder orderByDirection(OrderByDirection orderByDirection) {
-      this.orderByDirection = orderByDirection;
       return this;
     }
 

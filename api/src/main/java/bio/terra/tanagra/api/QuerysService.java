@@ -9,6 +9,7 @@ import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.OrderByVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.QueryResult;
@@ -91,15 +92,33 @@ public class QuerysService {
               columnSchemas.add(relationshipField.buildColumnSchema());
             });
 
-    // build the ORDER BY field variables from attributes
-    List<FieldVariable> orderByFieldVars =
-        entityQueryRequest.getOrderByAttributes().stream()
+    // build the ORDER BY field variables from attributes and relationship fields
+    List<OrderByVariable> orderByVars =
+        entityQueryRequest.getOrderBys().stream()
             .map(
-                attribute ->
-                    attribute
-                        .getMapping(entityQueryRequest.getMappingType())
-                        .getValue()
-                        .buildVariable(entityTableVar, tableVars))
+                entityOrderBy -> {
+                  FieldVariable fieldVar;
+                  if (entityOrderBy.isByAttribute()) {
+                    fieldVar =
+                        entityOrderBy
+                            .getAttribute()
+                            .getMapping(entityQueryRequest.getMappingType())
+                            .getValue()
+                            .buildVariable(entityTableVar, tableVars);
+                  } else {
+                    RelationshipMapping relationshipMapping =
+                        entityOrderBy
+                            .getRelationshipField()
+                            .getRelationship()
+                            .getMapping(entityQueryRequest.getMappingType());
+                    fieldVar =
+                        entityOrderBy
+                            .getRelationshipField()
+                            .buildFieldVariableFromEntityId(
+                                relationshipMapping, entityTableVar, tableVars);
+                  }
+                  return new OrderByVariable(fieldVar, entityOrderBy.getDirection());
+                })
             .collect(Collectors.toList());
 
     // build the WHERE filter variables from the entity filter
@@ -113,8 +132,7 @@ public class QuerysService {
             .select(selectFieldVars)
             .tables(tableVars)
             .where(filterVar)
-            .orderBy(orderByFieldVars)
-            .orderByDirection(entityQueryRequest.getOrderByDirection())
+            .orderBy(orderByVars)
             .limit(entityQueryRequest.getLimit())
             .build();
     LOGGER.info("Generated query: {}", query.renderSQL());
@@ -183,13 +201,19 @@ public class QuerysService {
     FilterVariable filterVar =
         filter == null ? null : filter.getFilterVariable(entityTableVar, tableVars);
 
+    // Build the ORDER BY variables using the default direction.
+    List<OrderByVariable> orderByVars =
+        attributeFieldVars.stream()
+            .map(attrFv -> new OrderByVariable(attrFv))
+            .collect(Collectors.toList());
+
     Query query =
         new Query.Builder()
             .select(selectFieldVars)
             .tables(tableVars)
             .where(filterVar)
             .groupBy(attributeFieldVars)
-            .orderBy(attributeFieldVars)
+            .orderBy(orderByVars)
             .build();
     LOGGER.info("Generated query: {}", query.renderSQL());
 
