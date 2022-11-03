@@ -31,21 +31,21 @@ public final class EnumVals extends DisplayHint {
   private static final String ENUM_VALUE_COLUMN_ALIAS = "enumVal";
   private static final int MAX_ENUM_VALS_FOR_DISPLAY_HINT = 100;
 
-  private final List<ValueDisplay> valueDisplays;
+  private final List<EnumVal> enumVals;
 
-  public EnumVals(List<ValueDisplay> valueDisplays) {
-    this.valueDisplays = valueDisplays;
+  public EnumVals(List<EnumVal> enumVals) {
+    this.enumVals = enumVals;
   }
 
   public static EnumVals fromSerialized(UFEnumVals serialized) {
-    if (serialized.getValueDisplays() == null) {
-      throw new InvalidConfigException("Enum values map is undefined");
+    if (serialized.getEnumVals() == null) {
+      throw new InvalidConfigException("Enum values list is undefined");
     }
-    List<ValueDisplay> valueDisplays =
-        serialized.getValueDisplays().stream()
-            .map(vd -> ValueDisplay.fromSerialized(vd))
+    List<EnumVal> enumVals =
+        serialized.getEnumVals().stream()
+            .map(ev -> EnumVal.fromSerialized(ev))
             .collect(Collectors.toList());
-    return new EnumVals(valueDisplays);
+    return new EnumVals(enumVals);
   }
 
   @Override
@@ -58,8 +58,8 @@ public final class EnumVals extends DisplayHint {
     return new UFEnumVals(this);
   }
 
-  public List<ValueDisplay> getValueDisplays() {
-    return Collections.unmodifiableList(valueDisplays);
+  public List<EnumVal> getEnumVals() {
+    return Collections.unmodifiableList(enumVals);
   }
 
   /**
@@ -102,7 +102,9 @@ public final class EnumVals extends DisplayHint {
       }
     }
     return new EnumVals(
-        enumStringVals.stream().map(esv -> new ValueDisplay(esv)).collect(Collectors.toList()));
+        enumStringVals.stream()
+            .map(esv -> new EnumVal(new ValueDisplay(esv), -1))
+            .collect(Collectors.toList()));
   }
 
   /**
@@ -177,16 +179,18 @@ public final class EnumVals extends DisplayHint {
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
     // iterate through the query results, building the list of enum values
-    List<ValueDisplay> valueDisplays = new ArrayList<>();
+    List<EnumVal> enumVals = new ArrayList<>();
     Iterator<RowResult> rowResultIter = queryResult.getRowResults().iterator();
     while (rowResultIter.hasNext()) {
       RowResult rowResult = rowResultIter.next();
       CellValue cellValue = rowResult.get(ENUM_VALUE_COLUMN_ALIAS);
-      valueDisplays.add(
-          new ValueDisplay(
-              cellValue.getLiteral(),
-              rowResult.get(enumDisplayColumnAlias).getString().orElse(null)));
-      if (valueDisplays.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
+      enumVals.add(
+          new EnumVal(
+              new ValueDisplay(
+                  cellValue.getLiteral(),
+                  rowResult.get(enumDisplayColumnAlias).getString().orElse(null)),
+              -1));
+      if (enumVals.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
         // if there are more than the max number of values, then skip the display hint
         LOGGER.info(
             "Skipping enum values display hint because there are >{} possible values: {}",
@@ -195,7 +199,7 @@ public final class EnumVals extends DisplayHint {
         return null;
       }
     }
-    return new EnumVals(valueDisplays);
+    return new EnumVals(enumVals);
   }
 
   private static Query queryPossibleEnumVals(FieldPointer value) {
@@ -203,6 +207,7 @@ public final class EnumVals extends DisplayHint {
     TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
     nestedQueryTables.add(nestedPrimaryTable);
 
+    // TODO: Add count to this query and remove the hard-coding to count=-1 above.
     final String possibleValAlias = ENUM_VALUE_COLUMN_ALIAS;
     FieldVariable nestedValueFieldVar =
         value.buildVariable(nestedPrimaryTable, nestedQueryTables, possibleValAlias);

@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class NumericRange extends DisplayHint {
-  private final Long minVal;
-  private final Long maxVal;
+  private final Double minVal;
+  private final Double maxVal;
 
-  public NumericRange(Long minVal, Long maxVal) {
+  public NumericRange(Double minVal, Double maxVal) {
     this.minVal = minVal;
     this.maxVal = maxVal;
   }
@@ -48,11 +48,11 @@ public final class NumericRange extends DisplayHint {
     return new UFNumericRange(this);
   }
 
-  public Long getMinVal() {
+  public Double getMinVal() {
     return minVal;
   }
 
-  public Long getMaxVal() {
+  public Double getMaxVal() {
     return maxVal;
   }
 
@@ -107,7 +107,7 @@ public final class NumericRange extends DisplayHint {
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
     RowResult rowResult = queryResult.getSingleRowResult();
     return new NumericRange(
-        rowResult.get(minValAlias).getLong().getAsLong(),
-        rowResult.get(maxValAlias).getLong().getAsLong());
+        rowResult.get(minValAlias).getDouble().getAsDouble(),
+        rowResult.get(maxValAlias).getDouble().getAsDouble());
   }
 }

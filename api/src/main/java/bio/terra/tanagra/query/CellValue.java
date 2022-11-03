@@ -2,6 +2,7 @@ package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.OptionalLong;
 
 /**
@@ -70,6 +71,13 @@ public interface CellValue {
    * @throws bio.terra.tanagra.exception.SystemException if the cell's value is not a string
    */
   Optional<String> getString();
+
+  /**
+   * Returns this field's value as a double or empty if the value is null.
+   *
+   * @throws bio.terra.tanagra.exception.SystemException if the cell's value is not a double
+   */
+  OptionalDouble getDouble();
 
   Literal getLiteral();
 }

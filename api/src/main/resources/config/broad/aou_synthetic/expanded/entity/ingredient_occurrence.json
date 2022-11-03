@@ -15,8 +15,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -9223372036854775808,
-      "maxVal" : 10
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 10.0
     }
   }, {
     "type" : "SIMPLE",
@@ -24,8 +24,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -9223372036854775808,
-      "maxVal" : 2000007519
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 2.000007519E9
     }
   }, {
     "type" : "SIMPLE",
@@ -33,9 +33,12 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : null
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : null
+        },
+        "count" : -1
       } ]
     }
   }, {
@@ -44,8 +47,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 2020479,
-      "maxVal" : 15996253
+      "minVal" : 2020479.0,
+      "maxVal" : 1.5996253E7
     }
   }, {
     "type" : "SIMPLE",
@@ -57,8 +60,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -9223372036854775808,
-      "maxVal" : 180
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 180.0
     }
   }, {
     "type" : "SIMPLE",
@@ -70,8 +73,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 20201235,
-      "maxVal" : 20435757
+      "minVal" : 2.0201235E7,
+      "maxVal" : 2.0435757E7
     }
   }, {
     "type" : "SIMPLE",

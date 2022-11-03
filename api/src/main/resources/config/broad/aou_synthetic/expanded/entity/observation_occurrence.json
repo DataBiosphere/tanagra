@@ -11,161 +11,254 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 4118133
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4118133
+          },
+          "display" : "IU/L"
         },
-        "display" : "IU/L"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 0
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
         },
-        "display" : "No matching concept"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 4121007
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121007
+          },
+          "display" : "Seconds"
         },
-        "display" : "Seconds"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8799
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8799
+          },
+          "display" : "copies per milliliter"
         },
-        "display" : "copies per milliliter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8512
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8512
+          },
+          "display" : "day"
         },
-        "display" : "day"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 9484
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9484
+          },
+          "display" : "degree"
         },
-        "display" : "degree"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8653
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8653
+          },
+          "display" : "degree Celsius"
         },
-        "display" : "degree Celsius"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8529
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8529
+          },
+          "display" : "index"
         },
-        "display" : "index"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8519
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8519
+          },
+          "display" : "liter"
         },
-        "display" : "liter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 9546
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9546
+          },
+          "display" : "meter"
         },
-        "display" : "meter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 4121396
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121396
+          },
+          "display" : "mg/dL"
         },
-        "display" : "mg/dL"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8720
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8720
+          },
+          "display" : "microgram per gram"
         },
-        "display" : "microgram per gram"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8587
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8587
+          },
+          "display" : "milliliter"
         },
-        "display" : "milliliter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8588
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8588
+          },
+          "display" : "millimeter"
         },
-        "display" : "millimeter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8876
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8876
+          },
+          "display" : "millimeter mercury column"
         },
-        "display" : "millimeter mercury column"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8753
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8753
+          },
+          "display" : "millimole per liter"
         },
-        "display" : "millimole per liter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8931
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8931
+          },
+          "display" : "million per cubic millimeter"
         },
-        "display" : "million per cubic millimeter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 4118323
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4118323
+          },
+          "display" : "mmHg"
         },
-        "display" : "mmHg"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 4122417
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4122417
+          },
+          "display" : "ng/dL"
         },
-        "display" : "ng/dL"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 9372
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9372
+          },
+          "display" : "ounce (apothecary)"
         },
-        "display" : "ounce (apothecary)"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8647
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8647
+          },
+          "display" : "per microliter"
         },
-        "display" : "per microliter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8554
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8554
+          },
+          "display" : "percent"
         },
-        "display" : "percent"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 4120725
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4120725
+          },
+          "display" : "pg/mL"
         },
-        "display" : "pg/mL"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8729
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8729
+          },
+          "display" : "picomole per liter"
         },
-        "display" : "picomole per liter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8555
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8555
+          },
+          "display" : "second"
         },
-        "display" : "second"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8525
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8525
+          },
+          "display" : "titer"
         },
-        "display" : "titer"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 4121397
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121397
+          },
+          "display" : "ug/dL"
         },
-        "display" : "ug/dL"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8510
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8510
+          },
+          "display" : "unit"
         },
-        "display" : "unit"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8763
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8763
+          },
+          "display" : "unit per milliliter"
         },
-        "display" : "unit per milliliter"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 9234
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9234
+          },
+          "display" : "volume percent"
         },
-        "display" : "volume percent"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 9448
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9448
+          },
+          "display" : "year"
         },
-        "display" : "year"
+        "count" : -1
       } ]
     }
   }, {
@@ -174,8 +267,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -2,
-      "maxVal" : 2000023487
+      "minVal" : -2.0,
+      "maxVal" : 2.000023487E9
     }
   }, {
     "type" : "KEY_AND_DISPLAY",
@@ -191,8 +284,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 2020475,
-      "maxVal" : 15996262
+      "minVal" : 2020475.0,
+      "maxVal" : 1.5996262E7
     }
   }, {
     "type" : "SIMPLE",
@@ -212,8 +305,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 20201234,
-      "maxVal" : 20435758
+      "minVal" : 2.0201234E7,
+      "maxVal" : 2.0435758E7
     }
   } ],
   "sourceDataMapping" : {

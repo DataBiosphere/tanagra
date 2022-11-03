@@ -29,17 +29,25 @@ public class CriteriaOccurrence extends EntityGroup {
   private static final String OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME = "occurrenceToPrimary";
   private static final String CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME = "criteriaToPrimary";
 
+  public static final String MODIFIER_AUX_DATA_ID_COL = "entity_id";
+  public static final String MODIFIER_AUX_DATA_ATTR_COL = "attribute_name";
+  public static final String MODIFIER_AUX_DATA_MIN_COL = "min";
+  public static final String MODIFIER_AUX_DATA_MAX_COL = "max";
+  public static final String MODIFIER_AUX_DATA_ENUM_VAL_COL = "enum_value";
+  public static final String MODIFIER_AUX_DATA_ENUM_DISPLAY_COL = "enum_display";
+  public static final String MODIFIER_AUX_DATA_ENUM_COUNT_COL = "enum_count";
+
   private static final AuxiliaryData MODIFIER_AUXILIARY_DATA =
       new AuxiliaryData(
           "modifiers",
           List.of(
-              "entity_id",
-              "attribute_name",
-              "min",
-              "max",
-              "enum_value",
-              "enum_display",
-              "enum_count"));
+              MODIFIER_AUX_DATA_ID_COL,
+              MODIFIER_AUX_DATA_ATTR_COL,
+              MODIFIER_AUX_DATA_MIN_COL,
+              MODIFIER_AUX_DATA_MAX_COL,
+              MODIFIER_AUX_DATA_ENUM_VAL_COL,
+              MODIFIER_AUX_DATA_ENUM_DISPLAY_COL,
+              MODIFIER_AUX_DATA_ENUM_COUNT_COL));
 
   private final Entity criteriaEntity;
   private final Entity occurrenceEntity;

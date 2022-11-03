@@ -7,19 +7,28 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : "Source"
-      }, {
-        "value" : {
-          "stringVal" : "C"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : "Source"
         },
-        "display" : "Unknown"
+        "count" : -1
       }, {
-        "value" : {
-          "stringVal" : "S"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
         },
-        "display" : "Standard"
+        "count" : -1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : -1
       } ]
     }
   }, {
@@ -28,16 +37,22 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "stringVal" : "LOINC"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "LOINC"
+          },
+          "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
         },
-        "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
+        "count" : -1
       }, {
-        "value" : {
-          "stringVal" : "SNOMED"
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
-        "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        "count" : -1
       } ]
     }
   }, {

@@ -7,16 +7,22 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 8532
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8532
+          },
+          "display" : "FEMALE"
         },
-        "display" : "FEMALE"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8507
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8507
+          },
+          "display" : "MALE"
         },
-        "display" : "MALE"
+        "count" : -1
       } ]
     }
   }, {
@@ -25,21 +31,30 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 8516
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8516
+          },
+          "display" : "Black or African American"
         },
-        "display" : "Black or African American"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 0
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
         },
-        "display" : "No matching concept"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 8527
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8527
+          },
+          "display" : "White"
         },
-        "display" : "White"
+        "count" : -1
       } ]
     }
   }, {
@@ -48,16 +63,22 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 38003563
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003563
+          },
+          "display" : "Hispanic or Latino"
         },
-        "display" : "Hispanic or Latino"
+        "count" : -1
       }, {
-        "value" : {
-          "int64Val" : 38003564
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003564
+          },
+          "display" : "Not Hispanic or Latino"
         },
-        "display" : "Not Hispanic or Latino"
+        "count" : -1
       } ]
     }
   }, {

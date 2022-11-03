@@ -11,7 +11,7 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ ]
+      "enumVals" : [ ]
     }
   }, {
     "type" : "SIMPLE",
@@ -32,9 +32,12 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : null
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : null
+        },
+        "count" : -1
       } ]
     }
   }, {
@@ -56,11 +59,14 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : {
-          "int64Val" : 0
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
         },
-        "display" : "No matching concept"
+        "count" : -1
       } ]
     }
   }, {

@@ -7,9 +7,12 @@
     "dataType" : "STRING",
     "displayHint" : {
       "type" : "ENUM",
-      "valueDisplays" : [ {
-        "value" : { },
-        "display" : "Source"
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : "Source"
+        },
+        "count" : -1
       } ]
     }
   }, {
