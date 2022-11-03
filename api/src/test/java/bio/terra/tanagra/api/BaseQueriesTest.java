@@ -5,6 +5,7 @@ import static bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.Binary
 import bio.terra.tanagra.api.entityfilter.AttributeFilter;
 import bio.terra.tanagra.api.entityfilter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyAncestorFilter;
+import bio.terra.tanagra.api.entityfilter.HierarchyMemberFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyParentFilter;
 import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
 import bio.terra.tanagra.api.entityfilter.RelationshipFilter;
@@ -110,6 +111,30 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             + "-"
             + hierarchyName
             + "-hierarchyRootFilter.sql");
+  }
+
+  protected void hierarchyMemberFilter(String hierarchyName) throws IOException {
+    HierarchyMemberFilter hierarchyMemberFilter =
+        new HierarchyMemberFilter(getEntity().getHierarchy(hierarchyName));
+
+    EntityQueryRequest entityQueryRequest =
+        new EntityQueryRequest.Builder()
+            .entity(getEntity())
+            .mappingType(Underlay.MappingType.INDEX)
+            .selectAttributes(getEntity().getAttributes())
+            .selectHierarchyFields(getEntity().getHierarchy(hierarchyName).getFields())
+            .filter(hierarchyMemberFilter)
+            .limit(DEFAULT_LIMIT)
+            .build();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        "sql/"
+            + getSqlDirectoryName()
+            + "/"
+            + getEntity().getName()
+            + "-"
+            + hierarchyName
+            + "-hierarchyMemberFilter.sql");
   }
 
   protected void hierarchyParentFilter(String hierarchyName, long parentId, String parentName)

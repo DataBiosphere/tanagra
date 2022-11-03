@@ -7,6 +7,7 @@ import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.OrderByVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.QueryResult;
@@ -169,7 +170,7 @@ public final class EnumVals extends DisplayHint {
         new Query.Builder()
             .select(List.of(valueFieldVar, countFieldVar, displayFieldVar))
             .tables(tables)
-            .orderBy(List.of(displayFieldVar))
+            .orderBy(List.of(new OrderByVariable(displayFieldVar)))
             .limit(MAX_ENUM_VALS_FOR_DISPLAY_HINT + 1)
             .build();
 
@@ -227,7 +228,7 @@ public final class EnumVals extends DisplayHint {
     return new Query.Builder()
         .select(List.of(nestedValueFieldVar, nestedCountFieldVar))
         .tables(nestedQueryTables)
-        .orderBy(List.of(nestedValueFieldVar))
+        .orderBy(List.of(new OrderByVariable(nestedValueFieldVar)))
         .groupBy(List.of(nestedValueFieldVar))
         .build();
   }

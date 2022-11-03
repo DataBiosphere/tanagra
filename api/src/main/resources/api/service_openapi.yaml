@@ -1217,7 +1217,7 @@ components:
                 type: string
                 enum: ["IS_MEMBER", "PATH", "NUM_CHILDREN", "IS_ROOT"]
         includeRelationshipFields:
-          description: Relationship fields to include in the returned instances.
+          description: Relationship (count) fields to include in the returned instances.
           type: array
           items:
             type: object
@@ -1230,26 +1230,28 @@ components:
                 description: Hierarchy names
                 items:
                   type: string
-              fields:
-                type: array
-                items:
-                  type: string
-                  enum: ["COUNT", "DISPLAY_HINTS"]
         filter:
           $ref: "#/components/schemas/FilterV2"
-        orderBy:
-          type: object
+        orderBys:
+          type: array
           description: Attributes and direction to order the results by
-          properties:
-            attributes:
-              type: array
-              items:
+          items:
+            type: object
+            description: Attribute or relationship (count) field and the direction
+            properties:
+              attribute:
                 type: string
-            direction:
-              description: Defaults to ascending
-              type: string
-              enum: ["ASCENDING", "DESCENDING"]
-          nullable: true
+              relationshipField:
+                type: object
+                properties:
+                  relatedEntity:
+                    type: string
+                  hierarchy:
+                    type: string
+              direction:
+                type: string
+                description: Defaults to ascending
+                enum: ["ASCENDING", "DESCENDING"]
         limit:
           type: integer
           description: Maximum number of results to return. Defaults to 250.
@@ -1326,7 +1328,7 @@ components:
           type: string
         operator:
           type: string
-          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT"]
+          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER"]
         value:
           $ref: "#/components/schemas/LiteralV2"
 

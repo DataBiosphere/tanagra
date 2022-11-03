@@ -21,6 +21,12 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
   }
 
   @Test
+  void hierarchyMemberFilter() throws IOException {
+    // filter for "condition" entity instances that are members of the "standard" hierarchy
+    hierarchyMemberFilter("standard");
+  }
+
+  @Test
   void hierarchyParentFilter() throws IOException {
     // filter for "condition" entity instances that are children of the "condition" entity
     // instance with concept_id=201826
