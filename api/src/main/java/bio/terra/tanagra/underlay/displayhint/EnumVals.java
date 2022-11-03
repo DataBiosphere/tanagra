@@ -33,10 +33,10 @@ public final class EnumVals extends DisplayHint {
   private static final String ENUM_DISPLAY_COLUMN_ALIAS = "enumDisplay";
   private static final int MAX_ENUM_VALS_FOR_DISPLAY_HINT = 100;
 
-  private final List<EnumVal> enumVals;
+  private final List<EnumVal> enumValsList;
 
-  public EnumVals(List<EnumVal> enumVals) {
-    this.enumVals = enumVals;
+  public EnumVals(List<EnumVal> enumValsList) {
+    this.enumValsList = enumValsList;
   }
 
   public static EnumVals fromSerialized(UFEnumVals serialized) {
@@ -60,8 +60,8 @@ public final class EnumVals extends DisplayHint {
     return new UFEnumVals(this);
   }
 
-  public List<EnumVal> getEnumVals() {
-    return Collections.unmodifiableList(enumVals);
+  public List<EnumVal> getEnumValsList() {
+    return Collections.unmodifiableList(enumValsList);
   }
 
   /**

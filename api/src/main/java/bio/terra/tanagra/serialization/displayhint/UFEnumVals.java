@@ -19,7 +19,7 @@ public class UFEnumVals extends UFDisplayHint {
   public UFEnumVals(EnumVals displayHint) {
     super(displayHint);
     this.enumVals =
-        displayHint.getEnumVals().stream()
+        displayHint.getEnumValsList().stream()
             .map(ev -> new UFEnumVal(ev))
             .collect(Collectors.toList());
   }

@@ -119,7 +119,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
             .enumHint(
                 new ApiDisplayHintEnumV2()
                     .enumHintValues(
-                        enumVals.getEnumVals().stream()
+                        enumVals.getEnumValsList().stream()
                             .map(
                                 ev ->
                                     new ApiDisplayHintEnumV2EnumHintValues()
