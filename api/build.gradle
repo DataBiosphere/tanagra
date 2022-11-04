@@ -129,3 +129,11 @@ task index (type:JavaExec) {
     systemProperties System.getProperties()
     args System.getProperty("exec.args", "").split()
 }
+
+jar {
+    // set attributes in the JAR manifest file that we can access from the Java code
+    // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
+    manifest {
+        attributes 'Main-Class': "bio.terra.tanagra.app.Main"
+    }
+}
