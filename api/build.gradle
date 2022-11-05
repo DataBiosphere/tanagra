@@ -56,7 +56,7 @@ dependencies {
     }
     implementation project(":lib")
 
-    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.48-SNAPSHOT"
+    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
     implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
     annotationProcessor group: "org.springframework.boot", name: "spring-boot-configuration-processor"
 

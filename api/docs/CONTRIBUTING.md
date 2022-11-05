@@ -30,11 +30,11 @@ export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/rendered/tanagra_sa.json
 Some tests use a local Postgres database.
 
 To start a postgres container configured with the necessary databases:
-```sh
+```
 ./api/local-dev/run_postgres.sh start
 ```
 To stop the container:
-```sh
+```
 ./api/local-dev/run_postgres.sh stop
 ```
 Note that the contents of the database are not saved between container runs.
