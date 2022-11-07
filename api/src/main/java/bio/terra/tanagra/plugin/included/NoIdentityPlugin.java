@@ -3,6 +3,7 @@ package bio.terra.tanagra.plugin.included;
 import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.identity.IIdentityPlugin;
 import bio.terra.tanagra.plugin.identity.User;
+import java.util.List;
 import javax.sql.DataSource;
 
 public class NoIdentityPlugin implements IIdentityPlugin {
@@ -24,5 +25,14 @@ public class NoIdentityPlugin implements IIdentityPlugin {
   @Override
   public Iterable<User> searchUsers(String pattern) {
     return null;
+  }
+
+  @Override
+  public void hydrate(List<User> users) {
+    users.forEach(
+        user -> {
+          user.setGivenName("unknown givenname");
+          user.setSurname("unknown surname");
+        });
   }
 }

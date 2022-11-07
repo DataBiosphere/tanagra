@@ -12,8 +12,8 @@ public class ArtifactService {
   }
 
   public Map<String, Workspace> searchWorkspaces(String searchTerm, int pageSize, int page) {
-    Workspace workspace = new Workspace("aaa");
-    workspace.setName("aaa");
+    Workspace workspace = new Workspace("unknown workspace identifier");
+    workspace.setName("unknown workspace name");
 
     HashMap<String, Workspace> workspaces = new HashMap<>();
     workspaces.put(workspace.getIdentifier(), workspace);

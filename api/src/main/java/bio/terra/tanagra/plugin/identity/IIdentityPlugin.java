@@ -1,6 +1,7 @@
 package bio.terra.tanagra.plugin.identity;
 
 import bio.terra.tanagra.plugin.IPlugin;
+import java.util.List;
 
 public interface IIdentityPlugin extends IPlugin {
   User getUserFromIdentifier(String identifier);
@@ -8,4 +9,6 @@ public interface IIdentityPlugin extends IPlugin {
   User getCurrentUser();
 
   Iterable<User> searchUsers(String pattern);
+
+  void hydrate(List<User> users);
 }

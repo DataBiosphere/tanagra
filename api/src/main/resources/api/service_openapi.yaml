@@ -1506,10 +1506,23 @@ components:
     #########################ADMIN UI [START]###################################
     Workspace:
       type: object
-      x-implements: [ 'bio.terra.tanagra.plugin.accesscontrol.IArtifiact' ]
       properties:
         identifier:
           type: string
         name:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      properties:
+        identifier:
+          type: string
+        givenName:
+          type: string
+        surname:
           type: string
     #########################ADMIN UI [END]###################################
