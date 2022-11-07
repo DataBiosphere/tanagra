@@ -361,6 +361,7 @@ paths:
               $ref: "#/components/schemas/StudyCreateInfoV2"
       responses:
         200:
+          description: OK
           content:
             application/json:
               schema:
@@ -414,7 +415,7 @@ paths:
       tags: [StudiesV2]
       responses:
         204:
-          description: Success
+          description: OK
         404:
           $ref: '#/components/responses/NotFound'
         500:
@@ -437,7 +438,7 @@ paths:
               $ref: '#/components/schemas/PropertiesV2'
       responses:
         204:
-          description: Success
+          description: OK
         404:
           $ref: '#/components/responses/NotFound'
         500:
@@ -457,7 +458,7 @@ paths:
               $ref: '#/components/schemas/PropertyKeysV2'
       responses:
         204:
-          description: Success
+          description: OK
         404:
           $ref: '#/components/responses/NotFound'
         500:
