@@ -5,6 +5,7 @@ import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlledEntity;
 import bio.terra.tanagra.plugin.identity.User;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -56,8 +57,19 @@ public class SimpleAccessControlPlugin implements IAccessControlPlugin {
   }
 
   @Override
-  public void hydrate(List<? extends IAccessControlledEntity> entities) {
-    // TODO: hydrate entities
+  public void hydrate(Map<String, ? extends IAccessControlledEntity> entities) {
+    SqlParameterSource params =
+        new MapSqlParameterSource().addValue("entities", entities.keySet().toArray());
+
+    List<Map<String, Object>> acl =
+        jdbcTemplate.queryForList(
+            "SELECT entity_id, user_id FROM entity_acl WHERE entity_id IN (:entities)", params);
+
+    acl.forEach(
+        row ->
+            entities
+                .get((String) row.get("entity_id"))
+                .addMember(new User((String) row.get("user_id"))));
   }
 
   private SqlParameterSource getIdentifierParams(User user, IAccessControlledEntity entity) {

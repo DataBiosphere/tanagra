@@ -6,6 +6,7 @@ import bio.terra.tanagra.generated.model.ApiWorkspace;
 import bio.terra.tanagra.plugin.accesscontrol.Workspace;
 import bio.terra.tanagra.service.admin.WorkspaceService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,7 +28,7 @@ public class AdminController implements AdminApi {
   @Override
   public ResponseEntity<ApiListWorkspacesResponse> searchWorkspaces(
       String searchTerm, Integer pageSize, Integer page) {
-    List<Workspace> workspaces = workspaceService.search(searchTerm, pageSize, page);
+    Map<String, Workspace> workspaces = workspaceService.search(searchTerm, pageSize, page);
     List<ApiWorkspace> apiWorkspaces = workspaceService.toApiList(workspaces);
 
     return ResponseEntity.ok(new ApiListWorkspacesResponse().entities(apiWorkspaces));

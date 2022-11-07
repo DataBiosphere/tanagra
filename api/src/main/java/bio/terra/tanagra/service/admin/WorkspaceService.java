@@ -6,6 +6,7 @@ import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.Workspace;
 import bio.terra.tanagra.service.artifact.ArtifactService;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,10 @@ public class WorkspaceService {
     this.accessControlPlugin = pluginService.getPlugin(IAccessControlPlugin.class);
   }
 
-  public List<Workspace> search(String searchTerm, Integer pageSize, Integer page) {
+  public Map<String, Workspace> search(String searchTerm, Integer pageSize, Integer page) {
     int brandNewPageSizeToMakePmdHappy = pageSize == 0 ? DEFAULT_PAGE_SIZE : pageSize;
 
-    List<Workspace> workspaces =
+    Map<String, Workspace> workspaces =
         artifactService.searchWorkspaces(searchTerm, brandNewPageSizeToMakePmdHappy, page);
     accessControlPlugin.hydrate(workspaces);
 
@@ -43,5 +44,9 @@ public class WorkspaceService {
 
   public List<ApiWorkspace> toApiList(List<Workspace> workspaces) {
     return workspaces.stream().map(this::toApiObject).collect(Collectors.toList());
+  }
+
+  public List<ApiWorkspace> toApiList(Map<String, Workspace> workspaces) {
+    return workspaces.values().stream().map(this::toApiObject).collect(Collectors.toList());
   }
 }

@@ -4,7 +4,7 @@ import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
 import bio.terra.tanagra.plugin.accesscontrol.IAccessControlledEntity;
 import bio.terra.tanagra.plugin.identity.User;
-import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 
 public class OpenAccessControlPlugin implements IAccessControlPlugin {
@@ -30,7 +30,7 @@ public class OpenAccessControlPlugin implements IAccessControlPlugin {
   }
 
   @Override
-  public void hydrate(List<? extends IAccessControlledEntity> entities) {
+  public void hydrate(Map<String, ? extends IAccessControlledEntity> entities) {
     // do nothing
   }
 }

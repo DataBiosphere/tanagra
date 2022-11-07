@@ -2,7 +2,7 @@ package bio.terra.tanagra.plugin.accesscontrol;
 
 import bio.terra.tanagra.plugin.IPlugin;
 import bio.terra.tanagra.plugin.identity.User;
-import java.util.List;
+import java.util.Map;
 
 public interface IAccessControlPlugin extends IPlugin {
   boolean checkAccess(User user, IAccessControlledEntity entity);
@@ -11,5 +11,5 @@ public interface IAccessControlPlugin extends IPlugin {
 
   boolean revokeAccess(User user, IAccessControlledEntity entity);
 
-  void hydrate(List<? extends IAccessControlledEntity> entities);
+  void hydrate(Map<String, ? extends IAccessControlledEntity> entities);
 }
