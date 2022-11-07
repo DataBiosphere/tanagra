@@ -24,8 +24,8 @@ public class PluginService {
   private final Map<String, IPlugin> availablePlugins =
       new HashMap<>(
           Map.of(
-              IAccessControlPlugin.class.getName(), new DefaultAccessControlPlugin(),
-              IIdentityPlugin.class.getName(), new DefaultIdentityPlugin()));
+              IAccessControlPlugin.class.getSimpleName(), new DefaultAccessControlPlugin(),
+              IIdentityPlugin.class.getSimpleName(), new DefaultIdentityPlugin()));
 
   @Autowired
   public PluginService(PluggableConfiguration configuration, DataSourceFactory dataSourceFactory)
@@ -37,7 +37,7 @@ public class PluginService {
   }
 
   public <T extends IPlugin> T getPlugin(Class<T> c) {
-    return c.cast(availablePlugins.get(c.getName()));
+    return c.cast(availablePlugins.get(c.getSimpleName()));
   }
 
   private void loadPlugins() throws PluginException {
