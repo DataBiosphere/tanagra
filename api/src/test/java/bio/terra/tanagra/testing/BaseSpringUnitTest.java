@@ -4,7 +4,6 @@ import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.search.utils.RandomNumberGenerator;
 import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,8 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /** Base class for Spring unit tests. */
-@Tag("unit")
-@ActiveProfiles({"test", "unit"})
+@ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest

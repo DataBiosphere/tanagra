@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -40,13 +39,13 @@ public class Study {
   }
 
   /** Optional display name for the study. */
-  public Optional<String> getDisplayName() {
-    return Optional.ofNullable(displayName);
+  public String getDisplayName() {
+    return displayName;
   }
 
   /** Optional description of the study. */
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   /** Caller-specified set of key-value pairs. Used to store generic study metadata. */
@@ -76,7 +75,7 @@ public class Study {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(14, 79)
+    return new HashCodeBuilder(15, 79)
         .append(studyId)
         .append(displayName)
         .append(description)

@@ -1,6 +1,6 @@
 package bio.terra.tanagra.app.configuration;
 
-import bio.terra.tanagra.exception.SystemException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -25,7 +25,7 @@ public class FeatureConfiguration {
 
   public void artifactStorageEnabledCheck() {
     if (!isArtifactStorageEnabled()) {
-      throw new SystemException("Azure features are not enabled");
+      throw new NotImplementedException("Artifact storage is not enabled");
     }
   }
 

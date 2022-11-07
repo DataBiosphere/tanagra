@@ -5,16 +5,17 @@ tanagra:
     underlay-files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json" ]
 
   feature:
-    artifact-storage-enabled: true
+    # TODO: Turn on artifact storage by default once we have a CloudSQL deployed in the dev environment.
+    artifact-storage-enabled: false
 
   db:
     initialize-on-start: false
     upgrade-on-start: true
-    uri: jdbc:postgresql://127.0.0.1:5432/tanagra_db
+    uri: jdbc:postgresql://127.0.0.1:5432/${TANAGRA_DATABASE_NAME}
     username:
     password:
 
-logging.pattern.level: '%X{requestId} %5p'
+#logging.pattern.level: '%X{requestId} %5p'
 
 server:
   compression:
@@ -23,7 +24,7 @@ server:
   port: 8080
 
 spring:
-  application.name: workspace
+  application.name: tanagra
   web:
     resources:
       cache:

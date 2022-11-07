@@ -13,7 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
       "bio.terra.tanagra",
       "bio.terra.common.db",
       // Logging components & configs.
-      "bio.terra.common.logging",
+      //      "bio.terra.common.logging",
       // Liquibase migration components & configs.
       "bio.terra.common.migrate"
     })
