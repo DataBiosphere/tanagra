@@ -21,6 +21,7 @@ version = "0.0.0-SNAPSHOT"
 ext {
     artifactGroup = "${group}.tanagra"
     openapiOutputDir = "${buildDir}/openapi"
+    //    swaggerOutputDir = "${buildDir}/generated"
     resourceDir = "${projectDir}/src/main/resources"
 }
 
@@ -103,6 +104,49 @@ dependencies {
     // Static analysis
     compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
     testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+}
+
+// OpenAPI/Swagger Server Generation
+swaggerSources {
+    server {
+        inputFile = file("${resourceDir}/api/service_openapi.yaml")
+        code {
+            language = 'spring'
+            library = 'spring-boot'
+            outputDir = file("${openapiOutputDir}")
+            components = ['models', 'apis']
+            wipeOutputDir = false
+            rawOptions = [
+                '--api-package',
+                "${artifactGroup}.generated.controller",
+                '--model-package',
+                "${artifactGroup}.generated.model",
+                '-D',
+                'interfaceOnly=true,' +
+                'useTags=true,' +
+                'dateLibrary=java8'
+            ]
+        }
+    }
+
+    ui {
+        inputFile = file("${resourceDir}/ui/artifact_schemas.yaml")
+        code {
+            language = 'spring'
+            library = 'spring-boot'
+            outputDir = file("${openapiOutputDir}")
+            components = ['models']
+            wipeOutputDir = false
+            rawOptions = [
+                '--model-package',
+                "${artifactGroup}.generated.model",
+                '-D',
+                'interfaceOnly=true,' +
+                'useTags=true,' +
+                'dateLibrary=java8'
+            ]
+        }
+    }
 }
 
 test {

@@ -332,6 +332,45 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+#  "/v2/cohorts/{studyId}":
+#    parameters:
+#      - $ref: "#/components/parameters/StudyIdV2"
+#    get:
+#      parameters:
+#        - $ref: "#/components/parameters/OffsetV2"
+#        - $ref: "#/components/parameters/LimitV2"
+#      summary: List all cohorts in a study
+#      operationId: listCohorts
+#      tags: [CohortsV2]
+#      responses:
+#        200:
+#          description: OK
+#          content:
+#            application/json:
+#              schema:
+#                $ref: "#/components/schemas/CohortListV2"
+#        500:
+#          $ref: "#/components/responses/ServerError"
+#    post:
+#      summary: Create a new cohort
+#      operationId: createCohort
+#      tags: [CohortsV2]
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: "#/components/schemas/CohortCreateInfoV2"
+#      responses:
+#        200:
+#          description: OK
+#          content:
+#            application/json:
+#              schema:
+#                $ref: "#/components/schemas/CohortV2"
+#        500:
+#          $ref: "#/components/responses/ServerError"
+
   #########################UNDERLAY CONFIG V2 [END]###################################
 
 components:
@@ -920,152 +959,6 @@ components:
         type: object
         description: The set of attribute names and values that defines this group of entity instances.
         $ref: "#/components/schemas/AttributeValue"
-
-    UserData:
-      type: object
-      description: The root container for user generated data.
-      properties:
-        version:
-          type: integer
-          description: The version of UserData to support forward and backward compatibility.
-        cohorts:
-          type: array
-          description: User generated cohorts.
-          items:
-            $ref: "#/components/schemas/Cohort"
-        conceptSets:
-          type: array
-          description: User generated concept sets.
-          items:
-            $ref: "#/components/schemas/ConceptSet"
-      required:
-        - version
-        - cohorts
-        - conceptSets
-
-    Cohort:
-      type: object
-      description: A user generated cohort.
-      properties:
-        id:
-          type: string
-          description: The unique id of this cohort.
-        name:
-          type: string
-          description: The name of this cohort.
-        underlayName:
-          type: string
-          description: The underlay this cohort is based on.
-        groups:
-          type: array
-          description: The criteria groups that make up this cohort.
-          items:
-            $ref: "#/components/schemas/Group"
-      required:
-        - id
-        - name
-        - underlayName
-        - groups
-
-    Group:
-      type: object
-      description: A group of criteria.
-      properties:
-        id:
-          type: string
-          description: The unique id of this group.
-        name:
-          type: string
-          description: The name of this group if customized.
-        filter:
-          $ref: "#/components/schemas/GroupFilter"
-        criteria:
-          type: array
-          description: The criteria that make of this group.
-          items:
-            $ref: "#/components/schemas/Criteria"
-      required:
-        - id
-        - kind
-        - filter
-        - underlayName
-        - criteria
-
-    GroupFilter:
-      type: object
-      description: |
-        A filter for a list of criteria that indicates how to combine the states
-        of the individual criteria.
-      properties:
-        kind:
-          type: string
-          description: The kind of this group.
-          enum: ["ANY", "ALL"]
-        excluded:
-          type: boolean
-          description: This group should be excluded instead of included.
-      required:
-        - kind
-        - excluded
-
-    ConceptSet:
-      type: object
-      description: A user generated concept set.
-      properties:
-        id:
-          type: string
-          description: The unique id of this concept set.
-        underlayName:
-          type: string
-          description: The underlay this concept set is based on.
-        criteria:
-          $ref: "#/components/schemas/Criteria"
-      required:
-        - id
-        - underlayName
-        - criteria
-
-    Criteria:
-      type: object
-      description: A single criteria in a cohort or concept set.
-      properties:
-        id:
-          type: string
-          description: The unique id of this criteria.
-        type:
-          type: string
-          description: The plugin type used by this criteria.
-        data:
-          type: object
-          description: The plugin specific data that defines this criteria.
-        config:
-          type: object
-          description: The UI configuration used by this criteria.
-          $ref: "#/components/schemas/CriteriaConfig"
-      required:
-        - id
-        - type
-        - data
-        - config
-
-    CriteriaConfig:
-      type: object
-      description: The configuration for an instance of a cohort plugin. Fields related to individual plugins may also be present.
-      properties:
-        type:
-          type: string
-          description: The plugin type to use for this criteria.
-        id:
-          type: string
-          description: The unique id of this criteria config.
-        title:
-          type: string
-          description: The display title for this criteria.
-      required:
-        - type
-        - id
-        - title
-      additionalProperties: true
 
     #########################UNDERLAY CONFIG V2 [START]#################################
     UnderlayV2:

@@ -26,7 +26,7 @@ public final class JacksonMapper {
   private JacksonMapper() {}
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
-  private static ObjectMapper getMapper() {
+  public static ObjectMapper getMapper() {
     return objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
   }
 
