@@ -5,7 +5,6 @@ import bio.terra.tanagra.db.StudyDao;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,9 +27,9 @@ public class StudyService {
   }
 
   /** Delete an existing study by ID. */
-  public void deleteStudy(UUID uuid) {
+  public void deleteStudy(String id) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.deleteStudy(uuid);
+    studyDao.deleteStudy(id);
   }
 
   /** Retrieves a list of all studies. */
@@ -40,51 +39,51 @@ public class StudyService {
   }
 
   /** Retrieves a list of existing studies by ID. */
-  public List<Study> getStudies(List<UUID> uuids, int offset, int limit) {
+  public List<Study> getStudies(List<String> ids, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return studyDao.getStudiesMatchingList(new HashSet<>(uuids), offset, limit);
+    return studyDao.getStudiesMatchingList(new HashSet<>(ids), offset, limit);
   }
 
   /** Retrieves an existing study by ID. */
-  public Study getStudy(UUID uuid) {
+  public Study getStudy(String id) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return studyDao.getStudy(uuid);
+    return studyDao.getStudy(id);
   }
 
   /**
    * Update an existing study. Currently, can change the study's display name or description.
    *
-   * @param uuid study ID
+   * @param id study ID
    * @param displayName name to change - may be null
    * @param description description to change - may be null
    */
-  public Study updateStudy(UUID uuid, @Nullable String displayName, @Nullable String description) {
+  public Study updateStudy(String id, @Nullable String displayName, @Nullable String description) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.updateStudy(uuid, displayName, description);
-    return studyDao.getStudy(uuid);
+    studyDao.updateStudy(id, displayName, description);
+    return studyDao.getStudy(id);
   }
 
   /**
    * Update an existing study's properties.
    *
-   * @param uuid study ID
+   * @param id study ID
    * @param properties list of keys in properties
    */
-  public Study updateStudyProperties(UUID uuid, Map<String, String> properties) {
+  public Study updateStudyProperties(String id, Map<String, String> properties) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.updateStudyProperties(uuid, properties);
-    return studyDao.getStudy(uuid);
+    studyDao.updateStudyProperties(id, properties);
+    return studyDao.getStudy(id);
   }
 
   /**
    * Update an existing study's properties.
    *
-   * @param uuid study ID
+   * @param id study ID
    * @param propertyKeys list of keys in properties
    */
-  public Study deleteStudyProperties(UUID uuid, List<String> propertyKeys) {
+  public Study deleteStudyProperties(String id, List<String> propertyKeys) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.deleteStudyProperties(uuid, propertyKeys);
-    return studyDao.getStudy(uuid);
+    studyDao.deleteStudyProperties(id, propertyKeys);
+    return studyDao.getStudy(id);
   }
 }

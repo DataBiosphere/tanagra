@@ -26,12 +26,6 @@ Use the key file to set the `gcloud` application default credentials.
 export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/rendered/tanagra_sa.json
 ```
 
-### Make scripts executable
-There are several helper scripts for local development. Make them all executable after pulling from GH.
-```
-chmod a+x ./api/local-dev/*
-```
-
 ### Local Postgres
 Tests and a local server use a local Postgres database.
 

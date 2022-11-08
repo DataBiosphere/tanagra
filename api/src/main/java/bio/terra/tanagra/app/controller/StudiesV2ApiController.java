@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +30,12 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   @Override
   public ResponseEntity<ApiStudyV2> createStudy(ApiStudyCreateInfoV2 body) {
-    // Generate a random UUID for the new study ID.
-    UUID newStudyUuid = UUID.randomUUID();
+    // Generate a random 10-character alphanumeric string for the new study ID.
+    String newStudyId = RandomStringUtils.randomAlphanumeric(10);
 
     Study studyToCreate =
         Study.builder()
-            .studyId(newStudyUuid)
+            .studyId(newStudyId)
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .properties(fromApiObject(body.getProperties()))
@@ -45,13 +45,13 @@ public class StudiesV2ApiController implements StudiesV2Api {
   }
 
   @Override
-  public ResponseEntity<Void> deleteStudy(UUID studyId) {
+  public ResponseEntity<Void> deleteStudy(String studyId) {
     studyService.deleteStudy(studyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
-  public ResponseEntity<ApiStudyV2> getStudy(UUID studyId) {
+  public ResponseEntity<ApiStudyV2> getStudy(String studyId) {
     return ResponseEntity.ok(toApiObject(studyService.getStudy(studyId)));
   }
 
@@ -63,20 +63,21 @@ public class StudiesV2ApiController implements StudiesV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiStudyV2> updateStudy(UUID studyId, ApiStudyUpdateInfoV2 body) {
+  public ResponseEntity<ApiStudyV2> updateStudy(String studyId, ApiStudyUpdateInfoV2 body) {
     Study updatedStudy =
         studyService.updateStudy(studyId, body.getDisplayName(), body.getDescription());
     return ResponseEntity.ok(toApiObject(updatedStudy));
   }
 
   @Override
-  public ResponseEntity<Void> updateStudyProperties(UUID studyId, List<ApiPropertiesV2Inner> body) {
+  public ResponseEntity<Void> updateStudyProperties(
+      String studyId, List<ApiPropertiesV2Inner> body) {
     studyService.updateStudyProperties(studyId, fromApiObject(body));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
-  public ResponseEntity<Void> deleteStudyProperties(UUID studyId, List<String> body) {
+  public ResponseEntity<Void> deleteStudyProperties(String studyId, List<String> body) {
     studyService.deleteStudyProperties(studyId, body);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }

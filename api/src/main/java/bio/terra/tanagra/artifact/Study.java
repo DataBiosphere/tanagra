@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -17,13 +16,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 @JsonDeserialize(builder = Study.Builder.class)
 public class Study {
-  private final UUID studyId;
+  private final String studyId;
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final Map<String, String> properties;
 
   public Study(
-      UUID studyId,
+      String studyId,
       @Nullable String displayName,
       @Nullable String description,
       Map<String, String> properties) {
@@ -34,7 +33,7 @@ public class Study {
   }
 
   /** The globally unique identifier of this study. */
-  public UUID getStudyId() {
+  public String getStudyId() {
     return studyId;
   }
 
@@ -89,12 +88,12 @@ public class Study {
 
   @JsonPOJOBuilder(withPrefix = "")
   public static class Builder {
-    private UUID studyId;
+    private String studyId;
     private @Nullable String displayName;
     private String description;
     private Map<String, String> properties;
 
-    public Builder studyId(UUID studyId) {
+    public Builder studyId(String studyId) {
       this.studyId = studyId;
       return this;
     }

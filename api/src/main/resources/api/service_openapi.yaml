@@ -525,7 +525,6 @@ components:
       required: true
       schema:
         type: string
-        format: uuid
 
     OffsetV2:
       name: offset
@@ -1652,7 +1651,6 @@ components:
         id:
           description: ID of the study, immutable
           type: string
-          format: uuid
         displayName:
           $ref: "#/components/schemas/StudyDisplayNameV2"
         description:

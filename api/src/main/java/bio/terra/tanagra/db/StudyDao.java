@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class StudyDao {
   private static final RowMapper<Study> STUDY_ROW_MAPPER =
       (rs, rowNum) ->
           Study.builder()
-              .studyId(UUID.fromString(rs.getString("study_id")))
+              .studyId(rs.getString("study_id"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
               .properties(
@@ -87,21 +86,21 @@ public class StudyDao {
   }
 
   /**
-   * @param studyUuid unique identifier of the study
+   * @param studyId unique identifier of the study
    * @return true on successful delete, false if there's nothing to delete
    */
   @WriteTransaction
-  public boolean deleteStudy(UUID studyUuid) {
+  public boolean deleteStudy(String studyId) {
     final String sql = "DELETE FROM study WHERE study_id = :study_id";
 
-    MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyUuid);
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyId);
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean deleted = rowsAffected > 0;
 
     if (deleted) {
-      LOGGER.info("Deleted record for study {}", studyUuid.toString());
+      LOGGER.info("Deleted record for study {}", studyId);
     } else {
-      LOGGER.info("No record found for delete study {}", studyUuid.toString());
+      LOGGER.info("No record found for delete study {}", studyId);
     }
 
     return deleted;
@@ -124,16 +123,16 @@ public class StudyDao {
   /**
    * Retrieve studies from a list of IDs. IDs not matching studies will be ignored.
    *
-   * @param studyUuidList List of study ids to query for
+   * @param studyIdList List of study ids to query for
    * @param offset The number of items to skip before starting to collect the result set.
    * @param limit The maximum number of items to return.
    * @return list of studies corresponding to input IDs.
    */
   @ReadTransaction
-  public List<Study> getStudiesMatchingList(Set<UUID> studyUuidList, int offset, int limit) {
+  public List<Study> getStudiesMatchingList(Set<String> studyIdList, int offset, int limit) {
     // If the incoming list is empty, the caller does not have permission to see any
     // studies, so we return an empty list.
-    if (studyUuidList.isEmpty()) {
+    if (studyIdList.isEmpty()) {
       return Collections.emptyList();
     }
     String sql =
@@ -141,19 +140,19 @@ public class StudyDao {
             + " WHERE study_id IN (:study_ids) ORDER BY study_id OFFSET :offset LIMIT :limit";
     var params =
         new MapSqlParameterSource()
-            .addValue("study_ids", studyUuidList)
+            .addValue("study_ids", studyIdList)
             .addValue("offset", offset)
             .addValue("limit", limit);
     return jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER);
   }
 
   @ReadTransaction
-  public Optional<Study> getStudyIfExists(UUID studyUuid) {
-    if (studyUuid == null) {
+  public Optional<Study> getStudyIfExists(String studyId) {
+    if (studyId == null) {
       throw new MissingRequiredFieldException("Valid study id is required");
     }
     String sql = STUDY_SELECT_SQL + " WHERE study_id = :study_id";
-    MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyUuid);
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyId);
     try {
       Study result =
           DataAccessUtils.requiredSingleResult(jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER));
@@ -167,24 +166,22 @@ public class StudyDao {
   /**
    * Retrieves a study from database by ID.
    *
-   * @param studyUuid unique identifier of the study
+   * @param studyId unique identifier of the study
    * @return study value object
    */
-  public Study getStudy(UUID studyUuid) {
-    return getStudyIfExists(studyUuid)
-        .orElseThrow(
-            () ->
-                new NotFoundException(String.format("Study %s not found.", studyUuid.toString())));
+  public Study getStudy(String studyId) {
+    return getStudyIfExists(studyId)
+        .orElseThrow(() -> new NotFoundException(String.format("Study %s not found.", studyId)));
   }
 
   @WriteTransaction
-  public boolean updateStudy(UUID studyUuid, @Nullable String name, @Nullable String description) {
+  public boolean updateStudy(String studyId, @Nullable String name, @Nullable String description) {
     if (name == null && description == null) {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
 
     var params = new MapSqlParameterSource();
-    params.addValue("study_id", studyUuid);
+    params.addValue("study_id", studyId);
 
     if (name != null) {
       params.addValue("display_name", name);
@@ -202,26 +199,24 @@ public class StudyDao {
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean updated = rowsAffected > 0;
     LOGGER.info(
-        "{} record for study {}",
-        updated ? "Updated" : "No Update - did not find",
-        studyUuid.toString());
+        "{} record for study {}", updated ? "Updated" : "No Update - did not find", studyId);
     return updated;
   }
 
   /** Update a study's properties */
   @WriteTransaction
-  public void updateStudyProperties(UUID studyUuid, Map<String, String> propertyMap) {
+  public void updateStudyProperties(String studyId, Map<String, String> propertyMap) {
     // Get current property for this study ID.
     String selectPropertiesSql = "SELECT properties FROM study WHERE study_id = :study_id";
     MapSqlParameterSource propertiesParams =
-        new MapSqlParameterSource().addValue("study_id", studyUuid);
+        new MapSqlParameterSource().addValue("study_id", studyId);
     String result;
 
     try {
       result = jdbcTemplate.queryForObject(selectPropertiesSql, propertiesParams, String.class);
       LOGGER.info("Retrieved study properties {}", result);
     } catch (EmptyResultDataAccessException e) {
-      throw new NotFoundException(String.format("Study %s not found.", studyUuid.toString()), e);
+      throw new NotFoundException(String.format("Study %s not found.", studyId), e);
     }
 
     Map<String, String> properties =
@@ -233,23 +228,23 @@ public class StudyDao {
     var params = new MapSqlParameterSource();
     params
         .addValue("properties", DbSerDes.propertiesToJson(properties))
-        .addValue("study_id", studyUuid);
+        .addValue("study_id", studyId);
     jdbcTemplate.update(sql, params);
   }
 
   @WriteTransaction
-  public void deleteStudyProperties(UUID studyUuid, List<String> propertyKeys) {
+  public void deleteStudyProperties(String studyId, List<String> propertyKeys) {
     // Get current property for this study ID.
     String selectPropertiesSql = "SELECT properties FROM study WHERE study_id = :study_id";
     MapSqlParameterSource propertiesParams =
-        new MapSqlParameterSource().addValue("study_id", studyUuid);
+        new MapSqlParameterSource().addValue("study_id", studyId);
     String result;
 
     try {
       result = jdbcTemplate.queryForObject(selectPropertiesSql, propertiesParams, String.class);
       LOGGER.info("Retrieved study properties {}", result);
     } catch (EmptyResultDataAccessException e) {
-      throw new NotFoundException(String.format("Study %s not found.", studyUuid.toString()), e);
+      throw new NotFoundException(String.format("Study %s not found.", studyId), e);
     }
     Map<String, String> properties =
         result == null ? new HashMap<>() : DbSerDes.jsonToProperties(result);
@@ -262,7 +257,7 @@ public class StudyDao {
     var params = new MapSqlParameterSource();
     params
         .addValue("properties", DbSerDes.propertiesToJson(properties))
-        .addValue("study_id", studyUuid);
+        .addValue("study_id", studyId);
 
     jdbcTemplate.update(sql, params);
   }

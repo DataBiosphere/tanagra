@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: study_id
-                  type: uuid
+                  type: text
                   constraints:
                     primaryKey: true
                     nullable: false
