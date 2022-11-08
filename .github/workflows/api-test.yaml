@@ -56,7 +56,7 @@ jobs:
         env:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Gradle Build and Check
-        # The build task includes the build, test and static analysis tasks.
+        # The check task includes the build, test and static analysis tasks.
         run: ./gradlew api:check
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json

@@ -9,8 +9,12 @@ import org.springframework.context.annotation.ComponentScan;
     // We don't make use of DataSource in this application, so exclude it from scanning.
     exclude = DataSourceAutoConfiguration.class)
 @ComponentScan(
-    // Scan all packages within this service
-    basePackages = "bio.terra.tanagra")
+    basePackages = {
+      "bio.terra.tanagra",
+      "bio.terra.common.db",
+      // Liquibase migration components & configs.
+      "bio.terra.common.migrate"
+    })
 // Spring needs Main to not be a utility class.
 @SuppressWarnings({"PMD.UseUtilityClass", "HideUtilityClassConstructor"})
 public class Main {

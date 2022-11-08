@@ -2,7 +2,6 @@
 # Start up a postgres container with initial user/database setup.
 POSTGRES_VERSION=13.1
 
-# TODO consider using docker-compose instead of these local sh files.
 start() {
     echo "attempting to remove old $CONTAINER container..."
     docker rm -f $CONTAINER
@@ -11,8 +10,6 @@ start() {
     echo "starting up postgres container..."
     BASEDIR=$(dirname "$0")
     docker create --name $CONTAINER --rm -e POSTGRES_PASSWORD=password -p "$POSTGRES_PORT:5432" postgres:$POSTGRES_VERSION
-    # Make sure the init script is readable
-    chmod o+r $BASEDIR/local-postgres-init.sql
     docker cp $BASEDIR/local-postgres-init.sql $CONTAINER:/docker-entrypoint-initdb.d/docker_postgres_init.sql
     docker start $CONTAINER
 
