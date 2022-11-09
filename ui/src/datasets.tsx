@@ -438,43 +438,34 @@ function Preview(props: PreviewProps) {
             (a) => !props.excludedAttributes.get(occurrence.id)?.has(a)
           );
 
-          const dataParts = await Promise.all([
-            (async () => {
-              return await source.generateSQLQuery(
-                filteredAttributes,
-                occurrence.id,
-                cohortsFilter,
-                conceptSetsFilter
-              );
-            })(),
-            (async () => {
-              const res = await source.listData(
-                occurrence.attributes,
-                occurrence.id,
-                cohortsFilter,
-                conceptSetsFilter
-              );
+          const res = await source.listData(
+            filteredAttributes,
+            occurrence.id,
+            cohortsFilter,
+            conceptSetsFilter
+          );
 
-              const data: TreeGridData = {
-                root: { data: {}, children: [] },
-              };
+          const data: TreeGridData = {
+            root: { data: {}, children: [] },
+          };
 
-              res.data.forEach((entry, i) => {
-                data[i] = { data: entry };
-                data.root?.children?.push(i);
-              });
-              return data;
-            })(),
-          ]);
+          res.data.forEach((entry, i) => {
+            data[i] = { data: entry };
+            data.root?.children?.push(i);
+          });
 
           return {
             name: occurrence.name,
-            sql: dataParts[0],
-            data: dataParts[1],
+            sql: res.sql,
+            data: data,
           };
         })
       );
-    }, [props.selectedCohorts, props.selectedConceptSets])
+    }, [
+      props.selectedCohorts,
+      props.selectedConceptSets,
+      props.excludedAttributes,
+    ])
   );
 
   const onTabChange = (event: SyntheticEvent, newValue: number) => {
