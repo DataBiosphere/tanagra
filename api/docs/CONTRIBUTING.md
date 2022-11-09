@@ -27,17 +27,24 @@ export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/rendered/tanagra_sa.json
 ```
 
 ### Local Postgres
-Some tests use a local Postgres database.
+Tests and a local server use a local Postgres database.
 
 To start a postgres container configured with the necessary databases:
-```sh
+```
 ./api/local-dev/run_postgres.sh start
 ```
 To stop the container:
-```sh
+```
 ./api/local-dev/run_postgres.sh stop
 ```
 Note that the contents of the database are not saved between container runs.
+
+To connect to the database directly:
+```
+PGPASSWORD=dbpwd psql postgresql://127.0.0.1:5432/tanagra_db -U dbuser
+```
+If you get not found errors running the above command, but the `run_postgres.sh` script calls complete successfully,
+check that you don't have PostGres running twice -- e.g. once in Docker and once in a local PostGres installation.
 
 ### Build And Run Tests
 To get started, build the code and run tests:
@@ -52,7 +59,7 @@ Before a PR can merge, it needs to pass the static analysis checks and tests. To
 
 ### Local Server
 ```
-./gradlew bootRun
+./api/local-dev/run_server.sh
 ```
 starts a local server on `localhost:8080`.
 
