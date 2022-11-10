@@ -1,5 +1,7 @@
 import { EntityInstancesApiContext, HintsApiContext } from "apiContext";
+import { generateId } from "cohort";
 import { useUnderlay } from "hooks";
+import produce from "immer";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
 import { Underlay } from "underlaysSlice";
@@ -7,9 +9,6 @@ import { isValid } from "util/valid";
 import {
   Classification,
   Configuration,
-  DataEntry,
-  DataKey,
-  DataValue,
   findByID,
   findEntity,
   Grouping,
@@ -26,6 +25,7 @@ import {
   isClassificationFilter,
   isUnaryFilter,
 } from "./filter";
+import { CohortReview, DataEntry, DataKey, DataValue } from "./types";
 
 export type ClassificationNode = {
   data: DataEntry;
@@ -120,6 +120,22 @@ export interface Source {
     lists: [string, DataEntry[]][],
     maxCount: number
   ): MergedDataEntry[];
+
+  listCohortReviews(cohortID: string): Promise<CohortReview[]>;
+
+  createCohortReview(
+    displayName: string,
+    size: number,
+    cohort: tanagra.Cohort
+  ): Promise<CohortReview>;
+
+  deleteCohortReview(reviewId: string, cohortId: string): void;
+
+  renameCohortReview(
+    displayName: string,
+    reviewId: string,
+    cohortId: string
+  ): void;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -424,6 +440,55 @@ export class BackendSource implements Source {
     }
 
     return merged;
+  }
+
+  public async listCohortReviews(cohortID: string): Promise<CohortReview[]> {
+    // TODO(tjennison): Read from the API instead.
+    const reviews = loadLocalReviews()
+      .filter((review) => review?.cohort?.id === cohortID)
+      .map((review) => fromAPICohortReview(review));
+
+    await new Promise((r) => setTimeout(r, 2000));
+
+    return Promise.resolve(reviews);
+  }
+
+  public createCohortReview(
+    displayName: string,
+    size: number,
+    cohort: tanagra.Cohort
+  ): Promise<CohortReview> {
+    const review = {
+      id: generateId(),
+      displayName,
+      description: "",
+      size,
+      cohort: toAPICohort(cohort),
+      created: new Date(),
+    };
+
+    const reviews = loadLocalReviews();
+    saveLocalReviews([review, ...reviews]);
+
+    return Promise.resolve(fromAPICohortReview(review));
+  }
+
+  public async deleteCohortReview(reviewId: string) {
+    const reviews = loadLocalReviews();
+    saveLocalReviews(reviews.filter((review) => review.id != reviewId));
+  }
+
+  public async renameCohortReview(displayName: string, reviewId: string) {
+    const reviews = loadLocalReviews();
+    saveLocalReviews(
+      reviews.map((review) =>
+        produce(review, (review) => {
+          if (review.id === reviewId) {
+            review.displayName = displayName;
+          }
+        })
+      )
+    );
   }
 
   private makeQuery(
@@ -969,4 +1034,87 @@ function normalizeRequestedAttributes(attributes: string[]) {
         })
     ),
   ];
+}
+
+function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
+  return {
+    id: cohort.id,
+    name: cohort.displayName,
+    underlayName: cohort.underlayName,
+    groups: cohort.criteriaGroups.map((group) => ({
+      id: group.id,
+      name: group.displayName,
+      filter: {
+        kind:
+          group.operator === tanagra.CriteriaGroupV2OperatorEnum.And
+            ? tanagra.GroupFilterKindEnum.All
+            : tanagra.GroupFilterKindEnum.Any,
+        excluded: group.excluded,
+      },
+      criteria: group.criteria.map((criteria) => ({
+        id: criteria.id,
+        type: criteria.pluginName,
+        data: JSON.parse(criteria.selectionData),
+        config: JSON.parse(criteria.uiConfig),
+      })),
+    })),
+  };
+}
+
+function toAPICohort(cohort: tanagra.Cohort): tanagra.CohortV2 {
+  return {
+    id: cohort.id,
+    displayName: cohort.name,
+    underlayName: cohort.underlayName,
+    lastModified: new Date(),
+    criteriaGroups: cohort.groups.map((group) => ({
+      id: group.id,
+      displayName: group.name ?? "",
+      operator:
+        group.filter.kind === tanagra.GroupFilterKindEnum.All
+          ? tanagra.CriteriaGroupV2OperatorEnum.And
+          : tanagra.CriteriaGroupV2OperatorEnum.Or,
+      excluded: group.filter.excluded,
+      criteria: group.criteria.map((criteria) => ({
+        id: criteria.id,
+        displayName: "",
+        pluginName: criteria.type,
+        selectionData: JSON.stringify(criteria.data),
+        uiConfig: JSON.stringify(criteria.config),
+      })),
+    })),
+  };
+}
+
+function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
+  if (!review.cohort) {
+    throw new Error(`Undefined cohort for review "${review.displayName}".`);
+  }
+
+  return {
+    id: review.id,
+    displayName: review.displayName,
+    description: review.description,
+    size: review.size,
+    cohort: fromAPICohort(review.cohort),
+    created: new Date(),
+  };
+}
+
+function loadLocalReviews(): tanagra.ReviewV2[] {
+  const data = JSON.parse(localStorage.getItem("tanagra-reviews") ?? "{}");
+  if (data?.version != 1) {
+    return [];
+  }
+  return data.reviews;
+}
+
+function saveLocalReviews(reviews: tanagra.ReviewV2[]) {
+  localStorage.setItem(
+    "tanagra-reviews",
+    JSON.stringify({
+      version: 1,
+      reviews,
+    })
+  );
 }

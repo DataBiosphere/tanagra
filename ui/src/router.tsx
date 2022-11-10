@@ -1,5 +1,6 @@
 import Button from "@mui/material/Button";
 import { AddCriteria } from "addCriteria";
+import { CohortReviewList } from "cohortReview/cohortReviewList";
 import ConceptSetEdit from "conceptSetEdit";
 import Edit from "edit";
 import { GroupOverview } from "groupOverview";
@@ -31,6 +32,10 @@ export function AppRouter() {
             path="conceptSets/edit/:conceptSetId"
             element={<ConceptSetEdit />}
           />
+          <Route path="review/:cohortId">
+            <Route index element={<CohortReviewList />} />
+            <Route path=":reviewId" element={<CohortReviewList />} />
+          </Route>
         </Route>
         <Route path="sdAdmin" element={<SdAdmin />} />
         <Route
@@ -42,12 +47,18 @@ export function AppRouter() {
   );
 }
 
+// TODO(tjennison): This is becoming spaghetti. Consider alternative ways to set
+// this up or perhaps alternative libraries.
 export function underlayURL(underlayName: string) {
   return underlayName;
 }
 
-export function cohortURL(cohortId: string, groupId: string) {
-  return "cohorts/" + cohortId + "/" + groupId;
+export function cohortURL(cohortId: string, groupId?: string) {
+  return "cohorts/" + cohortId + "/" + (groupId ?? "first");
+}
+
+export function absoluteCohortURL(underlayName: string, cohortId: string) {
+  return `/${underlayName}/${cohortURL(cohortId)}`;
 }
 
 export function conceptSetURL(conceptSetId: string) {
@@ -64,6 +75,14 @@ export function criteriaURL(criteriaId: string) {
 
 export function newCriteriaURL(configId: string) {
   return `new/${configId}`;
+}
+
+export function cohortReviewURL(
+  underlayName: string,
+  cohortId: string,
+  reviewId?: string
+) {
+  return `/${underlayName}/review/${cohortId}/${reviewId ?? ""}`;
 }
 
 // TODO(tjennison): Make a prettier 404 page.

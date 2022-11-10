@@ -1,12 +1,12 @@
 import ActionBar from "actionBar";
 import { CriteriaPlugin } from "cohort";
-import UndoRedo from "components/UndoRedo";
+import CohortToolbar from "cohortToolbar";
 import { useState } from "react";
 
 export type CriteriaHolderProps = {
   title: string;
   plugin: CriteriaPlugin<object>;
-  showUndoRedo?: boolean;
+  cohort?: boolean;
 };
 
 export default function CriteriaHolder(props: CriteriaHolderProps) {
@@ -17,7 +17,7 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
       <ActionBar
         title={props.title}
         backURL={backURL}
-        extraControls={props.showUndoRedo ? <UndoRedo /> : undefined}
+        extraControls={props.cohort ? <CohortToolbar /> : undefined}
       />
       {props.plugin.renderEdit?.(setBackURL)}
     </>

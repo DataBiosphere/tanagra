@@ -10,7 +10,7 @@ export default function Edit() {
     <CriteriaHolder
       title={getCriteriaTitle(criteria, plugin)}
       plugin={plugin}
-      showUndoRedo
+      cohort
     />
   );
 }

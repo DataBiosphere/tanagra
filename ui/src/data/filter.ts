@@ -1,5 +1,5 @@
 import { isValid } from "util/valid";
-import { DataKey, DataValue } from "./configuration";
+import { DataKey, DataValue } from "./types";
 
 export enum FilterType {
   Unary = "UNARY",

@@ -8,12 +8,12 @@ import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { defaultFilter, insertGroup } from "cohortsSlice";
 import Empty from "components/empty";
 import Loading from "components/loading";
+import SelectablePaper from "components/selectablePaper";
 import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import {
@@ -192,24 +192,8 @@ function ParticipantsGroup(props: {
   const groupCountState = useAsyncWithApi(fetchGroupCount);
 
   return (
-    <Paper
-      sx={{ p: 1, width: "100%", overflow: "hidden", position: "relative" }}
-    >
-      {props.selected && (
-        <Box
-          className="selected-group-highlight"
-          sx={{
-            position: "absolute",
-            top: "16px",
-            bottom: "16px",
-            left: "-4px",
-            width: "8px",
-            "border-radius": "4px",
-            backgroundColor: (theme) => theme.palette.primary.main,
-          }}
-        />
-      )}
-      <Stack spacing={0}>
+    <SelectablePaper selected={props.selected}>
+      <Stack spacing={0} sx={{ p: 1 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -253,7 +237,7 @@ function ParticipantsGroup(props: {
           </Loading>
         </Box>
       </Stack>
-    </Paper>
+    </SelectablePaper>
   );
 }
 
