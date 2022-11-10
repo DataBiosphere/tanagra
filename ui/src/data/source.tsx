@@ -1,7 +1,4 @@
-import {
-  EntityInstancesApiContext,
-  HintsApiContext,
-} from "apiContext";
+import { EntityInstancesApiContext, HintsApiContext } from "apiContext";
 import { useUnderlay } from "hooks";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";

@@ -33,7 +33,7 @@ jobs:
       - name: Initialize Postgres DB
         env:
           PGPASSWORD: postgres
-        run: psql -h 127.0.0.1 -U postgres -f ./api/local-dev/local-postgres-init.sql
+        run: psql -h 127.0.0.1 -U postgres -f ./service/local-dev/local-postgres-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
