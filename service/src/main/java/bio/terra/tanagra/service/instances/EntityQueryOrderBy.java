@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api;
+package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.underlay.Attribute;

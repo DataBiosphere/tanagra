@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api;
+package bio.terra.tanagra.service.filter;
 
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.TableVariable;

@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.jdbc;
+package bio.terra.tanagra.service.jdbc;
 
 import bio.terra.tanagra.app.configuration.JdbcConfiguration;
 import bio.terra.tanagra.app.configuration.JdbcDataSourceConfiguration;

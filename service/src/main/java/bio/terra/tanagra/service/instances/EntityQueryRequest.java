@@ -1,5 +1,6 @@
-package bio.terra.tanagra.api;
+package bio.terra.tanagra.service.instances;
 
+import bio.terra.tanagra.service.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyField;

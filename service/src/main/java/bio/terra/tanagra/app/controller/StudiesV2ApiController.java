@@ -1,7 +1,5 @@
 package bio.terra.tanagra.app.controller;
 
-import bio.terra.tanagra.artifact.Study;
-import bio.terra.tanagra.artifact.StudyService;
 import bio.terra.tanagra.generated.controller.StudiesV2Api;
 import bio.terra.tanagra.generated.model.ApiPropertiesV2;
 import bio.terra.tanagra.generated.model.ApiPropertiesV2Inner;
@@ -9,6 +7,8 @@ import bio.terra.tanagra.generated.model.ApiStudyCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiStudyListV2;
 import bio.terra.tanagra.generated.model.ApiStudyUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiStudyV2;
+import bio.terra.tanagra.service.artifact.Study;
+import bio.terra.tanagra.service.artifact.StudyService;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;

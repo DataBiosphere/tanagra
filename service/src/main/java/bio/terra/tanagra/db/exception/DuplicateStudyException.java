@@ -1,4 +1,4 @@
-package bio.terra.tanagra.exception;
+package bio.terra.tanagra.db.exception;
 
 import bio.terra.common.exception.BadRequestException;
 

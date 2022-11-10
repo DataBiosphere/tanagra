@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.jdbc;
+package bio.terra.tanagra.service.jdbc;
 
 /**
  * Strongly typed wrapper around a String identifying a JDBC DataSource.
