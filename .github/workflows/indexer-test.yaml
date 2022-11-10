@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Run API Service Tests
+name: Run Indexer Tests
 
 on:
   push:
@@ -11,18 +11,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:13.1
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - name: Set up AdoptOpenJDK 11
@@ -30,10 +18,6 @@ jobs:
         with:
           java-version: 11
           distribution: 'temurin'
-      - name: Initialize Postgres DB
-        env:
-          PGPASSWORD: postgres
-        run: psql -h 127.0.0.1 -U postgres -f ./api/local-dev/local-postgres-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -57,21 +41,6 @@ jobs:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Gradle Build and Check
         # The check task includes the build, test and static analysis tasks.
-        run: ./gradlew underlay:check service:check indexer:check
+        run: ./gradlew indexer:check
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
-      - name: Jib build
-        # Check that jib builds a docker container.
-        run: ./gradlew service:jibDockerBuild
-      - name: Upload Test Reports
-        if: always()
-        uses: actions/upload-artifact@v1
-        with:
-          name: Test Reports
-          path: api/build/reports
-      - name: Upload Jacoco Reports
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: Test Reports
-          path: api/build/jacoco
