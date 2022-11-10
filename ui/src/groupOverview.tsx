@@ -19,9 +19,9 @@ import {
   renameGroup,
   setGroupFilter,
 } from "cohortsSlice";
+import CohortToolbar from "cohortToolbar";
 import Empty from "components/empty";
 import { useTextInputDialog } from "components/textInputDialog";
-import UndoRedo from "components/UndoRedo";
 import { useAppDispatch, useCohortAndGroup } from "hooks";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { cohortURL, criteriaURL } from "router";
@@ -58,7 +58,7 @@ export function GroupOverview() {
 
   return (
     <Box sx={{ p: 1 }}>
-      <ActionBar title={cohort.name} extraControls={<UndoRedo />} />
+      <ActionBar title={cohort.name} extraControls={<CohortToolbar />} />
       <Stack direction="row" justifyContent="space-between">
         <Stack direction="row" alignItems="center">
           <Typography variant="h2">{name}</Typography>

@@ -1,12 +1,23 @@
 import RedoIcon from "@mui/icons-material/Redo";
 import UndoIcon from "@mui/icons-material/Undo";
 import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
-import { useAppDispatch, useAppSelector, useUndoRedoUrls } from "hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useCohort,
+  useUnderlay,
+  useUndoRedoUrls,
+} from "hooks";
 import { Link as RouterLink } from "react-router-dom";
 import { ActionCreators as UndoActionCreators } from "redux-undo";
+import { cohortReviewURL } from "router";
 
-function UndoRedo() {
+export default function CohortToolbar() {
+  const underlay = useUnderlay();
+  const cohort = useCohort();
+
   const dispatch = useAppDispatch();
   const canUndo = useAppSelector((state) => state.past.length > 0);
   const canRedo = useAppSelector((state) => state.future.length > 0);
@@ -14,6 +25,14 @@ function UndoRedo() {
 
   return (
     <Stack direction="row" spacing={1} sx={{ m: 1 }}>
+      <Button
+        variant="contained"
+        component={RouterLink}
+        to={cohortReviewURL(underlay.name, cohort.id)}
+      >
+        Review
+      </Button>
+      <Divider orientation="vertical" flexItem />
       <Button
         onClick={() => dispatch(UndoActionCreators.undo())}
         variant="outlined"
@@ -37,5 +56,3 @@ function UndoRedo() {
     </Stack>
   );
 }
-
-export default UndoRedo;

@@ -15,7 +15,6 @@ import {
   TreeGridItem,
   TreeGridRowData,
 } from "components/treegrid";
-import { DataEntry, DataKey } from "data/configuration";
 import { FilterType } from "data/filter";
 import {
   ClassificationNode,
@@ -23,6 +22,7 @@ import {
   Source,
   useSource,
 } from "data/source";
+import { DataEntry, DataKey } from "data/types";
 import { useAsyncWithApi } from "errors";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";

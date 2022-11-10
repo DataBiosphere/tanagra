@@ -1,4 +1,3 @@
-import { DataEntry } from "data/configuration";
 import {
   Filter,
   FilterType,
@@ -6,6 +5,7 @@ import {
   UnaryFilterOperator,
 } from "data/filter";
 import { MergedDataEntry, Source } from "data/source";
+import { DataEntry } from "data/types";
 import { generate } from "randomstring";
 import * as tanagra from "tanagra-api";
 import { isValid } from "util/valid";

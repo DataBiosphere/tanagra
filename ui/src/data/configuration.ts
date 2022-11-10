@@ -1,11 +1,3 @@
-export type DataKey = string | number;
-export type DataValue = string | number | boolean | Date;
-
-export type DataEntry = {
-  key: DataKey;
-  [x: string]: DataValue;
-};
-
 export enum SortDirection {
   Asc = "ASC",
   Desc = "DESC",

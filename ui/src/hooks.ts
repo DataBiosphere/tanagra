@@ -44,10 +44,10 @@ export function useCohortAndGroup() {
   const cohort = useCohort();
 
   const { groupId } = useParams<{ groupId: string }>();
-  const groupIndex = cohort.groups.findIndex((g) => g.id === groupId);
-  if (groupIndex === -1) {
-    throw new PathError(`Unknown group "${groupId}".`);
-  }
+  const groupIndex = Math.max(
+    0,
+    cohort.groups.findIndex((g) => g.id === groupId)
+  );
   return { cohort, groupIndex, group: cohort.groups[groupIndex] };
 }
 
@@ -56,7 +56,8 @@ function useOptionalGroupAndCriteria(throwOnUnknown: boolean) {
 
   const { groupId, criteriaId } =
     useParams<{ groupId: string; criteriaId: string }>();
-  const group = cohort?.groups.find((g) => g.id === groupId);
+  const group =
+    cohort?.groups.find((g) => g.id === groupId) ?? cohort?.groups?.[0];
   const criteria = group?.criteria.find((c) => c.id === criteriaId);
   if (throwOnUnknown && (!group || !criteria)) {
     throw new PathError(
