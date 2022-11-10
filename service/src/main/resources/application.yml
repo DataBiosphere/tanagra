@@ -1,0 +1,34 @@
+tanagra:
+  underlay:
+    # TODO(tjennison): Split these for different environments.
+    underlay-files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json", "verily/aou_synthetic/expanded/verily_aou_synthetic.json", "verily/cms_synpuf/expanded/verily_cms_synpuf.json" ]
+
+  feature:
+    # TODO: Turn on artifact storage by default once we have a CloudSQL deployed in the dev environment.
+    artifact-storage-enabled: false
+
+  db:
+    initialize-on-start: false
+    upgrade-on-start: true
+    uri: jdbc:postgresql://127.0.0.1:5432/${TANAGRA_DATABASE_NAME}
+    username:
+    password:
+
+#logging.pattern.level: '%X{requestId} %5p'
+
+server:
+  compression:
+    enabled: true
+    mime-types: text/css,application/javascript
+  port: 8080
+
+spring:
+  application.name: tanagra
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 0
+          must-revalidate: true
+        use-last-modified: false
+      static-locations: classpath:/api/

@@ -172,46 +172,6 @@ class FakeInstancesApi {
   }
 }
 
-class FakeEntityCountsApi {
-  async countInstances(): Promise<tanagra.InstanceCountListV2> {
-    return {
-      instanceCounts: [
-        {
-          count: 52,
-          attributes: {
-            gender: {
-              display: "Female",
-              value: {
-                dataType: tanagra.DataTypeV2.Int64,
-                valueUnion: {
-                  int64Val: 8515,
-                },
-              },
-            },
-            race: {
-              display: "Black or African American",
-              value: {
-                dataType: tanagra.DataTypeV2.Int64,
-                valueUnion: {
-                  int64Val: 8516,
-                },
-              },
-            },
-            year_of_birth: {
-              value: {
-                dataType: tanagra.DataTypeV2.Int64,
-                valueUnion: {
-                  int64Val: 1999,
-                },
-              },
-            },
-          },
-        },
-      ],
-    };
-  }
-}
-
 class FakeHintsApi {
   async queryHints(): Promise<tanagra.DisplayHintListV2> {
     return {
@@ -295,10 +255,6 @@ export const EntityInstancesApiContext = apiForEnvironment(
 export const EntitiesApiContext = apiForEnvironment(
   tanagra.EntitiesV2Api,
   FakeEntitiesApi
-);
-export const EntityCountsApiContext = apiForEnvironment(
-  tanagra.EntityCountsApi,
-  FakeEntityCountsApi
 );
 export const HintsApiContext = apiForEnvironment(
   tanagra.HintsV2Api,

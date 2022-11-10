@@ -1,8 +1,4 @@
-import {
-  EntityCountsApiContext,
-  EntityInstancesApiContext,
-  HintsApiContext,
-} from "apiContext";
+import { EntityInstancesApiContext, HintsApiContext } from "apiContext";
 import { useUnderlay } from "hooks";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
@@ -133,15 +129,11 @@ export function useSource(): Source {
   const instancesApi = useContext(
     EntityInstancesApiContext
   ) as tanagra.InstancesV2Api;
-  const countsApi = useContext(
-    EntityCountsApiContext
-  ) as tanagra.EntityCountsApi;
   const hintsApi = useContext(HintsApiContext) as tanagra.HintsV2Api;
   return useMemo(
     () =>
       new BackendSource(
         instancesApi,
-        countsApi,
         hintsApi,
         underlay,
         underlay.uiConfiguration.dataConfig
@@ -153,7 +145,6 @@ export function useSource(): Source {
 export class BackendSource implements Source {
   constructor(
     private instancesApi: tanagra.InstancesV2Api,
-    private entityCountsApi: tanagra.EntityCountsApi,
     private hintsApi: tanagra.HintsV2Api,
     private underlay: Underlay,
     public config: Configuration
