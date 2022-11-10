@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.search.utils;
+package bio.terra.tanagra.utils;
 
 import java.util.Random;
 import org.springframework.context.annotation.Bean;

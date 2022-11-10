@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.jdbc;
+package bio.terra.tanagra.underlay.datapointer.jdbc;
 
 import bio.terra.tanagra.app.configuration.JdbcConfiguration;
 import bio.terra.tanagra.app.configuration.JdbcDataSourceConfiguration;
@@ -19,7 +19,7 @@ public class DataSourceFactory {
         jdbcConfiguration.getDataSources().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    config -> DataSourceId.create(config.getDataSourceId()),
+                    config -> new DataSourceId(config.getDataSourceId()),
                     JdbcDataSourceConfiguration::getDataSource));
   }
 
@@ -32,7 +32,7 @@ public class DataSourceFactory {
     Preconditions.checkArgument(
         dataSource != null,
         "Unable to find DataSource configured for DataSourceId '%s'",
-        dataSourceId.id());
+        dataSourceId.getId());
     return dataSource;
   }
 }

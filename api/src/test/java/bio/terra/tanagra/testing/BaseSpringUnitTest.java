@@ -1,7 +1,7 @@
 package bio.terra.tanagra.testing;
 
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.service.search.utils.RandomNumberGenerator;
+import bio.terra.tanagra.utils.RandomNumberGenerator;
 import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;

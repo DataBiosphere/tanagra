@@ -1,6 +1,4 @@
-package bio.terra.tanagra.service.jdbc;
-
-import com.google.auto.value.AutoValue;
+package bio.terra.tanagra.underlay.datapointer.jdbc;
 
 /**
  * Strongly typed wrapper around a String identifying a JDBC DataSource.
@@ -11,15 +9,16 @@ import com.google.auto.value.AutoValue;
  * configuration as well as in the underlay to link the two together. The id does not have any
  * particular format - it only serves to link the underlay and the connection information.
  *
- * <p>TODO actually add the corresponding field in tables.proto's Database message)
- *
  * <p>Strongly instead of Stringly typing this makes its usage clearer and more type safe.
  */
-@AutoValue
-public abstract class DataSourceId {
-  public abstract String id();
+public class DataSourceId {
+  private final String id;
 
-  public static DataSourceId create(String id) {
-    return new AutoValue_DataSourceId(id);
+  public DataSourceId(String id) {
+    this.id = id;
+  }
+
+  public String getId() {
+    return id;
   }
 }
