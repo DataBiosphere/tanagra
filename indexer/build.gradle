@@ -1,0 +1,75 @@
+plugins {
+    id "java"
+    id 'java-test-fixtures'
+
+    // See /buildSrc/build.gradle
+    id 'tanagra.java-conventions'
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+ext {
+    resourceDir = "${projectDir}/src/main/resources"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+    }
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+    }
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
+}
+
+dependencies {
+    ext {
+        beam = "2.32.0"
+    }
+    implementation project(":underlay")
+    testImplementation(testFixtures(project(":underlay")))
+
+    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
+    implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+
+    // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
+    implementation group: "com.google.cloud", name: "google-cloud-bigquery"
+    implementation group: "com.google.guava", name: "guava"
+
+    // Beam libraries
+    implementation "org.apache.beam:beam-sdks-java-core:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-io-google-cloud-platform:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-io-jdbc:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:${beam}"
+    testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${beam}"
+    implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${beam}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
+
+    // Static analysis
+    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+}
+
+test {
+    useJUnitPlatform()
+
+    // These System properties are used for the generated SQL strings to compare against during tests.
+    // See bio.terra.tanagra.aousynthetic.GeneratedSqlUtils for how they are used.
+    systemProperty("GRADLE_PROJECT_DIR", projectDir)
+    if (project.findProperty("generateSqlFiles")) {
+        systemProperty("GENERATE_SQL_FILES", "true")
+    }
+}
+
+// e.g. ./gradlew indexer:index -Dexec.args="input_underlay.json output_dir"
+task index (type:JavaExec) {
+    main = "bio.terra.tanagra.indexing.Main"
+    classpath = sourceSets.main.runtimeClasspath
+    systemProperties System.getProperties()
+    args System.getProperty("exec.args", "").split()
+}
