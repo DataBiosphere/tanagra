@@ -1189,8 +1189,7 @@ components:
           description: Name of the plugin that generated this criteria
         selectionData:
           type: string
-          description: Plugin-specific representation of the user's selection
-          format: byte # Base-64 encoded string.
+          description: Serialized plugin-specific representation of the user's selection
         uiConfig:
           # TODO: Remove this uiConfig property once we fully support UI plugins, because it should be identical
           # to the static config stored in the underlay. For now, we save it separately for each criteria so we
