@@ -1110,10 +1110,6 @@ components:
           description: Groups of criteria that define the cohort
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
-        filter:
-          # TODO: Remove this filter property once we move the code that converts the criteriaGroups to a filter
-          # from the UI to the backend.
-          $ref: "#/components/schemas/FilterV2"
 
     CohortListV2:
       type: array
@@ -1129,15 +1125,6 @@ components:
           $ref: "#/components/schemas/CohortDisplayNameV2"
         description:
           $ref: "#/components/schemas/CohortDescriptionV2"
-        criteriaGroups:
-          type: array
-          description: Groups of criteria that define the cohort
-          items:
-            $ref: "#/components/schemas/CriteriaGroupV2"
-        filter:
-          # TODO: Remove this filter property once we move the code that converts the criteriaGroups to a filter
-          # from the UI to the backend.
-          $ref: "#/components/schemas/FilterV2"
 
     CohortUpdateInfoV2:
       type: object
@@ -1151,10 +1138,6 @@ components:
           description: Groups of criteria that define the cohort
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
-        filter:
-          # TODO: Remove this filter property once we move the code that converts the criteriaGroups to a filter
-          # from the UI to the backend.
-          $ref: "#/components/schemas/FilterV2"
 
     UnderlayNameV2:
       type: string
@@ -1201,20 +1184,19 @@ components:
         displayName:
           type: string
           description: Name of the criteria
-        uiPluginName:
+        pluginName:
           type: string
-          description: Name of the UI plugin that generated this criteria
-        uiData:
+          description: Name of the plugin that generated this criteria
+        selectionData:
           type: string
-          description: UI representation of the criteria, includes the user's selection, plugin-specific
+          description: Plugin-specific representation of the user's selection
           format: byte # Base-64 encoded string.
         uiConfig:
           # TODO: Remove this uiConfig property once we fully support UI plugins, because it should be identical
           # to the static config stored in the underlay. For now, we save it separately for each criteria so we
           # can handle schema changes in the UI code instead of in plugin-specific backend code.
           type: string
-          description: UI configuration for the criteria, plugin-specific
-          format: byte # Base-64 encoded string.
+          description: Serialized plugin-specific UI configuration for the criteria
 
     ErrorReportV2:
       type: object
