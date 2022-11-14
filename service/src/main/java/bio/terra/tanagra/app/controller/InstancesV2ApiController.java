@@ -1,5 +1,10 @@
 package bio.terra.tanagra.app.controller;
 
+import static bio.terra.tanagra.api.accesscontrol.Action.QUERY_COUNTS;
+import static bio.terra.tanagra.api.accesscontrol.Action.QUERY_INSTANCES;
+import static bio.terra.tanagra.api.accesscontrol.ResourceType.UNDERLAY;
+
+import bio.terra.tanagra.api.AccessControlService;
 import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.api.EntityInstance;
 import bio.terra.tanagra.api.EntityInstanceCount;
@@ -8,6 +13,7 @@ import bio.terra.tanagra.api.EntityQueryRequest;
 import bio.terra.tanagra.api.FromApiConversionService;
 import bio.terra.tanagra.api.QuerysService;
 import bio.terra.tanagra.api.UnderlaysService;
+import bio.terra.tanagra.api.accesscontrol.ResourceId;
 import bio.terra.tanagra.api.utils.ToApiConversionUtils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
@@ -45,20 +51,25 @@ public class InstancesV2ApiController implements InstancesV2Api {
   private final UnderlaysService underlaysService;
   private final QuerysService querysService;
   private final FromApiConversionService fromApiConversionService;
+  private final AccessControlService accessControlService;
 
   @Autowired
   public InstancesV2ApiController(
       UnderlaysService underlaysService,
       QuerysService querysService,
-      FromApiConversionService fromApiConversionService) {
+      FromApiConversionService fromApiConversionService,
+      AccessControlService accessControlService) {
     this.underlaysService = underlaysService;
     this.querysService = querysService;
     this.fromApiConversionService = fromApiConversionService;
+    this.accessControlService = accessControlService;
   }
 
   @Override
   public ResponseEntity<ApiInstanceListV2> queryInstances(
       String underlayName, String entityName, ApiQueryV2 body) {
+    accessControlService.throwIfUnauthorized(
+        null, QUERY_INSTANCES, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
@@ -262,6 +273,8 @@ public class InstancesV2ApiController implements InstancesV2Api {
   @Override
   public ResponseEntity<ApiInstanceCountListV2> countInstances(
       String underlayName, String entityName, ApiCountQueryV2 body) {
+    accessControlService.throwIfUnauthorized(
+        null, QUERY_COUNTS, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
     List<Attribute> attributes = new ArrayList<>();

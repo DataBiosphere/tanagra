@@ -1,8 +1,13 @@
 package bio.terra.tanagra.app.controller;
 
+import static bio.terra.tanagra.api.accesscontrol.Action.QUERY_COUNTS;
+import static bio.terra.tanagra.api.accesscontrol.ResourceType.UNDERLAY;
+
+import bio.terra.tanagra.api.AccessControlService;
 import bio.terra.tanagra.api.FromApiConversionService;
 import bio.terra.tanagra.api.QuerysService;
 import bio.terra.tanagra.api.UnderlaysService;
+import bio.terra.tanagra.api.accesscontrol.ResourceId;
 import bio.terra.tanagra.api.utils.ToApiConversionUtils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.HintsV2Api;
@@ -32,16 +37,23 @@ import org.springframework.stereotype.Controller;
 public class HintsV2ApiController implements HintsV2Api {
   private final UnderlaysService underlaysService;
   private final QuerysService querysService;
+  private final AccessControlService accessControlService;
 
   @Autowired
-  public HintsV2ApiController(UnderlaysService underlaysService, QuerysService querysService) {
+  public HintsV2ApiController(
+      UnderlaysService underlaysService,
+      QuerysService querysService,
+      AccessControlService accessControlService) {
     this.underlaysService = underlaysService;
     this.querysService = querysService;
+    this.accessControlService = accessControlService;
   }
 
   @Override
   public ResponseEntity<ApiDisplayHintListV2> queryHints(
       String underlayName, String entityName, ApiHintQueryV2 body) {
+    accessControlService.throwIfUnauthorized(
+        null, QUERY_COUNTS, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
     if (body == null || body.getRelatedEntity() == null) {
