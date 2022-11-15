@@ -39,10 +39,19 @@ public class UnderlaysService {
     this.underlaysMap = underlaysMapBuilder;
   }
 
+  /** Retrieves a list of all underlays. */
   public List<Underlay> getUnderlays() {
     return underlaysMap.values().stream().collect(Collectors.toUnmodifiableList());
   }
 
+  /** Retrieves a list of underlays by name. */
+  public List<Underlay> getUnderlays(List<String> names) {
+    return underlaysMap.values().stream()
+        .filter(underlay -> names.contains(underlay.getName()))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  /** Retrieves an underlay by name. */
   public Underlay getUnderlay(String name) {
     if (!underlaysMap.containsKey(name)) {
       throw new NotFoundException("Underlay not found: " + name);
@@ -50,6 +59,7 @@ public class UnderlaysService {
     return underlaysMap.get(name);
   }
 
+  /** Retrieves an entity by name for an underlay. */
   public Entity getEntity(String underlayName, String entityName) {
     Underlay underlay = getUnderlay(underlayName);
     if (!underlay.getEntities().containsKey(entityName)) {

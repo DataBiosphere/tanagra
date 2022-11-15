@@ -1,5 +1,9 @@
 package bio.terra.tanagra.app.controller;
 
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
+
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.ApiCountQueryV2;
@@ -13,15 +17,17 @@ import bio.terra.tanagra.generated.model.ApiQueryV2;
 import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.FromApiConversionService;
-import bio.terra.tanagra.service.ToApiConversionUtils;
+import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.UnderlaysService;
-import bio.terra.tanagra.service.filter.EntityFilter;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.instances.EntityInstance;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.EntityQueryOrderBy;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
-import bio.terra.tanagra.service.instances.QuerysService;
+import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -45,20 +51,25 @@ public class InstancesV2ApiController implements InstancesV2Api {
   private final UnderlaysService underlaysService;
   private final QuerysService querysService;
   private final FromApiConversionService fromApiConversionService;
+  private final AccessControlService accessControlService;
 
   @Autowired
   public InstancesV2ApiController(
       UnderlaysService underlaysService,
       QuerysService querysService,
-      FromApiConversionService fromApiConversionService) {
+      FromApiConversionService fromApiConversionService,
+      AccessControlService accessControlService) {
     this.underlaysService = underlaysService;
     this.querysService = querysService;
     this.fromApiConversionService = fromApiConversionService;
+    this.accessControlService = accessControlService;
   }
 
   @Override
   public ResponseEntity<ApiInstanceListV2> queryInstances(
       String underlayName, String entityName, ApiQueryV2 body) {
+    accessControlService.throwIfUnauthorized(
+        null, QUERY_INSTANCES, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
@@ -262,6 +273,8 @@ public class InstancesV2ApiController implements InstancesV2Api {
   @Override
   public ResponseEntity<ApiInstanceCountListV2> countInstances(
       String underlayName, String entityName, ApiCountQueryV2 body) {
+    accessControlService.throwIfUnauthorized(
+        null, QUERY_COUNTS, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
     List<Attribute> attributes = new ArrayList<>();

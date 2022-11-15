@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.instances;
+package bio.terra.tanagra.service;
 
 import static bio.terra.tanagra.service.instances.EntityInstanceCount.DEFAULT_COUNT_COLUMN_NAME;
 import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_ATTR_COL;
@@ -25,7 +25,10 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.service.filter.EntityFilter;
+import bio.terra.tanagra.service.instances.EntityInstance;
+import bio.terra.tanagra.service.instances.EntityInstanceCount;
+import bio.terra.tanagra.service.instances.EntityQueryRequest;
+import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.AuxiliaryDataMapping;

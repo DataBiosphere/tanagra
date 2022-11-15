@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.filter;
+package bio.terra.tanagra.service.instances.filter;
 
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.FieldVariable;

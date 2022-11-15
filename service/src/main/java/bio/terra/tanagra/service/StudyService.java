@@ -1,7 +1,8 @@
-package bio.terra.tanagra.service.artifact;
+package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
+import bio.terra.tanagra.service.artifact.Study;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
