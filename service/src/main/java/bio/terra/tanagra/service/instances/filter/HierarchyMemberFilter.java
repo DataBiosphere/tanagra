@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.filter;
+package bio.terra.tanagra.service.instances.filter;
 
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
@@ -10,10 +10,10 @@ import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 
-public class HierarchyRootFilter extends EntityFilter {
+public class HierarchyMemberFilter extends EntityFilter {
   private final Hierarchy hierarchy;
 
-  public HierarchyRootFilter(Hierarchy hierarchy) {
+  public HierarchyMemberFilter(Hierarchy hierarchy) {
     this.hierarchy = hierarchy;
   }
 
@@ -25,8 +25,8 @@ public class HierarchyRootFilter extends EntityFilter {
         pathField.buildFieldVariableFromEntityId(
             hierarchy.getMapping(Underlay.MappingType.INDEX), entityTableVar, tableVars);
 
-    // IS_ROOT translates to path=""
+    // IS_MEMBER translates to path IS NOT NULL
     return new BinaryFilterVariable(
-        pathFieldVar, BinaryFilterVariable.BinaryOperator.EQUALS, new Literal(""));
+        pathFieldVar, BinaryFilterVariable.BinaryOperator.IS_NOT, new Literal(null));
   }
 }

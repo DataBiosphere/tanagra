@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.filter;
+package bio.terra.tanagra.service.instances.filter;
 
 import static bio.terra.tanagra.underlay.HierarchyMapping.ANCESTOR_FIELD_NAME;
 import static bio.terra.tanagra.underlay.HierarchyMapping.DESCENDANT_FIELD_NAME;

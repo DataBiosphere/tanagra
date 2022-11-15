@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.utils;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAttributeV2;
