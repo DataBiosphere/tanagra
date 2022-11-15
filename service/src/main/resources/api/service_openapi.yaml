@@ -171,6 +171,31 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/instances":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+    post:
+      summary: List all primary entity instances in a review and any associated annotation values
+      operationId: listInstancesAndAnnotations
+      tags: [InstancesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewInstanceListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/studies":
     get:
       parameters:
@@ -393,6 +418,194 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all reviews for a cohort
+      operationId: listReviews
+      tags: [ReviewsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new review
+      operationId: createReview
+      tags: [ReviewsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+    get:
+      summary: Get an existing review
+      operationId: getReview
+      tags: [ReviewsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing review
+      operationId: updateReview
+      tags: [ReviewsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a review
+      operationId: deleteReview
+      tags: [ReviewsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/annotations":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all annotations
+      operationId: listAnnotations
+      tags: [AnnotationsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnnotationListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new annotation
+      operationId: createAnnotation
+      tags: [AnnotationsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnotationCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnnotationV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/annotations/{annotationId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+      - $ref: '#/components/parameters/AnnotationIdV2'
+    get:
+      summary: Get an existing annotation
+      operationId: getAnnotation
+      tags: [AnnotationsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing annotation
+      operationId: updateAnnotation
+      tags: [AnnotationsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnotationUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete an annotation
+      operationId: deleteAnnotation
+      tags: [AnnotationsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
 components:
   parameters:
     UnderlayNameV2:
@@ -423,6 +636,22 @@ components:
       name: cohortId
       in: path
       description: ID of the cohort
+      required: true
+      schema:
+        type: string
+
+    ReviewIdV2:
+      name: reviewId
+      in: path
+      description: ID of the review
+      required: true
+      schema:
+        type: string
+
+    AnnotationIdV2:
+      name: annotationId
+      in: path
+      description: ID of the annotation
       required: true
       schema:
         type: string
@@ -773,13 +1002,9 @@ components:
                   hierarchy:
                     type: string
               direction:
-                type: string
-                description: Defaults to ascending
-                enum: ["ASCENDING", "DESCENDING"]
+                $ref: "#/components/schemas/OrderByDirectionV2"
         limit:
-          type: integer
-          description: Maximum number of results to return. Defaults to 250.
-          default: 250
+          $ref: "#/components/schemas/LimitV2"
 
     CountQueryV2:
       type: object
@@ -811,6 +1036,37 @@ components:
               description: Related entity name
             id:
               $ref: "#/components/schemas/LiteralV2"
+
+    ReviewQueryV2:
+      type: object
+      description: Query for review instances and annotations
+      properties:
+        includeAttributes:
+          description: Attributes to include in the returned instances
+          type: array
+          items:
+            type: string
+        entityFilter:
+          $ref: "#/components/schemas/FilterV2"
+        annotationFilter:
+          $ref: "#/components/schemas/AnnotationFilterV2"
+        orderBys:
+          type: array
+          description: Attributes or annotations, and direction to order the results by
+          items:
+            type: object
+            description: Attribute or annotation and the direction
+            properties:
+              attribute:
+                type: string
+                description: Name of the attribute
+              annotation:
+                type: string
+                description: ID of the annotation
+              direction:
+                $ref: "#/components/schemas/OrderByDirectionV2"
+        limit:
+          $ref: "#/components/schemas/LimitV2"
 
     FilterV2:
       type: object
@@ -895,6 +1151,28 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FilterV2"
+
+    AnnotationFilterV2:
+      type: object
+      description: Filter on an annotation value (e.g. reviewStatus=complete)
+      properties:
+        annotation:
+          type: string
+        operator:
+          type: string
+          enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
+        value:
+          $ref: "#/components/schemas/LiteralV2"
+
+    OrderByDirectionV2:
+      type: string
+      description: Defaults to ascending
+      enum: ["ASCENDING", "DESCENDING"]
+
+    LimitV2:
+      type: integer
+      description: Maximum number of results to return. Defaults to 250.
+      default: 250
 
     InstanceV2:
       type: object
@@ -1213,6 +1491,127 @@ components:
         - pluginName
         - selectionData
         - uiConfig
+
+    ReviewV2:
+      type: object
+      properties:
+        id:
+          description: ID of the review, immutable
+          type: string
+        displayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ReviewDescriptionV2"
+        size:
+          $ref: "#/components/schemas/ReviewSizeV2"
+
+    ReviewListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/ReviewV2"
+
+    ReviewCreateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ReviewDescriptionV2"
+        size:
+          $ref: "#/components/schemas/ReviewSizeV2"
+
+    ReviewUpdateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ReviewDescriptionV2"
+
+    ReviewDisplayNameV2:
+      type: string
+      description: Human readable name of the review
+
+    ReviewDescriptionV2:
+      type: string
+      description: Description of the review
+
+    ReviewSizeV2:
+      type: integer
+      description: Number of primary entity instances included in the review
+
+    AnnotationV2:
+      type: object
+      properties:
+        id:
+          description: ID of the annotation, immutable
+          type: string
+        displayName:
+          $ref: "#/components/schemas/AnnotationDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/AnnotationDescriptionV2"
+        dataType:
+          $ref: "#/components/schemas/DataTypeV2"
+        enumVals:
+          type: array
+          items: string
+
+    AnnotationListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/AnnotationV2"
+
+    AnnotationCreateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/AnnotationDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/AnnotationDescriptionV2"
+        dataType:
+          $ref: "#/components/schemas/DataTypeV2"
+        enumVals:
+          type: array
+          items: string
+
+    AnnotationUpdateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/AnnotationDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/AnnotationDescriptionV2"
+
+    AnnotationDisplayNameV2:
+      type: string
+      description: Human readable name of the annotation
+
+    AnnotationDescriptionV2:
+      type: string
+      description: Description of the annotation
+
+    ReviewInstanceV2:
+      type: object
+      properties:
+        attributes:
+          description: A map of entity attribute names to their value for this instance
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+        annotations:
+          description: A map of annotation ids to their value for this instance in this review
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+
+    ReviewInstanceListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/ReviewInstanceV2"
 
     ErrorReportV2:
       type: object
