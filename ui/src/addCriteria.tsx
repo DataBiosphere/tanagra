@@ -14,6 +14,7 @@ import {
   TreeGridId,
   TreeGridItem,
 } from "components/treegrid";
+import UndoRedo from "components/UndoRedo";
 import { DataEntry, DataKey } from "data/configuration";
 import { MergedDataEntry, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
@@ -145,7 +146,7 @@ export function AddCriteria() {
       }}
     >
       <Search placeholder="Search criteria or select from the options below" />
-      <ActionBar title={"Add criteria"} />
+      <ActionBar title={"Add criteria"} extraControls={<UndoRedo />} />
       {showResults ? (
         <Loading status={searchState}>
           {!data.root?.children?.length ? (

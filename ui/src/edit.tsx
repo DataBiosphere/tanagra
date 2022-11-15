@@ -1,6 +1,5 @@
-import ActionBar from "actionBar";
+import CriteriaHolder from "criteriaHolder";
 import { useGroupAndCriteria } from "hooks";
-import React from "react";
 import { getCriteriaPlugin, getCriteriaTitle } from "./cohort";
 
 export default function Edit() {
@@ -8,9 +7,10 @@ export default function Edit() {
   const plugin = getCriteriaPlugin(criteria);
 
   return (
-    <>
-      <ActionBar title={getCriteriaTitle(criteria, plugin)} />
-      {plugin.renderEdit?.()}
-    </>
+    <CriteriaHolder
+      title={getCriteriaTitle(criteria, plugin)}
+      plugin={plugin}
+      showUndoRedo
+    />
   );
 }

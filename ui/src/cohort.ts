@@ -60,7 +60,7 @@ export function groupFilterKindLabel(kind: tanagra.GroupFilterKindEnum) {
 export interface CriteriaPlugin<DataType> {
   id: string;
   data: DataType;
-  renderEdit?: () => JSX.Element;
+  renderEdit?: (setBackURL: (url?: string) => void) => JSX.Element;
   renderInline: (criteriaId: string) => JSX.Element;
   displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;

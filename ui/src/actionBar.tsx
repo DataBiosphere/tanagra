@@ -5,12 +5,12 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useAppSelector } from "hooks";
-import { useEffect, useState } from "react";
-import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
-import UndoRedo from "./components/UndoRedo";
+import { Link as RouterLink, useParams } from "react-router-dom";
 
 type ActionBarProps = {
   title: string;
+  backURL?: string | null; // null hides the back button.
+  extraControls?: JSX.Element;
 };
 
 export default function ActionBar(props: ActionBarProps) {
@@ -18,11 +18,6 @@ export default function ActionBar(props: ActionBarProps) {
   const underlay = useAppSelector((state) =>
     state.present.underlays.find((underlay) => underlay.name === underlayName)
   );
-
-  const location = useLocation();
-
-  const [backURL, set] = useState<string>();
-  setBackURL = set;
 
   return (
     <Box className="action-bar">
@@ -40,9 +35,9 @@ export default function ActionBar(props: ActionBarProps) {
             color="inherit"
             aria-label="back"
             component={RouterLink}
-            to={backURL ?? ".."}
+            to={props.backURL ?? ".."}
             sx={{
-              visibility: location.pathname === "/" ? "hidden" : "visible",
+              visibility: props.backURL === null ? "hidden" : "visible",
             }}
           >
             <ArrowBackIcon />
@@ -58,7 +53,7 @@ export default function ActionBar(props: ActionBarProps) {
           >
             {props.title}
           </Typography>
-          <UndoRedo />
+          {props.extraControls}
           {underlay ? (
             <Typography variant="h4" className="underlay-name">
               Dataset: {underlay.name}
@@ -68,25 +63,4 @@ export default function ActionBar(props: ActionBarProps) {
       </AppBar>
     </Box>
   );
-}
-
-let setBackURL: ((url?: string) => void) | undefined;
-
-// TODO(tjennison): Migrate to a React context based implementation that also
-// allows the title to be configured and removes the duplicate copies of the
-// ActionBar.
-export function useActionBarBackURL(url?: string) {
-  useEffect(() => {
-    if (!setBackURL) {
-      return;
-    }
-
-    setBackURL(url);
-
-    return () => {
-      if (setBackURL) {
-        setBackURL(undefined);
-      }
-    };
-  }, [url]);
 }

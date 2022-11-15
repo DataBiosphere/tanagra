@@ -1,3 +1,4 @@
+import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { EntitiesApiContext, UnderlaysApiContext } from "apiContext";
@@ -62,7 +63,28 @@ export default function App() {
       <CssBaseline />
       <Loading status={underlaysState}>
         <HashRouter>
-          <AppRouter />
+          <Box
+            sx={{
+              display: "grid",
+              width: "100%",
+              height: "100%",
+              gridTemplateColumns: "1fr",
+              gridTemplateRows: (theme) => `${theme.spacing(6)} 1fr`,
+              gridTemplateAreas: "'actionBar' 'content'",
+            }}
+          >
+            <Box
+              sx={{
+                gridArea: "content",
+                width: "100%",
+                minWidth: "100%",
+                height: "100%",
+                minHeight: "100%",
+              }}
+            >
+              <AppRouter />
+            </Box>
+          </Box>
         </HashRouter>
       </Loading>
     </ThemeProvider>
