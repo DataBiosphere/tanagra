@@ -49,7 +49,7 @@ export function cohortURL(cohortId: string, groupId: string) {
 }
 
 export function conceptSetURL(conceptSetId: string) {
-  return "conceptSets/" + conceptSetId;
+  return "conceptSets/edit/" + conceptSetId;
 }
 
 export function newConceptSetURL(configId: string) {

@@ -8,7 +8,6 @@ import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -161,7 +160,6 @@ export function Datasets() {
   return (
     <>
       <ActionBar title="Datasets" />
-      <Toolbar />
       <Grid container columns={3} className="datasets">
         <Grid item xs={1}>
           <Stack direction="row" alignItems="baseline">

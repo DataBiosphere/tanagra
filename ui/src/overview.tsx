@@ -54,9 +54,9 @@ export function Overview() {
         width: "100%",
         height: "100%",
         gridTemplateColumns: (theme) =>
-          `300px 1fr ${showDemographics ? "380px" : theme.spacing(8)}`,
-        gridTemplateRows: (theme) => `${theme.spacing(6)} 1fr`,
-        gridTemplateAreas: "'header header header' 'outline content drawer'",
+          `280px 1fr ${showDemographics ? "380px" : theme.spacing(8)}`,
+        gridTemplateRows: "1fr",
+        gridTemplateAreas: "'outline content drawer'",
       }}
     >
       <Box
@@ -70,6 +70,8 @@ export function Overview() {
       <Box
         sx={{
           gridArea: "content",
+          height: "100%",
+          minHeight: "100%",
           overflow: "auto",
           borderColor: (theme) => theme.palette.divider,
           borderStyle: "solid",
