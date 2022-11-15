@@ -1,14 +1,8 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.api.accesscontrol.Action.QUERY_COUNTS;
-import static bio.terra.tanagra.api.accesscontrol.ResourceType.UNDERLAY;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.api.AccessControlService;
-import bio.terra.tanagra.api.FromApiConversionService;
-import bio.terra.tanagra.api.QuerysService;
-import bio.terra.tanagra.api.UnderlaysService;
-import bio.terra.tanagra.api.accesscontrol.ResourceId;
-import bio.terra.tanagra.api.utils.ToApiConversionUtils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.HintsV2Api;
 import bio.terra.tanagra.generated.model.ApiDisplayHintEnumV2;
@@ -20,6 +14,12 @@ import bio.terra.tanagra.generated.model.ApiDisplayHintV2DisplayHint;
 import bio.terra.tanagra.generated.model.ApiHintQueryV2;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.service.AccessControlService;
+import bio.terra.tanagra.service.FromApiConversionService;
+import bio.terra.tanagra.service.ToApiConversionUtils;
+import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.instances.QuerysService;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.Entity;

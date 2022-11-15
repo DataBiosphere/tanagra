@@ -1,15 +1,15 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.api.accesscontrol.Action.READ;
-import static bio.terra.tanagra.api.accesscontrol.ResourceType.UNDERLAY;
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.api.AccessControlService;
-import bio.terra.tanagra.api.UnderlaysService;
-import bio.terra.tanagra.api.accesscontrol.ResourceId;
-import bio.terra.tanagra.api.utils.ToApiConversionUtils;
 import bio.terra.tanagra.generated.controller.EntitiesV2Api;
 import bio.terra.tanagra.generated.model.ApiEntityListV2;
 import bio.terra.tanagra.generated.model.ApiEntityV2;
+import bio.terra.tanagra.service.AccessControlService;
+import bio.terra.tanagra.service.ToApiConversionUtils;
+import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.Entity;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;

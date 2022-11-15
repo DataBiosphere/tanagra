@@ -1,16 +1,11 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.api.accesscontrol.Action.CREATE;
-import static bio.terra.tanagra.api.accesscontrol.Action.DELETE;
-import static bio.terra.tanagra.api.accesscontrol.Action.READ;
-import static bio.terra.tanagra.api.accesscontrol.Action.UPDATE;
-import static bio.terra.tanagra.api.accesscontrol.ResourceType.STUDY;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
+import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
-import bio.terra.tanagra.api.AccessControlService;
-import bio.terra.tanagra.api.accesscontrol.ResourceId;
-import bio.terra.tanagra.api.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.artifact.Study;
-import bio.terra.tanagra.artifact.StudyService;
 import bio.terra.tanagra.generated.controller.StudiesV2Api;
 import bio.terra.tanagra.generated.model.ApiPropertiesV2;
 import bio.terra.tanagra.generated.model.ApiPropertiesV2Inner;
@@ -18,6 +13,11 @@ import bio.terra.tanagra.generated.model.ApiStudyCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiStudyListV2;
 import bio.terra.tanagra.generated.model.ApiStudyUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiStudyV2;
+import bio.terra.tanagra.service.AccessControlService;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.artifact.Study;
+import bio.terra.tanagra.service.artifact.StudyService;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
