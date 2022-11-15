@@ -1110,6 +1110,11 @@ components:
           description: Groups of criteria that define the cohort
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
+      required:
+        - id
+        - underlayName
+        - displayName
+        - criteriaGroups
 
     CohortListV2:
       type: array
@@ -1173,6 +1178,12 @@ components:
         excluded:
           type: boolean
           description: True to exclude the group, false to include it
+      required:
+        - id
+        - displayName
+        - criteria
+        - operator
+        - excluded
 
     CriteriaV2:
       type: object
@@ -1188,14 +1199,20 @@ components:
           type: string
           description: Name of the plugin that generated this criteria
         selectionData:
-          type: string
+          type: string # JSON formatted
           description: Serialized plugin-specific representation of the user's selection
         uiConfig:
-          # TODO: Remove this uiConfig property once we fully support UI plugins, because it should be identical
-          # to the static config stored in the underlay. For now, we save it separately for each criteria so we
-          # can handle schema changes in the UI code instead of in plugin-specific backend code.
-          type: string
+          # TODO: Remove this uiConfig property from the service API once we fully support UI plugins, because it
+          # should be identical to the static config stored in the underlay. For now, we save it separately for
+          # each criteria so we can handle schema changes in the UI code instead of in plugin-specific backend code.
+          type: string # JSON formatted
           description: Serialized plugin-specific UI configuration for the criteria
+      required:
+        - id
+        - displayName
+        - pluginName
+        - selectionData
+        - uiConfig
 
     ErrorReportV2:
       type: object
