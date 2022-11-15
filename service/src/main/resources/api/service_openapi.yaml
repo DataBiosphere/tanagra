@@ -302,6 +302,97 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/studies/{studyId}/cohorts":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all cohorts in a study
+      operationId: listCohorts
+      tags: [CohortsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CohortListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new cohort
+      operationId: createCohort
+      tags: [CohortsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CohortCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CohortV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+    get:
+      summary: Get an existing cohort
+      operationId: getCohort
+      tags: [CohortsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing cohort
+      operationId: updateCohort
+      tags: [CohortsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CohortUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a cohort
+      operationId: deleteCohort
+      tags: [CohortsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
 components:
   parameters:
     UnderlayNameV2:
@@ -324,6 +415,14 @@ components:
       name: studyId
       in: path
       description: ID of the study
+      required: true
+      schema:
+        type: string
+
+    CohortIdV2:
+      name: cohortId
+      in: path
+      description: ID of the cohort
       required: true
       schema:
         type: string
@@ -993,6 +1092,127 @@ components:
       type: array
       items:
         type: string
+
+    CohortV2:
+      type: object
+      properties:
+        id:
+          description: ID of the cohort, immutable
+          type: string
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        displayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/CohortDescriptionV2"
+        criteriaGroups:
+          type: array
+          description: Groups of criteria that define the cohort
+          items:
+            $ref: "#/components/schemas/CriteriaGroupV2"
+      required:
+        - id
+        - underlayName
+        - displayName
+        - criteriaGroups
+
+    CohortListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/CohortV2"
+
+    CohortCreateInfoV2:
+      type: object
+      properties:
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        displayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/CohortDescriptionV2"
+
+    CohortUpdateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/CohortDescriptionV2"
+        criteriaGroups:
+          type: array
+          description: Groups of criteria that define the cohort
+          items:
+            $ref: "#/components/schemas/CriteriaGroupV2"
+
+    UnderlayNameV2:
+      type: string
+      description: Name of the underlay, immutable
+
+    CohortDisplayNameV2:
+      type: string
+      description: Human readable name of the cohort
+
+    CohortDescriptionV2:
+      type: string
+      description: Description of the cohort
+
+    CriteriaGroupV2:
+      type: object
+      description: Group of criteria for a cohort or concept set definition
+      properties:
+        id:
+          type: string
+          description: ID of the group, immutable
+        displayName:
+          type: string
+          description: Name of the group
+        criteria:
+          type: array
+          description: Set of criteria in the group
+          items:
+            $ref: "#/components/schemas/CriteriaV2"
+        operator:
+          type: string
+          description: Operator to use when combining the criteria in the group
+          enum: ["AND", "OR"]
+        excluded:
+          type: boolean
+          description: True to exclude the group, false to include it
+      required:
+        - id
+        - displayName
+        - criteria
+        - operator
+        - excluded
+
+    CriteriaV2:
+      type: object
+      description: Single criteria for a cohort or concept set definition
+      properties:
+        id:
+          type: string
+          description: ID of the criteria, immutable
+        displayName:
+          type: string
+          description: Name of the criteria
+        pluginName:
+          type: string
+          description: Name of the plugin that generated this criteria
+        selectionData:
+          type: string # JSON formatted
+          description: Serialized plugin-specific representation of the user's selection
+        uiConfig:
+          # TODO: Remove this uiConfig property from the service API once we fully support UI plugins, because it
+          # should be identical to the static config stored in the underlay. For now, we save it separately for
+          # each criteria so we can handle schema changes in the UI code instead of in plugin-specific backend code.
+          type: string # JSON formatted
+          description: Serialized plugin-specific UI configuration for the criteria
+      required:
+        - id
+        - displayName
+        - pluginName
+        - selectionData
+        - uiConfig
 
     ErrorReportV2:
       type: object

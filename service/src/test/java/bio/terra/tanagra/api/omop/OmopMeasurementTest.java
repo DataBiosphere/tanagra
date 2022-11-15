@@ -1,13 +1,13 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
-import bio.terra.tanagra.api.EntityQueryRequest;
-import bio.terra.tanagra.api.entityfilter.AttributeFilter;
-import bio.terra.tanagra.api.entityfilter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.entityfilter.HierarchyRootFilter;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
+import bio.terra.tanagra.service.filter.AttributeFilter;
+import bio.terra.tanagra.service.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.service.filter.HierarchyRootFilter;
+import bio.terra.tanagra.service.instances.EntityQueryRequest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import java.io.IOException;

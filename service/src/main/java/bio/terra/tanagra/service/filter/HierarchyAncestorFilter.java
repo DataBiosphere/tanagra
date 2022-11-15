@@ -1,9 +1,8 @@
-package bio.terra.tanagra.api.entityfilter;
+package bio.terra.tanagra.service.filter;
 
 import static bio.terra.tanagra.underlay.HierarchyMapping.ANCESTOR_FIELD_NAME;
 import static bio.terra.tanagra.underlay.HierarchyMapping.DESCENDANT_FIELD_NAME;
 
-import bio.terra.tanagra.api.EntityFilter;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;

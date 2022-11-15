@@ -1,4 +1,4 @@
-package bio.terra.tanagra.artifact;
+package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.exception.SystemException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

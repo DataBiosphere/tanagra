@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api;
+package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.CellValue;
