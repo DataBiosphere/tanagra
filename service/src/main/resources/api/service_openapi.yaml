@@ -486,6 +486,31 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/instances":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+    post:
+      summary: List all primary entity instances in a review and any associated annotation values
+      operationId: listInstancesAndAnnotations
+      tags: [ReviewsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewInstanceListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/annotations":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
@@ -524,31 +549,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AnnotationV2"
-        500:
-          $ref: "#/components/responses/ServerError"
-
-  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/instances":
-    parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
-      - $ref: '#/components/parameters/ReviewIdV2'
-    post:
-      summary: List all primary entity instances in a review and any associated annotation values
-      operationId: listInstancesAndAnnotations
-      tags: [ReviewsV2]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ReviewQueryV2'
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReviewInstanceListV2"
         500:
           $ref: "#/components/responses/ServerError"
 
