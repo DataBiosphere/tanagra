@@ -629,8 +629,8 @@ function searchRequest(
 
 function convertSortDirection(dir: SortDirection) {
   return dir === SortDirection.Desc
-    ? tanagra.QueryV2OrderBysDirectionEnum.Descending
-    : tanagra.QueryV2OrderBysDirectionEnum.Ascending;
+    ? tanagra.OrderByDirectionV2.Descending
+    : tanagra.OrderByDirectionV2.Ascending;
 }
 
 function processEntitiesResponse(
