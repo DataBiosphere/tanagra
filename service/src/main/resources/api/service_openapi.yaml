@@ -1554,7 +1554,8 @@ components:
           $ref: "#/components/schemas/DataTypeV2"
         enumVals:
           type: array
-          items: string
+          items:
+            type: string
 
     AnnotationListV2:
       type: array
@@ -1572,7 +1573,8 @@ components:
           $ref: "#/components/schemas/DataTypeV2"
         enumVals:
           type: array
-          items: string
+          items:
+            type: string
 
     AnnotationUpdateInfoV2:
       type: object
