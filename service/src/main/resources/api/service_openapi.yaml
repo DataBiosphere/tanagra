@@ -1388,11 +1388,16 @@ components:
           description: Groups of criteria that define the cohort
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
+        lastModified:
+          description: Timestamp of when the cohort was last modified
+          type: string
+          format: date-time
       required:
         - id
         - underlayName
         - displayName
         - criteriaGroups
+        - lastModified
 
     CohortListV2:
       type: array
@@ -1504,6 +1509,18 @@ components:
           $ref: "#/components/schemas/ReviewDescriptionV2"
         size:
           $ref: "#/components/schemas/ReviewSizeV2"
+        cohort:
+          $ref: "#/components/schemas/CohortV2"
+        created:
+          description: Timestamp of when the review was created
+          type: string
+          format: date-time
+      required:
+        - id
+        - displayName
+        - size
+        - cohort
+        - created
 
     ReviewListV2:
       type: array
@@ -1519,6 +1536,9 @@ components:
           $ref: "#/components/schemas/ReviewDescriptionV2"
         size:
           $ref: "#/components/schemas/ReviewSizeV2"
+      required:
+        - displayName
+        - size
 
     ReviewUpdateInfoV2:
       type: object
@@ -1556,6 +1576,10 @@ components:
           type: array
           items:
             type: string
+      required:
+        - id
+        - displayName
+        - dataType
 
     AnnotationListV2:
       type: array
@@ -1575,6 +1599,9 @@ components:
           type: array
           items:
             type: string
+      required:
+        - displayName
+        - dataType
 
     AnnotationUpdateInfoV2:
       type: object
