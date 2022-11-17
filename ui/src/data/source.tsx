@@ -395,7 +395,9 @@ export class BackendSource implements Source {
     const sources = lists.map(
       ([source, data]) => new MergeSource(source, data)
     );
-    const countKey = this.config.primaryEntity.entity + "_count";
+    // TODO(tjennison): Pass this as a parameter and base it on the criteria
+    // config ordering.
+    const countKey = ROLLUP_COUNT_ATTRIBUTE;
 
     while (true) {
       let maxSource: MergeSource | undefined;
