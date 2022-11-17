@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class EntityQueryRequest {
+  private static final int DEFAULT_LIMIT = 250;
+
   private final Entity entity;
   private final Underlay.MappingType mappingType;
   private final List<Attribute> selectAttributes;
@@ -76,7 +78,7 @@ public class EntityQueryRequest {
     private List<RelationshipField> selectRelationshipFields;
     private EntityFilter filter;
     private List<EntityQueryOrderBy> orderBys;
-    private int limit;
+    private Integer limit;
 
     public Builder entity(Entity entity) {
       this.entity = entity;
@@ -113,12 +115,15 @@ public class EntityQueryRequest {
       return this;
     }
 
-    public Builder limit(int limit) {
+    public Builder limit(Integer limit) {
       this.limit = limit;
       return this;
     }
 
     public EntityQueryRequest build() {
+      if (limit == null) {
+        limit = DEFAULT_LIMIT;
+      }
       return new EntityQueryRequest(this);
     }
   }
