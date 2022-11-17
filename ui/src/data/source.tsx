@@ -215,6 +215,7 @@ export class BackendSource implements Source {
           ...processEntitiesResponse(
             classification.entityAttribute,
             r,
+            i === 0 ? classification.hierarchy : undefined,
             i > 0 ? classification.groupings?.[i - 1].id : undefined
           )
         );
@@ -268,7 +269,11 @@ export class BackendSource implements Source {
         },
       })
       .then((res) => ({
-        nodes: processEntitiesResponse(classification.entityAttribute, res),
+        nodes: processEntitiesResponse(
+          classification.entityAttribute,
+          res,
+          classification.hierarchy
+        ),
       }));
   }
 
@@ -638,6 +643,7 @@ function convertSortDirection(dir: SortDirection) {
 function processEntitiesResponse(
   attributeID: string,
   response: tanagra.InstanceListV2,
+  hierarchy?: string,
   grouping?: string
 ): ClassificationNode[] {
   const nodes: ClassificationNode[] = [];
@@ -655,10 +661,11 @@ function processEntitiesResponse(
         }
       }
 
-      const rollupCount = instance.relationshipFields?.[0]?.count;
-      if (isValid(rollupCount)) {
-        data[ROLLUP_COUNT_ATTRIBUTE] = rollupCount;
-      }
+      instance.relationshipFields?.forEach((fields) => {
+        if (fields.hierarchy === hierarchy && isValid(fields.count)) {
+          data[ROLLUP_COUNT_ATTRIBUTE] = fields.count;
+        }
+      });
 
       nodes.push({
         data: data,
