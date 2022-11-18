@@ -51,10 +51,9 @@ public class StudyDao {
   }
 
   /**
-   * Persists a study to DB. Returns ID of persisted study on success.
+   * Persists a study to DB.
    *
    * @param study all properties of the study to create
-   * @return study id
    */
   @WriteTransaction
   public void createStudy(Study study) {
@@ -70,14 +69,14 @@ public class StudyDao {
             .addValue("properties", DbSerDes.propertiesToJson(study.getProperties()));
     try {
       jdbcTemplate.update(sql, params);
-      LOGGER.info("Inserted record for study {}", study.getStudyId().toString());
+      LOGGER.info("Inserted record for study {}", study.getStudyId());
     } catch (DuplicateKeyException dkEx) {
       if (dkEx.getMessage()
           .contains("duplicate key value violates unique constraint \"study_pkey\"")) {
         throw new DuplicateStudyException(
             String.format(
                 "Study with id %s already exists - display name %s",
-                study.getStudyId().toString(), study.getDisplayName()),
+                study.getStudyId(), study.getDisplayName()),
             dkEx);
       } else {
         throw dkEx;
@@ -115,7 +114,7 @@ public class StudyDao {
    */
   @ReadTransaction
   public List<Study> getAllStudies(int offset, int limit) {
-    String sql = STUDY_SELECT_SQL + " ORDER BY study_id OFFSET :offset LIMIT :limit";
+    String sql = STUDY_SELECT_SQL + " ORDER BY display_name OFFSET :offset LIMIT :limit";
     var params = new MapSqlParameterSource().addValue("offset", offset).addValue("limit", limit);
     return jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER);
   }
@@ -137,7 +136,7 @@ public class StudyDao {
     }
     String sql =
         STUDY_SELECT_SQL
-            + " WHERE study_id IN (:study_ids) ORDER BY study_id OFFSET :offset LIMIT :limit";
+            + " WHERE study_id IN (:study_ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
     var params =
         new MapSqlParameterSource()
             .addValue("study_ids", studyIdList)
@@ -167,7 +166,7 @@ public class StudyDao {
    * Retrieves a study from database by ID.
    *
    * @param studyId unique identifier of the study
-   * @return study value object
+   * @return study object
    */
   public Study getStudy(String studyId) {
     return getStudyIfExists(studyId)
@@ -180,8 +179,7 @@ public class StudyDao {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
 
-    var params = new MapSqlParameterSource();
-    params.addValue("study_id", studyId);
+    var params = new MapSqlParameterSource().addValue("study_id", studyId);
 
     if (name != null) {
       params.addValue("display_name", name);

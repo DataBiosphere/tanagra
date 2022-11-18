@@ -74,15 +74,15 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   @Override
   public ResponseEntity<ApiStudyListV2> listStudies(Integer offset, Integer limit) {
-    ResourceIdCollection authorizedStudyNames =
+    ResourceIdCollection authorizedStudyIds =
         accessControlService.listResourceIds(STUDY, offset, limit);
     List<Study> authorizedStudies;
-    if (authorizedStudyNames.isAllResourceIds()) {
+    if (authorizedStudyIds.isAllResourceIds()) {
       authorizedStudies = studyService.getAllStudies(offset, limit);
     } else {
       authorizedStudies =
           studyService.getStudies(
-              authorizedStudyNames.getResourceIds().stream()
+              authorizedStudyIds.getResourceIds().stream()
                   .map(ResourceId::getId)
                   .collect(Collectors.toList()),
               offset,
