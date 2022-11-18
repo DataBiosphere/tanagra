@@ -177,11 +177,10 @@ public class CohortDao {
       throw new MissingRequiredFieldException("Valid study and cohort ids are required");
     }
 
-    StringBuilder sql =
-        new StringBuilder(COHORT_SELECT_SQL + " WHERE study_id = :study_id AND is_most_recent ");
+    StringBuilder sql = new StringBuilder(COHORT_SELECT_SQL + " WHERE study_id = :study_id ");
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyId);
     if (getByUserFacingId) {
-      sql.append(" AND user_facing_cohort_id = :user_facing_cohort_id");
+      sql.append(" AND user_facing_cohort_id = :user_facing_cohort_id AND is_most_recent");
       params.addValue("user_facing_cohort_id", userFacingId);
     } else {
       sql.append(" AND cohort_id = :cohort_id");
@@ -417,9 +416,9 @@ public class CohortDao {
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean deleted = rowsAffected > 0;
     if (deleted) {
-      LOGGER.info("Deleted record for cohort {}, {}", studyId, cohortId);
+      LOGGER.info("Deleted criteria group records for cohort {}, {}", studyId, cohortId);
     } else {
-      LOGGER.info("No record found for delete cohort {}, {}", studyId, cohortId);
+      LOGGER.info("No criteria group records found for delete cohort {}, {}", studyId, cohortId);
     }
     return deleted;
   }
@@ -438,8 +437,7 @@ public class CohortDao {
     // Update cohort.
     boolean updated = false;
     if (name != null || description != null) {
-      MapSqlParameterSource params =
-          new MapSqlParameterSource().addValue("study_id", studyId).addValue("cohort_id", cohortId);
+      MapSqlParameterSource params = new MapSqlParameterSource();
       if (name != null) {
         params.addValue("display_name", name);
       }
@@ -450,6 +448,7 @@ public class CohortDao {
           String.format(
               "UPDATE cohort SET %s WHERE study_id = :study_id AND cohort_id = :cohort_id AND is_most_recent AND is_editable",
               DbUtils.setColumnsClause(params));
+      params.addValue("study_id", studyId).addValue("cohort_id", cohortId);
       int rowsAffected = jdbcTemplate.update(sql, params);
       updated = rowsAffected > 0;
       LOGGER.info(
