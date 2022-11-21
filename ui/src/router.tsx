@@ -11,6 +11,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { UnderlaySelect } from "underlaySelect";
 import { Datasets } from "./datasets";
+import { SdAdmin } from "./sdAdmin";
 
 export function AppRouter() {
   return (
@@ -31,6 +32,7 @@ export function AppRouter() {
             element={<ConceptSetEdit />}
           />
         </Route>
+        <Route path="sdAdmin" element={<SdAdmin />} />
         <Route
           path="*"
           element={<NotFound error={new PathError("Invalid URL.")} />}
