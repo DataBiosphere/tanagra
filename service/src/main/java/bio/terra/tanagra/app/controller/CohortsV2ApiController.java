@@ -135,7 +135,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
                       // why the IDs are randomly generated on each update. If we move away from the
                       // simple implementation, then we'll have to expose the internal ids through
                       // the service API.
-                      String newCriteriaGroupId = RandomStringUtils.randomAlphanumeric(15);
+                      String newCriteriaGroupId = RandomStringUtils.randomAlphanumeric(10);
                       return CriteriaGroup.builder()
                           .criteriaGroupId(newCriteriaGroupId)
                           .userFacingCriteriaGroupId(apiCriteriaGroup.getId())
@@ -147,7 +147,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
                                   .map(
                                       apiCriteria -> {
                                         String newCriteriaId =
-                                            RandomStringUtils.randomAlphanumeric(15);
+                                            RandomStringUtils.randomAlphanumeric(10);
                                         return Criteria.builder()
                                             .criteriaGroupId(newCriteriaGroupId)
                                             .criteriaId(newCriteriaId)
