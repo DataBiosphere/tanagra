@@ -9,9 +9,9 @@ import NewCriteria from "newCriteria";
 import { Overview } from "overview";
 import { ErrorBoundary } from "react-error-boundary";
 import { Route, Routes, useNavigate } from "react-router-dom";
+import { SdAdmin } from "sd-admin/sdAdmin";
 import { UnderlaySelect } from "underlaySelect";
 import { Datasets } from "./datasets";
-import { SdAdmin } from "./sdAdmin";
 
 export function AppRouter() {
   return (

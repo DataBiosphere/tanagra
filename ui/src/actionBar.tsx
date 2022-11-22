@@ -60,7 +60,7 @@ export default function ActionBar(props: ActionBarProps) {
             variant="outlined"
             startIcon={<SettingsIcon />}
             component={RouterLink}
-            to="sdAdmin"
+            to="/sdAdmin"
           >
             SD Admin
           </Button>
