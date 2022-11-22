@@ -9,6 +9,7 @@ import NewCriteria from "newCriteria";
 import { Overview } from "overview";
 import { ErrorBoundary } from "react-error-boundary";
 import { Route, Routes, useNavigate } from "react-router-dom";
+import { SdAdmin } from "sd-admin/sdAdmin";
 import { UnderlaySelect } from "underlaySelect";
 import { Datasets } from "./datasets";
 
@@ -31,6 +32,7 @@ export function AppRouter() {
             element={<ConceptSetEdit />}
           />
         </Route>
+        <Route path="sdAdmin" element={<SdAdmin />} />
         <Route
           path="*"
           element={<NotFound error={new PathError("Invalid URL.")} />}
