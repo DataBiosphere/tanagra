@@ -9,7 +9,6 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import bio.terra.tanagra.generated.controller.CohortsV2Api;
 import bio.terra.tanagra.generated.model.ApiCohortCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortListV2;
-import bio.terra.tanagra.generated.model.ApiCohortRevisionV2;
 import bio.terra.tanagra.generated.model.ApiCohortUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortV2;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
@@ -175,25 +174,18 @@ public class CohortsV2ApiController implements CohortsV2Api {
    *
    * <p>In the backend code, a Cohort = a filter on the primary entity, and a CohortRevisionGroup =
    * all past versions and the current version of a filter on the primary entity.
-   *
-   * <p>In the service API, we use slightly different vocabulary. (backend) Cohort = (api)
-   * CohortRevision, (backend) CohortRevisionGroup = (api) Cohort. This method implements this
-   * mapping.
    */
   private static ApiCohortV2 toApiObject(Cohort cohort) {
     return new ApiCohortV2()
         .id(cohort.getCohortRevisionGroupId())
         .underlayName(cohort.getUnderlayName())
-        .latestRevision(
-            new ApiCohortRevisionV2()
-                .id(cohort.getCohortId())
-                .displayName(cohort.getDisplayName())
-                .description(cohort.getDescription())
-                .lastModified(cohort.getLastModifiedUTC())
-                .criteriaGroups(
-                    cohort.getCriteriaGroups().stream()
-                        .map(criteriaGroup -> toApiObject(criteriaGroup))
-                        .collect(Collectors.toList())));
+        .displayName(cohort.getDisplayName())
+        .description(cohort.getDescription())
+        .lastModified(cohort.getLastModifiedUTC())
+        .criteriaGroups(
+            cohort.getCriteriaGroups().stream()
+                .map(criteriaGroup -> toApiObject(criteriaGroup))
+                .collect(Collectors.toList()));
   }
 
   private static ApiCriteriaGroupV2 toApiObject(CriteriaGroup criteriaGroup) {
