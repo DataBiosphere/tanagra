@@ -1385,7 +1385,7 @@ components:
           $ref: "#/components/schemas/CohortDescriptionV2"
         criteriaGroups:
           type: array
-          description: Groups of criteria that define the cohort
+          description: Groups of criteria that define the entity filter
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
         lastModified:
@@ -1519,7 +1519,7 @@ components:
         - id
         - displayName
         - size
-        - cohort
+        - cohortRevision
         - created
 
     ReviewListV2:
