@@ -25,33 +25,33 @@ public class CohortService {
   public void createCohort(Cohort cohort) {
     featureConfiguration.artifactStorageEnabledCheck();
 
-    cohortDao.createCohortUserFacing(cohort);
+    cohortDao.createCohortFirstVersion(cohort);
   }
 
   /** Delete an existing cohort by user-facing ID, including all frozen versions. */
   public void deleteCohort(String studyId, String userFacingCohortId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    cohortDao.deleteCohortUserFacing(studyId, userFacingCohortId);
+    cohortDao.deleteCohortAllVersions(studyId, userFacingCohortId);
   }
 
   /** Retrieves a list of all most recent cohorts for a study. */
   public List<Cohort> getAllCohorts(String studyId, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getAllCohortsUserFacing(studyId, offset, limit);
+    return cohortDao.getAllCohortsLatestVersion(studyId, offset, limit);
   }
 
   /** Retrieves a list of most recent cohorts by ID. */
   public List<Cohort> getCohorts(
       String studyId, List<String> userFacingCohortIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getCohortsMatchingListUserFacing(
+    return cohortDao.getCohortsMatchingListLatestVersion(
         studyId, new HashSet<>(userFacingCohortIds), offset, limit);
   }
 
   /** Retrieves a most recent cohort by ID. */
   public Cohort getCohort(String studyId, String userFacingCohortId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getCohortUserFacing(studyId, userFacingCohortId);
+    return cohortDao.getCohortLatestVersion(studyId, userFacingCohortId);
   }
 
   /**
@@ -72,8 +72,8 @@ public class CohortService {
       @Nullable String description,
       @Nullable List<CriteriaGroup> criteriaGroups) {
     featureConfiguration.artifactStorageEnabledCheck();
-    cohortDao.updateCohortUserFacing(
+    cohortDao.updateCohortLatestVersion(
         studyId, userFacingCohortId, displayName, description, criteriaGroups);
-    return cohortDao.getCohortUserFacing(studyId, userFacingCohortId);
+    return cohortDao.getCohortLatestVersion(studyId, userFacingCohortId);
   }
 }

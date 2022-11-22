@@ -29,7 +29,7 @@ databaseChangeLog:
                     nullable: false
                     unique: false
               - column:
-                  name: user_facing_cohort_id
+                  name: cohort_revision_group_id
                   type: text
                   constraints:
                     nullable: false

@@ -9,6 +9,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import bio.terra.tanagra.generated.controller.CohortsV2Api;
 import bio.terra.tanagra.generated.model.ApiCohortCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortListV2;
+import bio.terra.tanagra.generated.model.ApiCohortRevisionV2;
 import bio.terra.tanagra.generated.model.ApiCohortUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortV2;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
@@ -58,22 +59,23 @@ public class CohortsV2ApiController implements CohortsV2Api {
     underlaysService.getUnderlay(body.getUnderlayName());
     studyService.getStudy(studyId);
 
-    // Generate random 10-character alphanumeric strings for the new cohort and user-facing IDs.
+    // Generate random 10-character alphanumeric strings for the new cohort and revision group IDs.
     String newCohortId = RandomStringUtils.randomAlphanumeric(10);
-    String newUserFacingCohortId = RandomStringUtils.randomAlphanumeric(10);
+    String newCohortRevisionGroupId = RandomStringUtils.randomAlphanumeric(10);
 
     Cohort cohortToCreate =
         Cohort.builder()
             .studyId(studyId)
             .cohortId(newCohortId)
             .underlayName(body.getUnderlayName())
-            .userFacingCohortId(newUserFacingCohortId)
+            .cohortRevisionGroupId(newCohortRevisionGroupId)
             .version(Cohort.STARTING_VERSION)
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .build();
     cohortService.createCohort(cohortToCreate);
-    return ResponseEntity.ok(toApiObject(cohortService.getCohort(studyId, newUserFacingCohortId)));
+    return ResponseEntity.ok(
+        toApiObject(cohortService.getCohort(studyId, newCohortRevisionGroupId)));
   }
 
   @Override
@@ -168,17 +170,30 @@ public class CohortsV2ApiController implements CohortsV2Api {
     return ResponseEntity.ok(toApiObject(updatedCohort));
   }
 
+  /**
+   * Convert the internal Cohort object to an API Cohort object.
+   *
+   * <p>In the backend code, a Cohort = a filter on the primary entity, and a CohortRevisionGroup =
+   * all past versions and the current version of a filter on the primary entity.
+   *
+   * <p>In the service API, we use slightly different vocabulary. (backend) Cohort = (api)
+   * CohortRevision, (backend) CohortRevisionGroup = (api) Cohort. This method implements this
+   * mapping.
+   */
   private static ApiCohortV2 toApiObject(Cohort cohort) {
     return new ApiCohortV2()
-        .id(cohort.getUserFacingCohortId())
+        .id(cohort.getCohortRevisionGroupId())
         .underlayName(cohort.getUnderlayName())
-        .displayName(cohort.getDisplayName())
-        .description(cohort.getDescription())
-        .lastModified(cohort.getLastModifiedUTC())
-        .criteriaGroups(
-            cohort.getCriteriaGroups().stream()
-                .map(criteriaGroup -> toApiObject(criteriaGroup))
-                .collect(Collectors.toList()));
+        .latestRevision(
+            new ApiCohortRevisionV2()
+                .id(cohort.getCohortId())
+                .displayName(cohort.getDisplayName())
+                .description(cohort.getDescription())
+                .lastModified(cohort.getLastModifiedUTC())
+                .criteriaGroups(
+                    cohort.getCriteriaGroups().stream()
+                        .map(criteriaGroup -> toApiObject(criteriaGroup))
+                        .collect(Collectors.toList())));
   }
 
   private static ApiCriteriaGroupV2 toApiObject(CriteriaGroup criteriaGroup) {

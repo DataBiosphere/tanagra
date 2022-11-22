@@ -1379,22 +1379,34 @@ components:
           type: string
         underlayName:
           $ref: "#/components/schemas/UnderlayNameV2"
+        latestRevision:
+          $ref: "#/components/schemas/CohortRevisionV2"
+      required:
+        - id
+        - underlayName
+        - latestRevision
+
+    CohortRevisionV2:
+      type: object
+      properties:
+        id:
+          description: ID of the cohort revision, immutable
+          type: string
         displayName:
           $ref: "#/components/schemas/CohortDisplayNameV2"
         description:
           $ref: "#/components/schemas/CohortDescriptionV2"
         criteriaGroups:
           type: array
-          description: Groups of criteria that define the cohort
+          description: Groups of criteria that define the entity filter
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
         lastModified:
-          description: Timestamp of when the cohort was last modified
+          description: Timestamp of when the revision was last modified
           type: string
           format: date-time
       required:
         - id
-        - underlayName
         - displayName
         - criteriaGroups
         - lastModified
@@ -1509,8 +1521,8 @@ components:
           $ref: "#/components/schemas/ReviewDescriptionV2"
         size:
           $ref: "#/components/schemas/ReviewSizeV2"
-        cohort:
-          $ref: "#/components/schemas/CohortV2"
+        cohortRevision:
+          $ref: "#/components/schemas/CohortRevisionV2"
         created:
           description: Timestamp of when the review was created
           type: string
@@ -1519,7 +1531,7 @@ components:
         - id
         - displayName
         - size
-        - cohort
+        - cohortRevision
         - created
 
     ReviewListV2:

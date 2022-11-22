@@ -15,7 +15,7 @@ public class Cohort {
   private final String studyId;
   private final String cohortId;
   private final String underlayName;
-  private final String userFacingCohortId;
+  private final String cohortRevisionGroupId;
   private final int version;
   private final boolean isMostRecent;
   private final boolean isEditable;
@@ -28,7 +28,7 @@ public class Cohort {
     this.studyId = builder.studyId;
     this.cohortId = builder.cohortId;
     this.underlayName = builder.underlayName;
-    this.userFacingCohortId = builder.userFacingCohortId;
+    this.cohortRevisionGroupId = builder.cohortRevisionGroupId;
     this.version = builder.version;
     this.isMostRecent = builder.isMostRecent;
     this.isEditable = builder.isEditable;
@@ -47,7 +47,7 @@ public class Cohort {
         .studyId(studyId)
         .cohortId(cohortId)
         .underlayName(underlayName)
-        .userFacingCohortId(userFacingCohortId)
+        .cohortRevisionGroupId(cohortRevisionGroupId)
         .version(version)
         .isMostRecent(isMostRecent)
         .isEditable(isEditable)
@@ -72,9 +72,12 @@ public class Cohort {
     return underlayName;
   }
 
-  /** User-facing unique (per study) identifier of this cohort. */
-  public String getUserFacingCohortId() {
-    return userFacingCohortId;
+  /**
+   * User-facing unique (per study) identifier of this set of cohort revisions (current and all
+   * frozen ones).
+   */
+  public String getCohortRevisionGroupId() {
+    return cohortRevisionGroupId;
   }
 
   /** Integer version of the cohort. */
@@ -123,7 +126,7 @@ public class Cohort {
     private String studyId;
     private String cohortId;
     private String underlayName;
-    private String userFacingCohortId;
+    private String cohortRevisionGroupId;
     private int version;
     private boolean isMostRecent;
     private boolean isEditable;
@@ -147,8 +150,8 @@ public class Cohort {
       return this;
     }
 
-    public Builder userFacingCohortId(String userFacingCohortId) {
-      this.userFacingCohortId = userFacingCohortId;
+    public Builder cohortRevisionGroupId(String cohortRevisionGroupId) {
+      this.cohortRevisionGroupId = cohortRevisionGroupId;
       return this;
     }
 

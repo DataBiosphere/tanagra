@@ -37,14 +37,14 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a cohort.
   private static final String COHORT_SELECT_SQL =
-      "SELECT study_id, cohort_id, underlay_name, user_facing_cohort_id, version, is_most_recent, is_editable, last_modified, display_name, description FROM cohort";
+      "SELECT study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, last_modified, display_name, description FROM cohort";
   private static final RowMapper<Cohort.Builder> COHORT_ROW_MAPPER =
       (rs, rowNum) ->
           Cohort.builder()
               .studyId(rs.getString("study_id"))
               .cohortId(rs.getString("cohort_id"))
               .underlayName(rs.getString("underlay_name"))
-              .userFacingCohortId(rs.getString("user_facing_cohort_id"))
+              .cohortRevisionGroupId(rs.getString("cohort_revision_group_id"))
               .version(rs.getInt("version"))
               .isMostRecent(rs.getBoolean("is_most_recent"))
               .isEditable(rs.getBoolean("is_editable"))
@@ -89,18 +89,18 @@ public class CohortDao {
 
   /** Fetch all cohorts that are the most recent version for their user-facing id. */
   @ReadTransaction
-  public List<Cohort> getAllCohortsUserFacing(String studyId, int offset, int limit) {
+  public List<Cohort> getAllCohortsLatestVersion(String studyId, int offset, int limit) {
     return getCohortsHelper(studyId, offset, limit, false, null);
   }
 
   /**
-   * Fetch all cohorts that are the most recent version for their user-facing id. Only returns
-   * cohorts with the specified user-facing ids.
+   * Fetch the latest version of all cohorts. Only returns cohorts with the specified revision group
+   * ids.
    */
   @ReadTransaction
-  public List<Cohort> getCohortsMatchingListUserFacing(
-      String studyId, Set<String> userFacingCohortIdList, int offset, int limit) {
-    return getCohortsHelper(studyId, offset, limit, true, userFacingCohortIdList);
+  public List<Cohort> getCohortsMatchingListLatestVersion(
+      String studyId, Set<String> cohortRevisionGroupIdList, int offset, int limit) {
+    return getCohortsHelper(studyId, offset, limit, true, cohortRevisionGroupIdList);
   }
 
   /** Helper method for fetching a list of cohorts. */
@@ -110,8 +110,8 @@ public class CohortDao {
       int offset,
       int limit,
       boolean onlyIncludeIdsInList,
-      @Nullable Set<String> userFacingCohortIdList) {
-    if (onlyIncludeIdsInList && userFacingCohortIdList.isEmpty()) {
+      @Nullable Set<String> cohortRevisionGroupIdList) {
+    if (onlyIncludeIdsInList && cohortRevisionGroupIdList.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any cohorts, so
       // we return an empty list.
       return Collections.emptyList();
@@ -125,8 +125,8 @@ public class CohortDao {
             .addValue("offset", offset)
             .addValue("limit", limit);
     if (onlyIncludeIdsInList) {
-      sql.append(" AND user_facing_cohort_id IN (:user_facing_cohort_ids)");
-      params.addValue("user_facing_cohort_ids", userFacingCohortIdList);
+      sql.append(" AND cohort_revision_group_id IN (:cohort_revision_group_ids)");
+      params.addValue("cohort_revision_group_ids", cohortRevisionGroupIdList);
     }
     sql.append(" ORDER BY display_name OFFSET :offset LIMIT :limit");
     List<Cohort.Builder> cohorts = jdbcTemplate.query(sql.toString(), params, COHORT_ROW_MAPPER);
@@ -134,10 +134,10 @@ public class CohortDao {
     return cohorts.stream().map(Cohort.Builder::build).collect(Collectors.toList());
   }
 
-  /** Fetch the most recent version for the given user-facing id. */
+  /** Fetch the most recent version for the given revision group id. */
   @ReadTransaction
-  public Cohort getCohortUserFacing(String studyId, String userFacingId) {
-    return getCohortUserFacingOrThrow(studyId, userFacingId);
+  public Cohort getCohortLatestVersion(String studyId, String cohortRevisionGroupId) {
+    return getCohortLatestVersionOrThrow(studyId, cohortRevisionGroupId);
   }
 
   /**
@@ -153,35 +153,35 @@ public class CohortDao {
   }
 
   /**
-   * Fetch the most recent version for the given user-facing id. Used internally so this method has
-   * no transaction annotation.
+   * Fetch the most recent version for the given revision group id. Used internally so this method
+   * has no transaction annotation.
    */
-  private Cohort getCohortUserFacingOrThrow(String studyId, String userFacingId) {
-    return getCohortIfExistsHelper(studyId, true, null, userFacingId)
+  private Cohort getCohortLatestVersionOrThrow(String studyId, String cohortRevisionGroupId) {
+    return getCohortIfExistsHelper(studyId, true, null, cohortRevisionGroupId)
         .orElseThrow(
             () ->
                 new NotFoundException(
-                    String.format("Cohort %s, %s not found.", studyId, userFacingId)));
+                    String.format("Cohort %s, %s not found.", studyId, cohortRevisionGroupId)));
   }
 
   /** Helper method for fetching a single cohort. */
   @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
   private Optional<Cohort> getCohortIfExistsHelper(
       String studyId,
-      boolean getByUserFacingId,
+      boolean getByRevisionGroupId,
       @Nullable String cohortId,
-      @Nullable String userFacingId) {
+      @Nullable String cohortRevisionGroupId) {
     if (studyId == null
-        || (!getByUserFacingId && cohortId == null)
-        || (getByUserFacingId && userFacingId == null)) {
+        || (!getByRevisionGroupId && cohortId == null)
+        || (getByRevisionGroupId && cohortRevisionGroupId == null)) {
       throw new MissingRequiredFieldException("Valid study and cohort ids are required");
     }
 
     StringBuilder sql = new StringBuilder(COHORT_SELECT_SQL + " WHERE study_id = :study_id ");
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyId);
-    if (getByUserFacingId) {
-      sql.append(" AND user_facing_cohort_id = :user_facing_cohort_id AND is_most_recent");
-      params.addValue("user_facing_cohort_id", userFacingId);
+    if (getByRevisionGroupId) {
+      sql.append(" AND cohort_revision_group_id = :cohort_revision_group_id AND is_most_recent");
+      params.addValue("cohort_revision_group_id", cohortRevisionGroupId);
     } else {
       sql.append(" AND cohort_id = :cohort_id");
       params.addValue("cohort_id", cohortId);
@@ -260,33 +260,34 @@ public class CohortDao {
             });
   }
 
-  /** Create a new cohort that is the first version with this user-facing id. */
+  /** Create a new cohort that is the first version in this revision group. */
   @WriteTransaction
-  public void createCohortUserFacing(Cohort cohort) {
+  public void createCohortFirstVersion(Cohort cohort) {
     Optional<Cohort> existingCohort =
-        getCohortIfExistsHelper(cohort.getStudyId(), true, null, cohort.getUserFacingCohortId());
+        getCohortIfExistsHelper(cohort.getStudyId(), true, null, cohort.getCohortRevisionGroupId());
     if (existingCohort.isPresent()) {
       throw new DuplicateCohortException(
           String.format(
-              "Cohort with user-facing id %s already exists - display name %s",
-              cohort.getUserFacingCohortId(), cohort.getDisplayName()));
+              "First version of cohort in revision group %s already exists - display name %s",
+              cohort.getCohortRevisionGroupId(), cohort.getDisplayName()));
     }
     createCohortHelper(cohort);
   }
 
   /**
-   * Update a user-facing cohort. If it's editable, then modify the fields directly. If it's frozen,
-   * then create a new version with the updated properties, and set that one as the most recent.
+   * Update the latest version of a cohort. If it's editable, then modify the fields directly. If
+   * it's frozen, then create a new version with the updated properties, and set that one as the
+   * most recent.
    */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   @WriteTransaction
-  public boolean updateCohortUserFacing(
+  public boolean updateCohortLatestVersion(
       String studyId,
-      String userFacingId,
+      String cohortRevisionGroupId,
       @Nullable String displayName,
       @Nullable String description,
       @Nullable List<CriteriaGroup> criteriaGroups) {
-    Cohort existingCohort = getCohortUserFacingOrThrow(studyId, userFacingId);
+    Cohort existingCohort = getCohortLatestVersionOrThrow(studyId, cohortRevisionGroupId);
     if (existingCohort.isEditable()) {
       return updateCohortHelper(
           studyId, existingCohort.getCohortId(), displayName, description, criteriaGroups);
@@ -304,7 +305,7 @@ public class CohortDao {
           "{} record for cohort {}, {}",
           updated ? "Updated" : "No Update - did not find",
           studyId,
-          userFacingId);
+          cohortRevisionGroupId);
 
       Cohort.Builder newCohortVersion = existingCohort.toBuilder();
       if (displayName != null) {
@@ -326,14 +327,14 @@ public class CohortDao {
   private void createCohortHelper(Cohort cohort) {
     // Store the cohort. New cohort rows are always the most recent and editable.
     final String cohortSql =
-        "INSERT INTO cohort (study_id, cohort_id, underlay_name, user_facing_cohort_id, version, is_most_recent, is_editable, last_modified, display_name, description) "
-            + "VALUES (:study_id, :cohort_id, :underlay_name, :user_facing_cohort_id, :version, TRUE, TRUE, :last_modified, :display_name, :description)";
+        "INSERT INTO cohort (study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, last_modified, display_name, description) "
+            + "VALUES (:study_id, :cohort_id, :underlay_name, :cohort_revision_group_id, :version, TRUE, TRUE, :last_modified, :display_name, :description)";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", cohort.getStudyId())
             .addValue("cohort_id", cohort.getCohortId())
             .addValue("underlay_name", cohort.getUnderlayName())
-            .addValue("user_facing_cohort_id", cohort.getUserFacingCohortId())
+            .addValue("cohort_revision_group_id", cohort.getCohortRevisionGroupId())
             .addValue("version", cohort.getVersion())
             .addValue("last_modified", Timestamp.from(Instant.now()))
             .addValue("display_name", cohort.getDisplayName())
@@ -468,16 +469,16 @@ public class CohortDao {
   }
 
   /**
-   * Freeze a user-facing cohort. Sets the most recent version to not editable. Used for cohort
-   * reviews, so transaction annotation lives on the ReviewDao methods.
+   * Freeze the latest version of a cohort. Sets the most recent version to not editable. Used for
+   * cohort reviews, so transaction annotation lives on the ReviewDao methods.
    */
-  public void freezeCohortUserFacing(String studyId, String userFacingId) {
+  public void freezeCohortLatestVersion(String studyId, String cohortRevisionGroupId) {
     String sql =
-        "UPDATE cohort SET is_editable = FALSE, last_modified = :last_modified WHERE study_id = :study_id AND user_facing_cohort_id = :user_facing_cohort_id AND is_most_recent";
+        "UPDATE cohort SET is_editable = FALSE, last_modified = :last_modified WHERE study_id = :study_id AND cohort_revision_group_id = :cohort_revision_group_id AND is_most_recent";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
-            .addValue("user_facing_cohort_id", userFacingId)
+            .addValue("cohort_revision_group_id", cohortRevisionGroupId)
             .addValue("last_modified", Timestamp.from(Instant.now()));
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean updated = rowsAffected > 0;
@@ -485,13 +486,13 @@ public class CohortDao {
         "{} record for cohort {}, {}",
         updated ? "Updated" : "No Update - did not find",
         studyId,
-        userFacingId);
+        cohortRevisionGroupId);
   }
 
-  /** Delete a user-facing cohort, including all frozen versions. */
+  /** Delete a cohort revision group, which includes the current revision and all frozen ones. */
   @WriteTransaction
-  public boolean deleteCohortUserFacing(String studyId, String userFacingId) {
-    return deleteCohortHelper(studyId, true, null, userFacingId);
+  public boolean deleteCohortAllVersions(String studyId, String cohortRevisionGroupId) {
+    return deleteCohortHelper(studyId, true, null, cohortRevisionGroupId);
   }
 
   /**
@@ -506,14 +507,14 @@ public class CohortDao {
   @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
   private boolean deleteCohortHelper(
       String studyId,
-      boolean deleteByUserFacingId,
+      boolean deleteByRevisionGroupId,
       @Nullable String cohortId,
-      @Nullable String userFacingCohortId) {
+      @Nullable String cohortRevisionGroupId) {
     StringBuilder sql = new StringBuilder("DELETE FROM cohort WHERE study_id = :study_id");
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyId);
-    if (deleteByUserFacingId) {
-      sql.append(" AND user_facing_cohort_id = :user_facing_cohort_id");
-      params.addValue("user_facing_cohort_id", userFacingCohortId);
+    if (deleteByRevisionGroupId) {
+      sql.append(" AND cohort_revision_group_id = :cohort_revision_group_id");
+      params.addValue("cohort_revision_group_id", cohortRevisionGroupId);
     } else {
       sql.append(" AND cohort_id = :cohort_id");
       params.addValue("cohort_id", cohortId);
@@ -521,10 +522,10 @@ public class CohortDao {
     int rowsAffected = jdbcTemplate.update(sql.toString(), params);
     boolean deleted = rowsAffected > 0;
     if (deleted) {
-      LOGGER.info("Deleted record for cohort {}, {}, {}", studyId, cohortId, userFacingCohortId);
+      LOGGER.info("Deleted record for cohort {}, {}, {}", studyId, cohortId, cohortRevisionGroupId);
     } else {
       LOGGER.info(
-          "No record found for delete cohort {}, {}, {}", studyId, cohortId, userFacingCohortId);
+          "No record found for delete cohort {}, {}, {}", studyId, cohortId, cohortRevisionGroupId);
     }
     // Criteria groups and criteria rows will cascade delete.
     return deleted;
