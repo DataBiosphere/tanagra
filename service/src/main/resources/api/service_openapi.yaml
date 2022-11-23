@@ -1536,9 +1536,16 @@ components:
           $ref: "#/components/schemas/ReviewDescriptionV2"
         size:
           $ref: "#/components/schemas/ReviewSizeV2"
+        filter:
+          # TODO: Remove this filter property from the service API once we fully support UI plugins, because the
+          # plugin-specific backend code will generate it from the cohort definition. For now, the UI builds the
+          # cohort filter and passes it to the backend when we create a review, so the backend can take a random
+          # sample and preserve it.
+          $ref: "#/components/schemas/FilterV2"
       required:
         - displayName
         - size
+        - filter
 
     ReviewUpdateInfoV2:
       type: object

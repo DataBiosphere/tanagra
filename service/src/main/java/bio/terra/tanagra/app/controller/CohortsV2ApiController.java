@@ -11,8 +11,6 @@ import bio.terra.tanagra.generated.model.ApiCohortCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortListV2;
 import bio.terra.tanagra.generated.model.ApiCohortUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortV2;
-import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
-import bio.terra.tanagra.generated.model.ApiCriteriaV2;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable.LogicalOperator;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.CohortService;
@@ -23,6 +21,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Criteria;
 import bio.terra.tanagra.service.artifact.CriteriaGroup;
+import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -74,7 +73,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
             .build();
     cohortService.createCohort(cohortToCreate);
     return ResponseEntity.ok(
-        toApiObject(cohortService.getCohort(studyId, newCohortRevisionGroupId)));
+        ToApiConversionUtils.toApiObject(
+            cohortService.getCohort(studyId, newCohortRevisionGroupId)));
   }
 
   @Override
@@ -87,7 +87,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortV2> getCohort(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(null, READ, COHORT, new ResourceId(cohortId));
-    return ResponseEntity.ok(toApiObject(cohortService.getCohort(studyId, cohortId)));
+    return ResponseEntity.ok(
+        ToApiConversionUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
   }
 
   @Override
@@ -110,7 +111,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
     }
 
     ApiCohortListV2 apiCohorts = new ApiCohortListV2();
-    authorizedCohorts.stream().forEach(cohort -> apiCohorts.add(toApiObject(cohort)));
+    authorizedCohorts.stream()
+        .forEach(cohort -> apiCohorts.add(ToApiConversionUtils.toApiObject(cohort)));
     return ResponseEntity.ok(apiCohorts);
   }
 
@@ -166,46 +168,6 @@ public class CohortsV2ApiController implements CohortsV2Api {
     Cohort updatedCohort =
         cohortService.updateCohort(
             studyId, cohortId, body.getDisplayName(), body.getDescription(), criteriaGroups);
-    return ResponseEntity.ok(toApiObject(updatedCohort));
-  }
-
-  /**
-   * Convert the internal Cohort object to an API Cohort object.
-   *
-   * <p>In the backend code, a Cohort = a filter on the primary entity, and a CohortRevisionGroup =
-   * all past versions and the current version of a filter on the primary entity.
-   */
-  private static ApiCohortV2 toApiObject(Cohort cohort) {
-    return new ApiCohortV2()
-        .id(cohort.getCohortRevisionGroupId())
-        .underlayName(cohort.getUnderlayName())
-        .displayName(cohort.getDisplayName())
-        .description(cohort.getDescription())
-        .lastModified(cohort.getLastModifiedUTC())
-        .criteriaGroups(
-            cohort.getCriteriaGroups().stream()
-                .map(criteriaGroup -> toApiObject(criteriaGroup))
-                .collect(Collectors.toList()));
-  }
-
-  private static ApiCriteriaGroupV2 toApiObject(CriteriaGroup criteriaGroup) {
-    return new ApiCriteriaGroupV2()
-        .id(criteriaGroup.getUserFacingCriteriaGroupId())
-        .displayName(criteriaGroup.getDisplayName())
-        .operator(ApiCriteriaGroupV2.OperatorEnum.fromValue(criteriaGroup.getOperator().name()))
-        .excluded(criteriaGroup.isExcluded())
-        .criteria(
-            criteriaGroup.getCriterias().stream()
-                .map(criteria -> toApiObject(criteria))
-                .collect(Collectors.toList()));
-  }
-
-  private static ApiCriteriaV2 toApiObject(Criteria criteria) {
-    return new ApiCriteriaV2()
-        .id(criteria.getUserFacingCriteriaId())
-        .displayName(criteria.getDisplayName())
-        .pluginName(criteria.getPluginName())
-        .selectionData(criteria.getSelectionData())
-        .uiConfig(criteria.getUiConfig());
+    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedCohort));
   }
 }
