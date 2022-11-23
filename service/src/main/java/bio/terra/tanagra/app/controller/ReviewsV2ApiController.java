@@ -2,6 +2,7 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
 import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
@@ -99,6 +100,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   @Override
   public ResponseEntity<ApiReviewInstanceListV2> listInstancesAndAnnotations(
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
+    accessControlService.throwIfUnauthorized(null, QUERY_INSTANCES, COHORT_REVIEW, new ResourceId(reviewId));
     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 

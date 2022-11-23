@@ -53,7 +53,7 @@ public class Review {
     return size;
   }
 
-  /** Timestamp of when this cohort was last modified. */
+  /** Timestamp of when this review was last modified. */
   public OffsetDateTime getCreatedUTC() {
     return created.toInstant().atOffset(ZoneOffset.UTC);
   }
