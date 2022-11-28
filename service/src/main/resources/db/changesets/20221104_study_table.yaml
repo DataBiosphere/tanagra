@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: initial_study_table
+      author: marikomedlock
+      changes:
+        - createTable:
+            tableName: study
+            columns:
+              - column:
+                  name: study_id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: properties
+                  type: jsonb
+                  constraints:
+                    nullable: true
+                    unique: false

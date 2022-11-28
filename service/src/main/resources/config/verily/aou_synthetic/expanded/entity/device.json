@@ -1,0 +1,200 @@
+{
+  "name" : "device",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 214183
+      } ]
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "vocabulary",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "Current Procedural Terminology version 4 (AMA)"
+        },
+        "count" : 24
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
+        },
+        "count" : 4634
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NDC"
+          },
+          "display" : "National Drug Code (FDA and manufacturers)"
+        },
+        "count" : 10582
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        },
+        "count" : 198943
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "BOOLEAN_AND_OR",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Device"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "standard_concept"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "S"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary_id"
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `verily-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `verily-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `verily-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c      UNION ALL      SELECT       cs.concept_id AS id, cs.concept_synonym_name AS text     FROM  `verily-tanagra-dev.aou_synthetic_SR2019q4r4.concept_synonym` cs ) AS textsearch  JOIN `verily-tanagra-dev.aou_synthetic_SR2019q4r4.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Device' AND c.standard_concept = 'S'"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "device"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "t_display_standard_concept"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary"
+        },
+        "display" : {
+          "column" : "t_display_vocabulary"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text"
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

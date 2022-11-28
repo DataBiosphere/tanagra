@@ -1,7 +1,5 @@
-import * as tanagra from "tanagra-api";
-
 export type DataKey = string | number;
-export type DataValue = string | number | boolean;
+export type DataValue = string | number | boolean | Date;
 
 export type DataEntry = {
   key: DataKey;
@@ -12,6 +10,9 @@ export enum SortDirection {
   Asc = "ASC",
   Desc = "DESC",
 }
+
+export const ROLLUP_COUNT_ATTRIBUTE = "t_rollup_count";
+export const VALUE_SUFFIX = "_t_value";
 
 export type SortOrder = {
   attribute: string;
@@ -28,23 +29,19 @@ export type Classification = {
 
   entity: string;
   entityAttribute: string;
-  hierarchical?: boolean;
+  hierarchy?: string;
 
-  defaultSort?: SortOrder;
+  defaultSort: SortOrder;
 
   groupings?: Grouping[];
-
-  // TODO(tjennison): This isn't ideal. It would be better if the underlay
-  // supported multiple hierarchies directly but I don't see an alternative to
-  // this for now other than hardcoding the source/standard logic which seems
-  // worse.
-  filter?: tanagra.Filter;
 };
 
 export type Grouping = {
   id: string;
   entity: string;
   defaultSort?: SortOrder;
+
+  attributes?: string[];
 };
 
 export type Entity = {

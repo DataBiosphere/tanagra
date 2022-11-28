@@ -1,15 +1,14 @@
-import ActionBar from "actionBar";
+import CriteriaHolder from "criteriaHolder";
 import { useNewCriteria } from "hooks";
-import React from "react";
 import { getCriteriaPlugin } from "./cohort";
 
 export default function NewCriteria() {
   const criteria = useNewCriteria();
 
   return (
-    <>
-      <ActionBar title={`New ${criteria.config.title} Criteria`} />
-      {getCriteriaPlugin(criteria).renderEdit?.()}
-    </>
+    <CriteriaHolder
+      title={`New ${criteria.config.title} Criteria`}
+      plugin={getCriteriaPlugin(criteria)}
+    />
   );
 }

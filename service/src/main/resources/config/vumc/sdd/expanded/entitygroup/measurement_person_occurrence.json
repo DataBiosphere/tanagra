@@ -1,0 +1,244 @@
+{
+  "type" : "CRITERIA_OCCURRENCE",
+  "name" : "measurement_person_occurrence",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "measurement"
+        },
+        "idPairsIdA" : {
+          "column" : "measurement_id"
+        },
+        "idPairsIdB" : {
+          "column" : "measurement_concept_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "measurement"
+        },
+        "idPairsIdA" : {
+          "column" : "measurement_concept_id"
+        },
+        "idPairsIdB" : {
+          "column" : "person_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "measurement"
+        },
+        "idPairsIdA" : {
+          "column" : "measurement_id"
+        },
+        "idPairsIdB" : {
+          "column" : "person_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "idpairs_measurement_occurrence_measurement"
+        },
+        "idPairsIdA" : {
+          "column" : "id_measurement_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_measurement"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "measurement_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_measurement"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_measurement"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "standard" : {
+            "table" : {
+              "table" : "measurement"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_measurement_occurrence_standard"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_measurement_occurrence_standard"
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "measurement"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_measurement_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_measurement_occurrence"
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_measurement_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_measurement"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "standard" : {
+            "table" : {
+              "table" : "measurement"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person_standard"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person_standard"
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "measurement"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_measurement"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_measurement"
+            }
+          }
+        }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_measurement_occurrence_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_measurement_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "measurement_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_measurement_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_measurement_occurrence"
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : {
+      "modifiers" : {
+        "tablePointer" : {
+          "table" : "measurement_person_occurrence_modifiers"
+        },
+        "fieldPointers" : {
+          "min" : {
+            "column" : "min"
+          },
+          "enum_count" : {
+            "column" : "enum_count"
+          },
+          "max" : {
+            "column" : "max"
+          },
+          "enum_display" : {
+            "column" : "enum_display"
+          },
+          "enum_value" : {
+            "column" : "enum_value"
+          },
+          "attribute_name" : {
+            "column" : "attribute_name"
+          },
+          "entity_id" : {
+            "column" : "entity_id"
+          }
+        }
+      }
+    }
+  },
+  "criteriaEntity" : "measurement",
+  "occurrenceEntity" : "measurement_occurrence",
+  "modifierAttributes" : [ "value_numeric", "value_enum" ]
+}

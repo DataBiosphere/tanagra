@@ -1,0 +1,457 @@
+{
+  "name" : "observation_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "date",
+    "dataType" : "STRING"
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "unit",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4118133
+          },
+          "display" : "IU/L"
+        },
+        "count" : 5
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 35011492
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121007
+          },
+          "display" : "Seconds"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8799
+          },
+          "display" : "copies per milliliter"
+        },
+        "count" : 231
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8512
+          },
+          "display" : "day"
+        },
+        "count" : 2028
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9484
+          },
+          "display" : "degree"
+        },
+        "count" : 55
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8653
+          },
+          "display" : "degree Celsius"
+        },
+        "count" : 53
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8529
+          },
+          "display" : "index"
+        },
+        "count" : 88
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8519
+          },
+          "display" : "liter"
+        },
+        "count" : 15
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9546
+          },
+          "display" : "meter"
+        },
+        "count" : 66
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121396
+          },
+          "display" : "mg/dL"
+        },
+        "count" : 26047
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8720
+          },
+          "display" : "microgram per gram"
+        },
+        "count" : 23
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8587
+          },
+          "display" : "milliliter"
+        },
+        "count" : 87
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8588
+          },
+          "display" : "millimeter"
+        },
+        "count" : 55
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8876
+          },
+          "display" : "millimeter mercury column"
+        },
+        "count" : 36
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8753
+          },
+          "display" : "millimole per liter"
+        },
+        "count" : 22
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8931
+          },
+          "display" : "million per cubic millimeter"
+        },
+        "count" : 957
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4118323
+          },
+          "display" : "mmHg"
+        },
+        "count" : 63
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4122417
+          },
+          "display" : "ng/dL"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9372
+          },
+          "display" : "ounce (apothecary)"
+        },
+        "count" : 25481
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8647
+          },
+          "display" : "per microliter"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8554
+          },
+          "display" : "percent"
+        },
+        "count" : 360
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4120725
+          },
+          "display" : "pg/mL"
+        },
+        "count" : 1235
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8729
+          },
+          "display" : "picomole per liter"
+        },
+        "count" : 3
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8555
+          },
+          "display" : "second"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8525
+          },
+          "display" : "titer"
+        },
+        "count" : 534
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121397
+          },
+          "display" : "ug/dL"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8510
+          },
+          "display" : "unit"
+        },
+        "count" : 908557
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8763
+          },
+          "display" : "unit per milliliter"
+        },
+        "count" : 164
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9234
+          },
+          "display" : "volume percent"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9448
+          },
+          "display" : "year"
+        },
+        "count" : 129781
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -2.0,
+      "maxVal" : 2.000023487E9
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "observation",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "value_as_string",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2020475.0,
+      "maxVal" : 1.5996262E7
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "value",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2.0201234E7,
+      "maxVal" : 2.0435758E7
+    }
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "observation"
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "observation_date"
+        }
+      },
+      "unit" : {
+        "value" : {
+          "column" : "unit_concept_id"
+        },
+        "display" : {
+          "column" : "unit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "observation_source_concept_id"
+        }
+      },
+      "observation" : {
+        "value" : {
+          "column" : "observation_concept_id"
+        },
+        "display" : {
+          "column" : "observation_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "value_as_string" : {
+        "value" : {
+          "column" : "value_as_string"
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "observation_id"
+        }
+      },
+      "value" : {
+        "value" : {
+          "column" : "value_as_concept_id"
+        },
+        "display" : {
+          "column" : "value_as_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "observation_source_value"
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "observation_occurrence"
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "date"
+        }
+      },
+      "unit" : {
+        "value" : {
+          "column" : "unit"
+        },
+        "display" : {
+          "column" : "t_display_unit"
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id"
+        }
+      },
+      "observation" : {
+        "value" : {
+          "column" : "observation"
+        },
+        "display" : {
+          "column" : "t_display_observation"
+        }
+      },
+      "value_as_string" : {
+        "value" : {
+          "column" : "value_as_string"
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      },
+      "value" : {
+        "value" : {
+          "column" : "value"
+        },
+        "display" : {
+          "column" : "t_display_value"
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value"
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

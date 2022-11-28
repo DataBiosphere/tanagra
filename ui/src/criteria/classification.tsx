@@ -2,7 +2,6 @@ import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import { useActionBarBackURL } from "actionBar";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
@@ -88,8 +87,14 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderEdit() {
-    return <ClassificationEdit data={this.data} config={this.config} />;
+  renderEdit(setBackURL: (url?: string) => void) {
+    return (
+      <ClassificationEdit
+        data={this.data}
+        config={this.config}
+        setBackURL={setBackURL}
+      />
+    );
   }
 
   renderInline() {
@@ -168,6 +173,7 @@ function searchParamsFromData(data?: SearchData) {
 type ClassificationEditProps = {
   data: Data;
   config: Config;
+  setBackURL: (url?: string) => void;
 };
 
 function ClassificationEdit(props: ClassificationEditProps) {
@@ -183,7 +189,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const [searchData, updateSearchData] = useSearchData();
   const [data, updateData] = useImmer<TreeGridData>({});
 
-  useActionBarBackURL(
+  props.setBackURL(
     searchData.hierarchy
       ? `.?${searchParamsFromData({ query: searchData.query })}`
       : undefined
@@ -274,7 +280,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
       ...props.config.columns,
-      ...(classification.hierarchical
+      ...(!!classification.hierarchy
         ? [{ key: "view_hierarchy", width: 70, title: "Hierarchy" }]
         : []),
     ],

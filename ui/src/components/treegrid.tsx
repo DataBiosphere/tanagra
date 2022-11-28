@@ -10,7 +10,13 @@ import { ReactNode, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
 
 export type TreeGridId = string | number;
-export type TreeGridValue = undefined | string | number | boolean | JSX.Element;
+export type TreeGridValue =
+  | undefined
+  | string
+  | number
+  | boolean
+  | JSX.Element
+  | Date;
 
 export type TreeGridRowData = {
   [key: string]: TreeGridValue;
@@ -278,7 +284,7 @@ function renderChildren(
         }}
       >
         {props.columns.map((col, i) => {
-          let value = child.data[col.key] || "";
+          let value = child.data[col.key] ?? "";
           let title = "";
           // Stringify values other than Elements.
           if (!(value instanceof Object)) {

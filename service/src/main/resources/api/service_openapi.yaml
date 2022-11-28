@@ -1,0 +1,1835 @@
+openapi: 3.0.3
+info:
+  title: Tanagra Service API
+  description: github.com/DataBiosphere/tanagra
+  version: 0.0.0
+
+servers:
+  - url: /
+
+paths:
+  "/status":
+    get:
+      security: []
+      summary: Returns the operational status of the service
+      operationId: serviceStatus
+      tags: [Unauthenticated]
+      responses:
+        200:
+          description: Service can process requests
+        500:
+          description: Service is broken
+
+  "/v2/underlays":
+    get:
+      summary: List the underlays
+      operationId: listUnderlaysV2
+      tags: [UnderlaysV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnderlayListV2"
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+    get:
+      summary: Get an underlay
+      operationId: getUnderlayV2
+      tags: [UnderlaysV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnderlayV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+    get:
+      summary: List the entities in an underlay
+      operationId: listEntitiesV2
+      tags: [EntitiesV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities/{entityName}":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    get:
+      summary: Get an entity
+      operationId: getEntityV2
+      tags: [EntitiesV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities/{entityName}/instances":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Query entity instances
+      operationId: queryInstances
+      tags: [InstancesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities/{entityName}/counts":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Count entity instances
+      operationId: countInstances
+      tags: [InstancesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceCountListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/underlays/{underlayName}/entities/{entityName}/hints":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Query entity display hints
+      operationId: queryHints
+      tags: [HintsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HintQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisplayHintListV2"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/studies":
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all studies a user can read
+      operationId: listStudies
+      tags: [StudiesV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new study
+      operationId: createStudy
+      tags: [StudiesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudyCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+    get:
+      summary: Get an existing study
+      operationId: getStudy
+      tags: [StudiesV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing study
+      operationId: updateStudy
+      tags: [StudiesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudyUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a study
+      operationId: deleteStudy
+      tags: [StudiesV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/properties":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+    post:
+      summary: |
+        Update the properties in a study. Only properties with keys in request 
+        are updated. Properties with keys not in request are not updated.
+      operationId: updateStudyProperties
+      tags: [StudiesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropertiesV2'
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: |
+        Delete properties in a study. Only properties with keys in
+        request are deleted. Properties with keys not in request are not
+        deleted.
+      operationId: deleteStudyProperties
+      tags: [StudiesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropertyKeysV2'
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/cohorts":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all cohorts in a study
+      operationId: listCohorts
+      tags: [CohortsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CohortListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new cohort
+      operationId: createCohort
+      tags: [CohortsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CohortCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CohortV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+    get:
+      summary: Get an existing cohort
+      operationId: getCohort
+      tags: [CohortsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing cohort
+      operationId: updateCohort
+      tags: [CohortsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CohortUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a cohort
+      operationId: deleteCohort
+      tags: [CohortsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all reviews for a cohort
+      operationId: listReviews
+      tags: [ReviewsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new review
+      operationId: createReview
+      tags: [ReviewsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+    get:
+      summary: Get an existing review
+      operationId: getReview
+      tags: [ReviewsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing review
+      operationId: updateReview
+      tags: [ReviewsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a review
+      operationId: deleteReview
+      tags: [ReviewsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/instances":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+    post:
+      summary: List all primary entity instances in a review and any associated annotation values
+      operationId: listInstancesAndAnnotations
+      tags: [ReviewsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewInstanceListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all annotations for a cohort
+      operationId: listAnnotations
+      tags: [AnnotationsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnnotationListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new annotation
+      operationId: createAnnotation
+      tags: [AnnotationsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnotationCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnnotationV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/AnnotationIdV2'
+    get:
+      summary: Get an existing annotation
+      operationId: getAnnotation
+      tags: [AnnotationsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing annotation
+      operationId: updateAnnotation
+      tags: [AnnotationsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnotationUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete an annotation
+      operationId: deleteAnnotation
+      tags: [AnnotationsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/conceptSets":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all concept sets in a study
+      operationId: listConceptSets
+      tags: [ConceptSetsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConceptSetListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new concept set
+      operationId: createConceptSet
+      tags: [ConceptSetsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConceptSetCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConceptSetV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/conceptSets/{conceptSetId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/ConceptSetIdV2'
+    get:
+      summary: Get an existing concept set
+      operationId: getConceptSet
+      tags: [ConceptSetsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSetV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing concept set
+      operationId: updateConceptSet
+      tags: [ConceptSetsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConceptSetUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSetV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a concept set
+      operationId: deleteConceptSet
+      tags: [ConceptSetsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+components:
+  parameters:
+    UnderlayNameV2:
+      name: underlayName
+      in: path
+      description: Name of the underlay
+      required: true
+      schema:
+        type: string
+
+    EntityNameV2:
+      name: entityName
+      in: path
+      description: Name of the entity
+      required: true
+      schema:
+        type: string
+
+    StudyIdV2:
+      name: studyId
+      in: path
+      description: ID of the study
+      required: true
+      schema:
+        type: string
+
+    CohortIdV2:
+      name: cohortId
+      in: path
+      description: ID of the cohort
+      required: true
+      schema:
+        type: string
+
+    ConceptSetIdV2:
+      name: conceptSetId
+      in: path
+      description: ID of the concept set
+      required: true
+      schema:
+        type: string
+
+    ReviewIdV2:
+      name: reviewId
+      in: path
+      description: ID of the review
+      required: true
+      schema:
+        type: string
+
+    AnnotationIdV2:
+      name: annotationId
+      in: path
+      description: ID of the annotation
+      required: true
+      schema:
+        type: string
+
+    OffsetV2:
+      name: offset
+      in: query
+      description: The number of items to skip before starting to collect the result set.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    LimitV2:
+      name: limit
+      in: query
+      description: The maximum number of items to return. Default 15
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 15
+
+  responses:
+    NotFound:
+      description: Not found (or unauthorized)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReportV2'
+
+    ServerError:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReportV2'
+
+  schemas:
+    UserData:
+      type: object
+      description: The root container for user generated data.
+      properties:
+        version:
+          type: integer
+          description: The version of UserData to support forward and backward compatibility.
+        cohorts:
+          type: array
+          description: User generated cohorts.
+          items:
+            $ref: "#/components/schemas/Cohort"
+        conceptSets:
+          type: array
+          description: User generated concept sets.
+          items:
+            $ref: "#/components/schemas/ConceptSet"
+      required:
+        - version
+        - cohorts
+        - conceptSets
+
+    Cohort:
+      type: object
+      description: A user generated cohort.
+      properties:
+        id:
+          type: string
+          description: The unique id of this cohort.
+        name:
+          type: string
+          description: The name of this cohort.
+        underlayName:
+          type: string
+          description: The underlay this cohort is based on.
+        groups:
+          type: array
+          description: The criteria groups that make up this cohort.
+          items:
+            $ref: "#/components/schemas/Group"
+      required:
+        - id
+        - name
+        - underlayName
+        - groups
+
+    Group:
+      type: object
+      description: A group of criteria.
+      properties:
+        id:
+          type: string
+          description: The unique id of this group.
+        name:
+          type: string
+          description: The name of this group if customized.
+        filter:
+          $ref: "#/components/schemas/GroupFilter"
+        criteria:
+          type: array
+          description: The criteria that make of this group.
+          items:
+            $ref: "#/components/schemas/Criteria"
+      required:
+        - id
+        - kind
+        - filter
+        - underlayName
+        - criteria
+
+    GroupFilter:
+      type: object
+      description: |
+        A filter for a list of criteria that indicates how to combine the states
+        of the individual criteria.
+      properties:
+        kind:
+          type: string
+          description: The kind of this group.
+          enum: ["ANY", "ALL"]
+        excluded:
+          type: boolean
+          description: This group should be excluded instead of included.
+      required:
+        - kind
+        - excluded
+
+    ConceptSet:
+      type: object
+      description: A user generated concept set.
+      properties:
+        id:
+          type: string
+          description: The unique id of this concept set.
+        underlayName:
+          type: string
+          description: The underlay this concept set is based on.
+        criteria:
+          $ref: "#/components/schemas/Criteria"
+      required:
+        - id
+        - underlayName
+        - criteria
+
+    Criteria:
+      type: object
+      description: A single criteria in a cohort or concept set.
+      properties:
+        id:
+          type: string
+          description: The unique id of this criteria.
+        type:
+          type: string
+          description: The plugin type used by this criteria.
+        data:
+          type: object
+          description: The plugin specific data that defines this criteria.
+        config:
+          type: object
+          description: The UI configuration used by this criteria.
+          $ref: "#/components/schemas/CriteriaConfig"
+      required:
+        - id
+        - type
+        - data
+        - config
+
+    CriteriaConfig:
+      type: object
+      description: The configuration for an instance of a cohort plugin. Fields related to individual plugins may also be present.
+      properties:
+        type:
+          type: string
+          description: The plugin type to use for this criteria.
+        id:
+          type: string
+          description: The unique id of this criteria config.
+        title:
+          type: string
+          description: The display title for this criteria.
+      required:
+        - type
+        - id
+        - title
+      additionalProperties: true
+
+    UnderlayV2:
+      type: object
+      description: Underlay
+      properties:
+        name:
+          description: Name
+          type: string
+        displayName:
+          description: Display name
+          type: string
+        primaryEntity:
+          description: Primary entity name
+          type: string
+        uiConfiguration:
+          description: UI configuration
+          type: string
+      required:
+        - name
+        - primaryEntity
+
+    UnderlayListV2:
+      type: object
+      description: List of underlays
+      properties:
+        underlays:
+          type: array
+          items:
+            $ref: "#/components/schemas/UnderlayV2"
+
+    EntityV2:
+      type: object
+      description: Entity
+      properties:
+        name:
+          description: Name
+          type: string
+        idAttribute:
+          description: ID attribute name
+          type: string
+        attributes:
+          description: List of attributes
+          type: array
+          items:
+            $ref: "#/components/schemas/AttributeV2"
+      required:
+        - name
+        - idAttribute
+
+    EntityListV2:
+      type: object
+      description: List of entities
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntityV2"
+
+    AttributeV2:
+      type: object
+      description: Entity attribute
+      properties:
+        name:
+          description: Name
+          type: string
+        type:
+          description: Attribute type
+          type: string
+          enum: ["SIMPLE", "KEY_AND_DISPLAY"]
+        dataType:
+          $ref: "#/components/schemas/DataTypeV2"
+
+    ValueDisplayV2:
+      type: object
+      description: Attribute value and optional display string
+      properties:
+        value:
+          description: Literal value
+          $ref: "#/components/schemas/LiteralV2"
+        display:
+          type: string
+          description: Optional display string
+          nullable: true
+
+    LiteralV2:
+      type: object
+      description: Union of references to each value type. Exactly one will be populated based on the dataType.
+      nullable: true
+      properties:
+        dataType:
+          $ref: "#/components/schemas/DataTypeV2"
+        valueUnion:
+          type: object
+          properties:
+            boolVal:
+              type: boolean
+            int64Val:
+              type: integer
+              format: int64
+            stringVal:
+              type: string
+            dateVal:
+              type: string
+              description: Format YYYY-MM-DD
+
+    DataTypeV2:
+      type: string
+      enum: ["INT64", "STRING", "BOOLEAN", "DATE"]
+
+    QueryV2:
+      type: object
+      description: Query for entity instances
+      properties:
+        includeAttributes:
+          description: Attributes to include in the returned instances
+          type: array
+          items:
+            type: string
+        includeHierarchyFields:
+          description: Hierarchy fields to include in the returned instances. All fields will be returned for each hierarchy specified.
+          type: object
+          properties:
+            hierarchies:
+              type: array
+              description: Hierarchy names
+              items:
+                type: string
+            fields:
+              type: array
+              items:
+                type: string
+                enum: ["IS_MEMBER", "PATH", "NUM_CHILDREN", "IS_ROOT"]
+        includeRelationshipFields:
+          description: Relationship (count) fields to include in the returned instances.
+          type: array
+          items:
+            type: object
+            description: Related entity and optional hierarchies. Per-node rollups are always returned.
+            properties:
+              relatedEntity:
+                type: string
+              hierarchies:
+                type: array
+                description: Hierarchy names
+                items:
+                  type: string
+        filter:
+          $ref: "#/components/schemas/FilterV2"
+        orderBys:
+          type: array
+          description: Attributes and direction to order the results by
+          items:
+            type: object
+            description: Attribute or relationship (count) field and the direction
+            properties:
+              attribute:
+                type: string
+              relationshipField:
+                type: object
+                properties:
+                  relatedEntity:
+                    type: string
+                  hierarchy:
+                    type: string
+              direction:
+                $ref: "#/components/schemas/OrderByDirectionV2"
+        limit:
+          $ref: "#/components/schemas/LimitV2"
+
+    CountQueryV2:
+      type: object
+      description: Count entity instances
+      properties:
+        attributes:
+          description: |
+            Attributes to group by. One count will be returned for each possible combination of attribute values 
+            (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
+          type: array
+          items:
+            type: string
+        filter:
+          $ref: "#/components/schemas/FilterV2"
+
+    HintQueryV2:
+      type: object
+      description: Get display hints
+      properties:
+        relatedEntity:
+          description: |
+            Optional related entity.
+            If specified, then we return hints computed across related instances (e.g. condition occurrences where condition id=11).
+            Otherwise, we return hints computed across all instances (e.g. all persons).
+          type: object
+          properties:
+            name:
+              type: string
+              description: Related entity name
+            id:
+              $ref: "#/components/schemas/LiteralV2"
+
+    ReviewQueryV2:
+      type: object
+      description: Query for review instances and annotations
+      properties:
+        includeAttributes:
+          description: Attributes to include in the returned instances
+          type: array
+          items:
+            type: string
+        entityFilter:
+          $ref: "#/components/schemas/FilterV2"
+        annotationFilter:
+          $ref: "#/components/schemas/AnnotationFilterV2"
+        orderBys:
+          type: array
+          description: Attributes or annotations, and direction to order the results by
+          items:
+            type: object
+            description: Attribute or annotation and the direction
+            properties:
+              attribute:
+                type: string
+                description: Name of the attribute
+              annotation:
+                type: string
+                description: ID of the annotation
+              direction:
+                $ref: "#/components/schemas/OrderByDirectionV2"
+        limit:
+          $ref: "#/components/schemas/LimitV2"
+
+    FilterV2:
+      type: object
+      description: Union of references to each filter type. Exactly one should be specified based on the filterType.
+      properties:
+        filterType:
+          type: string
+          enum: ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC"]
+        filterUnion:
+          type: object
+          properties:
+            attributeFilter:
+              $ref: "#/components/schemas/AttributeFilterV2"
+            textFilter:
+              $ref: "#/components/schemas/TextFilterV2"
+            hierarchyFilter:
+              $ref: "#/components/schemas/HierarchyFilterV2"
+            relationshipFilter:
+              $ref: "#/components/schemas/RelationshipFilterV2"
+            booleanLogicFilter:
+              $ref: "#/components/schemas/BooleanLogicFilterV2"
+
+    AttributeFilterV2:
+      type: object
+      description: Filter on an attribute value (e.g. color=red)
+      properties:
+        attribute:
+          type: string
+        operator:
+          type: string
+          enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
+        value:
+          $ref: "#/components/schemas/LiteralV2"
+
+    TextFilterV2:
+      type: object
+      description: Filter on a text search (e.g. person sounds like Joe)
+      properties:
+        matchType:
+          type: string
+          enum: ["EXACT_MATCH", "FUZZY_MATCH"]
+        attribute:
+          type: string
+          description: |
+            Attribute to match on. If not specified, then we match on whatever is specified in the text search mapping config.
+            Currently, fuzzy match only works on a single attribute (i.e. you must specify this field for fuzzy match).
+        text:
+          type: string
+
+    HierarchyFilterV2:
+      type: object
+      description: Filter on a hierarchy (e.g. descendant of id=12)
+      properties:
+        hierarchy:
+          description: Name of the hierarchy
+          type: string
+        operator:
+          type: string
+          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER"]
+        value:
+          $ref: "#/components/schemas/LiteralV2"
+
+    RelationshipFilterV2:
+      type: object
+      description: Filter on a relationship between entities (e.g. condition occurrences where condition=diabetes)
+      properties:
+        entity:
+          type: string
+        subfilter:
+          $ref: "#/components/schemas/FilterV2"
+
+    BooleanLogicFilterV2:
+      type: object
+      description: |
+        Compose multiple filters (e.g. color=red AND capacity=3, NOT color=red). 
+        The NOT operator only allows a single subfilter. The OR and AND operators require more than one subfilter.
+      properties:
+        operator:
+          type: string
+          enum: ["AND", "OR", "NOT"]
+        subfilters:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterV2"
+
+    AnnotationFilterV2:
+      type: object
+      description: Filter on an annotation value (e.g. reviewStatus=complete)
+      properties:
+        annotation:
+          type: string
+        operator:
+          type: string
+          enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
+        value:
+          $ref: "#/components/schemas/LiteralV2"
+
+    OrderByDirectionV2:
+      type: string
+      description: Defaults to ascending
+      enum: ["ASCENDING", "DESCENDING"]
+
+    LimitV2:
+      type: integer
+      description: Maximum number of results to return. Defaults to 250.
+      default: 250
+
+    InstanceV2:
+      type: object
+      properties:
+        attributes:
+          description: A map of entity attribute names to their value for this instance. Only the attributes requested are populated.
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+        hierarchyFields:
+          description: Hierarchy field values for this instance. One set of values per hierarchy. Only the values requested are populated.
+          type: array
+          items:
+            type: object
+            properties:
+              hierarchy:
+                type: string
+              isMember:
+                type: boolean
+              path:
+                type: string
+              numChildren:
+                type: integer
+              isRoot:
+                type: boolean
+        relationshipFields:
+          description: Relationship field values for this instance. Only the values requested are populated.
+          type: array
+          items:
+            type: object
+            properties:
+              relatedEntity:
+                type: string
+              hierarchy:
+                type: string
+              count:
+                type: integer
+              displayHints:
+                type: string
+
+    InstanceListV2:
+      type: object
+      description: List of instances
+      properties:
+        sql:
+          type: string
+        instances:
+          type: array
+          items:
+            $ref: "#/components/schemas/InstanceV2"
+
+    InstanceCountV2:
+      type: object
+      properties:
+        count:
+          type: integer
+        attributes:
+          description: A map of entity attribute names to their value for this group.
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+
+    InstanceCountListV2:
+      type: object
+      description: List of instance counts
+      properties:
+        sql:
+          type: string
+        instanceCounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/InstanceCountV2"
+
+    DisplayHintV2:
+      type: object
+      description: Display hint for entity attribute
+      properties:
+        attribute:
+          $ref: "#/components/schemas/AttributeV2"
+        displayHint:
+          type: object
+          description: Display hint calculated from source data
+          properties:
+            enumHint:
+              $ref: "#/components/schemas/DisplayHintEnumV2"
+            numericRangeHint:
+              $ref: "#/components/schemas/DisplayHintNumericRangeV2"
+
+    DisplayHintEnumV2:
+      type: object
+      description: Enumeration of possible values, display strings, and counts
+      properties:
+        enumHintValues:
+          type: array
+          items:
+            type: object
+            description: Enum value and count
+            properties:
+              enumVal:
+                $ref: "#/components/schemas/ValueDisplayV2"
+              count:
+                type: integer
+
+    DisplayHintNumericRangeV2:
+      type: object
+      description: Maximum and minimum values
+      properties:
+        min:
+          description: Max value
+          type: number
+          format: double
+        max:
+          description: Min value
+          type: number
+          format: double
+
+    DisplayHintListV2:
+      type: object
+      description: List of display hints
+      properties:
+        sql:
+          type: string
+        displayHints:
+          type: array
+          items:
+            $ref: "#/components/schemas/DisplayHintV2"
+
+    StudyV2:
+      type: object
+      required: [id]
+      properties:
+        id:
+          description: ID of the study, immutable
+          type: string
+        displayName:
+          $ref: "#/components/schemas/StudyDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/StudyDescriptionV2"
+        properties:
+          $ref: "#/components/schemas/PropertiesV2"
+
+    StudyListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/StudyV2"
+
+    StudyCreateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/StudyDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/StudyDescriptionV2"
+        properties:
+          $ref: "#/components/schemas/PropertiesV2"
+
+    StudyUpdateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/StudyDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/StudyDescriptionV2"
+
+    StudyDisplayNameV2:
+      type: string
+      description: Human readable name of the study
+
+    StudyDescriptionV2:
+      type: string
+      description: Description of the study
+
+    PropertiesV2:
+      description: List of key-value pairs of strings
+      type: array
+      items:
+        type: object
+        required: [ key, value ]
+        properties:
+          key:
+            description: |
+              String to identify the key. Keys must be 1-1024 characters, using letters,
+              numbers, dashes, and underscores and must not start with a dash or underscore.
+            type: string
+          value:
+            description: Arbitrary string value
+            type: string
+
+    PropertyKeysV2:
+      description: List of property keys
+      type: array
+      items:
+        type: string
+
+    CohortV2:
+      type: object
+      properties:
+        id:
+          description: ID of the cohort, immutable
+          type: string
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        displayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/CohortDescriptionV2"
+        criteriaGroups:
+          type: array
+          description: Groups of criteria that define the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaGroupV2"
+        lastModified:
+          description: Timestamp of when the cohort was last modified
+          type: string
+          format: date-time
+      required:
+        - id
+        - underlayName
+        - displayName
+        - criteriaGroups
+        - lastModified
+
+    CohortListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/CohortV2"
+
+    CohortCreateInfoV2:
+      type: object
+      properties:
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        displayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/CohortDescriptionV2"
+
+    CohortUpdateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/CohortDescriptionV2"
+        criteriaGroups:
+          type: array
+          description: Groups of criteria that define the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaGroupV2"
+
+    CohortDisplayNameV2:
+      type: string
+      description: Human readable name of the cohort
+
+    CohortDescriptionV2:
+      type: string
+      description: Description of the cohort
+
+    ConceptSetV2:
+      type: object
+      properties:
+        id:
+          description: ID of the concept set, immutable
+          type: string
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        entity:
+          $ref: "#/components/schemas/EntityNameV2"
+        displayName:
+          $ref: "#/components/schemas/ConceptSetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ConceptSetDescriptionV2"
+        criteria:
+          type: array
+          description: Single criteria that defines the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaV2"
+        lastModified:
+          description: Timestamp of when the concept set was last modified
+          type: string
+          format: date-time
+      required:
+        - id
+        - underlayName
+        - entity
+        - displayName
+        - criteria
+        - lastModified
+
+    ConceptSetListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/ConceptSetV2"
+
+    ConceptSetCreateInfoV2:
+      type: object
+      properties:
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        entity:
+          $ref: "#/components/schemas/EntityNameV2"
+        displayName:
+          $ref: "#/components/schemas/ConceptSetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ConceptSetDescriptionV2"
+
+    ConceptSetUpdateInfoV2:
+      type: object
+      properties:
+        entity:
+          $ref: "#/components/schemas/EntityNameV2"
+        displayName:
+          $ref: "#/components/schemas/ConceptSetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ConceptSetDescriptionV2"
+        criteria:
+          type: array
+          description: Single criteria that defines the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaV2"
+
+    EntityNameV2:
+      type: string
+      description: Name of the entity (e.g. condition_occurrence)
+
+    ConceptSetDisplayNameV2:
+      type: string
+      description: Human readable name of the concept set
+
+    ConceptSetDescriptionV2:
+      type: string
+      description: Description of the concept set
+
+    UnderlayNameV2:
+      type: string
+      description: Name of the underlay, immutable
+
+    CriteriaGroupV2:
+      type: object
+      description: Group of criteria for a cohort definition
+      properties:
+        id:
+          type: string
+          description: ID of the group, immutable
+        displayName:
+          type: string
+          description: Name of the group
+        criteria:
+          type: array
+          description: Set of criteria in the group
+          items:
+            $ref: "#/components/schemas/CriteriaV2"
+        operator:
+          type: string
+          description: Operator to use when combining the criteria in the group
+          enum: ["AND", "OR"]
+        excluded:
+          type: boolean
+          description: True to exclude the group, false to include it
+      required:
+        - id
+        - displayName
+        - criteria
+        - operator
+        - excluded
+
+    CriteriaV2:
+      type: object
+      description: Single criteria for a cohort or concept set definition
+      properties:
+        id:
+          type: string
+          description: ID of the criteria, immutable
+        displayName:
+          type: string
+          description: Name of the criteria
+        pluginName:
+          type: string
+          description: Name of the plugin that generated this criteria
+        selectionData:
+          type: string # JSON formatted
+          description: Serialized plugin-specific representation of the user's selection
+        uiConfig:
+          # TODO: Remove this uiConfig property from the service API once we fully support UI plugins, because it
+          # should be identical to the static config stored in the underlay. For now, we save it separately for
+          # each criteria so we can handle schema changes in the UI code instead of in plugin-specific backend code.
+          type: string # JSON formatted
+          description: Serialized plugin-specific UI configuration for the criteria
+      required:
+        - id
+        - displayName
+        - pluginName
+        - selectionData
+        - uiConfig
+
+    ReviewV2:
+      type: object
+      properties:
+        id:
+          description: ID of the review, immutable
+          type: string
+        displayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ReviewDescriptionV2"
+        size:
+          $ref: "#/components/schemas/ReviewSizeV2"
+        cohort:
+          $ref: "#/components/schemas/CohortV2"
+        created:
+          description: Timestamp of when the review was created
+          type: string
+          format: date-time
+      required:
+        - id
+        - displayName
+        - size
+        - cohortRevision
+        - created
+
+    ReviewListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/ReviewV2"
+
+    ReviewCreateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ReviewDescriptionV2"
+        size:
+          $ref: "#/components/schemas/ReviewSizeV2"
+        filter:
+          # TODO: Remove this filter property from the service API once we fully support UI plugins, because the
+          # plugin-specific backend code will generate it from the cohort definition. For now, the UI builds the
+          # cohort filter and passes it to the backend when we create a review, so the backend can take a random
+          # sample and preserve it.
+          $ref: "#/components/schemas/FilterV2"
+      required:
+        - displayName
+        - size
+        - filter
+
+    ReviewUpdateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ReviewDescriptionV2"
+
+    ReviewDisplayNameV2:
+      type: string
+      description: Human readable name of the review
+
+    ReviewDescriptionV2:
+      type: string
+      description: Description of the review
+
+    ReviewSizeV2:
+      type: integer
+      description: Number of primary entity instances included in the review
+
+    AnnotationV2:
+      type: object
+      properties:
+        id:
+          description: ID of the annotation, immutable
+          type: string
+        displayName:
+          $ref: "#/components/schemas/AnnotationDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/AnnotationDescriptionV2"
+        dataType:
+          $ref: "#/components/schemas/DataTypeV2"
+        enumVals:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - displayName
+        - dataType
+
+    AnnotationListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/AnnotationV2"
+
+    AnnotationCreateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/AnnotationDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/AnnotationDescriptionV2"
+        dataType:
+          $ref: "#/components/schemas/DataTypeV2"
+        enumVals:
+          type: array
+          items:
+            type: string
+      required:
+        - displayName
+        - dataType
+
+    AnnotationUpdateInfoV2:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/AnnotationDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/AnnotationDescriptionV2"
+
+    AnnotationDisplayNameV2:
+      type: string
+      description: Human readable name of the annotation
+
+    AnnotationDescriptionV2:
+      type: string
+      description: Description of the annotation
+
+    ReviewInstanceV2:
+      type: object
+      properties:
+        attributes:
+          description: A map of entity attribute names to their value for this instance
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+        annotations:
+          description: A map of annotation ids to their value for this instance in this review
+          type: object
+          additionalProperties:
+            type: object
+            nullable: true
+            $ref: "#/components/schemas/ValueDisplayV2"
+
+    ReviewInstanceListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/ReviewInstanceV2"
+
+    ErrorReportV2:
+      type: object
+      required: [message, statusCode, causes]
+      properties:
+        message:
+          type: string
+        statusCode:
+          type: integer
+        causes:
+          type: array
+          items:
+            type: string
