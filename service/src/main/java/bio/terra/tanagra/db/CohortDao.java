@@ -2,6 +2,7 @@ package bio.terra.tanagra.db;
 
 import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateCohortException;
@@ -90,7 +91,7 @@ public class CohortDao {
   /** Fetch all cohorts that are the most recent version for their user-facing id. */
   @ReadTransaction
   public List<Cohort> getAllCohortsLatestVersion(String studyId, int offset, int limit) {
-    return getCohortsHelper(studyId, offset, limit, false, null);
+    return getCohortsHelper(studyId, offset, limit, null, null);
   }
 
   /**
@@ -100,7 +101,15 @@ public class CohortDao {
   @ReadTransaction
   public List<Cohort> getCohortsMatchingListLatestVersion(
       String studyId, Set<String> cohortRevisionGroupIdList, int offset, int limit) {
-    return getCohortsHelper(studyId, offset, limit, true, cohortRevisionGroupIdList);
+    return getCohortsHelper(studyId, offset, limit, null, cohortRevisionGroupIdList);
+  }
+
+  /**
+   * Fetch the cohort versions. Only returns cohorts with the specified ids. Used for cohort
+   * reviews, so transaction annotation lives on the ReviewDao methods.
+   */
+  public List<Cohort> getCohortsMatchingList(String studyId, Set<String> cohortIdList) {
+    return getCohortsHelper(studyId, 0, Integer.MAX_VALUE, cohortIdList, null);
   }
 
   /** Helper method for fetching a list of cohorts. */
@@ -109,9 +118,10 @@ public class CohortDao {
       String studyId,
       int offset,
       int limit,
-      boolean onlyIncludeIdsInList,
+      @Nullable Set<String> cohortIdList,
       @Nullable Set<String> cohortRevisionGroupIdList) {
-    if (onlyIncludeIdsInList && cohortRevisionGroupIdList.isEmpty()) {
+    if ((cohortIdList != null && cohortIdList.isEmpty())
+        || (cohortRevisionGroupIdList != null && cohortRevisionGroupIdList.isEmpty())) {
       // If the incoming list is empty, the caller does not have permission to see any cohorts, so
       // we return an empty list.
       return Collections.emptyList();
@@ -124,7 +134,11 @@ public class CohortDao {
             .addValue("study_id", studyId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    if (onlyIncludeIdsInList) {
+    if (cohortIdList != null) {
+      sql.append(" AND cohort_id IN (:cohort_ids)");
+      params.addValue("cohort_ids", cohortIdList);
+    }
+    if (cohortRevisionGroupIdList != null) {
       sql.append(" AND cohort_revision_group_id IN (:cohort_revision_group_ids)");
       params.addValue("cohort_revision_group_ids", cohortRevisionGroupIdList);
     }
@@ -156,7 +170,7 @@ public class CohortDao {
    * Fetch the most recent version for the given revision group id. Used internally so this method
    * has no transaction annotation.
    */
-  private Cohort getCohortLatestVersionOrThrow(String studyId, String cohortRevisionGroupId) {
+  public Cohort getCohortLatestVersionOrThrow(String studyId, String cohortRevisionGroupId) {
     return getCohortIfExistsHelper(studyId, true, null, cohortRevisionGroupId)
         .orElseThrow(
             () ->
@@ -472,7 +486,7 @@ public class CohortDao {
    * Freeze the latest version of a cohort. Sets the most recent version to not editable. Used for
    * cohort reviews, so transaction annotation lives on the ReviewDao methods.
    */
-  public void freezeCohortLatestVersion(String studyId, String cohortRevisionGroupId) {
+  public void freezeCohortLatestVersionOrThrow(String studyId, String cohortRevisionGroupId) {
     String sql =
         "UPDATE cohort SET is_editable = FALSE, last_modified = :last_modified WHERE study_id = :study_id AND cohort_revision_group_id = :cohort_revision_group_id AND is_most_recent";
     MapSqlParameterSource params =
@@ -481,12 +495,12 @@ public class CohortDao {
             .addValue("cohort_revision_group_id", cohortRevisionGroupId)
             .addValue("last_modified", Timestamp.from(Instant.now()));
     int rowsAffected = jdbcTemplate.update(sql, params);
-    boolean updated = rowsAffected > 0;
-    LOGGER.info(
-        "{} record for cohort {}, {}",
-        updated ? "Updated" : "No Update - did not find",
-        studyId,
-        cohortRevisionGroupId);
+    if (rowsAffected > 0) {
+      LOGGER.info("Updated record for cohort {}, {}", studyId, cohortRevisionGroupId);
+    } else {
+      throw new BadRequestException(
+          "Freezing cohort latest revision failed: " + studyId + ", " + cohortRevisionGroupId);
+    }
   }
 
   /** Delete a cohort revision group, which includes the current revision and all frozen ones. */

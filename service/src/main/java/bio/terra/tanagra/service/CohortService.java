@@ -21,17 +21,16 @@ public class CohortService {
     this.featureConfiguration = featureConfiguration;
   }
 
-  /** Create a new user-facing cohort. */
+  /** Create a new cohort, the first revision in a new revision group. */
   public void createCohort(Cohort cohort) {
     featureConfiguration.artifactStorageEnabledCheck();
-
     cohortDao.createCohortFirstVersion(cohort);
   }
 
-  /** Delete an existing cohort by user-facing ID, including all frozen versions. */
-  public void deleteCohort(String studyId, String userFacingCohortId) {
+  /** Delete an existing cohort by revision group ID, including all frozen versions. */
+  public void deleteCohort(String studyId, String cohortRevisionGroupId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    cohortDao.deleteCohortAllVersions(studyId, userFacingCohortId);
+    cohortDao.deleteCohortAllVersions(studyId, cohortRevisionGroupId);
   }
 
   /** Retrieves a list of all most recent cohorts for a study. */
@@ -42,24 +41,24 @@ public class CohortService {
 
   /** Retrieves a list of most recent cohorts by ID. */
   public List<Cohort> getCohorts(
-      String studyId, List<String> userFacingCohortIds, int offset, int limit) {
+      String studyId, List<String> cohortRevisionGroupIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     return cohortDao.getCohortsMatchingListLatestVersion(
-        studyId, new HashSet<>(userFacingCohortIds), offset, limit);
+        studyId, new HashSet<>(cohortRevisionGroupIds), offset, limit);
   }
 
   /** Retrieves a most recent cohort by ID. */
-  public Cohort getCohort(String studyId, String userFacingCohortId) {
+  public Cohort getCohort(String studyId, String cohortRevisionGroupId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getCohortLatestVersion(studyId, userFacingCohortId);
+    return cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId);
   }
 
   /**
-   * Update an existing cohort. Currently, can change the cohort's display name, description, or
-   * criteria groups.
+   * Update an existing cohort's latest version. Currently, can change the cohort's display name,
+   * description, or criteria groups.
    *
    * @param studyId study ID
-   * @param userFacingCohortId user-facing cohort ID
+   * @param cohortRevisionGroupId cohort revision group ID
    * @param displayName name to change - may be null
    * @param description description to change - may be null
    * @param criteriaGroups set of criteria groups to change - may be null
@@ -67,13 +66,13 @@ public class CohortService {
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public Cohort updateCohort(
       String studyId,
-      String userFacingCohortId,
+      String cohortRevisionGroupId,
       @Nullable String displayName,
       @Nullable String description,
       @Nullable List<CriteriaGroup> criteriaGroups) {
     featureConfiguration.artifactStorageEnabledCheck();
     cohortDao.updateCohortLatestVersion(
-        studyId, userFacingCohortId, displayName, description, criteriaGroups);
-    return cohortDao.getCohortLatestVersion(studyId, userFacingCohortId);
+        studyId, cohortRevisionGroupId, displayName, description, criteriaGroups);
+    return cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId);
   }
 }

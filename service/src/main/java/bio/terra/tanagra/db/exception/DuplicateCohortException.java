@@ -2,7 +2,7 @@ package bio.terra.tanagra.db.exception;
 
 import bio.terra.common.exception.BadRequestException;
 
-/** A cohort with this user_facing_cohort_id already exists. */
+/** A cohort with this id already exists. */
 public class DuplicateCohortException extends BadRequestException {
   public DuplicateCohortException(String message) {
     super(message);
