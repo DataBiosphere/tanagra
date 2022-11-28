@@ -54,11 +54,12 @@ public class ConceptSetService {
   }
 
   /**
-   * Update an existing concept set. Currently, can change the concept set's display name,
-   * description, or criteria.
+   * Update an existing concept set. Currently, can change the concept set's entity name, display
+   * name, description, or criteria.
    *
    * @param studyId study ID
    * @param conceptSetId concept set ID
+   * @param entityName entity name to change - may be null
    * @param displayName name to change - may be null
    * @param description description to change - may be null
    * @param criteria criteria to change - may be null

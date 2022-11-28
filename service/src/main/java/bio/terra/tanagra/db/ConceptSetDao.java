@@ -60,7 +60,7 @@ public class ConceptSetDao {
     return getConceptSetsHelper(studyId, offset, limit, null);
   }
 
-  /** Fetch the concept sets. Only returns cohorts with the specified revision group ids. */
+  /** Fetch the concept sets. Only returns concept sets with the specified ids. */
   @ReadTransaction
   public List<ConceptSet> getConceptSetsMatchingList(
       String studyId, Set<String> conceptSetIdList, int offset, int limit) {
@@ -168,7 +168,7 @@ public class ConceptSetDao {
   /** Create a new concept set. */
   @WriteTransaction
   public void createConceptSet(ConceptSet conceptSet) {
-    // Store the cohort. New cohort rows are always the most recent and editable.
+    // Store the concept set.
     final String sql =
         "INSERT INTO concept_set (study_id, concept_set_id, underlay_name, entity_name, last_modified, display_name, description) "
             + "VALUES (:study_id, :concept_set_id, :underlay_name, :entity_name, :last_modified, :display_name, :description)";
@@ -205,8 +205,8 @@ public class ConceptSetDao {
   }
 
   /**
-   * Update the latest version of a concept set. Currently, the display name, description, entity
-   * name, and criteria are modifiable.
+   * Update a concept set. Currently, the display name, description, entity name, and criteria are
+   * modifiable.
    */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   @WriteTransaction
@@ -273,7 +273,7 @@ public class ConceptSetDao {
             .addValue("selection_data", criteria.getSelectionData())
             .addValue("ui_config", criteria.getUiConfig());
     int rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.info("Inserted criteria records for concept set {}, {}", studyId, conceptSetId);
+    LOGGER.info("Inserted criteria record for concept set {}, {}", studyId, conceptSetId);
     return rowsAffected > 0;
   }
 
@@ -286,10 +286,9 @@ public class ConceptSetDao {
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean deleted = rowsAffected > 0;
     if (deleted) {
-      LOGGER.info("Deleted criteria group records for concept set {}, {}", studyId, conceptSetId);
+      LOGGER.info("Deleted criteria record for concept set {}, {}", studyId, conceptSetId);
     } else {
-      LOGGER.info(
-          "No criteria group records found for delete concept set {}, {}", studyId, conceptSetId);
+      LOGGER.info("No criteria record found for delete concept set {}, {}", studyId, conceptSetId);
     }
     return deleted;
   }

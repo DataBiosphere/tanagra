@@ -151,7 +151,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   }
 
   /** Convert the internal Concept Set object to an API Concept Set object. */
-  public static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
+  private static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
     return new ApiConceptSetV2()
         .id(conceptSet.getConceptSetId())
         .underlayName(conceptSet.getUnderlayName())
