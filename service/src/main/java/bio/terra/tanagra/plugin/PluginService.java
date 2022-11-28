@@ -15,7 +15,7 @@ public class PluginService {
 
   private final PluggableConfiguration configuration;
   private final DataSourceFactory dataSourceFactory;
-  private final Map<String, IPlugin> availablePlugins;
+  private final Map<String, Plugin> availablePlugins;
 
   @Autowired
   public PluginService(PluggableConfiguration configuration, DataSourceFactory dataSourceFactory)
@@ -27,7 +27,7 @@ public class PluginService {
     loadPlugins();
   }
 
-  public <T extends IPlugin> T getPlugin(Class<T> c) {
+  public <T extends Plugin> T getPlugin(Class<T> c) {
     return c.cast(availablePlugins.get(c.getSimpleName()));
   }
 
@@ -40,7 +40,7 @@ public class PluginService {
           DataSource dataSource = getDataSource(config.getValue(PLUGIN_DATASOURCE_PARAMETER));
 
           Class<?> pluginClass = Class.forName(p.getValue().getType());
-          IPlugin plugin = (IPlugin) pluginClass.getConstructor().newInstance();
+          Plugin plugin = (Plugin) pluginClass.getConstructor().newInstance();
 
           plugin.init(config, dataSource);
 

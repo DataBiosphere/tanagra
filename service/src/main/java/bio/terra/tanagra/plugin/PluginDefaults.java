@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class PluginDefaults {
-  private static final Map<String, IPlugin> DEFAULTS =
+  private static final Map<String, Plugin> DEFAULTS =
       new HashMap<>(
           Map.of(
               AccessControlPlugin.class.getSimpleName(), new DefaultAccessControlPlugin(),
@@ -18,7 +18,7 @@ public final class PluginDefaults {
     // Required for PMD
   }
 
-  public static Map<String, IPlugin> getDefaultPlugins() {
+  public static Map<String, Plugin> getDefaultPlugins() {
     return DEFAULTS;
   }
 }

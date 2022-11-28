@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import bio.terra.tanagra.plugin.IPlugin;
+import bio.terra.tanagra.plugin.Plugin;
 
 /** Interface that all access control plugins must implement. */
-public interface AccessControlPlugin extends IPlugin {
+public interface AccessControlPlugin extends Plugin {
   String getName();
 
   boolean isAuthorized(

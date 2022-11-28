@@ -2,6 +2,6 @@ package bio.terra.tanagra.plugin;
 
 import javax.sql.DataSource;
 
-public interface IPlugin {
+public interface Plugin {
   void init(PluginConfig config, DataSource dataSource);
 }
