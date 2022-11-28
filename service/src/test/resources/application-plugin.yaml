@@ -1,0 +1,21 @@
+# A Spring application profile for testing with a local postgres database.
+# The database configuration here should match local-dev/local-postgres-init.sql
+tanagra:
+  jdbc:
+    dataSources:
+      # In a production instance, these values should be set with environment variables,
+      # either directly eg. TANAGRA_JDBC_DATA_SOURCES_0_PASSWORD, or injection eg. ${YOUR_ENV_VARIABLE}
+      - dataSourceId: test-data-source
+        url: jdbc:postgresql://127.0.0.1:5432/tanagra
+        username: dbuser
+        password: dbpwd
+      - dataSourceId: test-plugin-data-source
+        url: jdbc:postgresql://127.0.0.1:5432/tanagra
+        username: dbuser
+        password: dbpwd
+  pluggable:
+    plugins:
+      accessControlPlugin:
+        type: bio.terra.tanagra.service.accesscontrol.OpenAccessControlPlugin
+        parameters:
+          datasource-id: test-plugin-data-source

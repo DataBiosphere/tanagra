@@ -35,7 +35,7 @@ public class PluginService {
     try {
       if (configuration.isConfigured()) {
         for (Map.Entry<String, PluginConfig> p : configuration.getPlugins().entrySet()) {
-          String key = "I" + capitalize(p.getKey());
+          String key = capitalize(p.getKey());
           PluginConfig config = p.getValue();
           DataSource dataSource = getDataSource(config.getValue(PLUGIN_DATASOURCE_PARAMETER));
 
