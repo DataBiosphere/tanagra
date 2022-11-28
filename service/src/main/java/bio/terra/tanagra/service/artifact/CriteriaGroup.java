@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
  */
 public class CriteriaGroup {
   private final String cohortId;
+  private final String conceptSetId;
   private final String criteriaGroupId;
   private final String userFacingCriteriaGroupId;
   private final @Nullable String displayName;
@@ -23,6 +24,7 @@ public class CriteriaGroup {
 
   private CriteriaGroup(Builder builder) {
     this.cohortId = builder.cohortId;
+    this.conceptSetId = builder.conceptSetId;
     this.criteriaGroupId = builder.criteriaGroupId;
     this.userFacingCriteriaGroupId = builder.userFacingCriteriaGroupId;
     this.displayName = builder.displayName;
@@ -38,6 +40,11 @@ public class CriteriaGroup {
   /** Unique (per study) identifier of the cohort this criteria group belongs to. */
   public String getCohortId() {
     return cohortId;
+  }
+
+  /** Unique (per study) identifier of the concept set this criteria group belongs to. */
+  public String getConceptSetId() {
+    return conceptSetId;
   }
 
   /** Unique (per cohort) identifier of this criteria group. */
@@ -72,6 +79,7 @@ public class CriteriaGroup {
 
   public static class Builder {
     private String cohortId;
+    private String conceptSetId;
     private String criteriaGroupId;
     private String userFacingCriteriaGroupId;
     private @Nullable String displayName;
@@ -81,6 +89,11 @@ public class CriteriaGroup {
 
     public Builder cohortId(String cohortId) {
       this.cohortId = cohortId;
+      return this;
+    }
+
+    public Builder conceptSetId(String conceptSetId) {
+      this.conceptSetId = conceptSetId;
       return this;
     }
 
