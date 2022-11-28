@@ -61,7 +61,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, ApiReviewCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(null, CREATE, COHORT_REVIEW, new ResourceId(cohortId));
 
-    // Generate a random 10-character alphanumeric strings for the new review ID.
+    // Generate a random 10-character alphanumeric string for the new review ID.
     String newReviewId = RandomStringUtils.randomAlphanumeric(10);
 
     Review reviewToCreate =
@@ -100,7 +100,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   @Override
   public ResponseEntity<ApiReviewInstanceListV2> listInstancesAndAnnotations(
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
-    accessControlService.throwIfUnauthorized(null, QUERY_INSTANCES, COHORT_REVIEW, new ResourceId(reviewId));
+    accessControlService.throwIfUnauthorized(
+        null, QUERY_INSTANCES, COHORT_REVIEW, new ResourceId(reviewId));
     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 
