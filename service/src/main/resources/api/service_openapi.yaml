@@ -1548,11 +1548,11 @@ components:
           $ref: "#/components/schemas/ConceptSetDisplayNameV2"
         description:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
-        criteriaGroups:
+        criteria:
           type: array
-          description: Groups of criteria that define the entity filter
+          description: Single criteria that defines the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupV2"
+            $ref: "#/components/schemas/CriteriaV2"
         lastModified:
           description: Timestamp of when the concept set was last modified
           type: string
@@ -1562,7 +1562,7 @@ components:
         - underlayName
         - entity
         - displayName
-        - criteriaGroups
+        - criteria
         - lastModified
 
     ConceptSetListV2:
@@ -1591,11 +1591,11 @@ components:
           $ref: "#/components/schemas/ConceptSetDisplayNameV2"
         description:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
-        criteriaGroups:
+        criteria:
           type: array
-          description: Groups of criteria that define the entity filter
+          description: Single criteria that defines the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupV2"
+            $ref: "#/components/schemas/CriteriaV2"
 
     EntityNameV2:
       type: string
@@ -1615,7 +1615,7 @@ components:
 
     CriteriaGroupV2:
       type: object
-      description: Group of criteria for a cohort or concept set definition
+      description: Group of criteria for a cohort definition
       properties:
         id:
           type: string
