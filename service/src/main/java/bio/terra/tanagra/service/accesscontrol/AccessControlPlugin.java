@@ -3,9 +3,7 @@ package bio.terra.tanagra.service.accesscontrol;
 import bio.terra.tanagra.plugin.IPlugin;
 
 /**
- * Interface that all access control plugins must implement. In the future, we may consider moving
- * the credential decoding to a separate plugin, so deployments can override authentication and
- * authorization separately.
+ * Interface that all access control plugins must implement.
  */
 public interface AccessControlPlugin extends IPlugin {
   String getName();
