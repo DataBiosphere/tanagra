@@ -44,5 +44,5 @@ databaseChangeLog:
                   name: enum_vals
                   type: text[]
                   constraints:
-                    nullable: true
+                    nullable: false
                     unique: false

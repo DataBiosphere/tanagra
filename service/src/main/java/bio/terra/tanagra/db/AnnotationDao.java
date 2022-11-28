@@ -122,7 +122,7 @@ public class AnnotationDao {
       String studyId, String cohortRevisionGroupId, int offset, int limit) {
     String sql =
         ANNOTATION_SELECT_SQL
-            + " WHERE c.cohort_revision_group_id = :cohort_revision_group_id ORDER BY A.display_name OFFSET :offset LIMIT :limit";
+            + " WHERE c.cohort_revision_group_id = :cohort_revision_group_id ORDER BY a.display_name OFFSET :offset LIMIT :limit";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("cohort_revision_group_id", cohortRevisionGroupId)

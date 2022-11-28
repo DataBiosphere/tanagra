@@ -53,7 +53,7 @@ public class Annotation {
 
   /** List of enum values for the annotation. */
   public List<String> getEnumVals() {
-    return Collections.unmodifiableList(enumVals);
+    return enumVals == null ? Collections.emptyList() : Collections.unmodifiableList(enumVals);
   }
 
   public static class Builder {
