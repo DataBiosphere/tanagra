@@ -124,7 +124,7 @@ public class ReviewDao {
     } else {
       LOGGER.info("No record found for delete review {}", reviewId);
     }
-    // Sampled primary entity ids and annotation rows will cascade delete.
+    // Sampled primary entity ids will cascade delete.
     return deleted;
   }
 
@@ -187,8 +187,8 @@ public class ReviewDao {
   @ReadTransaction
   public Optional<Review> getReviewIfExists(
       String studyId, String cohortRevisionGroupId, String reviewId) {
-    if (studyId == null || cohortRevisionGroupId == null) {
-      throw new MissingRequiredFieldException("Valid study and cohort ids are required");
+    if (studyId == null || cohortRevisionGroupId == null || reviewId == null) {
+      throw new MissingRequiredFieldException("Valid study, cohort, and review ids are required");
     }
     String sql = REVIEW_SELECT_SQL + " WHERE r.review_id = :review_id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
@@ -235,7 +235,7 @@ public class ReviewDao {
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean updated = rowsAffected > 0;
     LOGGER.info(
-        "{} record for review {}", updated ? "Updated" : "No Update - did not find", studyId);
+        "{} record for review {}", updated ? "Updated" : "No Update - did not find", reviewId);
     return updated;
   }
 }

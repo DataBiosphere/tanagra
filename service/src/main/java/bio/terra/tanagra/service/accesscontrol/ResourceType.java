@@ -9,7 +9,8 @@ public enum ResourceType {
   COHORT(List.of(Action.READ, Action.CREATE, Action.UPDATE, Action.DELETE)),
   CONCEPT_SET(List.of(Action.READ, Action.CREATE, Action.UPDATE, Action.DELETE)),
   DATASET(List.of(Action.READ, Action.CREATE, Action.UPDATE, Action.DELETE)),
-  COHORT_REVIEW(List.of(Action.READ, Action.CREATE, Action.UPDATE, Action.DELETE));
+  COHORT_REVIEW(List.of(Action.READ, Action.CREATE, Action.UPDATE, Action.DELETE)),
+  ANNOTATION(List.of(Action.READ, Action.CREATE, Action.UPDATE, Action.DELETE));
 
   private List<Action> actions;
 
