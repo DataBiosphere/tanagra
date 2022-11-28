@@ -16,6 +16,6 @@ tanagra:
   pluggable:
     plugins:
       accessControlPlugin:
-        type: bio.terra.tanagra.plugin.included.SimpleAccessControlPlugin
+        type: bio.terra.tanagra.service.accesscontrol.SimpleAccessControlPlugin
         parameters:
           datasource-id: test-plugin-data-source

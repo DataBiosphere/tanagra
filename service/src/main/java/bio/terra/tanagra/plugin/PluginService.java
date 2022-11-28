@@ -2,10 +2,10 @@ package bio.terra.tanagra.plugin;
 
 import static org.springframework.util.StringUtils.capitalize;
 
-import bio.terra.tanagra.plugin.accesscontrol.IAccessControlPlugin;
-import bio.terra.tanagra.plugin.identity.IIdentityPlugin;
-import bio.terra.tanagra.plugin.included.DefaultAccessControlPlugin;
-import bio.terra.tanagra.plugin.included.DefaultIdentityPlugin;
+import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
+import bio.terra.tanagra.service.accesscontrol.DefaultAccessControlPlugin;
+import bio.terra.tanagra.service.identity.DefaultIdentityPlugin;
+import bio.terra.tanagra.service.identity.IdentityPlugin;
 import bio.terra.tanagra.service.jdbc.DataSourceFactory;
 import bio.terra.tanagra.service.jdbc.DataSourceId;
 import java.util.HashMap;
@@ -24,8 +24,8 @@ public class PluginService {
   private final Map<String, IPlugin> availablePlugins =
       new HashMap<>(
           Map.of(
-              IAccessControlPlugin.class.getSimpleName(), new DefaultAccessControlPlugin(),
-              IIdentityPlugin.class.getSimpleName(), new DefaultIdentityPlugin()));
+              AccessControlPlugin.class.getSimpleName(), new DefaultAccessControlPlugin(),
+              IdentityPlugin.class.getSimpleName(), new DefaultIdentityPlugin()));
 
   @Autowired
   public PluginService(PluggableConfiguration configuration, DataSourceFactory dataSourceFactory)
