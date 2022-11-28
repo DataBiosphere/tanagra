@@ -606,6 +606,97 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/studies/{studyId}/conceptSets":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all concept sets in a study
+      operationId: listConceptSets
+      tags: [ConceptSetsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConceptSetListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new concept set
+      operationId: createConceptSet
+      tags: [ConceptSetsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConceptSetCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConceptSetV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/conceptSets/{conceptSetId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/ConceptSetIdV2'
+    get:
+      summary: Get an existing concept set
+      operationId: getConceptSet
+      tags: [ConceptSetsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSetV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing concept set
+      operationId: updateConceptSet
+      tags: [ConceptSetsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConceptSetUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSetV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a concept set
+      operationId: deleteConceptSet
+      tags: [ConceptSetsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
 components:
   parameters:
     UnderlayNameV2:
@@ -636,6 +727,14 @@ components:
       name: cohortId
       in: path
       description: ID of the cohort
+      required: true
+      schema:
+        type: string
+
+    ConceptSetIdV2:
+      name: conceptSetId
+      in: path
+      description: ID of the concept set
       required: true
       schema:
         type: string
@@ -1423,13 +1522,9 @@ components:
           $ref: "#/components/schemas/CohortDescriptionV2"
         criteriaGroups:
           type: array
-          description: Groups of criteria that define the cohort
+          description: Groups of criteria that define the entity filter
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
-
-    UnderlayNameV2:
-      type: string
-      description: Name of the underlay, immutable
 
     CohortDisplayNameV2:
       type: string
@@ -1439,9 +1534,88 @@ components:
       type: string
       description: Description of the cohort
 
+    ConceptSetV2:
+      type: object
+      properties:
+        id:
+          description: ID of the concept set, immutable
+          type: string
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        entity:
+          $ref: "#/components/schemas/EntityNameV2"
+        displayName:
+          $ref: "#/components/schemas/ConceptSetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ConceptSetDescriptionV2"
+        criteria:
+          type: array
+          description: Single criteria that defines the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaV2"
+        lastModified:
+          description: Timestamp of when the concept set was last modified
+          type: string
+          format: date-time
+      required:
+        - id
+        - underlayName
+        - entity
+        - displayName
+        - criteria
+        - lastModified
+
+    ConceptSetListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/ConceptSetV2"
+
+    ConceptSetCreateInfoV2:
+      type: object
+      properties:
+        underlayName:
+          $ref: "#/components/schemas/UnderlayNameV2"
+        entity:
+          $ref: "#/components/schemas/EntityNameV2"
+        displayName:
+          $ref: "#/components/schemas/ConceptSetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ConceptSetDescriptionV2"
+
+    ConceptSetUpdateInfoV2:
+      type: object
+      properties:
+        entity:
+          $ref: "#/components/schemas/EntityNameV2"
+        displayName:
+          $ref: "#/components/schemas/ConceptSetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/ConceptSetDescriptionV2"
+        criteria:
+          type: array
+          description: Single criteria that defines the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaV2"
+
+    EntityNameV2:
+      type: string
+      description: Name of the entity (e.g. condition_occurrence)
+
+    ConceptSetDisplayNameV2:
+      type: string
+      description: Human readable name of the concept set
+
+    ConceptSetDescriptionV2:
+      type: string
+      description: Description of the concept set
+
+    UnderlayNameV2:
+      type: string
+      description: Name of the underlay, immutable
+
     CriteriaGroupV2:
       type: object
-      description: Group of criteria for a cohort or concept set definition
+      description: Group of criteria for a cohort definition
       properties:
         id:
           type: string
