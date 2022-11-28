@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.artifact;
 
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.query.Literal;
 import java.util.Collections;
 import java.util.List;
@@ -99,6 +100,9 @@ public class Annotation {
     }
 
     public Annotation build() {
+      if (enumVals != null && !enumVals.isEmpty() && !dataType.equals(Literal.DataType.STRING)) {
+        throw new BadRequestException("Enum values are only supported for the STRING data type.");
+      }
       return new Annotation(this);
     }
   }
