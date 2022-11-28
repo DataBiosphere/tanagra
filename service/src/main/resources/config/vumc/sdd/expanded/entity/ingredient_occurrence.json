@@ -1,0 +1,437 @@
+{
+  "name" : "ingredient_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "end_date",
+    "dataType" : "DATE"
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "ingredient",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "refills",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 0.0,
+      "maxVal" : 365.0
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 501343.0,
+      "maxVal" : 4.63659E7
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "stop_reason",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : null
+        },
+        "count" : 0
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Allergic res"
+          },
+          "display" : "Allergic res"
+        },
+        "count" : 4846
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Alternate tx"
+          },
+          "display" : "Alternate tx"
+        },
+        "count" : 84029
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Anes Stop"
+          },
+          "display" : "Anes Stop"
+        },
+        "count" : 2863009
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Availability"
+          },
+          "display" : "Availability"
+        },
+        "count" : 6600
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CONTACT "
+          },
+          "display" : "CONTACT "
+        },
+        "count" : 614
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Cleanup"
+          },
+          "display" : "Cleanup"
+        },
+        "count" : 399229
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Cost of medi"
+          },
+          "display" : "Cost of medi"
+        },
+        "count" : 9054
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DC'd by othr"
+          },
+          "display" : "DC'd by othr"
+        },
+        "count" : 164096
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Dose adjustm"
+          },
+          "display" : "Dose adjustm"
+        },
+        "count" : 110534
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Drug interac"
+          },
+          "display" : "Drug interac"
+        },
+        "count" : 1982
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Duplicate or"
+          },
+          "display" : "Duplicate or"
+        },
+        "count" : 523173
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Error"
+          },
+          "display" : "Error"
+        },
+        "count" : 238189
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Expired"
+          },
+          "display" : "Expired"
+        },
+        "count" : 151543
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Formulary"
+          },
+          "display" : "Formulary"
+        },
+        "count" : 25726
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NON-ADHEREN"
+          },
+          "display" : "NON-ADHEREN"
+        },
+        "count" : 9253
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Other"
+          },
+          "display" : "Other"
+        },
+        "count" : 195756
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PATIENT DISC"
+          },
+          "display" : "PATIENT DISC"
+        },
+        "count" : 6654423
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Paradoxical "
+          },
+          "display" : "Paradoxical "
+        },
+        "count" : 275
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Pregnancy"
+          },
+          "display" : "Pregnancy"
+        },
+        "count" : 1116
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "RETURNED TO "
+          },
+          "display" : "RETURNED TO "
+        },
+        "count" : 19246
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Reorder"
+          },
+          "display" : "Reorder"
+        },
+        "count" : 4317260
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SE"
+          },
+          "display" : "SE"
+        },
+        "count" : 40002
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "STOP TAKING "
+          },
+          "display" : "STOP TAKING "
+        },
+        "count" : 402507
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SURGERY"
+          },
+          "display" : "SURGERY"
+        },
+        "count" : 921
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Stop Med"
+          },
+          "display" : "Stop Med"
+        },
+        "count" : 123398
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "TRANSFER"
+          },
+          "display" : "TRANSFER"
+        },
+        "count" : 571939
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Therapy comp"
+          },
+          "display" : "Therapy comp"
+        },
+        "count" : 2198773
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 0.0,
+      "maxVal" : 9.388852E7
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "days_supply",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1.0,
+      "maxVal" : 36135.0
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1.0,
+      "maxVal" : 5227737.0
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "start_date",
+    "dataType" : "DATE"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "drug_exposure"
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "drug_exposure_end_date"
+        }
+      },
+      "ingredient" : {
+        "value" : {
+          "column" : "drug_concept_id"
+        },
+        "display" : {
+          "column" : "drug_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "refills" : {
+        "value" : {
+          "column" : "refills"
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "drug_source_concept_id"
+        }
+      },
+      "stop_reason" : {
+        "value" : {
+          "column" : "stop_reason"
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "drug_exposure_id"
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply"
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "drug_source_value"
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "drug_exposure_start_date"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "ingredient_occurrence"
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "end_date"
+        }
+      },
+      "ingredient" : {
+        "value" : {
+          "column" : "ingredient"
+        },
+        "display" : {
+          "column" : "t_display_ingredient"
+        }
+      },
+      "refills" : {
+        "value" : {
+          "column" : "refills"
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id"
+        }
+      },
+      "stop_reason" : {
+        "value" : {
+          "column" : "stop_reason"
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply"
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value"
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

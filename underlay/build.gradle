@@ -1,0 +1,55 @@
+plugins {
+    id "java"
+    id 'java-test-fixtures'
+
+    // See /buildSrc/build.gradle
+    id 'tanagra.java-conventions'
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+    }
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+    }
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
+}
+
+dependencies {
+    ext {
+        jackson = "2.12.3"
+        slf4j = "1.7.25"
+    }
+
+    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
+    implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+
+    // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
+    implementation group: "com.google.cloud", name: "google-cloud-bigquery"
+    implementation group: "com.google.guava", name: "guava"
+
+    // Jackson serialization
+    implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
+
+    // Static analysis
+    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+
+    testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
+    testFixturesImplementation 'org.apache.commons:commons-text:1.9'
+    testFixturesImplementation "org.slf4j:slf4j-api:${slf4j}"
+}
+
+test {
+    useJUnitPlatform()
+}

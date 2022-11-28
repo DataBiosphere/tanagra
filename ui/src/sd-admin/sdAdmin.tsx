@@ -1,0 +1,34 @@
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import { useState } from "react";
+
+const TabPanel = ({ index }: { index: number }) => {
+  return (
+    <div style={{ padding: "1rem" }}>
+      {index === 0 && <div>Workspace content</div>}
+      {index === 1 && <div>User content</div>}
+      {index === 2 && <div>Cohort content</div>}
+      {index === 3 && <div>Cohort audit content</div>}
+    </div>
+  );
+};
+
+export function SdAdmin() {
+  const [activeTab, setActiveTab] = useState(0);
+  return (
+    <Box>
+      <Tabs
+        value={activeTab}
+        onChange={(e, newTab) => setActiveTab(newTab)}
+        sx={{ position: "fixed", top: 0 }}
+      >
+        <Tab label="Workspaces" />
+        <Tab label="Users" />
+        <Tab label="Cohorts" />
+        <Tab label="Cohort Audit" />
+      </Tabs>
+      <TabPanel index={activeTab} />
+    </Box>
+  );
+}

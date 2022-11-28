@@ -1,0 +1,225 @@
+{
+  "name" : "person",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "gender",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8532
+          },
+          "display" : "FEMALE"
+        },
+        "count" : 1850236
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8507
+          },
+          "display" : "MALE"
+        },
+        "count" : 1594485
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 4177
+      } ]
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "race",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8657
+          },
+          "display" : "American Indian or Alaska Native"
+        },
+        "count" : 4572
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8515
+          },
+          "display" : "Asian"
+        },
+        "count" : 45958
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003598
+          },
+          "display" : "Black"
+        },
+        "count" : 327829
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 953870
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8527
+          },
+          "display" : "White"
+        },
+        "count" : 2116669
+      } ]
+    }
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "ethnicity",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003563
+          },
+          "display" : "Hispanic or Latino"
+        },
+        "count" : 113110
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 960195
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003564
+          },
+          "display" : "Not Hispanic or Latino"
+        },
+        "count" : 2375593
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "year_of_birth",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1799.0,
+      "maxVal" : 2993.0
+    }
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "person"
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender_concept_id"
+        },
+        "display" : {
+          "column" : "gender_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race_concept_id"
+        },
+        "display" : {
+          "column" : "race_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity_concept_id"
+        },
+        "display" : {
+          "column" : "ethnicity_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "person"
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender"
+        },
+        "display" : {
+          "column" : "t_display_gender"
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race"
+        },
+        "display" : {
+          "column" : "t_display_race"
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity"
+        },
+        "display" : {
+          "column" : "t_display_ethnicity"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

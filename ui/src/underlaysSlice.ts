@@ -13,8 +13,9 @@ export type PrepackagedConceptSet = {
 
 export type Underlay = {
   name: string;
+  displayName: string;
   primaryEntity: string;
-  entities: tanagra.Entity[];
+  entities: tanagra.EntityV2[];
   uiConfiguration: UIConfiguration;
 };
 

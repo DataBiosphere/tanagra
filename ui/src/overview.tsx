@@ -54,9 +54,9 @@ export function Overview() {
         width: "100%",
         height: "100%",
         gridTemplateColumns: (theme) =>
-          `300px 1fr ${showDemographics ? "380px" : theme.spacing(8)}`,
-        gridTemplateRows: (theme) => `${theme.spacing(6)} 1fr`,
-        gridTemplateAreas: "'header header header' 'outline content drawer'",
+          `280px 1fr ${showDemographics ? "380px" : theme.spacing(8)}`,
+        gridTemplateRows: "1fr",
+        gridTemplateAreas: "'outline content drawer'",
       }}
     >
       <Box
@@ -70,6 +70,8 @@ export function Overview() {
       <Box
         sx={{
           gridArea: "content",
+          height: "100%",
+          minHeight: "100%",
           overflow: "auto",
           borderColor: (theme) => theme.palette.divider,
           borderStyle: "solid",
@@ -445,36 +447,10 @@ function DemographicCharts({ open }: DemographicChartsProps) {
   const fetchDemographicData = useCallback(async () => {
     const groupByAttributes =
       underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
-    const additionalSelectedAttributes = new Set<string>();
-    underlay.uiConfiguration.demographicChartConfigs.chartConfigs.forEach(
-      (config) => {
-        config.primaryProperties.forEach((property) => {
-          if (!groupByAttributes.includes(property.key)) {
-            additionalSelectedAttributes.add(property.key);
-          }
-        });
-
-        if (
-          config.stackedProperty &&
-          !groupByAttributes.includes(config.stackedProperty.key)
-        ) {
-          additionalSelectedAttributes.add(config.stackedProperty.key);
-        }
-      }
-    );
-
-    // TODO(neelismail): Remove guard for age property key when API provides age support
-    if (additionalSelectedAttributes.has("age")) {
-      additionalSelectedAttributes.delete("age");
-      if (!groupByAttributes.includes("year_of_birth")) {
-        additionalSelectedAttributes.add("year_of_birth");
-      }
-    }
 
     const demographicData = await source.filterCount(
       generateCohortFilter(cohort),
-      groupByAttributes,
-      Array.from(additionalSelectedAttributes)
+      groupByAttributes
     );
 
     const chartConfigs =
