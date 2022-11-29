@@ -7,7 +7,8 @@ import bio.terra.tanagra.service.identity.SingleUserIdentityPlugin;
 
 public enum PluginType {
   ACCESS_CONTROL(AccessControlPlugin.class, OpenAccessControlPlugin.class),
-  IDENTITY(IdentityPlugin.class, SingleUserIdentityPlugin.class);
+  IDENTITY(IdentityPlugin.class, SingleUserIdentityPlugin.class),
+  TEST(TestPlugin.class, TestPluginInternalImplementation.class);
 
   private final Class<?> type;
   private final Class<?> defaultType;

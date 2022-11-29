@@ -1,9 +1,8 @@
 package bio.terra.tanagra.plugin;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
-import bio.terra.tanagra.service.accesscontrol.OpenAccessControlPlugin;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,13 @@ public class PluginTest extends BaseSpringUnitTest {
 
   @Test
   void pluginLoading() {
-    AccessControlPlugin accessControlPlugin = pluginService.getPlugin(AccessControlPlugin.class);
-    assertTrue(accessControlPlugin instanceof OpenAccessControlPlugin);
+    TestPlugin testPlugin = pluginService.getPlugin(TestPlugin.class);
+    assertTrue(testPlugin instanceof TestPluginExternalImplementation);
+  }
+
+  @Test
+  void pluginParameters() {
+    TestPlugin test = pluginService.getPlugin(TestPlugin.class);
+    assertEquals("configured value", test.getParameter("test"));
   }
 }
