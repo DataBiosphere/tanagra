@@ -695,6 +695,97 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/studies/{studyId}/datasets":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OffsetV2"
+        - $ref: "#/components/parameters/LimitV2"
+      summary: List all datasets in a study
+      operationId: listDatasets
+      tags: [DatasetsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Create a new dataset
+      operationId: createDataset
+      tags: [DatasetsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DatasetCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/datasets/{datasetId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/DatasetIdV2'
+    get:
+      summary: Get an existing dataset
+      operationId: getDataset
+      tags: [DatasetsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update an existing dataset
+      operationId: updateDataset
+      tags: [DatasetsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a dataset
+      operationId: deleteDataset
+      tags: [DatasetsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
 components:
   parameters:
     UnderlayNameV2:
@@ -733,6 +824,14 @@ components:
       name: conceptSetId
       in: path
       description: ID of the concept set
+      required: true
+      schema:
+        type: string
+
+    DatasetIdV2:
+      name: datasetId
+      in: path
+      description: ID of the dataset
       required: true
       schema:
         type: string
@@ -1472,8 +1571,7 @@ components:
       type: object
       properties:
         id:
-          description: ID of the cohort, immutable
-          type: string
+          $ref: "#/components/schemas/CohortIdV2"
         underlayName:
           $ref: "#/components/schemas/UnderlayNameV2"
         displayName:
@@ -1524,6 +1622,10 @@ components:
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
 
+    CohortIdV2:
+      type: string
+      description: ID of the cohort, immutable
+
     CohortDisplayNameV2:
       type: string
       description: Human readable name of the cohort
@@ -1536,8 +1638,7 @@ components:
       type: object
       properties:
         id:
-          description: ID of the concept set, immutable
-          type: string
+          $ref: "#/components/schemas/ConceptSetIdV2"
         underlayName:
           $ref: "#/components/schemas/UnderlayNameV2"
         entity:
@@ -1593,6 +1694,10 @@ components:
       type: string
       description: Name of the entity (e.g. condition_occurrence)
 
+    ConceptSetIdV2:
+      type: string
+      description: ID of the concept set, immutable
+
     ConceptSetDisplayNameV2:
       type: string
       description: Human readable name of the concept set
@@ -1600,6 +1705,72 @@ components:
     ConceptSetDescriptionV2:
       type: string
       description: Description of the concept set
+
+    DatasetV2:
+      type: object
+      properties:
+        id:
+          description: ID of the dataset, immutable
+          type: string
+        cohort:
+          $ref: "#/components/schemas/CohortIdV2"
+        conceptSets:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConceptSetIdV2"
+        displayName:
+          $ref: "#/components/schemas/DatasetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/DatasetDescriptionV2"
+        lastModified:
+          description: Timestamp of when the dataset was last modified
+          type: string
+          format: date-time
+      required:
+        - id
+        - cohort
+        - conceptSets
+        - displayName
+        - lastModified
+
+    DatasetListV2:
+      type: array
+      items:
+        $ref: "#/components/schemas/DatasetV2"
+
+    DatasetCreateInfoV2:
+      type: object
+      properties:
+        cohort:
+          $ref: "#/components/schemas/CohortIdV2"
+        conceptSets:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConceptSetIdV2"
+        displayName:
+          $ref: "#/components/schemas/DatasetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/DatasetDescriptionV2"
+
+    DatasetUpdateInfoV2:
+      type: object
+      properties:
+        conceptSets:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConceptSetIdV2"
+        displayName:
+          $ref: "#/components/schemas/DatasetDisplayNameV2"
+        description:
+          $ref: "#/components/schemas/DatasetDescriptionV2"
+
+    DatasetDisplayNameV2:
+      type: string
+      description: Human readable name of the dataset
+
+    DatasetDescriptionV2:
+      type: string
+      description: Description of the dataset
 
     UnderlayNameV2:
       type: string
