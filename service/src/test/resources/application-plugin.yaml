@@ -15,7 +15,7 @@ tanagra:
         password: dbpwd
   pluggable:
     plugins:
-      accessControlPlugin:
+      ACCESS_CONTROL:
         type: bio.terra.tanagra.service.accesscontrol.OpenAccessControlPlugin
         parameters:
           datasource-id: test-plugin-data-source
