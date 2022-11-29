@@ -83,7 +83,7 @@ public final class ToApiConversionUtils {
                 .collect(Collectors.toList()));
   }
 
-  private static ApiCriteriaV2 toApiObject(Criteria criteria) {
+  public static ApiCriteriaV2 toApiObject(Criteria criteria) {
     return new ApiCriteriaV2()
         .id(criteria.getUserFacingCriteriaId())
         .displayName(criteria.getDisplayName())

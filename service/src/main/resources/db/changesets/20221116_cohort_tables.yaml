@@ -72,6 +72,56 @@ databaseChangeLog:
                     unique: false
 
         - createTable:
+            tableName: concept_set
+            columns:
+              - column:
+                  name: study_id
+                  type: text
+                  constraints:
+                    references: study(study_id)
+                    foreignKeyName: fk_concept_set_study_id
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete the concept sets contained in it
+              - column:
+                  name: concept_set_id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: underlay_name
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: false
+              - column:
+                  name: entity_name
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: false
+              - column:
+                  name: last_modified
+                  type: timestamp
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+                    unique: false
+
+        - createTable:
             tableName: criteria_group
             columns:
               - column:
@@ -124,9 +174,18 @@ databaseChangeLog:
                   constraints:
                     references: criteria_group(criteria_group_id)
                     foreignKeyName: fk_criteria_criteria_group_id
-                    nullable: false
+                    nullable: true
                     deleteCascade: true
                   remarks: Deleting a criteria group will cascade to delete the criteria contained in it
+              - column:
+                  name: concept_set_id
+                  type: text
+                  constraints:
+                    references: concept_set(concept_set_id)
+                    foreignKeyName: fk_criteria_concept_set_id
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a concept set will cascade to delete the criteria contained in it
               - column:
                   name: criteria_id
                   type: text

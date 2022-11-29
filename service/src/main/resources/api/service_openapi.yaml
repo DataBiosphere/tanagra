@@ -1547,10 +1547,7 @@ components:
         description:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
         criteria:
-          type: array
-          description: Single criteria that defines the entity filter
-          items:
-            $ref: "#/components/schemas/CriteriaV2"
+          $ref: "#/components/schemas/CriteriaV2"
         lastModified:
           description: Timestamp of when the concept set was last modified
           type: string
@@ -1590,10 +1587,7 @@ components:
         description:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
         criteria:
-          type: array
-          description: Single criteria that defines the entity filter
-          items:
-            $ref: "#/components/schemas/CriteriaV2"
+          $ref: "#/components/schemas/CriteriaV2"
 
     EntityNameV2:
       type: string
