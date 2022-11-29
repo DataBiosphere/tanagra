@@ -1547,7 +1547,7 @@ components:
         description:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
         criteria:
-            $ref: "#/components/schemas/CriteriaV2"
+          $ref: "#/components/schemas/CriteriaV2"
         lastModified:
           description: Timestamp of when the concept set was last modified
           type: string
