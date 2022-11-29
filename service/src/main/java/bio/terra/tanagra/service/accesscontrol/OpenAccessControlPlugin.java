@@ -2,7 +2,6 @@ package bio.terra.tanagra.service.accesscontrol;
 
 import bio.terra.tanagra.plugin.PluginConfig;
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 
 /**
  * Open access control plugin implementation that allows everything: all actions, listing all
@@ -10,7 +9,7 @@ import javax.sql.DataSource;
  */
 public class OpenAccessControlPlugin implements AccessControlPlugin {
   @Override
-  public void init(PluginConfig config, DataSource dataSource) {
+  public void init(PluginConfig config) {
     // do nothing
   }
 
