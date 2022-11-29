@@ -604,6 +604,70 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/values":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/AnnotationIdV2'
+    post:
+      summary: Create a new annotation value
+      operationId: createAnnotationValue
+      tags: [AnnotationsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnotationValueCreateInfoV2"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnnotationValueV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/values/{valueId}":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/AnnotationIdV2'
+      - $ref: '#/components/parameters/AnnotationValueIdV2'
+    patch:
+      summary: Update an existing annotation value
+      operationId: updateAnnotationValue
+      tags: [AnnotationsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnotationValueUpdateInfoV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationValueV2'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete an annotation value
+      operationId: deleteAnnotationValue
+      tags: [AnnotationsV2]
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
   "/v2/studies/{studyId}/conceptSets":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
@@ -848,6 +912,14 @@ components:
       name: annotationId
       in: path
       description: ID of the annotation
+      required: true
+      schema:
+        type: string
+
+    AnnotationValueIdV2:
+      name: valueId
+      in: path
+      description: ID of the annotation value
       required: true
       schema:
         type: string
@@ -1838,8 +1910,7 @@ components:
       type: object
       properties:
         id:
-          description: ID of the review, immutable
-          type: string
+          $ref: "#/components/schemas/ReviewIdV2"
         displayName:
           $ref: "#/components/schemas/ReviewDisplayNameV2"
         description:
@@ -1891,6 +1962,10 @@ components:
           $ref: "#/components/schemas/ReviewDisplayNameV2"
         description:
           $ref: "#/components/schemas/ReviewDescriptionV2"
+
+    ReviewIdV2:
+      type: string
+      description: ID of the review, immutable
 
     ReviewDisplayNameV2:
       type: string
@@ -1963,6 +2038,36 @@ components:
       type: string
       description: Description of the annotation
 
+    AnnotationValueV2:
+      type: object
+      properties:
+        id:
+          description: ID of the annotation value, immutable
+          type: string
+        value:
+          $ref: "#/components/schemas/LiteralV2"
+        review:
+          $ref: "#/components/schemas/ReviewIdV2"
+      required:
+        - id
+        - value
+
+    AnnotationValueCreateInfoV2:
+      type: object
+      properties:
+        value:
+          $ref: "#/components/schemas/LiteralV2"
+        review:
+          $ref: "#/components/schemas/ReviewIdV2"
+      required:
+        - value
+
+    AnnotationValueUpdateInfoV2:
+      type: object
+      properties:
+        value:
+          $ref: "#/components/schemas/LiteralV2"
+
     ReviewInstanceV2:
       type: object
       properties:
@@ -1974,12 +2079,13 @@ components:
             nullable: true
             $ref: "#/components/schemas/ValueDisplayV2"
         annotations:
-          description: A map of annotation ids to their value for this instance in this review
+          description: A map of annotation ids to their values for this instance in this review
           type: object
           additionalProperties:
-            type: object
+            type: array
             nullable: true
-            $ref: "#/components/schemas/ValueDisplayV2"
+            items:
+              $ref: "#/components/schemas/AnnotationValueV2"
 
     ReviewInstanceListV2:
       type: array
