@@ -33,7 +33,11 @@ public class AccessControlService {
       Action action,
       ResourceType resourceType,
       @Nullable ResourceId resourceId) {
-    if (!isAuthorized(credential, action, resourceType, resourceId)) {
+    // TODO: Update signature to take underlayName parameter once all routes have been configured to
+    // require an underlay.
+    String underlayName = "";
+
+    if (!isAuthorized(underlayName, credential, action, resourceType, resourceId)) {
       throw new UnauthorizedException(
           "User is unauthorized to "
               + action
@@ -45,11 +49,12 @@ public class AccessControlService {
   }
 
   public boolean isAuthorized(
+      String underlayName,
       Object credential,
       Action action,
       ResourceType resourceType,
       @Nullable ResourceId resourceId) {
-    UserId userId = getUserId(credential);
+    UserId userId = getUserId(underlayName, credential);
     if (userId == null) {
       throw new BadRequestException("Invalid user id");
     }
@@ -58,15 +63,13 @@ public class AccessControlService {
           "Action not available for resource type: " + action + ", " + resourceType);
     }
 
-    // TODO: specify underlay
     return pluginService
-        .getPlugin("", AccessControlPlugin.class)
+        .getPlugin(underlayName, AccessControlPlugin.class)
         .isAuthorized(userId, action, resourceType, resourceId);
   }
 
-  public UserId getUserId(Object credential) {
-    // TODO: specify underlay
-    return pluginService.getPlugin("", IdentityPlugin.class).getUserId(credential);
+  public UserId getUserId(String underlayName, Object credential) {
+    return pluginService.getPlugin(underlayName, IdentityPlugin.class).getUserId(credential);
   }
 
   public ResourceIdCollection listResourceIds(ResourceType type) {
