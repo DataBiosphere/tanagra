@@ -10,21 +10,19 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("plugin")
 public class PluginTest extends BaseSpringUnitTest {
-  @Autowired private PluginService pluginService;
+  private static final String TEST_UNDERLAY = "cms_synpuf";
 
-  private String getUnderlayName() {
-    return "pluginTest";
-  }
+  @Autowired private PluginService pluginService;
 
   @Test
   void pluginLoading() {
-    TestPlugin testPlugin = pluginService.getPlugin(getUnderlayName(), TestPlugin.class);
+    TestPlugin testPlugin = pluginService.getPlugin(TEST_UNDERLAY, TestPlugin.class);
     assertTrue(testPlugin instanceof TestPluginExternalImplementation);
   }
 
   @Test
   void pluginParameters() {
-    TestPlugin test = pluginService.getPlugin(getUnderlayName(), TestPlugin.class);
+    TestPlugin test = pluginService.getPlugin(TEST_UNDERLAY, TestPlugin.class);
     assertEquals("configured value", test.getParameter("test"));
   }
 }
