@@ -103,7 +103,12 @@ public final class Underlay {
               FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
 
-    Map<String, PluginConfig> plugins = serialized.getPlugins();
+    Map<String, PluginConfig> plugins = new HashMap<>();
+    if (serialized.getPlugins() != null) {
+      serialized
+          .getPlugins()
+          .forEach((key, value) -> plugins.put(key, value.deserializeToInternal()));
+    }
 
     Underlay underlay =
         new Underlay(

@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
-@JsonDeserialize(builder = UFUnderlay.Builder.class)
+@JsonDeserialize(builder = UFPluginConfig.Builder.class)
 public class UFPluginConfig {
   private final String type;
   private final Map<String, String> parameters;
@@ -44,6 +44,10 @@ public class UFPluginConfig {
     public UFPluginConfig build() {
       return new UFPluginConfig(this);
     }
+  }
+
+  public PluginConfig deserializeToInternal() {
+    return new PluginConfig(type, parameters);
   }
 
   public String getType() {

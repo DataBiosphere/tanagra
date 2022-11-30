@@ -2,7 +2,6 @@ package bio.terra.tanagra.serialization;
 
 import static bio.terra.tanagra.underlay.Underlay.OUTPUT_UNDERLAY_FILE_EXTENSION;
 
-import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.underlay.Underlay;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -26,7 +25,7 @@ public class UFUnderlay {
   private final String primaryEntity;
   private final String uiConfig;
   private final String uiConfigFile;
-  private final Map<String, PluginConfig> plugins;
+  private final Map<String, UFPluginConfig> plugins;
 
   public UFUnderlay(Underlay underlay) {
     this.name = underlay.getName();
@@ -47,7 +46,10 @@ public class UFUnderlay {
     // Separate file for UI config string available for input/deserialization, not
     // output/re-serialization.
     this.uiConfigFile = null;
-    this.plugins = underlay.getPlugins();
+    this.plugins =
+        underlay.getPlugins().entrySet().stream()
+            .collect(
+                Collectors.toMap(Map.Entry::getKey, kvp -> new UFPluginConfig(kvp.getValue())));
   }
 
   private UFUnderlay(Builder builder) {
@@ -70,7 +72,7 @@ public class UFUnderlay {
     private String primaryEntity;
     private String uiConfig;
     private String uiConfigFile;
-    private Map<String, PluginConfig> plugins;
+    private Map<String, UFPluginConfig> plugins;
 
     public Builder name(String name) {
       this.name = name;
@@ -107,7 +109,7 @@ public class UFUnderlay {
       return this;
     }
 
-    public Builder plugins(Map<String, PluginConfig> plugins) {
+    public Builder plugins(Map<String, UFPluginConfig> plugins) {
       this.plugins = plugins;
       return this;
     }
@@ -146,7 +148,7 @@ public class UFUnderlay {
     return uiConfigFile;
   }
 
-  public Map<String, PluginConfig> getPlugins() {
+  public Map<String, UFPluginConfig> getPlugins() {
     return plugins;
   }
 }
