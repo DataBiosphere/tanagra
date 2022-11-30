@@ -604,11 +604,12 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
-  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/values":
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
       - $ref: '#/components/parameters/CohortIdV2'
       - $ref: '#/components/parameters/AnnotationIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
     post:
       summary: Create a new annotation value
       operationId: createAnnotationValue
@@ -618,7 +619,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AnnotationValueCreateInfoV2"
+              $ref: "#/components/schemas/AnnotationValueCreateUpdateInfoV2"
       responses:
         200:
           description: OK
@@ -629,11 +630,12 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/values/{valueId}":
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values/{valueId}":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
       - $ref: '#/components/parameters/CohortIdV2'
       - $ref: '#/components/parameters/AnnotationIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
       - $ref: '#/components/parameters/AnnotationValueIdV2'
     patch:
       summary: Update an existing annotation value
@@ -644,7 +646,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnnotationValueUpdateInfoV2'
+              $ref: '#/components/schemas/AnnotationValueCreateUpdateInfoV2'
       responses:
         200:
           description: OK
@@ -1880,22 +1882,15 @@ components:
       required:
         - id
         - value
+        - review
 
-    AnnotationValueCreateInfoV2:
+    AnnotationValueCreateUpdateInfoV2:
       type: object
       properties:
         value:
           $ref: "#/components/schemas/LiteralV2"
-        review:
-          $ref: "#/components/schemas/ReviewIdV2"
       required:
         - value
-
-    AnnotationValueUpdateInfoV2:
-      type: object
-      properties:
-        value:
-          $ref: "#/components/schemas/LiteralV2"
 
     ReviewInstanceV2:
       type: object
