@@ -12,15 +12,19 @@ import org.springframework.test.context.ActiveProfiles;
 public class PluginTest extends BaseSpringUnitTest {
   @Autowired private PluginService pluginService;
 
+  private String getUnderlayName() {
+    return "pluginTest";
+  }
+
   @Test
   void pluginLoading() {
-    TestPlugin testPlugin = pluginService.getPlugin(TestPlugin.class);
+    TestPlugin testPlugin = pluginService.getPlugin(getUnderlayName(), TestPlugin.class);
     assertTrue(testPlugin instanceof TestPluginExternalImplementation);
   }
 
   @Test
   void pluginParameters() {
-    TestPlugin test = pluginService.getPlugin(TestPlugin.class);
+    TestPlugin test = pluginService.getPlugin(getUnderlayName(), TestPlugin.class);
     assertEquals("configured value", test.getParameter("test"));
   }
 }

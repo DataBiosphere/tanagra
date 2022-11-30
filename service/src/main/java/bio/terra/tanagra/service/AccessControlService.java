@@ -17,13 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccessControlService {
 
-  private final AccessControlPlugin accessControlPlugin;
-  private final IdentityPlugin identityPlugin;
+  private final PluginService pluginService;
 
   @Autowired
   public AccessControlService(PluginService pluginService) {
-    this.accessControlPlugin = pluginService.getPlugin(AccessControlPlugin.class);
-    this.identityPlugin = pluginService.getPlugin(IdentityPlugin.class);
+    this.pluginService = pluginService;
   }
 
   public void throwIfUnauthorized(Object credential, Action action, ResourceType resourceType) {
@@ -59,11 +57,16 @@ public class AccessControlService {
       throw new BadRequestException(
           "Action not available for resource type: " + action + ", " + resourceType);
     }
-    return accessControlPlugin.isAuthorized(userId, action, resourceType, resourceId);
+
+    // TODO: specify underlay
+    return pluginService
+        .getPlugin("", AccessControlPlugin.class)
+        .isAuthorized(userId, action, resourceType, resourceId);
   }
 
   public UserId getUserId(Object credential) {
-    return identityPlugin.getUserId(credential);
+    // TODO: specify underlay
+    return pluginService.getPlugin("", IdentityPlugin.class).getUserId(credential);
   }
 
   public ResourceIdCollection listResourceIds(ResourceType type) {
@@ -71,6 +74,9 @@ public class AccessControlService {
   }
 
   public ResourceIdCollection listResourceIds(ResourceType type, int offset, int limit) {
-    return accessControlPlugin.listResourceIds(type, offset, limit);
+    // TODO: specify underlay
+    return pluginService
+        .getPlugin("", AccessControlPlugin.class)
+        .listResourceIds(type, offset, limit);
   }
 }

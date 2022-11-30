@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.utils.FileIO;
 import bio.terra.tanagra.utils.FileUtils;
@@ -27,6 +28,7 @@ public final class Underlay {
   private final String primaryEntityName;
   private final Map<String, EntityGroup> entityGroups;
   private final String uiConfig;
+  private final Map<String, PluginConfig> plugins;
 
   private Underlay(
       String name,
@@ -34,13 +36,15 @@ public final class Underlay {
       Map<String, Entity> entities,
       String primaryEntityName,
       Map<String, EntityGroup> entityGroups,
-      String uiConfig) {
+      String uiConfig,
+      Map<String, PluginConfig> plugins) {
     this.name = name;
     this.dataPointers = dataPointers;
     this.entities = entities;
     this.primaryEntityName = primaryEntityName;
     this.entityGroups = entityGroups;
     this.uiConfig = uiConfig;
+    this.plugins = plugins;
   }
 
   public static Underlay fromJSON(String underlayFileName) throws IOException {
@@ -99,9 +103,17 @@ public final class Underlay {
               FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
 
+    Map<String, PluginConfig> plugins = serialized.getPlugins();
+
     Underlay underlay =
         new Underlay(
-            serialized.getName(), dataPointers, entities, primaryEntity, entityGroups, uiConfig);
+            serialized.getName(),
+            dataPointers,
+            entities,
+            primaryEntity,
+            entityGroups,
+            uiConfig,
+            plugins);
 
     underlay.getEntities().values().stream().forEach(entity -> entity.initialize(underlay));
 
@@ -152,5 +164,9 @@ public final class Underlay {
 
   public String getUIConfig() {
     return uiConfig;
+  }
+
+  public Map<String, PluginConfig> getPlugins() {
+    return plugins;
   }
 }

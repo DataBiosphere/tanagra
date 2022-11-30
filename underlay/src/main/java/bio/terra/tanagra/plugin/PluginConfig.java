@@ -1,10 +1,9 @@
 package bio.terra.tanagra.plugin;
 
-import java.util.Map;
-
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFPluginConfig;
 import com.google.common.base.Strings;
+import java.util.Map;
 
 public class PluginConfig {
   private final String type;

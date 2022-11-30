@@ -1,10 +1,9 @@
 package bio.terra.tanagra.plugin;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.underlay.Underlay;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,22 +15,42 @@ public class PluginService {
   @Autowired
   public PluginService(UnderlaysService underlayService) throws PluginException {
     this.underlayService = underlayService;
-
-    loadPlugins();
   }
 
-  public <T extends Plugin> T getPlugin(String underlay, Class<T> c) {
-    return c.cast(availablePlugins.get(getKey(underlay, c)));
+  public <T extends Plugin> T getPlugin(String underlayName, Class<T> c) {
+    String key = getKey(underlayName, c);
+    Plugin plugin = availablePlugins.get(key);
+    if (plugin == null) {
+      plugin = loadPlugin(underlayName, c);
+
+      if (plugin == null) {
+        throw new PluginException(
+            String.format(
+                "Plugin '%s' not configured for underlay '%s', and no default available",
+                c.getCanonicalName(), underlayName));
+      } else {
+        availablePlugins.put(key, plugin);
+      }
+    }
+
+    return c.cast(plugin);
   }
 
-  private void loadPlugins() throws PluginException {
-    for (Underlay underlay : underlayService.getUnderlays()) {
+  private Plugin loadPlugin(String underlayName, Class<?> c) {
+    Plugin plugin = null;
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+
+    if (underlay == null) {
+      throw new PluginException(String.format("Underlay '%s' not loaded", underlayName));
+    } else {
       Map<String, PluginConfig> configuredPlugins = underlay.getPlugins();
-      for (PluginType pluginType : PluginType.values()) {
-        Plugin plugin;
-
+      PluginType pluginType = PluginType.fromType(c);
+      if (pluginType == null) {
+        throw new PluginException(
+            String.format("'%s' is not a registered plugin", c.getCanonicalName()));
+      } else {
         try {
-          if (configuredPlugins.containsKey(pluginType.toString())) {
+          if (configuredPlugins != null && configuredPlugins.containsKey(pluginType.toString())) {
             PluginConfig pluginConfig = configuredPlugins.get(pluginType.toString());
 
             Class<?> pluginClass = Class.forName(pluginConfig.getType());
@@ -43,10 +62,10 @@ public class PluginService {
         } catch (Exception e) {
           throw new PluginException(e);
         }
-
-        availablePlugins.put(getKey(underlay.getName(), pluginType.getType()), plugin);
       }
     }
+
+    return plugin;
   }
 
   private String getKey(String underlay, Class<?> pluginClass) {

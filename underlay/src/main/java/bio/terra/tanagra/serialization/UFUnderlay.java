@@ -2,11 +2,13 @@ package bio.terra.tanagra.serialization;
 
 import static bio.terra.tanagra.underlay.Underlay.OUTPUT_UNDERLAY_FILE_EXTENSION;
 
+import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.underlay.Underlay;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +26,7 @@ public class UFUnderlay {
   private final String primaryEntity;
   private final String uiConfig;
   private final String uiConfigFile;
+  private final Map<String, PluginConfig> plugins;
 
   public UFUnderlay(Underlay underlay) {
     this.name = underlay.getName();
@@ -44,6 +47,7 @@ public class UFUnderlay {
     // Separate file for UI config string available for input/deserialization, not
     // output/re-serialization.
     this.uiConfigFile = null;
+    this.plugins = underlay.getPlugins();
   }
 
   private UFUnderlay(Builder builder) {
@@ -54,6 +58,7 @@ public class UFUnderlay {
     this.primaryEntity = builder.primaryEntity;
     this.uiConfig = builder.uiConfig;
     this.uiConfigFile = builder.uiConfigFile;
+    this.plugins = builder.plugins;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -65,6 +70,7 @@ public class UFUnderlay {
     private String primaryEntity;
     private String uiConfig;
     private String uiConfigFile;
+    private Map<String, PluginConfig> plugins;
 
     public Builder name(String name) {
       this.name = name;
@@ -101,6 +107,11 @@ public class UFUnderlay {
       return this;
     }
 
+    public Builder plugins(Map<String, PluginConfig> plugins) {
+      this.plugins = plugins;
+      return this;
+    }
+
     /** Call the private constructor. */
     public UFUnderlay build() {
       return new UFUnderlay(this);
@@ -133,5 +144,9 @@ public class UFUnderlay {
 
   public String getUiConfigFile() {
     return uiConfigFile;
+  }
+
+  public Map<String, PluginConfig> getPlugins() {
+    return plugins;
   }
 }
