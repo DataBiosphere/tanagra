@@ -2,57 +2,54 @@ package bio.terra.tanagra.plugin;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.underlay.Underlay;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PluginService {
-  private final PluggableConfiguration configuration;
-  private final Map<Class<?>, Plugin> availablePlugins = new HashMap<>();
+  private final UnderlaysService underlayService;
+  private final Map<String, Plugin> availablePlugins = new HashMap<>();
 
   @Autowired
-  public PluginService(PluggableConfiguration configuration) throws PluginException {
-    this.configuration = configuration;
+  public PluginService(UnderlaysService underlayService) throws PluginException {
+    this.underlayService = underlayService;
 
-    loadDefaultPlugins();
     loadPlugins();
   }
 
-  public <T extends Plugin> T getPlugin(Class<T> c) {
-    return c.cast(availablePlugins.get(c));
-  }
-
-  private void loadDefaultPlugins() throws PluginException {
-    for (PluginType pluginType : PluginType.values()) {
-      availablePlugins.put(pluginType.getType(), loadPlugin(pluginType.getDefaultType()));
-    }
+  public <T extends Plugin> T getPlugin(String underlay, Class<T> c) {
+    return c.cast(availablePlugins.get(getKey(underlay, c)));
   }
 
   private void loadPlugins() throws PluginException {
-    try {
-      if (configuration.isConfigured()) {
-        for (Map.Entry<String, PluginConfig> p : configuration.getPlugins().entrySet()) {
-          PluginType pluginType = PluginType.valueOf(p.getKey());
-          PluginConfig config = p.getValue();
+    for (Underlay underlay : underlayService.getUnderlays()) {
+      Map<String, PluginConfig> configuredPlugins = underlay.getPlugins();
+      for (PluginType pluginType : PluginType.values()) {
+        Plugin plugin;
 
-          Class<?> pluginClass = Class.forName(p.getValue().getType());
-          Plugin plugin = loadPlugin(pluginClass);
+        try {
+          if (configuredPlugins.containsKey(pluginType.toString())) {
+            PluginConfig pluginConfig = configuredPlugins.get(pluginType.toString());
 
-          plugin.init(config);
-
-          availablePlugins.put(pluginType.getType(), plugin);
+            Class<?> pluginClass = Class.forName(pluginConfig.getType());
+            plugin = (Plugin) pluginClass.getConstructor().newInstance();
+            plugin.init(pluginConfig);
+          } else {
+            plugin = (Plugin) pluginType.getDefaultType().getConstructor().newInstance();
+          }
+        } catch (Exception e) {
+          throw new PluginException(e);
         }
+
+        availablePlugins.put(getKey(underlay.getName(), pluginType.getType()), plugin);
       }
-    } catch (ClassNotFoundException e) {
-      throw new PluginException(e);
     }
   }
 
-  private Plugin loadPlugin(Class<?> pluginClass) throws PluginException {
-    try {
-      return (Plugin) pluginClass.getConstructor().newInstance();
-    } catch (Exception e) {
-      throw new PluginException(e);
-    }
+  private String getKey(String underlay, Class<?> pluginClass) {
+    return String.format("%s/%s", underlay, pluginClass.getCanonicalName());
   }
 }
