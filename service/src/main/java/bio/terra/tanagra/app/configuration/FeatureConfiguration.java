@@ -29,11 +29,7 @@ public class FeatureConfiguration {
     }
   }
 
-  /**
-   * Write the feature settings into the log
-   *
-   * <p>Add an entry here for each new feature
-   */
+  /** Write the feature flags into the log. Add an entry here for each new feature flag. */
   public void logFeatures() {
     LOGGER.info("Feature: artifact-storage-enabled: {}", isArtifactStorageEnabled());
   }
