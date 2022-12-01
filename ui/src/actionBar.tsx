@@ -34,7 +34,7 @@ export default function ActionBar(props: ActionBarProps) {
       >
         <Toolbar>
           <IconButton
-            color="inherit"
+            color="primary"
             aria-label="back"
             component={RouterLink}
             to={props.backURL ?? ".."}
@@ -57,7 +57,7 @@ export default function ActionBar(props: ActionBarProps) {
           </Typography>
           {props.extraControls}
           <Button
-            variant="outlined"
+            variant="contained"
             startIcon={<SettingsIcon />}
             component={RouterLink}
             to="/sdAdmin"
@@ -65,7 +65,7 @@ export default function ActionBar(props: ActionBarProps) {
             SD Admin
           </Button>
           {underlay ? (
-            <Typography variant="h4" className="underlay-name">
+            <Typography variant="h4" className="underlay-name" sx={{ ml: 1 }}>
               Dataset: {underlay.name}
             </Typography>
           ) : null}
