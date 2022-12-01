@@ -16,7 +16,7 @@ export default function SelectablePaper({
             bottom: "16px",
             left: "-4px",
             width: "8px",
-            "border-radius": "4px",
+            borderRadius: "4px",
             backgroundColor: (theme) => theme.palette.primary.main,
           }}
         />

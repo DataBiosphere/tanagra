@@ -1,3 +1,4 @@
+import RateReviewIcon from "@mui/icons-material/RateReview";
 import RedoIcon from "@mui/icons-material/Redo";
 import UndoIcon from "@mui/icons-material/Undo";
 import Button from "@mui/material/Button";
@@ -26,14 +27,6 @@ export default function CohortToolbar() {
   return (
     <Stack direction="row" spacing={1} sx={{ m: 1 }}>
       <Button
-        variant="contained"
-        component={RouterLink}
-        to={cohortReviewURL(underlay.name, cohort.id)}
-      >
-        Review
-      </Button>
-      <Divider orientation="vertical" flexItem />
-      <Button
         onClick={() => dispatch(UndoActionCreators.undo())}
         variant="outlined"
         startIcon={<UndoIcon />}
@@ -52,6 +45,15 @@ export default function CohortToolbar() {
         to={redoUrlPath}
       >
         Redo
+      </Button>
+      <Divider orientation="vertical" flexItem />
+      <Button
+        variant="contained"
+        startIcon={<RateReviewIcon />}
+        component={RouterLink}
+        to={cohortReviewURL(underlay.name, cohort.id)}
+      >
+        Review
       </Button>
     </Stack>
   );
