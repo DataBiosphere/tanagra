@@ -22,15 +22,7 @@ public class PluginService {
     Plugin plugin = loadedPlugins.get(key);
     if (plugin == null) {
       plugin = loadPlugin(underlayName, c);
-
-      if (plugin == null) {
-        throw new PluginException(
-            String.format(
-                "Plugin '%s' not configured for underlay '%s', and no default is available",
-                c.getCanonicalName(), underlayName));
-      } else {
-        loadedPlugins.put(key, plugin);
-      }
+      loadedPlugins.put(key, plugin);
     }
 
     return c.cast(plugin);
