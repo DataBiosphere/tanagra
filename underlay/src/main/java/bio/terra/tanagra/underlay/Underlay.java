@@ -107,7 +107,7 @@ public final class Underlay {
     if (serialized.getPlugins() != null) {
       serialized
           .getPlugins()
-          .forEach((key, value) -> plugins.put(key, value.deserializeToInternal()));
+          .forEach((key, value) -> plugins.put(key, PluginConfig.fromSerialized(value)));
     }
 
     Underlay underlay =
@@ -172,6 +172,6 @@ public final class Underlay {
   }
 
   public Map<String, PluginConfig> getPlugins() {
-    return plugins;
+    return Collections.unmodifiableMap(plugins);
   }
 }

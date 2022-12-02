@@ -10,25 +10,25 @@ public enum PluginType {
   IDENTITY(IdentityPlugin.class, SingleUserIdentityPlugin.class),
   TEST(TestPlugin.class, TestPluginInternalImplementation.class);
 
-  private final Class<?> type;
-  private final Class<?> defaultType;
+  private final Class<?> baseClassName;
+  private final Class<?> defaultImplementationClassName;
 
   <TT extends Plugin, TD extends TT> PluginType(Class<TT> type, Class<TD> defaultType) {
-    this.type = type;
-    this.defaultType = defaultType;
+    this.baseClassName = type;
+    this.defaultImplementationClassName = defaultType;
   }
 
-  public Class<?> getType() {
-    return type;
+  public Class<?> getBaseClassName() {
+    return baseClassName;
   }
 
-  public Class<?> getDefaultType() {
-    return defaultType;
+  public Class<?> getDefaultImplementationClassName() {
+    return defaultImplementationClassName;
   }
 
   public static PluginType fromType(Class<?> type) {
     for (PluginType pluginType : PluginType.values()) {
-      if (pluginType.getType() == type) {
+      if (pluginType.getBaseClassName() == type) {
         return pluginType;
       }
     }

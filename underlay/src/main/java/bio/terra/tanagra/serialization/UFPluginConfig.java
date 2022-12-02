@@ -46,10 +46,6 @@ public class UFPluginConfig {
     }
   }
 
-  public PluginConfig deserializeToInternal() {
-    return new PluginConfig(type, parameters);
-  }
-
   public String getType() {
     return type;
   }

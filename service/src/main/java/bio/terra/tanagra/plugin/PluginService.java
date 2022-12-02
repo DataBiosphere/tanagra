@@ -13,7 +13,7 @@ public class PluginService {
   private final Map<String, Plugin> loadedPlugins = new HashMap<>();
 
   @Autowired
-  public PluginService(UnderlaysService underlayService) throws PluginException {
+  public PluginService(UnderlaysService underlayService) {
     this.underlayService = underlayService;
   }
 
@@ -40,28 +40,25 @@ public class PluginService {
     Plugin plugin;
     Underlay underlay = underlayService.getUnderlay(underlayName);
 
-    if (underlay == null) {
-      throw new PluginException(String.format("Underlay '%s' not available", underlayName));
+    Map<String, PluginConfig> pluginConfigs = underlay.getPlugins();
+    PluginType pluginType = PluginType.fromType(c);
+    if (pluginType == null) {
+      throw new PluginException(String.format("'%s' is not a known plugin", c.getCanonicalName()));
     } else {
-      Map<String, PluginConfig> configuredPlugins = underlay.getPlugins();
-      PluginType pluginType = PluginType.fromType(c);
-      if (pluginType == null) {
-        throw new PluginException(
-            String.format("'%s' is not a known plugin", c.getCanonicalName()));
-      } else {
-        try {
-          if (configuredPlugins != null && configuredPlugins.containsKey(pluginType.toString())) {
-            PluginConfig pluginConfig = configuredPlugins.get(pluginType.toString());
+      try {
+        if (pluginConfigs != null && pluginConfigs.containsKey(pluginType.toString())) {
+          PluginConfig pluginConfig = pluginConfigs.get(pluginType.toString());
 
-            Class<?> pluginClass = Class.forName(pluginConfig.getType());
-            plugin = (Plugin) pluginClass.getConstructor().newInstance();
-            plugin.init(pluginConfig);
-          } else {
-            plugin = (Plugin) pluginType.getDefaultType().getConstructor().newInstance();
-          }
-        } catch (Exception e) {
-          throw new PluginException(e);
+          Class<?> pluginClass = Class.forName(pluginConfig.getType());
+          plugin = (Plugin) pluginClass.getConstructor().newInstance();
+          plugin.init(pluginConfig);
+        } else {
+          plugin =
+              (Plugin)
+                  pluginType.getDefaultImplementationClassName().getConstructor().newInstance();
         }
+      } catch (Exception e) {
+        throw new PluginException(e);
       }
     }
 
