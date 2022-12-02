@@ -13,8 +13,8 @@ public enum PluginType {
   private final Class<?> baseClassName;
   private final Class<?> defaultImplementationClassName;
 
-  <TT extends Plugin, TD extends TT> PluginType(Class<TT> type, Class<TD> defaultType) {
-    this.baseClassName = type;
+  <TT extends Plugin, TD extends TT> PluginType(Class<TT> baseClassName, Class<TD> defaultType) {
+    this.baseClassName = baseClassName;
     this.defaultImplementationClassName = defaultType;
   }
 
