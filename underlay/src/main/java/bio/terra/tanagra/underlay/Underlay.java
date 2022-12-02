@@ -28,7 +28,7 @@ public final class Underlay {
   private final String primaryEntityName;
   private final Map<String, EntityGroup> entityGroups;
   private final String uiConfig;
-  private final Map<String, PluginConfig> plugins;
+  private final Map<String, PluginConfig> pluginConfigs;
 
   private Underlay(
       String name,
@@ -37,14 +37,14 @@ public final class Underlay {
       String primaryEntityName,
       Map<String, EntityGroup> entityGroups,
       String uiConfig,
-      Map<String, PluginConfig> plugins) {
+      Map<String, PluginConfig> pluginConfigs) {
     this.name = name;
     this.dataPointers = dataPointers;
     this.entities = entities;
     this.primaryEntityName = primaryEntityName;
     this.entityGroups = entityGroups;
     this.uiConfig = uiConfig;
-    this.plugins = plugins;
+    this.pluginConfigs = pluginConfigs;
   }
 
   public static Underlay fromJSON(String underlayFileName) throws IOException {
@@ -171,7 +171,7 @@ public final class Underlay {
     return uiConfig;
   }
 
-  public Map<String, PluginConfig> getPlugins() {
-    return Collections.unmodifiableMap(plugins);
+  public Map<String, PluginConfig> getPluginConfigs() {
+    return Collections.unmodifiableMap(pluginConfigs);
   }
 }

@@ -47,7 +47,7 @@ public class UFUnderlay {
     // output/re-serialization.
     this.uiConfigFile = null;
     this.plugins =
-        underlay.getPlugins().entrySet().stream()
+        underlay.getPluginConfigs().entrySet().stream()
             .collect(
                 Collectors.toMap(Map.Entry::getKey, kvp -> new UFPluginConfig(kvp.getValue())));
   }

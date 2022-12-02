@@ -40,16 +40,16 @@ public class PluginService {
     Plugin plugin;
     Underlay underlay = underlayService.getUnderlay(underlayName);
 
-    Map<String, PluginConfig> pluginConfigs = underlay.getPlugins();
+    Map<String, PluginConfig> pluginConfigs = underlay.getPluginConfigs();
     PluginType pluginType = PluginType.fromType(c);
     if (pluginType == null) {
       throw new PluginException(String.format("'%s' is not a known plugin", c.getCanonicalName()));
     } else {
       try {
-        if (pluginConfigs != null && pluginConfigs.containsKey(pluginType.toString())) {
+        if (pluginConfigs.containsKey(pluginType.toString())) {
           PluginConfig pluginConfig = pluginConfigs.get(pluginType.toString());
 
-          Class<?> pluginClass = Class.forName(pluginConfig.getType());
+          Class<?> pluginClass = Class.forName(pluginConfig.getImplementationClassName());
           plugin = (Plugin) pluginClass.getConstructor().newInstance();
           plugin.init(pluginConfig);
         } else {

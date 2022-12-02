@@ -12,16 +12,16 @@ import java.util.Map;
  */
 @JsonDeserialize(builder = UFPluginConfig.Builder.class)
 public class UFPluginConfig {
-  private final String type;
+  private final String implementationClassName;
   private final Map<String, String> parameters;
 
   public UFPluginConfig(PluginConfig config) {
-    this.type = config.getType();
+    this.implementationClassName = config.getImplementationClassName();
     this.parameters = config.getParameters();
   }
 
   private UFPluginConfig(UFPluginConfig.Builder builder) {
-    this.type = builder.type;
+    this.implementationClassName = builder.type;
     this.parameters = builder.parameters;
   }
 
@@ -46,8 +46,8 @@ public class UFPluginConfig {
     }
   }
 
-  public String getType() {
-    return type;
+  public String getImplementationClassName() {
+    return implementationClassName;
   }
 
   public Map<String, String> getParameters() {
