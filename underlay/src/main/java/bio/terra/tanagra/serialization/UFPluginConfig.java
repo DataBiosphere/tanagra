@@ -21,17 +21,17 @@ public class UFPluginConfig {
   }
 
   private UFPluginConfig(UFPluginConfig.Builder builder) {
-    this.implementationClassName = builder.type;
+    this.implementationClassName = builder.implementationClassName;
     this.parameters = builder.parameters;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private String type;
+    private String implementationClassName;
     private Map<String, String> parameters;
 
     public UFPluginConfig.Builder type(String type) {
-      this.type = type;
+      this.implementationClassName = type;
       return this;
     }
 
