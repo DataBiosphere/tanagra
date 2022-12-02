@@ -58,7 +58,8 @@ public class PluginService {
                   pluginType.getDefaultImplementationClassName().getConstructor().newInstance();
         }
       } catch (Exception e) {
-        throw new PluginException(e);
+        throw new PluginException(
+            String.format("Unable to load plugin '%s'", pluginType.toString()), e);
       }
     }
 
