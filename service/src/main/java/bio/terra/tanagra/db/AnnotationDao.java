@@ -158,8 +158,7 @@ public class AnnotationDao {
     return jdbcTemplate.query(sql, params, ANNOTATION_ROW_MAPPER);
   }
 
-  @ReadTransaction
-  public Optional<Annotation> getAnnotationIfExists(
+  private Optional<Annotation> getAnnotationIfExists(
       String studyId, String cohortRevisionGroupId, String annotationId) {
     if (studyId == null || cohortRevisionGroupId == null || annotationId == null) {
       throw new MissingRequiredFieldException(
@@ -179,6 +178,7 @@ public class AnnotationDao {
     }
   }
 
+  @ReadTransaction
   public Annotation getAnnotation(
       String studyId, String cohortRevisionGroupId, String annotationId) {
     return getAnnotationIfExists(studyId, cohortRevisionGroupId, annotationId)

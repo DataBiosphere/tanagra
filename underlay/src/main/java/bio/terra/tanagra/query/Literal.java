@@ -53,6 +53,15 @@ public class Literal implements SQLExpression {
     return new Literal(Date.valueOf(dateVal));
   }
 
+  private Literal(Builder builder) {
+    this.dataType = builder.dataType;
+    this.stringVal = builder.stringVal;
+    this.int64Val = builder.int64Val;
+    this.booleanVal = builder.booleanVal;
+    this.dateVal = builder.dateVal;
+    this.doubleVal = builder.doubleVal;
+  }
+
   public static Literal fromSerialized(UFLiteral serialized) {
     boolean stringValDefined = !Strings.isNullOrEmpty(serialized.getStringVal());
     boolean int64ValDefined = serialized.getInt64Val() != null;
@@ -138,5 +147,48 @@ public class Literal implements SQLExpression {
 
   public DataType getDataType() {
     return dataType;
+  }
+
+  public static class Builder {
+    private Literal.DataType dataType;
+    private String stringVal;
+    private long int64Val;
+    private boolean booleanVal;
+    private Date dateVal;
+    private double doubleVal;
+
+    public Builder dataType(Literal.DataType dataType) {
+      this.dataType = dataType;
+      return this;
+    }
+
+    public Builder stringVal(String stringVal) {
+      this.stringVal = stringVal;
+      return this;
+    }
+
+    public Builder int64Val(long int64Val) {
+      this.int64Val = int64Val;
+      return this;
+    }
+
+    public Builder booleanVal(boolean booleanVal) {
+      this.booleanVal = booleanVal;
+      return this;
+    }
+
+    public Builder dateVal(Date dateVal) {
+      this.dateVal = dateVal == null ? null : (Date) dateVal.clone();
+      return this;
+    }
+
+    public Builder doubleVal(double doubleVal) {
+      this.doubleVal = doubleVal;
+      return this;
+    }
+
+    public Literal build() {
+      return new Literal(this);
+    }
   }
 }
