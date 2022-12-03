@@ -8,6 +8,11 @@ public class TestPluginInternalImplementation implements TestPlugin {
   }
 
   @Override
+  public String getDescription() {
+    return "Internal default implementation";
+  }
+
+  @Override
   public String getParameter(String name) {
     return null;
   }

@@ -11,6 +11,11 @@ public class TestPluginExternalImplementation implements TestPlugin {
   }
 
   @Override
+  public String getDescription() {
+    return "External test implementation";
+  }
+
+  @Override
   public String getParameter(String name) {
     return parameters.get(name);
   }

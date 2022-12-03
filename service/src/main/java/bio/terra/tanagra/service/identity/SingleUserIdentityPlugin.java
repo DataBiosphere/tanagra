@@ -10,6 +10,11 @@ public class SingleUserIdentityPlugin implements IdentityPlugin {
   }
 
   @Override
+  public String getDescription() {
+    return "Single user mode. All events and transactions run under the same identity.";
+  }
+
+  @Override
   public UserId getUserId(Object credential) {
     return new UserId("single_user");
   }

@@ -14,8 +14,8 @@ public class OpenAccessControlPlugin implements AccessControlPlugin {
   }
 
   @Override
-  public String getName() {
-    return "OPEN_ACCESS_CONTROL_PLUGIN";
+  public String getDescription() {
+    return "Allows access to any resource by anyone";
   }
 
   @Override
