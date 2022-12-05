@@ -9,10 +9,9 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.UserId;
-import javax.annotation.Nullable;
-
 import bio.terra.tanagra.service.identity.IdentityPlugin;
 import bio.terra.tanagra.service.identity.SingleUserIdentityPlugin;
+import javax.annotation.Nullable;
 import org.springframework.stereotype.Component;
 
 @Component
