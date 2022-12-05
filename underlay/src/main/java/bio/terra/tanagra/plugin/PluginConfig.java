@@ -10,8 +10,8 @@ public class PluginConfig {
   private final String implementationClassName;
   private final Map<String, String> parameters;
 
-  public PluginConfig(String type, Map<String, String> parameters) {
-    this.implementationClassName = type;
+  public PluginConfig(String implementationClassName, Map<String, String> parameters) {
+    this.implementationClassName = implementationClassName;
     this.parameters = parameters;
   }
 
@@ -29,7 +29,7 @@ public class PluginConfig {
 
   public static PluginConfig fromSerialized(UFPluginConfig serialized) {
     if (Strings.isNullOrEmpty(serialized.getImplementationClassName())) {
-      throw new InvalidConfigException("Plugin type is undefined");
+      throw new InvalidConfigException("Plugin implementationClassName is undefined");
     }
 
     return new PluginConfig(serialized.getImplementationClassName(), serialized.getParameters());

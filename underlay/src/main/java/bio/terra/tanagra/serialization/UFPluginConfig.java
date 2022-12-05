@@ -30,8 +30,8 @@ public class UFPluginConfig {
     private String implementationClassName;
     private Map<String, String> parameters;
 
-    public UFPluginConfig.Builder type(String type) {
-      this.implementationClassName = type;
+    public UFPluginConfig.Builder implementationClassName(String implementationClassName) {
+      this.implementationClassName = implementationClassName;
       return this;
     }
 
