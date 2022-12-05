@@ -67,12 +67,13 @@ public class CohortDao {
               .isExcluded(rs.getBoolean("is_excluded"));
 
   // SQL query and row mapper for reading a criteria.
-  private static final String CRITERIA_SELECT_SQL =
-      "SELECT criteria_group_id, criteria_id, user_facing_criteria_id, display_name, plugin_name, selection_data, ui_config FROM criteria";
-  private static final RowMapper<Criteria> CRITERIA_ROW_MAPPER =
+  static final String CRITERIA_SELECT_SQL =
+      "SELECT criteria_group_id, concept_set_id, criteria_id, user_facing_criteria_id, display_name, plugin_name, selection_data, ui_config FROM criteria";
+  static final RowMapper<Criteria> CRITERIA_ROW_MAPPER =
       (rs, rowNum) ->
           Criteria.builder()
               .criteriaGroupId(rs.getString("criteria_group_id"))
+              .conceptSetId(rs.getString("concept_set_id"))
               .criteriaId(rs.getString("criteria_id"))
               .userFacingCriteriaId(rs.getString("user_facing_criteria_id"))
               .displayName(rs.getString("display_name"))

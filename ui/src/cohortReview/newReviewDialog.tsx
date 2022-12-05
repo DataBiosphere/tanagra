@@ -4,21 +4,17 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { TextField } from "mui-rff";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { Form } from "react-final-form";
 
-type TextInputDialogProps = {
-  title: string;
-  initialText?: string;
-  textLabel: string;
-  buttonLabel: string;
-  onConfirm: (name: string) => void;
+export type NewReviewDialogProps = {
+  onCreate: (name: string, size: number) => void;
 };
 
-// Return a dialog and the callback function to show the dialog.
-export function useTextInputDialog(
-  props: TextInputDialogProps
-): [ReactNode, () => void] {
+// TODO(tjennison): Add validation.
+export function useNewReviewDialog(
+  props: NewReviewDialogProps
+): [JSX.Element, () => void] {
   const [open, setOpen] = useState(false);
   const show = () => setOpen(true);
 
@@ -29,18 +25,17 @@ export function useTextInputDialog(
       onClose={() => {
         setOpen(false);
       }}
-      aria-labelledby="text-input-dialog-title"
+      aria-labelledby="new-review-dialog-title"
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle id="text-input-dialog-title">{props.title}</DialogTitle>
+      <DialogTitle id="new-review-dialog-title">
+        Create New Cohort Review
+      </DialogTitle>
       <Form
-        onSubmit={({ text }) => {
+        onSubmit={({ name, size }) => {
           setOpen(false);
-          props.onConfirm(text);
-        }}
-        initialValues={{
-          text: props.initialText,
+          props.onCreate(name, size);
         }}
         render={({ handleSubmit }) => (
           <form onSubmit={handleSubmit}>
@@ -48,13 +43,20 @@ export function useTextInputDialog(
               <TextField
                 autoFocus
                 fullWidth
-                name="text"
-                label={props.textLabel}
+                name="name"
+                label="Cohort Review Name"
+                autoComplete="off"
+              />
+              <TextField
+                fullWidth
+                name="size"
+                label="Participant Count (max 10,000)"
+                autoComplete="off"
               />
             </DialogContent>
             <DialogActions>
               <Button type="submit" variant="contained">
-                {props.buttonLabel}
+                Create
               </Button>
             </DialogActions>
           </form>

@@ -25,7 +25,8 @@ public final class StartupInitializer {
     FeatureConfiguration featureConfiguration =
         applicationContext.getBean(FeatureConfiguration.class);
 
-    // Log the state of the feature flags.
+    // Log the state of the database migration and feature flags.
+    tanagraDatabaseProperties.logFlags();
     featureConfiguration.logFeatures();
 
     // Migrate the database.

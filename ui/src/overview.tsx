@@ -8,12 +8,12 @@ import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { defaultFilter, insertGroup } from "cohortsSlice";
 import Empty from "components/empty";
 import Loading from "components/loading";
+import SelectablePaper from "components/selectablePaper";
 import { FilterCountValue, useSource } from "data/source";
 import { useAsyncWithApi } from "errors";
 import {
@@ -40,8 +40,8 @@ import { isValid } from "util/valid";
 import {
   generateCohortFilter,
   getCriteriaPlugin,
-  groupFilterKindLabel,
   groupName,
+  uiGroupFilterFromFilter,
 } from "./cohort";
 
 export function Overview() {
@@ -94,13 +94,30 @@ export function Overview() {
           <DemographicCharts open={showDemographics} />
         </Box>
         <Box sx={{ gridArea: "1/1" }}>
-          <IconButton
-            size="large"
-            sx={{ float: "right" }}
-            onClick={() => setShowDemographics(!showDemographics)}
-          >
-            {showDemographics ? <ChevronRightIcon /> : <BarChartIcon />}
-          </IconButton>
+          {showDemographics ? (
+            <IconButton
+              size="large"
+              sx={{ float: "right" }}
+              onClick={() => setShowDemographics(false)}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+          ) : (
+            <Button
+              color="primary"
+              sx={{ minWidth: "auto", width: "100%" }}
+              onClick={() => setShowDemographics(true)}
+            >
+              <Stack alignItems="center">
+                <BarChartIcon
+                  sx={{ fontSize: "32px", transform: "rotate(90deg)" }}
+                />
+                <Typography variant="h4" sx={{ writingMode: "vertical-rl" }}>
+                  Demographics
+                </Typography>
+              </Stack>
+            </Button>
+          )}
         </Box>
       </Box>
     </Box>
@@ -112,6 +129,15 @@ function Outline() {
 
   return (
     <Box className="outline">
+      <Stack
+        direction="row"
+        alignItems="center"
+        sx={{ height: (theme) => theme.spacing(6) }}
+      >
+        <Typography variant="h2" sx={{ mr: 1 }}>
+          Requirements
+        </Typography>
+      </Stack>
       <List sx={{ p: 0 }}>
         {cohort.groups.map((g, index) => (
           <ListItemButton
@@ -192,24 +218,8 @@ function ParticipantsGroup(props: {
   const groupCountState = useAsyncWithApi(fetchGroupCount);
 
   return (
-    <Paper
-      sx={{ p: 1, width: "100%", overflow: "hidden", position: "relative" }}
-    >
-      {props.selected && (
-        <Box
-          className="selected-group-highlight"
-          sx={{
-            position: "absolute",
-            top: "16px",
-            bottom: "16px",
-            left: "-4px",
-            width: "8px",
-            "border-radius": "4px",
-            backgroundColor: (theme) => theme.palette.primary.main,
-          }}
-        />
-      )}
-      <Stack spacing={0}>
+    <SelectablePaper selected={props.selected}>
+      <Stack spacing={0} sx={{ p: 1 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -219,18 +229,10 @@ function ParticipantsGroup(props: {
           <Typography variant="h3">
             {groupName(props.group, props.index)}
           </Typography>
-          <Stack direction="row" spacing={1}>
-            {props.group.filter.excluded && <Chip label="Not" />}
-            <Chip label={groupFilterKindLabel(props.group.filter.kind)} />
-          </Stack>
+          <Chip label={uiGroupFilterFromFilter(props.group.filter)} />
         </Stack>
         {props.group.criteria.length === 0 ? (
-          <Empty
-            maxWidth="90%"
-            minHeight="100px"
-            title="No criteria yet"
-            subtitle="You can add a criteria by selecting this requirement and clicking on 'Add criteria'"
-          />
+          <Empty maxWidth="90%" minHeight="60px" title="No criteria yet" />
         ) : (
           props.group.criteria.map((criteria) => (
             <Box key={criteria.id}>
@@ -253,7 +255,7 @@ function ParticipantsGroup(props: {
           </Loading>
         </Box>
       </Stack>
-    </Paper>
+    </SelectablePaper>
   );
 }
 
@@ -542,10 +544,10 @@ function DemographicCharts({ open }: DemographicChartsProps) {
     <>
       <Loading status={demographicState}>
         <Grid item xs={1}>
-          <Stack>
-            <Typography variant="h2">{`Total count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
-            {demographicState.data?.totalCount &&
-              demographicState.data?.chartsData.map((chart, index) => {
+          {demographicState.data?.totalCount ? (
+            <Stack>
+              <Typography variant="h2">{`Total count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
+              {demographicState.data?.chartsData.map((chart, index) => {
                 return (
                   <StackedBarChart
                     key={index}
@@ -554,7 +556,15 @@ function DemographicCharts({ open }: DemographicChartsProps) {
                   />
                 );
               })}
-          </Stack>
+            </Stack>
+          ) : (
+            <Empty
+              minHeight="300px"
+              image="/empty.png"
+              title="No participants match the selected cohort"
+              subtitle="You can broaden the cohort by removing criteria or selecting different requirement types"
+            />
+          )}
         </Grid>
       </Loading>
     </>

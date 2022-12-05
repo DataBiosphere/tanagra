@@ -5,6 +5,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { insertCriteria } from "cohortsSlice";
+import CohortToolbar from "cohortToolbar";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { Search } from "components/search";
@@ -14,9 +15,8 @@ import {
   TreeGridId,
   TreeGridItem,
 } from "components/treegrid";
-import UndoRedo from "components/UndoRedo";
-import { DataEntry, DataKey } from "data/configuration";
 import { MergedDataEntry, useSource } from "data/source";
+import { DataEntry, DataKey } from "data/types";
 import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohortAndGroup, useUnderlay } from "hooks";
 import { useCallback, useMemo, useState } from "react";
@@ -146,7 +146,7 @@ export function AddCriteria() {
       }}
     >
       <Search placeholder="Search criteria or select from the options below" />
-      <ActionBar title={"Add criteria"} extraControls={<UndoRedo />} />
+      <ActionBar title={"Add criteria"} extraControls={<CohortToolbar />} />
       {showResults ? (
         <Loading status={searchState}>
           {!data.root?.children?.length ? (

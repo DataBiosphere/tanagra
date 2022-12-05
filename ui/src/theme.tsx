@@ -111,15 +111,15 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          "border-radius": "4px",
+          borderRadius: "4px",
           height: "16px",
         },
         label: {
-          "font-family": "'Inter', sans-serif",
-          "font-weight": "500",
-          "font-size": "11px",
-          "text-transform": "uppercase",
-          "letter-spacing": ".5px",
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: "500",
+          fontSize: "11px",
+          textTransform: "uppercase",
+          letterSpacing: ".5px",
           padding: "1px 8px 0px 8px",
         },
       },
@@ -152,6 +152,7 @@ export const theme = createTheme({
     },
     MuiIconButton: {
       defaultProps: {
+        color: "primary",
         size: "small",
       },
     },

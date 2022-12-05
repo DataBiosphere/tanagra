@@ -25,7 +25,7 @@ public class UnderlaysService {
     // read in underlays from resource files
     Map<String, Underlay> underlaysMapBuilder = new HashMap<>();
     FileIO.setToReadResourceFiles();
-    for (String underlayFile : underlayConfiguration.getUnderlayFiles()) {
+    for (String underlayFile : underlayConfiguration.getFiles()) {
       Path resourceConfigPath = Path.of("config").resolve(underlayFile);
       FileIO.setInputParentDir(resourceConfigPath.getParent());
       try {
