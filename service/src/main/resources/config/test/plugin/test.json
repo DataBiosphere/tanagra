@@ -1,0 +1,28 @@
+{
+  "name" : "test",
+  "dataPointers" : [ {
+    "type" : "BQ_DATASET",
+    "name" : "index_dataset",
+    "projectId" : "test-index",
+    "datasetId" : "test-index-dataset",
+    "queryProjectId" : "test-index"
+  }, {
+    "type" : "BQ_DATASET",
+    "name" : "omop_dataset",
+    "projectId" : "test-omop",
+    "datasetId" : "test-omop-dataset",
+    "queryProjectId" : "test-omop"
+  } ],
+  "entities" : [ "person.json" ],
+  "entityGroups" : [ ],
+  "primaryEntity" : "person",
+  "uiConfig" : "",
+  "plugins": {
+    "TEST": {
+      "implementationClassName": "bio.terra.tanagra.plugin.TestPluginExternalImplementation",
+      "parameters": {
+        "test": "configured value"
+      }
+    }
+  }
+}

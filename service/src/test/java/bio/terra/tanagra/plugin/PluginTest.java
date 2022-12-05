@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("plugin")
+@ActiveProfiles("test")
 public class PluginTest extends BaseSpringUnitTest {
-  private static final String TEST_UNDERLAY = "cms_synpuf";
+  private static final String TEST_UNDERLAY = "test";
 
   @Autowired private PluginService pluginService;
 
