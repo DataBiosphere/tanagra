@@ -2,16 +2,26 @@ package bio.terra.tanagra.service;
 
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.UnauthorizedException;
+import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
 import bio.terra.tanagra.service.accesscontrol.Action;
+import bio.terra.tanagra.service.accesscontrol.OpenAccessControlPlugin;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.UserId;
 import javax.annotation.Nullable;
+
+import bio.terra.tanagra.service.identity.IdentityPlugin;
+import bio.terra.tanagra.service.identity.SingleUserIdentityPlugin;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccessControlService {
+
+  // TODO: Allow overriding the default plugin.
+  private final AccessControlPlugin accessControlPlugin = new OpenAccessControlPlugin();
+  private final IdentityPlugin identityPlugin = new SingleUserIdentityPlugin();
+
   public void throwIfUnauthorized(Object credential, Action action, ResourceType resourceType) {
     throwIfUnauthorized(credential, action, resourceType, null);
   }
@@ -45,14 +55,11 @@ public class AccessControlService {
       throw new BadRequestException(
           "Action not available for resource type: " + action + ", " + resourceType);
     }
-
-    // TODO: check authorization via AccessControlPlugin
-    return true;
+    return accessControlPlugin.isAuthorized(userId, action, resourceType, resourceId);
   }
 
   public UserId getUserId(Object credential) {
-    // TODO: get identity via IdentityPlugin
-    return new UserId("single_user");
+    return identityPlugin.getUserId(credential);
   }
 
   public ResourceIdCollection listResourceIds(ResourceType type) {
@@ -60,7 +67,6 @@ public class AccessControlService {
   }
 
   public ResourceIdCollection listResourceIds(ResourceType type, int offset, int limit) {
-    // TODO: check authorization via AccessControlPlugin
-    return ResourceIdCollection.allResourceIds();
+    return accessControlPlugin.listResourceIds(type, offset, limit);
   }
 }
