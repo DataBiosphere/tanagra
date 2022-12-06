@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol;
 
+import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
 
 /**
@@ -28,6 +29,6 @@ public class DefaultAccessControlPlugin implements AccessControlPlugin {
   @Override
   public UserId getUserId(Object credential) {
     // TODO: Decode a GoogleCredential object here to get the user email/id.
-    return new UserId("single_user");
+    return new UserId("single_user", "single_user@email.com");
   }
 }

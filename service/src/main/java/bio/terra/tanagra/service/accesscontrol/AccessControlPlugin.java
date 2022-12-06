@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service.accesscontrol;
 
+import bio.terra.tanagra.service.auth.UserId;
+
 /**
  * Interface that all access control plugins must implement. In the future, we may consider moving
  * the credential decoding to a separate plugin, so deployments can override authentication and

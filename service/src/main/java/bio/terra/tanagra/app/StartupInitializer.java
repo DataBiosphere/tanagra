@@ -1,6 +1,7 @@
 package bio.terra.tanagra.app;
 
 import bio.terra.common.migrate.LiquibaseMigrator;
+import bio.terra.tanagra.app.configuration.AuthConfiguration;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraDatabaseConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraDatabaseProperties;
@@ -24,10 +25,12 @@ public final class StartupInitializer {
         applicationContext.getBean(TanagraDatabaseProperties.class);
     FeatureConfiguration featureConfiguration =
         applicationContext.getBean(FeatureConfiguration.class);
+    AuthConfiguration authConfiguration = applicationContext.getBean(AuthConfiguration.class);
 
-    // Log the state of the database migration and feature flags.
+    // Log the state of the database migration, feature flags, auth flags.
     tanagraDatabaseProperties.logFlags();
     featureConfiguration.logFeatures();
+    authConfiguration.logConfig();
 
     // Migrate the database.
     LOGGER.info("Migrating database");
