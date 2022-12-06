@@ -1,6 +1,8 @@
 package bio.terra.tanagra.plugin;
 
 import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
+import bio.terra.tanagra.service.identity.IdentityPlugin;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,48 +19,51 @@ public class PluginService {
     this.underlayService = underlayService;
   }
 
-  public <T extends Plugin> T getPlugin(String underlayName, Class<T> c) {
-    String key = getKey(underlayName, c);
-    Plugin plugin = loadedPlugins.get(key);
-    if (plugin == null) {
-      plugin = loadPlugin(underlayName, c);
-      loadedPlugins.put(key, plugin);
-    }
-
-    return c.cast(plugin);
+  public AccessControlPlugin getAccessControlPlugin(String underlayName) {
+    return (AccessControlPlugin) getPlugin(underlayName, PluginType.ACCESS_CONTROL);
   }
 
-  private Plugin loadPlugin(String underlayName, Class<?> c) {
-    Plugin plugin;
-    Underlay underlay = underlayService.getUnderlay(underlayName);
+  public IdentityPlugin getIdentityPlugin(String underlayName) {
+    return (IdentityPlugin) getPlugin(underlayName, PluginType.IDENTITY);
+  }
 
-    Map<String, PluginConfig> pluginConfigs = underlay.getPluginConfigs();
-    PluginType pluginType = PluginType.fromType(c);
-    if (pluginType == null) {
-      throw new PluginException(String.format("'%s' is not a known plugin", c.getCanonicalName()));
-    } else {
-      try {
-        if (pluginConfigs.containsKey(pluginType.toString())) {
-          PluginConfig pluginConfig = pluginConfigs.get(pluginType.toString());
-
-          Class<?> pluginClass = Class.forName(pluginConfig.getImplementationClassName());
-          plugin = (Plugin) pluginClass.getConstructor().newInstance();
-          plugin.init(pluginConfig);
-        } else {
-          plugin =
-              (Plugin)
-                  pluginType.getDefaultImplementationClassName().getConstructor().newInstance();
-        }
-      } catch (Exception e) {
-        throw new PluginException(
-            String.format("Unable to load plugin '%s'", pluginType.toString()), e);
-      }
+  private Plugin getPlugin(String underlayName, PluginType type) {
+    String key = getKey(underlayName, type);
+    Plugin plugin = loadedPlugins.get(key);
+    if (plugin == null) {
+      plugin = loadPlugin(underlayName, type);
+      loadedPlugins.put(key, plugin);
     }
 
     return plugin;
   }
 
-  private String getKey(String underlay, Class<?> pluginClass) {
-    return String.format("%s/%s", underlay, pluginClass.getCanonicalName());
+  private Plugin loadPlugin(String underlayName, PluginType pluginType) {
+    Plugin plugin;
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+
+    Map<String, PluginConfig> pluginConfigs = underlay.getPluginConfigs();
+
+    try {
+      if (pluginConfigs.containsKey(pluginType.toString())) {
+        PluginConfig pluginConfig = pluginConfigs.get(pluginType.toString());
+
+        Class<?> pluginClass = Class.forName(pluginConfig.getImplementationClassName());
+        plugin = (Plugin) pluginClass.getConstructor().newInstance();
+        plugin.init(pluginConfig);
+      } else {
+        plugin =
+            (Plugin) pluginType.getDefaultImplementationClassName().getConstructor().newInstance();
+      }
+    } catch (Exception e) {
+      throw new PluginException(
+          String.format("Unable to load plugin '%s'", pluginType.toString()), e);
+    }
+
+    return plugin;
+  }
+
+  private String getKey(String underlayName, PluginType pluginType) {
+    return String.format("%s/%s", underlayName, pluginType.toString());
   }
 }

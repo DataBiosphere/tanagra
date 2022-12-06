@@ -19,14 +19,14 @@ public class PluginTest extends BaseSpringUnitTest {
   @Test
   void defaultPluginLoading() {
     AccessControlPlugin accessControlPlugin =
-        pluginService.getPlugin(TEST_UNDERLAY_DEFAULT, AccessControlPlugin.class);
+        pluginService.getAccessControlPlugin(TEST_UNDERLAY_DEFAULT);
     assertTrue(accessControlPlugin instanceof OpenAccessControlPlugin);
   }
 
   @Test
   void configuredPluginLoading() {
     AccessControlPlugin accessControlPlugin =
-        pluginService.getPlugin(TEST_UNDERLAY_CONFIGURED, AccessControlPlugin.class);
+        pluginService.getAccessControlPlugin(TEST_UNDERLAY_CONFIGURED);
     assertTrue(accessControlPlugin instanceof ConfiguredAccessControlPlugin);
   }
 }

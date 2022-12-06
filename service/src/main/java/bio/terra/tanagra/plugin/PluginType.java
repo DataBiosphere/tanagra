@@ -25,14 +25,4 @@ public enum PluginType {
   public Class<?> getDefaultImplementationClassName() {
     return defaultImplementationClassName;
   }
-
-  public static PluginType fromType(Class<?> type) {
-    for (PluginType pluginType : PluginType.values()) {
-      if (pluginType.getBaseClassName() == type) {
-        return pluginType;
-      }
-    }
-
-    return null;
-  }
 }
