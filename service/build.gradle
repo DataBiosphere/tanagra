@@ -71,6 +71,7 @@ dependencies {
     implementation group: "org.apache.commons", name: "commons-pool2"
     implementation group: "org.springframework.boot", name: "spring-boot-starter-web"
     implementation group: "org.springframework.boot", name: "spring-boot-starter-data-jdbc"
+    implementation group: "org.springframework.security", name: "spring-security-core"
 
     // OpenApi(Swagger) dependencies
     implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: jacksonYaml
