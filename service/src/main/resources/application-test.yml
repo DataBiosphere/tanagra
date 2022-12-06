@@ -1,6 +1,6 @@
 tanagra:
   underlay:
-    files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json", "test/plugin/test.json" ]
+    files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json", "test/plugin/test-no-plugins.json", "test/plugin/test-plugins-configured.json" ]
 
   feature:
     artifact-storage-enabled: true

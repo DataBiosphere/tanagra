@@ -1,5 +1,5 @@
 {
-  "name" : "test",
+  "name" : "test-no-plugins",
   "dataPointers" : [ {
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
@@ -16,13 +16,5 @@
   "entities" : [ "person.json" ],
   "entityGroups" : [ ],
   "primaryEntity" : "person",
-  "uiConfig" : "",
-  "plugins": {
-    "TEST": {
-      "implementationClassName": "bio.terra.tanagra.plugin.TestPluginExternalImplementation",
-      "parameters": {
-        "test": "configured value"
-      }
-    }
-  }
+  "uiConfig" : ""
 }
