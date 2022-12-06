@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
+import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { defaultFilter, insertGroup } from "cohortsSlice";
@@ -30,6 +31,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
+  TooltipProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -379,10 +381,30 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
             tickMargin={10}
           />
           <Tooltip
-            itemStyle={{ padding: 0 }}
-            labelFormatter={(label) => (
-              <Typography variant="h4">{label}</Typography>
-            )}
+            content={(props: TooltipProps<number, string>) => {
+              return (
+                <Paper elevation={1} sx={{ p: 1 }}>
+                  <Stack>
+                    <Typography variant="h4">{props.label}</Typography>
+                    {props.payload?.map((row) => (
+                      <Stack key={row.name} direction="row" sx={{ mt: 1 }}>
+                        <Box
+                          sx={{
+                            width: "20px",
+                            height: "20px",
+                            backgroundColor: row.color,
+                            mr: 1,
+                          }}
+                        />
+                        <Typography variant="body1">
+                          {row.name}: {row.value}
+                        </Typography>
+                      </Stack>
+                    ))}
+                  </Stack>
+                </Paper>
+              );
+            }}
           />
           {chart.stackedProperties.length > 0 ? (
             chart.stackedProperties.map((property, index) => (

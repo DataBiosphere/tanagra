@@ -39,7 +39,15 @@ export default function ActionBar(props: ActionBarProps) {
             component={RouterLink}
             to={props.backURL ?? ".."}
             sx={{
+              mx: 1,
               visibility: props.backURL === null ? "hidden" : "visible",
+              "&.MuiIconButton-root": {
+                backgroundColor: (theme) => theme.palette.primary.main,
+                color: (theme) => theme.palette.primary.contrastText,
+              },
+              "&.MuiIconButton-root:hover": {
+                backgroundColor: (theme) => theme.palette.primary.dark,
+              },
             }}
           >
             <ArrowBackIcon />
@@ -57,7 +65,6 @@ export default function ActionBar(props: ActionBarProps) {
           </Typography>
           {props.extraControls}
           <Button
-            variant="contained"
             startIcon={<SettingsIcon />}
             component={RouterLink}
             to="/sdAdmin"

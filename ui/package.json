@@ -33,6 +33,7 @@
     "react-dom": "^17.0.2",
     "react-error-boundary": "^3.1.4",
     "react-final-form": "^6.5.8",
+    "react-final-form-listeners": "^1.0.3",
     "react-redux": "^7.2.6",
     "react-router-dom": "6.4.0-pre.14",
     "react-scripts": "5.0.0",
@@ -55,10 +56,17 @@
     "codegen": "rm -rf src/tanagra-api && openapi-generator-cli generate -i ../service/src/main/resources/api/service_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true -o src/tanagra-api"
   },
   "eslintConfig": {
-    "extends": ["react-app", "react-app/jest"]
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -67,6 +75,7 @@
   },
   "devDependencies": {
     "@types/randomstring": "^1.1.7",
+    "@types/react-final-form-listeners": "^1.0.0",
     "@types/react-test-renderer": "^17.0.1",
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
