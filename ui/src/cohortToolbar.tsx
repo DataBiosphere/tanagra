@@ -20,7 +20,24 @@ export default function CohortToolbar() {
   const cohort = useCohort();
 
   const dispatch = useAppDispatch();
-  const canUndo = useAppSelector((state) => state.past.length > 0);
+  const canUndo = useAppSelector((state) => {
+    if (state.past.length === 0) {
+      return false;
+    }
+
+    // TODO(tjennison): Eventually undo/redo will be contained within individual
+    // cohorts/concept sets but for now prevent undo across them. This isn't
+    // necessary in canRedo because they can't be undone in the first place.
+    const past = state.past[state.past.length - 1];
+    if (
+      state.present.cohorts.length !== past.cohorts.length ||
+      state.present.conceptSets.length !== past.conceptSets.length
+    ) {
+      return false;
+    }
+
+    return true;
+  });
   const canRedo = useAppSelector((state) => state.future.length > 0);
   const [undoUrlPath, redoUrlPath] = useUndoRedoUrls();
 
@@ -48,7 +65,6 @@ export default function CohortToolbar() {
       </Button>
       <Divider orientation="vertical" flexItem />
       <Button
-        variant="contained"
         startIcon={<RateReviewIcon />}
         component={RouterLink}
         to={cohortReviewURL(underlay.name, cohort.id)}

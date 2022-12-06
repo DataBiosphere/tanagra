@@ -6,6 +6,7 @@ import { useState } from "react";
 export type CriteriaHolderProps = {
   title: string;
   plugin: CriteriaPlugin<object>;
+  doneURL?: string;
   cohort?: boolean;
 };
 
@@ -19,7 +20,7 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
         backURL={backURL}
         extraControls={props.cohort ? <CohortToolbar /> : undefined}
       />
-      {props.plugin.renderEdit?.(setBackURL)}
+      {props.plugin.renderEdit?.(props.doneURL ?? "..", setBackURL)}
     </>
   );
 }

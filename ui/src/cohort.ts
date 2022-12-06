@@ -81,7 +81,10 @@ export function uiGroupFilterFromFilter(filter: tanagra.GroupFilter) {
 export interface CriteriaPlugin<DataType> {
   id: string;
   data: DataType;
-  renderEdit?: (setBackURL: (url?: string) => void) => JSX.Element;
+  renderEdit?: (
+    doneURL: string,
+    setBackURL: (url?: string) => void
+  ) => JSX.Element;
   renderInline: (criteriaId: string) => JSX.Element;
   displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
