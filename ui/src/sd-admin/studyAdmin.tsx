@@ -16,13 +16,13 @@ const columns = (
 ): GridColDef[] => [
   {
     field: "displayName",
-    headerName: "Workspace Name",
+    headerName: "Study Name",
     sortable: true,
     disableColumnMenu: true,
     flex: 1,
     renderHeader: () => (
       <div style={{ lineHeight: "1.5rem" }}>
-        <div>Workspace Name</div>
+        <div>Study Name</div>
         <div>
           <TextField
             sx={{
@@ -84,7 +84,7 @@ const getValueFromStudyProperty = (
   key: string
 ) => properties?.find((pair) => pair.key === key)?.value;
 
-const mapWorkspaceRows = ({
+const mapStudyRows = ({
   id,
   displayName,
   description,
@@ -100,7 +100,7 @@ const mapWorkspaceRows = ({
   pi: getValueFromStudyProperty(properties as StudyV2Property[], "pi"),
 });
 
-const emptyWorkspace: StudyV2 = {
+const emptyStudy: StudyV2 = {
   id: "",
   displayName: "",
   description: "",
@@ -140,7 +140,7 @@ interface StudyV2Property {
   value: string;
 }
 
-interface WorkspaceRow {
+interface StudyRow {
   id: string;
   displayName: string;
   description: string;
@@ -148,51 +148,49 @@ interface WorkspaceRow {
   pi: string;
 }
 
-export function WorkspaceAdmin() {
+export function StudyAdmin() {
   const source = useAdminSource();
-  const [activeWorkspace, setActiveWorkspace] =
-    useState<StudyV2>(emptyWorkspace);
+  const [activeStudy, setActiveStudy] = useState<StudyV2>(emptyStudy);
   const [formState, setFormState] = useState(initialFormState);
   const [columnFilters, setColumnFilters] = useState({
     displayName: "",
     irbNumber: "",
   });
-  const [creatingWorkspace, setCreatingWorkspace] = useState<boolean>(false);
-  const [editingWorkspace, setEditingWorkspace] = useState<boolean>(false);
-  const [loadingWorkspace, setLoadingWorkspace] = useState<boolean>(false);
-  const [loadingWorkspaceList, setLoadingWorkspaceList] =
-    useState<boolean>(true);
-  const [workspaces, setWorkspaces] = useState<StudyV2[]>([]);
+  const [creatingStudy, setCreatingStudy] = useState<boolean>(false);
+  const [editingStudy, setEditingStudy] = useState<boolean>(false);
+  const [loadingStudy, setLoadingStudy] = useState<boolean>(false);
+  const [loadingStudyList, setLoadingStudyList] = useState<boolean>(true);
+  const [studies, setStudies] = useState<StudyV2[]>([]);
 
   useEffect(() => {
-    getWorkspaces();
+    getStudies();
   }, []);
 
-  const getWorkspaces = async () => {
+  const getStudies = async () => {
     const studies = await source.getStudiesList();
-    setWorkspaces(studies);
-    setLoadingWorkspaceList(false);
+    setStudies(studies);
+    setLoadingStudyList(false);
   };
 
-  const updateWorkspace = async () => {
-    setLoadingWorkspace(true);
+  const updateStudy = async () => {
+    setLoadingStudy(true);
     const updateStudyRequest: UpdateStudyRequest = {
-      studyId: activeWorkspace?.id,
+      studyId: activeStudy?.id,
       studyUpdateInfoV2: {
         displayName: formState.displayName.value,
         description: formState.description.value,
       },
     };
-    const updatedWorkspace = await source.updateStudy(updateStudyRequest);
-    setActiveWorkspace(updatedWorkspace);
-    setEditingWorkspace(false);
-    setLoadingWorkspace(false);
-    setLoadingWorkspaceList(true);
-    getWorkspaces();
+    const updatedStudy = await source.updateStudy(updateStudyRequest);
+    setActiveStudy(updatedStudy);
+    setEditingStudy(false);
+    setLoadingStudy(false);
+    setLoadingStudyList(true);
+    getStudies();
   };
 
-  const createWorkspace = async () => {
-    setLoadingWorkspace(true);
+  const createStudy = async () => {
+    setLoadingStudy(true);
     const creatStudyRequest: CreateStudyRequest = {
       studyCreateInfoV2: {
         displayName: formState.displayName.value,
@@ -203,11 +201,11 @@ export function WorkspaceAdmin() {
         ],
       },
     };
-    const newWorkspace = await source.createStudy(creatStudyRequest);
-    setActiveWorkspace(newWorkspace);
-    await getWorkspaces();
-    setCreatingWorkspace(false);
-    setLoadingWorkspace(false);
+    const newStudy = await source.createStudy(creatStudyRequest);
+    setActiveStudy(newStudy);
+    await getStudies();
+    setCreatingStudy(false);
+    setLoadingStudy(false);
   };
 
   const handleInputChange = (name: string, value: string) => {
@@ -222,24 +220,24 @@ export function WorkspaceAdmin() {
   };
 
   const getFilteredRowsFromStudies = () => {
-    return workspaces.filter(filterWorkspaceRows).map(mapWorkspaceRows);
+    return studies.filter(filterStudyRows).map(mapStudyRows);
   };
 
-  const populateWorkspaceForm = (workspace: StudyV2) => {
+  const populateStudyForm = (study: StudyV2) => {
     const newFormState = {
       displayName: {
         touched: false,
-        value: workspace.displayName || "",
+        value: study.displayName || "",
       },
       description: {
         touched: false,
-        value: workspace.description || "",
+        value: study.description || "",
       },
       irbNumber: {
         touched: false,
         value:
           getValueFromStudyProperty(
-            workspace.properties as StudyV2Property[],
+            study.properties as StudyV2Property[],
             "irbNumber"
           ) || "",
       },
@@ -247,7 +245,7 @@ export function WorkspaceAdmin() {
         touched: false,
         value:
           getValueFromStudyProperty(
-            workspace.properties as StudyV2Property[],
+            study.properties as StudyV2Property[],
             "pi"
           ) || "",
       },
@@ -255,7 +253,7 @@ export function WorkspaceAdmin() {
         touched: false,
         value:
           getValueFromStudyProperty(
-            workspace.properties as StudyV2Property[],
+            study.properties as StudyV2Property[],
             "pi"
           ) || "",
       },
@@ -263,17 +261,17 @@ export function WorkspaceAdmin() {
     setFormState(newFormState);
   };
 
-  const clearWorkspaceForm = () => {
+  const clearStudyForm = () => {
     setFormState(initialFormState);
   };
 
-  const filterWorkspaceRows = (workspace: StudyV2) =>
+  const filterStudyRows = (study: StudyV2) =>
     (!columnFilters.displayName ||
-      workspace?.displayName
+      study?.displayName
         ?.toLowerCase()
         .includes(columnFilters.displayName.toLowerCase())) &&
     (!columnFilters.irbNumber ||
-      workspace?.properties?.some((pair) => {
+      study?.properties?.some((pair) => {
         const { key, value } = pair as StudyV2Property;
         return (
           key === "irbNumber" &&
@@ -281,8 +279,8 @@ export function WorkspaceAdmin() {
         );
       }));
 
-  const onRowSelect = (row: WorkspaceRow) => {
-    const newActiveWorkspace = workspaces.find((ws) => ws.id === row.id);
+  const onRowSelect = (row: StudyRow) => {
+    const newActiveStudy = studies.find((ws) => ws.id === row.id);
     const newFormState = {
       displayName: {
         touched: false,
@@ -306,8 +304,8 @@ export function WorkspaceAdmin() {
       },
     };
     setFormState(newFormState);
-    if (newActiveWorkspace) {
-      setActiveWorkspace(newActiveWorkspace);
+    if (newActiveStudy) {
+      setActiveStudy(newActiveStudy);
     }
   };
 
@@ -323,49 +321,45 @@ export function WorkspaceAdmin() {
           <DataGrid
             columns={columns(handleFilterChange)}
             rows={getFilteredRowsFromStudies()}
-            loading={loadingWorkspaceList}
-            onRowClick={({ row }) => onRowSelect(row as WorkspaceRow)}
+            loading={loadingStudyList}
+            onRowClick={({ row }) => onRowSelect(row as StudyRow)}
           />
         </Box>
       </Grid>
       <Grid item xs={6}>
         <Box sx={{ position: "relative" }}>
-          <Backdrop
-            invisible
-            open={loadingWorkspace}
-            sx={{ position: "absolute" }}
-          >
+          <Backdrop invisible open={loadingStudy} sx={{ position: "absolute" }}>
             <CircularProgress />
           </Backdrop>
           <Stack spacing={2} direction="row">
             <Button
-              disabled={loadingWorkspace}
+              disabled={loadingStudy}
               onClick={() => {
-                clearWorkspaceForm();
-                setCreatingWorkspace(true);
+                clearStudyForm();
+                setCreatingStudy(true);
               }}
               variant="outlined"
             >
-              Add Workspace
+              Add Study
             </Button>
             <Button
-              disabled={activeWorkspace?.id === "" || loadingWorkspace}
-              onClick={() => setEditingWorkspace(true)}
+              disabled={activeStudy?.id === "" || loadingStudy}
+              onClick={() => setEditingStudy(true)}
               variant="outlined"
             >
-              Edit Workspace
+              Edit Study
             </Button>
             <Button
-              disabled={activeWorkspace?.id === "" || loadingWorkspace}
+              disabled={activeStudy?.id === "" || loadingStudy}
               variant="outlined"
             >
-              Add Workspace Users
+              Add Study Users
             </Button>
           </Stack>
           <div>
             <TextField
-              disabled={!(creatingWorkspace || editingWorkspace)}
-              label={"Workspace name"}
+              disabled={!(creatingStudy || editingStudy)}
+              label={"Study name"}
               name="displayName"
               fullWidth
               InputLabelProps={{
@@ -383,7 +377,7 @@ export function WorkspaceAdmin() {
           </div>
           <div>
             <TextField
-              disabled={!(creatingWorkspace || editingWorkspace)}
+              disabled={!(creatingStudy || editingStudy)}
               label={"Description"}
               name="description"
               fullWidth
@@ -401,7 +395,7 @@ export function WorkspaceAdmin() {
           </div>
           <div>
             <TextField
-              disabled={!(creatingWorkspace || editingWorkspace)}
+              disabled={!(creatingStudy || editingStudy)}
               label={"IRB Number"}
               name="irbNumber"
               InputLabelProps={{
@@ -417,7 +411,7 @@ export function WorkspaceAdmin() {
           </div>
           <div>
             <Autocomplete
-              disabled={!(creatingWorkspace || editingWorkspace)}
+              disabled={!(creatingStudy || editingStudy)}
               options={piOptions}
               value={formState?.pi.value}
               onChange={(event, newValue) =>
@@ -445,30 +439,30 @@ export function WorkspaceAdmin() {
               )}
             />
           </div>
-          {(creatingWorkspace || editingWorkspace) && (
+          {(creatingStudy || editingStudy) && (
             <Stack spacing={2} direction="row">
               <Button
-                disabled={loadingWorkspace || formIsInvalid()}
+                disabled={loadingStudy || formIsInvalid()}
                 onClick={() => {
-                  if (creatingWorkspace) {
-                    createWorkspace();
+                  if (creatingStudy) {
+                    createStudy();
                   } else {
-                    updateWorkspace();
+                    updateStudy();
                   }
                 }}
                 variant="outlined"
               >
-                {creatingWorkspace ? "Save" : "Update"} Workspace
+                {creatingStudy ? "Save" : "Update"} Study
               </Button>
               <Button
-                disabled={loadingWorkspace}
+                disabled={loadingStudy}
                 onClick={() => {
-                  if (creatingWorkspace) {
-                    clearWorkspaceForm();
-                    setCreatingWorkspace(false);
+                  if (creatingStudy) {
+                    clearStudyForm();
+                    setCreatingStudy(false);
                   } else {
-                    populateWorkspaceForm(activeWorkspace);
-                    setEditingWorkspace(false);
+                    populateStudyForm(activeStudy);
+                    setEditingStudy(false);
                   }
                 }}
                 variant="outlined"
