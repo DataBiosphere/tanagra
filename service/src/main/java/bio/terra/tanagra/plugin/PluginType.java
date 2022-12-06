@@ -12,9 +12,10 @@ public enum PluginType {
   private final Class<?> baseClassName;
   private final Class<?> defaultImplementationClassName;
 
-  <TT extends Plugin, TD extends TT> PluginType(Class<TT> baseClassName, Class<TD> defaultType) {
+  <TT extends Plugin, TD extends TT> PluginType(
+      Class<TT> baseClassName, Class<TD> defaultImplementationClassName) {
     this.baseClassName = baseClassName;
-    this.defaultImplementationClassName = defaultType;
+    this.defaultImplementationClassName = defaultImplementationClassName;
   }
 
   public Class<?> getBaseClassName() {
