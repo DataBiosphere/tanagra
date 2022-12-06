@@ -25,6 +25,8 @@ public class UFUnderlay {
   private final String primaryEntity;
   private final String uiConfig;
   private final String uiConfigFile;
+
+  // TODO: enforce key as PluginType
   private final Map<String, UFPluginConfig> plugins;
 
   public UFUnderlay(Underlay underlay) {
