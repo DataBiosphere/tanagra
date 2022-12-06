@@ -8,12 +8,14 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
+import { useAdminSource } from "sd-admin/source";
+import { CreateStudyRequest, StudyV2, UpdateStudyRequest } from "tanagra-api";
 
 const columns = (
   filterFn: (name: string, value: string) => void
 ): GridColDef[] => [
   {
-    field: "workspaceName",
+    field: "displayName",
     headerName: "Workspace Name",
     sortable: true,
     disableColumnMenu: true,
@@ -31,7 +33,7 @@ const columns = (
                 top: "-16px",
               },
             }}
-            name="workspaceName"
+            name="displayName"
             onChange={({ target: { name, value } }) => filterFn(name, value)}
             label="Filter"
             variant="standard"
@@ -74,146 +76,85 @@ const columns = (
   },
 ];
 
-interface MockWorkspace {
-  id: number;
-  workspaceName: string;
-  description: string;
-  irbNumber: number;
-  pi: string;
-}
-let mockWorkspaces: MockWorkspace[] = [
-  {
-    id: 1,
-    workspaceName:
-      "A case-control AQP11 gene association study in the context to toxic AKI patients",
-    description: "Mock workspace 1 for testing SD Admin",
-    irbNumber: 91526,
-    pi: "Will",
-  },
-  {
-    id: 2,
-    workspaceName:
-      "A retrospective analysis to determine diagnostic markers of RYGB failure",
-    description: "Mock workspace 2 for testing SD Admin",
-    irbNumber: 130747,
-    pi: "Erik",
-  },
-  {
-    id: 3,
-    workspaceName: "Risk Factors for Enteral Access Complications",
-    description: "Mock workspace 3 for testing SD Admin",
-    irbNumber: 91571,
-    pi: "Tim",
-  },
-  {
-    id: 4,
-    workspaceName: "Exploration of Neurological Atlas Development",
-    description: "Mock workspace 4 for testing SD Admin",
-    irbNumber: 91193,
-    pi: "Brian",
-  },
-  {
-    id: 5,
-    workspaceName:
-      "Genetic determinants of hypothyroidism and uncontrolled hypertension:  Electronic phenotype detection",
-    description: "Mock workspace 5 for testing SD Admin",
-    irbNumber: 91078,
-    pi: "Chenchal",
-  },
-  {
-    id: 6,
-    workspaceName:
-      "Magnesium deficiency among patients with chronic and acute diseases",
-    description: "Mock workspace 6 for testing SD Admin",
-    irbNumber: 91221,
-    pi: "Will",
-  },
-  {
-    id: 7,
-    workspaceName: "Genetic Polymorphisms and Pain",
-    description: "Mock workspace 7 for testing SD Admin",
-    irbNumber: 90968,
-    pi: "Erik",
-  },
-  {
-    id: 8,
-    workspaceName:
-      "VESPA - Vanderbilt Electronic Systems for Pharmacogenomic Assessment",
-    description: "Mock workspace 8 for testing SD Admin",
-    irbNumber: 90945,
-    pi: "Tim",
-  },
-  {
-    id: 9,
-    workspaceName:
-      "Evaluation of Natural Language Processing Software in De-identified Electronic Medical Records",
-    description: "Mock workspace 9 for testing SD Admin",
-    irbNumber: 91193,
-    pi: "Brian",
-  },
-  {
-    id: 10,
-    workspaceName:
-      "Evaluation of Sources, Frequency, and Various Methods of Removal of PHI Within Vanderbilt EMRs",
-    description: "Mock workspace 10 for testing SD Admin",
-    irbNumber: 56789,
-    pi: "Chenchal",
-  },
-];
+// Temp PI options until endpoint in place
 const piOptions = ["", "Will", "Erik", "Tim", "Brian", "Chenchal"];
 
-function getMockWorkspaces(): Promise<MockWorkspace[]> {
-  return new Promise<MockWorkspace[]>((resolve) => resolve(mockWorkspaces));
-}
-function getMockWorkspace(workspaceId: number): Promise<MockWorkspace> {
-  return new Promise<MockWorkspace>((resolve) => {
-    const mockWorkspace =
-      mockWorkspaces.find(({ id }) => id === workspaceId) ||
-      ({} as MockWorkspace);
-    resolve(mockWorkspace);
-  });
-}
-function updateMockWorkspace(
-  updatedWorkspace: MockWorkspace
-): Promise<MockWorkspace> {
-  return new Promise<MockWorkspace>((resolve) => {
-    mockWorkspaces = mockWorkspaces.map((mockWs) =>
-      mockWs.id === updatedWorkspace.id ? updatedWorkspace : mockWs
-    );
-    resolve(updatedWorkspace);
-  });
-}
-function createMockWorkspace(workspace: MockWorkspace): Promise<MockWorkspace> {
-  return new Promise<MockWorkspace>((resolve) => {
-    if (workspace.id === -1) {
-      workspace.id =
-        mockWorkspaces.reduce((max, ws) => Math.max(max, ws.id), 0) + 1;
-    }
-    mockWorkspaces.push(workspace);
-    resolve(workspace);
-  });
-}
+const getValueFromStudyProperty = (
+  properties: StudyV2Property[],
+  key: string
+) => properties?.find((pair) => pair.key === key)?.value;
 
-const emptyWorkspace: MockWorkspace = {
-  id: -1,
-  workspaceName: "",
+const mapWorkspaceRows = ({
+  id,
+  displayName,
+  description,
+  properties,
+}: StudyV2) => ({
+  id,
+  displayName,
+  description,
+  irbNumber: getValueFromStudyProperty(
+    properties as StudyV2Property[],
+    "irbNumber"
+  ),
+  pi: getValueFromStudyProperty(properties as StudyV2Property[], "pi"),
+});
+
+const emptyWorkspace: StudyV2 = {
+  id: "",
+  displayName: "",
   description: "",
-  irbNumber: -1,
-  pi: "",
+  properties: [
+    { key: "irbNumber", value: "" },
+    { key: "pi", value: "" },
+  ],
 };
 
+const initialFormState = {
+  displayName: {
+    touched: false,
+    value: "",
+  },
+  description: {
+    touched: false,
+    value: "",
+  },
+  irbNumber: {
+    touched: false,
+    value: "",
+  },
+  pi: {
+    touched: false,
+    value: "",
+  },
+  piInput: {
+    touched: false,
+    value: "",
+  },
+};
+
+const requiredFields = ["displayName", "irbNumber", "pi"];
+
+interface StudyV2Property {
+  key: string;
+  value: string;
+}
+
+interface WorkspaceRow {
+  id: string;
+  displayName: string;
+  description: string;
+  irbNumber: string;
+  pi: string;
+}
+
 export function WorkspaceAdmin() {
+  const source = useAdminSource();
   const [activeWorkspace, setActiveWorkspace] =
-    useState<MockWorkspace>(emptyWorkspace);
-  const [formState, setFormState] = useState({
-    workspaceName: "",
-    description: "",
-    irbNumber: "",
-    pi: "",
-    piInput: "",
-  });
+    useState<StudyV2>(emptyWorkspace);
+  const [formState, setFormState] = useState(initialFormState);
   const [columnFilters, setColumnFilters] = useState({
-    workspaceName: "",
+    displayName: "",
     irbNumber: "",
   });
   const [creatingWorkspace, setCreatingWorkspace] = useState<boolean>(false);
@@ -221,109 +162,159 @@ export function WorkspaceAdmin() {
   const [loadingWorkspace, setLoadingWorkspace] = useState<boolean>(false);
   const [loadingWorkspaceList, setLoadingWorkspaceList] =
     useState<boolean>(true);
-  const [workspaces, setWorkspaces] = useState<MockWorkspace[]>([]);
+  const [workspaces, setWorkspaces] = useState<StudyV2[]>([]);
+
+  useEffect(() => {
+    getWorkspaces();
+  }, []);
 
   const getWorkspaces = async () => {
-    await setTimeout(async () => {
-      const workspacesResponse = await getMockWorkspaces();
-      setWorkspaces(workspacesResponse);
-      setLoadingWorkspaceList(false);
-    }, 1000);
-  };
-
-  const getWorkspace = async (id: number) => {
-    setLoadingWorkspace(true);
-    await setTimeout(async () => {
-      const workspaceResponse = await getMockWorkspace(id);
-      populateWorkspaceForm(workspaceResponse);
-      setActiveWorkspace(workspaceResponse);
-      setLoadingWorkspace(false);
-    }, 1000);
+    const studies = await source.getStudiesList();
+    setWorkspaces(studies);
+    setLoadingWorkspaceList(false);
   };
 
   const updateWorkspace = async () => {
     setLoadingWorkspace(true);
-    await setTimeout(async () => {
-      const updatedWorkspace = {
-        id: activeWorkspace?.id || -1,
-        workspaceName: formState.workspaceName,
-        description: formState.description,
-        irbNumber: +formState.irbNumber,
-        pi: formState.pi,
-      };
-      const updatedResponse = await updateMockWorkspace(updatedWorkspace);
-      setActiveWorkspace(updatedResponse);
-      setWorkspaces((prevState) =>
-        prevState.map((ws) =>
-          ws.id === updatedResponse.id ? updatedResponse : ws
-        )
-      );
-      setEditingWorkspace(false);
-      setLoadingWorkspace(false);
-    }, 1000);
+    const updateStudyRequest: UpdateStudyRequest = {
+      studyId: activeWorkspace?.id,
+      studyUpdateInfoV2: {
+        displayName: formState.displayName.value,
+        description: formState.description.value,
+      },
+    };
+    const updatedWorkspace = await source.updateStudy(updateStudyRequest);
+    setActiveWorkspace(updatedWorkspace);
+    setEditingWorkspace(false);
+    setLoadingWorkspace(false);
+    setLoadingWorkspaceList(true);
+    getWorkspaces();
   };
 
   const createWorkspace = async () => {
     setLoadingWorkspace(true);
-    await setTimeout(async () => {
-      const newWorkspace = {
-        id: -1,
-        workspaceName: formState.workspaceName,
-        description: formState.description,
-        irbNumber: +formState.irbNumber,
-        pi: formState.pi,
-      };
-      const createdResponse = await createMockWorkspace(newWorkspace);
-      setActiveWorkspace(createdResponse);
-      await getWorkspaces();
-      setCreatingWorkspace(false);
-      setLoadingWorkspace(false);
-    }, 1000);
+    const creatStudyRequest: CreateStudyRequest = {
+      studyCreateInfoV2: {
+        displayName: formState.displayName.value,
+        description: formState.description.value,
+        properties: [
+          { key: "irbNumber", value: formState.irbNumber.value },
+          { key: "pi", value: formState.pi.value },
+        ],
+      },
+    };
+    const newWorkspace = await source.createStudy(creatStudyRequest);
+    setActiveWorkspace(newWorkspace);
+    await getWorkspaces();
+    setCreatingWorkspace(false);
+    setLoadingWorkspace(false);
   };
 
   const handleInputChange = (name: string, value: string) => {
-    setFormState((prevState) => ({ ...prevState, [name]: value }));
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: { value, touched: true },
+    }));
   };
 
   const handleFilterChange = (name: string, value: string) => {
     setColumnFilters((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const populateWorkspaceForm = (workspace: MockWorkspace) => {
+  const getFilteredRowsFromStudies = () => {
+    return workspaces.filter(filterWorkspaceRows).map(mapWorkspaceRows);
+  };
+
+  const populateWorkspaceForm = (workspace: StudyV2) => {
     const newFormState = {
-      workspaceName: workspace.workspaceName,
-      description: workspace.description,
-      irbNumber: workspace.irbNumber.toString(),
-      pi: workspace.pi,
-      piInput: workspace.pi,
+      displayName: {
+        touched: false,
+        value: workspace.displayName || "",
+      },
+      description: {
+        touched: false,
+        value: workspace.description || "",
+      },
+      irbNumber: {
+        touched: false,
+        value:
+          getValueFromStudyProperty(
+            workspace.properties as StudyV2Property[],
+            "irbNumber"
+          ) || "",
+      },
+      pi: {
+        touched: false,
+        value:
+          getValueFromStudyProperty(
+            workspace.properties as StudyV2Property[],
+            "pi"
+          ) || "",
+      },
+      piInput: {
+        touched: false,
+        value:
+          getValueFromStudyProperty(
+            workspace.properties as StudyV2Property[],
+            "pi"
+          ) || "",
+      },
     };
     setFormState(newFormState);
   };
 
   const clearWorkspaceForm = () => {
-    setFormState({
-      workspaceName: "",
-      description: "",
-      irbNumber: "",
-      pi: "",
-      piInput: "",
-    });
+    setFormState(initialFormState);
   };
 
-  const filterWorkspaceRows = (workspace: MockWorkspace) =>
-    (!columnFilters.workspaceName ||
-      workspace.workspaceName
-        .toLowerCase()
-        .includes(columnFilters.workspaceName.toLowerCase())) &&
+  const filterWorkspaceRows = (workspace: StudyV2) =>
+    (!columnFilters.displayName ||
+      workspace?.displayName
+        ?.toLowerCase()
+        .includes(columnFilters.displayName.toLowerCase())) &&
     (!columnFilters.irbNumber ||
-      workspace.irbNumber
-        .toString()
-        .toLowerCase()
-        .includes(columnFilters.irbNumber.toLowerCase()));
+      workspace?.properties?.some((pair) => {
+        const { key, value } = pair as StudyV2Property;
+        return (
+          key === "irbNumber" &&
+          value.toLowerCase().includes(columnFilters.irbNumber.toLowerCase())
+        );
+      }));
 
-  useEffect(() => {
-    getWorkspaces();
-  }, []);
+  const onRowSelect = (row: WorkspaceRow) => {
+    const newActiveWorkspace = workspaces.find((ws) => ws.id === row.id);
+    const newFormState = {
+      displayName: {
+        touched: false,
+        value: row.displayName,
+      },
+      description: {
+        touched: false,
+        value: row.description,
+      },
+      irbNumber: {
+        touched: false,
+        value: row.irbNumber,
+      },
+      pi: {
+        touched: false,
+        value: row.pi,
+      },
+      piInput: {
+        touched: false,
+        value: row.pi,
+      },
+    };
+    setFormState(newFormState);
+    if (newActiveWorkspace) {
+      setActiveWorkspace(newActiveWorkspace);
+    }
+  };
+
+  const formIsInvalid = () =>
+    Object.entries(formState).some(
+      ([key, formField]) => requiredFields.includes(key) && !formField.value
+    );
 
   return (
     <Grid container spacing={2}>
@@ -331,9 +322,9 @@ export function WorkspaceAdmin() {
         <Box sx={{ height: 400, width: "100%" }}>
           <DataGrid
             columns={columns(handleFilterChange)}
-            rows={workspaces.filter(filterWorkspaceRows)}
+            rows={getFilteredRowsFromStudies()}
             loading={loadingWorkspaceList}
-            onRowClick={({ row }) => getWorkspace(row.id)}
+            onRowClick={({ row }) => onRowSelect(row as WorkspaceRow)}
           />
         </Box>
       </Grid>
@@ -358,14 +349,14 @@ export function WorkspaceAdmin() {
               Add Workspace
             </Button>
             <Button
-              disabled={activeWorkspace?.id < 0 || loadingWorkspace}
+              disabled={activeWorkspace?.id === "" || loadingWorkspace}
               onClick={() => setEditingWorkspace(true)}
               variant="outlined"
             >
               Edit Workspace
             </Button>
             <Button
-              disabled={activeWorkspace?.id < 0 || loadingWorkspace}
+              disabled={activeWorkspace?.id === "" || loadingWorkspace}
               variant="outlined"
             >
               Add Workspace Users
@@ -375,14 +366,17 @@ export function WorkspaceAdmin() {
             <TextField
               disabled={!(creatingWorkspace || editingWorkspace)}
               label={"Workspace name"}
-              name="workspaceName"
+              name="displayName"
               fullWidth
               InputLabelProps={{
-                shrink: !!formState?.workspaceName,
+                shrink: !!formState?.displayName,
               }}
-              value={formState?.workspaceName || ""}
+              value={formState?.displayName.value || ""}
               onChange={({ target: { name, value } }) =>
                 handleInputChange(name, value)
+              }
+              error={
+                formState.displayName.touched && !formState.displayName.value
               }
               variant={"outlined"}
             />
@@ -398,7 +392,7 @@ export function WorkspaceAdmin() {
               }}
               multiline
               rows={4}
-              value={formState?.description || ""}
+              value={formState?.description.value || ""}
               onChange={({ target: { name, value } }) =>
                 handleInputChange(name, value)
               }
@@ -413,10 +407,11 @@ export function WorkspaceAdmin() {
               InputLabelProps={{
                 shrink: !!formState?.irbNumber,
               }}
-              value={formState?.irbNumber || ""}
+              value={formState?.irbNumber.value || ""}
               onChange={({ target: { name, value } }) =>
                 handleInputChange(name, value)
               }
+              error={formState.irbNumber.touched && !formState.irbNumber.value}
               variant={"outlined"}
             />
           </div>
@@ -424,11 +419,11 @@ export function WorkspaceAdmin() {
             <Autocomplete
               disabled={!(creatingWorkspace || editingWorkspace)}
               options={piOptions}
-              value={formState?.pi}
+              value={formState?.pi.value}
               onChange={(event, newValue) =>
                 handleInputChange("pi", newValue || "")
               }
-              inputValue={formState?.piInput || ""}
+              inputValue={formState?.piInput.value || ""}
               onInputChange={(event, newInputValue) =>
                 handleInputChange("piInput", newInputValue)
               }
@@ -444,6 +439,7 @@ export function WorkspaceAdmin() {
                   onChange={({ target: { name, value } }) =>
                     handleInputChange(name, value)
                   }
+                  error={formState.pi.touched && !formState.pi.value}
                   variant={"outlined"}
                 />
               )}
@@ -452,7 +448,7 @@ export function WorkspaceAdmin() {
           {(creatingWorkspace || editingWorkspace) && (
             <Stack spacing={2} direction="row">
               <Button
-                disabled={loadingWorkspace}
+                disabled={loadingWorkspace || formIsInvalid()}
                 onClick={() => {
                   if (creatingWorkspace) {
                     createWorkspace();
