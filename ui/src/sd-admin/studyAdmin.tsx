@@ -99,6 +99,16 @@ const mapStudyRows = ({
   ),
   pi: getValueFromStudyProperty(properties as StudyV2Property[], "pi"),
 });
+// Style override to slightly darken the text of disabled form fields
+const DISABLED_SX = [
+  {
+    ".Mui-disabled": {
+      color: "rgba(0, 0, 0, 0.6)",
+      "-webkit-text-fill-color": "rgba(0, 0, 0, 0.6)",
+    },
+  },
+];
+const ROWS_PER_PAGE = 25;
 
 const emptyStudy: StudyV2 = {
   id: "",
@@ -323,6 +333,11 @@ export function StudyAdmin() {
             rows={getFilteredRowsFromStudies()}
             loading={loadingStudyList}
             onRowClick={({ row }) => onRowSelect(row as StudyRow)}
+            hideFooter={getFilteredRowsFromStudies().length <= ROWS_PER_PAGE}
+            hideFooterSelectedRowCount
+            disableSelectionOnClick
+            pageSize={ROWS_PER_PAGE}
+            rowsPerPageOptions={[]}
           />
         </Box>
       </Grid>
@@ -358,6 +373,7 @@ export function StudyAdmin() {
           </Stack>
           <div>
             <TextField
+              sx={DISABLED_SX}
               disabled={!(creatingStudy || editingStudy)}
               label={"Study name"}
               name="displayName"
@@ -377,6 +393,7 @@ export function StudyAdmin() {
           </div>
           <div>
             <TextField
+              sx={DISABLED_SX}
               disabled={!(creatingStudy || editingStudy)}
               label={"Description"}
               name="description"
@@ -395,6 +412,7 @@ export function StudyAdmin() {
           </div>
           <div>
             <TextField
+              sx={DISABLED_SX}
               disabled={!(creatingStudy || editingStudy)}
               label={"IRB Number"}
               name="irbNumber"
@@ -411,6 +429,7 @@ export function StudyAdmin() {
           </div>
           <div>
             <Autocomplete
+              sx={DISABLED_SX}
               disabled={!(creatingStudy || editingStudy)}
               options={piOptions}
               value={formState?.pi.value}
