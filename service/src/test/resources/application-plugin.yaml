@@ -1,6 +1,6 @@
 tanagra:
   underlay:
-    files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json", "test/plugin/test-no-plugins.json", "test/plugin/test-plugins-configured.json" ]
+    files: [ "plugin/test-no-plugins.json", "plugin/test-plugins-configured.json" ]
 
   feature:
     artifact-storage-enabled: true
@@ -11,6 +11,8 @@ tanagra:
     uri: jdbc:postgresql://127.0.0.1:5432/tanagra_db
     username: dbuser
     password: dbpwd
+
+logging.pattern.level: '%X{requestId} %5p'
 
 server:
   compression:

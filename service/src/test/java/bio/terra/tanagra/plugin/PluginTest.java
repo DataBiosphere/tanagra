@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test")
+@ActiveProfiles("plugin")
 public class PluginTest extends BaseSpringUnitTest {
   private static final String TEST_UNDERLAY_DEFAULT = "test-no-plugins";
   private static final String TEST_UNDERLAY_CONFIGURED = "test-plugins-configured";
