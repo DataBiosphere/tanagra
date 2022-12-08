@@ -16,9 +16,9 @@ public class AuthConfiguration {
   private boolean iapAppEngineJwt;
   private boolean bearerToken;
 
-  private long gcpProjectNumber;
+  private String gcpProjectNumber;
   private String gcpProjectId;
-  private long gkeBackendServiceId;
+  private String gkeBackendServiceId;
 
   public boolean isIapGkeJwt() {
     return iapGkeJwt;
@@ -33,7 +33,7 @@ public class AuthConfiguration {
   }
 
   public long getGcpProjectNumber() {
-    return gcpProjectNumber;
+    return Long.valueOf(gcpProjectNumber);
   }
 
   public String getGcpProjectId() {
@@ -41,7 +41,7 @@ public class AuthConfiguration {
   }
 
   public long getGkeBackendServiceId() {
-    return gkeBackendServiceId;
+    return Long.valueOf(gkeBackendServiceId);
   }
 
   public void setIapGkeJwt(boolean iapGkeJwt) {
@@ -56,7 +56,7 @@ public class AuthConfiguration {
     this.bearerToken = bearerToken;
   }
 
-  public void setGcpProjectNumber(long gcpProjectNumber) {
+  public void setGcpProjectNumber(String gcpProjectNumber) {
     this.gcpProjectNumber = gcpProjectNumber;
   }
 
@@ -64,7 +64,7 @@ public class AuthConfiguration {
     this.gcpProjectId = gcpProjectId;
   }
 
-  public void setGkeBackendServiceId(long gkeBackendServiceId) {
+  public void setGkeBackendServiceId(String gkeBackendServiceId) {
     this.gkeBackendServiceId = gkeBackendServiceId;
   }
 
