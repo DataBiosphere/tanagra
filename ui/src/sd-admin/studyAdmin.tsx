@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { useAdminSource } from "sd-admin/source";
-import { CreateStudyRequest, StudyV2, UpdateStudyRequest } from "tanagra-api";
+import { StudyV2 } from "tanagra-api";
 
 const columns = (
   filterFn: (name: string, value: string) => void
@@ -26,10 +26,10 @@ const columns = (
         <div>
           <TextField
             sx={{
-              "label+.css-apw9r9-MuiInputBase-root-MuiInput-root": {
+              "& .MuiInputBase-root": {
                 margin: 0,
               },
-              ".css-1ktftp8-MuiFormLabel-root-MuiInputLabel-root": {
+              "& .MuiInputLabel-root": {
                 top: "-16px",
               },
             }}
@@ -56,10 +56,10 @@ const columns = (
         <div>
           <TextField
             sx={{
-              "label+.css-apw9r9-MuiInputBase-root-MuiInput-root": {
+              "& .MuiInputBase-root": {
                 margin: 0,
               },
-              ".css-1ktftp8-MuiFormLabel-root-MuiInputLabel-root": {
+              "& .MuiInputLabel-root": {
                 top: "-16px",
               },
             }}
@@ -184,14 +184,11 @@ export function StudyAdmin() {
 
   const updateStudy = async () => {
     setLoadingStudy(true);
-    const updateStudyRequest: UpdateStudyRequest = {
-      studyId: activeStudy?.id,
-      studyUpdateInfoV2: {
-        displayName: formState.displayName.value,
-        description: formState.description.value,
-      },
-    };
-    const updatedStudy = await source.updateStudy(updateStudyRequest);
+    const updatedStudy = await source.updateStudy(
+      activeStudy?.id,
+      formState.displayName.value,
+      formState.description.value
+    );
     setActiveStudy(updatedStudy);
     setEditingStudy(false);
     setLoadingStudy(false);
@@ -201,17 +198,14 @@ export function StudyAdmin() {
 
   const createStudy = async () => {
     setLoadingStudy(true);
-    const creatStudyRequest: CreateStudyRequest = {
-      studyCreateInfoV2: {
-        displayName: formState.displayName.value,
-        description: formState.description.value,
-        properties: [
-          { key: "irbNumber", value: formState.irbNumber.value },
-          { key: "pi", value: formState.pi.value },
-        ],
-      },
-    };
-    const newStudy = await source.createStudy(creatStudyRequest);
+    const newStudy = await source.createStudy(
+      formState.displayName.value,
+      formState.description.value,
+      [
+        { key: "irbNumber", value: formState.irbNumber.value },
+        { key: "pi", value: formState.pi.value },
+      ]
+    );
     setActiveStudy(newStudy);
     await getStudies();
     setCreatingStudy(false);
