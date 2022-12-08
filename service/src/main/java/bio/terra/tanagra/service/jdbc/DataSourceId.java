@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service.jdbc;
 
+import java.util.Objects;
+
 /**
  * Strongly typed wrapper around a String identifying a JDBC DataSource.
  *
@@ -20,5 +22,29 @@ public class DataSourceId {
 
   public String getId() {
     return id;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+    DataSourceId other = (DataSourceId) obj;
+
+    return Objects.equals(id, other.id);
   }
 }

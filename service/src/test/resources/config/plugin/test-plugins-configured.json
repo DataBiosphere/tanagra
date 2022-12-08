@@ -1,0 +1,28 @@
+{
+  "name" : "test-plugins-configured",
+  "dataPointers" : [ {
+    "type" : "BQ_DATASET",
+    "name" : "index_dataset",
+    "projectId" : "test-index",
+    "datasetId" : "test-index-dataset",
+    "queryProjectId" : "test-index"
+  }, {
+    "type" : "BQ_DATASET",
+    "name" : "omop_dataset",
+    "projectId" : "test-omop",
+    "datasetId" : "test-omop-dataset",
+    "queryProjectId" : "test-omop"
+  } ],
+  "entities" : [ "person.json" ],
+  "entityGroups" : [ ],
+  "primaryEntity" : "person",
+  "uiConfig" : "",
+  "plugins": {
+    "ACCESS_CONTROL": {
+      "implementationClassName": "bio.terra.tanagra.plugin.ConfiguredAccessControlPlugin",
+      "parameters": {
+        "test": "configured value"
+      }
+    }
+  }
+}

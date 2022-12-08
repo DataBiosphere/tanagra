@@ -4,11 +4,13 @@ import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.UnauthorizedException;
 import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
 import bio.terra.tanagra.service.accesscontrol.Action;
-import bio.terra.tanagra.service.accesscontrol.DefaultAccessControlPlugin;
+import bio.terra.tanagra.service.accesscontrol.OpenAccessControlPlugin;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.UserId;
+import bio.terra.tanagra.service.identity.IdentityPlugin;
+import bio.terra.tanagra.service.identity.SingleUserIdentityPlugin;
 import javax.annotation.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +18,8 @@ import org.springframework.stereotype.Component;
 public class AccessControlService {
 
   // TODO: Allow overriding the default plugin.
-  private final AccessControlPlugin accessControlPlugin = new DefaultAccessControlPlugin();
+  private final AccessControlPlugin accessControlPlugin = new OpenAccessControlPlugin();
+  private final IdentityPlugin identityPlugin = new SingleUserIdentityPlugin();
 
   public void throwIfUnauthorized(Object credential, Action action, ResourceType resourceType) {
     throwIfUnauthorized(credential, action, resourceType, null);
@@ -55,7 +58,7 @@ public class AccessControlService {
   }
 
   public UserId getUserId(Object credential) {
-    return accessControlPlugin.getUserId(credential);
+    return identityPlugin.getUserId(credential);
   }
 
   public ResourceIdCollection listResourceIds(ResourceType type) {
