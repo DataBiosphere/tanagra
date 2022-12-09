@@ -496,8 +496,8 @@ paths:
       - $ref: '#/components/parameters/CohortIdV2'
       - $ref: '#/components/parameters/ReviewIdV2'
     post:
-      summary: List all primary entity instances in a review and any associated annotation values
-      operationId: listInstancesAndAnnotations
+      summary: List primary entity instances in a review and any associated annotation values
+      operationId: listReviewInstancesAndAnnotations
       tags: [ReviewsV2]
       requestBody:
         required: true
@@ -512,6 +512,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ReviewInstanceListV2"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/counts":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: '#/components/parameters/ReviewIdV2'
+    post:
+      summary: Count primary entity instances in a review
+      operationId: countReviewInstances
+      tags: [ReviewsV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCountQueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceCountListV2"
         500:
           $ref: "#/components/responses/ServerError"
 
@@ -1243,6 +1268,18 @@ components:
         limit:
           $ref: "#/components/schemas/LimitV2"
 
+    ReviewCountQueryV2:
+      type: object
+      description: Count review instances
+      properties:
+        attributes:
+          description: |
+            Attributes to group by. One count will be returned for each possible combination of attribute values 
+            (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
+          type: array
+          items:
+            type: string
+
     FilterV2:
       type: object
       description: Union of references to each filter type. Exactly one should be specified based on the filterType.
@@ -1407,7 +1444,7 @@ components:
         count:
           type: integer
         attributes:
-          description: A map of entity attribute names to their value for this group.
+          description: A map of entity attribute names to their value for this group
           type: object
           additionalProperties:
             type: object

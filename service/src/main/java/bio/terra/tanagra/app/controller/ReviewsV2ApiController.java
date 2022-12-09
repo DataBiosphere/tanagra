@@ -2,12 +2,15 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
 import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
 import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
 
 import bio.terra.tanagra.generated.controller.ReviewsV2Api;
+import bio.terra.tanagra.generated.model.ApiInstanceCountListV2;
+import bio.terra.tanagra.generated.model.ApiReviewCountQueryV2;
 import bio.terra.tanagra.generated.model.ApiReviewCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiReviewInstanceListV2;
 import bio.terra.tanagra.generated.model.ApiReviewListV2;
@@ -98,10 +101,18 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiReviewInstanceListV2> listInstancesAndAnnotations(
+  public ResponseEntity<ApiReviewInstanceListV2> listReviewInstancesAndAnnotations(
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         null, QUERY_INSTANCES, COHORT_REVIEW, new ResourceId(reviewId));
+    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public ResponseEntity<ApiInstanceCountListV2> countReviewInstances(
+      String studyId, String cohortId, String reviewId, ApiReviewCountQueryV2 body) {
+    accessControlService.throwIfUnauthorized(
+        null, QUERY_COUNTS, COHORT_REVIEW, new ResourceId(reviewId));
     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 
