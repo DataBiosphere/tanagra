@@ -18,12 +18,12 @@ sourceCompatibility = JavaVersion.VERSION_11
 
 group = "bio.terra"
 version = "0.0.0-SNAPSHOT"
-
 ext {
     artifactGroup = "${group}.tanagra"
     openapiOutputDir = "${buildDir}/openapi"
     resourceDir = "${projectDir}/src/main/resources"
 }
+
 
 repositories {
     mavenCentral()
@@ -99,6 +99,9 @@ dependencies {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
 
+    //cloud SQL
+    implementation "com.google.cloud.sql:postgres-socket-factory:1.7.0"
+
     // Static analysis
     compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
     testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
@@ -114,6 +117,7 @@ test {
         systemProperty("GENERATE_SQL_FILES", "true")
     }
 }
+
 
 // Apply Gradle Script Plugins for more modular gradle files.
 // See also https://docs.gradle.org/current/userguide/plugins.html#sec:script_plugins
