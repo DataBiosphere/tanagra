@@ -5,7 +5,7 @@ import bio.terra.tanagra.service.accesscontrol.Action;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.accesscontrol.UserId;
+import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
 
 public class ConfiguredAccessControlPlugin implements AccessControlPlugin {

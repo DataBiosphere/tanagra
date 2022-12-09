@@ -64,6 +64,8 @@ dependencies {
     // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
     implementation group: "com.google.guava", name: "guava"
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.11.0'
+    implementation 'com.google.apis:google-api-services-oauth2:v2-rev20200213-2.0.0'
 
     // Dependencies whose versions are controlled by Spring
     implementation group: "javax.validation", name: "validation-api"
@@ -71,6 +73,7 @@ dependencies {
     implementation group: "org.apache.commons", name: "commons-pool2"
     implementation group: "org.springframework.boot", name: "spring-boot-starter-web"
     implementation group: "org.springframework.boot", name: "spring-boot-starter-data-jdbc"
+    implementation group: "org.springframework.security", name: "spring-security-core"
 
     // OpenApi(Swagger) dependencies
     implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: jacksonYaml

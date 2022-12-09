@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.identity;
 
 import bio.terra.tanagra.plugin.PluginConfig;
-import bio.terra.tanagra.service.accesscontrol.UserId;
+import bio.terra.tanagra.service.auth.UserId;
 
 public class SingleUserIdentityPlugin implements IdentityPlugin {
   @Override
@@ -16,6 +16,6 @@ public class SingleUserIdentityPlugin implements IdentityPlugin {
 
   @Override
   public UserId getUserId(Object credential) {
-    return new UserId("single_user");
+    return new UserId("single_user", "single_user@email.com");
   }
 }

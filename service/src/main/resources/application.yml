@@ -5,6 +5,11 @@ tanagra:
   feature:
     artifact-storage-enabled: true
 
+  auth:
+    iap-gke-jwt: true
+    iap-appengine-jwt: false
+    bearer-token: false
+
   db:
     initialize-on-start: false
     upgrade-on-start: true

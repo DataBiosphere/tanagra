@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.accesscontrol;
 
 import bio.terra.tanagra.plugin.PluginConfig;
+import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
 
 /**

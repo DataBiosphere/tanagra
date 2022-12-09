@@ -7,6 +7,10 @@ info:
 servers:
   - url: /
 
+security:
+  - bearerAuth: []
+  - authorization: [openid, email, profile]
+
 paths:
   "/status":
     get:
@@ -1928,3 +1932,17 @@ components:
           type: array
           items:
             type: string
+
+  securitySchemes:
+    authorization:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://accounts.google.com/o/oauth2/auth
+          scopes:
+            openid: open id authorization
+            email: email authorization
+            profile: profile authorization
+    bearerAuth:
+      type: http
+      scheme: bearer
