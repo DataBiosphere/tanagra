@@ -162,10 +162,19 @@ export function Datasets() {
       <ActionBar title="Datasets" />
       <Grid container columns={3} className="datasets">
         <Grid item xs={1}>
-          <Stack direction="row" alignItems="baseline">
-            <Typography variant="h4" sx={{ flexGrow: 1 }}>
-              1. Select cohorts
-            </Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack>
+              <Typography variant="h4" sx={{ flexGrow: 1 }}>
+                1. Select cohorts
+              </Typography>
+              <Typography variant="body1">
+                Which participants to include
+              </Typography>
+            </Stack>
             <IconButton id="insert-cohort" onClick={showNewCohort}>
               <AddIcon />
             </IconButton>
@@ -207,10 +216,19 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={1}>
-          <Stack direction="row" alignItems="baseline">
-            <Typography variant="h4" sx={{ flexGrow: 1 }}>
-              2. Select concept sets
-            </Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack>
+              <Typography variant="h4" sx={{ flexGrow: 1 }}>
+                2. Select concept sets
+              </Typography>
+              <Typography variant="body1">
+                Which information to include about participants
+              </Typography>
+            </Stack>
             <IconButton id="insert-concept-set" onClick={showInsertConceptSet}>
               <AddIcon />
             </IconButton>
@@ -247,11 +265,13 @@ export function Datasets() {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Stack direction="row" alignItems="baseline">
+            <Stack>
               <Typography variant="h4" mr={1}>
-                3. Values
+                3. Select values
               </Typography>
-              <Typography variant="h4">(Columns)</Typography>
+              <Typography variant="body1">
+                Which columns to include in exported tables
+              </Typography>
             </Stack>
             <Stack direction="row" alignItems="center">
               <Checkbox
