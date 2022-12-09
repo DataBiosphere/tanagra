@@ -24,6 +24,21 @@ paths:
         500:
           description: Service is broken
 
+  "/v2/profile":
+    get:
+      tags: [UsersV2]
+      description: Returns the current user's profile information
+      operationId: getMe
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileV2"
+        500:
+          $ref: '#/components/responses/ServerError'
+
   "/v2/underlays":
     get:
       summary: List the underlays
@@ -1012,6 +1027,15 @@ components:
         - id
         - title
       additionalProperties: true
+
+    UserProfileV2:
+      type: object
+      description: User profile
+      properties:
+        email:
+          type: string
+      required:
+        - email
 
     UnderlayV2:
       type: object
