@@ -51,6 +51,12 @@ public class AuthInterceptor implements HandlerInterceptor {
       return true;
     }
 
+    if (!(handler instanceof HandlerMethod)) {
+      LOGGER.error(
+          "Unexpected handler class: {}, {}", request.getRequestURL(), request.getMethod());
+      return false;
+    }
+
     HandlerMethod method = (HandlerMethod) handler;
     boolean isAuthRequired = false;
     ApiOperation apiOp = AnnotationUtils.findAnnotation(method.getMethod(), ApiOperation.class);
