@@ -209,7 +209,7 @@ export function Datasets() {
         <Grid item xs={1}>
           <Stack direction="row" alignItems="baseline">
             <Typography variant="h4" sx={{ flexGrow: 1 }}>
-              2. Select concept Sets
+              2. Select concept sets
             </Typography>
             <IconButton id="insert-concept-set" onClick={showInsertConceptSet}>
               <AddIcon />
@@ -502,23 +502,33 @@ function Preview(props: PreviewProps) {
               display: "block",
             }}
           >
-            <TreeGrid
-              data={tabDataState.data?.[tab]?.data}
-              columns={props.conceptSetOccurrences[tab]?.attributes
-                .filter(
-                  (a) =>
-                    !props.excludedAttributes
-                      .get(props.conceptSetOccurrences[tab]?.id)
-                      ?.has(a)
-                )
-                .map((attribute) => ({
-                  key: attribute,
-                  width: 120,
-                  title: attribute,
-                }))}
-              variableWidth
-              wrapBodyText
-            />
+            {tabDataState.data?.[tab]?.data?.root?.children?.length ? (
+              <TreeGrid
+                data={tabDataState.data?.[tab]?.data}
+                columns={props.conceptSetOccurrences[tab]?.attributes
+                  .filter(
+                    (a) =>
+                      !props.excludedAttributes
+                        .get(props.conceptSetOccurrences[tab]?.id)
+                        ?.has(a)
+                  )
+                  .map((attribute) => ({
+                    key: attribute,
+                    width: 120,
+                    title: attribute,
+                  }))}
+                variableWidth
+                wrapBodyText
+              />
+            ) : (
+              <Empty
+                maxWidth="60%"
+                minHeight="200px"
+                image="/empty.png"
+                title="No data matched"
+                subtitle="No data in this table matched the specified cohorts ands concept sets"
+              />
+            )}
           </div>
         ) : undefined}
       </Loading>

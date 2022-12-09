@@ -1,16 +1,22 @@
 package bio.terra.tanagra.service.accesscontrol;
 
+import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
 
 /**
- * Default access control plugin implementation that allows everything: all actions, listing all
+ * Open access control plugin implementation that allows everything: all actions, listing all
  * resources.
  */
-public class DefaultAccessControlPlugin implements AccessControlPlugin {
+public class OpenAccessControlPlugin implements AccessControlPlugin {
   @Override
-  public String getName() {
-    return "DEFAULT_ACCESS_CONTROL_PLUGIN";
+  public void init(PluginConfig config) {
+    // do nothing
+  }
+
+  @Override
+  public String getDescription() {
+    return "Allows access to any resource by anyone";
   }
 
   @Override
@@ -24,11 +30,5 @@ public class DefaultAccessControlPlugin implements AccessControlPlugin {
   public ResourceIdCollection listResourceIds(ResourceType type, int offset, int limit) {
     // Everyone can list everything.
     return ResourceIdCollection.allResourceIds();
-  }
-
-  @Override
-  public UserId getUserId(Object credential) {
-    // TODO: Decode a GoogleCredential object here to get the user email/id.
-    return new UserId("single_user", "single_user@email.com");
   }
 }

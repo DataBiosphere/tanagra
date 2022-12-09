@@ -53,6 +53,7 @@ export function useTextInputDialog(
               />
             </DialogContent>
             <DialogActions>
+              <Button onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit" variant="contained">
                 {props.buttonLabel}
               </Button>

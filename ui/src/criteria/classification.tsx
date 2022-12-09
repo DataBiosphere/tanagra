@@ -87,11 +87,12 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderEdit(setBackURL: (url?: string) => void) {
+  renderEdit(doneURL: string, setBackURL: (url?: string) => void) {
     return (
       <ClassificationEdit
         data={this.data}
         config={this.config}
+        doneURL={doneURL}
         setBackURL={setBackURL}
       />
     );
@@ -173,6 +174,7 @@ function searchParamsFromData(data?: SearchData) {
 type ClassificationEditProps = {
   data: Data;
   config: Config;
+  doneURL: string;
   setBackURL: (url?: string) => void;
 };
 
@@ -378,7 +380,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                           data.selected = [newItem];
                         })
                       );
-                      navigate("..");
+                      navigate(props.doneURL);
                     },
                   },
                 ],

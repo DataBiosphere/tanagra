@@ -23,8 +23,10 @@ export function AppRouter() {
           <Route index element={<Datasets />} />
           <Route path="cohorts/:cohortId/:groupId" element={<Overview />}>
             <Route index element={<GroupOverview />} />
-            <Route path="add" element={<AddCriteria />} />
-            <Route path="new/:configId" element={<NewCriteria />} />
+            <Route path="add">
+              <Route index element={<AddCriteria />} />
+              <Route path=":configId" element={<NewCriteria />} />
+            </Route>
             <Route path="edit/:criteriaId" element={<Edit />} />
           </Route>
           <Route path="conceptSets/new/:configId" element={<NewConceptSet />} />
@@ -74,7 +76,7 @@ export function criteriaURL(criteriaId: string) {
 }
 
 export function newCriteriaURL(configId: string) {
-  return `new/${configId}`;
+  return `add/${configId}`;
 }
 
 export function cohortReviewURL(

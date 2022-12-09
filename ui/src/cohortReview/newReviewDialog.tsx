@@ -55,6 +55,7 @@ export function useNewReviewDialog(
               />
             </DialogContent>
             <DialogActions>
+              <Button onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit" variant="contained">
                 Create
               </Button>
