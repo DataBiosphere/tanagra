@@ -64,8 +64,7 @@ dependencies {
     // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
     implementation group: "com.google.guava", name: "guava"
-    implementation 'com.google.auth:google-auth-library-oauth2-http:1.11.0'
-    implementation 'com.google.apis:google-api-services-oauth2:v2-rev20200213-2.0.0'
+    implementation 'com.google.apis:google-api-services-oauth2:v2-rev20200213-1.32.1'
 
     // Dependencies whose versions are controlled by Spring
     implementation group: "javax.validation", name: "validation-api"

@@ -6,6 +6,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 
+import bio.terra.tanagra.app.AuthInterceptor;
 import bio.terra.tanagra.generated.controller.CohortsV2Api;
 import bio.terra.tanagra.generated.model.ApiCohortCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortListV2;
@@ -51,7 +52,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
 
   @Override
   public ResponseEntity<ApiCohortV2> createCohort(String studyId, ApiCohortCreateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(null, CREATE, COHORT, new ResourceId(studyId));
+    accessControlService.throwIfUnauthorized(
+        AuthInterceptor.getCurrentUserOrThrow(), CREATE, COHORT, new ResourceId(studyId));
 
     // Make sure underlay name and study id are valid.
     underlaysService.getUnderlay(body.getUnderlayName());
@@ -79,14 +81,16 @@ public class CohortsV2ApiController implements CohortsV2Api {
 
   @Override
   public ResponseEntity<Void> deleteCohort(String studyId, String cohortId) {
-    accessControlService.throwIfUnauthorized(null, DELETE, COHORT, new ResourceId(cohortId));
+    accessControlService.throwIfUnauthorized(
+        AuthInterceptor.getCurrentUserOrThrow(), DELETE, COHORT, new ResourceId(cohortId));
     cohortService.deleteCohort(studyId, cohortId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
   public ResponseEntity<ApiCohortV2> getCohort(String studyId, String cohortId) {
-    accessControlService.throwIfUnauthorized(null, READ, COHORT, new ResourceId(cohortId));
+    accessControlService.throwIfUnauthorized(
+        AuthInterceptor.getCurrentUserOrThrow(), READ, COHORT, new ResourceId(cohortId));
     return ResponseEntity.ok(
         ToApiConversionUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
   }
@@ -95,7 +99,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
   public ResponseEntity<ApiCohortListV2> listCohorts(
       String studyId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedCohortIds =
-        accessControlService.listResourceIds(COHORT, offset, limit);
+        accessControlService.listResourceIds(
+            AuthInterceptor.getCurrentUserOrThrow(), COHORT, offset, limit);
     List<Cohort> authorizedCohorts;
     if (authorizedCohortIds.isAllResourceIds()) {
       authorizedCohorts = cohortService.getAllCohorts(studyId, offset, limit);
@@ -119,7 +124,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortV2> updateCohort(
       String studyId, String cohortId, ApiCohortUpdateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(null, UPDATE, COHORT, new ResourceId(cohortId));
+    accessControlService.throwIfUnauthorized(
+        AuthInterceptor.getCurrentUserOrThrow(), UPDATE, COHORT, new ResourceId(cohortId));
 
     List<CriteriaGroup> criteriaGroups =
         body.getCriteriaGroups() == null

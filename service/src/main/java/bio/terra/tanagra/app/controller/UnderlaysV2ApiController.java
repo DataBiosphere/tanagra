@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.app.AuthInterceptor;
 import bio.terra.tanagra.generated.controller.UnderlaysV2Api;
 import bio.terra.tanagra.generated.model.ApiUnderlayListV2;
 import bio.terra.tanagra.generated.model.ApiUnderlayV2;
@@ -31,7 +32,8 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
 
   @Override
   public ResponseEntity<ApiUnderlayListV2> listUnderlaysV2() {
-    ResourceIdCollection authorizedUnderlayNames = accessControlService.listResourceIds(UNDERLAY);
+    ResourceIdCollection authorizedUnderlayNames =
+        accessControlService.listResourceIds(AuthInterceptor.getCurrentUserOrThrow(), UNDERLAY);
     List<Underlay> authorizedUnderlays;
     if (authorizedUnderlayNames.isAllResourceIds()) {
       authorizedUnderlays = underlaysService.getUnderlays();
@@ -53,7 +55,8 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
 
   @Override
   public ResponseEntity<ApiUnderlayV2> getUnderlayV2(String underlayName) {
-    accessControlService.throwIfUnauthorized(null, READ, UNDERLAY, new ResourceId(underlayName));
+    accessControlService.throwIfUnauthorized(
+        AuthInterceptor.getCurrentUserOrThrow(), READ, UNDERLAY, new ResourceId(underlayName));
     return ResponseEntity.ok(toApiObject(underlaysService.getUnderlay(underlayName)));
   }
 

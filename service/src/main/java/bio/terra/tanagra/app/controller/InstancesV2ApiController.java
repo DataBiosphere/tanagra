@@ -4,6 +4,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
 import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.app.AuthInterceptor;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.ApiCountQueryV2;
@@ -69,7 +70,10 @@ public class InstancesV2ApiController implements InstancesV2Api {
   public ResponseEntity<ApiInstanceListV2> queryInstances(
       String underlayName, String entityName, ApiQueryV2 body) {
     accessControlService.throwIfUnauthorized(
-        null, QUERY_INSTANCES, UNDERLAY, new ResourceId(underlayName));
+        AuthInterceptor.getCurrentUserOrThrow(),
+        QUERY_INSTANCES,
+        UNDERLAY,
+        new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
@@ -274,7 +278,10 @@ public class InstancesV2ApiController implements InstancesV2Api {
   public ResponseEntity<ApiInstanceCountListV2> countInstances(
       String underlayName, String entityName, ApiCountQueryV2 body) {
     accessControlService.throwIfUnauthorized(
-        null, QUERY_COUNTS, UNDERLAY, new ResourceId(underlayName));
+        AuthInterceptor.getCurrentUserOrThrow(),
+        QUERY_COUNTS,
+        UNDERLAY,
+        new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
     List<Attribute> attributes = new ArrayList<>();

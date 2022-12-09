@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller;
 import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.app.AuthInterceptor;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.HintsV2Api;
 import bio.terra.tanagra.generated.model.ApiDisplayHintEnumV2;
@@ -53,7 +54,10 @@ public class HintsV2ApiController implements HintsV2Api {
   public ResponseEntity<ApiDisplayHintListV2> queryHints(
       String underlayName, String entityName, ApiHintQueryV2 body) {
     accessControlService.throwIfUnauthorized(
-        null, QUERY_COUNTS, UNDERLAY, new ResourceId(underlayName));
+        AuthInterceptor.getCurrentUserOrThrow(),
+        QUERY_COUNTS,
+        UNDERLAY,
+        new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
     if (body == null || body.getRelatedEntity() == null) {

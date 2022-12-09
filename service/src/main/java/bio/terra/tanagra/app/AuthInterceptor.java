@@ -1,5 +1,6 @@
 package bio.terra.tanagra.app;
 
+import bio.terra.common.exception.UnauthorizedException;
 import bio.terra.common.iam.BearerToken;
 import bio.terra.common.iam.BearerTokenFactory;
 import bio.terra.tanagra.app.configuration.AuthConfiguration;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.method.HandlerMethod;
@@ -122,10 +124,17 @@ public class AuthInterceptor implements HandlerInterceptor {
       HttpServletRequest request,
       HttpServletResponse response,
       Object handler,
-      ModelAndView modelAndView)
-      throws Exception {
+      ModelAndView modelAndView) {
     // Clear the security context, just to make sure nothing subsequently uses the credentials
     // set up in here.
     SecurityContextHolder.clearContext();
+  }
+
+  public static UserId getCurrentUserOrThrow() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (!(authentication instanceof UserAuthentication)) {
+      throw new UnauthorizedException("Error loading user authentication object");
+    }
+    return ((UserAuthentication) authentication).getPrincipal();
   }
 }

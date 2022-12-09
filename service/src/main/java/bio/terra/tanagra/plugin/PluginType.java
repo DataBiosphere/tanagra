@@ -2,12 +2,9 @@ package bio.terra.tanagra.plugin;
 
 import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
 import bio.terra.tanagra.service.accesscontrol.OpenAccessControlPlugin;
-import bio.terra.tanagra.service.identity.IdentityPlugin;
-import bio.terra.tanagra.service.identity.SingleUserIdentityPlugin;
 
 public enum PluginType {
-  ACCESS_CONTROL(AccessControlPlugin.class, OpenAccessControlPlugin.class),
-  IDENTITY(IdentityPlugin.class, SingleUserIdentityPlugin.class);
+  ACCESS_CONTROL(AccessControlPlugin.class, OpenAccessControlPlugin.class);
 
   private final Class<?> baseClassName;
   private final Class<?> defaultImplementationClassName;

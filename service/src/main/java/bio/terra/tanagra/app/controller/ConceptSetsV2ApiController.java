@@ -6,6 +6,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
 
+import bio.terra.tanagra.app.AuthInterceptor;
 import bio.terra.tanagra.generated.controller.ConceptSetsV2Api;
 import bio.terra.tanagra.generated.model.ApiConceptSetCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiConceptSetListV2;
@@ -50,7 +51,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   @Override
   public ResponseEntity<ApiConceptSetV2> createConceptSet(
       String studyId, ApiConceptSetCreateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(null, CREATE, CONCEPT_SET, new ResourceId(studyId));
+    accessControlService.throwIfUnauthorized(
+        AuthInterceptor.getCurrentUserOrThrow(), CREATE, CONCEPT_SET, new ResourceId(studyId));
 
     // Make sure underlay name, entity name, and study id are valid.
     underlaysService.getEntity(body.getUnderlayName(), body.getEntity());
@@ -76,14 +78,15 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   @Override
   public ResponseEntity<Void> deleteConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
-        null, DELETE, CONCEPT_SET, new ResourceId(conceptSetId));
+        AuthInterceptor.getCurrentUserOrThrow(), DELETE, CONCEPT_SET, new ResourceId(conceptSetId));
     conceptSetService.deleteConceptSet(studyId, conceptSetId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
   public ResponseEntity<ApiConceptSetV2> getConceptSet(String studyId, String conceptSetId) {
-    accessControlService.throwIfUnauthorized(null, READ, CONCEPT_SET, new ResourceId(conceptSetId));
+    accessControlService.throwIfUnauthorized(
+        AuthInterceptor.getCurrentUserOrThrow(), READ, CONCEPT_SET, new ResourceId(conceptSetId));
     return ResponseEntity.ok(toApiObject(conceptSetService.getConceptSet(studyId, conceptSetId)));
   }
 
@@ -91,7 +94,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetListV2> listConceptSets(
       String studyId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedConceptSetIds =
-        accessControlService.listResourceIds(CONCEPT_SET, offset, limit);
+        accessControlService.listResourceIds(
+            AuthInterceptor.getCurrentUserOrThrow(), CONCEPT_SET, offset, limit);
     List<ConceptSet> authorizedConceptSets;
     if (authorizedConceptSetIds.isAllResourceIds()) {
       authorizedConceptSets = conceptSetService.getAllConceptSets(studyId, offset, limit);
@@ -116,7 +120,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> updateConceptSet(
       String studyId, String conceptSetId, ApiConceptSetUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        null, UPDATE, CONCEPT_SET, new ResourceId(conceptSetId));
+        AuthInterceptor.getCurrentUserOrThrow(), UPDATE, CONCEPT_SET, new ResourceId(conceptSetId));
 
     // Make sure entity name is valid.
     if (body.getEntity() != null) {
