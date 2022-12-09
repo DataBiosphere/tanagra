@@ -33,7 +33,13 @@ public class AuthConfiguration {
   }
 
   public long getGcpProjectNumber() {
-    return Long.valueOf(gcpProjectNumber);
+    try {
+      return Long.parseLong(gcpProjectNumber);
+    } catch (NumberFormatException nfEx) {
+      // Don't throw an exception here, which would prevent the service from starting up.
+      LOGGER.error("Invalid GCP project number: {}", gcpProjectNumber, nfEx);
+      return Long.MIN_VALUE;
+    }
   }
 
   public String getGcpProjectId() {
@@ -41,7 +47,13 @@ public class AuthConfiguration {
   }
 
   public long getGkeBackendServiceId() {
-    return Long.valueOf(gkeBackendServiceId);
+    try {
+      return Long.parseLong(gkeBackendServiceId);
+    } catch (NumberFormatException nfEx) {
+      // Don't throw an exception here, which would prevent the service from starting up.
+      LOGGER.error("Invalid GCP project number: {}", gkeBackendServiceId, nfEx);
+      return Long.MIN_VALUE;
+    }
   }
 
   public void setIapGkeJwt(boolean iapGkeJwt) {
