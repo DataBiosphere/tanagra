@@ -3,7 +3,6 @@ import { AddCriteria } from "addCriteria";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import ConceptSetEdit from "conceptSetEdit";
 import Edit from "edit";
-import { GroupOverview } from "groupOverview";
 import { PathError } from "hooks";
 import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
@@ -21,8 +20,8 @@ export function AppRouter() {
         <Route index element={<UnderlaySelect />} />
         <Route path=":underlayName">
           <Route index element={<Datasets />} />
-          <Route path="cohorts/:cohortId/:groupId" element={<Overview />}>
-            <Route index element={<GroupOverview />} />
+          <Route path="cohorts/:cohortId/:groupId">
+            <Route index element={<Overview />} />
             <Route path="add">
               <Route index element={<AddCriteria />} />
               <Route path=":configId" element={<NewCriteria />} />

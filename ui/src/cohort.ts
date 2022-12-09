@@ -41,39 +41,7 @@ function generateFilter(group: tanagra.Group): Filter | null {
 }
 
 export function groupName(group: tanagra.Group, index: number) {
-  return group.name ?? "Requirement " + String(index + 1);
-}
-
-export enum UIGroupFilter {
-  AT_LEAST_ONE = "At least one",
-  ALL = "All",
-  NONE = "None",
-  NOT_ALL = "Not all",
-}
-
-export function filterWithUIGroupFilter(
-  filter: tanagra.GroupFilter,
-  groupFilter: UIGroupFilter
-) {
-  return {
-    ...filter,
-    kind:
-      groupFilter === UIGroupFilter.AT_LEAST_ONE ||
-      groupFilter === UIGroupFilter.NONE
-        ? tanagra.GroupFilterKindEnum.Any
-        : tanagra.GroupFilterKindEnum.All,
-    excluded:
-      groupFilter === UIGroupFilter.NONE ||
-      groupFilter === UIGroupFilter.NOT_ALL,
-  };
-}
-
-export function uiGroupFilterFromFilter(filter: tanagra.GroupFilter) {
-  if (filter.kind === tanagra.GroupFilterKindEnum.Any) {
-    return filter.excluded ? UIGroupFilter.NONE : UIGroupFilter.AT_LEAST_ONE;
-  } else {
-    return filter.excluded ? UIGroupFilter.NOT_ALL : UIGroupFilter.ALL;
-  }
+  return group.name ?? "Group " + String(index + 1);
 }
 
 // Having typed data here allows the registry to treat all data generically
