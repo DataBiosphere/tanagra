@@ -9,6 +9,7 @@ import bio.terra.tanagra.generated.model.ApiEntityV2;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.auth.UserId;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Entity;
 import java.util.stream.Collectors;
@@ -30,7 +31,8 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
 
   @Override
   public ResponseEntity<ApiEntityListV2> listEntitiesV2(String underlayName) {
-    accessControlService.throwIfUnauthorized(null, READ, UNDERLAY, new ResourceId(underlayName));
+    accessControlService.throwIfUnauthorized(
+        UserId.currentUser(), READ, UNDERLAY, new ResourceId(underlayName));
     return ResponseEntity.ok(
         new ApiEntityListV2()
             .entities(
@@ -41,7 +43,8 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
 
   @Override
   public ResponseEntity<ApiEntityV2> getEntityV2(String underlayName, String entityName) {
-    accessControlService.throwIfUnauthorized(null, READ, UNDERLAY, new ResourceId(underlayName));
+    accessControlService.throwIfUnauthorized(
+        UserId.currentUser(), READ, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     return ResponseEntity.ok(toApiObject(entity));
   }

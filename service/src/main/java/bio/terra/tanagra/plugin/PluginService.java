@@ -2,7 +2,6 @@ package bio.terra.tanagra.plugin;
 
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
-import bio.terra.tanagra.service.identity.IdentityPlugin;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,10 +20,6 @@ public class PluginService {
 
   public AccessControlPlugin getAccessControlPlugin(String underlayName) {
     return (AccessControlPlugin) getPlugin(underlayName, PluginType.ACCESS_CONTROL);
-  }
-
-  public IdentityPlugin getIdentityPlugin(String underlayName) {
-    return (IdentityPlugin) getPlugin(underlayName, PluginType.IDENTITY);
   }
 
   private Plugin getPlugin(String underlayName, PluginType type) {

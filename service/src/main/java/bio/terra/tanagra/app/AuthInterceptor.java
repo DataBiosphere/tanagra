@@ -122,8 +122,7 @@ public class AuthInterceptor implements HandlerInterceptor {
       HttpServletRequest request,
       HttpServletResponse response,
       Object handler,
-      ModelAndView modelAndView)
-      throws Exception {
+      ModelAndView modelAndView) {
     // Clear the security context, just to make sure nothing subsequently uses the credentials
     // set up in here.
     SecurityContextHolder.clearContext();

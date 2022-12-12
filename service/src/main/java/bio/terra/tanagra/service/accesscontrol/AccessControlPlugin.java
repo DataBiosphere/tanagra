@@ -8,5 +8,5 @@ public interface AccessControlPlugin extends Plugin {
   boolean isAuthorized(
       UserId userId, Action action, ResourceType resourceType, ResourceId resourceId);
 
-  ResourceIdCollection listResourceIds(ResourceType type, int offset, int limit);
+  ResourceIdCollection listResourceIds(UserId userId, ResourceType type, int offset, int limit);
 }

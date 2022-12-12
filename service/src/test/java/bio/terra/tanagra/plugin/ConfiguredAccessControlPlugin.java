@@ -26,7 +26,8 @@ public class ConfiguredAccessControlPlugin implements AccessControlPlugin {
   }
 
   @Override
-  public ResourceIdCollection listResourceIds(ResourceType type, int offset, int limit) {
+  public ResourceIdCollection listResourceIds(
+      UserId userId, ResourceType type, int offset, int limit) {
     return null;
   }
 }

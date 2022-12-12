@@ -26,6 +26,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
+import bio.terra.tanagra.service.auth.UserId;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Underlay;
@@ -62,7 +63,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   @Override
   public ResponseEntity<ApiReviewV2> createReview(
       String studyId, String cohortId, ApiReviewCreateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(null, CREATE, COHORT_REVIEW, new ResourceId(cohortId));
+    accessControlService.throwIfUnauthorized(
+        UserId.currentUser(), CREATE, COHORT_REVIEW, new ResourceId(cohortId));
 
     // Generate a random 10-character alphanumeric string for the new review ID.
     String newReviewId = RandomStringUtils.randomAlphanumeric(10);
@@ -89,14 +91,16 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
 
   @Override
   public ResponseEntity<Void> deleteReview(String studyId, String cohortId, String reviewId) {
-    accessControlService.throwIfUnauthorized(null, DELETE, COHORT_REVIEW, new ResourceId(reviewId));
+    accessControlService.throwIfUnauthorized(
+        UserId.currentUser(), DELETE, COHORT_REVIEW, new ResourceId(reviewId));
     reviewService.deleteReview(studyId, cohortId, reviewId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
   public ResponseEntity<ApiReviewV2> getReview(String studyId, String cohortId, String reviewId) {
-    accessControlService.throwIfUnauthorized(null, READ, COHORT_REVIEW, new ResourceId(reviewId));
+    accessControlService.throwIfUnauthorized(
+        UserId.currentUser(), READ, COHORT_REVIEW, new ResourceId(reviewId));
     return ResponseEntity.ok(toApiObject(reviewService.getReview(studyId, cohortId, reviewId)));
   }
 
@@ -104,7 +108,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<ApiReviewInstanceListV2> listReviewInstancesAndAnnotations(
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
     accessControlService.throwIfUnauthorized(
-        null, QUERY_INSTANCES, COHORT_REVIEW, new ResourceId(reviewId));
+        UserId.currentUser(), QUERY_INSTANCES, COHORT_REVIEW, new ResourceId(reviewId));
     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 
@@ -112,7 +116,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<ApiInstanceCountListV2> countReviewInstances(
       String studyId, String cohortId, String reviewId, ApiReviewCountQueryV2 body) {
     accessControlService.throwIfUnauthorized(
-        null, QUERY_COUNTS, COHORT_REVIEW, new ResourceId(reviewId));
+        UserId.currentUser(), QUERY_COUNTS, COHORT_REVIEW, new ResourceId(reviewId));
     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 
@@ -120,7 +124,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<ApiReviewListV2> listReviews(
       String studyId, String cohortId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedReviewIds =
-        accessControlService.listResourceIds(COHORT_REVIEW, offset, limit);
+        accessControlService.listResourceIds(UserId.currentUser(), COHORT_REVIEW, offset, limit);
     List<Review> authorizedReviews;
     if (authorizedReviewIds.isAllResourceIds()) {
       authorizedReviews = reviewService.getAllReviews(studyId, cohortId, offset, limit);
@@ -148,7 +152,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   @Override
   public ResponseEntity<ApiReviewV2> updateReview(
       String studyId, String cohortId, String reviewId, ApiReviewUpdateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(null, UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
+    accessControlService.throwIfUnauthorized(
+        UserId.currentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
     Review updatedReview =
         reviewService.updateReview(
             studyId, cohortId, reviewId, body.getDisplayName(), body.getDescription());
