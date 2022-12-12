@@ -49,7 +49,7 @@ public final class IapJwtUtils {
                 + ", "
                 + payload.get("email"));
       }
-      return new UserId(payload.getSubject(), (String) payload.get("email"));
+      return UserId.fromToken(payload.getSubject(), (String) payload.get("email"));
     } catch (TokenVerifier.VerificationException tve) {
       throw new InvalidTokenException("JWT verification failed", tve);
     }
