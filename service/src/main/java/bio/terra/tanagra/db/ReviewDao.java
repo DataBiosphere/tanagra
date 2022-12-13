@@ -5,6 +5,7 @@ import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateStudyException;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.service.artifact.Cohort;
@@ -47,6 +48,17 @@ public class ReviewDao {
               .description(rs.getString("description"))
               .size(rs.getInt("size"))
               .created(rs.getTimestamp("created"));
+
+  // SQL query and row mapper for reading a review instance.
+  private static final String REVIEW_INSTANCE_SELECT_SQL =
+      "SELECT entity_instance_id FROM review_instance";
+  private static final RowMapper<Literal> REVIEW_INSTANCE_ROW_MAPPER =
+      (rs, rowNum) ->
+          new Literal.Builder()
+              // TODO: Support id data types other than long
+              .int64Val(rs.getLong("entity_instance_id"))
+              .dataType(Literal.DataType.INT64)
+              .build();
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
   private final CohortDao cohortDao;
@@ -237,5 +249,13 @@ public class ReviewDao {
     LOGGER.info(
         "{} record for review {}", updated ? "Updated" : "No Update - did not find", reviewId);
     return updated;
+  }
+
+  @ReadTransaction
+  public List<Literal> getPrimaryEntityIds(
+      String studyId, String cohortRevisionGroupId, String reviewId) {
+    String sql = REVIEW_INSTANCE_SELECT_SQL + " WHERE review_id = :review_id";
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
+    return jdbcTemplate.query(sql, params, REVIEW_INSTANCE_ROW_MAPPER);
   }
 }

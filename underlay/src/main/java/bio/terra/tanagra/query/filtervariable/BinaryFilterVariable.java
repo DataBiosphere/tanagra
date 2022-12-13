@@ -4,13 +4,14 @@ import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.SQLExpression;
-import bio.terra.tanagra.query.TableVariable;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public class BinaryFilterVariable extends FilterVariable {
+  private static final String SUBSTITUTION_TEMPLATE = "${fieldVariable} ${operator} ${value}";
+
   private final FieldVariable fieldVariable;
   private final BinaryOperator operator;
   private final Literal value;
@@ -22,20 +23,18 @@ public class BinaryFilterVariable extends FilterVariable {
   }
 
   @Override
-  public String renderSQL() {
-    String template = "${fieldSQL} ${operator} ${value}";
+  protected String getSubstitutionTemplate() {
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
-            .put("fieldSQL", fieldVariable.renderSqlForWhere())
             .put("operator", operator.renderSQL())
             .put("value", value.renderSQL())
             .build();
-    return StringSubstitutor.replace(template, params);
+    return StringSubstitutor.replace(SUBSTITUTION_TEMPLATE, params);
   }
 
   @Override
-  public List<TableVariable> getTableVariables() {
-    return null;
+  protected List<FieldVariable> getFieldVariables() {
+    return List.of(fieldVariable);
   }
 
   public enum BinaryOperator implements SQLExpression {

@@ -3,6 +3,7 @@ package bio.terra.tanagra.service;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryRequest;
@@ -114,5 +115,11 @@ public class ReviewService {
     featureConfiguration.artifactStorageEnabledCheck();
     reviewDao.updateReview(studyId, cohortRevisionGroupId, reviewId, displayName, description);
     return reviewDao.getReview(studyId, cohortRevisionGroupId, reviewId);
+  }
+
+  public List<Literal> getPrimaryEntityIds(
+      String studyId, String cohortRevisionGroupId, String reviewId) {
+    featureConfiguration.artifactStorageEnabledCheck();
+    return reviewDao.getPrimaryEntityIds(studyId, cohortRevisionGroupId, reviewId);
   }
 }
