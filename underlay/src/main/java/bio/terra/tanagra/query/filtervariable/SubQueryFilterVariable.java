@@ -33,7 +33,7 @@ public class SubQueryFilterVariable extends FilterVariable {
   }
 
   @Override
-  protected List<FieldVariable> getFieldVariables() {
+  public List<FieldVariable> getFieldVariables() {
     return List.of(fieldVariable);
   }
 

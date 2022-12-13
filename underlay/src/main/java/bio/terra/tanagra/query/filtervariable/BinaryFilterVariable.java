@@ -33,7 +33,7 @@ public class BinaryFilterVariable extends FilterVariable {
   }
 
   @Override
-  protected List<FieldVariable> getFieldVariables() {
+  public List<FieldVariable> getFieldVariables() {
     return List.of(fieldVariable);
   }
 

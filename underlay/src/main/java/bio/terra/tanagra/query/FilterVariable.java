@@ -1,18 +1,13 @@
 package bio.terra.tanagra.query;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.text.StringSubstitutor;
 
 public abstract class FilterVariable implements SQLExpression {
-  protected String getSubstitutionTemplate() {
-    throw new UnsupportedOperationException("Substitution template required");
-  }
+  protected abstract String getSubstitutionTemplate();
 
-  protected List<FieldVariable> getFieldVariables() {
-    return Collections.EMPTY_LIST;
-  }
+  public abstract List<FieldVariable> getFieldVariables();
 
   @Override
   public String renderSQL() {
