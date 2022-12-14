@@ -17,9 +17,12 @@ import bio.terra.tanagra.generated.model.ApiReviewListV2;
 import bio.terra.tanagra.generated.model.ApiReviewQueryV2;
 import bio.terra.tanagra.generated.model.ApiReviewUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiReviewV2;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.CohortService;
 import bio.terra.tanagra.service.FromApiConversionService;
+import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.ReviewService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -27,9 +30,14 @@ import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
 import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.instances.EntityInstanceCount;
+import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
+import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -43,6 +51,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   private final ReviewService reviewService;
   private final CohortService cohortService;
   private final UnderlaysService underlaysService;
+  private final QuerysService querysService;
   private final AccessControlService accessControlService;
   private final FromApiConversionService fromApiConversionService;
 
@@ -51,11 +60,13 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       ReviewService reviewService,
       CohortService cohortService,
       UnderlaysService underlaysService,
+      QuerysService querysService,
       AccessControlService accessControlService,
       FromApiConversionService fromApiConversionService) {
     this.reviewService = reviewService;
     this.cohortService = cohortService;
     this.underlaysService = underlaysService;
+    this.querysService = querysService;
     this.accessControlService = accessControlService;
     this.fromApiConversionService = fromApiConversionService;
   }
@@ -117,7 +128,42 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewCountQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         UserId.currentUser(), QUERY_COUNTS, COHORT_REVIEW, new ResourceId(reviewId));
-    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Entity entity = underlaysService.getUnderlay(cohort.getUnderlayName()).getPrimaryEntity();
+
+    List<Attribute> attributes = new ArrayList<>();
+    if (body.getAttributes() != null) {
+      attributes =
+          body.getAttributes().stream()
+              .map(attrName -> querysService.getAttribute(entity, attrName))
+              .collect(Collectors.toList());
+    }
+
+    EntityFilter entityFilter =
+        new AttributeFilter(
+            entity.getIdAttribute(),
+            FunctionFilterVariable.FunctionTemplate.IN,
+            reviewService.getPrimaryEntityIds(studyId, cohortId, reviewId));
+
+    QueryRequest queryRequest =
+        querysService.buildInstanceCountsQuery(
+            entity, Underlay.MappingType.INDEX, attributes, entityFilter);
+    List<EntityInstanceCount> entityInstanceCounts =
+        querysService.runInstanceCountsQuery(
+            entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer(),
+            attributes,
+            queryRequest);
+
+    return ResponseEntity.ok(
+        new ApiInstanceCountListV2()
+            .instanceCounts(
+                entityInstanceCounts.stream()
+                    .map(
+                        entityInstanceCount ->
+                            ToApiConversionUtils.toApiObject(entityInstanceCount))
+                    .collect(Collectors.toList()))
+            .sql(queryRequest.getSql()));
   }
 
   @Override

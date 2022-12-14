@@ -8,7 +8,6 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.ApiCountQueryV2;
 import bio.terra.tanagra.generated.model.ApiInstanceCountListV2;
-import bio.terra.tanagra.generated.model.ApiInstanceCountV2;
 import bio.terra.tanagra.generated.model.ApiInstanceListV2;
 import bio.terra.tanagra.generated.model.ApiInstanceV2;
 import bio.terra.tanagra.generated.model.ApiInstanceV2HierarchyFields;
@@ -304,23 +303,10 @@ public class InstancesV2ApiController implements InstancesV2Api {
         new ApiInstanceCountListV2()
             .instanceCounts(
                 entityInstanceCounts.stream()
-                    .map(entityInstanceCount -> toApiObject(entityInstanceCount))
+                    .map(
+                        entityInstanceCount ->
+                            ToApiConversionUtils.toApiObject(entityInstanceCount))
                     .collect(Collectors.toList()))
             .sql(queryRequest.getSql()));
-  }
-
-  private ApiInstanceCountV2 toApiObject(EntityInstanceCount entityInstanceCount) {
-    ApiInstanceCountV2 instanceCount = new ApiInstanceCountV2();
-    Map<String, ApiValueDisplayV2> attributes = new HashMap<>();
-    for (Map.Entry<Attribute, ValueDisplay> attributeValue :
-        entityInstanceCount.getAttributeValues().entrySet()) {
-      attributes.put(
-          attributeValue.getKey().getName(),
-          ToApiConversionUtils.toApiObject(attributeValue.getValue()));
-    }
-
-    return instanceCount
-        .count(Math.toIntExact(entityInstanceCount.getCount()))
-        .attributes(attributes);
   }
 }

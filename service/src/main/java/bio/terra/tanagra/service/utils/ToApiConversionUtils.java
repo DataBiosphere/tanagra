@@ -6,6 +6,7 @@ import bio.terra.tanagra.generated.model.ApiCohortV2;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
 import bio.terra.tanagra.generated.model.ApiCriteriaV2;
 import bio.terra.tanagra.generated.model.ApiDataTypeV2;
+import bio.terra.tanagra.generated.model.ApiInstanceCountV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2ValueUnion;
 import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
@@ -13,8 +14,11 @@ import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Criteria;
 import bio.terra.tanagra.service.artifact.CriteriaGroup;
+import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class ToApiConversionUtils {
@@ -90,5 +94,18 @@ public final class ToApiConversionUtils {
         .pluginName(criteria.getPluginName())
         .selectionData(criteria.getSelectionData())
         .uiConfig(criteria.getUiConfig());
+  }
+
+  public static ApiInstanceCountV2 toApiObject(EntityInstanceCount entityInstanceCount) {
+    ApiInstanceCountV2 instanceCount = new ApiInstanceCountV2();
+    Map<String, ApiValueDisplayV2> attributes = new HashMap<>();
+    for (Map.Entry<Attribute, ValueDisplay> attributeValue :
+        entityInstanceCount.getAttributeValues().entrySet()) {
+      attributes.put(attributeValue.getKey().getName(), toApiObject(attributeValue.getValue()));
+    }
+
+    return instanceCount
+        .count(Math.toIntExact(entityInstanceCount.getCount()))
+        .attributes(attributes);
   }
 }
