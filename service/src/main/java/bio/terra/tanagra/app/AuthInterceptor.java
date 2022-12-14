@@ -97,6 +97,9 @@ public class AuthInterceptor implements HandlerInterceptor {
         userAuth =
             new UserAuthentication(
                 userId, bearerToken.getToken(), UserAuthentication.TokenType.BEARER_TOKEN);
+      } else if (authConfiguration.isDisableChecks()) {
+        LOGGER.warn("Authentication checks are disabled");
+        userAuth = new UserAuthentication(UserId.forDisabledAuthentication(), null, null);
       } else {
         throw new SystemException("Invalid auth configuration");
       }

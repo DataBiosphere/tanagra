@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class AuthConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthConfiguration.class);
 
+  private boolean disableChecks;
   private boolean iapGkeJwt;
   private boolean iapAppEngineJwt;
   private boolean bearerToken;
@@ -19,6 +20,10 @@ public class AuthConfiguration {
   private String gcpProjectNumber;
   private String gcpProjectId;
   private String gkeBackendServiceId;
+
+  public boolean isDisableChecks() {
+    return disableChecks;
+  }
 
   public boolean isIapGkeJwt() {
     return iapGkeJwt;
@@ -56,6 +61,10 @@ public class AuthConfiguration {
     }
   }
 
+  public void setDisableChecks(boolean disableChecks) {
+    this.disableChecks = disableChecks;
+  }
+
   public void setIapGkeJwt(boolean iapGkeJwt) {
     this.iapGkeJwt = iapGkeJwt;
   }
@@ -82,6 +91,7 @@ public class AuthConfiguration {
 
   /** Write the auth flags into the log. Add an entry here for each new auth flag. */
   public void logConfig() {
+    LOGGER.info("Auth config: disable-checks: {}", isDisableChecks());
     LOGGER.info("Auth config: iap-gke-jwt: {}", isIapGkeJwt());
     LOGGER.info("Auth config: iap-appengine-jwt: {}", isIapAppEngineJwt());
     LOGGER.info("Auth config: bearer-token: {}", isBearerToken());

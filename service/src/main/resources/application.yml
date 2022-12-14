@@ -6,6 +6,7 @@ tanagra:
     artifact-storage-enabled: true
 
   auth:
+    disable-checks: false
     iap-gke-jwt: true
     iap-appengine-jwt: false
     bearer-token: false
