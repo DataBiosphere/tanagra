@@ -65,6 +65,13 @@ starts a local server on `localhost:8080`.
 
 See [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) for the Swagger API page.
 
+You can also run the local server with authentication disabled. This is useful when testing the UI, which does not 
+have a login flow yet. (We rely on IAP to handle the Google OAuth flow in our dev deployments.)
+
+```
+./service/local-dev/run_server.sh disable-auth
+```
+
 ### Adding dependencies
 **UPDATE: Dependency locking has been temporarily disabled because it's causing problems for collaborators. 
 Planning to debug and add this back once we've debugged the problems.**
