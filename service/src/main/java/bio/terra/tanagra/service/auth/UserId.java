@@ -10,12 +10,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * or its plugins need can be stored here.
  */
 public final class UserId implements Serializable {
+  private static final String DISABLED_AUTHENTICATION_USER_ID = "authentication-disabled";
+
   private final String subject;
   private final String email;
 
   private UserId(String subject, String email) {
     this.subject = subject;
     this.email = email;
+  }
+
+  /** Build a default user object for when authentication is disabled. */
+  public static UserId forDisabledAuthentication() {
+    return new UserId(DISABLED_AUTHENTICATION_USER_ID, DISABLED_AUTHENTICATION_USER_ID);
   }
 
   /** Build a user object with information from an authentication token. */
