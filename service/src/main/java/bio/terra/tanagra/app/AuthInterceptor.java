@@ -104,6 +104,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         throw new SystemException("Invalid auth configuration");
       }
     } catch (InvalidTokenException ite) {
+      LOGGER.error("Authentication failed", ite);
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
       return false;
     }

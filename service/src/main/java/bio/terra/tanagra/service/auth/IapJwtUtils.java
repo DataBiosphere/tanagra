@@ -2,10 +2,14 @@ package bio.terra.tanagra.service.auth;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 
 /** Verify IAP authorization JWT token in incoming request. */
 public final class IapJwtUtils {
+  private static final Logger LOGGER = LoggerFactory.getLogger(IapJwtUtils.class);
   private static final String IAP_ISSUER_URL = "https://cloud.google.com/iap";
 
   private IapJwtUtils() {}
@@ -51,6 +55,7 @@ public final class IapJwtUtils {
       }
       return UserId.fromToken(payload.getSubject(), (String) payload.get("email"));
     } catch (TokenVerifier.VerificationException tve) {
+      LOGGER.info("JWT expected audience: {}", expectedAudience);
       throw new InvalidTokenException("JWT verification failed", tve);
     }
   }
