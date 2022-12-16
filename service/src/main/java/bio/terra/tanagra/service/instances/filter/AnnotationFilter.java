@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.instances;
+package bio.terra.tanagra.service.instances.filter;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;

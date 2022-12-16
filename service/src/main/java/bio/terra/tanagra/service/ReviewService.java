@@ -117,6 +117,7 @@ public class ReviewService {
     return reviewDao.getReview(studyId, cohortRevisionGroupId, reviewId);
   }
 
+  /** Retrieves a list of the frozen primary entity instance ids for this review. */
   public List<Literal> getPrimaryEntityIds(
       String studyId, String cohortRevisionGroupId, String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
