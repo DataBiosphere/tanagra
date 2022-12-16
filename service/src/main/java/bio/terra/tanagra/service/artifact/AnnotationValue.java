@@ -6,12 +6,14 @@ public class AnnotationValue {
   private final String reviewId;
   private final String annotationId;
   private final String annotationValueId;
+  private final String entityInstanceId;
   private final Literal literal;
 
   private AnnotationValue(Builder builder) {
     this.reviewId = builder.reviewId;
     this.annotationId = builder.annotationId;
     this.annotationValueId = builder.annotationValueId;
+    this.entityInstanceId = builder.entityInstanceId;
     this.literal = builder.literal;
   }
 
@@ -34,6 +36,11 @@ public class AnnotationValue {
     return annotationValueId;
   }
 
+  /** ID of the entity instance that this annotation references. */
+  public String getEntityInstanceId() {
+    return entityInstanceId;
+  }
+
   /** Literal value of the annotation. */
   public Literal getLiteral() {
     return literal;
@@ -43,6 +50,7 @@ public class AnnotationValue {
     private String reviewId;
     private String annotationId;
     private String annotationValueId;
+    private String entityInstanceId;
     private Literal literal;
 
     public Builder reviewId(String reviewId) {
@@ -57,6 +65,11 @@ public class AnnotationValue {
 
     public Builder annotationValueId(String annotationValueId) {
       this.annotationValueId = annotationValueId;
+      return this;
+    }
+
+    public Builder entityInstanceId(String entityInstanceId) {
+      this.entityInstanceId = entityInstanceId;
       return this;
     }
 

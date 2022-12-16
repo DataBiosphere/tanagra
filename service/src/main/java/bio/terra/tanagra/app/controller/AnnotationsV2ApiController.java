@@ -145,13 +145,14 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
             .reviewId(reviewId)
             .annotationId(annotationId)
             .annotationValueId(newAnnotationValueId)
+            .entityInstanceId(body.getInstanceId())
             .literal(FromApiConversionService.fromApiObject(body.getValue()))
             .build();
 
     AnnotationValue createdValue =
         annotationService.createAnnotationValue(
             studyId, cohortId, annotationId, reviewId, annotationValueToCreate);
-    return ResponseEntity.ok(toApiObject(createdValue));
+    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(createdValue));
   }
 
   @Override
@@ -181,7 +182,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
             reviewId,
             valueId,
             FromApiConversionService.fromApiObject(body.getValue()));
-    return ResponseEntity.ok(toApiObject(updatedAnnotationValue));
+    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedAnnotationValue));
   }
 
   private static ApiAnnotationV2 toApiObject(Annotation annotation) {
@@ -191,12 +192,5 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
         .description(annotation.getDescription())
         .dataType(ApiDataTypeV2.fromValue(annotation.getDataType().name()))
         .enumVals(annotation.getEnumVals());
-  }
-
-  private static ApiAnnotationValueV2 toApiObject(AnnotationValue annotationValue) {
-    return new ApiAnnotationValueV2()
-        .id(annotationValue.getAnnotationValueId())
-        .review(annotationValue.getReviewId())
-        .value(ToApiConversionUtils.toApiObject(annotationValue.getLiteral()));
   }
 }

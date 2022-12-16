@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.utils;
 
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
 import bio.terra.tanagra.generated.model.ApiAttributeV2;
 import bio.terra.tanagra.generated.model.ApiCohortV2;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
@@ -11,6 +12,7 @@ import bio.terra.tanagra.generated.model.ApiLiteralV2;
 import bio.terra.tanagra.generated.model.ApiLiteralV2ValueUnion;
 import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Criteria;
 import bio.terra.tanagra.service.artifact.CriteriaGroup;
@@ -107,5 +109,12 @@ public final class ToApiConversionUtils {
     return instanceCount
         .count(Math.toIntExact(entityInstanceCount.getCount()))
         .attributes(attributes);
+  }
+
+  public static ApiAnnotationValueV2 toApiObject(AnnotationValue annotationValue) {
+    return new ApiAnnotationValueV2()
+        .id(annotationValue.getAnnotationValueId())
+        .review(annotationValue.getReviewId())
+        .value(toApiObject(annotationValue.getLiteral()));
   }
 }
