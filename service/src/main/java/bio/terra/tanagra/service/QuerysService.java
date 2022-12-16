@@ -365,7 +365,7 @@ public class QuerysService {
     // associated annotations.
     Attribute idAttribute = reviewQueryRequest.getEntity().getIdAttribute();
     if (!reviewQueryRequest.getAttributes().contains(idAttribute)) {
-      reviewQueryRequest.getAttributes().add(idAttribute);
+      reviewQueryRequest.addAttribute(idAttribute);
     }
 
     // Add a filter on the entity: ID is included in the review.

@@ -67,6 +67,10 @@ public class ReviewQueryRequest {
     return orderBys == null ? Collections.emptyList() : Collections.unmodifiableList(orderBys);
   }
 
+  public void addAttribute(Attribute attribute) {
+    attributes.add(attribute);
+  }
+
   public static class Builder {
     private Entity entity;
     private Underlay.MappingType mappingType;
