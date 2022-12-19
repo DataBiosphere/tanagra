@@ -5,6 +5,7 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.serialization.UFLiteral;
 import com.google.common.base.Strings;
 import java.sql.Date;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Literal implements SQLExpression {
@@ -147,6 +148,39 @@ public class Literal implements SQLExpression {
 
   public DataType getDataType() {
     return dataType;
+  }
+
+  public int compareTo(Literal value) {
+    if (!dataType.equals(value.getDataType())) {
+      return -1;
+    }
+    switch (dataType) {
+      case STRING:
+        return stringVal.compareTo(value.getStringVal());
+      case INT64:
+        return Long.compare(int64Val, value.getInt64Val());
+      case BOOLEAN:
+        return Boolean.compare(booleanVal, value.getBooleanVal());
+      case DATE:
+        return dateVal.compareTo(value.getDateVal());
+      case DOUBLE:
+        return Double.compare(doubleVal, value.getDoubleVal());
+      default:
+        throw new SystemException("Unknown Literal data type");
+    }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Literal)) {
+      return false;
+    }
+    return compareTo((Literal) obj) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(dataType, stringVal, int64Val, booleanVal, dateVal, doubleVal);
   }
 
   public static class Builder {

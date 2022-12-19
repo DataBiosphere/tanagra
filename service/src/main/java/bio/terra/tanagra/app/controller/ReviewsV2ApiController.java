@@ -9,17 +9,24 @@ import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
 
 import bio.terra.tanagra.generated.controller.ReviewsV2Api;
+import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
 import bio.terra.tanagra.generated.model.ApiInstanceCountListV2;
 import bio.terra.tanagra.generated.model.ApiReviewCountQueryV2;
 import bio.terra.tanagra.generated.model.ApiReviewCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiReviewInstanceListV2;
+import bio.terra.tanagra.generated.model.ApiReviewInstanceV2;
 import bio.terra.tanagra.generated.model.ApiReviewListV2;
 import bio.terra.tanagra.generated.model.ApiReviewQueryV2;
 import bio.terra.tanagra.generated.model.ApiReviewUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiReviewV2;
+import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
+import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.AccessControlService;
+import bio.terra.tanagra.service.AnnotationService;
 import bio.terra.tanagra.service.CohortService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.QuerysService;
@@ -27,18 +34,28 @@ import bio.terra.tanagra.service.ReviewService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.artifact.Annotation;
+import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
 import bio.terra.tanagra.service.auth.UserId;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
+import bio.terra.tanagra.service.instances.ReviewInstance;
+import bio.terra.tanagra.service.instances.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.instances.ReviewQueryRequest;
+import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +67,7 @@ import org.springframework.stereotype.Controller;
 public class ReviewsV2ApiController implements ReviewsV2Api {
   private final ReviewService reviewService;
   private final CohortService cohortService;
+  private final AnnotationService annotationService;
   private final UnderlaysService underlaysService;
   private final QuerysService querysService;
   private final AccessControlService accessControlService;
@@ -59,12 +77,14 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ReviewsV2ApiController(
       ReviewService reviewService,
       CohortService cohortService,
+      AnnotationService annotationService,
       UnderlaysService underlaysService,
       QuerysService querysService,
       AccessControlService accessControlService,
       FromApiConversionService fromApiConversionService) {
     this.reviewService = reviewService;
     this.cohortService = cohortService;
+    this.annotationService = annotationService;
     this.underlaysService = underlaysService;
     this.querysService = querysService;
     this.accessControlService = accessControlService;
@@ -120,7 +140,84 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         UserId.currentUser(), QUERY_INSTANCES, COHORT_REVIEW, new ResourceId(reviewId));
-    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Entity entity = underlaysService.getUnderlay(cohort.getUnderlayName()).getPrimaryEntity();
+    List<Attribute> attributes = new ArrayList<>();
+    if (body.getIncludeAttributes() != null) {
+      attributes =
+          body.getIncludeAttributes().stream()
+              .map(attrName -> querysService.getAttribute(entity, attrName))
+              .collect(Collectors.toList());
+    }
+
+    EntityFilter entityFilter =
+        (body.getEntityFilter() != null)
+            ? fromApiConversionService.fromApiObject(
+                body.getEntityFilter(), entity, cohort.getUnderlayName())
+            : null;
+    AnnotationFilter annotationFilter;
+    if (body.getAnnotationFilter() != null) {
+      Annotation annotation =
+          annotationService.getAnnotation(
+              studyId, cohortId, body.getAnnotationFilter().getAnnotation());
+      BinaryOperator operator =
+          BinaryFilterVariable.BinaryOperator.valueOf(
+              body.getAnnotationFilter().getOperator().name());
+      annotationFilter =
+          new AnnotationFilter(
+              annotation,
+              operator,
+              FromApiConversionService.fromApiObject(body.getAnnotationFilter().getValue()));
+    } else {
+      annotationFilter = null;
+    }
+
+    List<ReviewQueryOrderBy> orderBys = new ArrayList<>();
+    if (body.getOrderBys() != null) {
+      body.getOrderBys().stream()
+          .forEach(
+              orderBy -> {
+                OrderByDirection direction =
+                    orderBy.getDirection() == null
+                        ? OrderByDirection.ASCENDING
+                        : OrderByDirection.valueOf(orderBy.getDirection().name());
+                String attrName = orderBy.getAttribute();
+                if (attrName != null) {
+                  orderBys.add(
+                      new ReviewQueryOrderBy(
+                          querysService.getAttribute(entity, attrName), direction));
+                } else {
+                  orderBys.add(
+                      new ReviewQueryOrderBy(
+                          annotationService.getAnnotation(
+                              studyId, cohortId, orderBy.getAnnotation()),
+                          direction));
+                }
+              });
+    }
+
+    List<ReviewInstance> reviewInstances =
+        querysService.buildAndRunReviewInstancesQuery(
+            new ReviewQueryRequest.Builder()
+                .entity(entity)
+                .mappingType(Underlay.MappingType.INDEX)
+                .attributes(attributes)
+                .entityFilter(entityFilter)
+                .annotationFilter(annotationFilter)
+                .entityInstanceIds(reviewService.getPrimaryEntityIds(studyId, cohortId, reviewId))
+                .annotationValues(
+                    annotationService.getAnnotationValues(studyId, cohortId, reviewId))
+                .orderBys(orderBys)
+                .build());
+
+    ApiReviewInstanceListV2 apiReviewInstances = new ApiReviewInstanceListV2();
+    reviewInstances.stream()
+        .forEach(
+            reviewInstance -> {
+              apiReviewInstances.add(toApiObject(reviewInstance));
+            });
+    return ResponseEntity.ok(apiReviewInstances);
   }
 
   @Override
@@ -214,5 +311,29 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         .size(review.getSize())
         .created(review.getCreatedUTC())
         .cohort(ToApiConversionUtils.toApiObject(review.getCohort()));
+  }
+
+  private ApiReviewInstanceV2 toApiObject(ReviewInstance reviewInstance) {
+    Map<String, ApiValueDisplayV2> attributes = new HashMap<>();
+    for (Map.Entry<Attribute, ValueDisplay> attributeValue :
+        reviewInstance.getAttributeValues().entrySet()) {
+      attributes.put(
+          attributeValue.getKey().getName(),
+          ToApiConversionUtils.toApiObject(attributeValue.getValue()));
+    }
+
+    Map<String, List<ApiAnnotationValueV2>> annotationValues = new HashMap<>();
+    for (AnnotationValue annotationValue : reviewInstance.getAnnotationValues()) {
+      String annotationId = annotationValue.getAnnotationId();
+      if (!annotationValues.containsKey(annotationId)) {
+        annotationValues.put(
+            annotationId,
+            new ArrayList<>(Arrays.asList(ToApiConversionUtils.toApiObject(annotationValue))));
+      } else {
+        annotationValues.get(annotationId).add(ToApiConversionUtils.toApiObject(annotationValue));
+      }
+    }
+
+    return new ApiReviewInstanceV2().attributes(attributes).annotations(annotationValues);
   }
 }

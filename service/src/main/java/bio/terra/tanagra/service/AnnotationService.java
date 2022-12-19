@@ -137,6 +137,13 @@ public class AnnotationService {
         studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValueId);
   }
 
+  /** Retrieves a list of all annotation values for a review. */
+  public List<AnnotationValue> getAnnotationValues(
+      String studyId, String cohortRevisionGroupId, String reviewId) {
+    featureConfiguration.artifactStorageEnabledCheck();
+    return annotationValueDao.getAnnotationValues(studyId, cohortRevisionGroupId, reviewId);
+  }
+
   /**
    * Throw if the annotation value data type does not match the annotation data type or enum values.
    */

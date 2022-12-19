@@ -7,6 +7,7 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateAnnotationValueException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class AnnotationValueDao {
 
   // SQL query and row mapper for reading an annotation value.
   private static final String ANNOTATION_VALUE_SELECT_SQL =
-      "SELECT av.review_id, av.annotation_id, av.annotation_value_id, av.bool_val, av.int64_val, av.string_val, av.date_val, a.data_type "
+      "SELECT av.review_id, av.annotation_id, av.annotation_value_id, av.entity_instance_id, av.bool_val, av.int64_val, av.string_val, av.date_val, a.data_type "
           + "FROM annotation_value AS av "
           + "JOIN annotation AS a ON a.annotation_id = av.annotation_id";
   private static final RowMapper<AnnotationValue> ANNOTATION_VALUE_ROW_MAPPER =
@@ -35,6 +36,7 @@ public class AnnotationValueDao {
               .reviewId(rs.getString("review_id"))
               .annotationId(rs.getString("annotation_id"))
               .annotationValueId(rs.getString("annotation_value_id"))
+              .entityInstanceId(rs.getString("entity_instance_id"))
               .literal(
                   new Literal.Builder()
                       .booleanVal(rs.getBoolean("bool_val"))
@@ -61,13 +63,14 @@ public class AnnotationValueDao {
       String reviewId,
       AnnotationValue annotationValue) {
     final String sql =
-        "INSERT INTO annotation_value (review_id, annotation_id, annotation_value_id, bool_val, int64_val, string_val, date_val) "
-            + "VALUES (:review_id, :annotation_id, :annotation_value_id, :bool_val, :int64_val, :string_val, :date_val)";
+        "INSERT INTO annotation_value (review_id, annotation_id, annotation_value_id, entity_instance_id, bool_val, int64_val, string_val, date_val) "
+            + "VALUES (:review_id, :annotation_id, :annotation_value_id, :entity_instance_id, :bool_val, :int64_val, :string_val, :date_val)";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("review_id", reviewId)
             .addValue("annotation_id", annotationId)
             .addValue("annotation_value_id", annotationValue.getAnnotationValueId())
+            .addValue("entity_instance_id", annotationValue.getEntityInstanceId())
             .addValue("bool_val", annotationValue.getLiteral().getBooleanVal())
             .addValue("int64_val", annotationValue.getLiteral().getInt64Val())
             .addValue("string_val", annotationValue.getLiteral().getStringVal())
@@ -157,6 +160,17 @@ public class AnnotationValueDao {
             () ->
                 new NotFoundException(
                     String.format("Annotation value %s not found.", annotationValueId)));
+  }
+
+  @ReadTransaction
+  public List<AnnotationValue> getAnnotationValues(
+      String studyId, String cohortRevisionGroupId, String reviewId) {
+    if (studyId == null || cohortRevisionGroupId == null || reviewId == null) {
+      throw new MissingRequiredFieldException("Valid study, cohort, and review ids are required");
+    }
+    String sql = ANNOTATION_VALUE_SELECT_SQL + " WHERE av.review_id = :review_id";
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
+    return jdbcTemplate.query(sql, params, ANNOTATION_VALUE_ROW_MAPPER);
   }
 
   @WriteTransaction

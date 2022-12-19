@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: annotation_value_instance_col
+      author: marikomedlock
+      changes:
+        - addColumn:
+            tableName: annotation_value
+            columns:
+              - column:
+                  name: entity_instance_id
+                  type: text
+                  constraints:
+                    unique: false
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: review_instance
+            columnNames: review_id, entity_instance_id
