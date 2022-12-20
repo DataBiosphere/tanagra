@@ -1,3 +1,4 @@
+import Autocomplete from "@mui/material/Autocomplete";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -7,9 +8,8 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import { useAdminSource } from "sd-admin/source";
-import { CohortV2 } from "tanagra-api";
+import { CohortV2, StudyV2 } from "tanagra-api";
 
 const columns = (
   filterFn: (name: string, value: string) => void
@@ -147,7 +147,11 @@ const initialFormState = {
     touched: false,
     value: "",
   },
-  underlayName: {
+  studyName: {
+    touched: false,
+    value: "",
+  },
+  studyNameInput: {
     touched: false,
     value: "",
   },
@@ -157,7 +161,7 @@ const initialFormState = {
   },
 };
 
-const requiredFields = ["displayName"];
+const requiredFields = ["displayName", "studyName"];
 
 interface SetRow {
   id: string;
@@ -169,8 +173,6 @@ interface SetRow {
 
 export function SetAdmin() {
   const source = useAdminSource();
-  const { studyId, underlayName } =
-    useParams<{ studyId: string; underlayName: string }>();
   const [activeSet, setActiveSet] = useState<CohortV2>(emptySet);
   const [formState, setFormState] = useState(initialFormState);
   const [columnFilters, setColumnFilters] = useState({
@@ -182,44 +184,62 @@ export function SetAdmin() {
   const [loadingSet, setLoadingSet] = useState<boolean>(false);
   const [loadingSetList, setLoadingSetList] = useState<boolean>(true);
   const [sets, setSets] = useState<CohortV2[]>([]);
+  const [studies, setStudies] = useState<StudyV2[]>([]);
 
   useEffect(() => {
     getSets();
   }, []);
 
   const getSets = async () => {
-    const sets = await source.getCohortsForStudy(studyId || "");
-    setSets(sets);
+    const studiesResp = await source.getStudiesList();
+    setStudies(studiesResp);
+    if (studiesResp.length > 0) {
+      const setsResp = await Promise.all(
+        studiesResp.map(({ id }) => source.getCohortsForStudy(id))
+      );
+      const setsList: CohortV2[] = setsResp.flat(1);
+      setSets(setsList);
+    }
     setLoadingSetList(false);
   };
 
   const updateSet = async () => {
     setLoadingSet(true);
-    const updatedSet = await source.updateCohort(
-      studyId || "",
-      activeSet?.id,
-      formState.displayName.value,
-      formState.description.value,
-      activeSet?.criteriaGroups
+    const setStudy = studies.find(
+      (study) => study.displayName === activeSet.displayName
     );
-    setActiveSet(updatedSet);
-    setEditingSet(false);
+    if (setStudy) {
+      const updatedSet = await source.updateCohort(
+        setStudy.id,
+        activeSet?.id,
+        formState.displayName.value,
+        formState.description.value,
+        activeSet?.criteriaGroups
+      );
+      setActiveSet(updatedSet);
+      setLoadingSetList(true);
+      getSets();
+      setEditingSet(false);
+    }
     setLoadingSet(false);
-    setLoadingSetList(true);
-    getSets();
   };
 
   const createSet = async () => {
     setLoadingSet(true);
-    const newSet = await source.createCohort(
-      studyId || "",
-      formState.displayName.value,
-      formState.description.value,
-      underlayName || ""
+    const setStudy = studies.find(
+      (study) => study.displayName === formState.studyName.value
     );
-    setActiveSet(newSet);
-    await getSets();
-    setCreatingSet(false);
+    if (setStudy) {
+      const newSet = await source.createCohort(
+        setStudy.id,
+        formState.displayName.value,
+        formState.description.value,
+        "aou_synthetic"
+      );
+      setActiveSet(newSet);
+      await getSets();
+      setCreatingSet(false);
+    }
     setLoadingSet(false);
   };
 
@@ -248,7 +268,12 @@ export function SetAdmin() {
         touched: false,
         value: set.description || "",
       },
-      underlayName: {
+      // TODO need a way to get the study from the set, using underlay as placeholder
+      studyName: {
+        touched: false,
+        value: set.underlayName || "",
+      },
+      studyNameInput: {
         touched: false,
         value: set.underlayName || "",
       },
@@ -281,7 +306,11 @@ export function SetAdmin() {
         touched: false,
         value: row.description,
       },
-      underlayName: {
+      studyName: {
+        touched: false,
+        value: row.underlayName,
+      },
+      studyNameInput: {
         touched: false,
         value: row.underlayName,
       },
@@ -388,22 +417,38 @@ export function SetAdmin() {
             />
           </div>
           <div>
-            <TextField
+            <Autocomplete
               sx={DISABLED_SX}
               disabled={!(creatingSet || editingSet)}
-              label={"Study Name"}
-              name="studyName"
-              InputLabelProps={{
-                shrink: !!formState?.underlayName,
-              }}
-              value={formState?.underlayName.value || ""}
-              onChange={({ target: { name, value } }) =>
-                handleInputChange(name, value)
+              options={studies.map(({ displayName }) => displayName)}
+              value={formState?.studyName.value}
+              onChange={(event, newValue) =>
+                handleInputChange("studyName", newValue || "")
               }
-              variant={"outlined"}
+              inputValue={formState?.studyNameInput.value || ""}
+              onInputChange={(event, newInputValue) =>
+                handleInputChange("studyNameInput", newInputValue)
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={"Study Name"}
+                  name="studyName"
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: !!formState?.studyName,
+                  }}
+                  onChange={({ target: { name, value } }) =>
+                    handleInputChange(name, value)
+                  }
+                  error={
+                    formState.studyName.touched && !formState.studyName.value
+                  }
+                  variant={"outlined"}
+                />
+              )}
             />
           </div>
-          <div></div>
           {(creatingSet || editingSet) && (
             <Stack spacing={2} direction="row">
               <Button

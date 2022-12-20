@@ -2,10 +2,13 @@ import { CohortsApiContext, StudiesApiContext } from "apiContext";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
 import {
-  CohortV2, CreateCohortRequest,
-  CreateStudyRequest, CriteriaGroupV2,
-  StudyV2, UpdateCohortRequest,
-  UpdateStudyRequest
+  CohortV2,
+  CreateCohortRequest,
+  CreateStudyRequest,
+  CriteriaGroupV2,
+  StudyV2,
+  UpdateCohortRequest,
+  UpdateStudyRequest,
 } from "tanagra-api";
 
 export interface AdminSource {
