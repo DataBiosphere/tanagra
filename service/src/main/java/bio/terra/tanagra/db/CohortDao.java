@@ -38,7 +38,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a cohort.
   private static final String COHORT_SELECT_SQL =
-      "SELECT study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, last_modified, display_name, description FROM cohort";
+      "SELECT study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, created, last_modified, display_name, description FROM cohort";
   private static final RowMapper<Cohort.Builder> COHORT_ROW_MAPPER =
       (rs, rowNum) ->
           Cohort.builder()
@@ -49,7 +49,8 @@ public class CohortDao {
               .version(rs.getInt("version"))
               .isMostRecent(rs.getBoolean("is_most_recent"))
               .isEditable(rs.getBoolean("is_editable"))
-              .lastModified(rs.getTimestamp("last_modified"))
+              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"));
 

@@ -70,7 +70,8 @@ public final class ToApiConversionUtils {
         .underlayName(cohort.getUnderlayName())
         .displayName(cohort.getDisplayName())
         .description(cohort.getDescription())
-        .lastModified(cohort.getLastModifiedUTC())
+        .created(cohort.getCreated())
+        .lastModified(cohort.getLastModified())
         .criteriaGroups(
             cohort.getCriteriaGroups().stream()
                 .map(criteriaGroup -> toApiObject(criteriaGroup))

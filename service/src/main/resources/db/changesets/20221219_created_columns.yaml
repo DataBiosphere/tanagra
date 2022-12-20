@@ -1,0 +1,44 @@
+databaseChangeLog:
+- changeSet:
+    id: created_columnbs
+    author: melchang
+    # DO NOT SUBMIT
+    runOnChange: true
+    changes:
+    # Add created, created_by columns
+    - addColumn:
+          tableName: cohort
+          columns:
+          - column:
+                name: created
+                type: timestamptz
+                constraints:
+                    nullable: false
+                # Needed to backfill rows that existed before this changeset.
+                # Will also set "created" for new rows.
+                defaultValueComputed: now()
+
+    # Change existing columns from timestamp to timestamptz
+    - modifyDataType:
+          tableName: cohort
+          columnName: last_modified
+          newDataType: timestamptz
+    - modifyDataType:
+          tableName: concept_set
+          columnName: last_modified
+          newDataType: timestamptz
+    - modifyDataType:
+          tableName: review
+          columnName: created
+          newDataType: timestamptz
+
+    # Add not null constraint to existing columns
+    - addNotNullConstraint:
+          tableName: cohort
+          columnName: last_modified
+    - addNotNullConstraint:
+          tableName: concept_set
+          columnName: last_modified
+    - addNotNullConstraint:
+          tableName: review
+          columnName: created

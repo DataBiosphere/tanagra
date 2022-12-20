@@ -1624,6 +1624,10 @@ components:
           description: Groups of criteria that define the entity filter
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
+        created:
+          description: Timestamp of when the cohort was created
+          type: string
+          format: date-time
         lastModified:
           description: Timestamp of when the cohort was last modified
           type: string

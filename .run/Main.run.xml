@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="tanagra.service.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="bio.terra.tanagra.app.Main" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/service" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <envs>
+      <env name="TANAGRA_DATABASE_NAME" value="tanagra_db" />
+      <env name="TANAGRA_DB_INITIALIZE_ON_START" value="true" />
+      <env name="TANAGRA_DB_USERNAME" value="dbuser" />
+      <env name="TANAGRA_DB_PASSWORD" value="dbpwd" />
+      <env name="TANAGRA_UNDERLAY_FILES" value="broad/aou_synthetic/expanded/aou_synthetic.json,broad/cms_synpuf/expanded/cms_synpuf.json" />
+      <env name="TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED" value="true" />
+      <env name="TANAGRA_AUTH_IAP_GKE_JWT" value="false" />
+      <env name="TANAGRA_AUTH_BEARER_TOKEN" value="true" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
