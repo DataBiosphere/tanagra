@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.artifact;
 import bio.terra.tanagra.exception.SystemException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -20,16 +21,19 @@ public class Study {
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final Map<String, String> properties;
+  private final OffsetDateTime created;
 
   public Study(
       String studyId,
       @Nullable String displayName,
       @Nullable String description,
-      Map<String, String> properties) {
+      Map<String, String> properties,
+      OffsetDateTime created) {
     this.studyId = studyId;
     this.displayName = displayName;
     this.description = description;
     this.properties = properties;
+    this.created = created;
   }
 
   /** The globally unique identifier of this study. */
@@ -52,6 +56,10 @@ public class Study {
     return properties;
   }
 
+  public OffsetDateTime getCreated() {
+    return created;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -69,6 +77,7 @@ public class Study {
         .append(displayName, study.displayName)
         .append(description, study.description)
         .append(properties, study.properties)
+        .append(created, study.created)
         .isEquals();
   }
 
@@ -79,6 +88,7 @@ public class Study {
         .append(displayName)
         .append(description)
         .append(properties)
+        .append(created)
         .toHashCode();
   }
 
@@ -92,6 +102,7 @@ public class Study {
     private @Nullable String displayName;
     private String description;
     private Map<String, String> properties;
+    private OffsetDateTime created;
 
     public Builder studyId(String studyId) {
       this.studyId = studyId;
@@ -113,6 +124,11 @@ public class Study {
       return this;
     }
 
+    public Builder created(OffsetDateTime created) {
+      this.created = created;
+      return this;
+    }
+
     public Study build() {
       // Always have a map, even if it is empty
       if (properties == null) {
@@ -121,7 +137,7 @@ public class Study {
       if (studyId == null) {
         throw new SystemException("Study requires id");
       }
-      return new Study(studyId, displayName, description, properties);
+      return new Study(studyId, displayName, description, properties, created);
     }
   }
 }

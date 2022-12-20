@@ -1542,7 +1542,7 @@ components:
 
     StudyV2:
       type: object
-      required: [id]
+      required: [id, created]
       properties:
         id:
           description: ID of the study, immutable
@@ -1553,6 +1553,9 @@ components:
           $ref: "#/components/schemas/StudyDescriptionV2"
         properties:
           $ref: "#/components/schemas/PropertiesV2"
+        created:
+          type: string
+          format: date-time
 
     StudyListV2:
       type: array

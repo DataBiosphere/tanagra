@@ -47,7 +47,7 @@ public class ReviewDao {
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
               .size(rs.getInt("size"))
-              .created(rs.getTimestamp("created"));
+              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")));
 
   // SQL query and row mapper for reading a review instance.
   private static final String REVIEW_INSTANCE_SELECT_SQL =

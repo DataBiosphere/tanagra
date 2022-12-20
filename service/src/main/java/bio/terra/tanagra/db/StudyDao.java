@@ -30,7 +30,7 @@ public class StudyDao {
 
   // SQL query and row mapper for reading a study.
   private static final String STUDY_SELECT_SQL =
-      "SELECT study_id, display_name, description, properties FROM study";
+      "SELECT study_id, display_name, description, properties, created FROM study";
   private static final RowMapper<Study> STUDY_ROW_MAPPER =
       (rs, rowNum) ->
           Study.builder()
@@ -41,6 +41,7 @@ public class StudyDao {
                   Optional.ofNullable(rs.getString("properties"))
                       .map(DbSerDes::jsonToProperties)
                       .orElse(null))
+              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .build();
 
   private final NamedParameterJdbcTemplate jdbcTemplate;

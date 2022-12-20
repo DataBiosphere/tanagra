@@ -1,8 +1,6 @@
 package bio.terra.tanagra.service.artifact;
 
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import javax.annotation.Nullable;
 
 public class Review {
@@ -11,7 +9,7 @@ public class Review {
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final int size;
-  private final Timestamp created;
+  private final OffsetDateTime created;
   private final Cohort cohort;
 
   private Review(Builder builder) {
@@ -53,9 +51,9 @@ public class Review {
     return size;
   }
 
-  /** Timestamp of when this review was last modified. */
-  public OffsetDateTime getCreatedUTC() {
-    return created.toInstant().atOffset(ZoneOffset.UTC);
+  /** Timestamp of when this review was created. */
+  public OffsetDateTime getCreated() {
+    return created;
   }
 
   /** Cohort revision that this review is pinned to. */
@@ -69,7 +67,7 @@ public class Review {
     private @Nullable String displayName;
     private @Nullable String description;
     private int size;
-    private Timestamp created;
+    private OffsetDateTime created;
     private Cohort cohort;
 
     public Builder cohortId(String cohortId) {
@@ -97,8 +95,8 @@ public class Review {
       return this;
     }
 
-    public Builder created(Timestamp created) {
-      this.created = (Timestamp) created.clone();
+    public Builder created(OffsetDateTime created) {
+      this.created = created;
       return this;
     }
 

@@ -309,7 +309,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         .displayName(review.getDisplayName())
         .description(review.getDescription())
         .size(review.getSize())
-        .created(review.getCreatedUTC())
+        .created(review.getCreated())
         .cohort(ToApiConversionUtils.toApiObject(review.getCohort()));
   }
 

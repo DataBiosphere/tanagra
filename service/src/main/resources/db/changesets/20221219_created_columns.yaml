@@ -15,7 +15,7 @@ databaseChangeLog:
 #                constraints:
 #                    nullable: false
 #                # Needed to backfill rows that existed before this changeset.
-#                # Will also set "created" for new rows.
+#                # Will also set for new rows.
 #                defaultValueComputed: now()
     - addColumn:
             tableName: concept_set
@@ -26,9 +26,19 @@ databaseChangeLog:
                     constraints:
                           nullable: false
                     # Needed to backfill rows that existed before this changeset.
-                    # Will also set "created" for new rows.
+                    # Will also set for new rows.
                     defaultValueComputed: now()
-
+    - addColumn:
+        tableName: study
+        columns:
+        - column:
+            name: created
+            type: timestamptz
+            constraints:
+              nullable: false
+            # Needed to backfill rows that existed before this changeset.
+            # Will also set for new rows.
+            defaultValueComputed: now()
     # Change existing columns from timestamp to timestamptz
     - modifyDataType:
           tableName: cohort
