@@ -6,17 +6,28 @@ databaseChangeLog:
     runOnChange: true
     changes:
     # Add created, created_by columns
+#    - addColumn:
+#          tableName: cohort
+#          columns:
+#          - column:
+#                name: created
+#                type: timestamptz
+#                constraints:
+#                    nullable: false
+#                # Needed to backfill rows that existed before this changeset.
+#                # Will also set "created" for new rows.
+#                defaultValueComputed: now()
     - addColumn:
-          tableName: cohort
-          columns:
-          - column:
-                name: created
-                type: timestamptz
-                constraints:
-                    nullable: false
-                # Needed to backfill rows that existed before this changeset.
-                # Will also set "created" for new rows.
-                defaultValueComputed: now()
+            tableName: concept_set
+            columns:
+            - column:
+                    name: created
+                    type: timestamptz
+                    constraints:
+                          nullable: false
+                    # Needed to backfill rows that existed before this changeset.
+                    # Will also set "created" for new rows.
+                    defaultValueComputed: now()
 
     # Change existing columns from timestamp to timestamptz
     - modifyDataType:

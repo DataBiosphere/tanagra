@@ -1,9 +1,7 @@
 package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.exception.SystemException;
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import javax.annotation.Nullable;
 
 public class ConceptSet {
@@ -11,7 +9,8 @@ public class ConceptSet {
   private final String conceptSetId;
   private final String underlayName;
   private final String entityName;
-  private final Timestamp lastModified;
+  private final OffsetDateTime created;
+  private final OffsetDateTime lastModified;
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final Criteria criteria;
@@ -21,6 +20,7 @@ public class ConceptSet {
     this.conceptSetId = builder.conceptSetId;
     this.underlayName = builder.underlayName;
     this.entityName = builder.entityName;
+    this.created = builder.created;
     this.lastModified = builder.lastModified;
     this.displayName = builder.displayName;
     this.description = builder.description;
@@ -37,6 +37,7 @@ public class ConceptSet {
         .conceptSetId(conceptSetId)
         .underlayName(underlayName)
         .entityName(entityName)
+        .created(created)
         .lastModified(lastModified)
         .displayName(displayName)
         .description(description)
@@ -63,9 +64,14 @@ public class ConceptSet {
     return entityName;
   }
 
+  /** Timestamp of when this concept set was created. */
+  public OffsetDateTime getCreated() {
+    return created;
+  }
+
   /** Timestamp of when this concept set was last modified. */
-  public OffsetDateTime getLastModifiedUTC() {
-    return lastModified.toInstant().atOffset(ZoneOffset.UTC);
+  public OffsetDateTime getLastModified() {
+    return lastModified;
   }
 
   /** Optional display name for the concept set. */
@@ -88,7 +94,8 @@ public class ConceptSet {
     private String conceptSetId;
     private String underlayName;
     private String entityName;
-    private Timestamp lastModified;
+    private OffsetDateTime created;
+    private OffsetDateTime lastModified;
     private @Nullable String displayName;
     private @Nullable String description;
     private Criteria criteria;
@@ -113,8 +120,13 @@ public class ConceptSet {
       return this;
     }
 
-    public Builder lastModified(Timestamp lastModified) {
-      this.lastModified = (Timestamp) lastModified.clone();
+    public Builder created(OffsetDateTime created) {
+      this.created = created;
+      return this;
+    }
+
+    public Builder lastModified(OffsetDateTime lastModified) {
+      this.lastModified = lastModified;
       return this;
     }
 

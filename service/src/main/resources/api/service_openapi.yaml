@@ -1637,6 +1637,7 @@ components:
         - underlayName
         - displayName
         - criteriaGroups
+        - created
         - lastModified
 
     CohortListV2:
@@ -1691,6 +1692,10 @@ components:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
         criteria:
           $ref: "#/components/schemas/CriteriaV2"
+        created:
+          description: Timestamp of when the concept set was created
+          type: string
+          format: date-time
         lastModified:
           description: Timestamp of when the concept set was last modified
           type: string
@@ -1701,6 +1706,7 @@ components:
         - entity
         - displayName
         - criteria
+        - created
         - lastModified
 
     ConceptSetListV2:

@@ -72,7 +72,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             .build();
     conceptSetService.createConceptSet(conceptSetToCreate);
     return ResponseEntity.ok(
-        toApiObject(conceptSetService.getConceptSet(studyId, newConceptSetId)));
+        ToApiConversionUtils.toApiObject(
+            conceptSetService.getConceptSet(studyId, newConceptSetId)));
   }
 
   @Override
@@ -87,7 +88,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> getConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
         UserId.currentUser(), READ, CONCEPT_SET, new ResourceId(conceptSetId));
-    return ResponseEntity.ok(toApiObject(conceptSetService.getConceptSet(studyId, conceptSetId)));
+    return ResponseEntity.ok(
+        ToApiConversionUtils.toApiObject(conceptSetService.getConceptSet(studyId, conceptSetId)));
   }
 
   @Override
@@ -111,7 +113,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
 
     ApiConceptSetListV2 apiConceptSets = new ApiConceptSetListV2();
     authorizedConceptSets.stream()
-        .forEach(conceptSet -> apiConceptSets.add(toApiObject(conceptSet)));
+        .forEach(conceptSet -> apiConceptSets.add(ToApiConversionUtils.toApiObject(conceptSet)));
     return ResponseEntity.ok(apiConceptSets);
   }
 
@@ -150,21 +152,6 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             body.getDisplayName(),
             body.getDescription(),
             criteria);
-    return ResponseEntity.ok(toApiObject(updatedConceptSet));
-  }
-
-  /** Convert the internal Concept Set object to an API Concept Set object. */
-  private static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
-    return new ApiConceptSetV2()
-        .id(conceptSet.getConceptSetId())
-        .underlayName(conceptSet.getUnderlayName())
-        .entity(conceptSet.getEntityName())
-        .displayName(conceptSet.getDisplayName())
-        .description(conceptSet.getDescription())
-        .lastModified(conceptSet.getLastModifiedUTC())
-        .criteria(
-            conceptSet.getCriteria() == null
-                ? null
-                : ToApiConversionUtils.toApiObject(conceptSet.getCriteria()));
+    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedConceptSet));
   }
 }
