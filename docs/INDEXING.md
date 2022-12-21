@@ -56,13 +56,14 @@ Below you can see an [example](#omop-example) of the commands for an OMOP datase
 Set the default application credentials to a service account key file that has read access to both the source and 
 index data.
 ```
-export GOOGLE_APPLICATION_CREDENTIALS=/credentials/indexing_sa.json
+export GOOGLE_APPLICATION_CREDENTIALS=$(PWD)/rendered/tanagra_sa.json
 ```
 Expand the defaults, scan the source data, and generate an expanded underlay config file that includes all this 
-information. The first argument `/config/input/omop.json` is a pointer to the user-specified underlay file.
-The second argument `/config/output/` is a pointer to the directory where Tanagra can write the expanded config files.
+information. The first argument is a pointer to the user-specified underlay file.
+The second argument is a pointer to the directory where Tanagra can write the expanded config files.
+Both arguments must be absolute paths. Example:
 ```
-./gradlew indexer:index -Dexec.args="EXPAND_CONFIG /config/input/omop.json /config/output/"
+./gradlew indexer:index -Dexec.args="EXPAND_CONFIG $HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/original/cms_synpuf.json $HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/expanded"
 ```
 
 ### Create Index Dataset
