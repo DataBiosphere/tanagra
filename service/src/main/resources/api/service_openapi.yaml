@@ -1842,6 +1842,9 @@ components:
           description: Timestamp of when the review was created
           type: string
           format: date-time
+        createdBy:
+          description: Email of user who created the review
+          type: string
         lastModified:
           description: Timestamp of when the review was last modified
           type: string

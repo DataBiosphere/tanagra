@@ -106,6 +106,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .size(body.getSize())
+            .createdBy(UserId.currentUser().getEmail())
             .build();
 
     // TODO: Move this to the ReviewService once we can build the EntityFilter from the Cohort on
@@ -310,6 +311,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         .description(review.getDescription())
         .size(review.getSize())
         .created(review.getCreated())
+        .createdBy(review.getCreatedBy())
         .lastModified(review.getLastModified())
         .cohort(ToApiConversionUtils.toApiObject(review.getCohort()));
   }

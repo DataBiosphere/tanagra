@@ -10,6 +10,7 @@ public class Review {
   private final @Nullable String description;
   private final int size;
   private final OffsetDateTime created;
+  private final String createdBy;
   private final OffsetDateTime lastModified;
   private final Cohort cohort;
 
@@ -20,6 +21,7 @@ public class Review {
     this.description = builder.description;
     this.size = builder.size;
     this.created = builder.created;
+    this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.cohort = builder.cohort;
   }
@@ -57,6 +59,10 @@ public class Review {
     return created;
   }
 
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
   public OffsetDateTime getLastModified() {
     return lastModified;
   }
@@ -73,6 +79,7 @@ public class Review {
     private @Nullable String description;
     private int size;
     private OffsetDateTime created;
+    private String createdBy;
     private OffsetDateTime lastModified;
     private Cohort cohort;
 
@@ -103,6 +110,11 @@ public class Review {
 
     public Builder created(OffsetDateTime created) {
       this.created = created;
+      return this;
+    }
+
+    public Builder createdBy(String created) {
+      this.createdBy = createdBy;
       return this;
     }
 

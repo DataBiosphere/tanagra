@@ -79,20 +79,35 @@ databaseChangeLog:
 #    - addNotNullConstraint:
 #        tableName: cohort
 #        columnName: created_by
+#    - addColumn:
+#        tableName: concept_set
+#        columns:
+#        - column:
+#            name: created_by
+#            type: text
+#    - update:
+#        tableName: concept_set
+#        columns:
+#        - column:
+#            name: created_by
+#            value: "unknown"
+#    - addNotNullConstraint:
+#        tableName: concept_set
+#        columnName: created_by
     - addColumn:
-        tableName: concept_set
+        tableName: review
         columns:
         - column:
             name: created_by
             type: text
     - update:
-        tableName: concept_set
+        tableName: review
         columns:
         - column:
             name: created_by
             value: "unknown"
     - addNotNullConstraint:
-        tableName: concept_set
+        tableName: review
         columnName: created_by
 
     # Change existing columns from timestamp to timestamptz
