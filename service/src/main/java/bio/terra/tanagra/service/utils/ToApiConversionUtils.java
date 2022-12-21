@@ -73,6 +73,7 @@ public final class ToApiConversionUtils {
         .displayName(cohort.getDisplayName())
         .description(cohort.getDescription())
         .created(cohort.getCreated())
+        .createdBy(cohort.getCreatedBy())
         .lastModified(cohort.getLastModified())
         .criteriaGroups(
             cohort.getCriteriaGroups().stream()

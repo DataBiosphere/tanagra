@@ -37,7 +37,7 @@ public class ReviewDao {
 
   // SQL query and row mapper for reading a review.
   private static final String REVIEW_SELECT_SQL =
-      "SELECT r.cohort_id, r.review_id, r.display_name, r.description, r.size, r.created FROM review AS r "
+      "SELECT r.cohort_id, r.review_id, r.display_name, r.description, r.size, r.created, r.last_modified FROM review AS r "
           + "JOIN cohort AS c ON c.cohort_id = r.cohort_id";
   private static final RowMapper<Review.Builder> REVIEW_ROW_MAPPER =
       (rs, rowNum) ->
@@ -47,7 +47,8 @@ public class ReviewDao {
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
               .size(rs.getInt("size"))
-              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")));
+              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")));
 
   // SQL query and row mapper for reading a review instance.
   private static final String REVIEW_INSTANCE_SELECT_SQL =

@@ -1542,7 +1542,7 @@ components:
 
     StudyV2:
       type: object
-      required: [id, created]
+      required: [id, created, lastModified]
       properties:
         id:
           description: ID of the study, immutable
@@ -1554,6 +1554,9 @@ components:
         properties:
           $ref: "#/components/schemas/PropertiesV2"
         created:
+          type: string
+          format: date-time
+        lastModified:
           type: string
           format: date-time
 
@@ -1631,6 +1634,9 @@ components:
           description: Timestamp of when the cohort was created
           type: string
           format: date-time
+        createdBy:
+          description: Email of user who created cohort
+          type: string
         lastModified:
           description: Timestamp of when the cohort was last modified
           type: string
@@ -1641,6 +1647,7 @@ components:
         - displayName
         - criteriaGroups
         - created
+        - createdBy
         - lastModified
 
     CohortListV2:
@@ -1832,12 +1839,17 @@ components:
           description: Timestamp of when the review was created
           type: string
           format: date-time
+        lastModified:
+          description: Timestamp of when the review was last modified
+          type: string
+          format: date-time
       required:
         - id
         - displayName
         - size
         - cohortRevision
         - created
+        - lastModified
 
     ReviewListV2:
       type: array

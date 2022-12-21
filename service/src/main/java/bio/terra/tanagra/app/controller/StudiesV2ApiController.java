@@ -134,7 +134,8 @@ public class StudiesV2ApiController implements StudiesV2Api {
         .displayName(study.getDisplayName())
         .description(study.getDescription())
         .properties(apiProperties)
-        .created(study.getCreated());
+        .created(study.getCreated())
+        .lastModified(study.getLastModified());
   }
 
   private static ImmutableMap<String, String> fromApiObject(

@@ -22,18 +22,21 @@ public class Study {
   private final @Nullable String description;
   private final Map<String, String> properties;
   private final OffsetDateTime created;
+  private final OffsetDateTime lastModified;
 
   public Study(
       String studyId,
       @Nullable String displayName,
       @Nullable String description,
       Map<String, String> properties,
-      OffsetDateTime created) {
+      OffsetDateTime created,
+      OffsetDateTime lastModified) {
     this.studyId = studyId;
     this.displayName = displayName;
     this.description = description;
     this.properties = properties;
     this.created = created;
+    this.lastModified = lastModified;
   }
 
   /** The globally unique identifier of this study. */
@@ -60,6 +63,10 @@ public class Study {
     return created;
   }
 
+  public OffsetDateTime getLastModified() {
+    return lastModified;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -78,6 +85,7 @@ public class Study {
         .append(description, study.description)
         .append(properties, study.properties)
         .append(created, study.created)
+        .append(lastModified, study.lastModified)
         .isEquals();
   }
 
@@ -89,6 +97,7 @@ public class Study {
         .append(description)
         .append(properties)
         .append(created)
+        .append(lastModified)
         .toHashCode();
   }
 
@@ -103,6 +112,7 @@ public class Study {
     private String description;
     private Map<String, String> properties;
     private OffsetDateTime created;
+    private OffsetDateTime lastModified;
 
     public Builder studyId(String studyId) {
       this.studyId = studyId;
@@ -129,6 +139,11 @@ public class Study {
       return this;
     }
 
+    public Builder lastModified(OffsetDateTime lastModified) {
+      this.lastModified = lastModified;
+      return this;
+    }
+
     public Study build() {
       // Always have a map, even if it is empty
       if (properties == null) {
@@ -137,7 +152,7 @@ public class Study {
       if (studyId == null) {
         throw new SystemException("Study requires id");
       }
-      return new Study(studyId, displayName, description, properties, created);
+      return new Study(studyId, displayName, description, properties, created, lastModified);
     }
   }
 }

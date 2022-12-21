@@ -10,6 +10,7 @@ public class Review {
   private final @Nullable String description;
   private final int size;
   private final OffsetDateTime created;
+  private final OffsetDateTime lastModified;
   private final Cohort cohort;
 
   private Review(Builder builder) {
@@ -19,6 +20,7 @@ public class Review {
     this.description = builder.description;
     this.size = builder.size;
     this.created = builder.created;
+    this.lastModified = builder.lastModified;
     this.cohort = builder.cohort;
   }
 
@@ -51,9 +53,12 @@ public class Review {
     return size;
   }
 
-  /** Timestamp of when this review was created. */
   public OffsetDateTime getCreated() {
     return created;
+  }
+
+  public OffsetDateTime getLastModified() {
+    return lastModified;
   }
 
   /** Cohort revision that this review is pinned to. */
@@ -68,6 +73,7 @@ public class Review {
     private @Nullable String description;
     private int size;
     private OffsetDateTime created;
+    private OffsetDateTime lastModified;
     private Cohort cohort;
 
     public Builder cohortId(String cohortId) {
@@ -97,6 +103,11 @@ public class Review {
 
     public Builder created(OffsetDateTime created) {
       this.created = created;
+      return this;
+    }
+
+    public Builder lastModified(OffsetDateTime lastModified) {
+      this.lastModified = lastModified;
       return this;
     }
 

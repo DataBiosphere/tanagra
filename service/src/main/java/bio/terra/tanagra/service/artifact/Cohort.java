@@ -18,6 +18,7 @@ public class Cohort {
   private final boolean isMostRecent;
   private final boolean isEditable;
   private final OffsetDateTime created;
+  private final String createdBy;
   private final OffsetDateTime lastModified;
   private final @Nullable String displayName;
   private final @Nullable String description;
@@ -32,6 +33,7 @@ public class Cohort {
     this.isMostRecent = builder.isMostRecent;
     this.isEditable = builder.isEditable;
     this.created = builder.created;
+    this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.displayName = builder.displayName;
     this.description = builder.description;
@@ -52,6 +54,7 @@ public class Cohort {
         .isMostRecent(isMostRecent)
         .isEditable(isEditable)
         .created(created)
+        .createdBy(createdBy)
         .lastModified(lastModified)
         .displayName(displayName)
         .description(description)
@@ -104,6 +107,11 @@ public class Cohort {
     return created;
   }
 
+  /** Email of user who created this cohort. */
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
   /** Timestamp of when this cohort was last modified. */
   public OffsetDateTime getLastModified() {
     return lastModified;
@@ -137,6 +145,7 @@ public class Cohort {
     private boolean isMostRecent;
     private boolean isEditable;
     private OffsetDateTime created;
+    private String createdBy;
     private OffsetDateTime lastModified;
     private @Nullable String displayName;
     private @Nullable String description;
@@ -179,6 +188,11 @@ public class Cohort {
 
     public Builder created(OffsetDateTime created) {
       this.created = created;
+      return this;
+    }
+
+    public Builder createdBy(String createdBy) {
+      this.createdBy = createdBy;
       return this;
     }
 
