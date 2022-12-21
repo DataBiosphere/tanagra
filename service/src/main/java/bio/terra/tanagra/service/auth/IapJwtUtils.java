@@ -2,10 +2,9 @@ package bio.terra.tanagra.service.auth;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
 
 /** Verify IAP authorization JWT token in incoming request. */
 public final class IapJwtUtils {

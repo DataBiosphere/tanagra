@@ -1,0 +1,61 @@
+import java.util.regex.Matcher
+
+/** Configs for publishing a maven package to artifactory. */
+publishing {
+    publications {
+        tanagraClientLibrary(MavenPublication) {
+            artifactId = "tanagra-client"
+            from components.java
+            versionMapping {
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}
+
+def artifactory_repo_key = System.getenv("ARTIFACTORY_REPO_KEY") != null ? System.getenv("ARTIFACTORY_REPO_KEY") : 'libs-snapshot-local'
+def artifactory_username = System.getenv("ARTIFACTORY_USERNAME")
+def artifactory_password = System.getenv("ARTIFACTORY_PASSWORD")
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(artifactoryPublish) &&
+    (artifactory_username == null || artifactory_password == null)) {
+        throw new GradleException("Set env vars ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD to publish")
+    }
+}
+
+artifactory {
+    publish {
+        contextUrl = "https://broadinstitute.jfrog.io/broadinstitute/"
+        repository {
+            repoKey = "${artifactory_repo_key}" // The Artifactory repository key to publish to
+            username = "${artifactory_username}" // The publisher user name
+            password = "${artifactory_password}" // The publisher password
+        }
+        defaults {
+            // Reference to Gradle Maven publications defined in the build script.
+            publications("tanagraClientLibrary")
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+}
+
+// This block fixes a bug with duplicate dependencyManagement tags in the generated POM file.
+// https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/257#issuecomment-895790557
+tasks.withType(GenerateMavenPom).all {
+    doLast {
+        File file = new File("$buildDir/publications/tanagraClientLibrary/pom-default.xml")
+        def text = file.text
+        def pattern = "(?s)(<dependencyManagement>.+?<dependencies>)(.+?)(</dependencies>.+?</dependencyManagement>)"
+        Matcher matcher = text =~ pattern
+        if (matcher.find()) {
+            text = text.replaceFirst(pattern, "")
+            def firstDeps = matcher.group(2)
+            text = text.replaceFirst(pattern, '$1$2' + firstDeps + '$3')
+        }
+        file.write(text)
+    }
+}
