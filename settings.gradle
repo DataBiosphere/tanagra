@@ -1,4 +1,4 @@
 rootProject.name = 'tanagra'
 include('service', 'client', 'indexer', 'underlay')
 
-gradle.ext.tanagraVersion = '0.0.2-SNAPSHOT'
+gradle.ext.tanagraVersion = '0.0.6-SNAPSHOT'
