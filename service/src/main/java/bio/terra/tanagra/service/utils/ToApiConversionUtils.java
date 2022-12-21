@@ -4,7 +4,6 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
 import bio.terra.tanagra.generated.model.ApiAttributeV2;
 import bio.terra.tanagra.generated.model.ApiCohortV2;
-import bio.terra.tanagra.generated.model.ApiConceptSetV2;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
 import bio.terra.tanagra.generated.model.ApiCriteriaV2;
 import bio.terra.tanagra.generated.model.ApiDataTypeV2;
@@ -15,7 +14,6 @@ import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
 import bio.terra.tanagra.service.artifact.CriteriaGroup;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
@@ -100,22 +98,6 @@ public final class ToApiConversionUtils {
         .pluginName(criteria.getPluginName())
         .selectionData(criteria.getSelectionData())
         .uiConfig(criteria.getUiConfig());
-  }
-
-  public static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
-    return new ApiConceptSetV2()
-        .id(conceptSet.getConceptSetId())
-        .underlayName(conceptSet.getUnderlayName())
-        .entity(conceptSet.getEntityName())
-        .displayName(conceptSet.getDisplayName())
-        .description(conceptSet.getDescription())
-        .created(conceptSet.getCreated())
-        .createdBy(conceptSet.getCreatedBy())
-        .lastModified(conceptSet.getLastModified())
-        .criteria(
-            conceptSet.getCriteria() == null
-                ? null
-                : ToApiConversionUtils.toApiObject(conceptSet.getCriteria()));
   }
 
   public static ApiInstanceCountV2 toApiObject(EntityInstanceCount entityInstanceCount) {
