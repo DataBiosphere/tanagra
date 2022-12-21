@@ -1542,7 +1542,7 @@ components:
 
     StudyV2:
       type: object
-      required: [id, created, lastModified]
+      required: [id, created, createdBy, lastModified]
       properties:
         id:
           description: ID of the study, immutable
@@ -1556,6 +1556,9 @@ components:
         created:
           type: string
           format: date-time
+        createdBy:
+          description: Email of user who created the study
+          type: string
         lastModified:
           type: string
           format: date-time
@@ -1720,6 +1723,7 @@ components:
         - displayName
         - criteria
         - created
+        - createdBy
         - lastModified
 
     ConceptSetListV2:
@@ -1855,6 +1859,7 @@ components:
         - size
         - cohortRevision
         - created
+        - createdBy
         - lastModified
 
     ReviewListV2:

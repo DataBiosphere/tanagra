@@ -55,6 +55,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .properties(fromApiObject(body.getProperties()))
+            .createdBy(UserId.currentUser().getEmail())
             .build();
     studyService.createStudy(studyToCreate);
     return ResponseEntity.ok(toApiObject(studyToCreate));
@@ -135,6 +136,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
         .description(study.getDescription())
         .properties(apiProperties)
         .created(study.getCreated())
+        .createdBy(study.getCreatedBy())
         .lastModified(study.getLastModified());
   }
 

@@ -2,98 +2,96 @@ databaseChangeLog:
 - changeSet:
     id: created_columns
     author: melchang
-    # DO NOT SUBMIT
-    runOnChange: true
     changes:
     # Add created, created_by, last_modified columns
-#    - addColumn:
-#          tableName: cohort
-#          columns:
-#          - column:
-#                name: created
-#                type: timestamptz
-#                constraints:
-#                    nullable: false
-#                # Needed to backfill rows that existed before this changeset.
-#                # Will also set for new rows.
-#                defaultValueComputed: now()
-#    - addColumn:
-#            tableName: concept_set
-#            columns:
-#            - column:
-#                    name: created
-#                    type: timestamptz
-#                    constraints:
-#                          nullable: false
-#                    # Needed to backfill rows that existed before this changeset.
-#                    # Will also set for new rows.
-#                    defaultValueComputed: now()
-#    - addColumn:
-#        tableName: study
-#        columns:
-#        - column:
-#            name: created
-#            type: timestamptz
-#            constraints:
-#              nullable: false
-#            # Needed to backfill rows that existed before this changeset.
-#            # Will also set for new rows.
-#            defaultValueComputed: now()
-#    - addColumn:
-#        tableName: review
-#        columns:
-#        - column:
-#            name: last_modified
-#            type: timestamptz
-#            constraints:
-#              nullable: false
-#            # Needed to backfill rows that existed before this changeset.
-#            # Will also set for new rows.
-#            defaultValueComputed: now()
-#    - addColumn:
-#        tableName: study
-#        columns:
-#        - column:
-#            name: last_modified
-#            type: timestamptz
-#            constraints:
-#              nullable: false
-#            # Needed to backfill rows that existed before this changeset.
-#            # Will also set for new rows.
-#            defaultValueComputed: now()
+    - addColumn:
+          tableName: cohort
+          columns:
+          - column:
+                name: created
+                type: timestamptz
+                constraints:
+                    nullable: false
+                # Needed to backfill rows that existed before this changeset.
+                # Will also set for new rows.
+                defaultValueComputed: now()
+    - addColumn:
+            tableName: concept_set
+            columns:
+            - column:
+                    name: created
+                    type: timestamptz
+                    constraints:
+                          nullable: false
+                    # Needed to backfill rows that existed before this changeset.
+                    # Will also set for new rows.
+                    defaultValueComputed: now()
+    - addColumn:
+        tableName: study
+        columns:
+        - column:
+            name: created
+            type: timestamptz
+            constraints:
+              nullable: false
+            # Needed to backfill rows that existed before this changeset.
+            # Will also set for new rows.
+            defaultValueComputed: now()
+    - addColumn:
+        tableName: review
+        columns:
+        - column:
+            name: last_modified
+            type: timestamptz
+            constraints:
+              nullable: false
+            # Needed to backfill rows that existed before this changeset.
+            # Will also set for new rows.
+            defaultValueComputed: now()
+    - addColumn:
+        tableName: study
+        columns:
+        - column:
+            name: last_modified
+            type: timestamptz
+            constraints:
+              nullable: false
+            # Needed to backfill rows that existed before this changeset.
+            # Will also set for new rows.
+            defaultValueComputed: now()
     # We want existing rows to have "unknown" and new rows to not have
     # "unknown". Unfortunately this takes 3 steps. See
     # https://stackoverflow.com/a/8906534/6447189
-#    - addColumn:
-#        tableName: cohort
-#        columns:
-#        - column:
-#            name: created_by
-#            type: text
-#    - update:
-#        tableName: cohort
-#        columns:
-#        - column:
-#            name: created_by
-#            value: "unknown"
-#    - addNotNullConstraint:
-#        tableName: cohort
-#        columnName: created_by
-#    - addColumn:
-#        tableName: concept_set
-#        columns:
-#        - column:
-#            name: created_by
-#            type: text
-#    - update:
-#        tableName: concept_set
-#        columns:
-#        - column:
-#            name: created_by
-#            value: "unknown"
-#    - addNotNullConstraint:
-#        tableName: concept_set
-#        columnName: created_by
+    - addColumn:
+        tableName: cohort
+        columns:
+        - column:
+            name: created_by
+            type: text
+    - update:
+        tableName: cohort
+        columns:
+        - column:
+            name: created_by
+            value: "unknown"
+    - addNotNullConstraint:
+        tableName: cohort
+        columnName: created_by
+    - addColumn:
+        tableName: concept_set
+        columns:
+        - column:
+            name: created_by
+            type: text
+    - update:
+        tableName: concept_set
+        columns:
+        - column:
+            name: created_by
+            value: "unknown"
+    - addNotNullConstraint:
+        tableName: concept_set
+        columnName: created_by
     - addColumn:
         tableName: review
         columns:
@@ -108,6 +106,21 @@ databaseChangeLog:
             value: "unknown"
     - addNotNullConstraint:
         tableName: review
+        columnName: created_by
+    - addColumn:
+        tableName: study
+        columns:
+        - column:
+            name: created_by
+            type: text
+    - update:
+        tableName: study
+        columns:
+        - column:
+            name: created_by
+            value: "unknown"
+    - addNotNullConstraint:
+        tableName: study
         columnName: created_by
 
     # Change existing columns from timestamp to timestamptz

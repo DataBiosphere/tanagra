@@ -22,6 +22,7 @@ public class Study {
   private final @Nullable String description;
   private final Map<String, String> properties;
   private final OffsetDateTime created;
+  private final String createdBy;
   private final OffsetDateTime lastModified;
 
   public Study(
@@ -30,12 +31,14 @@ public class Study {
       @Nullable String description,
       Map<String, String> properties,
       OffsetDateTime created,
+      String createdBy,
       OffsetDateTime lastModified) {
     this.studyId = studyId;
     this.displayName = displayName;
     this.description = description;
     this.properties = properties;
     this.created = created;
+    this.createdBy = createdBy;
     this.lastModified = lastModified;
   }
 
@@ -63,6 +66,10 @@ public class Study {
     return created;
   }
 
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
   public OffsetDateTime getLastModified() {
     return lastModified;
   }
@@ -85,6 +92,7 @@ public class Study {
         .append(description, study.description)
         .append(properties, study.properties)
         .append(created, study.created)
+        .append(createdBy, study.createdBy)
         .append(lastModified, study.lastModified)
         .isEquals();
   }
@@ -97,6 +105,7 @@ public class Study {
         .append(description)
         .append(properties)
         .append(created)
+        .append(createdBy)
         .append(lastModified)
         .toHashCode();
   }
@@ -112,6 +121,7 @@ public class Study {
     private String description;
     private Map<String, String> properties;
     private OffsetDateTime created;
+    private String createdBy;
     private OffsetDateTime lastModified;
 
     public Builder studyId(String studyId) {
@@ -139,6 +149,11 @@ public class Study {
       return this;
     }
 
+    public Builder createdBy(String createdBy) {
+      this.createdBy = createdBy;
+      return this;
+    }
+
     public Builder lastModified(OffsetDateTime lastModified) {
       this.lastModified = lastModified;
       return this;
@@ -152,7 +167,8 @@ public class Study {
       if (studyId == null) {
         throw new SystemException("Study requires id");
       }
-      return new Study(studyId, displayName, description, properties, created, lastModified);
+      return new Study(
+          studyId, displayName, description, properties, created, createdBy, lastModified);
     }
   }
 }
