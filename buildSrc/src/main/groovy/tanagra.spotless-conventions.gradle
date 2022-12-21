@@ -11,8 +11,7 @@ spotless {
     java {
         googleJavaFormat()
         removeUnusedImports()
-        targetExclude "${project.buildDir}/**"
+        targetExclude("${project.buildDir}/**", "**/generated/**")
     }
 }
-
-compileJava.dependsOn spotlessApply
+build.dependsOn spotlessApply

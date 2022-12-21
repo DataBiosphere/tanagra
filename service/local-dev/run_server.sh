@@ -31,4 +31,4 @@ else
     exit 1
 fi
 
-./gradlew bootRun
+./gradlew service:bootRun

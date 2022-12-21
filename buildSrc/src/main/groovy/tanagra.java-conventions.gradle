@@ -26,6 +26,7 @@ repositories {
     maven {
         url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
     }
+    google()
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -37,14 +38,6 @@ sourceCompatibility = JavaVersion.VERSION_11
 //}
 
 dependencies {
-    ext {
-        auto_value = "1.8.1"
-    }
-    implementation group: "com.google.auto.value", name: "auto-value-annotations", version: auto_value
-    annotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
-    testImplementation group: "com.google.auto.value", name: "auto-value-annotations", version: auto_value
-    testAnnotationProcessor group: "com.google.auto.value", name: "auto-value", version: auto_value
-
     // GCP BOM version controlled libraries
     // See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
     implementation platform(group: "com.google.cloud", name: "libraries-bom", version: "22.0.0")
