@@ -59,10 +59,11 @@ index data.
 export GOOGLE_APPLICATION_CREDENTIALS=/credentials/indexing_sa.json
 ```
 Expand the defaults, scan the source data, and generate an expanded underlay config file that includes all this 
-information. The first argument `/config/input/omop.json` is a pointer to the user-specified underlay file.
-The second argument `/config/output/` is a pointer to the directory where Tanagra can write the expanded config files.
+information. The first argument is a pointer to the user-specified underlay file.
+The second argument is a pointer to the directory where Tanagra can write the expanded config files.
+Both arguments must be absolute paths. Example:
 ```
-./gradlew indexer:index -Dexec.args="EXPAND_CONFIG /config/input/omop.json /config/output/"
+./gradlew indexer:index -Dexec.args="EXPAND_CONFIG $HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/original/cms_synpuf.json $HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/expanded"
 ```
 
 ### Create Index Dataset
