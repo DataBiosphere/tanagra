@@ -35,7 +35,7 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading a concept set.
   private static final String CONCEPT_SET_SELECT_SQL =
-      "SELECT study_id, concept_set_id, underlay_name, entity_name, created, last_modified, display_name, description FROM concept_set";
+      "SELECT study_id, concept_set_id, underlay_name, entity_name, created, created_by, last_modified, display_name, description FROM concept_set";
   private static final RowMapper<ConceptSet.Builder> CONCEPT_SET_ROW_MAPPER =
       (rs, rowNum) ->
           ConceptSet.builder()
@@ -44,6 +44,7 @@ public class ConceptSetDao {
               .underlayName(rs.getString("underlay_name"))
               .entityName(rs.getString("entity_name"))
               .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .createdBy(rs.getString("created_by"))
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"));
@@ -171,14 +172,15 @@ public class ConceptSetDao {
   public void createConceptSet(ConceptSet conceptSet) {
     // Store the concept set.
     final String sql =
-        "INSERT INTO concept_set (study_id, concept_set_id, underlay_name, entity_name, last_modified, display_name, description) "
-            + "VALUES (:study_id, :concept_set_id, :underlay_name, :entity_name, :last_modified, :display_name, :description)";
+        "INSERT INTO concept_set (study_id, concept_set_id, underlay_name, entity_name, created_by, last_modified, display_name, description) "
+            + "VALUES (:study_id, :concept_set_id, :underlay_name, :entity_name, :created_by, :last_modified, :display_name, :description)";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", conceptSet.getStudyId())
             .addValue("concept_set_id", conceptSet.getConceptSetId())
             .addValue("underlay_name", conceptSet.getUnderlayName())
             .addValue("entity_name", conceptSet.getEntityName())
+            .addValue("created_by", conceptSet.getCreatedBy())
             .addValue("last_modified", Timestamp.from(Instant.now()))
             .addValue("display_name", conceptSet.getDisplayName())
             .addValue("description", conceptSet.getDescription());

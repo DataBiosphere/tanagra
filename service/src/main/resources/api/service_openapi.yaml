@@ -1706,6 +1706,9 @@ components:
           description: Timestamp of when the concept set was created
           type: string
           format: date-time
+        createdBy:
+          description: Email of user who created the concept set
+          type: string
         lastModified:
           description: Timestamp of when the concept set was last modified
           type: string

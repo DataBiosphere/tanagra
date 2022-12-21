@@ -10,6 +10,7 @@ public class ConceptSet {
   private final String underlayName;
   private final String entityName;
   private final OffsetDateTime created;
+  private final String createdBy;
   private final OffsetDateTime lastModified;
   private final @Nullable String displayName;
   private final @Nullable String description;
@@ -21,6 +22,7 @@ public class ConceptSet {
     this.underlayName = builder.underlayName;
     this.entityName = builder.entityName;
     this.created = builder.created;
+    this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.displayName = builder.displayName;
     this.description = builder.description;
@@ -38,6 +40,7 @@ public class ConceptSet {
         .underlayName(underlayName)
         .entityName(entityName)
         .created(created)
+        .createdBy(createdBy)
         .lastModified(lastModified)
         .displayName(displayName)
         .description(description)
@@ -69,6 +72,11 @@ public class ConceptSet {
     return created;
   }
 
+  /** Email of user who created this concept set. */
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
   /** Timestamp of when this concept set was last modified. */
   public OffsetDateTime getLastModified() {
     return lastModified;
@@ -95,6 +103,7 @@ public class ConceptSet {
     private String underlayName;
     private String entityName;
     private OffsetDateTime created;
+    private String createdBy;
     private OffsetDateTime lastModified;
     private @Nullable String displayName;
     private @Nullable String description;
@@ -122,6 +131,11 @@ public class ConceptSet {
 
     public Builder created(OffsetDateTime created) {
       this.created = created;
+      return this;
+    }
+
+    public Builder createdBy(String createdBy) {
+      this.createdBy = createdBy;
       return this;
     }
 

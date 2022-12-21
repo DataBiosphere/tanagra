@@ -67,6 +67,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             .conceptSetId(newConceptSetId)
             .underlayName(body.getUnderlayName())
             .entityName(body.getEntity())
+            .createdBy(UserId.currentUser().getEmail())
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .build();

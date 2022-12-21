@@ -64,20 +64,35 @@ databaseChangeLog:
     # We want existing rows to have "unknown" and new rows to not have
     # "unknown". Unfortunately this takes 3 steps. See
     # https://stackoverflow.com/a/8906534/6447189
+#    - addColumn:
+#        tableName: cohort
+#        columns:
+#        - column:
+#            name: created_by
+#            type: text
+#    - update:
+#        tableName: cohort
+#        columns:
+#        - column:
+#            name: created_by
+#            value: "unknown"
+#    - addNotNullConstraint:
+#        tableName: cohort
+#        columnName: created_by
     - addColumn:
-        tableName: cohort
+        tableName: concept_set
         columns:
         - column:
             name: created_by
             type: text
     - update:
-        tableName: cohort
+        tableName: concept_set
         columns:
         - column:
             name: created_by
             value: "unknown"
     - addNotNullConstraint:
-        tableName: cohort
+        tableName: concept_set
         columnName: created_by
 
     # Change existing columns from timestamp to timestamptz

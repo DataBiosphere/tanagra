@@ -110,6 +110,7 @@ public final class ToApiConversionUtils {
         .displayName(conceptSet.getDisplayName())
         .description(conceptSet.getDescription())
         .created(conceptSet.getCreated())
+        .createdBy(conceptSet.getCreatedBy())
         .lastModified(conceptSet.getLastModified())
         .criteria(
             conceptSet.getCriteria() == null
