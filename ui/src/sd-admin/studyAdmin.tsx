@@ -118,6 +118,9 @@ const emptyStudy: StudyV2 = {
     { key: "irbNumber", value: "" },
     { key: "pi", value: "" },
   ],
+  created: new Date(),
+  createdBy: "user@gmail.com",
+  lastModified: new Date(),
 };
 
 const initialFormState = {

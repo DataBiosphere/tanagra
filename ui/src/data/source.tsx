@@ -465,6 +465,8 @@ export class BackendSource implements Source {
       size,
       cohort: toAPICohort(cohort),
       created: new Date(),
+      createdBy: "",
+      lastModified: new Date(),
     };
 
     const reviews = loadLocalReviews();
@@ -1066,6 +1068,8 @@ function toAPICohort(cohort: tanagra.Cohort): tanagra.CohortV2 {
     id: cohort.id,
     displayName: cohort.name,
     underlayName: cohort.underlayName,
+    created: new Date(),
+    createdBy: "",
     lastModified: new Date(),
     criteriaGroups: cohort.groups.map((group) => ({
       id: group.id,
