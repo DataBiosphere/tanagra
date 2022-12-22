@@ -113,7 +113,7 @@ public class Review {
       return this;
     }
 
-    public Builder createdBy(String created) {
+    public Builder createdBy(String createdBy) {
       this.createdBy = createdBy;
       return this;
     }
