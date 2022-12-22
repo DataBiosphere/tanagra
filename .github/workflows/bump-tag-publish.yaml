@@ -115,38 +115,6 @@ jobs:
           ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
           ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
 
-      - name: Auth to Google
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider
-          service_account: gcr-publish@broad-dsp-gcr-public.iam.gserviceaccount.com
-      - name: Setup gcloud
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: google-github-actions/setup-gcloud@v1
-      - name: Explicitly auth Docker for GCR
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: gcloud auth configure-docker --quiet
-
-      - name: Construct docker image name and tag
-        if: steps.skiptest.outputs.is-bump == 'no'
-        id: image-name
-        run: |
-          DOCKER_TAG=${{ steps.tag.outputs.tag }}
-          echo name=gcr.io/broad-dsp-gcr-public/${SERVICE_NAME}:${DOCKER_TAG} >> $GITHUB_OUTPUT
-      - name: Build image locally with jib
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: "./gradlew :service:jibDockerBuild --image=${{ steps.image-name.outputs.name }} -Djib.console=plain"
-      - name: Run Trivy vulnerability scanner
-        if: steps.skiptest.outputs.is-bump == 'no'
-        # Link to the github location of the action https://github.com/broadinstitute/dsp-appsec-trivy-action
-        uses: broadinstitute/dsp-appsec-trivy-action@v1
-        with:
-          image: ${{ steps.image-name.outputs.name }}
-      - name: Push GCR image
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: "docker push ${{ steps.image-name.outputs.name }}"
-
       - name: Build the OpenAPI interface
         if: steps.skiptest.outputs.is-bump == 'no'
         run: ./gradlew :service:generateSwaggerCodeServer
