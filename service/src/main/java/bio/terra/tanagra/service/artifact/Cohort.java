@@ -1,9 +1,7 @@
 package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.exception.SystemException;
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +17,9 @@ public class Cohort {
   private final int version;
   private final boolean isMostRecent;
   private final boolean isEditable;
-  private final Timestamp lastModified;
+  private final OffsetDateTime created;
+  private final String createdBy;
+  private final OffsetDateTime lastModified;
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final List<CriteriaGroup> criteriaGroups;
@@ -32,6 +32,8 @@ public class Cohort {
     this.version = builder.version;
     this.isMostRecent = builder.isMostRecent;
     this.isEditable = builder.isEditable;
+    this.created = builder.created;
+    this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.displayName = builder.displayName;
     this.description = builder.description;
@@ -51,6 +53,8 @@ public class Cohort {
         .version(version)
         .isMostRecent(isMostRecent)
         .isEditable(isEditable)
+        .created(created)
+        .createdBy(createdBy)
         .lastModified(lastModified)
         .displayName(displayName)
         .description(description)
@@ -98,9 +102,19 @@ public class Cohort {
     return isEditable;
   }
 
+  /** Timestamp of when this cohort was created. */
+  public OffsetDateTime getCreated() {
+    return created;
+  }
+
+  /** Email of user who created this cohort. */
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
   /** Timestamp of when this cohort was last modified. */
-  public OffsetDateTime getLastModifiedUTC() {
-    return lastModified.toInstant().atOffset(ZoneOffset.UTC);
+  public OffsetDateTime getLastModified() {
+    return lastModified;
   }
 
   /** Optional display name for the cohort. */
@@ -130,7 +144,9 @@ public class Cohort {
     private int version;
     private boolean isMostRecent;
     private boolean isEditable;
-    private Timestamp lastModified;
+    private OffsetDateTime created;
+    private String createdBy;
+    private OffsetDateTime lastModified;
     private @Nullable String displayName;
     private @Nullable String description;
     private List<CriteriaGroup> criteriaGroups = new ArrayList<>();
@@ -170,8 +186,18 @@ public class Cohort {
       return this;
     }
 
-    public Builder lastModified(Timestamp lastModified) {
-      this.lastModified = (Timestamp) lastModified.clone();
+    public Builder created(OffsetDateTime created) {
+      this.created = created;
+      return this;
+    }
+
+    public Builder createdBy(String createdBy) {
+      this.createdBy = createdBy;
+      return this;
+    }
+
+    public Builder lastModified(OffsetDateTime lastModified) {
+      this.lastModified = lastModified;
       return this;
     }
 

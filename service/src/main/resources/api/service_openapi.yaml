@@ -1542,7 +1542,7 @@ components:
 
     StudyV2:
       type: object
-      required: [id]
+      required: [id, created, createdBy, lastModified]
       properties:
         id:
           description: ID of the study, immutable
@@ -1553,6 +1553,15 @@ components:
           $ref: "#/components/schemas/StudyDescriptionV2"
         properties:
           $ref: "#/components/schemas/PropertiesV2"
+        created:
+          type: string
+          format: date-time
+        createdBy:
+          description: Email of user who created the study
+          type: string
+        lastModified:
+          type: string
+          format: date-time
 
     StudyListV2:
       type: array
@@ -1624,6 +1633,13 @@ components:
           description: Groups of criteria that define the entity filter
           items:
             $ref: "#/components/schemas/CriteriaGroupV2"
+        created:
+          description: Timestamp of when the cohort was created
+          type: string
+          format: date-time
+        createdBy:
+          description: Email of user who created cohort
+          type: string
         lastModified:
           description: Timestamp of when the cohort was last modified
           type: string
@@ -1633,6 +1649,8 @@ components:
         - underlayName
         - displayName
         - criteriaGroups
+        - created
+        - createdBy
         - lastModified
 
     CohortListV2:
@@ -1687,6 +1705,13 @@ components:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
         criteria:
           $ref: "#/components/schemas/CriteriaV2"
+        created:
+          description: Timestamp of when the concept set was created
+          type: string
+          format: date-time
+        createdBy:
+          description: Email of user who created the concept set
+          type: string
         lastModified:
           description: Timestamp of when the concept set was last modified
           type: string
@@ -1697,6 +1722,8 @@ components:
         - entity
         - displayName
         - criteria
+        - created
+        - createdBy
         - lastModified
 
     ConceptSetListV2:
@@ -1819,12 +1846,21 @@ components:
           description: Timestamp of when the review was created
           type: string
           format: date-time
+        createdBy:
+          description: Email of user who created the review
+          type: string
+        lastModified:
+          description: Timestamp of when the review was last modified
+          type: string
+          format: date-time
       required:
         - id
         - displayName
         - size
         - cohortRevision
         - created
+        - createdBy
+        - lastModified
 
     ReviewListV2:
       type: array

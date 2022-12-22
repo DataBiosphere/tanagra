@@ -10,8 +10,6 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,7 +35,7 @@ public class ReviewDao {
 
   // SQL query and row mapper for reading a review.
   private static final String REVIEW_SELECT_SQL =
-      "SELECT r.cohort_id, r.review_id, r.display_name, r.description, r.size, r.created FROM review AS r "
+      "SELECT r.cohort_id, r.review_id, r.display_name, r.description, r.size, r.created, r.created_by, r.last_modified FROM review AS r "
           + "JOIN cohort AS c ON c.cohort_id = r.cohort_id";
   private static final RowMapper<Review.Builder> REVIEW_ROW_MAPPER =
       (rs, rowNum) ->
@@ -47,7 +45,9 @@ public class ReviewDao {
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
               .size(rs.getInt("size"))
-              .created(rs.getTimestamp("created"));
+              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .createdBy(rs.getString("created_by"))
+              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")));
 
   // SQL query and row mapper for reading a review instance.
   private static final String REVIEW_INSTANCE_SELECT_SQL =
@@ -79,8 +79,8 @@ public class ReviewDao {
     cohortDao.freezeCohortLatestVersionOrThrow(studyId, cohort.getCohortRevisionGroupId());
 
     final String sql =
-        "INSERT INTO review (cohort_id, review_id, display_name, description, size, created) "
-            + "VALUES (:cohort_id, :review_id, :display_name, :description, :size, :created)";
+        "INSERT INTO review (cohort_id, review_id, display_name, description, size, created, created_by) "
+            + "VALUES (:cohort_id, :review_id, :display_name, :description, :size, :created, :created_by)";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("cohort_id", cohort.getCohortId())
@@ -88,7 +88,8 @@ public class ReviewDao {
             .addValue("display_name", review.getDisplayName())
             .addValue("description", review.getDescription())
             .addValue("size", review.getSize())
-            .addValue("created", Timestamp.from(Instant.now()));
+            // Don't need to set created. Liquibase defaultValueComputed handles that.
+            .addValue("created_by", review.getCreatedBy());
     try {
       jdbcTemplate.update(sql, params);
       LOGGER.info("Inserted record for review {}", review.getReviewId());

@@ -70,6 +70,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
             .underlayName(body.getUnderlayName())
             .cohortRevisionGroupId(newCohortRevisionGroupId)
             .version(Cohort.STARTING_VERSION)
+            .createdBy(UserId.currentUser().getEmail())
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .build();

@@ -30,7 +30,7 @@ public class StudyDao {
 
   // SQL query and row mapper for reading a study.
   private static final String STUDY_SELECT_SQL =
-      "SELECT study_id, display_name, description, properties FROM study";
+      "SELECT study_id, display_name, description, properties, created, created_by, last_modified FROM study";
   private static final RowMapper<Study> STUDY_ROW_MAPPER =
       (rs, rowNum) ->
           Study.builder()
@@ -41,6 +41,9 @@ public class StudyDao {
                   Optional.ofNullable(rs.getString("properties"))
                       .map(DbSerDes::jsonToProperties)
                       .orElse(null))
+              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .createdBy(rs.getString("created_by"))
+              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .build();
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -58,15 +61,17 @@ public class StudyDao {
   @WriteTransaction
   public void createStudy(Study study) {
     final String sql =
-        "INSERT INTO study (study_id, display_name, description, properties) "
-            + "VALUES (:study_id, :display_name, :description, CAST(:properties AS jsonb))";
+        "INSERT INTO study (study_id, display_name, description, properties, created_by) "
+            + "VALUES (:study_id, :display_name, :description, CAST(:properties AS jsonb), :created_by)";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", study.getStudyId())
             .addValue("display_name", study.getDisplayName())
             .addValue("description", study.getDescription())
-            .addValue("properties", DbSerDes.propertiesToJson(study.getProperties()));
+            .addValue("properties", DbSerDes.propertiesToJson(study.getProperties()))
+            // Don't need to set created. Liquibase defaultValueComputed handles that.
+            .addValue("created_by", study.getCreatedBy());
     try {
       jdbcTemplate.update(sql, params);
       LOGGER.info("Inserted record for study {}", study.getStudyId());

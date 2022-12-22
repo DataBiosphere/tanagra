@@ -1,8 +1,6 @@
 package bio.terra.tanagra.service.artifact;
 
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import javax.annotation.Nullable;
 
 public class Review {
@@ -11,7 +9,9 @@ public class Review {
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final int size;
-  private final Timestamp created;
+  private final OffsetDateTime created;
+  private final String createdBy;
+  private final OffsetDateTime lastModified;
   private final Cohort cohort;
 
   private Review(Builder builder) {
@@ -21,6 +21,8 @@ public class Review {
     this.description = builder.description;
     this.size = builder.size;
     this.created = builder.created;
+    this.createdBy = builder.createdBy;
+    this.lastModified = builder.lastModified;
     this.cohort = builder.cohort;
   }
 
@@ -53,9 +55,16 @@ public class Review {
     return size;
   }
 
-  /** Timestamp of when this review was last modified. */
-  public OffsetDateTime getCreatedUTC() {
-    return created.toInstant().atOffset(ZoneOffset.UTC);
+  public OffsetDateTime getCreated() {
+    return created;
+  }
+
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public OffsetDateTime getLastModified() {
+    return lastModified;
   }
 
   /** Cohort revision that this review is pinned to. */
@@ -69,7 +78,9 @@ public class Review {
     private @Nullable String displayName;
     private @Nullable String description;
     private int size;
-    private Timestamp created;
+    private OffsetDateTime created;
+    private String createdBy;
+    private OffsetDateTime lastModified;
     private Cohort cohort;
 
     public Builder cohortId(String cohortId) {
@@ -97,8 +108,18 @@ public class Review {
       return this;
     }
 
-    public Builder created(Timestamp created) {
-      this.created = (Timestamp) created.clone();
+    public Builder created(OffsetDateTime created) {
+      this.created = created;
+      return this;
+    }
+
+    public Builder createdBy(String createdBy) {
+      this.createdBy = createdBy;
+      return this;
+    }
+
+    public Builder lastModified(OffsetDateTime lastModified) {
+      this.lastModified = lastModified;
       return this;
     }
 

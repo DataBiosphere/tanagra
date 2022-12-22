@@ -38,7 +38,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a cohort.
   private static final String COHORT_SELECT_SQL =
-      "SELECT study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, last_modified, display_name, description FROM cohort";
+      "SELECT study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, created, created_by, last_modified, display_name, description FROM cohort";
   private static final RowMapper<Cohort.Builder> COHORT_ROW_MAPPER =
       (rs, rowNum) ->
           Cohort.builder()
@@ -49,7 +49,9 @@ public class CohortDao {
               .version(rs.getInt("version"))
               .isMostRecent(rs.getBoolean("is_most_recent"))
               .isEditable(rs.getBoolean("is_editable"))
-              .lastModified(rs.getTimestamp("last_modified"))
+              .createdBy(rs.getString("created_by"))
+              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"));
 
@@ -342,8 +344,8 @@ public class CohortDao {
   private void createCohortHelper(Cohort cohort) {
     // Store the cohort. New cohort rows are always the most recent and editable.
     final String cohortSql =
-        "INSERT INTO cohort (study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, last_modified, display_name, description) "
-            + "VALUES (:study_id, :cohort_id, :underlay_name, :cohort_revision_group_id, :version, TRUE, TRUE, :last_modified, :display_name, :description)";
+        "INSERT INTO cohort (study_id, cohort_id, underlay_name, cohort_revision_group_id, version, is_most_recent, is_editable, created_by, last_modified, display_name, description) "
+            + "VALUES (:study_id, :cohort_id, :underlay_name, :cohort_revision_group_id, :version, TRUE, TRUE, :created_by, :last_modified, :display_name, :description)";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", cohort.getStudyId())
@@ -351,6 +353,8 @@ public class CohortDao {
             .addValue("underlay_name", cohort.getUnderlayName())
             .addValue("cohort_revision_group_id", cohort.getCohortRevisionGroupId())
             .addValue("version", cohort.getVersion())
+            // Don't need to set created. Liquibase defaultValueComputed handles that.
+            .addValue("created_by", cohort.getCreatedBy())
             .addValue("last_modified", Timestamp.from(Instant.now()))
             .addValue("display_name", cohort.getDisplayName())
             .addValue("description", cohort.getDescription());

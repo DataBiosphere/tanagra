@@ -67,6 +67,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             .conceptSetId(newConceptSetId)
             .underlayName(body.getUnderlayName())
             .entityName(body.getEntity())
+            .createdBy(UserId.currentUser().getEmail())
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .build();
@@ -153,7 +154,6 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     return ResponseEntity.ok(toApiObject(updatedConceptSet));
   }
 
-  /** Convert the internal Concept Set object to an API Concept Set object. */
   private static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
     return new ApiConceptSetV2()
         .id(conceptSet.getConceptSetId())
@@ -161,7 +161,9 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
         .entity(conceptSet.getEntityName())
         .displayName(conceptSet.getDisplayName())
         .description(conceptSet.getDescription())
-        .lastModified(conceptSet.getLastModifiedUTC())
+        .created(conceptSet.getCreated())
+        .createdBy(conceptSet.getCreatedBy())
+        .lastModified(conceptSet.getLastModified())
         .criteria(
             conceptSet.getCriteria() == null
                 ? null
