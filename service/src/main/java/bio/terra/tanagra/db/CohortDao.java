@@ -353,6 +353,7 @@ public class CohortDao {
             .addValue("underlay_name", cohort.getUnderlayName())
             .addValue("cohort_revision_group_id", cohort.getCohortRevisionGroupId())
             .addValue("version", cohort.getVersion())
+            // Don't need to set created. Liquibase defaultValueComputed handles that.
             .addValue("created_by", cohort.getCreatedBy())
             .addValue("last_modified", Timestamp.from(Instant.now()))
             .addValue("display_name", cohort.getDisplayName())

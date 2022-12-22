@@ -70,6 +70,7 @@ public class StudyDao {
             .addValue("display_name", study.getDisplayName())
             .addValue("description", study.getDescription())
             .addValue("properties", DbSerDes.propertiesToJson(study.getProperties()))
+            // Don't need to set created. Liquibase defaultValueComputed handles that.
             .addValue("created_by", study.getCreatedBy());
     try {
       jdbcTemplate.update(sql, params);

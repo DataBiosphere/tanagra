@@ -48,7 +48,7 @@ public class ReviewDao {
               .description(rs.getString("description"))
               .size(rs.getInt("size"))
               .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
-              .createdBy(rs.getString("created"))
+              .createdBy(rs.getString("created_by"))
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")));
 
   // SQL query and row mapper for reading a review instance.
@@ -90,8 +90,8 @@ public class ReviewDao {
             .addValue("display_name", review.getDisplayName())
             .addValue("description", review.getDescription())
             .addValue("size", review.getSize())
-            .addValue("created", Timestamp.from(Instant.now()))
-            .addValue("created", review.getCreatedBy());
+            // Don't need to set created. Liquibase defaultValueComputed handles that.
+            .addValue("created_by", review.getCreatedBy());
     try {
       jdbcTemplate.update(sql, params);
       LOGGER.info("Inserted record for review {}", review.getReviewId());

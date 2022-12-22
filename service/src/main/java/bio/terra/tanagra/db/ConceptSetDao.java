@@ -180,6 +180,7 @@ public class ConceptSetDao {
             .addValue("concept_set_id", conceptSet.getConceptSetId())
             .addValue("underlay_name", conceptSet.getUnderlayName())
             .addValue("entity_name", conceptSet.getEntityName())
+            // Don't need to set created. Liquibase defaultValueComputed handles that.
             .addValue("created_by", conceptSet.getCreatedBy())
             .addValue("last_modified", Timestamp.from(Instant.now()))
             .addValue("display_name", conceptSet.getDisplayName())
