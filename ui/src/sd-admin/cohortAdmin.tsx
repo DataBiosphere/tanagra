@@ -16,13 +16,13 @@ const columns = (
 ): GridColDef[] => [
   {
     field: "displayName",
-    headerName: "Set Name",
+    headerName: "Cohort Name",
     sortable: true,
     disableColumnMenu: true,
     flex: 1,
     renderHeader: () => (
       <div style={{ lineHeight: "1.5rem" }}>
-        <div>Set Name</div>
+        <div>Cohort Name</div>
         <div>
           <TextField
             sx={{
@@ -105,19 +105,30 @@ const columns = (
     ),
   },
 ];
-const mapSetRows = ({
-  id,
-  displayName,
-  description,
-  underlayName,
-  lastModified,
-}: CohortV2) => ({
-  id,
-  displayName,
-  description,
-  underlayName,
-  lastModified,
-});
+
+const mapCohortRow = (
+  {
+    created,
+    createdBy,
+    criteriaGroups,
+    description,
+    displayName,
+    id,
+    lastModified,
+  }: CohortV2,
+  studyName: string | undefined
+) =>
+  ({
+    created,
+    createdBy,
+    criteriaGroups,
+    description,
+    displayName,
+    id,
+    lastModified,
+    studyName,
+  } as CohortRow);
+
 // Style override to slightly darken the text of disabled form fields
 const DISABLED_SX = [
   {
@@ -129,12 +140,14 @@ const DISABLED_SX = [
 ];
 const ROWS_PER_PAGE = 25;
 
-const emptySet: CohortV2 = {
+const emptyCohort: CohortRow = {
   id: "",
   displayName: "",
   description: "",
-  underlayName: "",
+  studyName: "",
   criteriaGroups: [],
+  created: new Date(),
+  createdBy: "",
   lastModified: new Date(),
 };
 
@@ -163,84 +176,95 @@ const initialFormState = {
 
 const requiredFields = ["displayName", "studyName"];
 
-interface SetRow {
+interface CohortRow {
   id: string;
+  studyName: string;
   displayName: string;
   description: string;
-  underlayName: string;
+  criteriaGroups: [];
+  created: Date;
+  createdBy: string;
   lastModified: Date;
 }
 
-export function SetAdmin() {
+export function CohortAdmin() {
   const source = useAdminSource();
-  const [activeSet, setActiveSet] = useState<CohortV2>(emptySet);
+  const [activeCohort, setActiveCohort] = useState<CohortRow>(emptyCohort);
   const [formState, setFormState] = useState(initialFormState);
   const [columnFilters, setColumnFilters] = useState({
     displayName: "",
     irbNumber: "",
   });
-  const [creatingSet, setCreatingSet] = useState<boolean>(false);
-  const [editingSet, setEditingSet] = useState<boolean>(false);
-  const [loadingSet, setLoadingSet] = useState<boolean>(false);
-  const [loadingSetList, setLoadingSetList] = useState<boolean>(true);
-  const [sets, setSets] = useState<CohortV2[]>([]);
+  const [creatingCohort, setCreatingCohort] = useState<boolean>(false);
+  const [editingCohort, setEditingCohort] = useState<boolean>(false);
+  const [loadingCohort, setLoadingCohort] = useState<boolean>(false);
+  const [loadingCohortList, setLoadingCohortList] = useState<boolean>(true);
+  const [cohorts, setCohorts] = useState<CohortRow[]>([]);
   const [studies, setStudies] = useState<StudyV2[]>([]);
 
   useEffect(() => {
-    getSets();
+    getCohorts();
   }, []);
 
-  const getSets = async () => {
+  const getCohorts = async () => {
     const studiesResp = await source.getStudiesList();
     setStudies(studiesResp);
     if (studiesResp.length > 0) {
-      const setsResp = await Promise.all(
+      const cohortsResp = await Promise.all(
         studiesResp.map(({ id }) => source.getCohortsForStudy(id))
       );
-      const setsList: CohortV2[] = setsResp.flat(1);
-      setSets(setsList);
+      const cohortsList: CohortRow[] = cohortsResp.reduce(
+        (cohortList, currentResp, index) => [
+          ...cohortList,
+          ...currentResp.map((cohort) =>
+            mapCohortRow(cohort, studiesResp[index].displayName)
+          ),
+        ],
+        [] as CohortRow[]
+      );
+      setCohorts(cohortsList);
     }
-    setLoadingSetList(false);
+    setLoadingCohortList(false);
   };
 
-  const updateSet = async () => {
-    setLoadingSet(true);
+  const updateCohort = async () => {
+    setLoadingCohort(true);
     const setStudy = studies.find(
-      (study) => study.displayName === activeSet.displayName
+      (study) => study.displayName === activeCohort.displayName
     );
     if (setStudy) {
-      const updatedSet = await source.updateCohort(
+      const updatedCohort = await source.updateCohort(
         setStudy.id,
-        activeSet?.id,
+        activeCohort?.id,
         formState.displayName.value,
         formState.description.value,
-        activeSet?.criteriaGroups
+        activeCohort?.criteriaGroups
       );
-      setActiveSet(updatedSet);
-      setLoadingSetList(true);
-      getSets();
-      setEditingSet(false);
+      setActiveCohort(mapCohortRow(updatedCohort, setStudy.displayName));
+      setLoadingCohortList(true);
+      getCohorts();
+      setEditingCohort(false);
     }
-    setLoadingSet(false);
+    setLoadingCohort(false);
   };
 
-  const createSet = async () => {
-    setLoadingSet(true);
+  const createCohort = async () => {
+    setLoadingCohort(true);
     const setStudy = studies.find(
       (study) => study.displayName === formState.studyName.value
     );
     if (setStudy) {
-      const newSet = await source.createCohort(
+      const newCohort = await source.createCohort(
         setStudy.id,
         formState.displayName.value,
         formState.description.value,
         "aou_synthetic"
       );
-      setActiveSet(newSet);
-      await getSets();
-      setCreatingSet(false);
+      setActiveCohort(mapCohortRow(newCohort, setStudy.displayName));
+      await getCohorts();
+      setCreatingCohort(false);
     }
-    setLoadingSet(false);
+    setLoadingCohort(false);
   };
 
   const handleInputChange = (name: string, value: string) => {
@@ -254,49 +278,48 @@ export function SetAdmin() {
     setColumnFilters((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const getFilteredRowsFromSets = () => {
-    return sets.filter(filterSetRows);
+  const getFilteredRowsFromCohorts = () => {
+    return cohorts.filter(filterCohortRows);
   };
 
-  const populateSetForm = (set: CohortV2) => {
+  const populateCohortForm = (cohort: CohortRow) => {
     const newFormState = {
       displayName: {
         touched: false,
-        value: set.displayName || "",
+        value: cohort.displayName,
       },
       description: {
         touched: false,
-        value: set.description || "",
+        value: cohort.description,
       },
-      // TODO need a way to get the study from the set, using underlay as placeholder
       studyName: {
         touched: false,
-        value: set.underlayName || "",
+        value: cohort.studyName,
       },
       studyNameInput: {
         touched: false,
-        value: set.underlayName || "",
+        value: cohort.studyName,
       },
       lastModified: {
         touched: false,
-        value: set.lastModified || new Date(),
+        value: cohort.lastModified || new Date(),
       },
     };
     setFormState(newFormState);
   };
 
-  const clearSetForm = () => {
+  const clearCohortForm = () => {
     setFormState(initialFormState);
   };
 
-  const filterSetRows = (set: CohortV2) =>
+  const filterCohortRows = (cohort: CohortRow) =>
     !columnFilters.displayName ||
-    set?.displayName
+    cohort?.displayName
       ?.toLowerCase()
       .includes(columnFilters.displayName.toLowerCase());
 
-  const onRowSelect = (row: SetRow) => {
-    const newActiveSet = sets.find((ws) => ws.id === row.id);
+  const onRowSelect = (row: CohortRow) => {
+    const newActiveCohort = cohorts.find((ws) => ws.id === row.id);
     const newFormState = {
       displayName: {
         touched: false,
@@ -308,11 +331,11 @@ export function SetAdmin() {
       },
       studyName: {
         touched: false,
-        value: row.underlayName,
+        value: row.studyName,
       },
       studyNameInput: {
         touched: false,
-        value: row.underlayName,
+        value: row.studyName,
       },
       lastModified: {
         touched: false,
@@ -320,8 +343,8 @@ export function SetAdmin() {
       },
     };
     setFormState(newFormState);
-    if (newActiveSet) {
-      setActiveSet(newActiveSet);
+    if (newActiveCohort) {
+      setActiveCohort(newActiveCohort);
     }
   };
 
@@ -336,10 +359,10 @@ export function SetAdmin() {
         <Box sx={{ height: 400, width: "100%" }}>
           <DataGrid
             columns={columns(handleFilterChange)}
-            rows={getFilteredRowsFromSets()}
-            loading={loadingSetList}
-            onRowClick={({ row }) => onRowSelect(row as SetRow)}
-            hideFooter={getFilteredRowsFromSets().length <= ROWS_PER_PAGE}
+            rows={getFilteredRowsFromCohorts()}
+            loading={loadingCohortList}
+            onRowClick={({ row }) => onRowSelect(row as CohortRow)}
+            hideFooter={getFilteredRowsFromCohorts().length <= ROWS_PER_PAGE}
             hideFooterSelectedRowCount
             disableSelectionOnClick
             pageSize={ROWS_PER_PAGE}
@@ -349,39 +372,43 @@ export function SetAdmin() {
       </Grid>
       <Grid item xs={6}>
         <Box sx={{ position: "relative" }}>
-          <Backdrop invisible open={loadingSet} sx={{ position: "absolute" }}>
+          <Backdrop
+            invisible
+            open={loadingCohort}
+            sx={{ position: "absolute" }}
+          >
             <CircularProgress />
           </Backdrop>
           <Stack spacing={2} direction="row">
             <Button
-              disabled={loadingSet}
+              disabled={loadingCohort}
               onClick={() => {
-                clearSetForm();
-                setCreatingSet(true);
+                clearCohortForm();
+                setCreatingCohort(true);
               }}
               variant="outlined"
             >
-              Add Set
+              Add Cohort
             </Button>
             <Button
-              disabled={activeSet?.id === "" || loadingSet}
-              onClick={() => setEditingSet(true)}
+              disabled={activeCohort?.id === "" || loadingCohort}
+              onClick={() => setEditingCohort(true)}
               variant="outlined"
             >
-              Edit Set
+              Edit Cohort
             </Button>
             <Button
-              disabled={activeSet?.id === "" || loadingSet}
+              disabled={activeCohort?.id === "" || loadingCohort}
               variant="outlined"
             >
-              Add Set Users
+              Add Cohort Users
             </Button>
           </Stack>
           <div>
             <TextField
               sx={DISABLED_SX}
-              disabled={!(creatingSet || editingSet)}
-              label={"Set name"}
+              disabled={!(creatingCohort || editingCohort)}
+              label={"Cohort name"}
               name="displayName"
               fullWidth
               InputLabelProps={{
@@ -400,7 +427,7 @@ export function SetAdmin() {
           <div>
             <TextField
               sx={DISABLED_SX}
-              disabled={!(creatingSet || editingSet)}
+              disabled={!(creatingCohort || editingCohort)}
               label={"Description"}
               name="description"
               fullWidth
@@ -419,7 +446,7 @@ export function SetAdmin() {
           <div>
             <Autocomplete
               sx={DISABLED_SX}
-              disabled={!(creatingSet || editingSet)}
+              disabled={!(creatingCohort || editingCohort)}
               options={studies.map(({ displayName }) => displayName)}
               value={formState?.studyName.value}
               onChange={(event, newValue) =>
@@ -449,30 +476,30 @@ export function SetAdmin() {
               )}
             />
           </div>
-          {(creatingSet || editingSet) && (
+          {(creatingCohort || editingCohort) && (
             <Stack spacing={2} direction="row">
               <Button
-                disabled={loadingSet || formIsInvalid()}
+                disabled={loadingCohort || formIsInvalid()}
                 onClick={() => {
-                  if (creatingSet) {
-                    createSet();
+                  if (creatingCohort) {
+                    createCohort();
                   } else {
-                    updateSet();
+                    updateCohort();
                   }
                 }}
                 variant="outlined"
               >
-                {creatingSet ? "Save" : "Update"} Set
+                {creatingCohort ? "Save" : "Update"} Cohort
               </Button>
               <Button
-                disabled={loadingSet}
+                disabled={loadingCohort}
                 onClick={() => {
-                  if (creatingSet) {
-                    clearSetForm();
-                    setCreatingSet(false);
+                  if (creatingCohort) {
+                    clearCohortForm();
+                    setCreatingCohort(false);
                   } else {
-                    populateSetForm(activeSet);
-                    setEditingSet(false);
+                    populateCohortForm(activeCohort);
+                    setEditingCohort(false);
                   }
                 }}
                 variant="outlined"

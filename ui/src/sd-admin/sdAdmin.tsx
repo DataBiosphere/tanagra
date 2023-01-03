@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import { useState } from "react";
-import { SetAdmin } from "./setAdmin";
+import { CohortAdmin } from "./cohortAdmin";
 import { StudyAdmin } from "./studyAdmin";
 
 const TabPanel = ({ index }: { index: number }) => {
@@ -10,7 +10,7 @@ const TabPanel = ({ index }: { index: number }) => {
     <div style={{ padding: "1rem" }}>
       {index === 0 && <StudyAdmin />}
       {index === 1 && <div>User content</div>}
-      {index === 2 && <SetAdmin />}
+      {index === 2 && <CohortAdmin />}
       {index === 3 && <div>Cohort audit content</div>}
     </div>
   );
