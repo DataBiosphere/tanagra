@@ -119,13 +119,13 @@ const mapCohortRow = (
   studyName: string | undefined
 ) =>
   ({
-    created,
+    created: created.toLocaleDateString(),
     createdBy,
     criteriaGroups,
     description,
     displayName,
     id,
-    lastModified,
+    lastModified: lastModified.toLocaleDateString(),
     studyName,
   } as CohortRow);
 
@@ -146,9 +146,9 @@ const emptyCohort: CohortRow = {
   description: "",
   studyName: "",
   criteriaGroups: [],
-  created: new Date(),
+  created: "",
   createdBy: "",
-  lastModified: new Date(),
+  lastModified: "",
 };
 
 const initialFormState = {
@@ -170,7 +170,7 @@ const initialFormState = {
   },
   lastModified: {
     touched: false,
-    value: new Date(),
+    value: "",
   },
 };
 
@@ -182,9 +182,9 @@ interface CohortRow {
   displayName: string;
   description: string;
   criteriaGroups: [];
-  created: Date;
+  created: string;
   createdBy: string;
-  lastModified: Date;
+  lastModified: string;
 }
 
 export function CohortAdmin() {
@@ -229,18 +229,18 @@ export function CohortAdmin() {
 
   const updateCohort = async () => {
     setLoadingCohort(true);
-    const setStudy = studies.find(
-      (study) => study.displayName === activeCohort.displayName
+    const cohortStudy = studies.find(
+      (study) => study.displayName === formState.studyName.value
     );
-    if (setStudy) {
+    if (cohortStudy) {
       const updatedCohort = await source.updateCohort(
-        setStudy.id,
+        cohortStudy.id,
         activeCohort?.id,
         formState.displayName.value,
         formState.description.value,
         activeCohort?.criteriaGroups
       );
-      setActiveCohort(mapCohortRow(updatedCohort, setStudy.displayName));
+      setActiveCohort(mapCohortRow(updatedCohort, cohortStudy.displayName));
       setLoadingCohortList(true);
       getCohorts();
       setEditingCohort(false);
@@ -250,17 +250,17 @@ export function CohortAdmin() {
 
   const createCohort = async () => {
     setLoadingCohort(true);
-    const setStudy = studies.find(
+    const cohortStudy = studies.find(
       (study) => study.displayName === formState.studyName.value
     );
-    if (setStudy) {
+    if (cohortStudy) {
       const newCohort = await source.createCohort(
-        setStudy.id,
+        cohortStudy.id,
         formState.displayName.value,
         formState.description.value,
         "aou_synthetic"
       );
-      setActiveCohort(mapCohortRow(newCohort, setStudy.displayName));
+      setActiveCohort(mapCohortRow(newCohort, cohortStudy.displayName));
       await getCohorts();
       setCreatingCohort(false);
     }
@@ -302,7 +302,7 @@ export function CohortAdmin() {
       },
       lastModified: {
         touched: false,
-        value: cohort.lastModified || new Date(),
+        value: cohort.lastModified,
       },
     };
     setFormState(newFormState);
