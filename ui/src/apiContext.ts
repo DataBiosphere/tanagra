@@ -230,6 +230,12 @@ class FakeHintsApi {
 class FakeStudiesAPI {}
 class FakeCohortsAPI {}
 
+class FakeCohortsAPI {}
+
+class FakeConceptSetsAPI {}
+
+class FakeReviewsAPI {}
+
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
@@ -270,4 +276,12 @@ export const StudiesApiContext = apiForEnvironment(
 export const CohortsApiContext = apiForEnvironment(
   tanagra.CohortsV2Api,
   FakeCohortsAPI
+);
+export const ConceptSetsApiContext = apiForEnvironment(
+  tanagra.ConceptSetsV2Api,
+  FakeConceptSetsAPI
+);
+export const ReviewsApiContext = apiForEnvironment(
+  tanagra.ReviewsV2Api,
+  FakeReviewsAPI
 );

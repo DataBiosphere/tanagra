@@ -10,6 +10,7 @@ import { Overview } from "overview";
 import { ErrorBoundary } from "react-error-boundary";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { SdAdmin } from "sd-admin/sdAdmin";
+import { Studies } from "sd-admin/studies";
 import { UnderlaySelect } from "underlaySelect";
 import { Datasets } from "./datasets";
 
@@ -19,23 +20,29 @@ export function AppRouter() {
       <Routes>
         <Route index element={<UnderlaySelect />} />
         <Route path=":underlayName">
-          <Route index element={<Datasets />} />
-          <Route path="cohorts/:cohortId/:groupId">
-            <Route index element={<Overview />} />
-            <Route path="add">
-              <Route index element={<AddCriteria />} />
-              <Route path=":configId" element={<NewCriteria />} />
+          <Route index element={<Studies />} />
+          <Route path=":studyId">
+            <Route index element={<Datasets />} />
+            <Route path="cohorts/:cohortId/:groupId">
+              <Route index element={<Overview />} />
+              <Route path="add">
+                <Route index element={<AddCriteria />} />
+                <Route path=":configId" element={<NewCriteria />} />
+              </Route>
+              <Route path="edit/:criteriaId" element={<Edit />} />
             </Route>
-            <Route path="edit/:criteriaId" element={<Edit />} />
-          </Route>
-          <Route path="conceptSets/new/:configId" element={<NewConceptSet />} />
-          <Route
-            path="conceptSets/edit/:conceptSetId"
-            element={<ConceptSetEdit />}
-          />
-          <Route path="review/:cohortId">
-            <Route index element={<CohortReviewList />} />
-            <Route path=":reviewId" element={<CohortReviewList />} />
+            <Route
+              path="conceptSets/new/:configId"
+              element={<NewConceptSet />}
+            />
+            <Route
+              path="conceptSets/edit/:conceptSetId"
+              element={<ConceptSetEdit />}
+            />
+            <Route path="review/:cohortId">
+              <Route index element={<CohortReviewList />} />
+              <Route path=":reviewId" element={<CohortReviewList />} />
+            </Route>
           </Route>
         </Route>
         <Route path="sdAdmin" element={<SdAdmin />} />

@@ -1,11 +1,18 @@
-import { CohortsApiContext, StudiesApiContext } from "apiContext";
+import {
+  CohortsApiContext,
+  ConceptSetsApiContext,
+  ReviewsApiContext,
+  StudiesApiContext,
+} from "apiContext";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
 import {
   CohortV2,
+  ConceptSetV2,
   CreateCohortRequest,
   CreateStudyRequest,
   CriteriaGroupV2,
+  ReviewV2,
   StudyV2,
   UpdateCohortRequest,
   UpdateStudyRequest,
@@ -42,18 +49,37 @@ export interface AdminSource {
   ): Promise<CohortV2>;
 
   getCohortsForStudy(studyId: string): Promise<CohortV2[]>;
+
+  getConceptSetsForStudy(studyId: string): Promise<ConceptSetV2[]>;
+
+  getReviewsForStudy(studyId: string, cohortId: string): Promise<ReviewV2[]>;
 }
 
 export function useAdminSource(): AdminSource {
   const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesV2Api;
   const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsV2Api;
-  return useMemo(() => new BackendAdminSource(studiesApi, cohortsApi), []);
+  const conceptSetsApi = useContext(
+    ConceptSetsApiContext
+  ) as tanagra.ConceptSetsV2Api;
+  const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsV2Api;
+  return useMemo(
+    () =>
+      new BackendAdminSource(
+        studiesApi,
+        cohortsApi,
+        conceptSetsApi,
+        reviewsApi
+      ),
+    []
+  );
 }
 
 export class BackendAdminSource implements AdminSource {
   constructor(
     private studiesApi: tanagra.StudiesV2Api,
-    private cohortsApi: tanagra.CohortsV2Api
+    private cohortsApi: tanagra.CohortsV2Api,
+    private conceptSetsApi: tanagra.ConceptSetsV2Api,
+    private reviewsApi: tanagra.ReviewsV2Api
   ) {}
 
   async createStudy(
@@ -124,5 +150,16 @@ export class BackendAdminSource implements AdminSource {
 
   async getCohortsForStudy(studyId: string): Promise<CohortV2[]> {
     return await this.cohortsApi.listCohorts({ studyId });
+  }
+
+  async getConceptSetsForStudy(studyId: string): Promise<ConceptSetV2[]> {
+    return await this.conceptSetsApi.listConceptSets({ studyId });
+  }
+
+  async getReviewsForStudy(
+    studyId: string,
+    cohortId: string
+  ): Promise<ReviewV2[]> {
+    return await this.reviewsApi.listReviews({ studyId, cohortId });
   }
 }
