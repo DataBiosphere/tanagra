@@ -69,7 +69,13 @@ You can also run the local server with authentication disabled. This is useful w
 have a login flow yet. (We rely on IAP to handle the Google OAuth flow in our dev deployments.)
 
 ```
-./service/local-dev/run_server.sh disable-auth
+./service/local-dev/run_server.sh -a
+```
+
+You can also run against the Verily underlays instead of the Broad ones if using Verily credentials.
+
+```
+./service/local-dev/run_server.sh -v
 ```
 
 ### Adding dependencies
