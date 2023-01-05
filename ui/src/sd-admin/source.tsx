@@ -1,7 +1,15 @@
-import { StudiesApiContext } from "apiContext";
+import { CohortsApiContext, StudiesApiContext } from "apiContext";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
-import { CreateStudyRequest, StudyV2, UpdateStudyRequest } from "tanagra-api";
+import {
+  CohortV2,
+  CreateCohortRequest,
+  CreateStudyRequest,
+  CriteriaGroupV2,
+  StudyV2,
+  UpdateCohortRequest,
+  UpdateStudyRequest,
+} from "tanagra-api";
 
 export interface AdminSource {
   createStudy(
@@ -17,15 +25,36 @@ export interface AdminSource {
   ): Promise<StudyV2>;
 
   getStudiesList(): Promise<StudyV2[]>;
+
+  createCohort(
+    studyId: string,
+    displayName: string,
+    description: string,
+    underlayName: string
+  ): Promise<CohortV2>;
+
+  updateCohort(
+    studyId: string,
+    cohortId: string,
+    displayName: string,
+    description: string,
+    criteriaGroups: Array<CriteriaGroupV2>
+  ): Promise<CohortV2>;
+
+  getCohortsForStudy(studyId: string): Promise<CohortV2[]>;
 }
 
 export function useAdminSource(): AdminSource {
   const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesV2Api;
-  return useMemo(() => new BackendAdminSource(studiesApi), []);
+  const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsV2Api;
+  return useMemo(() => new BackendAdminSource(studiesApi, cohortsApi), []);
 }
 
 export class BackendAdminSource implements AdminSource {
-  constructor(private studiesApi: tanagra.StudiesV2Api) {}
+  constructor(
+    private studiesApi: tanagra.StudiesV2Api,
+    private cohortsApi: tanagra.CohortsV2Api
+  ) {}
 
   async createStudy(
     displayName: string,
@@ -55,5 +84,45 @@ export class BackendAdminSource implements AdminSource {
 
   async getStudiesList(): Promise<StudyV2[]> {
     return await this.studiesApi.listStudies({});
+  }
+
+  async createCohort(
+    studyId: string,
+    displayName: string,
+    description: string,
+    underlayName: string
+  ): Promise<CohortV2> {
+    const createCohortRequest: CreateCohortRequest = {
+      studyId,
+      cohortCreateInfoV2: {
+        displayName,
+        description,
+        underlayName,
+      },
+    };
+    return await this.cohortsApi.createCohort(createCohortRequest);
+  }
+
+  async updateCohort(
+    studyId: string,
+    cohortId: string,
+    displayName: string,
+    description: string,
+    criteriaGroups: Array<CriteriaGroupV2>
+  ): Promise<CohortV2> {
+    const updateCohortRequest: UpdateCohortRequest = {
+      studyId,
+      cohortId,
+      cohortUpdateInfoV2: {
+        displayName,
+        description,
+        criteriaGroups,
+      },
+    };
+    return await this.cohortsApi.updateCohort(updateCohortRequest);
+  }
+
+  async getCohortsForStudy(studyId: string): Promise<CohortV2[]> {
+    return await this.cohortsApi.listCohorts({ studyId });
   }
 }
