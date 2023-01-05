@@ -31,7 +31,7 @@ export function Search(props: SearchProps) {
     } else {
       const sk = props.searchKey ?? "search";
       setSearchParams((params) => {
-        params.set(sk, query);
+        params.set(sk, query ?? "");
         return params;
       });
     }

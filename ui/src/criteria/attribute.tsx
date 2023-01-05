@@ -17,10 +17,10 @@ import Loading from "components/loading";
 import { FilterType } from "data/filter";
 import { EnumHintOption, IntegerHint, useSource } from "data/source";
 import { DataValue } from "data/types";
-import { useAsyncWithApi } from "errors";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo, useState } from "react";
+import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
 import { isValid } from "util/valid";
 
@@ -260,7 +260,10 @@ function AttributeInline(props: AttributeInlineProps) {
   const fetchHintData = useCallback(() => {
     return source.getHintData("", props.config.attribute);
   }, [props.config.attribute]);
-  const hintDataState = useAsyncWithApi(fetchHintData);
+  const hintDataState = useSWRImmutable(
+    { component: "Attribute", attribute: props.config.attribute },
+    fetchHintData
+  );
 
   const handleAddRange = useCallback(
     (hint: IntegerHint) => {

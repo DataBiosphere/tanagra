@@ -1,6 +1,7 @@
 import { EntityInstancesApiContext, HintsApiContext } from "apiContext";
 import { generateId } from "cohort";
 import { useUnderlay } from "hooks";
+import { getReasonPhrase } from "http-status-codes";
 import produce from "immer";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
@@ -224,20 +225,22 @@ export class BackendSource implements Source {
       );
     }
 
-    return Promise.all(promises).then((res) => {
-      const result: SearchClassificationResult = { nodes: [] };
-      res?.forEach((r, i) => {
-        result.nodes.push(
-          ...processEntitiesResponse(
-            classification.entityAttribute,
-            r,
-            i === 0 ? classification.hierarchy : undefined,
-            i > 0 ? classification.groupings?.[i - 1].id : undefined
-          )
-        );
-      });
-      return result;
-    });
+    return parseAPIError(
+      Promise.all(promises).then((res) => {
+        const result: SearchClassificationResult = { nodes: [] };
+        res?.forEach((r, i) => {
+          result.nodes.push(
+            ...processEntitiesResponse(
+              classification.entityAttribute,
+              r,
+              i === 0 ? classification.hierarchy : undefined,
+              i > 0 ? classification.groupings?.[i - 1].id : undefined
+            )
+          );
+        });
+        return result;
+      })
+    );
   }
 
   searchGrouping(
@@ -257,40 +260,43 @@ export class BackendSource implements Source {
     }
     const grouping = findByID(root.grouping, classification.groupings);
 
-    return this.instancesApi
-      .queryInstances({
-        entityName: classification.entity,
-        underlayName: this.underlay.name,
-        queryV2: {
-          includeAttributes: normalizeRequestedAttributes(requestedAttributes),
-          filter: {
-            filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
-            filterUnion: {
-              relationshipFilter: {
-                entity: grouping.entity,
-                subfilter: {
-                  filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-                  filterUnion: {
-                    attributeFilter: {
-                      attribute: classification.entityAttribute,
-                      operator: tanagra.AttributeFilterV2OperatorEnum.Equals,
-                      value: literalFromDataValue(root.data.key),
+    return parseAPIError(
+      this.instancesApi
+        .queryInstances({
+          entityName: classification.entity,
+          underlayName: this.underlay.name,
+          queryV2: {
+            includeAttributes:
+              normalizeRequestedAttributes(requestedAttributes),
+            filter: {
+              filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+              filterUnion: {
+                relationshipFilter: {
+                  entity: grouping.entity,
+                  subfilter: {
+                    filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+                    filterUnion: {
+                      attributeFilter: {
+                        attribute: classification.entityAttribute,
+                        operator: tanagra.AttributeFilterV2OperatorEnum.Equals,
+                        value: literalFromDataValue(root.data.key),
+                      },
                     },
                   },
                 },
               },
             },
+            orderBys: [makeOrderBy(this.underlay, classification, grouping)],
           },
-          orderBys: [makeOrderBy(this.underlay, classification, grouping)],
-        },
-      })
-      .then((res) => ({
-        nodes: processEntitiesResponse(
-          classification.entityAttribute,
-          res,
-          classification.hierarchy
-        ),
-      }));
+        })
+        .then((res) => ({
+          nodes: processEntitiesResponse(
+            classification.entityAttribute,
+            res,
+            classification.hierarchy
+          ),
+        }))
+    );
   }
 
   listAttributes(occurrenceID: string): string[] {
@@ -316,16 +322,18 @@ export class BackendSource implements Source {
   ): Promise<ListDataResponse> {
     const entity = findEntity(occurrenceID, this.config);
 
-    const res = await this.instancesApi.queryInstances({
-      entityName: entity.entity,
-      underlayName: this.underlay.name,
-      queryV2: this.makeQuery(
-        requestedAttributes,
-        occurrenceID,
-        cohort,
-        conceptSet
-      ),
-    });
+    const res = await parseAPIError(
+      this.instancesApi.queryInstances({
+        entityName: entity.entity,
+        underlayName: this.underlay.name,
+        queryV2: this.makeQuery(
+          requestedAttributes,
+          occurrenceID,
+          cohort,
+          conceptSet
+        ),
+      })
+    );
 
     const data = res.instances?.map((instance) =>
       processEntityInstance(entity.key, instance)
@@ -349,11 +357,13 @@ export class BackendSource implements Source {
       entity = findByID(occurrenceID, this.config.occurrences).entity;
     }
 
-    const res = await this.hintsApi.queryHints({
-      entityName: entity,
-      underlayName: this.underlay.name,
-      hintQueryV2: {},
-    });
+    const res = await parseAPIError(
+      this.hintsApi.queryHints({
+        entityName: entity,
+        underlayName: this.underlay.name,
+        hintQueryV2: {},
+      })
+    );
 
     const displayHint = res.displayHints?.find(
       (hint) => hint?.attribute?.name === attributeID
@@ -386,14 +396,16 @@ export class BackendSource implements Source {
     filter: Filter | null,
     groupByAttributes?: string[]
   ): Promise<FilterCountValue[]> {
-    const data = await this.instancesApi.countInstances({
-      underlayName: this.underlay.name,
-      entityName: this.config.primaryEntity.entity,
-      countQueryV2: {
-        attributes: groupByAttributes,
-        filter: generateFilter(this, filter, true) ?? undefined,
-      },
-    });
+    const data = await parseAPIError(
+      this.instancesApi.countInstances({
+        underlayName: this.underlay.name,
+        entityName: this.config.primaryEntity.entity,
+        countQueryV2: {
+          attributes: groupByAttributes,
+          filter: generateFilter(this, filter, true) ?? undefined,
+        },
+      })
+    );
 
     if (!data.instanceCounts) {
       throw new Error("Count API returned no counts.");
@@ -1123,4 +1135,19 @@ function saveLocalReviews(reviews: tanagra.ReviewV2[]) {
       reviews,
     })
   );
+}
+
+function parseAPIError<T>(p: Promise<T>) {
+  return p.catch(async (response) => {
+    if (!(response instanceof Response)) {
+      throw response;
+    }
+
+    const text = await response.text();
+    try {
+      throw new Error(JSON.parse(text).message);
+    } catch (e) {
+      throw new Error(getReasonPhrase(response.status) + ": " + text);
+    }
+  });
 }

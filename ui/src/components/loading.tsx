@@ -8,8 +8,8 @@ import React, { ReactNode, useEffect, useRef, useState } from "react";
 
 type Status = {
   error?: Error;
-  isPending?: boolean;
-  reload?: () => void;
+  isLoading?: boolean;
+  mutate?: () => void;
 };
 
 type Props = {
@@ -23,7 +23,7 @@ export default function Loading(props: Props) {
   const timerRef = useRef<number>();
 
   useEffect(() => {
-    if (!props.status?.isPending) {
+    if (!props.status?.isLoading) {
       return;
     }
 
@@ -42,9 +42,9 @@ export default function Loading(props: Props) {
       setVisible(false);
       clearTimeout(timerRef.current);
     };
-  }, [props.status?.isPending]);
+  }, [props.status?.isLoading]);
 
-  if (props.status && !props.status.isPending && !props.status.error) {
+  if (props.status && !props.status.isLoading && !props.status.error) {
     return <>{props.children}</>;
   }
 
@@ -60,7 +60,7 @@ function showStatus(
   status?: Status,
   size?: string
 ): ReactNode {
-  if (status?.error && !status?.isPending) {
+  if (status?.error && !status?.isLoading) {
     const errorMessage = status.error.message
       ? `An error has occurred: ${status.error.message}`
       : "An unknown error has occurred.";
@@ -77,7 +77,7 @@ function showStatus(
         <Typography variant="h2">Error</Typography>
         <Typography paragraph>{errorMessage}</Typography>
         <div>
-          <Button onClick={status?.reload} variant="contained">
+          <Button onClick={status?.mutate} variant="contained">
             Reload
           </Button>
         </div>

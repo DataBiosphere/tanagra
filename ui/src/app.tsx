@@ -3,7 +3,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { EntitiesApiContext, UnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
-import { useAsyncWithApi } from "errors";
 import { useAppDispatch } from "hooks";
 import { enableMapSet } from "immer";
 import "plugins";
@@ -11,6 +10,7 @@ import { useCallback, useContext } from "react";
 import { HashRouter } from "react-router-dom";
 import { AppRouter } from "router";
 import { fetchUserData } from "storage/storage";
+import useSWRImmutable from "swr/immutable";
 import { setUnderlays } from "underlaysSlice";
 import "./app.css";
 import theme from "./theme";
@@ -22,7 +22,8 @@ export default function App() {
   const underlaysApi = useContext(UnderlaysApiContext);
   const entitiesApi = useContext(EntitiesApiContext);
 
-  const underlaysState = useAsyncWithApi(
+  const underlaysState = useSWRImmutable(
+    { component: "App" },
     useCallback(async () => {
       const res = await underlaysApi.listUnderlaysV2({});
       if (!res?.underlays || res.underlays.length == 0) {
@@ -55,6 +56,7 @@ export default function App() {
       await fetchUserData(dispatch, underlays);
 
       dispatch(setUnderlays(underlays));
+      return underlays;
     }, [])
   );
 

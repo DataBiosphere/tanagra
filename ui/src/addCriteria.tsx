@@ -17,11 +17,11 @@ import {
 } from "components/treegrid";
 import { MergedDataEntry, useSource } from "data/source";
 import { DataEntry, DataKey } from "data/types";
-import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohortAndGroup, useUnderlay } from "hooks";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cohortURL, newCriteriaURL } from "router";
+import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
 import { createCriteria, getCriteriaPlugin, searchCriteria } from "./cohort";
 
@@ -32,9 +32,7 @@ export function AddCriteria() {
   const dispatch = useAppDispatch();
   const { cohort, group } = useCohortAndGroup();
 
-  const query = useSearchParams()[0].get("search");
-  const [showResults, setShowResults] = useState<boolean>(false);
-  const [data, setData] = useState<TreeGridData>({});
+  const query = useSearchParams()[0].get("search") ?? "";
 
   const criteriaConfigs = underlay.uiConfiguration.criteriaConfigs;
   const searchConfig = underlay.uiConfiguration.criteriaSearchConfig;
@@ -98,11 +96,6 @@ export function AddCriteria() {
   );
 
   const search = useCallback(async () => {
-    // This prevents briefly showing the empty results from the empty query
-    // inbetween when a new query has been set but before searchState is
-    // retriggered.
-    setShowResults(!!query);
-
     const children: DataKey[] = [];
     const data: TreeGridData = {
       root: { data: {}, children },
@@ -133,9 +126,12 @@ export function AddCriteria() {
       });
     }
 
-    setData(data);
+    return data;
   }, [source, query, criteriaConfigs]);
-  const searchState = useAsyncWithApi<void>(search);
+  const searchState = useSWRImmutable<TreeGridData>(
+    { component: "AddCriteria", underlayName: underlay.name, query: query },
+    search
+  );
 
   return (
     <Box
@@ -147,65 +143,69 @@ export function AddCriteria() {
     >
       <Search placeholder="Search criteria or select from the options below" />
       <ActionBar title={"Add criteria"} extraControls={<CohortToolbar />} />
-      {showResults ? (
-        <Loading status={searchState}>
-          {!data.root?.children?.length ? (
+      <Loading status={searchState}>
+        {!searchState.data?.root?.children?.length ? (
+          query !== "" ? (
             <Empty
               minHeight="300px"
               image="/empty.png"
               title="No matches found"
             />
           ) : (
-            <TreeGrid
-              columns={columns}
-              data={data}
-              rowCustomization={(id: TreeGridId) => {
-                const item = data[id] as CriteriaItem;
-                const config = criteriaConfigMap.get(item.entry.source);
-                if (!config) {
-                  throw new Error(
-                    `Item source "${item.entry.source}" doesn't match any criteria config ID.`
-                  );
-                }
-
-                return new Map([
-                  [
-                    1,
-                    {
-                      onClick: () => onClick(config, item.entry.data),
-                    },
-                  ],
-                ]);
-              }}
-            />
-          )}
-        </Loading>
-      ) : (
-        <Stack direction="row" justifyContent="center">
-          {categories.map((category) => (
-            <Stack
-              key={category[0].category}
-              spacing={1}
-              alignItems="center"
-              justifyContent="flex-start"
-              sx={{ width: 180 }}
-            >
-              <Typography key="" variant="subtitle1">
-                {category[0].category ?? "Uncategorized"}
-              </Typography>
-              {category.map((config) => (
-                <Button
-                  key={config.id}
-                  onClick={() => onClick(config)}
-                  variant="contained"
+            <Stack direction="row" justifyContent="center">
+              {categories.map((category) => (
+                <Stack
+                  key={category[0].category}
+                  spacing={1}
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  sx={{ width: 180 }}
                 >
-                  {config.title}
-                </Button>
+                  <Typography key="" variant="subtitle1">
+                    {category[0].category ?? "Uncategorized"}
+                  </Typography>
+                  {category.map((config) => (
+                    <Button
+                      key={config.id}
+                      onClick={() => onClick(config)}
+                      variant="contained"
+                    >
+                      {config.title}
+                    </Button>
+                  ))}
+                </Stack>
               ))}
             </Stack>
-          ))}
-        </Stack>
-      )}
+          )
+        ) : (
+          <TreeGrid
+            columns={columns}
+            data={searchState.data ?? {}}
+            rowCustomization={(id: TreeGridId) => {
+              if (!searchState.data) {
+                return undefined;
+              }
+
+              const item = searchState.data[id] as CriteriaItem;
+              const config = criteriaConfigMap.get(item.entry.source);
+              if (!config) {
+                throw new Error(
+                  `Item source "${item.entry.source}" doesn't match any criteria config ID.`
+                );
+              }
+
+              return new Map([
+                [
+                  1,
+                  {
+                    onClick: () => onClick(config, item.entry.data),
+                  },
+                ],
+              ]);
+            }}
+          />
+        )}
+      </Loading>
     </Box>
   );
 }
