@@ -45,14 +45,14 @@ const columns = (
     ),
   },
   {
-    field: "lastModified",
-    headerName: "Last Modified",
+    field: "created",
+    headerName: "Create Date",
     sortable: true,
     disableColumnMenu: true,
     width: 120,
     renderHeader: () => (
       <div style={{ lineHeight: "1.5rem" }}>
-        <div>Last Modified</div>
+        <div>Create Date</div>
         <div>
           <TextField
             sx={{
@@ -63,7 +63,7 @@ const columns = (
                 top: "-16px",
               },
             }}
-            name="lastModified"
+            name="created"
             onChange={({ target: { name, value } }) => filterFn(name, value)}
             label="Filter"
             variant="standard"
@@ -192,8 +192,9 @@ export function CohortAdmin() {
   const [activeCohort, setActiveCohort] = useState<CohortRow>(emptyCohort);
   const [formState, setFormState] = useState(initialFormState);
   const [columnFilters, setColumnFilters] = useState({
+    created: "",
     displayName: "",
-    irbNumber: "",
+    studyName: "",
   });
   const [creatingCohort, setCreatingCohort] = useState<boolean>(false);
   const [editingCohort, setEditingCohort] = useState<boolean>(false);
@@ -210,6 +211,7 @@ export function CohortAdmin() {
     const studiesResp = await source.getStudiesList();
     setStudies(studiesResp);
     if (studiesResp.length > 0) {
+      // Get cohorts for each study then consolidate into a single list
       const cohortsResp = await Promise.all(
         studiesResp.map(({ id }) => source.getCohortsForStudy(id))
       );
@@ -235,10 +237,10 @@ export function CohortAdmin() {
     if (cohortStudy) {
       const updatedCohort = await source.updateCohort(
         cohortStudy.id,
-        activeCohort?.id,
+        activeCohort.id,
         formState.displayName.value,
         formState.description.value,
-        activeCohort?.criteriaGroups
+        activeCohort.criteriaGroups
       );
       setActiveCohort(mapCohortRow(updatedCohort, cohortStudy.displayName));
       setLoadingCohortList(true);
@@ -313,38 +315,48 @@ export function CohortAdmin() {
   };
 
   const filterCohortRows = (cohort: CohortRow) =>
-    !columnFilters.displayName ||
-    cohort?.displayName
-      ?.toLowerCase()
-      .includes(columnFilters.displayName.toLowerCase());
+    (!columnFilters.displayName ||
+      cohort.displayName
+        .toLowerCase()
+        .includes(columnFilters.displayName.toLowerCase().trim())) &&
+    (!columnFilters.created ||
+      cohort.created
+        .toLowerCase()
+        .includes(columnFilters.created.toLowerCase().trim())) &&
+    (!columnFilters.studyName ||
+      cohort.studyName
+        .toLowerCase()
+        .includes(columnFilters.studyName.toLowerCase().trim()));
 
   const onRowSelect = (row: CohortRow) => {
-    const newActiveCohort = cohorts.find((ws) => ws.id === row.id);
-    const newFormState = {
-      displayName: {
-        touched: false,
-        value: row.displayName,
-      },
-      description: {
-        touched: false,
-        value: row.description,
-      },
-      studyName: {
-        touched: false,
-        value: row.studyName,
-      },
-      studyNameInput: {
-        touched: false,
-        value: row.studyName,
-      },
-      lastModified: {
-        touched: false,
-        value: row.lastModified,
-      },
-    };
-    setFormState(newFormState);
-    if (newActiveCohort) {
-      setActiveCohort(newActiveCohort);
+    if (!(creatingCohort || editingCohort)) {
+      const newActiveCohort = cohorts.find((ws) => ws.id === row.id);
+      const newFormState = {
+        displayName: {
+          touched: false,
+          value: row.displayName,
+        },
+        description: {
+          touched: false,
+          value: row.description,
+        },
+        studyName: {
+          touched: false,
+          value: row.studyName,
+        },
+        studyNameInput: {
+          touched: false,
+          value: row.studyName,
+        },
+        lastModified: {
+          touched: false,
+          value: row.lastModified,
+        },
+      };
+      setFormState(newFormState);
+      if (newActiveCohort) {
+        setActiveCohort(newActiveCohort);
+      }
     }
   };
 
@@ -381,7 +393,7 @@ export function CohortAdmin() {
           </Backdrop>
           <Stack spacing={2} direction="row">
             <Button
-              disabled={loadingCohort}
+              disabled={creatingCohort || editingCohort || loadingCohort}
               onClick={() => {
                 clearCohortForm();
                 setCreatingCohort(true);
@@ -391,17 +403,13 @@ export function CohortAdmin() {
               Add Cohort
             </Button>
             <Button
-              disabled={activeCohort?.id === "" || loadingCohort}
+              disabled={
+                activeCohort.id === "" || creatingCohort || loadingCohort
+              }
               onClick={() => setEditingCohort(true)}
               variant="outlined"
             >
               Edit Cohort
-            </Button>
-            <Button
-              disabled={activeCohort?.id === "" || loadingCohort}
-              variant="outlined"
-            >
-              Add Cohort Users
             </Button>
           </Stack>
           <div>
@@ -494,11 +502,10 @@ export function CohortAdmin() {
               <Button
                 disabled={loadingCohort}
                 onClick={() => {
+                  populateCohortForm(activeCohort);
                   if (creatingCohort) {
-                    clearCohortForm();
                     setCreatingCohort(false);
                   } else {
-                    populateCohortForm(activeCohort);
                     setEditingCohort(false);
                   }
                 }}
