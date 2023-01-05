@@ -6,7 +6,6 @@ import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { FilterCountValue, useSource } from "data/source";
-import { useAsyncWithApi } from "errors";
 import { useCohort, useUnderlay } from "hooks";
 import { useCallback } from "react";
 import {
@@ -19,6 +18,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import useSWRImmutable from "swr/immutable";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
 import { generateCohortFilter } from "./cohort";
@@ -239,7 +239,10 @@ export function DemographicCharts() {
     };
   }, [underlay, cohort]);
 
-  const demographicState = useAsyncWithApi(fetchDemographicData);
+  const demographicState = useSWRImmutable(
+    { component: "DemographicCharts", underlayName: underlay.name, cohort },
+    fetchDemographicData
+  );
 
   const tickFormatter = (value: string) => {
     return value.length > 15 ? value.substr(0, 15).concat("…") : value;

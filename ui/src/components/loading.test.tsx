@@ -5,16 +5,16 @@ import Loading from "./loading";
 
 test("loading", async () => {
   const { rerender } = render(
-    <Loading status={{ isPending: true }}>loaded</Loading>
+    <Loading status={{ isLoading: true }}>loaded</Loading>
   );
   await screen.findByRole("progressbar");
 
   expect(screen.queryByText("Reload")).not.toBeInTheDocument();
   expect(screen.queryByText("loaded")).not.toBeInTheDocument();
 
-  const reload = jest.fn();
+  const mutate = jest.fn();
   rerender(
-    <Loading status={{ error: new Error("test-error"), reload: reload }} />
+    <Loading status={{ error: new Error("test-error"), mutate: mutate }} />
   );
   screen.findByText((_, node) => {
     const hasText = (node: Element | null) =>
@@ -28,9 +28,9 @@ test("loading", async () => {
   });
 
   userEvent.click(screen.getByText("Reload"));
-  expect(reload).toHaveBeenCalled();
+  expect(mutate).toHaveBeenCalled();
 
-  rerender(<Loading status={{ isPending: true }} />);
+  rerender(<Loading status={{ isLoading: true }} />);
   await screen.findByRole("progressbar");
 
   rerender(<Loading status={{}}>loaded</Loading>);

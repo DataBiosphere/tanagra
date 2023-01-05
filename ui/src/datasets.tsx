@@ -26,7 +26,6 @@ import { TreeGrid, TreeGridData } from "components/treegrid";
 import { findEntity } from "data/configuration";
 import { Filter, makeArrayFilter } from "data/filter";
 import { useSource } from "data/source";
-import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
 import React, {
   Fragment,
@@ -37,6 +36,7 @@ import React, {
 } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { cohortURL, conceptSetURL, newConceptSetURL } from "router";
+import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 
@@ -435,7 +435,13 @@ function Preview(props: PreviewProps) {
   const [tab, setTab] = useState(0);
   const [queriesMode, setQueriesMode] = useState(false);
 
-  const tabDataState = useAsyncWithApi<PreviewTabData[]>(
+  const tabDataState = useSWRImmutable<PreviewTabData[]>(
+    {
+      component: "Datasets",
+      cohorts,
+      occurrences: props.conceptSetOccurrences,
+      excludedAtrtibutes: props.excludedAttributes,
+    },
     useCallback(async () => {
       return Promise.all(
         props.conceptSetOccurrences.map(async (occurrence) => {

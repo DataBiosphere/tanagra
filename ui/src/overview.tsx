@@ -29,13 +29,13 @@ import Loading from "components/loading";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { DemographicCharts } from "demographicCharts";
-import { useAsyncWithApi } from "errors";
 import { useAppDispatch, useCohort } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { cohortURL, criteriaURL } from "router";
+import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import {
   generateCohortFilter,
@@ -135,7 +135,16 @@ function ParticipantsGroup(props: {
     return (await source.filterCount(filter))[0].count;
   }, [cohort.id, cohort.name, cohort.underlayName, props.group]);
 
-  const groupCountState = useAsyncWithApi(fetchGroupCount);
+  const groupCountState = useSWRImmutable(
+    {
+      component: "Overview",
+      cohortId: cohort.id,
+      cohortName: cohort.name,
+      underlayName: cohort.underlayName,
+      group: props.group,
+    },
+    fetchGroupCount
+  );
   const name = groupName(props.group, props.groupIndex);
 
   const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
@@ -299,7 +308,16 @@ function ParticipantCriteria(props: {
     return (await source.filterCount(filter))[0].count;
   }, [cohort.id, cohort.name, cohort.underlayName, props.criteria]);
 
-  const criteriaCountState = useAsyncWithApi(fetchCriteriaCount);
+  const criteriaCountState = useSWRImmutable(
+    {
+      component: "Overview",
+      cohortId: cohort.id,
+      cohortName: cohort.name,
+      underlayName: cohort.underlayName,
+      criteria: props.criteria,
+    },
+    fetchCriteriaCount
+  );
 
   const plugin = getCriteriaPlugin(props.criteria);
   const title = getCriteriaTitle(props.criteria, plugin);

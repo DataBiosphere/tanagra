@@ -23,13 +23,12 @@ import {
   useSource,
 } from "data/source";
 import { DataEntry, DataKey } from "data/types";
-import { useAsyncWithApi } from "errors";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
-import { useImmer } from "use-immer";
 
 type Selection = {
   key: DataKey;
@@ -189,7 +188,6 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const updateCriteria = useUpdateCriteria();
 
   const [searchData, updateSearchData] = useSearchData();
-  const [data, updateData] = useImmer<TreeGridData>({});
 
   props.setBackURL(
     searchData.hierarchy
@@ -201,59 +199,62 @@ function ClassificationEdit(props: ClassificationEditProps) {
     (
       res: SearchClassificationResult,
       hierarchy?: DataKey[],
-      parent?: DataKey
+      parent?: DataKey,
+      prevData?: TreeGridData
     ) => {
-      updateData((data) => {
-        const children: DataKey[] = [];
-        res.nodes.forEach((node) => {
-          const rowData: TreeGridRowData = { ...node.data };
-          if (node.ancestors) {
-            rowData.view_hierarchy = (
-              <Stack alignItems="center">
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    updateSearchData((data: SearchData) => {
-                      data.hierarchy = node.ancestors;
-                    });
-                  }}
-                >
-                  <AccountTreeIcon fontSize="inherit" />
-                </IconButton>
-              </Stack>
-            );
-          }
+      const data = prevData ?? {};
 
-          const key = keyForNode(node);
-          children.push(key);
-
-          // Copy over existing children in case they're being loaded in
-          // parallel.
-          let childChildren = data[key]?.children;
-          if (!childChildren) {
-            if (!node.grouping && !hierarchy) {
-              childChildren = [];
-            }
-          }
-
-          const cItem: ClassificationNodeItem = {
-            data: rowData,
-            children: childChildren,
-            node: node,
-          };
-          data[key] = cItem;
-        });
-
-        if (parent) {
-          // Store children even if the data isn't loaded yet.
-          data[parent] = { ...data[parent], children };
-        } else {
-          data.root = {
-            children: [...(data?.root?.children || []), ...children],
-            data: {},
-          };
+      const children: DataKey[] = [];
+      res.nodes.forEach((node) => {
+        const rowData: TreeGridRowData = { ...node.data };
+        if (node.ancestors) {
+          rowData.view_hierarchy = (
+            <Stack alignItems="center">
+              <IconButton
+                size="small"
+                onClick={() => {
+                  updateSearchData((data: SearchData) => {
+                    data.hierarchy = node.ancestors;
+                  });
+                }}
+              >
+                <AccountTreeIcon fontSize="inherit" />
+              </IconButton>
+            </Stack>
+          );
         }
+
+        const key = keyForNode(node);
+        children.push(key);
+
+        // Copy over existing children in case they're being loaded in
+        // parallel.
+        let childChildren = data[key]?.children;
+        if (!childChildren) {
+          if (!node.grouping && !hierarchy) {
+            childChildren = [];
+          }
+        }
+
+        const cItem: ClassificationNodeItem = {
+          data: rowData,
+          children: childChildren,
+          node: node,
+        };
+        data[key] = cItem;
       });
+
+      if (parent) {
+        // Store children even if the data isn't loaded yet.
+        data[parent] = { ...data[parent], children };
+      } else {
+        data.root = {
+          children: [...(data?.root?.children || []), ...children],
+          data: {},
+        };
+      }
+
+      return data;
     },
     [updateSearchData]
   );
@@ -264,7 +265,6 @@ function ClassificationEdit(props: ClassificationEditProps) {
   );
 
   const fetchClassification = useCallback(() => {
-    updateData(() => ({}));
     return source
       .searchClassification(attributes, occurrence.id, classification.id, {
         query:
@@ -275,7 +275,24 @@ function ClassificationEdit(props: ClassificationEditProps) {
       })
       .then((res) => processEntities(res, searchData?.hierarchy));
   }, [source, attributes, processEntities, searchData]);
-  const classificationState = useAsyncWithApi<void>(fetchClassification);
+  const classificationState = useSWRImmutable(
+    {
+      component: "Classification",
+      occurrenceId: occurrence.id,
+      classificationId: classification.id,
+      searchData,
+      attributes,
+    },
+    fetchClassification
+  );
+
+  // Partially update the state when expanding rows in the hierarchy view.
+  const updateData = useCallback(
+    (data: TreeGridData) => {
+      classificationState.mutate(data, { revalidate: false });
+    },
+    [classificationState]
+  );
 
   const hierarchyColumns = props.config.hierarchyColumns ?? [];
 
@@ -311,7 +328,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         />
       )}
       <Loading status={classificationState}>
-        {!data.root?.children?.length ? (
+        {!classificationState.data?.root?.children?.length ? (
           <Empty
             minHeight="300px"
             image="/empty.png"
@@ -320,13 +337,19 @@ function ClassificationEdit(props: ClassificationEditProps) {
         ) : (
           <TreeGrid
             columns={!!searchData?.hierarchy ? hierarchyColumns : allColumns}
-            data={data}
+            data={classificationState?.data ?? {}}
             defaultExpanded={searchData?.hierarchy}
             rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
+              if (!classificationState.data) {
+                return undefined;
+              }
+
               // TODO(tjennison): Make TreeGridData's type generic so we can avoid
               // this type assertion. Also consider passing the TreeGridItem to
               // the callback instead of the TreeGridRowData.
-              const item = data[id] as ClassificationNodeItem;
+              const item = classificationState.data[
+                id
+              ] as ClassificationNodeItem;
               if (!item || item.node.grouping) {
                 return undefined;
               }
@@ -387,6 +410,11 @@ function ClassificationEdit(props: ClassificationEditProps) {
               ]);
             }}
             loadChildren={(id: TreeGridId) => {
+              const data = classificationState.data;
+              if (!data) {
+                return Promise.resolve();
+              }
+
               const item = data[id] as ClassificationNodeItem;
               const key = item?.node ? keyForNode(item.node) : id;
               if (item?.node.grouping) {
@@ -398,7 +426,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     item.node
                   )
                   .then((res) => {
-                    processEntities(res, searchData?.hierarchy, key);
+                    updateData(
+                      processEntities(res, searchData?.hierarchy, key, data)
+                    );
                   });
               } else {
                 return source
@@ -411,7 +441,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     }
                   )
                   .then((res) => {
-                    processEntities(res, searchData?.hierarchy, key);
+                    updateData(
+                      processEntities(res, searchData?.hierarchy, key, data)
+                    );
                   });
               }
             }}
