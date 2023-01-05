@@ -724,7 +724,9 @@ function processEntitiesResponse(
         if (path === "") {
           ancestors = [];
         } else {
-          ancestors = path.split(".").map((id) => id as typeof data.key);
+          ancestors = path
+            .split(".")
+            .map((id) => (typeof data.key === "number" ? +id : id));
         }
       }
 
