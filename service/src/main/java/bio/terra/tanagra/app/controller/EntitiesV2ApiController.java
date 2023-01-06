@@ -3,13 +3,13 @@ package bio.terra.tanagra.app.controller;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.EntitiesV2Api;
 import bio.terra.tanagra.generated.model.ApiEntityListV2;
 import bio.terra.tanagra.generated.model.ApiEntityV2;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.auth.UserId;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Entity;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
   @Override
   public ResponseEntity<ApiEntityListV2> listEntitiesV2(String underlayName) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), READ, UNDERLAY, new ResourceId(underlayName));
+        SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
     return ResponseEntity.ok(
         new ApiEntityListV2()
             .entities(
@@ -44,7 +44,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
   @Override
   public ResponseEntity<ApiEntityV2> getEntityV2(String underlayName, String entityName) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), READ, UNDERLAY, new ResourceId(underlayName));
+        SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     return ResponseEntity.ok(toApiObject(entity));
   }

@@ -17,7 +17,7 @@ public final class IapJwtUtils {
     // Check for iap jwt header in incoming request
     String jwt = request.getHeader("x-goog-iap-jwt-assertion");
     if (jwt == null) {
-      throw new InvalidTokenException("JWT is null");
+      throw new InvalidCredentialsException("JWT is null");
     }
     return jwt;
   }
@@ -28,34 +28,36 @@ public final class IapJwtUtils {
         jwt,
         String.format(
             "/projects/%s/global/backendServices/%s",
-            Long.toUnsignedString(projectNumber), Long.toUnsignedString(backendServiceId)));
+            Long.toUnsignedString(projectNumber), Long.toUnsignedString(backendServiceId)),
+        IAP_ISSUER_URL);
   }
 
   public static UserId verifyJwtForAppEngine(String jwt, long projectNumber, String projectId) {
     return verifyJwt(
         jwt,
-        String.format("/projects/%s/apps/%s", Long.toUnsignedString(projectNumber), projectId));
+        String.format("/projects/%s/apps/%s", Long.toUnsignedString(projectNumber), projectId),
+        IAP_ISSUER_URL);
   }
 
-  private static UserId verifyJwt(String jwt, String expectedAudience) {
+  public static UserId verifyJwt(String jwt, String expectedAudience, String issuer) {
     TokenVerifier tokenVerifier =
-        TokenVerifier.newBuilder().setAudience(expectedAudience).setIssuer(IAP_ISSUER_URL).build();
+        TokenVerifier.newBuilder().setAudience(expectedAudience).setIssuer(issuer).build();
     try {
       JsonWebToken jsonWebToken = tokenVerifier.verify(jwt);
       JsonWebToken.Payload payload = jsonWebToken.getPayload();
 
       // Verify that the token contain subject and email claims
       if (payload.getSubject() == null || payload.get("email") == null) {
-        throw new InvalidTokenException(
+        throw new InvalidCredentialsException(
             "Subject or email not included in JWT payload: "
                 + payload.getSubject()
                 + ", "
                 + payload.get("email"));
       }
-      return UserId.fromToken(payload.getSubject(), (String) payload.get("email"));
+      return UserId.fromToken(payload.getSubject(), (String) payload.get("email"), jwt);
     } catch (TokenVerifier.VerificationException tve) {
       LOGGER.info("JWT expected audience: {}", expectedAudience);
-      throw new InvalidTokenException("JWT verification failed", tve);
+      throw new InvalidCredentialsException("JWT verification failed", tve);
     }
   }
 }

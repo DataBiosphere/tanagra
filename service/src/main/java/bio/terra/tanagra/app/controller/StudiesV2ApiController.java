@@ -6,6 +6,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
+import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.StudiesV2Api;
 import bio.terra.tanagra.generated.model.ApiPropertiesV2;
 import bio.terra.tanagra.generated.model.ApiPropertiesV2Inner;
@@ -18,7 +19,6 @@ import bio.terra.tanagra.service.StudyService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Study;
-import bio.terra.tanagra.service.auth.UserId;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +44,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   @Override
   public ResponseEntity<ApiStudyV2> createStudy(ApiStudyCreateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(UserId.currentUser(), CREATE, STUDY);
+    accessControlService.throwIfUnauthorized(SpringAuthentication.getCurrentUser(), CREATE, STUDY);
 
     // Generate a random 10-character alphanumeric string for the new study ID.
     String newStudyId = RandomStringUtils.randomAlphanumeric(10);
@@ -55,7 +55,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .properties(fromApiObject(body.getProperties()))
-            .createdBy(UserId.currentUser().getEmail())
+            .createdBy(SpringAuthentication.getCurrentUser().getEmail())
             .build();
     studyService.createStudy(studyToCreate);
     return ResponseEntity.ok(toApiObject(studyToCreate));
@@ -64,7 +64,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), DELETE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), DELETE, STUDY, new ResourceId(studyId));
     studyService.deleteStudy(studyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -72,14 +72,15 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> getStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), READ, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), READ, STUDY, new ResourceId(studyId));
     return ResponseEntity.ok(toApiObject(studyService.getStudy(studyId)));
   }
 
   @Override
   public ResponseEntity<ApiStudyListV2> listStudies(Integer offset, Integer limit) {
     ResourceIdCollection authorizedStudyIds =
-        accessControlService.listResourceIds(UserId.currentUser(), STUDY, offset, limit);
+        accessControlService.listResourceIds(
+            SpringAuthentication.getCurrentUser(), STUDY, offset, limit);
     List<Study> authorizedStudies;
     if (authorizedStudyIds.isAllResourceIds()) {
       authorizedStudies = studyService.getAllStudies(offset, limit);
@@ -101,7 +102,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> updateStudy(String studyId, ApiStudyUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), UPDATE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
     Study updatedStudy =
         studyService.updateStudy(studyId, body.getDisplayName(), body.getDescription());
     return ResponseEntity.ok(toApiObject(updatedStudy));
@@ -111,7 +112,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   public ResponseEntity<Void> updateStudyProperties(
       String studyId, List<ApiPropertiesV2Inner> body) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), UPDATE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
     studyService.updateStudyProperties(studyId, fromApiObject(body));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -119,7 +120,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudyProperties(String studyId, List<String> body) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), UPDATE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
     studyService.deleteStudyProperties(studyId, body);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
