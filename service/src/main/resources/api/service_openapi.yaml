@@ -805,6 +805,23 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  /v2/vumc-admin-service-test:
+    get:
+      tags: [Test]
+      description: Temporary endpoint to test service-to-service communication with the VUMC admin service.
+      operationId: vumcAdminServiceTest
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VumcAdminServiceTest'
+        401:
+          description: Unauthorized
+        500:
+          $ref: '#/components/responses/ServerError'
+
 components:
   parameters:
     UnderlayNameV2:
@@ -2020,6 +2037,14 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/ReviewInstanceV2"
+
+    VumcAdminServiceTest:
+      type: object
+      properties:
+        version:
+          type: string
+        round-trip:
+          type: string
 
     ErrorReportV2:
       type: object
