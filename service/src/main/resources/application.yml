@@ -19,7 +19,7 @@ tanagra:
     password:
 
   vumc-admin:
-    base-path: https://tanagra-vumc-admin-test.api.verily.com
+    base-path: https://tanagra-vumc-test.api.verily.com
     oauth-client-id: 730051649108-uepfa779jvl5ct2u7thfkqje5gda0ona.apps.googleusercontent.com
     use-adc: true
 

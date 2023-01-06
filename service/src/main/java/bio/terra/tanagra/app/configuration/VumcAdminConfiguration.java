@@ -10,40 +10,40 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "tanagra.vumc-admin")
 public class VumcAdminConfiguration {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VumcAdminConfiguration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(VumcAdminConfiguration.class);
 
-    private String basePath;
-    private String oauthClientId;
-    private boolean useAdc;
+  private String basePath;
+  private String oauthClientId;
+  private boolean useAdc;
 
-    public String getBasePath() {
-        return basePath;
-    }
+  public String getBasePath() {
+    return basePath;
+  }
 
-    public String getOauthClientId() {
-        return oauthClientId;
-    }
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
 
-    public boolean isUseAdc() {
-        return useAdc;
-    }
+  public boolean isUseAdc() {
+    return useAdc;
+  }
 
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
-    }
+  public void setBasePath(String basePath) {
+    this.basePath = basePath;
+  }
 
-    public void setOauthClientId(String oauthClientId) {
-        this.oauthClientId = oauthClientId;
-    }
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+  }
 
-    public void setUseAdc(boolean useAdc) {
-        this.useAdc = useAdc;
-    }
+  public void setUseAdc(boolean useAdc) {
+    this.useAdc = useAdc;
+  }
 
-    /** Write the config properties into the log. Add an entry here for each new config property. */
-    public void logConfig() {
-        LOGGER.info("VUMC Admin: base-path: {}", getBasePath());
-        LOGGER.info("VUMC Admin: oauth-client-id: {}", getOauthClientId());
-        LOGGER.info("VUMC Admin: use-adc: {}", isUseAdc());
-    }
+  /** Write the config properties into the log. Add an entry here for each new config property. */
+  public void logConfig() {
+    LOGGER.info("VUMC Admin: base-path: {}", getBasePath());
+    LOGGER.info("VUMC Admin: oauth-client-id: {}", getOauthClientId());
+    LOGGER.info("VUMC Admin: use-adc: {}", isUseAdc());
+  }
 }
