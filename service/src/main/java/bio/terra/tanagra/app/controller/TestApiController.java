@@ -3,6 +3,8 @@ package bio.terra.tanagra.app.controller;
 import bio.terra.tanagra.generated.controller.TestApi;
 import bio.terra.tanagra.generated.model.ApiVumcAdminServiceTest;
 import bio.terra.tanagra.service.VumcAdminService;
+import bio.terra.tanagra.vumc.admin.model.CoreServiceTest;
+import bio.terra.tanagra.vumc.admin.model.SystemVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +26,29 @@ public class TestApiController implements TestApi {
   public ResponseEntity<ApiVumcAdminServiceTest> vumcAdminServiceTest() {
     String version;
     try {
-      version = vumcAdminService.version().toString();
+      SystemVersion adminVersion = vumcAdminService.version();
+      version =
+          String.format(
+              "gitTag: %s, gitHash: %s, github: %s, build: %s",
+              adminVersion.getGitTag(),
+              adminVersion.getGitHash(),
+              adminVersion.getGithub(),
+              adminVersion.getBuild());
     } catch (Exception ex) {
-      LOGGER.error("version", ex);
-      version = "version=error: " + ex.getMessage();
+      LOGGER.error("admin service version", ex);
+      version = "error: " + ex.getMessage();
     }
 
     String roundTrip;
     try {
-      roundTrip = vumcAdminService.roundTripTest().toString();
+      CoreServiceTest coreServiceTest = vumcAdminService.roundTripTest();
+      roundTrip =
+          String.format(
+              "[version] %s, [authenticated-user] %s",
+              coreServiceTest.getVersion(), coreServiceTest.getAuthenticatedUser());
     } catch (Exception ex) {
-      LOGGER.error("roundTrip", ex);
-      roundTrip = "roundTrip=error: " + ex.getMessage();
+      LOGGER.error("core service authenticated user", ex);
+      roundTrip = "error: " + ex.getMessage();
     }
 
     return ResponseEntity.ok(new ApiVumcAdminServiceTest().version(version).roundTrip(roundTrip));
