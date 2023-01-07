@@ -125,3 +125,6 @@ test {
 // See also https://docs.gradle.org/current/userguide/plugins.html#sec:script_plugins
 apply from: "$rootDir/service/gradle/jib.gradle"
 apply from: "$rootDir/service/gradle/open-api.gradle"
+apply from: "$rootDir/service/gradle/version-properties.gradle"
+apply from: "$rootDir/service/gradle/task-dependencies.gradle"
+

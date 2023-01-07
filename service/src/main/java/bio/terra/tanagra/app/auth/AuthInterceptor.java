@@ -10,7 +10,6 @@ import bio.terra.tanagra.service.auth.InvalidCredentialsException;
 import bio.terra.tanagra.service.auth.UserId;
 import com.google.api.client.http.HttpMethods;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -25,6 +24,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Service
 public class AuthInterceptor implements HandlerInterceptor {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthInterceptor.class);
+
+  // For OpenAPI endpoints with this tag, we don't check for an authorization token in the request
+  // header (e.g. status, version). Depending on how the service is deployed and routes are
+  // configured, an authorization token may still be required for the request to make it past the
+  // proxy.
+  private static final String OPENAPI_TAG_AUTH_NOT_REQUIRED = "Unauthenticated";
 
   private final AuthConfiguration authConfiguration;
 
@@ -56,22 +61,17 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     HandlerMethod method = (HandlerMethod) handler;
-    boolean isAuthRequired = false;
     ApiOperation apiOp = AnnotationUtils.findAnnotation(method.getMethod(), ApiOperation.class);
     if (apiOp != null) {
-      Authorization[] authorizations = apiOp.authorizations();
-      for (Authorization auth : apiOp.authorizations()) {
-        if (!auth.value().isEmpty()) {
-          LOGGER.info("Authorization required by endpoint: {}", request.getRequestURL().toString());
-          isAuthRequired = true;
-          break;
+      for (String tag : apiOp.tags()) {
+        if (!tag.isEmpty() && OPENAPI_TAG_AUTH_NOT_REQUIRED.equals(tag)) {
+          LOGGER.info(
+              "Authorization not required by endpoint: {}", request.getRequestURL().toString());
+          return true;
         }
       }
     }
-    if (!isAuthRequired) {
-      LOGGER.info("Authorization not required by endpoint: {}", request.getRequestURL().toString());
-      return true;
-    }
+    LOGGER.info("Authorization required by endpoint: {}", request.getRequestURL().toString());
 
     UserId userId;
     try {
