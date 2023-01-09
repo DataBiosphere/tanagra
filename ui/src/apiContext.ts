@@ -245,7 +245,7 @@ class FakeCohortsAPI {
   async listCohorts(): Promise<Array<tanagra.CohortV2>> {
     return [
       {
-        id: "test_study",
+        id: "test_cohort",
         created: new Date(),
         createdBy: "test_user",
         displayName: "Test Study",
@@ -261,7 +261,7 @@ class FakeConceptSetsAPI {
   async listConceptSets(): Promise<Array<tanagra.ConceptSetV2>> {
     return [
       {
-        id: "test_study",
+        id: "test_concept_set",
         created: new Date(),
         createdBy: "test_user",
         displayName: "Test Study",
@@ -284,7 +284,7 @@ class FakeReviewsAPI {
   async listReviews(): Promise<Array<tanagra.ReviewV2>> {
     return [
       {
-        id: "test_study",
+        id: "test_review",
         created: new Date(),
         createdBy: "test_user",
         displayName: "Test Study",
