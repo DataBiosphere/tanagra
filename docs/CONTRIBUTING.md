@@ -102,6 +102,3 @@ To regenerate the golden files, run the tests with the `generateSqlFiles` Gradle
 ```
 ./gradlew cleanTest test --tests bio.terra.tanagra.* --info -PgenerateSqlFiles=true
 ```
-
-## Service Images
-Docker images for the backend service are hosted at [gcr.io/broad-dsp-gcr-public/tanagra-api](gcr.io/broad-dsp-gcr-public/tanagra-api).
