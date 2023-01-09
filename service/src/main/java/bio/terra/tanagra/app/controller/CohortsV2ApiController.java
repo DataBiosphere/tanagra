@@ -6,6 +6,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 
+import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.CohortsV2Api;
 import bio.terra.tanagra.generated.model.ApiCohortCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiCohortListV2;
@@ -21,7 +22,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Criteria;
 import bio.terra.tanagra.service.artifact.CriteriaGroup;
-import bio.terra.tanagra.service.auth.UserId;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +53,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortV2> createCohort(String studyId, ApiCohortCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), CREATE, COHORT, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), CREATE, COHORT, new ResourceId(studyId));
 
     // Make sure underlay name and study id are valid.
     underlaysService.getUnderlay(body.getUnderlayName());
@@ -70,7 +70,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
             .underlayName(body.getUnderlayName())
             .cohortRevisionGroupId(newCohortRevisionGroupId)
             .version(Cohort.STARTING_VERSION)
-            .createdBy(UserId.currentUser().getEmail())
+            .createdBy(SpringAuthentication.getCurrentUser().getEmail())
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .build();
@@ -83,7 +83,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<Void> deleteCohort(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), DELETE, COHORT, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(), DELETE, COHORT, new ResourceId(cohortId));
     cohortService.deleteCohort(studyId, cohortId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -91,7 +91,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortV2> getCohort(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), READ, COHORT, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(), READ, COHORT, new ResourceId(cohortId));
     return ResponseEntity.ok(
         ToApiConversionUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
   }
@@ -100,7 +100,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
   public ResponseEntity<ApiCohortListV2> listCohorts(
       String studyId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedCohortIds =
-        accessControlService.listResourceIds(UserId.currentUser(), COHORT, offset, limit);
+        accessControlService.listResourceIds(
+            SpringAuthentication.getCurrentUser(), COHORT, offset, limit);
     List<Cohort> authorizedCohorts;
     if (authorizedCohortIds.isAllResourceIds()) {
       authorizedCohorts = cohortService.getAllCohorts(studyId, offset, limit);
@@ -125,7 +126,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   public ResponseEntity<ApiCohortV2> updateCohort(
       String studyId, String cohortId, ApiCohortUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), UPDATE, COHORT, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(), UPDATE, COHORT, new ResourceId(cohortId));
 
     List<CriteriaGroup> criteriaGroups =
         body.getCriteriaGroups() == null

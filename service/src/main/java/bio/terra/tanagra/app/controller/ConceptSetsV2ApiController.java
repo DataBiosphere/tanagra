@@ -6,6 +6,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
 
+import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.ConceptSetsV2Api;
 import bio.terra.tanagra.generated.model.ApiConceptSetCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiConceptSetListV2;
@@ -19,7 +20,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
-import bio.terra.tanagra.service.auth.UserId;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,7 +52,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> createConceptSet(
       String studyId, ApiConceptSetCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), CREATE, CONCEPT_SET, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), CREATE, CONCEPT_SET, new ResourceId(studyId));
 
     // Make sure underlay name, entity name, and study id are valid.
     underlaysService.getEntity(body.getUnderlayName(), body.getEntity());
@@ -67,7 +67,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             .conceptSetId(newConceptSetId)
             .underlayName(body.getUnderlayName())
             .entityName(body.getEntity())
-            .createdBy(UserId.currentUser().getEmail())
+            .createdBy(SpringAuthentication.getCurrentUser().getEmail())
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .build();
@@ -79,7 +79,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   @Override
   public ResponseEntity<Void> deleteConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), DELETE, CONCEPT_SET, new ResourceId(conceptSetId));
+        SpringAuthentication.getCurrentUser(), DELETE, CONCEPT_SET, new ResourceId(conceptSetId));
     conceptSetService.deleteConceptSet(studyId, conceptSetId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -87,7 +87,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   @Override
   public ResponseEntity<ApiConceptSetV2> getConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), READ, CONCEPT_SET, new ResourceId(conceptSetId));
+        SpringAuthentication.getCurrentUser(), READ, CONCEPT_SET, new ResourceId(conceptSetId));
     return ResponseEntity.ok(toApiObject(conceptSetService.getConceptSet(studyId, conceptSetId)));
   }
 
@@ -95,7 +95,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetListV2> listConceptSets(
       String studyId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedConceptSetIds =
-        accessControlService.listResourceIds(UserId.currentUser(), CONCEPT_SET, offset, limit);
+        accessControlService.listResourceIds(
+            SpringAuthentication.getCurrentUser(), CONCEPT_SET, offset, limit);
     List<ConceptSet> authorizedConceptSets;
     if (authorizedConceptSetIds.isAllResourceIds()) {
       authorizedConceptSets = conceptSetService.getAllConceptSets(studyId, offset, limit);
@@ -120,7 +121,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> updateConceptSet(
       String studyId, String conceptSetId, ApiConceptSetUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        UserId.currentUser(), UPDATE, CONCEPT_SET, new ResourceId(conceptSetId));
+        SpringAuthentication.getCurrentUser(), UPDATE, CONCEPT_SET, new ResourceId(conceptSetId));
 
     // Make sure entity name is valid.
     if (body.getEntity() != null) {
