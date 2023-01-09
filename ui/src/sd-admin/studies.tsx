@@ -13,7 +13,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useAdminSource } from "sd-admin/source";
 import { StudyV2 } from "tanagra-api";
 
@@ -21,10 +21,8 @@ interface StudyResource {
   resourceId: string;
   resourceType: string;
   displayName: string;
-  study: {
-    id: string;
-    displayName: string;
-  };
+  studyId: string;
+  studyName: string;
   lastModified: string;
   underlayName: string;
   createdBy: string;
@@ -32,6 +30,7 @@ interface StudyResource {
 
 export function Studies() {
   const source = useAdminSource();
+  const { underlayName } = useParams<{ underlayName: string }>();
   const [loadingStudies, setLoadingStudies] = useState<boolean>(true);
   const [studies, setStudies] = useState<StudyV2[]>([]);
   const [studyResources, setStudyResources] = useState<StudyResource[]>([]);
@@ -41,7 +40,7 @@ export function Studies() {
   }, []);
 
   useEffect(() => {
-    if (studies?.length > 0) {
+    if (studies.length > 0) {
       getStudyResources();
     }
   }, [studies]);
@@ -52,18 +51,22 @@ export function Studies() {
     setLoadingStudies(false);
   };
 
-  const getCohortsAsResources = async (study: StudyV2) => {
+  const getCohortsAndReviewsAsResources = async (study: StudyV2) => {
     const studyCohorts = await source.getCohortsForStudy(study.id);
-    return studyCohorts.map(
-      ({ id, displayName, lastModified, underlayName, createdBy }) =>
+    const cohortReviews = await Promise.all(
+      studyCohorts.map(({ id }) => source.getReviewsForStudy(study.id, id))
+    );
+    return [...studyCohorts, ...cohortReviews.flat(1)].map(
+      ({ id, displayName, lastModified, createdBy }, index) =>
         ({
           resourceId: id,
-          resourceType: "Cohort",
+          resourceType: index < studyCohorts.length ? "Cohort" : "Review",
           displayName,
           lastModified: lastModified.toLocaleDateString(),
           underlayName,
           createdBy,
-          study: { id: study.id, displayName: study.displayName },
+          studyId: study.id,
+          studyName: study.displayName,
         } as StudyResource)
     );
   };
@@ -79,7 +82,8 @@ export function Studies() {
           lastModified: lastModified.toLocaleDateString(),
           underlayName,
           createdBy,
-          study: { id: study.id, displayName: study.displayName },
+          studyId: study.id,
+          studyName: study.displayName,
         } as StudyResource)
     );
   };
@@ -88,7 +92,7 @@ export function Studies() {
     const promises = studies.reduce(
       (promiseList, study) => [
         ...promiseList,
-        getCohortsAsResources(study),
+        getCohortsAndReviewsAsResources(study),
         getConceptSetsAsResources(study),
       ],
       [] as Promise<StudyResource[]>[]
@@ -114,7 +118,7 @@ export function Studies() {
             <CircularProgress />
           </Backdrop>
           {!loadingStudies && !studies.length && (
-            <Typography variant="h4">No studies</Typography>
+            <Typography variant="h4">No studies found</Typography>
           )}
           {studies.map((study, index) => (
             <Card
@@ -170,9 +174,9 @@ export function Studies() {
                         color="primary"
                         underline="hover"
                         component={RouterLink}
-                        to={resource.study.id}
+                        to={resource.studyId}
                       >
-                        {resource.study.displayName}
+                        {resource.studyName}
                       </Link>
                     </TableCell>
                     <TableCell>{resource.lastModified}</TableCell>

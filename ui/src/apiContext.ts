@@ -228,7 +228,6 @@ class FakeHintsApi {
 }
 
 class FakeStudiesAPI {}
-class FakeCohortsAPI {}
 
 class FakeCohortsAPI {}
 
