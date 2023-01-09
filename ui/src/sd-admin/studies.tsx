@@ -132,6 +132,7 @@ export function Studies() {
                 margin: "0 1rem 1rem 0",
                 textDecoration: "none",
               }}
+              data-testid="study-card"
               component={RouterLink}
               to={study.id}
             >

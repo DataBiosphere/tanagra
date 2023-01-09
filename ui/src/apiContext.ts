@@ -227,13 +227,73 @@ class FakeHintsApi {
   }
 }
 
-class FakeStudiesAPI {}
+class FakeStudiesAPI {
+  async listStudies(): Promise<Array<tanagra.StudyV2>> {
+    return [
+      {
+        id: "test_study",
+        created: new Date(),
+        createdBy: "test_user",
+        displayName: "Test Study",
+        lastModified: new Date(),
+      },
+    ];
+  }
+}
 
-class FakeCohortsAPI {}
+class FakeCohortsAPI {
+  async listCohorts(): Promise<Array<tanagra.CohortV2>> {
+    return [
+      {
+        id: "test_study",
+        created: new Date(),
+        createdBy: "test_user",
+        displayName: "Test Study",
+        lastModified: new Date(),
+        underlayName: "test_underlay",
+        criteriaGroups: [],
+      },
+    ];
+  }
+}
 
-class FakeConceptSetsAPI {}
+class FakeConceptSetsAPI {
+  async listConceptSets(): Promise<Array<tanagra.ConceptSetV2>> {
+    return [
+      {
+        id: "test_study",
+        created: new Date(),
+        createdBy: "test_user",
+        displayName: "Test Study",
+        lastModified: new Date(),
+        underlayName: "test_underlay",
+        entity: "test_entity",
+        criteria: {
+          id: "entity_id",
+          displayName: "test_entity",
+          pluginName: "test_plugin",
+          selectionData: "test_data",
+          uiConfig: "test_config",
+        },
+      },
+    ];
+  }
+}
 
-class FakeReviewsAPI {}
+class FakeReviewsAPI {
+  async listReviews(): Promise<Array<tanagra.ReviewV2>> {
+    return [
+      {
+        id: "test_study",
+        created: new Date(),
+        createdBy: "test_user",
+        displayName: "Test Study",
+        lastModified: new Date(),
+        size: 0,
+      },
+    ];
+  }
+}
 
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
