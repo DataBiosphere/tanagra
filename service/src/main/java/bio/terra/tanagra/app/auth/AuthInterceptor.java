@@ -64,7 +64,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     ApiOperation apiOp = AnnotationUtils.findAnnotation(method.getMethod(), ApiOperation.class);
     if (apiOp != null) {
       for (String tag : apiOp.tags()) {
-        if (!tag.isEmpty() && OPENAPI_TAG_AUTH_NOT_REQUIRED.equals(tag)) {
+        if (OPENAPI_TAG_AUTH_NOT_REQUIRED.equals(tag)) {
           LOGGER.info(
               "Authorization not required by endpoint: {}", request.getRequestURL().toString());
           return true;
