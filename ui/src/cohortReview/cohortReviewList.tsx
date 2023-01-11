@@ -2,12 +2,14 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
+import { generateId } from "cohort";
 import Empty from "components/empty";
 import LoadingOverlay from "components/loadingOverlay";
 import SelectablePaper from "components/selectablePaper";
@@ -15,16 +17,42 @@ import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { CohortReview } from "data/types";
 import { useCohort, useUnderlay } from "hooks";
-import { useCallback, useEffect } from "react";
+import produce from "immer";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { absoluteCohortURL, cohortReviewURL } from "router";
-import { useImmer } from "use-immer";
+import useSWR from "swr";
 import { useNewReviewDialog } from "./newReviewDialog";
 
-type State = {
-  loading: boolean;
-  reviews?: CohortReview[];
+type PendingItem = {
+  id: string;
+  displayName: string;
+  size: number;
+  created: Date;
 };
+
+class ReviewListItem {
+  constructor(public review?: CohortReview, public pending?: PendingItem) {}
+
+  id() {
+    return this.pending?.id ?? this.review?.id;
+  }
+
+  displayName() {
+    return this.pending?.displayName ?? this.review?.displayName;
+  }
+
+  size() {
+    return this.pending?.size ?? this.review?.size;
+  }
+
+  created() {
+    return this.pending?.created ?? this.review?.created;
+  }
+}
+
+function wrapResults(results: CohortReview[]): ReviewListItem[] {
+  return results.map((r) => new ReviewListItem(r));
+}
 
 export function CohortReviewList() {
   const source = useSource();
@@ -33,67 +61,77 @@ export function CohortReviewList() {
   const navigate = useNavigate();
   const { reviewId } = useParams<{ reviewId: string }>();
 
-  const [state, updateState] = useImmer<State>({ loading: true });
-
-  const selectedReview = state.reviews?.find(
-    (r, i) => r.id === reviewId || (!reviewId && i === 0)
+  const reviewsState = useSWR(
+    { component: "CohortReviewList", cohortId: cohort.id },
+    async () => {
+      return wrapResults(await source.listCohortReviews(cohort.id));
+    }
   );
 
-  const loadReviews = useCallback(async () => {
-    const reviews = await source.listCohortReviews(cohort.id);
-    updateState((state) => {
-      state.loading = false;
-      state.reviews = reviews;
-    });
-  }, [cohort]);
-
-  useEffect(() => {
-    loadReviews();
-  }, [cohort]);
+  let selectedReview: CohortReview | undefined;
+  reviewsState.data?.forEach((item) => {
+    if (selectedReview || !item.review) {
+      return;
+    }
+    if (!reviewId || item.id() === reviewId) {
+      selectedReview = item.review;
+    }
+  });
 
   const onCreateNewReview = (name: string, size: number) => {
-    updateState((state) => {
-      state.loading = true;
-    });
-    const create = async () => {
-      const review = await source.createCohortReview(name, size, cohort);
-
-      await loadReviews();
-
-      navigate(cohortReviewURL(underlay.name, cohort.id, review.id));
-    };
-    create();
+    reviewsState.mutate(
+      async () => {
+        await source.createCohortReview(name, size, cohort);
+        return wrapResults(await source.listCohortReviews(cohort.id));
+      },
+      {
+        optimisticData: [
+          new ReviewListItem(undefined, {
+            displayName: name,
+            size,
+            created: new Date(),
+            id: generateId(),
+          }),
+          ...(reviewsState?.data ?? []),
+        ],
+      }
+    );
   };
 
   const onDeleteReview = () => {
-    if (!selectedReview?.id) {
-      throw new Error("No review selected to delete");
-    }
-
-    updateState((state) => {
-      state.loading = true;
-    });
-    const del = async () => {
-      await source.deleteCohortReview(selectedReview.id, cohort.name);
-      await loadReviews();
-      navigate(cohortReviewURL(underlay.name, cohort.id));
-    };
-    del();
+    reviewsState.mutate(
+      async () => {
+        if (selectedReview?.id) {
+          await source.deleteCohortReview(selectedReview.id, cohort.name);
+          navigate(cohortReviewURL(underlay.name, cohort.id));
+        }
+        return wrapResults(await source.listCohortReviews(cohort.id));
+      },
+      {
+        optimisticData: [...(reviewsState?.data ?? [])].filter(
+          (item) => item.id() !== selectedReview?.id
+        ),
+      }
+    );
   };
 
   const onRenameReview = (name: string) => {
-    updateState((state) => {
-      state.loading = true;
-    });
-    const rename = async () => {
-      if (!selectedReview?.id) {
-        throw new Error("No review selected to rename");
+    reviewsState.mutate(
+      async () => {
+        if (selectedReview?.id) {
+          await source.renameCohortReview(name, selectedReview.id, cohort.name);
+        }
+        return wrapResults(await source.listCohortReviews(cohort.id));
+      },
+      {
+        optimisticData: produce(reviewsState?.data, (data) => {
+          const sel = data?.find((item) => item.id() === selectedReview?.id);
+          if (sel && sel.review) {
+            sel.review.displayName = name;
+          }
+        }),
       }
-
-      await source.renameCohortReview(name, selectedReview.id, cohort.name);
-      await loadReviews();
-    };
-    rename();
+    );
   };
 
   const [newReviewDialog, showNewReviewDialog] = useNewReviewDialog({
@@ -138,22 +176,40 @@ export function CohortReviewList() {
               <AddIcon />
             </IconButton>
           </Stack>
-          {!!state.reviews?.length ? (
+          {!!reviewsState.data?.length ? (
             <List sx={{ p: 0 }}>
-              {state.reviews?.map((review) => (
+              {reviewsState.data?.map((item) => (
                 <ListItemButton
                   sx={{ p: 0, mt: 1 }}
                   component={RouterLink}
-                  key={review.id}
-                  to={cohortReviewURL(underlay.name, cohort.id, review.id)}
+                  key={item.id()}
+                  to={cohortReviewURL(underlay.name, cohort.id, item.id())}
+                  disabled={!!item.pending}
                 >
-                  <SelectablePaper selected={review.id === selectedReview?.id}>
-                    <Stack sx={{ p: 1 }}>
-                      <Typography variant="h4">{review.displayName}</Typography>
-                      <Typography variant="body2">
-                        {review.created.toLocaleString()}
+                  <SelectablePaper selected={item.id() === selectedReview?.id}>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      sx={{ p: 1 }}
+                    >
+                      <Stack>
+                        <Typography variant="h4">
+                          {item.displayName()}
+                        </Typography>
+                        <Typography variant="body2">
+                          {item.created()?.toLocaleString()}
+                        </Typography>
+                        <Typography variant="body2">
+                          {`Participants: ${item.size()}`}
+                        </Typography>
+                      </Stack>
+                      <Typography variant="h4">
+                        {!!item.pending ? (
+                          <CircularProgress
+                            sx={{ maxWidth: "1em", maxHeight: "1em" }}
+                          />
+                        ) : null}
                       </Typography>
-                      <Typography variant="body2">{`Participants: ${review.size}`}</Typography>
                     </Stack>
                   </SelectablePaper>
                 </ListItemButton>
@@ -200,7 +256,7 @@ export function CohortReviewList() {
           )}
         </Box>
         <Box sx={{ gridArea: "1/1/-1/-1" }}>
-          {state.loading ? <LoadingOverlay /> : undefined}
+          {reviewsState.isLoading ? <LoadingOverlay /> : undefined}
         </Box>
       </Box>
       {newReviewDialog}
