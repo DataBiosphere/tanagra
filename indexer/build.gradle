@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
     ext {
-        beam = "2.32.0"
+        beam = "2.43.0"
     }
     implementation project(":underlay")
     testImplementation(testFixtures(project(":underlay")))
