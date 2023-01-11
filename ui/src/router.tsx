@@ -10,6 +10,7 @@ import { Overview } from "overview";
 import { ErrorBoundary } from "react-error-boundary";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { SdAdmin } from "sd-admin/sdAdmin";
+import { Studies } from "sd-admin/studies";
 import { UnderlaySelect } from "underlaySelect";
 import { Datasets } from "./datasets";
 
@@ -39,6 +40,7 @@ export function AppRouter() {
           </Route>
         </Route>
         <Route path="sdAdmin" element={<SdAdmin />} />
+        <Route path="studies" element={<Studies />} />
         <Route
           path="*"
           element={<NotFound error={new PathError("Invalid URL.")} />}
