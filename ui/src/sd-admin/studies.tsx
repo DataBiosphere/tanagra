@@ -13,9 +13,49 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { useEffect, useState } from "react";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useAdminSource } from "sd-admin/source";
-import { StudyV2 } from "tanagra-api";
+import { CohortV2, ReviewV2, StudyV2 } from "tanagra-api";
+
+const mapCohortToResource = (
+  {
+    id,
+    underlayName,
+    displayName,
+    lastModified,
+    criteriaGroups,
+    createdBy,
+  }: CohortV2,
+  study: StudyV2
+) =>
+  ({
+    resourceId: id,
+    resourceType: "Cohort",
+    displayName,
+    lastModified: lastModified.toLocaleDateString(),
+    underlayName,
+    createdBy,
+    studyId: study.id,
+    studyName: study.displayName,
+    path: `/${underlayName}/cohorts/${id}/${criteriaGroups[0]?.id ?? "first"}`,
+  } as StudyResource);
+
+const mapReviewToResource = (
+  { id, displayName, lastModified, createdBy }: ReviewV2,
+  study: StudyV2,
+  cohort: CohortV2
+) =>
+  ({
+    resourceId: id,
+    resourceType: "Review",
+    displayName,
+    lastModified: lastModified.toLocaleDateString(),
+    underlayName: cohort.underlayName,
+    createdBy,
+    studyId: study.id,
+    studyName: study.displayName,
+    path: `/${cohort.underlayName}/review/${cohort.id}/${id}`,
+  } as StudyResource);
 
 interface StudyResource {
   resourceId: string;
@@ -26,11 +66,11 @@ interface StudyResource {
   lastModified: string;
   underlayName: string;
   createdBy: string;
+  path: string;
 }
 
 export function Studies() {
   const source = useAdminSource();
-  const { underlayName } = useParams<{ underlayName: string }>();
   const [loadingStudies, setLoadingStudies] = useState<boolean>(true);
   const [studies, setStudies] = useState<StudyV2[]>([]);
   const [studyResources, setStudyResources] = useState<StudyResource[]>([]);
@@ -56,19 +96,19 @@ export function Studies() {
     const cohortReviews = await Promise.all(
       studyCohorts.map(({ id }) => source.getReviewsForStudy(study.id, id))
     );
-    return [...studyCohorts, ...cohortReviews.flat(1)].map(
-      ({ id, displayName, lastModified, createdBy }, index) =>
-        ({
-          resourceId: id,
-          resourceType: index < studyCohorts.length ? "Cohort" : "Review",
-          displayName,
-          lastModified: lastModified.toLocaleDateString(),
-          underlayName,
-          createdBy,
-          studyId: study.id,
-          studyName: study.displayName,
-        } as StudyResource)
+    const cohortResources = studyCohorts.map((cohort) =>
+      mapCohortToResource(cohort, study)
     );
+    const reviewResources = cohortReviews.reduce(
+      (resourceList, reviewList, index) => [
+        ...resourceList,
+        ...reviewList.map((review) =>
+          mapReviewToResource(review, study, studyCohorts[index])
+        ),
+      ],
+      [] as StudyResource[]
+    );
+    return [...cohortResources, ...reviewResources];
   };
 
   const getConceptSetsAsResources = async (study: StudyV2) => {
@@ -84,6 +124,7 @@ export function Studies() {
           createdBy,
           studyId: study.id,
           studyName: study.displayName,
+          path: `/${underlayName}/conceptSets/edit/${id}`,
         } as StudyResource)
     );
   };
@@ -132,9 +173,8 @@ export function Studies() {
                 margin: "0 1rem 1rem 0",
                 textDecoration: "none",
               }}
-              data-testid="study-card"
               component={RouterLink}
-              to={study.id}
+              to={""}
             >
               <CardContent sx={{ height: "100%" }}>
                 <Typography variant="h3">{study.displayName}</Typography>
@@ -153,14 +193,13 @@ export function Studies() {
                   <TableCell>Name</TableCell>
                   <TableCell>Study Name</TableCell>
                   <TableCell>Last Modified Date</TableCell>
-                  <TableCell>Dataset</TableCell>
                   <TableCell>Created By</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {studyResources.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6}>No resources found</TableCell>
+                    <TableCell colSpan={5}>No resources found</TableCell>
                   </TableRow>
                 )}
                 {studyResources.map((resource, index) => (
@@ -168,20 +207,19 @@ export function Studies() {
                     <TableCell>
                       <Chip label={resource.resourceType} color="primary" />
                     </TableCell>
-                    <TableCell>{resource.displayName}</TableCell>
                     <TableCell>
                       <Link
                         variant="body2"
                         color="primary"
                         underline="hover"
                         component={RouterLink}
-                        to={resource.studyId}
+                        to={resource.path}
                       >
-                        {resource.studyName}
+                        {resource.displayName}
                       </Link>
                     </TableCell>
+                    <TableCell>{resource.studyName}</TableCell>
                     <TableCell>{resource.lastModified}</TableCell>
-                    <TableCell>{resource.underlayName}</TableCell>
                     <TableCell>{resource.createdBy}</TableCell>
                   </TableRow>
                 ))}

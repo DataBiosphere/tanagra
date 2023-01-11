@@ -20,32 +20,27 @@ export function AppRouter() {
       <Routes>
         <Route index element={<UnderlaySelect />} />
         <Route path=":underlayName">
-          <Route index element={<Studies />} />
-          <Route path=":studyId">
-            <Route index element={<Datasets />} />
-            <Route path="cohorts/:cohortId/:groupId">
-              <Route index element={<Overview />} />
-              <Route path="add">
-                <Route index element={<AddCriteria />} />
-                <Route path=":configId" element={<NewCriteria />} />
-              </Route>
-              <Route path="edit/:criteriaId" element={<Edit />} />
+          <Route index element={<Datasets />} />
+          <Route path="cohorts/:cohortId/:groupId">
+            <Route index element={<Overview />} />
+            <Route path="add">
+              <Route index element={<AddCriteria />} />
+              <Route path=":configId" element={<NewCriteria />} />
             </Route>
-            <Route
-              path="conceptSets/new/:configId"
-              element={<NewConceptSet />}
-            />
-            <Route
-              path="conceptSets/edit/:conceptSetId"
-              element={<ConceptSetEdit />}
-            />
-            <Route path="review/:cohortId">
-              <Route index element={<CohortReviewList />} />
-              <Route path=":reviewId" element={<CohortReviewList />} />
-            </Route>
+            <Route path="edit/:criteriaId" element={<Edit />} />
+          </Route>
+          <Route path="conceptSets/new/:configId" element={<NewConceptSet />} />
+          <Route
+            path="conceptSets/edit/:conceptSetId"
+            element={<ConceptSetEdit />}
+          />
+          <Route path="review/:cohortId">
+            <Route index element={<CohortReviewList />} />
+            <Route path=":reviewId" element={<CohortReviewList />} />
           </Route>
         </Route>
         <Route path="sdAdmin" element={<SdAdmin />} />
+        <Route path="studies" element={<Studies />} />
         <Route
           path="*"
           element={<NotFound error={new PathError("Invalid URL.")} />}
