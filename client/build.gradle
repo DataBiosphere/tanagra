@@ -61,6 +61,10 @@ dependencies {
     swaggerCodegen group: "io.swagger.codegen.v3", name: "swagger-codegen-cli"
 }
 
+bootJar {
+    enabled = false
+}
+
 def includeDir = "$projectDir/gradle"
 apply(from: "$includeDir/artifactory.gradle")
 apply(from: "$includeDir/open-api.gradle")
