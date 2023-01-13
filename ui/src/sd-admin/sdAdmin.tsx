@@ -3,6 +3,7 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import { useState } from "react";
 import { CohortAdmin } from "./cohortAdmin";
+import { CohortAudit } from "./cohortAudit";
 import { StudyAdmin } from "./studyAdmin";
 
 const TabPanel = ({ index }: { index: number }) => {
@@ -11,7 +12,7 @@ const TabPanel = ({ index }: { index: number }) => {
       {index === 0 && <StudyAdmin />}
       {index === 1 && <div>User content</div>}
       {index === 2 && <CohortAdmin />}
-      {index === 3 && <div>Cohort audit content</div>}
+      {index === 3 && <CohortAudit />}
     </div>
   );
 };
