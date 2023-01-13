@@ -49,7 +49,7 @@ public class BigQueryExecutor implements QueryExecutor {
 
     String sql =
         String.format(
-            "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS \n%s",
+            "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS %n%s",
             gcsBucketName, fileName, queryRequest.getSql());
     LOGGER.info("Running SQL against BigQuery: {}", sql);
     bigQuery.queryBigQuery(sql);
