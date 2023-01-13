@@ -36,4 +36,28 @@ public class BigQueryExecutor implements QueryExecutor {
 
     return new QueryResult(rowResults, queryRequest.getColumnHeaderSchema());
   }
+
+  @Override
+  public String executeAndExportResultsToGcs(QueryRequest queryRequest) {
+    String bucketName = "broad-tanagra-dev-bq-export2";
+    // TODO: Use study and dataset names instead.
+    String fileName =
+        "tanagra_export_"
+            + System.currentTimeMillis()
+            // GCS file name must be in wildcard format.
+            // https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_option_list:~:text=The%20uri%20option%20must%20be%20a%20single%2Dwildcard%20URI
+            + "_*.csv";
+
+    String sql =
+        String.format(
+            "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS \n%s",
+            bucketName, fileName, queryRequest.getSql());
+    LOGGER.info("Running SQL against BigQuery: {}", sql);
+    bigQuery.queryBigQuery(sql);
+
+    // Multiple files will be created only if export is very large (> 1GB). For now, just assume
+    // only "000000000000" was created.
+    // TODO: Detect and handle case where mulitple files are created.
+    return fileName.replace("*", "000000000000");
+  }
 }

@@ -57,6 +57,7 @@ import bio.terra.tanagra.underlay.displayhint.EnumVal;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.utils.GcsUtils;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -195,6 +196,14 @@ public class QuerysService {
               selectRelationshipFields));
     }
     return instances;
+  }
+
+  /** @return GCS signed URL of GCS file containing dataset CSV */
+  public String runInstancesQueryAndExportResultsToGcs(
+      DataPointer dataPointer, QueryRequest queryRequest) {
+    String fileName = dataPointer.getQueryExecutor().executeAndExportResultsToGcs(queryRequest);
+    return GcsUtils.createSignedUrl(
+        "melchang-test-project-3", "broad-tanagra-dev-bq-export2", fileName);
   }
 
   public QueryRequest buildInstanceCountsQuery(
