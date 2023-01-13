@@ -1,0 +1,25 @@
+
+publishing {
+    repositories {
+        // The target repository
+        maven {
+            // Choose whatever name you want
+            name = "GitHubPackages"
+            // The url of the repository, where the artifacts will be published
+            url = uri("https://maven.pkg.github.com/vanderbilt/tanagra")
+            credentials {
+                // The credentials (described in the next section)
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        tanagraApi(MavenPublication) {
+            groupId "bio.terra"
+            artifactId "tanagraapi"
+            version "${version}"
+            artifact("../service/build/libs/service-${version}.jar")
+        }
+    }
+}

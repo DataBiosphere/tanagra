@@ -130,4 +130,5 @@ apply from: "$rootDir/service/gradle/jib.gradle"
 apply from: "$rootDir/service/gradle/open-api.gradle"
 apply from: "$rootDir/service/gradle/version-properties.gradle"
 apply from: "$rootDir/service/gradle/task-dependencies.gradle"
+apply from: "$rootDir/service/gradle/vumc_github.gradle"
 
