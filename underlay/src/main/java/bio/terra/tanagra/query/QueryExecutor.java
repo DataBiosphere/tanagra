@@ -5,5 +5,5 @@ public interface QueryExecutor {
   QueryResult execute(QueryRequest queryRequest);
 
   /** @return GCS file name (no bucket name) */
-  String executeAndExportResultsToGcs(QueryRequest queryRequest);
+  String executeAndExportResultsToGcs(QueryRequest queryRequest, String gcsBucketName);
 }

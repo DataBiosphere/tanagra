@@ -38,9 +38,8 @@ public class BigQueryExecutor implements QueryExecutor {
   }
 
   @Override
-  public String executeAndExportResultsToGcs(QueryRequest queryRequest) {
-    String bucketName = "broad-tanagra-dev-bq-export2";
-    // TODO: Use study and dataset names instead.
+  public String executeAndExportResultsToGcs(QueryRequest queryRequest, String gcsBucketName) {
+    // TODO: Add study and dataset names.
     String fileName =
         "tanagra_export_"
             + System.currentTimeMillis()
@@ -51,7 +50,7 @@ public class BigQueryExecutor implements QueryExecutor {
     String sql =
         String.format(
             "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS \n%s",
-            bucketName, fileName, queryRequest.getSql());
+            gcsBucketName, fileName, queryRequest.getSql());
     LOGGER.info("Running SQL against BigQuery: {}", sql);
     bigQuery.queryBigQuery(sql);
 

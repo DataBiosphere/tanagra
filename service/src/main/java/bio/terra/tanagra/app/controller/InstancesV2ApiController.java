@@ -249,6 +249,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
         QUERY_INSTANCES,
         UNDERLAY,
         new ResourceId(underlayName));
+
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = selectAttributesFromRequest(body, entity);
     List<HierarchyField> selectHierarchyFields = selectHierarchyFieldsFromRequest(body, entity);
