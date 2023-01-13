@@ -7,7 +7,9 @@ import com.google.cloud.storage.StorageOptions;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-public class GcsUtils {
+public final class GcsUtils {
+
+  private GcsUtils() {}
 
   public static String createSignedUrl(String projectId, String bucketName, String fileName) {
     Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
