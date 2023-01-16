@@ -83,6 +83,8 @@ public class ComputeRollupCounts extends BigQueryIndexingJob {
     return "COMPUTE ROLLUPS ("
         + getRollupEntity().getName()
         + ", "
+        + relationship.getName()
+        + ", "
         + (hierarchy == null ? "NO HIERARCHY" : hierarchy.getName())
         + ")";
   }

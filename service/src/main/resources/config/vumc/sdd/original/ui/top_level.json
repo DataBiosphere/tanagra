@@ -179,6 +179,17 @@
       "classification": "ingredient"
     },
     {
+      "type": "classification",
+      "id": "tanagra-genotyping",
+      "title": "Genotyping Platform",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Genotyping Platform" }
+      ],
+      "classification": "Genotyping"
+    },
+    {
       "type": "attribute",
       "id": "tanagra-ethnicity",
       "title": "Ethnicity",

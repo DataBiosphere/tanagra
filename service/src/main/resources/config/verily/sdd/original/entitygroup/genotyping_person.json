@@ -1,0 +1,19 @@
+{
+  "name": "genotyping_person",
+  "type": "GROUP_ITEMS",
+  "groupEntity": "genotyping",
+  "itemsEntity": "person",
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "groupToItems": {
+        "idPairsTable": { "rawSqlFile": "genotype_result.sql" },
+        "idPairsIdA": { "column": "platform_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

@@ -17,6 +17,7 @@
     "condition_occurrence.json",
     "ingredient.json",
     "ingredient_occurrence.json",
+    "genotyping.json",
     "measurement.json",
     "measurement_occurrence.json",
     "note.json",
@@ -33,6 +34,7 @@
   "entityGroups": [
     "brand_ingredient.json",
     "condition_person_occurrence.json",
+    "genotyping_person.json",
     "ingredient_person_occurrence.json",
     "measurement_person_occurrence.json",
     "note_person_occurrence.json",
