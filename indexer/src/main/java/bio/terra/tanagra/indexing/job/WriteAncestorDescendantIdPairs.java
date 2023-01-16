@@ -10,6 +10,7 @@ import bio.terra.tanagra.indexing.job.beam.GraphUtils;
 import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
@@ -66,11 +67,10 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
 
   @Override
   public void run(boolean isDryRun) {
+    HierarchyMapping sourceHierarchyMapping =
+        getEntity().getHierarchy(hierarchyName).getMapping(Underlay.MappingType.SOURCE);
     SQLExpression selectChildParentIdPairs =
-        getEntity()
-            .getHierarchy(hierarchyName)
-            .getMapping(Underlay.MappingType.SOURCE)
-            .queryChildParentPairs(CHILD_COLUMN_NAME, PARENT_COLUMN_NAME);
+        sourceHierarchyMapping.queryChildParentPairs(CHILD_COLUMN_NAME, PARENT_COLUMN_NAME);
     String sql = selectChildParentIdPairs.renderSQL();
     LOGGER.info("select all child-parent id pairs SQL: {}", sql);
 
@@ -89,7 +89,7 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
                         TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
                     .via(WriteAncestorDescendantIdPairs::relationshipRowToKV));
     PCollection<KV<Long, Long>> flattenedRelationships =
-        GraphUtils.transitiveClosure(relationships, DEFAULT_MAX_HIERARCHY_DEPTH)
+        GraphUtils.transitiveClosure(relationships, sourceHierarchyMapping.getMaxHierarchyDepth())
             .apply(Distinct.create()); // There may be duplicate descendants.
     flattenedRelationships
         .apply(ParDo.of(new KVToTableRow()))

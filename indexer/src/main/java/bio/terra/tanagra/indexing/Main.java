@@ -1,9 +1,11 @@
 package bio.terra.tanagra.indexing;
 
+import static bio.terra.tanagra.indexing.Main.Command.INDEX_ALL;
 import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY;
 import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY_GROUP;
 
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.utils.FileIO;
 import bio.terra.tanagra.utils.FileUtils;
 import java.nio.file.Path;
@@ -21,20 +23,7 @@ public final class Main {
     CLEAN_ALL
   }
 
-  /**
-   * Main entrypoint for running indexing.
-   *
-   * <p>- Expand the user-specified underlay config:
-   *
-   * <p>./gradlew api:index -Dexec.args="EXPAND_CONFIG underlay.json output_dir"
-   *
-   * <p>- Kick off the indexing jobs for a single entity:
-   *
-   * <p>[dry run] ./gradlew api:index -Dexec.args="INDEX_ENTITY output_dir/underlay.json person
-   * DRY_RUN"
-   *
-   * <p>[actual run] ./gradlew api:index -Dexec.args="INDEX_ENTITY output_dir/underlay.json person"
-   */
+  /** Main entrypoint for running indexing. */
   public static void main(String... args) throws Exception {
     // TODO: Consider using the picocli library for command parsing and packaging this as an actual
     // CLI.
@@ -61,55 +50,65 @@ public final class Main {
         break;
       case INDEX_ENTITY:
       case CLEAN_ENTITY:
-        boolean isRunEntity = INDEX_ENTITY.equals(cmd);
+        IndexingJob.RunType runTypeEntity =
+            INDEX_ENTITY.equals(cmd) ? IndexingJob.RunType.RUN : IndexingJob.RunType.CLEAN;
         String nameEntity = args[2];
+        boolean isAllEntities = "*".equals(nameEntity);
         boolean isDryRunEntity = isDryRun(3, args);
+        Indexer.JobExecutor jobExecEntity = getJobExec(4, args);
 
         // Index/clean all the entities (*) or just one (entityName).
-        if ("*".equals(nameEntity)) {
-          if (isRunEntity) {
-            indexer.runJobsForAllEntities(isDryRunEntity);
-          } else {
-            indexer.cleanAllEntities(isDryRunEntity);
-          }
+        JobRunner entityJobRunner;
+        if (isAllEntities) {
+          entityJobRunner =
+              indexer.runJobsForAllEntities(jobExecEntity, isDryRunEntity, runTypeEntity);
         } else {
-          if (isRunEntity) {
-            indexer.runJobsForEntity(nameEntity, isDryRunEntity);
-          } else {
-            indexer.cleanEntity(nameEntity, isDryRunEntity);
-          }
+          entityJobRunner =
+              indexer.runJobsForSingleEntity(
+                  jobExecEntity, isDryRunEntity, runTypeEntity, nameEntity);
         }
+        entityJobRunner.printJobResultSummary();
+        entityJobRunner.throwIfAnyFailures();
         break;
       case INDEX_ENTITY_GROUP:
       case CLEAN_ENTITY_GROUP:
-        boolean isRunEntityGroup = INDEX_ENTITY_GROUP.equals(cmd);
+        IndexingJob.RunType runTypeEntityGroup =
+            INDEX_ENTITY_GROUP.equals(cmd) ? IndexingJob.RunType.RUN : IndexingJob.RunType.CLEAN;
         String nameEntityGroup = args[2];
+        boolean isAllEntityGroups = "*".equals(nameEntityGroup);
         boolean isDryRunEntityGroup = isDryRun(3, args);
+        Indexer.JobExecutor jobExecEntityGroup = getJobExec(4, args);
 
         // Index/clean all the entity groups (*) or just one (entityGroupName).
-        if ("*".equals(nameEntityGroup)) {
-          if (isRunEntityGroup) {
-            indexer.runJobsForAllEntityGroups(isDryRunEntityGroup);
-          } else {
-            indexer.cleanAllEntityGroups(isDryRunEntityGroup);
-          }
+        JobRunner entityGroupJobRunner;
+        if (isAllEntityGroups) {
+          entityGroupJobRunner =
+              indexer.runJobsForAllEntityGroups(
+                  jobExecEntityGroup, isDryRunEntityGroup, runTypeEntityGroup);
         } else {
-          if (isRunEntityGroup) {
-            indexer.runJobsForEntityGroup(nameEntityGroup, isDryRunEntityGroup);
-          } else {
-            indexer.cleanEntityGroup(nameEntityGroup, isDryRunEntityGroup);
-          }
+          entityGroupJobRunner =
+              indexer.runJobsForSingleEntityGroup(
+                  jobExecEntityGroup, isDryRunEntityGroup, runTypeEntityGroup, nameEntityGroup);
         }
+        entityGroupJobRunner.printJobResultSummary();
+        entityGroupJobRunner.throwIfAnyFailures();
         break;
       case INDEX_ALL:
-        boolean isDryRunIndexAll = isDryRun(2, args);
-        indexer.runJobsForAllEntities(isDryRunIndexAll);
-        indexer.runJobsForAllEntityGroups(isDryRunIndexAll);
-        break;
       case CLEAN_ALL:
-        boolean isDryRunCleanAll = isDryRun(2, args);
-        indexer.cleanAllEntities(isDryRunCleanAll);
-        indexer.cleanAllEntityGroups(isDryRunCleanAll);
+        IndexingJob.RunType runTypeAll =
+            INDEX_ALL.equals(cmd) ? IndexingJob.RunType.RUN : IndexingJob.RunType.CLEAN;
+        boolean isDryRunAll = isDryRun(2, args);
+        Indexer.JobExecutor jobExecAll = getJobExec(3, args);
+
+        // Index/clean all the entities and entity groups.
+        JobRunner entityJobRunnerAll =
+            indexer.runJobsForAllEntities(jobExecAll, isDryRunAll, runTypeAll);
+        JobRunner entityGroupJobRunnerAll =
+            indexer.runJobsForAllEntityGroups(jobExecAll, isDryRunAll, runTypeAll);
+        entityJobRunnerAll.printJobResultSummary();
+        entityGroupJobRunnerAll.printJobResultSummary();
+        entityJobRunnerAll.throwIfAnyFailures();
+        entityGroupJobRunnerAll.throwIfAnyFailures();
         break;
       default:
         throw new SystemException("Unknown command: " + cmd);
@@ -118,5 +117,11 @@ public final class Main {
 
   private static boolean isDryRun(int index, String... args) {
     return args.length > index && "DRY_RUN".equals(args[index]);
+  }
+
+  private static Indexer.JobExecutor getJobExec(int index, String... args) {
+    return args.length > index && "SERIAL".equals(args[index])
+        ? Indexer.JobExecutor.SERIAL
+        : Indexer.JobExecutor.PARALLEL;
   }
 }

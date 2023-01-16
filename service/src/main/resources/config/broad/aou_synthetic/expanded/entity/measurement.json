@@ -269,7 +269,8 @@
               "column" : "concept_id"
             }
           }
-        }
+        },
+        "maxHierarchyDepth" : 11
       }
     }
   },
@@ -359,7 +360,8 @@
               "column" : "id"
             }
           }
-        }
+        },
+        "maxHierarchyDepth" : 11
       }
     }
   }

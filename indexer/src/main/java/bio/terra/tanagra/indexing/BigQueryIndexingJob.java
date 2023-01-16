@@ -48,21 +48,10 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
   protected static final String DEFAULT_REGION = "us-central1";
 
-  // The maximum depth of ancestors present in a hierarchy. This may be larger
-  // than the actual max depth, but if it is smaller the resulting table will be incomplete.
-  // TODO: Allow overriding the default max hierarchy depth.
-  protected static final int DEFAULT_MAX_HIERARCHY_DEPTH = 64;
-
   private final Entity entity;
 
   protected BigQueryIndexingJob(Entity entity) {
     this.entity = entity;
-  }
-
-  @Override
-  public boolean prerequisitesComplete() {
-    // TODO: Implement a required ordering so we can run jobs in parallel.
-    return true;
   }
 
   protected Entity getEntity() {
@@ -232,6 +221,8 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
   /** Build a name for the Dataflow job that will be visible in the Cloud Console. */
   private String getDataflowJobName() {
+    String underlayName = entity.getUnderlay().getName();
+    String normalizedUnderlayName = underlayName.toLowerCase().replaceAll("[^a-z0-9]", "-");
     String jobDisplayName = getName();
     String normalizedJobDisplayName =
         jobDisplayName == null || jobDisplayName.length() == 0
@@ -243,7 +234,8 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
     String randomPart = Integer.toHexString(ThreadLocalRandom.current().nextInt());
     return String.format(
-        "%s-%s-%s-%s", normalizedJobDisplayName, normalizedUserName, datePart, randomPart);
+        "%s-%s-%s-%s-%s",
+        normalizedUnderlayName, normalizedJobDisplayName, normalizedUserName, datePart, randomPart);
   }
 
   protected String getAppDefaultSAEmail() {

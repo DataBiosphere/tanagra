@@ -22,5 +22,4 @@ ON c.concept_id = textsearch.id
 
 WHERE c.domain_id = 'Drug'
 AND c.concept_class_id = 'Brand Name'
-AND c.invalid_reason IS NULL
 AND c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')

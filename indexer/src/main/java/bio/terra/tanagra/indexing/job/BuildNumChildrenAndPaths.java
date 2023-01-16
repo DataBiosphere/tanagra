@@ -166,7 +166,8 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
 
     // compute a path to a root node for each node in the hierarchy
     PCollection<KV<Long, String>> nodePathKVsPC =
-        PathUtils.computePaths(allNodesPC, childParentRelationshipsPC, DEFAULT_MAX_HIERARCHY_DEPTH);
+        PathUtils.computePaths(
+            allNodesPC, childParentRelationshipsPC, sourceHierarchyMapping.getMaxHierarchyDepth());
 
     // count the number of children for each node in the hierarchy
     PCollection<KV<Long, Long>> nodeNumChildrenKVsPC =

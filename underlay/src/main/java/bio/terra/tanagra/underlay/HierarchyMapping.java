@@ -14,6 +14,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class HierarchyMapping {
+  // The maximum depth of ancestors present in a hierarchy. This may be larger
+  // than the actual max depth, but if it is smaller the resulting table will be incomplete.
+  private static final int DEFAULT_MAX_HIERARCHY_DEPTH = 64;
+
   private static final String ID_FIELD_NAME = "id";
   public static final String CHILD_FIELD_NAME = "child";
   public static final String PARENT_FIELD_NAME = "parent";
@@ -37,6 +41,7 @@ public final class HierarchyMapping {
   private final AuxiliaryDataMapping rootNodesFilter;
   private final AuxiliaryDataMapping ancestorDescendant;
   private final AuxiliaryDataMapping pathNumChildren;
+  private final int maxHierarchyDepth;
   private final Underlay.MappingType mappingType;
   private Hierarchy hierarchy;
 
@@ -45,11 +50,13 @@ public final class HierarchyMapping {
       AuxiliaryDataMapping rootNodesFilter,
       AuxiliaryDataMapping ancestorDescendant,
       AuxiliaryDataMapping pathNumChildren,
+      int maxHierarchyDepth,
       Underlay.MappingType mappingType) {
     this.childParent = childParent;
     this.rootNodesFilter = rootNodesFilter;
     this.ancestorDescendant = ancestorDescendant;
     this.pathNumChildren = pathNumChildren;
+    this.maxHierarchyDepth = maxHierarchyDepth;
     this.mappingType = mappingType;
   }
 
@@ -83,11 +90,16 @@ public final class HierarchyMapping {
             : AuxiliaryDataMapping.fromSerialized(
                 serialized.getPathNumChildren(), dataPointer, PATH_NUM_CHILDREN_AUXILIARY_DATA);
     return new HierarchyMapping(
-        childParent, rootNodesFilter, ancestorDescendant, pathNumChildren, mappingType);
+        childParent,
+        rootNodesFilter,
+        ancestorDescendant,
+        pathNumChildren,
+        serialized.getMaxHierarchyDepth(),
+        mappingType);
   }
 
   public static HierarchyMapping defaultIndexMapping(
-      String entityName, String hierarchyName, FieldPointer entityIdField) {
+      String entityName, String hierarchyName, FieldPointer entityIdField, int maxHierarchyDepth) {
     TablePointer entityTable = entityIdField.getTablePointer();
     DataPointer dataPointer = entityTable.getDataPointer();
     String tablePrefix = entityName + "_" + hierarchyName + "_";
@@ -124,7 +136,12 @@ public final class HierarchyMapping {
                         })));
 
     return new HierarchyMapping(
-        childParent, null, ancestorDescendant, pathNumChildren, Underlay.MappingType.INDEX);
+        childParent,
+        null,
+        ancestorDescendant,
+        pathNumChildren,
+        maxHierarchyDepth,
+        Underlay.MappingType.INDEX);
   }
 
   public SQLExpression queryChildParentPairs(String childFieldAlias, String parentFieldAlias) {
@@ -264,5 +281,9 @@ public final class HierarchyMapping {
 
   public AuxiliaryDataMapping getPathNumChildren() {
     return pathNumChildren;
+  }
+
+  public int getMaxHierarchyDepth() {
+    return maxHierarchyDepth <= 0 ? DEFAULT_MAX_HIERARCHY_DEPTH : maxHierarchyDepth;
   }
 }
