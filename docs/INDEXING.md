@@ -117,6 +117,14 @@ or entity group:
 All the entities in a group should be indexed before the group. The `INDEX_ALL` command ensures this ordering, but keep 
 this in  mind if you're running the jobs for each entity or entity group separately.
 
+#### Concurrency
+By default, the indexing jobs are run concurrently as much as possible. You can force it to run jobs serially by
+appending `SERIAL` to the command:
+```
+./gradlew indexer:index -Dexec.args="INDEX_ALL /config/output/omop.json DRY_RUN SERIAL"
+./gradlew indexer:index -Dexec.args="INDEX_ALL /config/output/omop.json NOT_DRY_RUN SERIAL"
+```
+
 ## OMOP Example
 The `cms_synpuf` is a [public dataset](https://console.cloud.google.com/marketplace/product/hhs/synpuf) that uses the 
 standard OMOP schema.
