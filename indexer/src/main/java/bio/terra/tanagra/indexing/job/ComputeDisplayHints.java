@@ -198,12 +198,12 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
             .apply(
                 Filter.by(
                     occIdAndTableRow ->
-                        (occIdAndTableRow.getValue().get(numValColName) != null
+                        occIdAndTableRow.getValue().get(numValColName) != null
                             && !occIdAndTableRow
                                 .getValue()
                                 .get(numValColName)
                                 .toString()
-                                .isEmpty())))
+                                .isEmpty()))
             .apply(
                 MapElements.into(
                         TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.doubles()))
