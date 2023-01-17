@@ -1,1 +1,1 @@
-SELECT b.concept_code AS concept_code, b.id AS id, b.name AS name, b.standard_concept AS standard_concept, b.t_display_standard_concept AS t_display_standard_concept FROM `broad-tanagra-dev.aousynthetic_index`.brand AS b LIMIT 30
+SELECT b.concept_code AS concept_code, b.id AS id, b.name AS name, b.standard_concept AS standard_concept, b.t_display_standard_concept AS t_display_standard_concept FROM `broad-tanagra-dev.aousynthetic_index_011523`.brand AS b LIMIT 30
