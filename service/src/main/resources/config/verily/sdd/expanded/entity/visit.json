@@ -1,0 +1,94 @@
+{
+  "name" : "visit",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "BOOLEAN_AND_OR",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Visit"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "standard_concept"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "S"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "name" : {
+        "value" : {
+          "column" : "concept_name"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Visit' AND c.standard_concept = 'S'"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "visit"
+    },
+    "attributeMappings" : {
+      "name" : {
+        "value" : {
+          "column" : "name"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text"
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

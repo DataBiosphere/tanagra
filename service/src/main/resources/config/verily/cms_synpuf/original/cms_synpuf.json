@@ -1,5 +1,5 @@
 {
-  "name": "verily_cms_synpuf",
+  "name": "cms_synpuf",
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
@@ -9,7 +9,7 @@
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "cms_synpuf_indexes",
+      "datasetId": "cmssynpuf_index_011523",
       "dataflowServiceAccountEmail": "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com" } ],
   "entities": [
     "brand.json",

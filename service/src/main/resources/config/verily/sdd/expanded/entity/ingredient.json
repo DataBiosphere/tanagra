@@ -9,10 +9,12 @@
       "type" : "ENUM",
       "enumVals" : [ {
         "enumVal" : {
-          "value" : { },
-          "display" : "Source"
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
         },
-        "count" : 0
+        "count" : 3151
       }, {
         "enumVal" : {
           "value" : {
@@ -20,7 +22,7 @@
           },
           "display" : "Unknown"
         },
-        "count" : 6082
+        "count" : 6335
       }, {
         "enumVal" : {
           "value" : {
@@ -28,11 +30,11 @@
           },
           "display" : "Standard"
         },
-        "count" : 12997
+        "count" : 15565
       } ]
     }
   }, {
-    "type" : "KEY_AND_DISPLAY",
+    "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -40,27 +42,27 @@
       "enumVals" : [ {
         "enumVal" : {
           "value" : {
+            "stringVal" : "ATC"
+          },
+          "display" : "ATC"
+        },
+        "count" : 6335
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "RxNorm"
           },
-          "display" : "RxNorm (NLM)"
+          "display" : "RxNorm"
         },
-        "count" : 14139
+        "count" : 16622
       }, {
         "enumVal" : {
           "value" : {
             "stringVal" : "RxNorm Extension"
           },
-          "display" : "RxNorm Extension (OMOP)"
+          "display" : "RxNorm Extension"
         },
-        "count" : 1558
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ATC"
-          },
-          "display" : "WHO Anatomic Therapeutic Chemical Classification"
-        },
-        "count" : 6082
+        "count" : 2094
       } ]
     }
   }, {
@@ -79,7 +81,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   c.concept_id AS id, c.concept_name AS name, c.vocabulary_id, c.standard_concept, c.concept_code FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c WHERE c.domain_id = 'Drug' AND ((c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')         AND c.concept_class_id = 'Ingredient'         AND c.standard_concept = 'S')     OR (c.vocabulary_id = 'RxNorm'         AND c.concept_class_id = 'Precise Ingredient')     OR (c.vocabulary_id = 'ATC'         AND c.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')         AND c.standard_concept = 'C'))"
+      "rawSql" : "SELECT   c.concept_id AS id, c.concept_name AS name, c.vocabulary_id, c.standard_concept, c.concept_code FROM  `victr-tanagra-test.sd_static.concept` c WHERE c.domain_id = 'Drug' AND ((c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')         AND c.concept_class_id = 'Ingredient'         AND c.standard_concept = 'S')     OR (c.vocabulary_id = 'RxNorm'         AND c.concept_class_id = 'Precise Ingredient')     OR (c.vocabulary_id = 'ATC'         AND c.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')         AND c.standard_concept = 'C'))"
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -94,12 +96,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary_id"
-        },
-        "display" : {
-          "column" : "vocabulary_id",
-          "foreignTable" : "vocabulary",
-          "foreignKey" : "vocabulary_id",
-          "foreignColumn" : "vocabulary_name"
         }
       },
       "name" : {
@@ -119,13 +115,25 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "name", "concept_code" ]
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Drug' AND ((c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')         AND c.concept_class_id = 'Ingredient'         AND c.standard_concept = 'S')     OR (c.vocabulary_id = 'RxNorm'         AND c.concept_class_id = 'Precise Ingredient')     OR (c.vocabulary_id = 'ATC'         AND c.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')         AND c.standard_concept = 'C'))"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
     },
     "hierarchyMappings" : {
       "standard" : {
         "childParent" : {
           "tablePointer" : {
-            "rawSql" : "SELECT   cr.concept_id_1 AS parent,   cr.concept_id_2 AS child, FROM `bigquery-public-data.cms_synthetic_patient_data_omop.concept_relationship` cr JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c1  ON c1.concept_id = cr.concept_id_1 JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c2  ON c2.concept_id = cr.concept_id_2 WHERE   cr.relationship_id IN ('Has form', 'RxNorm - ATC', 'RxNorm - ATC name', 'Mapped from', 'Subsumes')   AND c1.concept_id != c2.concept_id    AND ((c1.vocabulary_id IN ('RxNorm', 'RxNorm Extension')           AND c1.concept_class_id = 'Ingredient'           AND c1.standard_concept = 'S')       OR (c1.vocabulary_id = 'RxNorm'           AND c1.concept_class_id = 'Precise Ingredient')       OR (c1.vocabulary_id = 'ATC'           AND c1.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')           AND c1.standard_concept = 'C'))    AND ((c2.vocabulary_id IN ('RxNorm', 'RxNorm Extension')           AND c2.concept_class_id = 'Ingredient'           AND c2.standard_concept = 'S')       OR (c2.vocabulary_id = 'RxNorm'           AND c2.concept_class_id = 'Precise Ingredient')       OR (c2.vocabulary_id = 'ATC'           AND c2.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')           AND c2.standard_concept = 'C'))  UNION ALL  SELECT   ca.ancestor_concept_id AS parent,   ca.descendant_concept_id AS child, FROM `bigquery-public-data.cms_synthetic_patient_data_omop.concept_ancestor` ca JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c1  ON c1.concept_id = ca.ancestor_concept_id JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c2  ON c2.concept_id = ca.descendant_concept_id WHERE   ca.min_levels_of_separation = 1   AND ca.max_levels_of_separation = 1    AND ((c1.vocabulary_id IN ('RxNorm', 'RxNorm Extension')           AND c1.concept_class_id = 'Ingredient'           AND c1.standard_concept = 'S')       OR (c1.vocabulary_id = 'RxNorm'           AND c1.concept_class_id = 'Precise Ingredient')       OR (c1.vocabulary_id = 'ATC'           AND c1.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')           AND c1.standard_concept = 'C'))    AND ((c2.vocabulary_id IN ('RxNorm', 'RxNorm Extension')           AND c2.concept_class_id = 'Ingredient'           AND c2.standard_concept = 'S')       OR (c2.vocabulary_id = 'RxNorm'           AND c2.concept_class_id = 'Precise Ingredient')       OR (c2.vocabulary_id = 'ATC'           AND c2.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')           AND c2.standard_concept = 'C'))"
+            "rawSql" : "SELECT   cr.concept_id_1 AS parent,   cr.concept_id_2 AS child, FROM `victr-tanagra-test.sd_static.concept_relationship` cr JOIN `victr-tanagra-test.sd_static.concept` c1  ON c1.concept_id = cr.concept_id_1 JOIN `victr-tanagra-test.sd_static.concept` c2  ON c2.concept_id = cr.concept_id_2 WHERE   cr.relationship_id IN ('Has form', 'RxNorm - ATC', 'RxNorm - ATC name', 'Mapped from', 'Subsumes')   AND c1.concept_id != c2.concept_id    AND c1.domain_id = 'Drug'   AND ((c1.vocabulary_id IN ('RxNorm', 'RxNorm Extension')         AND c1.concept_class_id = 'Ingredient'         AND c1.standard_concept = 'S')     OR (c1.vocabulary_id = 'RxNorm'         AND c1.concept_class_id = 'Precise Ingredient')     OR (c1.vocabulary_id = 'ATC'         AND c1.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')         AND c1.standard_concept = 'C'))    AND c2.domain_id = 'Drug'   AND ((c2.vocabulary_id IN ('RxNorm', 'RxNorm Extension')         AND c2.concept_class_id = 'Ingredient'         AND c2.standard_concept = 'S')     OR (c2.vocabulary_id = 'RxNorm'         AND c2.concept_class_id = 'Precise Ingredient')     OR (c2.vocabulary_id = 'ATC'         AND c2.concept_class_id IN ('ATC 1st', 'ATC 2nd', 'ATC 3rd', 'ATC 4th', 'ATC 5th')         AND c2.standard_concept = 'C'))"
           },
           "fieldPointers" : {
             "parent" : {
@@ -199,9 +207,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary"
-        },
-        "display" : {
-          "column" : "t_display_vocabulary"
         }
       },
       "name" : {

@@ -9,10 +9,12 @@
       "type" : "ENUM",
       "enumVals" : [ {
         "enumVal" : {
-          "value" : { },
-          "display" : "Source"
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
         },
-        "count" : 0
+        "count" : 458585
       }, {
         "enumVal" : {
           "value" : {
@@ -20,7 +22,7 @@
           },
           "display" : "Unknown"
         },
-        "count" : 2990
+        "count" : 3064
       }, {
         "enumVal" : {
           "value" : {
@@ -28,11 +30,11 @@
           },
           "display" : "Standard"
         },
-        "count" : 61581
+        "count" : 262341
       } ]
     }
   }, {
-    "type" : "KEY_AND_DISPLAY",
+    "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -40,51 +42,211 @@
       "enumVals" : [ {
         "enumVal" : {
           "value" : {
+            "stringVal" : "CCAM"
+          },
+          "display" : "CCAM"
+        },
+        "count" : 10206
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CIEL"
+          },
+          "display" : "CIEL"
+        },
+        "count" : 648
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CIM10"
+          },
+          "display" : "CIM10"
+        },
+        "count" : 195
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "CPT4"
           },
-          "display" : "Current Procedural Terminology version 4 (AMA)"
+          "display" : "CPT4"
         },
-        "count" : 13070
+        "count" : 13143
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "EDI"
+          },
+          "display" : "EDI"
+        },
+        "count" : 249785
       }, {
         "enumVal" : {
           "value" : {
             "stringVal" : "HCPCS"
           },
-          "display" : "Healthcare Common Procedure Coding System (CMS)"
+          "display" : "HCPCS"
         },
-        "count" : 981
+        "count" : 1289
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICD9CM"
+            "stringVal" : "HemOnc"
           },
-          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
+          "display" : "HemOnc"
         },
-        "count" : 1318
+        "count" : 92
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICD9Proc"
+            "stringVal" : "ICD10"
           },
-          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 3 (NCHS)"
+          "display" : "ICD10"
         },
-        "count" : 4657
+        "count" : 161
       }, {
         "enumVal" : {
           "value" : {
             "stringVal" : "ICD10CM"
           },
-          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
+          "display" : "ICD10CM"
         },
         "count" : 6
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "ICD10CN"
+          },
+          "display" : "ICD10CN"
+        },
+        "count" : 386
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10GM"
+          },
+          "display" : "ICD10GM"
+        },
+        "count" : 157
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10PCS"
+          },
+          "display" : "ICD10PCS"
+        },
+        "count" : 194874
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9CM"
+          },
+          "display" : "ICD9CM"
+        },
+        "count" : 177
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9Proc"
+          },
+          "display" : "ICD9Proc"
+        },
+        "count" : 4657
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9ProcCN"
+          },
+          "display" : "ICD9ProcCN"
+        },
+        "count" : 13385
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "KCD7"
+          },
+          "display" : "KCD7"
+        },
+        "count" : 165
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "MeSH"
+          },
+          "display" : "MeSH"
+        },
+        "count" : 951
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NAACCR"
+          },
+          "display" : "NAACCR"
+        },
+        "count" : 710
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nebraska Lexicon"
+          },
+          "display" : "Nebraska Lexicon"
+        },
+        "count" : 72683
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP Extension"
+          },
+          "display" : "OMOP Extension"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OPCS4"
+          },
+          "display" : "OPCS4"
+        },
+        "count" : 9750
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OPS"
+          },
+          "display" : "OPS"
+        },
+        "count" : 41101
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OXMIS"
+          },
+          "display" : "OXMIS"
+        },
+        "count" : 1193
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Read"
+          },
+          "display" : "Read"
+        },
+        "count" : 20973
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+          "display" : "SNOMED"
         },
-        "count" : 74959
+        "count" : 86910
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED Veterinary"
+          },
+          "display" : "SNOMED Veterinary"
+        },
+        "count" : 392
       } ]
     }
   }, {
@@ -128,12 +290,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary_id"
-        },
-        "display" : {
-          "column" : "vocabulary_id",
-          "foreignTable" : "vocabulary",
-          "foreignKey" : "vocabulary_id",
-          "foreignColumn" : "vocabulary_name"
         }
       },
       "name" : {
@@ -153,13 +309,25 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "name", "concept_code" ]
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Procedure' "
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
     },
     "hierarchyMappings" : {
       "standard" : {
         "childParent" : {
           "tablePointer" : {
-            "rawSql" : "SELECT   cr.concept_id_1 AS parent,   cr.concept_id_2 AS child, FROM `bigquery-public-data.cms_synthetic_patient_data_omop.concept_relationship` cr JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c1  ON c1.concept_id = cr.concept_id_1 JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c2  ON c2.concept_id = cr.concept_id_2 WHERE   cr.relationship_id = 'Subsumes'   AND c1.domain_id = c2.domain_id   AND c2.domain_id = 'Procedure'   AND c1.vocabulary_id = c2.vocabulary_id   AND c2.vocabulary_id = 'SNOMED'"
+            "rawSql" : "SELECT   cr.concept_id_1 AS parent,   cr.concept_id_2 AS child, FROM `victr-tanagra-test.sd_static.concept_relationship` cr JOIN `victr-tanagra-test.sd_static.concept` c1  ON c1.concept_id = cr.concept_id_1 JOIN `victr-tanagra-test.sd_static.concept` c2  ON c2.concept_id = cr.concept_id_2 WHERE   cr.relationship_id = 'Subsumes'   AND c1.domain_id = c2.domain_id   AND c2.domain_id = 'Procedure'   AND c1.vocabulary_id = c2.vocabulary_id   AND c2.vocabulary_id = 'SNOMED'"
           },
           "fieldPointers" : {
             "parent" : {
@@ -211,9 +379,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary"
-        },
-        "display" : {
-          "column" : "t_display_vocabulary"
         }
       },
       "name" : {
