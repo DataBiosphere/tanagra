@@ -12,12 +12,14 @@ import bio.terra.tanagra.indexing.job.CreateEntityTable;
 import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
 import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
 import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
+import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.FileIO;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,14 +40,15 @@ public class IndexEntityTest {
   @Test
   void person() throws IOException {
     Entity person = Entity.fromJSON("Person.json", dataPointers);
-    List<IndexingJob> jobs = Indexer.getJobsForEntity(person);
+    SequencedJobSet jobs = Indexer.getJobSetForEntity(person);
 
-    assertEquals(2, jobs.size(), "two indexing jobs generated");
-    IndexingJob job = jobs.get(0);
+    assertEquals(2, jobs.getNumStages(), "two indexing job stages generated");
+    Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
+    IndexingJob job = jobStageItr.next().get(0);
     assertEquals(
         CreateEntityTable.class, job.getClass(), "CreateEntityTable indexing job generated");
 
-    job = jobs.get(1);
+    job = jobStageItr.next().get(0);
     assertEquals(
         DenormalizeEntityInstances.class,
         job.getClass(),
@@ -58,36 +61,33 @@ public class IndexEntityTest {
   @Test
   void condition() throws IOException {
     Entity condition = Entity.fromJSON("Condition.json", dataPointers);
-    List<IndexingJob> jobs = Indexer.getJobsForEntity(condition);
+    SequencedJobSet jobs = Indexer.getJobSetForEntity(condition);
 
-    assertEquals(6, jobs.size(), "six indexing jobs generated");
+    assertEquals(3, jobs.getNumStages(), "three indexing job stages generated");
+    Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
+    IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(
+        CreateEntityTable.class, job.getClass(), "CreateEntityTable indexing job generated");
 
-    Optional<IndexingJob> createEntityTable =
-        jobs.stream().filter(job -> job.getClass().equals(CreateEntityTable.class)).findFirst();
-    assertTrue(createEntityTable.isPresent(), "CreateEntityTable indexing job generated");
-
-    Optional<IndexingJob> denormalizeEntityInstances =
-        jobs.stream()
-            .filter(job -> job.getClass().equals(DenormalizeEntityInstances.class))
-            .findFirst();
-    assertTrue(
-        denormalizeEntityInstances.isPresent(),
+    job = jobStageItr.next().get(0);
+    assertEquals(
+        DenormalizeEntityInstances.class,
+        job.getClass(),
         "DenormalizeEntityInstances indexing job generated");
     assertEquals(
         "broad-tanagra-dev:aou_synthetic_SR2019q4r4_indexes.condition",
-        ((BigQueryIndexingJob) denormalizeEntityInstances.get())
-            .getEntityIndexTable()
-            .getPathForIndexing());
+        ((BigQueryIndexingJob) job).getEntityIndexTable().getPathForIndexing());
 
+    List<IndexingJob> jobStage = jobStageItr.next();
     Optional<IndexingJob> buildTextSearchStrings =
-        jobs.stream()
-            .filter(job -> job.getClass().equals(BuildTextSearchStrings.class))
+        jobStage.stream()
+            .filter(jobInStage -> jobInStage.getClass().equals(BuildTextSearchStrings.class))
             .findFirst();
     assertTrue(buildTextSearchStrings.isPresent(), "BuildTextSearchStrings indexing job generated");
 
     Optional<IndexingJob> writeParentChildIdPairs =
-        jobs.stream()
-            .filter(job -> job.getClass().equals(WriteParentChildIdPairs.class))
+        jobStage.stream()
+            .filter(jobInStage -> jobInStage.getClass().equals(WriteParentChildIdPairs.class))
             .findFirst();
     assertTrue(
         writeParentChildIdPairs.isPresent(), "WriteParentChildIdPairs indexing job generated");
@@ -98,8 +98,9 @@ public class IndexEntityTest {
             .getPathForIndexing());
 
     Optional<IndexingJob> writeAncestorDescendantIdPairs =
-        jobs.stream()
-            .filter(job -> job.getClass().equals(WriteAncestorDescendantIdPairs.class))
+        jobStage.stream()
+            .filter(
+                jobInStage -> jobInStage.getClass().equals(WriteAncestorDescendantIdPairs.class))
             .findFirst();
     assertTrue(
         writeAncestorDescendantIdPairs.isPresent(),
@@ -111,8 +112,8 @@ public class IndexEntityTest {
             .getPathForIndexing());
 
     Optional<IndexingJob> buildNumChildrenAndPaths =
-        jobs.stream()
-            .filter(job -> job.getClass().equals(BuildNumChildrenAndPaths.class))
+        jobStage.stream()
+            .filter(jobInStage -> jobInStage.getClass().equals(BuildNumChildrenAndPaths.class))
             .findFirst();
     assertTrue(
         buildNumChildrenAndPaths.isPresent(), "BuildNumChildrenAndPaths indexing job generated");

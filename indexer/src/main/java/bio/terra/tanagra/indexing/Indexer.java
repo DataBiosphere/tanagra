@@ -29,7 +29,6 @@ import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -168,23 +167,6 @@ public final class Indexer {
   }
 
   @VisibleForTesting
-  public static List<IndexingJob> getJobsForEntity(Entity entity) {
-    List<IndexingJob> jobs = new ArrayList<>();
-    jobs.add(new CreateEntityTable(entity));
-    jobs.add(new DenormalizeEntityInstances(entity));
-    if (entity.getTextSearch().isEnabled()) {
-      jobs.add(new BuildTextSearchStrings(entity));
-    }
-    entity.getHierarchies().stream()
-        .forEach(
-            hierarchy -> {
-              jobs.add(new WriteParentChildIdPairs(entity, hierarchy.getName()));
-              jobs.add(new WriteAncestorDescendantIdPairs(entity, hierarchy.getName()));
-              jobs.add(new BuildNumChildrenAndPaths(entity, hierarchy.getName()));
-            });
-    return jobs;
-  }
-
   public static SequencedJobSet getJobSetForEntity(Entity entity) {
     SequencedJobSet jobSet = new SequencedJobSet(entity.getName());
     jobSet.startNewStage();
@@ -211,60 +193,6 @@ public final class Indexer {
   }
 
   @VisibleForTesting
-  public static List<IndexingJob> getJobsForEntityGroup(EntityGroup entityGroup) {
-    List<IndexingJob> jobs = new ArrayList<>();
-
-    // for each relationship, write the index relationship mapping
-    entityGroup.getRelationships().values().stream()
-        .forEach(
-            // TODO: If the source relationship mapping table = one of the entity tables, then just
-            // populate a new column on that entity table, instead of always writing a new table.
-            relationship -> jobs.add(new WriteRelationshipIdPairs(relationship)));
-
-    if (EntityGroup.Type.CRITERIA_OCCURRENCE.equals(entityGroup.getType())) {
-      CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
-      // Compute the criteria rollup counts for both the criteria-primary and criteria-occurrence
-      // relationships.
-      jobs.add(
-          new ComputeRollupCounts(
-              criteriaOccurrence.getCriteriaEntity(),
-              criteriaOccurrence.getCriteriaPrimaryRelationship(),
-              null));
-      jobs.add(
-          new ComputeRollupCounts(
-              criteriaOccurrence.getCriteriaEntity(),
-              criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-              null));
-
-      // If the criteria entity has a hierarchy, then also compute the counts for each
-      // hierarchy.
-      if (criteriaOccurrence.getCriteriaEntity().hasHierarchies()) {
-        criteriaOccurrence.getCriteriaEntity().getHierarchies().stream()
-            .forEach(
-                hierarchy -> {
-                  jobs.add(
-                      new ComputeRollupCounts(
-                          criteriaOccurrence.getCriteriaEntity(),
-                          criteriaOccurrence.getCriteriaPrimaryRelationship(),
-                          hierarchy));
-                  jobs.add(
-                      new ComputeRollupCounts(
-                          criteriaOccurrence.getCriteriaEntity(),
-                          criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-                          hierarchy));
-                });
-      }
-
-      // Compute display hints for the occurrence entity.
-      if (!criteriaOccurrence.getModifierAttributes().isEmpty()) {
-        jobs.add(
-            new ComputeDisplayHints(
-                criteriaOccurrence, criteriaOccurrence.getModifierAttributes()));
-      }
-    }
-    return jobs;
-  }
-
   public static SequencedJobSet getJobSetForEntityGroup(EntityGroup entityGroup) {
     SequencedJobSet jobSet = new SequencedJobSet(entityGroup.getName());
     jobSet.startNewStage();
