@@ -197,15 +197,26 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
         occAllAttrs
             .apply(
                 Filter.by(
-                    occIdAndTableRow -> occIdAndTableRow.getValue().get(numValColName) != null))
+                    occIdAndTableRow ->
+                        (occIdAndTableRow.getValue().get(numValColName) != null
+                            && !occIdAndTableRow
+                                .getValue()
+                                .get(numValColName)
+                                .toString()
+                                .isEmpty())))
             .apply(
                 MapElements.into(
                         TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.doubles()))
                     .via(
-                        occIdAndTableRow ->
-                            KV.of(
-                                occIdAndTableRow.getKey(),
-                                (Double) occIdAndTableRow.getValue().get(numValColName))));
+                        occIdAndTableRow -> {
+                          Double doubleVal;
+                          try {
+                            doubleVal = (Double) occIdAndTableRow.getValue().get(numValColName);
+                          } catch (ClassCastException ccEx) {
+                            doubleVal = Double.MIN_VALUE;
+                          }
+                          return KV.of(occIdAndTableRow.getKey(), doubleVal);
+                        }));
 
     // Build key-value pairs: [key] criteriaId, [value] attribute value.
     final TupleTag<Long> criIdTag = new TupleTag<>();
