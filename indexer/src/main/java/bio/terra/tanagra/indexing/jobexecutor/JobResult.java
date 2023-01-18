@@ -1,8 +1,8 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
-import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.ANSI_GREEN;
-import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.ANSI_RED;
-import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.ANSI_RESET;
+import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ANSI_GREEN;
+import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ANSI_RED;
+import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ESCAPE_RESET;
 
 import bio.terra.tanagra.indexing.IndexingJob;
 import java.io.PrintWriter;
@@ -46,8 +46,8 @@ public class JobResult {
             "%s %s",
             jobDescription,
             isFailure()
-                ? (ANSI_RED + "FAILED" + ANSI_RESET)
-                : (ANSI_GREEN + "SUCCESS" + ANSI_RESET)));
+                ? (TERMINAL_ANSI_RED + "FAILED" + TERMINAL_ESCAPE_RESET)
+                : (TERMINAL_ANSI_GREEN + "SUCCESS" + TERMINAL_ESCAPE_RESET)));
     System.out.println(String.format("   thread: %s", threadName));
     System.out.println(String.format("   job status: %s", jobStatus));
     System.out.println(String.format("   job status as expected: %s", jobStatusAsExpected));
