@@ -1,0 +1,429 @@
+{
+  "name" : "condition",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
+        },
+        "count" : 523932
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
+        },
+        "count" : 384
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 174148
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "vocabulary",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CIEL"
+          },
+          "display" : "CIEL"
+        },
+        "count" : 38818
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CIM10"
+          },
+          "display" : "CIM10"
+        },
+        "count" : 10867
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Cohort"
+          },
+          "display" : "Cohort"
+        },
+        "count" : 66
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "HCPCS"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HemOnc"
+          },
+          "display" : "HemOnc"
+        },
+        "count" : 219
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10"
+          },
+          "display" : "ICD10"
+        },
+        "count" : 15017
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10CM"
+          },
+          "display" : "ICD10CM"
+        },
+        "count" : 90542
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10CN"
+          },
+          "display" : "ICD10CN"
+        },
+        "count" : 31794
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10GM"
+          },
+          "display" : "ICD10GM"
+        },
+        "count" : 16006
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD9CM"
+          },
+          "display" : "ICD9CM"
+        },
+        "count" : 15760
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICDO3"
+          },
+          "display" : "ICDO3"
+        },
+        "count" : 62410
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "KCD7"
+          },
+          "display" : "KCD7"
+        },
+        "count" : 20743
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "MeSH"
+          },
+          "display" : "MeSH"
+        },
+        "count" : 6795
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nebraska Lexicon"
+          },
+          "display" : "Nebraska Lexicon"
+        },
+        "count" : 151336
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP Extension"
+          },
+          "display" : "OMOP Extension"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OPCS4"
+          },
+          "display" : "OPCS4"
+        },
+        "count" : 6
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OXMIS"
+          },
+          "display" : "OXMIS"
+        },
+        "count" : 5704
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OncoTree"
+          },
+          "display" : "OncoTree"
+        },
+        "count" : 869
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PPI"
+          },
+          "display" : "PPI"
+        },
+        "count" : 74
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Read"
+          },
+          "display" : "Read"
+        },
+        "count" : 47736
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SMQ"
+          },
+          "display" : "SMQ"
+        },
+        "count" : 324
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "SNOMED"
+        },
+        "count" : 180133
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED Veterinary"
+          },
+          "display" : "SNOMED Veterinary"
+        },
+        "count" : 3237
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "BINARY",
+        "field" : {
+          "column" : "domain_id"
+        },
+        "operator" : "EQUALS",
+        "value" : {
+          "stringVal" : "Condition"
+        }
+      }
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary_id"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Condition' "
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "rawSql" : "SELECT   cr.concept_id_1 AS parent,   cr.concept_id_2 AS child, FROM `victr-tanagra-test.sd_static.concept_relationship` cr JOIN `victr-tanagra-test.sd_static.concept` c1  ON c1.concept_id = cr.concept_id_1 JOIN `victr-tanagra-test.sd_static.concept` c2  ON c2.concept_id = cr.concept_id_2 WHERE   cr.relationship_id = 'Subsumes'   AND c1.domain_id = c2.domain_id   AND c2.domain_id = 'Condition'   AND c1.vocabulary_id = c2.vocabulary_id   AND c2.vocabulary_id = 'SNOMED'"
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent"
+            },
+            "child" : {
+              "column" : "child"
+            }
+          }
+        },
+        "rootNodesFilter" : {
+          "tablePointer" : {
+            "table" : "concept",
+            "filter" : {
+              "type" : "BINARY",
+              "field" : {
+                "column" : "concept_id"
+              },
+              "operator" : "EQUALS",
+              "value" : {
+                "int64Val" : 441840
+              }
+            }
+          },
+          "fieldPointers" : {
+            "id" : {
+              "column" : "concept_id"
+            }
+          }
+        },
+        "maxHierarchyDepth" : 64
+      }
+    }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "condition"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept"
+        },
+        "display" : {
+          "column" : "t_display_standard_concept"
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text"
+      }
+    },
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "table" : "condition_standard_childParent"
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent"
+            },
+            "child" : {
+              "column" : "child"
+            }
+          }
+        },
+        "ancestorDescendant" : {
+          "tablePointer" : {
+            "table" : "condition_standard_ancestorDescendant"
+          },
+          "fieldPointers" : {
+            "ancestor" : {
+              "column" : "ancestor"
+            },
+            "descendant" : {
+              "column" : "descendant"
+            }
+          }
+        },
+        "pathNumChildren" : {
+          "tablePointer" : {
+            "table" : "condition"
+          },
+          "fieldPointers" : {
+            "path" : {
+              "column" : "t_standard_path"
+            },
+            "num_children" : {
+              "column" : "t_standard_num_children"
+            },
+            "id" : {
+              "column" : "id"
+            }
+          }
+        },
+        "maxHierarchyDepth" : 64
+      }
+    }
+  }
+}
