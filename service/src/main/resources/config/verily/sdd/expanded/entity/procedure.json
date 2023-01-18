@@ -358,7 +358,7 @@
             }
           }
         },
-        "maxHierarchyDepth" : 64
+        "maxHierarchyDepth" : 19
       }
     }
   },
@@ -446,7 +446,7 @@
             }
           }
         },
-        "maxHierarchyDepth" : 64
+        "maxHierarchyDepth" : 19
       }
     }
   }

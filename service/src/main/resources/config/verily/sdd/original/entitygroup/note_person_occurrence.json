@@ -1,0 +1,29 @@
+{
+  "name": "note_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "criteriaEntity": "note",
+  "occurrenceEntity": "note_occurrence",
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria": {
+        "idPairsTable": { "table": "note" },
+        "idPairsIdA": { "column": "note_id" },
+        "idPairsIdB":  { "column": "note_type_concept_id" }
+      },
+      "occurrenceToPrimary": {
+        "idPairsTable": { "table": "note" },
+        "idPairsIdA": { "column": "note_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "table": "note" },
+        "idPairsIdA": { "column": "note_type_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

@@ -1,0 +1,400 @@
+{
+  "name" : "note",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "vocabulary",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "None"
+          },
+          "display" : "None"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Note Type"
+          },
+          "display" : "Note Type"
+        },
+        "count" : 10
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "VUMC Note Type"
+          },
+          "display" : "VUMC Note Type"
+        },
+        "count" : 3
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "VUMC PSS Type"
+          },
+          "display" : "VUMC PSS Type"
+        },
+        "count" : 1
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Admission note"
+          },
+          "display" : "Admission note"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Ancillary report"
+          },
+          "display" : "Ancillary report"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Discharge summary"
+          },
+          "display" : "Discharge summary"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ECG_IMPRESSION"
+          },
+          "display" : "ECG_IMPRESSION"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Emergency department note"
+          },
+          "display" : "Emergency department note"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Inpatient note"
+          },
+          "display" : "Inpatient note"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "No matching concept"
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Note"
+          },
+          "display" : "Note"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nursing report"
+          },
+          "display" : "Nursing report"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Outpatient note"
+          },
+          "display" : "Outpatient note"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PL_PROBLEM LIST"
+          },
+          "display" : "PL_PROBLEM LIST"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Pathology report"
+          },
+          "display" : "Pathology report"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Pss Problem snomed data"
+          },
+          "display" : "Pss Problem snomed data"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Radiology report"
+          },
+          "display" : "Radiology report"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "VUMC forms data"
+          },
+          "display" : "VUMC forms data"
+        },
+        "count" : 1
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "No matching concept"
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822278"
+          },
+          "display" : "OMOP4822278"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822279"
+          },
+          "display" : "OMOP4822279"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822280"
+          },
+          "display" : "OMOP4822280"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822281"
+          },
+          "display" : "OMOP4822281"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822282"
+          },
+          "display" : "OMOP4822282"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822283"
+          },
+          "display" : "OMOP4822283"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822284"
+          },
+          "display" : "OMOP4822284"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822285"
+          },
+          "display" : "OMOP4822285"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822286"
+          },
+          "display" : "OMOP4822286"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP4822287"
+          },
+          "display" : "OMOP4822287"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "VUMC generated"
+          },
+          "display" : "VUMC generated"
+        },
+        "count" : 4
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "BOOLEAN_AND_OR",
+        "operator" : "OR",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "concept_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "int64Val" : 0
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "vocabulary_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Note Type"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "vocabulary_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "VUMC Note Type"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "vocabulary_id"
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "VUMC PSS Type"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary_id"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.vocabulary_id IN ('Note Type', 'VUMC Note Type', 'VUMC PSS Type') OR c.concept_id = 0"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id"
+          },
+          "text" : {
+            "column" : "text"
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "note"
+    },
+    "attributeMappings" : {
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary"
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name"
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text"
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
