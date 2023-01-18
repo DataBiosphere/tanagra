@@ -1,0 +1,288 @@
+{
+  "name" : "note_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "date",
+    "dataType" : "DATE"
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "note",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814638
+          },
+          "display" : "Admission note"
+        },
+        "count" : 2211781
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814643
+          },
+          "display" : "Ancillary report"
+        },
+        "count" : 11923399
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814637
+          },
+          "display" : "Discharge summary"
+        },
+        "count" : 5590516
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2003594153
+          },
+          "display" : "ECG_IMPRESSION"
+        },
+        "count" : 1993820
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814646
+          },
+          "display" : "Emergency department note"
+        },
+        "count" : 2970051
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814639
+          },
+          "display" : "Inpatient note"
+        },
+        "count" : 15472924
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 6844205
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814645
+          },
+          "display" : "Note"
+        },
+        "count" : 68281428
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814644
+          },
+          "display" : "Nursing report"
+        },
+        "count" : 6777679
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814640
+          },
+          "display" : "Outpatient note"
+        },
+        "count" : 69556237
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2002404173
+          },
+          "display" : "PL_PROBLEM LIST"
+        },
+        "count" : 679215564
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814642
+          },
+          "display" : "Pathology report"
+        },
+        "count" : 2697212
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2002603124
+          },
+          "display" : "Pss Problem snomed data"
+        },
+        "count" : 29508422
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814641
+          },
+          "display" : "Radiology report"
+        },
+        "count" : 16997484
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2004084156
+          },
+          "display" : "VUMC forms data"
+        },
+        "count" : 479294
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 0.0,
+      "maxVal" : 9.388852E7
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "text",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : null
+        },
+        "count" : 0
+      } ]
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "title",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1.0,
+      "maxVal" : 5227737.0
+    }
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "note"
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "note_date"
+        }
+      },
+      "note" : {
+        "value" : {
+          "column" : "note_type_concept_id"
+        },
+        "display" : {
+          "column" : "note_type_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name"
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "note_id"
+        }
+      },
+      "text" : {
+        "value" : {
+          "column" : "note_text"
+        }
+      },
+      "title" : {
+        "value" : {
+          "column" : "note_title"
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "note_source_value"
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "note_occurrence"
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "date"
+        }
+      },
+      "note" : {
+        "value" : {
+          "column" : "note"
+        },
+        "display" : {
+          "column" : "t_display_note"
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id"
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      },
+      "text" : {
+        "value" : {
+          "column" : "text"
+        }
+      },
+      "title" : {
+        "value" : {
+          "column" : "title"
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value"
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
