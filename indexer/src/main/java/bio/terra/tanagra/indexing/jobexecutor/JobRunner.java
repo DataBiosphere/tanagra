@@ -11,10 +11,10 @@ public abstract class JobRunner {
   protected static final long MAX_TIME_PER_JOB_MIN = 60;
   protected static final long MAX_TIME_PER_JOB_DRY_RUN_MIN = 5;
 
-  public static final String ANSI_RESET = "\u001B[0m";
-  public static final String ANSI_PURPLE = "\u001B[35m";
-  public static final String ANSI_GREEN = "\u001b[32m";
-  public static final String ANSI_RED = "\u001b[31m";
+  public static final String TERMINAL_ESCAPE_RESET = "\u001B[0m";
+  public static final String TERMINAL_ANSI_PURPLE = "\u001B[35m";
+  public static final String TERMINAL_ANSI_GREEN = "\u001b[32m";
+  public static final String TERMINAL_ANSI_RED = "\u001b[31m";
 
   protected final List<SequencedJobSet> jobSets;
   protected final boolean isDryRun;
@@ -42,7 +42,8 @@ public abstract class JobRunner {
   @SuppressWarnings("PMD.SystemPrintln")
   public void printJobResultSummary() {
     System.out.println(System.lineSeparator());
-    System.out.println(ANSI_PURPLE + "Indexing job summary (" + getName() + ")" + ANSI_RESET);
+    System.out.println(
+        TERMINAL_ANSI_PURPLE + "Indexing job summary (" + getName() + ")" + TERMINAL_ESCAPE_RESET);
     jobResults.stream()
         .sorted(Comparator.comparing(JobResult::getJobDescription, String.CASE_INSENSITIVE_ORDER))
         .forEach(JobResult::print);

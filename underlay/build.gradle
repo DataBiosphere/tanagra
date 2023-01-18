@@ -32,6 +32,7 @@ dependencies {
 
     // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
+    implementation group: "com.google.cloud", name: "google-cloud-storage"
     implementation group: "com.google.guava", name: "guava"
 
     // Jackson serialization

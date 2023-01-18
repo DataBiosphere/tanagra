@@ -2,6 +2,15 @@
 Tanagra is currently being developed by Verily and VUMC.
 The project is shared across the All Of Us and Terra partnerships.
 
+* [Development](#development)
+   * [Broad Credentials](#broad-credentials)
+   * [Local Postgres](#local-postgres)
+   * [Build And Run Tests](#build-and-run-tests)
+   * [Local Server](#local-server)
+   * [Adding dependencies](#adding-dependencies)
+   * [Generate SQL Golden Files](#generate-sql-golden-files)
+* [Deployment](#deployment)
+
 ## Development
 
 ### Broad Credentials
@@ -102,3 +111,8 @@ To regenerate the golden files, run the tests with the `generateSqlFiles` Gradle
 ```
 ./gradlew cleanTest test --tests bio.terra.tanagra.* --info -PgenerateSqlFiles=true
 ```
+
+## Deployment
+
+If you want to export datasets to GCS bucket, create bucket and configure export
+properties. See TanagraExportConfiguration.java.

@@ -178,6 +178,33 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
+  "/v2/underlays/{underlayName}/entities/{entityName}/export":
+    parameters:
+    - $ref: "#/components/parameters/UnderlayNameV2"
+    - $ref: "#/components/parameters/EntityNameV2"
+    post:
+      summary: Export entity instances
+      description: Exports to a file in bucket specified in application.yaml
+      operationId: exportInstances
+      tags: [InstancesV2]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryV2'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportFile"
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
   "/v2/underlays/{underlayName}/entities/{entityName}/hints":
     parameters:
       - $ref: "#/components/parameters/UnderlayNameV2"
@@ -2089,6 +2116,13 @@ components:
           type: array
           items:
             type: string
+
+    ExportFile:
+      type: object
+      properties:
+        gcsSignedUrl:
+          description: GCS signed URL of exported dataset CSV file
+          type: string
 
   securitySchemes:
     authorization:
