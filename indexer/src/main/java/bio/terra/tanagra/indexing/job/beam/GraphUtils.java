@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.transforms.KvSwap;
@@ -70,10 +71,14 @@ public final class GraphUtils {
     int n = 2;
     while (true) {
       PCollection<KV<T, T>> nExactPaths =
-          concatenate(exactPaths.get(n / 2), exactPaths.get(n / 2), "exactPaths N" + n);
+          concatenate(
+                  exactPaths.get(n / 2).apply(Distinct.create()),
+                  exactPaths.get(n / 2).apply(Distinct.create()),
+                  "exactPaths N" + n)
+              .apply(Distinct.create());
       exactPaths.put(n, nExactPaths);
 
-      PCollection<KV<T, T>> nMinus1AllPaths = allPaths.get(n - 1);
+      PCollection<KV<T, T>> nMinus1AllPaths = allPaths.get(n - 1).apply(Distinct.create());
 
       PCollection<KV<T, T>> newAllPaths =
           PCollectionList.of(nMinus1AllPaths)

@@ -208,7 +208,8 @@ public final class Entity {
                         ? HierarchyMapping.defaultIndexMapping(
                             serialized.getName(),
                             sourceHierarchyMappingSerialized.getKey(),
-                            idAttribute.getValue())
+                            idAttribute.getValue(),
+                            sourceHierarchyMappingSerialized.getValue().getMaxHierarchyDepth())
                         : HierarchyMapping.fromSerialized(
                             indexHierarchyMappingsSerialized.get(
                                 sourceHierarchyMappingSerialized.getKey()),
@@ -292,6 +293,10 @@ public final class Entity {
         .filter(relationship -> relationship.includesEntity(relatedEntity))
         .findFirst()
         .get();
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
   }
 
   public EntityMapping getMapping(Underlay.MappingType mappingType) {

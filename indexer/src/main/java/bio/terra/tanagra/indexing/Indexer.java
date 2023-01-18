@@ -13,6 +13,10 @@ import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
 import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
 import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
 import bio.terra.tanagra.indexing.job.WriteRelationshipIdPairs;
+import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
+import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
+import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
+import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
@@ -21,12 +25,10 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.utils.FileIO;
-import bio.terra.tanagra.utils.HttpUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -34,6 +36,23 @@ import org.slf4j.LoggerFactory;
 
 public final class Indexer {
   private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
+
+  enum JobExecutor {
+    PARALLEL,
+    SERIAL;
+
+    public JobRunner getRunner(
+        List<SequencedJobSet> jobSets, boolean isDryRun, IndexingJob.RunType runType) {
+      switch (this) {
+        case SERIAL:
+          return new SerialRunner(jobSets, isDryRun, runType);
+        case PARALLEL:
+          return new ParallelRunner(jobSets, isDryRun, runType);
+        default:
+          throw new IllegalArgumentException("Unknown JobExecution enum type: " + this);
+      }
+    }
+  }
 
   private final Underlay underlay;
   private UFUnderlay expandedUnderlay;
@@ -103,91 +122,98 @@ public final class Indexer {
     }
   }
 
-  public void runJobsForAllEntities(boolean isDryRun) {
-    underlay.getEntities().keySet().stream()
-        .sorted()
-        .forEach(name -> runJobsForEntity(name, isDryRun));
+  public JobRunner runJobsForAllEntities(
+      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
+    LOGGER.info("INDEXING all entities");
+    List<SequencedJobSet> jobSets =
+        underlay.getEntities().values().stream()
+            .map(Indexer::getJobSetForEntity)
+            .collect(Collectors.toList());
+    return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
-  public void runJobsForEntity(String name, boolean isDryRun) {
-    LOGGER.info("RUN entity: {}", name);
-    getJobsForEntity(underlay.getEntity(name))
-        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndRun(isDryRun), ij.getName()));
+  public JobRunner runJobsForSingleEntity(
+      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType, String name) {
+    LOGGER.info("INDEXING entity: {}", name);
+    List<SequencedJobSet> jobSets = List.of(getJobSetForEntity(underlay.getEntity(name)));
+    return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
-  public void runJobsForAllEntityGroups(boolean isDryRun) {
-    underlay.getEntityGroups().keySet().stream()
-        .sorted()
-        .forEach(name -> runJobsForEntityGroup(name, isDryRun));
+  public JobRunner runJobsForAllEntityGroups(
+      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
+    LOGGER.info("INDEXING all entity groups");
+    List<SequencedJobSet> jobSets =
+        underlay.getEntityGroups().values().stream()
+            .map(Indexer::getJobSetForEntityGroup)
+            .collect(Collectors.toList());
+    return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
-  public void runJobsForEntityGroup(String name, boolean isDryRun) {
-    LOGGER.info("RUN entity group: {}", name);
-    getJobsForEntityGroup(underlay.getEntityGroup(name))
-        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndRun(isDryRun), ij.getName()));
+  public JobRunner runJobsForSingleEntityGroup(
+      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType, String name) {
+    LOGGER.info("INDEXING entity group: {}", name);
+    List<SequencedJobSet> jobSets = List.of(getJobSetForEntityGroup(underlay.getEntityGroup(name)));
+    return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
-  public void cleanAllEntities(boolean isDryRun) {
-    underlay.getEntities().keySet().stream().sorted().forEach(name -> cleanEntity(name, isDryRun));
-  }
-
-  public void cleanEntity(String name, boolean isDryRun) {
-    LOGGER.info("CLEAN entity: {}", name);
-    getJobsForEntity(underlay.getEntity(name))
-        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndClean(isDryRun), ij.getName()));
-  }
-
-  public void cleanAllEntityGroups(boolean isDryRun) {
-    underlay.getEntityGroups().keySet().stream()
-        .sorted()
-        .forEach(name -> cleanEntityGroup(name, isDryRun));
-  }
-
-  public void cleanEntityGroup(String name, boolean isDryRun) {
-    LOGGER.info("CLEAN entity group: {}", name);
-    getJobsForEntityGroup(underlay.getEntityGroup(name))
-        .forEach(ij -> tolerateJobExceptions(() -> ij.checkStatusAndClean(isDryRun), ij.getName()));
+  private JobRunner runJobs(
+      JobExecutor jobExecutor,
+      boolean isDryRun,
+      IndexingJob.RunType runType,
+      List<SequencedJobSet> jobSets) {
+    JobRunner jobRunner = jobExecutor.getRunner(jobSets, isDryRun, runType);
+    jobRunner.runJobSets();
+    return jobRunner;
   }
 
   @VisibleForTesting
-  public static List<IndexingJob> getJobsForEntity(Entity entity) {
-    List<IndexingJob> jobs = new ArrayList<>();
-    jobs.add(new CreateEntityTable(entity));
-    jobs.add(new DenormalizeEntityInstances(entity));
+  public static SequencedJobSet getJobSetForEntity(Entity entity) {
+    SequencedJobSet jobSet = new SequencedJobSet(entity.getName());
+    jobSet.startNewStage();
+    jobSet.addJob(new CreateEntityTable(entity));
+
+    jobSet.startNewStage();
+    jobSet.addJob(new DenormalizeEntityInstances(entity));
+
+    if (entity.getTextSearch().isEnabled() || entity.hasHierarchies()) {
+      jobSet.startNewStage();
+    }
+
     if (entity.getTextSearch().isEnabled()) {
-      jobs.add(new BuildTextSearchStrings(entity));
+      jobSet.addJob(new BuildTextSearchStrings(entity));
     }
     entity.getHierarchies().stream()
         .forEach(
             hierarchy -> {
-              jobs.add(new WriteParentChildIdPairs(entity, hierarchy.getName()));
-              jobs.add(new WriteAncestorDescendantIdPairs(entity, hierarchy.getName()));
-              jobs.add(new BuildNumChildrenAndPaths(entity, hierarchy.getName()));
+              jobSet.addJob(new WriteParentChildIdPairs(entity, hierarchy.getName()));
+              jobSet.addJob(new WriteAncestorDescendantIdPairs(entity, hierarchy.getName()));
+              jobSet.addJob(new BuildNumChildrenAndPaths(entity, hierarchy.getName()));
             });
-    return jobs;
+    return jobSet;
   }
 
   @VisibleForTesting
-  public static List<IndexingJob> getJobsForEntityGroup(EntityGroup entityGroup) {
-    List<IndexingJob> jobs = new ArrayList<>();
+  public static SequencedJobSet getJobSetForEntityGroup(EntityGroup entityGroup) {
+    SequencedJobSet jobSet = new SequencedJobSet(entityGroup.getName());
+    jobSet.startNewStage();
 
-    // for each relationship, write the index relationship mapping
+    // For each relationship, write the index relationship mapping.
     entityGroup.getRelationships().values().stream()
         .forEach(
             // TODO: If the source relationship mapping table = one of the entity tables, then just
             // populate a new column on that entity table, instead of always writing a new table.
-            relationship -> jobs.add(new WriteRelationshipIdPairs(relationship)));
+            relationship -> jobSet.addJob(new WriteRelationshipIdPairs(relationship)));
 
     if (EntityGroup.Type.CRITERIA_OCCURRENCE.equals(entityGroup.getType())) {
       CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
       // Compute the criteria rollup counts for both the criteria-primary and criteria-occurrence
       // relationships.
-      jobs.add(
+      jobSet.addJob(
           new ComputeRollupCounts(
               criteriaOccurrence.getCriteriaEntity(),
               criteriaOccurrence.getCriteriaPrimaryRelationship(),
               null));
-      jobs.add(
+      jobSet.addJob(
           new ComputeRollupCounts(
               criteriaOccurrence.getCriteriaEntity(),
               criteriaOccurrence.getOccurrenceCriteriaRelationship(),
@@ -199,12 +225,12 @@ public final class Indexer {
         criteriaOccurrence.getCriteriaEntity().getHierarchies().stream()
             .forEach(
                 hierarchy -> {
-                  jobs.add(
+                  jobSet.addJob(
                       new ComputeRollupCounts(
                           criteriaOccurrence.getCriteriaEntity(),
                           criteriaOccurrence.getCriteriaPrimaryRelationship(),
                           hierarchy));
-                  jobs.add(
+                  jobSet.addJob(
                       new ComputeRollupCounts(
                           criteriaOccurrence.getCriteriaEntity(),
                           criteriaOccurrence.getOccurrenceCriteriaRelationship(),
@@ -214,33 +240,15 @@ public final class Indexer {
 
       // Compute display hints for the occurrence entity.
       if (!criteriaOccurrence.getModifierAttributes().isEmpty()) {
-        jobs.add(
+        jobSet.addJob(
             new ComputeDisplayHints(
                 criteriaOccurrence, criteriaOccurrence.getModifierAttributes()));
       }
     }
-
-    return jobs;
+    return jobSet;
   }
 
   public Underlay getUnderlay() {
     return underlay;
-  }
-
-  /**
-   * Execute an indexing job. If an exception is thrown, make sure the error message and stack trace
-   * are logged.
-   *
-   * @param runJob function with no return value
-   * @param jobName name of the indexing job to include in log statements
-   */
-  private void tolerateJobExceptions(
-      HttpUtils.RunnableWithCheckedException<Exception> runJob, String jobName) {
-    try {
-      runJob.run();
-    } catch (Exception ex) {
-      LOGGER.error("Error running indexing job: {}", jobName);
-      LOGGER.error("Exception thrown: {}", ex);
-    }
   }
 }

@@ -80,7 +80,7 @@ Potential downside is more permissions needed by indexing service account.)
 Set the default application credentials to a service account key file that has read access to the source and read + 
 write access to the index data.
 ```
-export GOOGLE_APPLICATION_CREDENTIALS=/credentials/indexing_sa.json
+export GOOGLE_APPLICATION_CREDENTIALS=$HOME/tanagra/credentials/indexing_sa.json
 ```
 
 #### All Jobs
@@ -88,11 +88,11 @@ Do a dry run of all the indexing jobs. This provides a sanity check that the ind
 query inputs, are valid. This step is not required, but highly recommended to help catch errors/bugs sooner and without 
 running a bunch of computation first.
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL /config/output/omop.json DRY_RUN"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json DRY_RUN"
 ```
 Now actually kick off all the indexing jobs.
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL /config/output/omop.json"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json"
 ```
 This can take a long time to complete. If e.g. your computer falls asleep or you need to kill the process on your
 computer, you can re-run the same command again. You need to check that there are no in-progress Dataflow jobs in the
@@ -106,16 +106,24 @@ kicking them off again.
 You can also kickoff the indexing jobs for a single entity or entity group. This is helpful for testing and debugging.
 To kick off all the indexing jobs for a particular entity:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY /config/output/omop.json person DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY /config/output/omop.json person"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person DRY_RUN"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person"
 ```
 or entity group:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP /config/output/omop.json condition_occurrence_person DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP /config/output/omop.json condition_occurrence_person"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json condition_occurrence_person DRY_RUN"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json condition_occurrence_person"
 ```
 All the entities in a group should be indexed before the group. The `INDEX_ALL` command ensures this ordering, but keep 
 this in  mind if you're running the jobs for each entity or entity group separately.
+
+#### Concurrency
+By default, the indexing jobs are run concurrently as much as possible. You can force it to run jobs serially by
+appending `SERIAL` to the command:
+```
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json DRY_RUN SERIAL"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json NOT_DRY_RUN SERIAL"
+```
 
 ## OMOP Example
 The `cms_synpuf` is a [public dataset](https://console.cloud.google.com/marketplace/product/hhs/synpuf) that uses the 

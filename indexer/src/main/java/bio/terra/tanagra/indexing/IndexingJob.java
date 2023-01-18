@@ -12,6 +12,12 @@ public interface IndexingJob {
     COMPLETE
   }
 
+  enum RunType {
+    STATUS,
+    CLEAN,
+    RUN
+  }
+
   String getName();
 
   void run(boolean isDryRun);
@@ -20,32 +26,39 @@ public interface IndexingJob {
 
   JobStatus checkStatus();
 
-  boolean prerequisitesComplete();
-
-  default void checkStatusAndRun(boolean isDryRun) {
-    LOGGER.info("RUN Indexing job: {}", getName());
+  default JobStatus execute(RunType runType, boolean isDryRun) {
+    LOGGER.info("Executing indexing job: {}, {}", runType, getName());
     JobStatus status = checkStatus();
     LOGGER.info("Job status: {}", status);
 
-    if (!prerequisitesComplete()) {
-      LOGGER.info("Skipping because prerequisites are not complete");
-      return;
-    } else if (!JobStatus.NOT_STARTED.equals(status)) {
-      LOGGER.info("Skipping because job is either in progress or complete");
-      return;
+    switch (runType) {
+      case RUN:
+        if (!JobStatus.NOT_STARTED.equals(status)) {
+          LOGGER.info("Skipping because job is either in progress or complete");
+          return status;
+        }
+        run(isDryRun);
+        return checkStatus();
+      case CLEAN:
+        if (JobStatus.IN_PROGRESS.equals(status)) {
+          LOGGER.info("Skipping because job is in progress");
+          return status;
+        }
+        clean(isDryRun);
+        return checkStatus();
+      case STATUS:
+        return status;
+      default:
+        throw new IllegalArgumentException("Unknown execution type: " + runType);
     }
-    run(isDryRun);
   }
 
-  default void checkStatusAndClean(boolean isDryRun) {
-    LOGGER.info("CLEAN Indexing job: {}", getName());
-    JobStatus status = checkStatus();
-    LOGGER.info("Job status: {}", status);
-
-    if (JobStatus.IN_PROGRESS.equals(status)) {
-      LOGGER.info("Skipping because job is in progress");
-      return;
-    }
-    clean(isDryRun);
+  /** Check if the job completed what it was supposed to. */
+  static boolean checkStatusAfterRunMatchesExpected(
+      RunType runType, boolean isDryRun, JobStatus status) {
+    return isDryRun
+        || RunType.STATUS.equals(runType)
+        || (RunType.RUN.equals(runType) && JobStatus.COMPLETE.equals(status))
+        || (RunType.CLEAN.equals(runType) && JobStatus.NOT_STARTED.equals(status));
   }
 }

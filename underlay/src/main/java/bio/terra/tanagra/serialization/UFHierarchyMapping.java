@@ -17,6 +17,7 @@ public class UFHierarchyMapping {
   private final UFAuxiliaryDataMapping rootNodesFilter;
   private final UFAuxiliaryDataMapping ancestorDescendant;
   private final UFAuxiliaryDataMapping pathNumChildren;
+  private final int maxHierarchyDepth;
 
   public UFHierarchyMapping(HierarchyMapping hierarchyMapping) {
     this.childParent = new UFAuxiliaryDataMapping(hierarchyMapping.getChildParent());
@@ -32,6 +33,7 @@ public class UFHierarchyMapping {
         hierarchyMapping.hasPathNumChildren()
             ? new UFAuxiliaryDataMapping(hierarchyMapping.getPathNumChildren())
             : null;
+    this.maxHierarchyDepth = hierarchyMapping.getMaxHierarchyDepth();
   }
 
   private UFHierarchyMapping(Builder builder) {
@@ -39,6 +41,7 @@ public class UFHierarchyMapping {
     this.rootNodesFilter = builder.rootNodesFilter;
     this.ancestorDescendant = builder.ancestorDescendant;
     this.pathNumChildren = builder.pathNumChildren;
+    this.maxHierarchyDepth = builder.maxHierarchyDepth;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -47,6 +50,7 @@ public class UFHierarchyMapping {
     private UFAuxiliaryDataMapping rootNodesFilter;
     private UFAuxiliaryDataMapping ancestorDescendant;
     private UFAuxiliaryDataMapping pathNumChildren;
+    private int maxHierarchyDepth;
 
     public Builder childParent(UFAuxiliaryDataMapping childParent) {
       this.childParent = childParent;
@@ -65,6 +69,11 @@ public class UFHierarchyMapping {
 
     public Builder pathNumChildren(UFAuxiliaryDataMapping pathNumChildren) {
       this.pathNumChildren = pathNumChildren;
+      return this;
+    }
+
+    public Builder maxHierarchyDepth(int maxHierarchyDepth) {
+      this.maxHierarchyDepth = maxHierarchyDepth;
       return this;
     }
 
@@ -88,5 +97,9 @@ public class UFHierarchyMapping {
 
   public UFAuxiliaryDataMapping getPathNumChildren() {
     return pathNumChildren;
+  }
+
+  public int getMaxHierarchyDepth() {
+    return maxHierarchyDepth;
   }
 }
