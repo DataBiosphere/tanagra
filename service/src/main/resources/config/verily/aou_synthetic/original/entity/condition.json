@@ -45,7 +45,8 @@
           "fieldPointers": {
             "id": { "column": "concept_id" }
           }
-        }
+        },
+        "maxHierarchyDepth" : 20
       }
     }
   },

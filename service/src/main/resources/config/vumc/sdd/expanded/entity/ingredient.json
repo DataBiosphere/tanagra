@@ -185,7 +185,8 @@
               "column" : "concept_id"
             }
           }
-        }
+        },
+        "maxHierarchyDepth" : 8
       }
     }
   },
@@ -272,7 +273,8 @@
               "column" : "id"
             }
           }
-        }
+        },
+        "maxHierarchyDepth" : 8
       }
     }
   }

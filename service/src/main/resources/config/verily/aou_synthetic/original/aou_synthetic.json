@@ -1,5 +1,5 @@
 {
-  "name": "verily_aou_synthetic",
+  "name": "aou_synthetic",
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
@@ -9,7 +9,7 @@
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "aou_synthetic_indexes",
+      "datasetId": "aousynthetic_index_011823",
       "dataflowServiceAccountEmail": "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com" } ],
   "entities": [
     "brand.json",
