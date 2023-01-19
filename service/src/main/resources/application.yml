@@ -27,6 +27,10 @@ tanagra:
     gcs-bucket-project-id: broad-tanagra-dev
     gcs-bucket-name: broad-tanagra-dev-bq-export
 
+  access-control:
+    model: OPEN_ACCESS # VUMC_ADMIN
+    params: []
+
 logging.pattern.level: '%X{requestId} %5p'
 
 server:

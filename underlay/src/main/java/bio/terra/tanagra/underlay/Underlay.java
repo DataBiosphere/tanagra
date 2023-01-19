@@ -5,7 +5,6 @@ import static bio.terra.tanagra.underlay.EntityGroup.ENTITY_GROUP_DIRECTORY_NAME
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.plugin.PluginConfig;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
@@ -35,8 +34,7 @@ public final class Underlay {
   private final String primaryEntityName;
   private final Map<String, EntityGroup> entityGroups;
   private final String uiConfig;
-  private final AccessControlModel accessControlModel;
-  private final Map<String, PluginConfig> pluginConfigs;
+  private final Map<String, String> metadata;
 
   private Underlay(
       String name,
@@ -45,15 +43,14 @@ public final class Underlay {
       String primaryEntityName,
       Map<String, EntityGroup> entityGroups,
       String uiConfig,
-      AccessControlModel accessControlModel) {
+      Map<String, String> metadata) {
     this.name = name;
     this.dataPointers = dataPointers;
     this.entities = entities;
     this.primaryEntityName = primaryEntityName;
     this.entityGroups = entityGroups;
     this.uiConfig = uiConfig;
-    this.accessControlModel = accessControlModel;
-    this.pluginConfigs = new HashMap<>();
+    this.metadata = metadata;
   }
 
   public static Underlay fromJSON(String underlayFileName) throws IOException {
@@ -112,11 +109,6 @@ public final class Underlay {
               FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
 
-    AccessControlModel accessControlModel =
-        serialized.getAccessControlModel() == null
-            ? AccessControlModel.getDefault()
-            : AccessControlModel.fromSerialized(serialized.getAccessControlModel());
-
     Underlay underlay =
         new Underlay(
             serialized.getName(),
@@ -125,7 +117,7 @@ public final class Underlay {
             primaryEntity,
             entityGroups,
             uiConfig,
-            accessControlModel);
+            serialized.getMetadata());
 
     underlay.getEntities().values().stream().forEach(entity -> entity.initialize(underlay));
 
@@ -209,11 +201,7 @@ public final class Underlay {
     return uiConfig;
   }
 
-  public AccessControlModel getAccessControlModel() {
-    return accessControlModel;
-  }
-
-  public Map<String, PluginConfig> getPluginConfigs() {
-    return Collections.unmodifiableMap(pluginConfigs);
+  public Map<String, String> getMetadata() {
+    return Collections.unmodifiableMap(metadata);
   }
 }

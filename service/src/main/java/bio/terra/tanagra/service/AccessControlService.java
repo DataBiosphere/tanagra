@@ -2,20 +2,45 @@ package bio.terra.tanagra.service;
 
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.UnauthorizedException;
-import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
+import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
+import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.service.accesscontrol.AccessControl;
 import bio.terra.tanagra.service.accesscontrol.Action;
-import bio.terra.tanagra.service.accesscontrol.OpenAccessControlPlugin;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
+import bio.terra.tanagra.service.accesscontrol.impl.OpenAccessControl;
+import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccessControlService {
-  // TODO: Allow overriding the default plugin.
-  private final AccessControlPlugin accessControlPlugin = new OpenAccessControlPlugin();
+  // The application configuration specifies which AccessControl implementation class this service
+  // calls.
+  private final AccessControl accessControlImpl;
+
+  @Autowired
+  public AccessControlService(
+      AccessControlConfiguration accessControlConfiguration, VumcAdminService vumcAdminService) {
+    AccessControl accessControlImplInstance;
+    switch (accessControlConfiguration.getModel()) {
+      case OPEN_ACCESS:
+        accessControlImplInstance = new OpenAccessControl();
+        break;
+      case VUMC_ADMIN:
+        accessControlImplInstance = new VumcAdminAccessControl(vumcAdminService);
+        break;
+      default:
+        throw new SystemException(
+            "Unknown access control model: " + accessControlConfiguration.getModel());
+    }
+    accessControlImplInstance.initialize(accessControlConfiguration.getParams());
+
+    this.accessControlImpl = accessControlImplInstance;
+  }
 
   public void throwIfUnauthorized(UserId userId, Action action, ResourceType resourceType) {
     throwIfUnauthorized(userId, action, resourceType, null);
@@ -43,7 +68,7 @@ public class AccessControlService {
       throw new BadRequestException(
           "Action not available for resource type: " + action + ", " + resourceType);
     }
-    return accessControlPlugin.isAuthorized(userId, action, resourceType, resourceId);
+    return accessControlImpl.isAuthorized(userId, action, resourceType, resourceId);
   }
 
   public ResourceIdCollection listResourceIds(UserId userId, ResourceType type) {
@@ -52,6 +77,6 @@ public class AccessControlService {
 
   public ResourceIdCollection listResourceIds(
       UserId userId, ResourceType type, int offset, int limit) {
-    return accessControlPlugin.listResourceIds(userId, type, offset, limit);
+    return accessControlImpl.listResourceIds(userId, type, offset, limit);
   }
 }

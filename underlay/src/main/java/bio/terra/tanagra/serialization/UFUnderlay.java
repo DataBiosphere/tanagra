@@ -25,10 +25,7 @@ public class UFUnderlay {
   private final String primaryEntity;
   private final String uiConfig;
   private final String uiConfigFile;
-  private final UFAccessControlModel accessControlModel;
-
-  // TODO: enforce key as PluginType
-  private final Map<String, UFPluginConfig> plugins;
+  private final Map<String, String> metadata;
 
   public UFUnderlay(Underlay underlay) {
     this.name = underlay.getName();
@@ -49,11 +46,7 @@ public class UFUnderlay {
     // Separate file for UI config string available for input/deserialization, not
     // output/re-serialization.
     this.uiConfigFile = null;
-    this.accessControlModel = new UFAccessControlModel(underlay.getAccessControlModel());
-    this.plugins =
-        underlay.getPluginConfigs().entrySet().stream()
-            .collect(
-                Collectors.toMap(Map.Entry::getKey, kvp -> new UFPluginConfig(kvp.getValue())));
+    this.metadata = underlay.getMetadata();
   }
 
   private UFUnderlay(Builder builder) {
@@ -64,8 +57,7 @@ public class UFUnderlay {
     this.primaryEntity = builder.primaryEntity;
     this.uiConfig = builder.uiConfig;
     this.uiConfigFile = builder.uiConfigFile;
-    this.accessControlModel = builder.accessControlModel;
-    this.plugins = builder.plugins;
+    this.metadata = builder.metadata;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -77,8 +69,7 @@ public class UFUnderlay {
     private String primaryEntity;
     private String uiConfig;
     private String uiConfigFile;
-    private UFAccessControlModel accessControlModel;
-    private Map<String, UFPluginConfig> plugins;
+    private Map<String, String> metadata;
 
     public Builder name(String name) {
       this.name = name;
@@ -115,13 +106,8 @@ public class UFUnderlay {
       return this;
     }
 
-    public Builder accessControlModel(UFAccessControlModel accessControlModel) {
-      this.accessControlModel = accessControlModel;
-      return this;
-    }
-
-    public Builder plugins(Map<String, UFPluginConfig> plugins) {
-      this.plugins = plugins;
+    public Builder metadata(Map<String, String> metadata) {
+      this.metadata = metadata;
       return this;
     }
 
@@ -159,11 +145,7 @@ public class UFUnderlay {
     return uiConfigFile;
   }
 
-  public UFAccessControlModel getAccessControlModel() {
-    return accessControlModel;
-  }
-
-  public Map<String, UFPluginConfig> getPlugins() {
-    return plugins;
+  public Map<String, String> getMetadata() {
+    return metadata;
   }
 }

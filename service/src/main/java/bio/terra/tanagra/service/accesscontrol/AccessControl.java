@@ -1,10 +1,21 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import bio.terra.tanagra.plugin.Plugin;
 import bio.terra.tanagra.service.auth.UserId;
+import java.util.List;
 
-/** Interface that all access control plugins must implement. */
-public interface AccessControlPlugin extends Plugin {
+/** Interface that all access control models must implement. */
+public interface AccessControl {
+  enum Model {
+    OPEN_ACCESS,
+    VUMC_ADMIN
+  }
+
+  default void initialize(List<String> params) {
+    // Do nothing with parameters.
+  }
+
+  String getDescription();
+
   boolean isAuthorized(
       UserId userId, Action action, ResourceType resourceType, ResourceId resourceId);
 
