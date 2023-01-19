@@ -19,6 +19,8 @@
     "ingredient_occurrence.json",
     "measurement.json",
     "measurement_occurrence.json",
+    "note.json",
+    "note_occurrence.json",
     "observation.json",
     "observation_occurrence.json",
     "person.json",
@@ -32,6 +34,7 @@
     "condition_person_occurrence.json",
     "ingredient_person_occurrence.json",
     "measurement_person_occurrence.json",
+    "note_person_occurrence.json",
     "observation_person_occurrence.json",
     "procedure_person_occurrence.json",
     "visit_person_occurrence.json"

@@ -23,10 +23,6 @@
             "field": { "column": "concept_class_id" },
             "operator": "EQUALS",
             "value": { "stringVal": "Brand Name" } },
-          { "type": "BINARY",
-            "field": { "column": "invalid_reason" },
-            "operator": "IS",
-            "value": { "stringVal": null } },
           { "type": "BOOLEAN_AND_OR",
             "operator": "OR",
             "subfilters": [
