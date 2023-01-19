@@ -1,10 +1,10 @@
 {
-  "name" : "verily_aou_synthetic",
+  "name" : "aou_synthetic",
   "dataPointers" : [ {
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
     "projectId" : "verily-tanagra-dev",
-    "datasetId" : "aou_synthetic_indexes",
+    "datasetId" : "aousynthetic_index_011823",
     "queryProjectId" : "verily-tanagra-dev",
     "dataflowServiceAccountEmail" : "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com"
   }, {

@@ -1,0 +1,36 @@
+{
+  "name": "note_occurrence",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "person_id" },
+    { "type": "SIMPLE", "name": "date" },
+    { "type": "KEY_AND_DISPLAY", "name": "note" },
+    { "type": "SIMPLE", "name": "title" },
+    { "type": "SIMPLE", "name": "text" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id" },
+    { "type": "SIMPLE", "name": "source_value" } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "table": "note" },
+    "attributeMappings": {
+      "id": { "value": { "column": "note_id" } },
+      "date": { "value": { "column": "note_date" } },
+      "note": {
+        "value": { "column": "note_type_concept_id" },
+        "display": {
+          "column": "note_type_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "title": { "value": { "column": "note_title" } },
+      "text": { "value": { "column": "note_text" } },
+      "source_value": { "value": { "column": "note_source_value" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
