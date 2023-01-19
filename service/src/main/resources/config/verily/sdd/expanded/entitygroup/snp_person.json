@@ -1,0 +1,74 @@
+{
+  "type" : "GROUP_ITEMS",
+  "name" : "snp_person",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "groupToItems" : {
+        "idPairsTable" : {
+          "table" : "x_snp"
+        },
+        "idPairsIdA" : {
+          "column" : "snp"
+        },
+        "idPairsIdB" : {
+          "column" : "person_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "groupToItems" : {
+        "idPairsTable" : {
+          "table" : "idpairs_snp_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_snp"
+        },
+        "idPairsIdB" : {
+          "column" : "id_person"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "snp"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_snp"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_snp"
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "groupEntity" : "snp",
+  "itemsEntity" : "person"
+}
