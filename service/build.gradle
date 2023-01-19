@@ -110,17 +110,6 @@ dependencies {
     testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
 }
 
-test {
-    useJUnitPlatform()
-
-    // These System properties are used for the generated SQL strings to compare against during tests.
-    // See bio.terra.tanagra.aousynthetic.GeneratedSqlUtils for how they are used.
-    systemProperty("GRADLE_PROJECT_DIR", projectDir)
-    if (project.findProperty("generateSqlFiles")) {
-        systemProperty("GENERATE_SQL_FILES", "true")
-    }
-}
-
 // Apply Gradle Script Plugins for more modular gradle files.
 // See also https://docs.gradle.org/current/userguide/plugins.html#sec:script_plugins
 apply from: "$rootDir/service/gradle/jib.gradle"

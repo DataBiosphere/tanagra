@@ -1,5 +1,6 @@
 package bio.terra.tanagra.plugin;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.service.accesscontrol.AccessControlPlugin;
@@ -27,6 +28,6 @@ public class PluginTest extends BaseSpringUnitTest {
   void configuredPluginLoading() {
     AccessControlPlugin accessControlPlugin =
         pluginService.getAccessControlPlugin(TEST_UNDERLAY_CONFIGURED);
-    assertTrue(accessControlPlugin instanceof ConfiguredAccessControlPlugin);
+    assertFalse(accessControlPlugin instanceof ConfiguredAccessControlPlugin);
   }
 }

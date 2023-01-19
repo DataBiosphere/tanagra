@@ -1,9 +1,5 @@
 package bio.terra.tanagra.indexing;
 
-import static bio.terra.tanagra.underlay.Entity.ENTITY_DIRECTORY_NAME;
-import static bio.terra.tanagra.underlay.EntityGroup.ENTITY_GROUP_DIRECTORY_NAME;
-import static bio.terra.tanagra.underlay.Underlay.OUTPUT_UNDERLAY_FILE_EXTENSION;
-
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
 import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
@@ -17,18 +13,12 @@ import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
-import bio.terra.tanagra.serialization.UFEntity;
-import bio.terra.tanagra.serialization.UFEntityGroup;
-import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
-import bio.terra.tanagra.utils.FileIO;
-import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -55,9 +45,6 @@ public final class Indexer {
   }
 
   private final Underlay underlay;
-  private UFUnderlay expandedUnderlay;
-  private List<UFEntity> expandedEntities;
-  private List<UFEntityGroup> expandedEntityGroups;
 
   private Indexer(Underlay underlay) {
     this.underlay = underlay;
@@ -81,45 +68,6 @@ public final class Indexer {
                       + e.getName());
               e.scanSourceData();
             });
-  }
-
-  /** Convert the internal objects, now expanded, back to POJOs. */
-  public void serializeUnderlay() {
-    LOGGER.info("Serializing expanded underlay objects");
-    expandedUnderlay = new UFUnderlay(underlay);
-    expandedEntities =
-        underlay.getEntities().values().stream()
-            .map(e -> new UFEntity(e))
-            .collect(Collectors.toList());
-    expandedEntityGroups =
-        underlay.getEntityGroups().values().stream()
-            .map(eg -> eg.serialize())
-            .collect(Collectors.toList());
-  }
-
-  /** Write out the expanded POJOs. */
-  public void writeSerializedUnderlay() throws IOException {
-    // Write out the underlay POJO to the top-level directory.
-    Path underlayPath =
-        FileIO.getOutputParentDir()
-            .resolve(expandedUnderlay.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION);
-    JacksonMapper.writeJavaObjectToFile(underlayPath, expandedUnderlay);
-
-    // Write out the entity POJOs to the entity/ sub-directory.
-    Path entitySubDir = FileIO.getOutputParentDir().resolve(ENTITY_DIRECTORY_NAME);
-    for (UFEntity expandedEntity : expandedEntities) {
-      JacksonMapper.writeJavaObjectToFile(
-          entitySubDir.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
-          expandedEntity);
-    }
-
-    // Write out the entity group POJOs to the entity_group/ sub-directory.
-    Path entityGroupSubDir = FileIO.getOutputParentDir().resolve(ENTITY_GROUP_DIRECTORY_NAME);
-    for (UFEntityGroup expandedEntityGroup : expandedEntityGroups) {
-      JacksonMapper.writeJavaObjectToFile(
-          entityGroupSubDir.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
-          expandedEntityGroup);
-    }
   }
 
   public JobRunner runJobsForAllEntities(

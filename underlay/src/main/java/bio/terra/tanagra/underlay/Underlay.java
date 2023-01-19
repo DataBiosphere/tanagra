@@ -1,8 +1,13 @@
 package bio.terra.tanagra.underlay;
 
+import static bio.terra.tanagra.underlay.Entity.ENTITY_DIRECTORY_NAME;
+import static bio.terra.tanagra.underlay.EntityGroup.ENTITY_GROUP_DIRECTORY_NAME;
+
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.plugin.PluginConfig;
+import bio.terra.tanagra.serialization.UFEntity;
+import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFUnderlay;
 import bio.terra.tanagra.utils.FileIO;
 import bio.terra.tanagra.utils.FileUtils;
@@ -11,7 +16,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class Underlay {
   public enum MappingType {
@@ -28,6 +35,7 @@ public final class Underlay {
   private final String primaryEntityName;
   private final Map<String, EntityGroup> entityGroups;
   private final String uiConfig;
+  private final AccessControlModel accessControlModel;
   private final Map<String, PluginConfig> pluginConfigs;
 
   private Underlay(
@@ -37,14 +45,15 @@ public final class Underlay {
       String primaryEntityName,
       Map<String, EntityGroup> entityGroups,
       String uiConfig,
-      Map<String, PluginConfig> pluginConfigs) {
+      AccessControlModel accessControlModel) {
     this.name = name;
     this.dataPointers = dataPointers;
     this.entities = entities;
     this.primaryEntityName = primaryEntityName;
     this.entityGroups = entityGroups;
     this.uiConfig = uiConfig;
-    this.pluginConfigs = pluginConfigs;
+    this.accessControlModel = accessControlModel;
+    this.pluginConfigs = new HashMap<>();
   }
 
   public static Underlay fromJSON(String underlayFileName) throws IOException {
@@ -103,12 +112,10 @@ public final class Underlay {
               FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
 
-    Map<String, PluginConfig> plugins = new HashMap<>();
-    if (serialized.getPlugins() != null) {
-      serialized
-          .getPlugins()
-          .forEach((key, value) -> plugins.put(key, PluginConfig.fromSerialized(value)));
-    }
+    AccessControlModel accessControlModel =
+        serialized.getAccessControlModel() == null
+            ? AccessControlModel.getDefault()
+            : AccessControlModel.fromSerialized(serialized.getAccessControlModel());
 
     Underlay underlay =
         new Underlay(
@@ -118,11 +125,42 @@ public final class Underlay {
             primaryEntity,
             entityGroups,
             uiConfig,
-            plugins);
+            accessControlModel);
 
     underlay.getEntities().values().stream().forEach(entity -> entity.initialize(underlay));
 
     return underlay;
+  }
+
+  /** Convert the internal objects, now expanded, back to POJOs. Write out the expanded POJOs. */
+  public void serializeAndWriteToFile() throws IOException {
+    UFUnderlay expandedUnderlay = new UFUnderlay(this);
+    List<UFEntity> expandedEntities =
+        getEntities().values().stream().map(e -> new UFEntity(e)).collect(Collectors.toList());
+    List<UFEntityGroup> expandedEntityGroups =
+        getEntityGroups().values().stream().map(eg -> eg.serialize()).collect(Collectors.toList());
+
+    // Write out the underlay POJO to the top-level directory.
+    Path underlayPath =
+        FileIO.getOutputParentDir()
+            .resolve(expandedUnderlay.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION);
+    JacksonMapper.writeJavaObjectToFile(underlayPath, expandedUnderlay);
+
+    // Write out the entity POJOs to the entity/ sub-directory.
+    Path entitySubDir = FileIO.getOutputParentDir().resolve(ENTITY_DIRECTORY_NAME);
+    for (UFEntity expandedEntity : expandedEntities) {
+      JacksonMapper.writeJavaObjectToFile(
+          entitySubDir.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
+          expandedEntity);
+    }
+
+    // Write out the entity group POJOs to the entity_group/ sub-directory.
+    Path entityGroupSubDir = FileIO.getOutputParentDir().resolve(ENTITY_GROUP_DIRECTORY_NAME);
+    for (UFEntityGroup expandedEntityGroup : expandedEntityGroups) {
+      JacksonMapper.writeJavaObjectToFile(
+          entityGroupSubDir.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
+          expandedEntityGroup);
+    }
   }
 
   public String getName() {
@@ -169,6 +207,10 @@ public final class Underlay {
 
   public String getUIConfig() {
     return uiConfig;
+  }
+
+  public AccessControlModel getAccessControlModel() {
+    return accessControlModel;
   }
 
   public Map<String, PluginConfig> getPluginConfigs() {

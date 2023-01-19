@@ -25,6 +25,7 @@ public class UFUnderlay {
   private final String primaryEntity;
   private final String uiConfig;
   private final String uiConfigFile;
+  private final UFAccessControlModel accessControlModel;
 
   // TODO: enforce key as PluginType
   private final Map<String, UFPluginConfig> plugins;
@@ -48,6 +49,7 @@ public class UFUnderlay {
     // Separate file for UI config string available for input/deserialization, not
     // output/re-serialization.
     this.uiConfigFile = null;
+    this.accessControlModel = new UFAccessControlModel(underlay.getAccessControlModel());
     this.plugins =
         underlay.getPluginConfigs().entrySet().stream()
             .collect(
@@ -62,6 +64,7 @@ public class UFUnderlay {
     this.primaryEntity = builder.primaryEntity;
     this.uiConfig = builder.uiConfig;
     this.uiConfigFile = builder.uiConfigFile;
+    this.accessControlModel = builder.accessControlModel;
     this.plugins = builder.plugins;
   }
 
@@ -74,6 +77,7 @@ public class UFUnderlay {
     private String primaryEntity;
     private String uiConfig;
     private String uiConfigFile;
+    private UFAccessControlModel accessControlModel;
     private Map<String, UFPluginConfig> plugins;
 
     public Builder name(String name) {
@@ -108,6 +112,11 @@ public class UFUnderlay {
 
     public Builder uiConfigFile(String uiConfigFile) {
       this.uiConfigFile = uiConfigFile;
+      return this;
+    }
+
+    public Builder accessControlModel(UFAccessControlModel accessControlModel) {
+      this.accessControlModel = accessControlModel;
       return this;
     }
 
@@ -148,6 +157,10 @@ public class UFUnderlay {
 
   public String getUiConfigFile() {
     return uiConfigFile;
+  }
+
+  public UFAccessControlModel getAccessControlModel() {
+    return accessControlModel;
   }
 
   public Map<String, UFPluginConfig> getPlugins() {

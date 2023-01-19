@@ -14,6 +14,8 @@ quality {
     strict = true
 
     pmd = true
+    checkstyle = true
+    spotbugs = true
     pmdIncremental = false
     pmdVersion = '6.31.0'
 
@@ -25,4 +27,32 @@ quality {
     ]
 
     excludeSources = fileTree('build')
+
+    test {
+        useJUnitPlatform()
+
+        // These System properties are used for the generated SQL strings to compare against during tests.
+        // See bio.terra.tanagra.GeneratedSqlUtils for how they are used.
+        systemProperty("GRADLE_PROJECT_DIR", projectDir)
+        if (project.findProperty("generateSqlFiles")) {
+            systemProperty("GENERATE_SQL_FILES", "true")
+        }
+    }
+
+    final TASKS_DEPEND_ON_SPOTLESS = [
+            compileTestJava,
+            compileTestFixturesJava
+    ]
+    for (task in TASKS_DEPEND_ON_SPOTLESS) {
+        // Run every time the inputs to compilation change
+        task.dependsOn(spotlessJava)
+        // If compileJava runs, this must run after it (for the following to work).
+        task.mustRunAfter(spotlessJava)
+    }
+
+    afterEvaluate {
+        tasks.getByName('checkstyleMain').dependsOn(spotlessJava)
+        tasks.getByName('spotbugsMain').dependsOn(spotlessJava)
+        tasks.getByName('pmdMain').dependsOn(spotlessJava)
+    }
 }

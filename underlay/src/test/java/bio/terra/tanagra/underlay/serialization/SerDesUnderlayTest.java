@@ -1,13 +1,13 @@
-package bio.terra.tanagra.indexing.command;
+package bio.terra.tanagra.underlay.serialization;
 
-import bio.terra.tanagra.indexing.Indexer;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.FileIO;
 import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
-public class IndexUnderlayTest {
+public class SerDesUnderlayTest {
   @Test
   void omop() throws IOException {
     FileIO.setToReadResourceFiles();
@@ -15,9 +15,8 @@ public class IndexUnderlayTest {
     FileIO.setOutputParentDir(Path.of("test_output"));
     FileUtils.createDirectoryIfNonexistent(FileIO.getOutputParentDir());
 
-    Indexer indexer = Indexer.deserializeUnderlay("underlay/Omop.json");
-
-    indexer.serializeUnderlay();
-    indexer.writeSerializedUnderlay();
+    // Deserialize and re-serialize to test the conversion both ways.
+    Underlay deserialized = Underlay.fromJSON("underlay/Omop.json");
+    deserialized.serializeAndWriteToFile();
   }
 }

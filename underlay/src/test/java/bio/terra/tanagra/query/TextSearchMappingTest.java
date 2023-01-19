@@ -1,4 +1,4 @@
-package bio.terra.tanagra.indexing.query;
+package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -11,7 +11,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class RawSqlTablePointerTest {
+public class TextSearchMappingTest {
   private static Map<String, DataPointer> dataPointers;
 
   @BeforeAll
@@ -23,10 +23,14 @@ public class RawSqlTablePointerTest {
   }
 
   @Test
-  void allIngredients() throws IOException {
-    Entity ingredient = Entity.fromJSON("RawSqlTable.json", dataPointers);
+  void condition() throws IOException {
+    Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        ingredient.getMapping(Underlay.MappingType.SOURCE).queryAllAttributes().renderSQL(),
-        "sql/indexing/rawsql_source_allInstances.sql");
+        condition
+            .getTextSearch()
+            .getMapping(Underlay.MappingType.SOURCE)
+            .queryTextSearchStrings()
+            .renderSQL(),
+        "generatedSql/condition_source_textSearch.sql");
   }
 }

@@ -45,8 +45,7 @@ public final class Main {
 
         indexer.scanSourceData();
 
-        indexer.serializeUnderlay();
-        indexer.writeSerializedUnderlay();
+        indexer.getUnderlay().serializeAndWriteToFile();
         break;
       case INDEX_ENTITY:
       case CLEAN_ENTITY:
