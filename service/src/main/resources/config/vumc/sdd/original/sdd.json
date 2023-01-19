@@ -10,7 +10,7 @@
       "projectId": "victr-tanagra-test",
       "datasetId": "sdstatic_index_011823",
       "dataflowServiceAccountEmail": "tanagra-indexing-runner@victr-tanagra-test.iam.gserviceaccount.com",
-      "dataflowTempLocation": "gs://dataflow-indexing-victr-tanagra-test/temp011823/" } ],
+      "dataflowTempLocation": "gs://dataflow-indexing-victr-tanagra-test/temp/" } ],
   "entities": [
     "brand.json",
     "condition.json",

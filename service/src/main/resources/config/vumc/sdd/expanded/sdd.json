@@ -7,7 +7,7 @@
     "datasetId" : "sdstatic_index_011823",
     "queryProjectId" : "victr-tanagra-test",
     "dataflowServiceAccountEmail" : "tanagra-indexing-runner@victr-tanagra-test.iam.gserviceaccount.com",
-    "dataflowTempLocation" : "gs://dataflow-indexing-victr-tanagra-test/temp011823/"
+    "dataflowTempLocation" : "gs://dataflow-indexing-victr-tanagra-test/temp/"
   }, {
     "type" : "BQ_DATASET",
     "name" : "omop_dataset",
