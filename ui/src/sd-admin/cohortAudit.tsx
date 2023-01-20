@@ -17,6 +17,8 @@ import { useAdminSource } from "sd-admin/source";
 import { CohortV2, CriteriaGroupV2OperatorEnum, StudyV2 } from "tanagra-api";
 import { CohortRow, mapCohortRow } from "./cohortAdmin";
 
+// TODO dolbeew: may move the study table and functions to a separate component
+//  in a follow-up pr since everything is duplicated in studyAdmin.tsx
 const studyColumns = (
   filterFn: (name: string, value: string) => void
 ): GridColDef[] => [
@@ -100,7 +102,7 @@ const cohortColumns = [
     headerName: "Created",
   },
 ];
-// Mocked cohort to test the expandable rows that list cohort criteria
+// Temp mocked cohort to test the expandable rows that list cohort criteria
 const mockCohort: CohortV2 = {
   id: "f8YLRL8t",
   displayName: "Mocked cohort criteria test",
@@ -117,7 +119,7 @@ const mockCohort: CohortV2 = {
       criteria: [
         {
           id: "ZMiJsSL8",
-          displayName: "Disorder of body system",
+          displayName: "Condition: Disorder of body system",
           pluginName: "",
           selectionData: "",
           uiConfig: "",
@@ -125,14 +127,14 @@ const mockCohort: CohortV2 = {
         {
           id: "GkWUoXtT",
           displayName:
-            "Traumatic and/or non-traumatic injury of anatomical site",
+            "Condition: Traumatic and/or non-traumatic injury of anatomical site",
           pluginName: "",
           selectionData: "",
           uiConfig: "",
         },
         {
           id: "Rto3T4r6",
-          displayName: "Neoplasm by body site",
+          displayName: "Condition: Neoplasm by body site",
           pluginName: "",
           selectionData: "",
           uiConfig: "",
@@ -147,7 +149,7 @@ const mockCohort: CohortV2 = {
       criteria: [
         {
           id: "zyX8UoO8",
-          displayName: "Not Hispanic or Latino",
+          displayName: "Ethnicity: Not Hispanic or Latino",
           pluginName: "",
           selectionData: "",
           uiConfig: "",
@@ -162,7 +164,7 @@ const mockCohort: CohortV2 = {
       criteria: [
         {
           id: "lxYjNNH3",
-          displayName: "Male",
+          displayName: "Sex assigned at birth: Male",
           pluginName: "",
           selectionData: "",
           uiConfig: "",
@@ -251,7 +253,7 @@ interface StudyRow {
   pi: string;
 }
 
-function Row(props: { cohortRow: CohortRow }) {
+function CohortTableRow(props: { cohortRow: CohortRow }) {
   const {
     cohortRow: { id, created, createdBy, criteriaGroups, displayName },
   } = props;
@@ -457,7 +459,7 @@ export function CohortAudit() {
               </TableHead>
               <TableBody>
                 {getFilteredRowsFromCohorts().map((cohort) => (
-                  <Row key={cohort.id} cohortRow={cohort} />
+                  <CohortTableRow key={cohort.id} cohortRow={cohort} />
                 ))}
               </TableBody>
             </Table>
