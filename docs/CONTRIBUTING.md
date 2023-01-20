@@ -109,7 +109,7 @@ the accompanying golden file is `service/src/test/resources/aousynthetic.all-bra
 
 To regenerate the golden files, run the tests with the `generateSqlFiles` Gradle project property set. e.g.:
 ```
-./gradlew cleanTest test --tests bio.terra.tanagra.* --info -PgenerateSqlFiles=true
+./gradlew cleanTest service:test --tests bio.terra.tanagra.* --info -PgenerateSqlFiles=true
 ```
 
 ## Deployment

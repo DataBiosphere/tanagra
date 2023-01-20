@@ -69,7 +69,7 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
   @Test
   void cohortCount() throws IOException {
     // Count the number of people with >=1 occurrence of condition = "Type 2 diabetes mellitus",
-    // grouped by ethnicity.
+    // grouped by gender and race.
     countSingleCriteriaCohort(getEntity(), "diabetes", List.of("gender", "race"), 201_826L);
   }
 
