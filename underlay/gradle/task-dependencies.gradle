@@ -12,4 +12,3 @@ for (task in TASKS_ONLY_IF_COMPILE_JAVA) {
     // If compileJava runs, this must run after it (for the following to work).
     task.mustRunAfter(compileJava)
 }
-

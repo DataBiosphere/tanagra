@@ -1,4 +1,4 @@
-package bio.terra.tanagra.underlay.serialization;
+package bio.terra.tanagra.indexing.deserialization;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

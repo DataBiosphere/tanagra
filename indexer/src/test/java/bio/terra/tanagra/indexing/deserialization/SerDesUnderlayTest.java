@@ -1,4 +1,4 @@
-package bio.terra.tanagra.underlay.serialization;
+package bio.terra.tanagra.indexing.deserialization;
 
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.FileIO;

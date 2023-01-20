@@ -26,6 +26,7 @@ dependencies {
         jackson = "2.12.3"
         slf4j = "1.7.25"
     }
+
     implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
     implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
 
@@ -38,7 +39,6 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
 
-    testImplementation(testFixtures(project(":underlay")))
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
 
@@ -49,18 +49,6 @@ dependencies {
     testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
     testFixturesImplementation 'org.apache.commons:commons-text:1.9'
     testFixturesImplementation "org.slf4j:slf4j-api:${slf4j}"
-}
-
-sourceSets {
-    test {
-        resources {
-            srcDirs = [
-                "src/testFixtures/resources",
-                "src/main/resources",
-                "src/test/resources"
-            ]
-        }
-    }
 }
 
 // Apply Gradle Script Plugins for more modular gradle files.

@@ -108,6 +108,8 @@ public final class Underlay {
           FileUtils.readStringFromFile(
               FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
+    Map<String, String> metadata =
+        serialized.getMetadata() != null ? serialized.getMetadata() : new HashMap<>();
 
     Underlay underlay =
         new Underlay(
@@ -117,7 +119,7 @@ public final class Underlay {
             primaryEntity,
             entityGroups,
             uiConfig,
-            serialized.getMetadata());
+            metadata);
 
     underlay.getEntities().values().stream().forEach(entity -> entity.initialize(underlay));
 

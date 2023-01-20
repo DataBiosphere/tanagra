@@ -27,10 +27,6 @@ public final class GeneratedSqlUtils {
 
   private GeneratedSqlUtils() {}
 
-  public static void mariko() {
-    LOG.info("mariko");
-  }
-
   /**
    * - If the `generateSqlFiles` Gradle property is not set, then check the generated SQL against
    * the contents of the existing file. This is the default, most common behavior.

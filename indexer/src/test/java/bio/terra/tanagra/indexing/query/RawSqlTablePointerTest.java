@@ -1,4 +1,4 @@
-package bio.terra.tanagra.query;
+package bio.terra.tanagra.indexing.query;
 
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.DataPointer;
