@@ -51,6 +51,10 @@ dependencies {
     testFixturesImplementation "org.slf4j:slf4j-api:${slf4j}"
 }
 
+test {
+    useJUnitPlatform()
+}
+
 // Apply Gradle Script Plugins for more modular gradle files.
 // See also https://docs.gradle.org/current/userguide/plugins.html#sec:script_plugins
 apply from: "$rootDir/underlay/gradle/task-dependencies.gradle"
