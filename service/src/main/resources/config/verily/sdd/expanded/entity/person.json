@@ -123,8 +123,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 5227737.0
+      "minVal" : 0.0,
+      "maxVal" : 2993.0
     }
   } ],
   "sourceDataMapping" : {
