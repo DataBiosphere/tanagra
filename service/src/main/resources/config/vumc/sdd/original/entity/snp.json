@@ -6,10 +6,10 @@
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "table": "x_snp" },
+    "tablePointer": { "rawSqlFile": "x_snp.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "snp" } }
-    } },
+      "id": { "value": { "column": "snp" } } }
+  },
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
