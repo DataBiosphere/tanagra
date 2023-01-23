@@ -3,6 +3,7 @@ package bio.terra.tanagra.service;
 import bio.terra.common.logging.RequestIdFilter;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.app.configuration.VumcAdminConfiguration;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.auth.AppDefaultUtils;
 import bio.terra.tanagra.service.auth.UserId;
 import bio.terra.tanagra.vumc.admin.api.AuthorizationApi;
@@ -66,7 +67,7 @@ public class VumcAdminService {
 
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public boolean isAuthorized(
-      String action, String resourceType, String resourceId, String userEmail) throws ApiException {
+      String action, String resourceType, String resourceId, String userEmail) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
       authorizationApi.isAuthorized(action, resourceType, resourceId, userEmail);
@@ -75,13 +76,17 @@ public class VumcAdminService {
       if (apiEx.getCode() == HttpStatus.SC_UNAUTHORIZED) {
         return false;
       }
-      throw apiEx;
+      throw new SystemException("Error calling VUMC admin service isAuthorized endpoint", apiEx);
     }
   }
 
-  public ResourceIdList listAuthorizedResources(String resourceType, String userEmail)
-      throws ApiException {
+  public ResourceIdList listAuthorizedResources(String resourceType, String userEmail) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
-    return authorizationApi.listAuthorizedResources(resourceType, userEmail);
+    try {
+      return authorizationApi.listAuthorizedResources(resourceType, userEmail);
+    } catch (ApiException apiEx) {
+      throw new SystemException(
+          "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);
+    }
   }
 }

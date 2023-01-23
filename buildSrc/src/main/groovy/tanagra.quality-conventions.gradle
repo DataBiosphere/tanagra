@@ -14,6 +14,8 @@ quality {
     strict = true
 
     pmd = true
+    checkstyle = true
+    spotbugs = true
     pmdIncremental = false
     pmdVersion = '6.31.0'
 
