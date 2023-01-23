@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { useAdminSource } from "sd-admin/source";
-import { CohortV2, StudyV2 } from "tanagra-api";
+import { CohortV2, CriteriaGroupV2, StudyV2 } from "tanagra-api";
 
 const columns = (
   filterFn: (name: string, value: string) => void
@@ -106,7 +106,7 @@ const columns = (
   },
 ];
 
-const mapCohortRow = (
+export const mapCohortRow = (
   {
     created,
     createdBy,
@@ -176,12 +176,12 @@ const initialFormState = {
 
 const requiredFields = ["displayName", "studyName"];
 
-interface CohortRow {
+export interface CohortRow {
   id: string;
   studyName: string;
   displayName: string;
   description: string;
-  criteriaGroups: [];
+  criteriaGroups: CriteriaGroupV2[];
   created: string;
   createdBy: string;
   lastModified: string;
