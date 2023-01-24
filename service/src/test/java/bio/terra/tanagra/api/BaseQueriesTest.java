@@ -4,6 +4,7 @@ import static bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.Binary
 
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.QuerysService;
@@ -23,8 +24,11 @@ import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
+import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay.entitygroup.GroupItems;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,12 +77,19 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   }
 
   protected void textFilter(String text) throws IOException {
-    TextFilter textFilter =
+    textFilter(/*attributeName=*/ null, text);
+  }
+
+  protected void textFilter(@Nullable String attributeName, String text) throws IOException {
+    TextFilter.Builder textFilterBuilder =
         new TextFilter.Builder()
             .textSearch(getEntity().getTextSearch())
             .functionTemplate(FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH)
-            .text(text)
-            .build();
+            .text(text);
+    if (attributeName != null) {
+      textFilterBuilder.attribute(querysService.getAttribute(entity, "id"));
+    }
+    TextFilter textFilter = textFilterBuilder.build();
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
@@ -284,6 +295,43 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             + ".sql");
   }
 
+  // Filter for when there's no occurrence entity. This has fewer levels of nesting than
+  // singleCriteriaCohort().
+  protected void singleRelationshipCohort(String filterAttributeName, String text)
+      throws IOException {
+    // Build select attribute: person id
+    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    String selectEntityName = "person";
+    Entity selectEntity = underlay.getEntity(selectEntityName);
+    Attribute selectAttribute = entity.getAttribute("id");
+
+    // Build cohort filter
+    Relationship relationship =
+        getGroupItemsEntityGroup(entity).getRelationship(entity, selectEntity).orElseThrow();
+    EntityFilter subfilter =
+        new AttributeFilter(
+            entity.getAttribute(filterAttributeName), BinaryOperator.EQUALS, new Literal(text));
+    EntityFilter cohortFilter = new RelationshipFilter(selectEntity, relationship, subfilter);
+
+    EntityQueryRequest entityQueryRequest =
+        new EntityQueryRequest.Builder()
+            .entity(selectEntity)
+            .mappingType(Underlay.MappingType.INDEX)
+            .selectAttributes(ImmutableList.of(selectAttribute))
+            .filter(cohortFilter)
+            .limit(DEFAULT_LIMIT)
+            .build();
+    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
+        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        "sql/"
+            + getSqlDirectoryName()
+            + "/"
+            + selectEntityName
+            + "-"
+            + getEntity().getName()
+            + ".sql");
+  }
+
   protected void countSingleCriteriaCohort(
       Entity criteriaEntity,
       String description,
@@ -348,6 +396,11 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
     return (CriteriaOccurrence)
         underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, criteriaEntity);
+  }
+
+  private GroupItems getGroupItemsEntityGroup(Entity groupEntity) {
+    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    return (GroupItems) underlay.getEntityGroup(EntityGroup.Type.GROUP_ITEMS, groupEntity);
   }
 
   /** Build a RelationshipFilter for a cohort. */

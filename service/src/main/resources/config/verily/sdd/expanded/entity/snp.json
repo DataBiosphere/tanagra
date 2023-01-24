@@ -18,6 +18,9 @@
         }
       }
     },
+    "textSearchMapping" : {
+      "attributes" : [ "id" ]
+    },
     "hierarchyMappings" : { }
   },
   "indexDataMapping" : {
@@ -30,6 +33,11 @@
         "value" : {
           "column" : "id"
         }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text"
       }
     },
     "hierarchyMappings" : { }

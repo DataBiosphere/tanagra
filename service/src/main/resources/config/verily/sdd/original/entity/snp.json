@@ -8,7 +8,8 @@
     "dataPointer": "omop_dataset",
     "tablePointer": { "rawSqlFile": "x_snp.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "snp" } } }
+      "id": { "value": { "column": "snp" } } },
+    "textSearchMapping" : { "attributes" : [ "id" ] }
   },
 
   "indexDataMapping": {
