@@ -409,6 +409,8 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     return (GroupItems) underlay.getEntityGroup(EntityGroup.Type.GROUP_ITEMS, groupEntity);
   }
 
+  // checkstyle doesn't like _ in method name
+  // CHECKSTYLE:OFF
   /** Build a RelationshipFilter for a cohort when there's an occurrence entity. */
   private EntityFilter buildCohortFilter_occurrence(
       CriteriaOccurrence criteriaOccurrence,
@@ -468,4 +470,5 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             entity.getAttribute(filterAttributeName), BinaryOperator.EQUALS, new Literal(text));
     return new RelationshipFilter(selectEntity, relationship, subfilter);
   }
+  // CHECKSTYLE:ON
 }
