@@ -12,7 +12,8 @@
     "attributeMappings": {
       "id": { "value": { "column": "platform_id" } },
       "name": { "value": { "column": "assay_name" } }
-    }
+    },
+    "textSearchMapping" : { "attributes" : [ "id" ] }
   },
 
   "indexDataMapping": {

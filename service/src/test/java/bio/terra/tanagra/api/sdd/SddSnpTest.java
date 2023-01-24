@@ -18,7 +18,7 @@ public class SddSnpTest extends BaseQueriesTest {
 
   @Test
   void textFilter() throws IOException {
-    // "snp" entity instances that match the search term "RS1292"
+    // snp entity instances that match the search term "RS1292"
     textFilter("id", "RS1292");
   }
 
