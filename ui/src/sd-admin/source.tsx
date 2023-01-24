@@ -12,6 +12,7 @@ import {
   CreateCohortRequest,
   CreateStudyRequest,
   CriteriaGroupV2,
+  PropertyKeyValueV2,
   ReviewV2,
   StudyV2,
   UpdateCohortRequest,
@@ -85,7 +86,7 @@ export class BackendAdminSource implements AdminSource {
   async createStudy(
     displayName: string,
     description: string,
-    properties: Array<object>
+    properties: Array<PropertyKeyValueV2>
   ): Promise<StudyV2> {
     const createStudyRequest: CreateStudyRequest = {
       studyCreateInfoV2: { displayName, description, properties },

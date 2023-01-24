@@ -16,10 +16,14 @@ import SelectablePaper from "components/selectablePaper";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { CohortReview } from "data/types";
-import { useCohort, useUnderlay } from "hooks";
+import { useCohort } from "hooks";
 import produce from "immer";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
-import { absoluteCohortURL, cohortReviewURL } from "router";
+import {
+  absoluteCohortReviewURL,
+  absoluteCohortURL,
+  useBaseParams,
+} from "router";
 import useSWR from "swr";
 import { useNewReviewDialog } from "./newReviewDialog";
 
@@ -56,9 +60,9 @@ function wrapResults(results: CohortReview[]): ReviewListItem[] {
 
 export function CohortReviewList() {
   const source = useSource();
-  const underlay = useUnderlay();
   const cohort = useCohort();
   const navigate = useNavigate();
+  const params = useBaseParams();
   const { reviewId } = useParams<{ reviewId: string }>();
 
   const reviewsState = useSWR(
@@ -103,7 +107,7 @@ export function CohortReviewList() {
       async () => {
         if (selectedReview?.id) {
           await source.deleteCohortReview(selectedReview.id, cohort.name);
-          navigate(cohortReviewURL(underlay.name, cohort.id));
+          navigate(absoluteCohortReviewURL(params, cohort.id));
         }
         return wrapResults(await source.listCohortReviews(cohort.id));
       },
@@ -150,7 +154,7 @@ export function CohortReviewList() {
     <>
       <ActionBar
         title={`Reviews of ${cohort.name}`}
-        backURL={absoluteCohortURL(underlay.name, cohort.id)}
+        backURL={absoluteCohortURL(params, cohort.id)}
       />
       <Box
         sx={{
@@ -183,7 +187,7 @@ export function CohortReviewList() {
                   sx={{ p: 0, mt: 1 }}
                   component={RouterLink}
                   key={item.id()}
-                  to={cohortReviewURL(underlay.name, cohort.id, item.id())}
+                  to={absoluteCohortReviewURL(params, cohort.id, item.id())}
                   disabled={!!item.pending}
                 >
                   <SelectablePaper selected={item.id() === selectedReview?.id}>

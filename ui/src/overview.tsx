@@ -34,7 +34,7 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { cohortURL, criteriaURL } from "router";
+import { cohortURL, criteriaURL, exitURL, useBaseParams } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import {
@@ -76,10 +76,15 @@ function GroupDivider() {
 function GroupList() {
   const dispatch = useAppDispatch();
   const cohort = useCohort();
+  const params = useBaseParams();
 
   return (
     <Box className="outline">
-      <ActionBar title={cohort.name} extraControls={<CohortToolbar />} />
+      <ActionBar
+        title={cohort.name}
+        extraControls={<CohortToolbar />}
+        backURL={exitURL(params)}
+      />
       <Typography variant="h2">
         To be included in the cohort, participants…
       </Typography>

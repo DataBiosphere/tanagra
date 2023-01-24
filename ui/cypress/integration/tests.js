@@ -3,6 +3,7 @@ describe("Basic tests", () => {
     cy.visit("http://localhost:3000/");
 
     cy.contains("underlay_name").click();
+    cy.contains("Test Study").click();
     cy.contains("Datasets");
 
     cy.get("button[id=insert-cohort]").click();

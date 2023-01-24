@@ -9,7 +9,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.StudiesV2Api;
 import bio.terra.tanagra.generated.model.ApiPropertiesV2;
-import bio.terra.tanagra.generated.model.ApiPropertiesV2Inner;
+import bio.terra.tanagra.generated.model.ApiPropertyKeyValueV2;
 import bio.terra.tanagra.generated.model.ApiStudyCreateInfoV2;
 import bio.terra.tanagra.generated.model.ApiStudyListV2;
 import bio.terra.tanagra.generated.model.ApiStudyUpdateInfoV2;
@@ -110,7 +110,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   @Override
   public ResponseEntity<Void> updateStudyProperties(
-      String studyId, List<ApiPropertiesV2Inner> body) {
+      String studyId, List<ApiPropertyKeyValueV2> body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
     studyService.updateStudyProperties(studyId, fromApiObject(body));
@@ -130,7 +130,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
     study
         .getProperties()
         .forEach(
-            (key, value) -> apiProperties.add(new ApiPropertiesV2Inner().key(key).value(value)));
+            (key, value) -> apiProperties.add(new ApiPropertyKeyValueV2().key(key).value(value)));
     return new ApiStudyV2()
         .id(study.getStudyId())
         .displayName(study.getDisplayName())
@@ -142,10 +142,10 @@ public class StudiesV2ApiController implements StudiesV2Api {
   }
 
   private static ImmutableMap<String, String> fromApiObject(
-      List<ApiPropertiesV2Inner> apiProperties) {
+      List<ApiPropertyKeyValueV2> apiProperties) {
     Map<String, String> propertyMap = new HashMap<>();
     if (apiProperties != null) {
-      for (ApiPropertiesV2Inner apiProperty : apiProperties) {
+      for (ApiPropertyKeyValueV2 apiProperty : apiProperties) {
         propertyMap.put(apiProperty.getKey(), apiProperty.getValue());
       }
     }
