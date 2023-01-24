@@ -105,8 +105,6 @@ dependencies {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
 
-    // Cloud SQL
-    implementation "com.google.cloud.sql:postgres-socket-factory:1.7.0"
 
     // Static analysis
     compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
