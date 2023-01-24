@@ -26,6 +26,7 @@
     "person.json",
     "procedure.json",
     "procedure_occurrence.json",
+    "snp.json",
     "visit.json",
     "visit_occurrence.json" ],
   "primaryEntity": "person",
@@ -37,6 +38,7 @@
     "note_person_occurrence.json",
     "observation_person_occurrence.json",
     "procedure_person_occurrence.json",
+    "snp_person.json",
     "visit_person_occurrence.json"
   ],
   "uiConfigFile": "top_level.json"

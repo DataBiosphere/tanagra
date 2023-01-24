@@ -1,0 +1,37 @@
+{
+  "name" : "snp",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "STRING"
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT DISTINCT snp FROM `victr-tanagra-test.sd_static.x_snp` ORDER BY snp "
+    },
+    "attributeMappings" : {
+      "id" : {
+        "value" : {
+          "column" : "snp"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "snp"
+    },
+    "attributeMappings" : {
+      "id" : {
+        "value" : {
+          "column" : "id"
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

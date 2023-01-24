@@ -1,0 +1,17 @@
+{
+  "name": "snp",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "x_snp.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "snp" } } }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
