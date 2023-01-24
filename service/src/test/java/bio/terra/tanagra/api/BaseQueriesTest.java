@@ -224,7 +224,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       throws IOException {
     CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
     EntityFilter cohortFilter =
-        buildCohortFilter(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+        buildCohortFilter_occurrence(criteriaOccurrence, criteriaEntityIds, logicalOperator);
 
     // Filter for occurrence entity instances that are related to primary entity instances that are
     // related to occurrence entity instances that are related to criteria entity instances that
@@ -274,7 +274,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       throws IOException {
     CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
     EntityFilter cohortFilter =
-        buildCohortFilter(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+        buildCohortFilter_occurrence(criteriaOccurrence, criteriaEntityIds, logicalOperator);
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
@@ -297,21 +297,15 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
 
   // Filter for when there's no occurrence entity. This has fewer levels of nesting than
   // singleCriteriaCohort().
-  protected void singleRelationshipCohort(String filterAttributeName, String text)
-      throws IOException {
+  protected void relationshipCohort(String filterAttributeName, String text) throws IOException {
     // Build select attribute: person id
     Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
     String selectEntityName = "person";
     Entity selectEntity = underlay.getEntity(selectEntityName);
     Attribute selectAttribute = entity.getAttribute("id");
 
-    // Build cohort filter
-    Relationship relationship =
-        getGroupItemsEntityGroup(entity).getRelationship(entity, selectEntity).orElseThrow();
-    EntityFilter subfilter =
-        new AttributeFilter(
-            entity.getAttribute(filterAttributeName), BinaryOperator.EQUALS, new Literal(text));
-    EntityFilter cohortFilter = new RelationshipFilter(selectEntity, relationship, subfilter);
+    EntityFilter cohortFilter =
+        buildCohortFilter_noOccurrence(selectEntity, filterAttributeName, text);
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
@@ -355,34 +349,46 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       throws IOException {
     CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
     EntityFilter cohortFilter =
-        buildCohortFilter(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+        buildCohortFilter_occurrence(criteriaOccurrence, criteriaEntityIds, logicalOperator);
     count(criteriaOccurrence.getPrimaryEntity(), description, groupByAttributes, cohortFilter);
   }
 
-  protected void count(Entity entityToCount, String description, List<String> groupByAttributes)
+  // Count for when there's no occurrence entity. This has fewer levels of nesting than
+  // countSingleCriteriaCohort().
+  protected void countRelationshipCohort(
+      List<String> groupByAttributes, String filterAttributeName, String text) throws IOException {
+    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    Entity countEntity = underlay.getEntity("person");
+    EntityFilter cohortFilter =
+        buildCohortFilter_noOccurrence(countEntity, filterAttributeName, text);
+
+    count(countEntity, /*description=*/ getEntityName(), groupByAttributes, cohortFilter);
+  }
+
+  protected void count(Entity countEntity, String description, List<String> groupByAttributes)
       throws IOException {
-    count(entityToCount, description, groupByAttributes, null);
+    count(countEntity, description, groupByAttributes, null);
   }
 
   private void count(
-      Entity entityToCount,
+      Entity countEntity,
       String description,
       List<String> groupByAttributes,
       @Nullable EntityFilter cohortFilter)
       throws IOException {
     List<Attribute> groupBy =
         groupByAttributes.stream()
-            .map(attributeName -> entityToCount.getAttribute(attributeName))
+            .map(attributeName -> countEntity.getAttribute(attributeName))
             .collect(Collectors.toList());
     QueryRequest entityCountRequest =
         querysService.buildInstanceCountsQuery(
-            entityToCount, Underlay.MappingType.INDEX, groupBy, cohortFilter);
+            countEntity, Underlay.MappingType.INDEX, groupBy, cohortFilter);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         entityCountRequest.getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
-            + entityToCount.getName().replace("_", "")
+            + countEntity.getName().replace("_", "")
             + "-"
             + description
             + "-count.sql");
@@ -403,8 +409,8 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     return (GroupItems) underlay.getEntityGroup(EntityGroup.Type.GROUP_ITEMS, groupEntity);
   }
 
-  /** Build a RelationshipFilter for a cohort. */
-  private EntityFilter buildCohortFilter(
+  /** Build a RelationshipFilter for a cohort when there's an occurrence entity. */
+  private EntityFilter buildCohortFilter_occurrence(
       CriteriaOccurrence criteriaOccurrence,
       List<Long> criteriaEntityIds,
       BooleanAndOrFilterVariable.LogicalOperator logicalOperator) {
@@ -447,5 +453,19 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     } else {
       return new BooleanAndOrFilter(logicalOperator, criteriaFilters);
     }
+  }
+
+  /**
+   * Build a RelationshipFilter for a cohort when there's no occurrence entity. There are fewer
+   * levels of nesting than in buildCohortFilter_occurrence().
+   */
+  private EntityFilter buildCohortFilter_noOccurrence(
+      Entity selectEntity, String filterAttributeName, String text) {
+    Relationship relationship =
+        getGroupItemsEntityGroup(entity).getRelationship(entity, selectEntity).orElseThrow();
+    EntityFilter subfilter =
+        new AttributeFilter(
+            entity.getAttribute(filterAttributeName), BinaryOperator.EQUALS, new Literal(text));
+    return new RelationshipFilter(selectEntity, relationship, subfilter);
   }
 }

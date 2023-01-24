@@ -2,6 +2,7 @@ package bio.terra.tanagra.api.sdd;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
 import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class SddSnpTest extends BaseQueriesTest {
@@ -22,8 +23,15 @@ public class SddSnpTest extends BaseQueriesTest {
   }
 
   @Test
-  void singleRelationshipCohort() throws IOException {
+  void relationshipCohort() throws IOException {
     // Cohort of people with >=1 relationship of snp = "RS12925749"
-    singleRelationshipCohort("id", "RS12925749");
+    relationshipCohort("id", "RS12925749");
+  }
+
+  @Test
+  void countRelationshipCohort() throws IOException {
+    // Count the number of people with >=1 relationship of snp = "RS12925749", grouped by gender and
+    // race.
+    countRelationshipCohort(List.of("gender", "race"), "id", "RS12925749");
   }
 }
