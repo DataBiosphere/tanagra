@@ -1,0 +1,21 @@
+{
+  "name": "genotyping",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "name" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "platform.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "platform_id" } },
+      "name": { "value": { "column": "assay_name" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
