@@ -1673,17 +1673,26 @@ components:
       description: List of key-value pairs of strings
       type: array
       items:
-        type: object
-        required: [ key, value ]
-        properties:
-          key:
-            description: |
-              String to identify the key. Keys must be 1-1024 characters, using letters,
-              numbers, dashes, and underscores and must not start with a dash or underscore.
-            type: string
-          value:
-            description: Arbitrary string value
-            type: string
+        $ref: "#/components/schemas/PropertyKeyValueV2"
+
+    # There seems to be a bug in the TS code generator that fails to create
+    # proper objects for these when they're nested directy inside PropertiesV2.
+    # It instead leaves them as untyped "object". My best guess is that it's
+    # cause by having an array as the top level object and it fails to generate
+    # a nested type for that case like for nested objects under other objects.
+    # I've moved it out into a separate top level type as a workaround.
+    PropertyKeyValueV2:
+      type: object
+      required: [ key, value ]
+      properties:
+        key:
+          description: |
+            String to identify the key. Keys must be 1-1024 characters, using letters,
+            numbers, dashes, and underscores and must not start with a dash or underscore.
+          type: string
+        value:
+          description: Arbitrary string value
+          type: string
 
     PropertyKeysV2:
       description: List of property keys

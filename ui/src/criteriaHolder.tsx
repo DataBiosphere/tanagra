@@ -8,6 +8,7 @@ export type CriteriaHolderProps = {
   plugin: CriteriaPlugin<object>;
   doneURL?: string;
   cohort?: boolean;
+  defaultBackURL?: string;
 };
 
 export default function CriteriaHolder(props: CriteriaHolderProps) {
@@ -17,7 +18,7 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
     <>
       <ActionBar
         title={props.title}
-        backURL={backURL}
+        backURL={backURL ?? props.defaultBackURL}
         extraControls={props.cohort ? <CohortToolbar /> : undefined}
       />
       {props.plugin.renderEdit?.(props.doneURL ?? "..", setBackURL)}

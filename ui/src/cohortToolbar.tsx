@@ -8,16 +8,15 @@ import {
   useAppDispatch,
   useAppSelector,
   useCohort,
-  useUnderlay,
   useUndoRedoUrls,
 } from "hooks";
 import { Link as RouterLink } from "react-router-dom";
 import { ActionCreators as UndoActionCreators } from "redux-undo";
-import { cohortReviewURL } from "router";
+import { absoluteCohortReviewURL, useBaseParams } from "router";
 
 export default function CohortToolbar() {
-  const underlay = useUnderlay();
   const cohort = useCohort();
+  const params = useBaseParams();
 
   const dispatch = useAppDispatch();
   const canUndo = useAppSelector((state) => {
@@ -67,7 +66,7 @@ export default function CohortToolbar() {
       <Button
         startIcon={<RateReviewIcon />}
         component={RouterLink}
-        to={cohortReviewURL(underlay.name, cohort.id)}
+        to={absoluteCohortReviewURL(params, cohort.id)}
       >
         Review
       </Button>

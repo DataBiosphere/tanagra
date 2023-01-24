@@ -3,69 +3,182 @@ import { AddCriteria } from "addCriteria";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import ConceptSetEdit from "conceptSetEdit";
 import Edit from "edit";
-import { PathError } from "hooks";
 import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
 import { Overview } from "overview";
-import { ErrorBoundary } from "react-error-boundary";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import {
+  createHashRouter,
+  generatePath,
+  isRouteErrorResponse,
+  Outlet,
+  useNavigate,
+  useParams,
+  useRouteError,
+} from "react-router-dom";
 import { SdAdmin } from "sd-admin/sdAdmin";
 import { Studies } from "sd-admin/studies";
+import { StudiesList } from "studiesList";
 import { UnderlaySelect } from "underlaySelect";
 import { Datasets } from "./datasets";
 
-export function AppRouter() {
-  return (
-    <ErrorBoundary FallbackComponent={NotFound}>
-      <Routes>
-        <Route index element={<UnderlaySelect />} />
-        <Route path=":underlayName">
-          <Route index element={<Datasets />} />
-          <Route path="cohorts/:cohortId/:groupId">
-            <Route index element={<Overview />} />
-            <Route path="add">
-              <Route index element={<AddCriteria />} />
-              <Route path=":configId" element={<NewCriteria />} />
-            </Route>
-            <Route path="edit/:criteriaId" element={<Edit />} />
-          </Route>
-          <Route path="conceptSets/new/:configId" element={<NewConceptSet />} />
-          <Route
-            path="conceptSets/edit/:conceptSetId"
-            element={<ConceptSetEdit />}
-          />
-          <Route path="review/:cohortId">
-            <Route index element={<CohortReviewList />} />
-            <Route path=":reviewId" element={<CohortReviewList />} />
-          </Route>
-        </Route>
-        <Route path="sdAdmin" element={<SdAdmin />} />
-        <Route path="studies" element={<Studies />} />
-        <Route
-          path="*"
-          element={<NotFound error={new PathError("Invalid URL.")} />}
-        />
-      </Routes>
-    </ErrorBoundary>
-  );
+export function createAppRouter() {
+  return createHashRouter([
+    {
+      path: prefix,
+      element: <Outlet />,
+      children: [
+        {
+          path: "cohorts/:cohortId/:groupId",
+          children: [
+            {
+              index: true,
+              element: <Overview />,
+            },
+            {
+              path: "add",
+              children: [
+                {
+                  index: true,
+                  element: <AddCriteria />,
+                },
+                {
+                  path: ":configId",
+                  element: <NewCriteria />,
+                },
+              ],
+            },
+            {
+              path: "edit/:criteriaId",
+              element: <Edit />,
+            },
+          ],
+        },
+        {
+          path: "conceptSets/new/:configId",
+          element: <NewConceptSet />,
+        },
+        {
+          path: "conceptSets/edit/:conceptSetId",
+          element: <ConceptSetEdit />,
+        },
+        {
+          path: "review/:cohortId",
+          children: [
+            {
+              index: true,
+              element: <CohortReviewList />,
+            },
+            {
+              path: ":reviewId",
+              element: <CohortReviewList />,
+            },
+          ],
+        },
+      ],
+    },
+    ...additionalRoutes(),
+  ]);
+}
+
+function additionalRoutes() {
+  switch (process.env.REACT_APP_ADDITIONAL_ROUTES) {
+    case "none":
+      return [];
+
+    case "sd":
+      return [
+        {
+          path: "sdAdmin",
+          element: <SdAdmin />,
+        },
+        {
+          path: "studies",
+          element: <Studies />,
+        },
+      ];
+  }
+
+  return [
+    {
+      path: "/",
+      errorElement: <ErrorPage />,
+      children: [
+        {
+          index: true,
+          element: <UnderlaySelect />,
+        },
+        {
+          path: "underlays/:underlayName",
+          element: <StudiesList />,
+        },
+        {
+          path: "underlays/:underlayName/studies/:studyId",
+          element: <Datasets />,
+        },
+      ],
+    },
+  ];
+}
+
+// Used when navigating back from a root Tanagra page.
+export function exitURL(params: BaseParams) {
+  const url = process.env.REACT_APP_EXIT_URL;
+  if (url) {
+    return generatePath(url, params);
+  }
+  return generatePath("/underlays/:underlayName/studies/:studyId", params);
+}
+
+export type BaseParams = {
+  underlayName: string;
+  studyId: string;
+};
+
+export function useBaseParams(): BaseParams {
+  const { underlayName, studyId } = useParams<BaseParams>();
+  return {
+    underlayName: underlayName ?? "",
+    studyId: studyId ?? "",
+  };
 }
 
 // TODO(tjennison): This is becoming spaghetti. Consider alternative ways to set
 // this up or perhaps alternative libraries.
+const prefix = "tanagra/underlays/:underlayName/studies/:studyId/";
+
+function absolutePrefix(params: BaseParams) {
+  return generatePath("/" + prefix, params);
+}
+
 export function underlayURL(underlayName: string) {
-  return underlayName;
+  return "underlays/" + underlayName;
 }
 
 export function cohortURL(cohortId: string, groupId?: string) {
   return "cohorts/" + cohortId + "/" + (groupId ?? "first");
 }
 
-export function absoluteCohortURL(underlayName: string, cohortId: string) {
-  return `/${underlayName}/${cohortURL(cohortId)}`;
+export function absoluteCohortURL(
+  params: BaseParams,
+  cohortId: string,
+  groupId?: string
+) {
+  return absolutePrefix(params) + cohortURL(cohortId, groupId);
+}
+
+export function absoluteConceptSetURL(
+  params: BaseParams,
+  conceptSetId: string
+) {
+  return absolutePrefix(params) + "conceptSets/edit/" + conceptSetId;
 }
 
 export function conceptSetURL(conceptSetId: string) {
   return "conceptSets/edit/" + conceptSetId;
+}
+
+export function absoluteNewConceptSetURL(params: BaseParams, configId: string) {
+  return absolutePrefix(params) + "conceptSets/new/" + configId;
 }
 
 export function newConceptSetURL(configId: string) {
@@ -80,25 +193,33 @@ export function newCriteriaURL(configId: string) {
   return `add/${configId}`;
 }
 
-export function cohortReviewURL(
-  underlayName: string,
+export function absoluteCohortReviewURL(
+  params: BaseParams,
   cohortId: string,
   reviewId?: string
 ) {
-  return `/${underlayName}/review/${cohortId}/${reviewId ?? ""}`;
+  return `${absolutePrefix(params)}review/${cohortId}/${reviewId ?? ""}`;
 }
 
-// TODO(tjennison): Make a prettier 404 page.
-function NotFound(props: { error: Error; resetErrorBoundary?: () => void }) {
+// TODO(tjennison): Make a prettier error page.
+function ErrorPage() {
+  const error = useRouteError();
   const navigate = useNavigate();
+
+  let message = String(error);
+  if (isRouteErrorResponse(error)) {
+    message = `${error.status}: ${error.statusText}`;
+  } else if (typeof error === "object" && !!error && "message" in error) {
+    message = (error as Error).message;
+  }
+
   return (
     <>
-      <p>404: {props.error.message}</p>
+      <p>{message}</p>
       <Button
         variant="contained"
         onClick={() => {
           navigate("/");
-          props.resetErrorBoundary?.();
         }}
       >
         Return Home

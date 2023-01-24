@@ -35,7 +35,12 @@ import React, {
   useState,
 } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { cohortURL, conceptSetURL, newConceptSetURL } from "router";
+import {
+  absoluteCohortURL,
+  absoluteConceptSetURL,
+  absoluteNewConceptSetURL,
+  useBaseParams,
+} from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
@@ -50,6 +55,7 @@ export function Datasets() {
 
   const underlay = useUnderlay();
   const source = useSource();
+  const params = useBaseParams();
 
   const [selectedCohorts, updateSelectedCohorts] = useImmer(new Set<string>());
   const [selectedConceptSets, updateSelectedConceptSets] = useImmer(
@@ -67,7 +73,13 @@ export function Datasets() {
     buttonLabel: "Create",
     onConfirm: (name: string) => {
       const action = dispatch(insertCohort(name, underlay.name));
-      navigate(cohortURL(action.payload.id, action.payload.groups[0].id));
+      navigate(
+        absoluteCohortURL(
+          params,
+          action.payload.id,
+          action.payload.groups[0].id
+        )
+      );
     },
   });
 
@@ -104,7 +116,7 @@ export function Datasets() {
             color="inherit"
             underline="hover"
             component={RouterLink}
-            to={conceptSetURL(conceptSet.id)}
+            to={absoluteConceptSetURL(params, conceptSet.id)}
           >
             {conceptSet.name}
           </Link>
@@ -116,7 +128,7 @@ export function Datasets() {
   };
 
   const onInsertConceptSet = (criteria: tanagra.Criteria) => {
-    navigate(newConceptSetURL(criteria.config.id));
+    navigate(absoluteNewConceptSetURL(params, criteria.config.id));
   };
 
   const [menu, showInsertConceptSet] = useMenu({
@@ -159,7 +171,7 @@ export function Datasets() {
 
   return (
     <>
-      <ActionBar title="Datasets" />
+      <ActionBar title="Datasets" backURL={"/underlays/" + underlay.name} />
       <Grid container columns={3} className="datasets">
         <Grid item xs={1}>
           <Stack
@@ -207,7 +219,11 @@ export function Datasets() {
                     color="inherit"
                     underline="hover"
                     component={RouterLink}
-                    to={cohortURL(cohort.id, cohort.groups[0].id)}
+                    to={absoluteCohortURL(
+                      params,
+                      cohort.id,
+                      cohort.groups[0].id
+                    )}
                   >
                     {cohort.name}
                   </Link>

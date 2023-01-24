@@ -1,4 +1,8 @@
-import { EntityInstancesApiContext, HintsApiContext } from "apiContext";
+import {
+  EntityInstancesApiContext,
+  HintsApiContext,
+  StudiesApiContext,
+} from "apiContext";
 import { generateId } from "cohort";
 import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
@@ -75,6 +79,17 @@ export type MergedDataEntry = {
   data: DataEntry;
 };
 
+export type PropertyMap = {
+  [key: string]: string;
+};
+
+export type Study = {
+  id: string;
+  displayName: string;
+  created: Date;
+  properties: PropertyMap;
+};
+
 export interface Source {
   config: Configuration;
 
@@ -137,6 +152,12 @@ export interface Source {
     reviewId: string,
     cohortId: string
   ): void;
+
+  listStudies(): Promise<Study[]>;
+
+  createStudy(displayName: string): Promise<Study>;
+
+  deleteStudy(studyId: string): void;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -147,11 +168,13 @@ export function useSource(): Source {
     EntityInstancesApiContext
   ) as tanagra.InstancesV2Api;
   const hintsApi = useContext(HintsApiContext) as tanagra.HintsV2Api;
+  const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesV2Api;
   return useMemo(
     () =>
       new BackendSource(
         instancesApi,
         hintsApi,
+        studiesApi,
         underlay,
         underlay.uiConfiguration.dataConfig
       ),
@@ -163,6 +186,7 @@ export class BackendSource implements Source {
   constructor(
     private instancesApi: tanagra.InstancesV2Api,
     private hintsApi: tanagra.HintsV2Api,
+    private studiesApi: tanagra.StudiesV2Api,
     private underlay: Underlay,
     public config: Configuration
   ) {}
@@ -502,6 +526,34 @@ export class BackendSource implements Source {
           }
         })
       )
+    );
+  }
+
+  public listStudies(): Promise<Study[]> {
+    return parseAPIError(
+      this.studiesApi
+        .listStudies({})
+        .then((studies) => studies.map((study) => processStudy(study)))
+    );
+  }
+
+  public createStudy(displayName: string): Promise<Study> {
+    return parseAPIError(
+      this.studiesApi
+        .createStudy({
+          studyCreateInfoV2: {
+            displayName,
+          },
+        })
+        .then((res) => processStudy(res))
+    );
+  }
+
+  public async deleteStudy(studyId: string) {
+    parseAPIError(
+      this.studiesApi.deleteStudy({
+        studyId,
+      })
     );
   }
 
@@ -1150,4 +1202,16 @@ function parseAPIError<T>(p: Promise<T>) {
       throw new Error(getReasonPhrase(response.status) + ": " + text);
     }
   });
+}
+
+function processStudy(study: tanagra.StudyV2): Study {
+  const properties: PropertyMap = {};
+  study.properties?.forEach(({ key, value }) => (properties[key] = value));
+
+  return {
+    id: study.id,
+    displayName: study.displayName ?? "Untitled study",
+    created: study.created,
+    properties,
+  };
 }

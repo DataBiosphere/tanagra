@@ -7,8 +7,8 @@ import { useAppDispatch } from "hooks";
 import { enableMapSet } from "immer";
 import "plugins";
 import { useCallback, useContext } from "react";
-import { HashRouter } from "react-router-dom";
-import { AppRouter } from "router";
+import { RouterProvider } from "react-router-dom";
+import { createAppRouter } from "router";
 import { fetchUserData } from "storage/storage";
 import useSWRImmutable from "swr/immutable";
 import { setUnderlays } from "underlaysSlice";
@@ -64,30 +64,28 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Loading status={underlaysState}>
-        <HashRouter>
+        <Box
+          sx={{
+            display: "grid",
+            width: "100%",
+            height: "100%",
+            gridTemplateColumns: "1fr",
+            gridTemplateRows: (theme) => `${theme.spacing(6)} 1fr`,
+            gridTemplateAreas: "'actionBar' 'content'",
+          }}
+        >
           <Box
             sx={{
-              display: "grid",
+              gridArea: "content",
               width: "100%",
+              minWidth: "100%",
               height: "100%",
-              gridTemplateColumns: "1fr",
-              gridTemplateRows: (theme) => `${theme.spacing(6)} 1fr`,
-              gridTemplateAreas: "'actionBar' 'content'",
+              minHeight: "100%",
             }}
           >
-            <Box
-              sx={{
-                gridArea: "content",
-                width: "100%",
-                minWidth: "100%",
-                height: "100%",
-                minHeight: "100%",
-              }}
-            >
-              <AppRouter />
-            </Box>
+            <RouterProvider router={createAppRouter()} />
           </Box>
-        </HashRouter>
+        </Box>
       </Loading>
     </ThemeProvider>
   );
