@@ -422,7 +422,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                   AttributeFilter criteria =
                       new AttributeFilter(
                           criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
-                          EQUALS,
+                          BinaryOperator.EQUALS,
                           new Literal(criteriaEntityId));
 
                   // Filter for occurrence entity instances that are related to criteria entity
