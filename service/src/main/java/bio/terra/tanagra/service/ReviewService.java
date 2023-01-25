@@ -118,9 +118,8 @@ public class ReviewService {
   }
 
   /** Retrieves a list of the frozen primary entity instance ids for this review. */
-  public List<Literal> getPrimaryEntityIds(
-      String studyId, String cohortRevisionGroupId, String reviewId) {
+  public List<Literal> getPrimaryEntityIds(String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return reviewDao.getPrimaryEntityIds(studyId, cohortRevisionGroupId, reviewId);
+    return reviewDao.getPrimaryEntityIds(reviewId);
   }
 }

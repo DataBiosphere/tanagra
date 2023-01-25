@@ -4,13 +4,16 @@ import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.AnnotationDao;
 import bio.terra.tanagra.db.AnnotationValueDao;
+import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.Annotation;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,15 +22,18 @@ import org.springframework.stereotype.Component;
 public class AnnotationService {
   private final AnnotationDao annotationDao;
   private final AnnotationValueDao annotationValueDao;
+  private final CohortDao cohortDao;
   private final FeatureConfiguration featureConfiguration;
 
   @Autowired
   public AnnotationService(
       AnnotationDao annotationDao,
       AnnotationValueDao annotationValueDao,
+      CohortDao cohortDao,
       FeatureConfiguration featureConfiguration) {
     this.annotationDao = annotationDao;
     this.annotationValueDao = annotationValueDao;
+    this.cohortDao = cohortDao;
     this.featureConfiguration = featureConfiguration;
   }
 
@@ -137,11 +143,19 @@ public class AnnotationService {
         studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValueId);
   }
 
-  /** Retrieves a list of all annotation values for a review. */
-  public List<AnnotationValue> getAnnotationValues(
-      String studyId, String cohortRevisionGroupId, String reviewId) {
+  /** Returns list of pair of review create date and AnnotationValue */
+  public List<Pair<OffsetDateTime, AnnotationValue>> getAnnotationValuesForCohort(
+      String studyId, String cohortRevisionGroupId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return annotationValueDao.getAnnotationValues(studyId, cohortRevisionGroupId, reviewId);
+    String cohortId =
+        cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId).getCohortId();
+    return annotationValueDao.getAnnotationValuesForCohort(cohortId);
+  }
+
+  /** Retrieves a list of all annotation values for a review. */
+  public List<AnnotationValue> getAnnotationValues(String reviewId) {
+    featureConfiguration.artifactStorageEnabledCheck();
+    return annotationValueDao.getAnnotationValues(reviewId);
   }
 
   /**

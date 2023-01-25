@@ -255,8 +255,7 @@ public class ReviewDao {
   }
 
   @ReadTransaction
-  public List<Literal> getPrimaryEntityIds(
-      String studyId, String cohortRevisionGroupId, String reviewId) {
+  public List<Literal> getPrimaryEntityIds(String reviewId) {
     String sql = REVIEW_INSTANCE_SELECT_SQL + " WHERE review_id = :review_id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
     return jdbcTemplate.query(sql, params, REVIEW_INSTANCE_ROW_MAPPER);

@@ -645,16 +645,11 @@ paths:
       description: |
         Export a table with column headers: primary entity instance id, all
         annotation keys. Table cells contain annotation values. For each cell,
-        the annotation value from the latest review will be used. Exports to a
-        file in bucket specified in application.yaml.
+        the annotation value from the latest review is used, ordered by review
+        creation date. Exports to a file in bucket specified in
+        application.yaml.
       operationId: exportAnnotationValues
       tags: [AnnotationsV2]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AnnotationValuesExportInfoV2"
       responses:
         200:
           description: OK
@@ -2063,17 +2058,6 @@ components:
       required:
         - displayName
         - dataType
-
-    AnnotationValuesExportInfoV2:
-      type: object
-      properties:
-        includeAttributes:
-          description: Attributes to include in the returned instances
-          type: array
-          items:
-            type: string
-        entityFilter:
-          $ref: "#/components/schemas/FilterV2"
 
     AnnotationUpdateInfoV2:
       type: object
