@@ -1,7 +1,5 @@
 package bio.terra.tanagra.api;
 
-import static bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator.EQUALS;
-
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
