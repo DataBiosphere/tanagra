@@ -105,6 +105,7 @@ dependencies {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
 
+
     // Static analysis
     compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
     testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
@@ -127,4 +128,5 @@ apply from: "$rootDir/service/gradle/jib.gradle"
 apply from: "$rootDir/service/gradle/open-api.gradle"
 apply from: "$rootDir/service/gradle/version-properties.gradle"
 apply from: "$rootDir/service/gradle/task-dependencies.gradle"
+apply from: "$rootDir/service/gradle/vumc_github.gradle"
 
