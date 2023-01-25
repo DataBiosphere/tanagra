@@ -2000,6 +2000,9 @@ components:
           $ref: "#/components/schemas/DataTypeV2"
         enumVals:
           type: array
+          description: |
+            May only be set if dataType=STRING. Annotation value must be one of
+            enumVals.
           items:
             type: string
       required:
@@ -2023,6 +2026,9 @@ components:
           $ref: "#/components/schemas/DataTypeV2"
         enumVals:
           type: array
+          description: |
+            May only be set if dataType=STRING. Annotation value must be one of
+            enumVals.
           items:
             type: string
       required:
