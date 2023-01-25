@@ -5,6 +5,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.ANNOTATION;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
@@ -15,7 +16,9 @@ import bio.terra.tanagra.generated.model.ApiAnnotationUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiAnnotationV2;
 import bio.terra.tanagra.generated.model.ApiAnnotationValueCreateUpdateInfoV2;
 import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
+import bio.terra.tanagra.generated.model.ApiAnnotationValuesExportInfoV2;
 import bio.terra.tanagra.generated.model.ApiDataTypeV2;
+import bio.terra.tanagra.generated.model.ApiExportFile;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.AnnotationService;
@@ -67,6 +70,15 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
     annotationService.createAnnotation(studyId, cohortId, annotationToCreate);
     return ResponseEntity.ok(
         toApiObject(annotationService.getAnnotation(studyId, cohortId, newAnnotationId)));
+  }
+
+  @Override
+  public ResponseEntity<ApiExportFile> exportAnnotationValues(
+      String studyId, String cohortId, ApiAnnotationValuesExportInfoV2 body) {
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(), READ, COHORT, new ResourceId(cohortId));
+
+    return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl("foo"));
   }
 
   @Override
