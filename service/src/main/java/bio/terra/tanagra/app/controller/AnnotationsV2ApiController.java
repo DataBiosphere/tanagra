@@ -27,11 +27,10 @@ import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Annotation;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
-import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,12 +76,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, COHORT, new ResourceId(cohortId));
-
-    // List of pair of review create date, annotation value
-    List<Pair<OffsetDateTime, AnnotationValue>> valuesForAllReviews =
-        annotationService.getAnnotationValuesForCohort(studyId, cohortId);
-
-    return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl("foo"));
+    Collection<AnnotationValue> values =
+        annotationService.getAnnotationValuesForLatestReview(studyId, cohortId);
+    String gcsSignedUrl = annotationService.writeAnnotationValuesToGcs(values);
+    return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
   }
 
   @Override

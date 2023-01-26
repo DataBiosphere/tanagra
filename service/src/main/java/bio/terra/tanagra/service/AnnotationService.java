@@ -9,9 +9,14 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.Annotation;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
+import com.google.common.collect.Maps;
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,19 +148,58 @@ public class AnnotationService {
         studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValueId);
   }
 
-  /** Returns list of pair of review create date and AnnotationValue */
-  public List<Pair<OffsetDateTime, AnnotationValue>> getAnnotationValuesForCohort(
-      String studyId, String cohortRevisionGroupId) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    String cohortId =
-        cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId).getCohortId();
-    return annotationValueDao.getAnnotationValuesForCohort(cohortId);
-  }
-
   /** Retrieves a list of all annotation values for a review. */
   public List<AnnotationValue> getAnnotationValues(String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
     return annotationValueDao.getAnnotationValues(reviewId);
+  }
+
+  /**
+   * Say for an annotation:
+   *
+   * <pre>
+   *            Person 1     Person 2
+   * Review 1   Value 1      Value 1
+   * Review 2   Value 2
+   * </pre>
+   *
+   * For each person, return the latest value. For Person 1, this is Value 2 from Review 2. For
+   * Person 2, this is Value 1 from Review 1.
+   *
+   * @return for all annotations and all entity instances, the annotation value from the latest
+   *     review
+   */
+  public Collection<AnnotationValue> getAnnotationValuesForLatestReview(
+      String studyId, String cohortRevisionGroupId) {
+    featureConfiguration.artifactStorageEnabledCheck();
+
+    // Get values for all reviews for cohort
+    String cohortId =
+        cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId).getCohortId();
+    List<Pair<OffsetDateTime, AnnotationValue>> reviewCreateDateAndValues =
+        annotationValueDao.getAnnotationValuesForCohort(cohortId);
+
+    // Sort values (for all reviews) by review creation date
+    reviewCreateDateAndValues.sort(
+        Comparator.comparingLong(
+            reviewCreateDateAndValue -> reviewCreateDateAndValue.getLeft().toEpochSecond()));
+    List<AnnotationValue> sortedValuesForAllReviews =
+        reviewCreateDateAndValues.stream().map(Pair::getRight).collect(Collectors.toList());
+
+    // Maintain map from entity instance id to value. Traverse through sorted values and update map.
+    // By the time we're done, we will have latest value for each entity instance.
+    Map<String, AnnotationValue> entityInstanceIdToValue = Maps.newHashMap();
+    sortedValuesForAllReviews.forEach(
+        value -> entityInstanceIdToValue.put(value.getEntityInstanceId(), value));
+    return entityInstanceIdToValue.values();
+  }
+
+  /**
+   * @return GCS signed URL of GCS file containing annotation values CSV. See exportAnnotationValues
+   *     openapi description for exportAnnotationValues for CSV format.
+   */
+  public String writeAnnotationValuesToGcs(Collection<AnnotationValue> values) {
+    return "foo";
   }
 
   /**

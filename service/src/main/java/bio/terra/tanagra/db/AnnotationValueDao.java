@@ -166,7 +166,7 @@ public class AnnotationValueDao {
                     String.format("Annotation value %s not found.", annotationValueId)));
   }
 
-  /** Returns list of pair of review create date and AnnotationValue */
+  /** @return list of pair of review create date and AnnotationValue */
   @ReadTransaction
   public List<Pair<OffsetDateTime, AnnotationValue>> getAnnotationValuesForCohort(String cohortId) {
     if (cohortId == null) {
