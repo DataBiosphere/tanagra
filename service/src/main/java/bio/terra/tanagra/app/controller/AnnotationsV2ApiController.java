@@ -27,7 +27,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Annotation;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
-import java.util.Collection;
+import com.google.common.collect.Table;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -76,9 +76,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, COHORT, new ResourceId(cohortId));
-    Collection<AnnotationValue> values =
+    Table<String, String, String> latestValues =
         annotationService.getAnnotationValuesForLatestReview(studyId, cohortId);
-    String gcsSignedUrl = annotationService.writeAnnotationValuesToGcs(values);
+    String gcsSignedUrl =
+        annotationService.writeAnnotationValuesToGcs(studyId, cohortId, latestValues);
     return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
   }
 

@@ -41,7 +41,7 @@ public class BigQueryExecutor implements QueryExecutor {
   public String executeAndExportResultsToGcs(QueryRequest queryRequest, String gcsBucketName) {
     // TODO: Add study and dataset names.
     String fileName =
-        "tanagra_export_"
+        "tanagra_export_dataset_"
             + System.currentTimeMillis()
             // GCS file name must be in wildcard format.
             // https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_option_list:~:text=The%20uri%20option%20must%20be%20a%20single%2Dwildcard%20URI
