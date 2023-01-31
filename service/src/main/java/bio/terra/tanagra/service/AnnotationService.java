@@ -24,12 +24,16 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class AnnotationService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationService.class);
+
   private final AnnotationDao annotationDao;
   private final AnnotationValueDao annotationValueDao;
   private final CohortDao cohortDao;
@@ -227,7 +231,7 @@ public class AnnotationService {
   /**
    * @param values is a table where row is entity instance id, column is annotation name, value is
    *     annotation value
-   * @return GCS signed URL of GCS file containing annotation values CSV. Columns are: entity
+   * @return GCS signed URL of GCS file containing annotation values TSV. Columns are: entity
    *     instance id, all annotation names. Cells contain annotation values.
    */
   public String writeAnnotationValuesToGcs(
@@ -261,14 +265,19 @@ public class AnnotationService {
                         values.contains(entityInstanceId, annotation.getDisplayName())
                             ? values.get(entityInstanceId, annotation.getDisplayName())
                             : "";
-                    row.append("," + value);
+                    row.append("\t" + value);
                   });
               fileContents.append(String.format(row + "\n"));
             });
+    LOGGER.info(
+        "Writing annotation values to CSV for study {} cohort {}:\n{}",
+        studyId,
+        cohortId,
+        fileContents);
 
     String projectId = tanagraExportConfiguration.getGcsBucketProjectId();
     String bucketName = tanagraExportConfiguration.getGcsBucketName();
-    String fileName = "tanagra_export_annotations_" + System.currentTimeMillis();
+    String fileName = "tanagra_export_annotations_" + System.currentTimeMillis() + ".tsv";
     if (StringUtils.isEmpty(projectId) || StringUtils.isEmpty(bucketName)) {
       throw new SystemException(
           "For export, gcsBucketProjectId and gcsBucketName properties must be set");

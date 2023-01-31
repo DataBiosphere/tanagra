@@ -646,7 +646,7 @@ paths:
         Export a table with column headers: primary entity instance id, all
         annotation keys. Table cells contain annotation values. For each cell,
         the annotation value from the latest review is used, ordered by review
-        creation date. Exports to a file in bucket specified in
+        creation date. Exports to a TSV file in bucket specified in
         application.yaml.
       operationId: exportAnnotationValues
       tags: [AnnotationsV2]

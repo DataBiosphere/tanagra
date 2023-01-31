@@ -5,7 +5,6 @@ import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.ANNOTATION;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
@@ -75,7 +74,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   @Override
   public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, COHORT, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(cohortId));
 
     Table<String, String, String> latestValues =
         annotationService.getAnnotationValuesForLatestReview(studyId, cohortId);
@@ -88,7 +87,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<Void> deleteAnnotation(
       String studyId, String cohortId, String annotationId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), DELETE, ANNOTATION, new ResourceId(annotationId));
+        SpringAuthentication.getCurrentUser(), DELETE, ANNOTATION, new ResourceId(cohortId));
     annotationService.deleteAnnotation(studyId, cohortId, annotationId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -97,7 +96,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiAnnotationV2> getAnnotation(
       String studyId, String cohortId, String annotationId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(annotationId));
+        SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(cohortId));
     return ResponseEntity.ok(
         toApiObject(annotationService.getAnnotation(studyId, cohortId, annotationId)));
   }
@@ -136,7 +135,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiAnnotationV2> updateAnnotation(
       String studyId, String cohortId, String annotationId, ApiAnnotationUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, ANNOTATION, new ResourceId(annotationId));
+        SpringAuthentication.getCurrentUser(), UPDATE, ANNOTATION, new ResourceId(cohortId));
     Annotation updatedAnnotation =
         annotationService.updateAnnotation(
             studyId, cohortId, annotationId, body.getDisplayName(), body.getDescription());
