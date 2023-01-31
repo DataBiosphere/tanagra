@@ -76,6 +76,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, COHORT, new ResourceId(cohortId));
+
     Table<String, String, String> latestValues =
         annotationService.getAnnotationValuesForLatestReview(studyId, cohortId);
     String gcsSignedUrl =

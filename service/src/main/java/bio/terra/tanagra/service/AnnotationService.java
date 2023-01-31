@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -255,16 +256,24 @@ public class AnnotationService {
             entityInstanceId -> {
               StringBuilder row = new StringBuilder(entityInstanceId);
               annotations.forEach(
-                  annotation ->
-                      row.append(
-                          String.format(
-                              ",%s", values.get(entityInstanceId, annotation.getDisplayName()))));
+                  annotation -> {
+                    String value =
+                        values.contains(entityInstanceId, annotation.getDisplayName())
+                            ? values.get(entityInstanceId, annotation.getDisplayName())
+                            : "";
+                    row.append("," + value);
+                  });
               fileContents.append(String.format(row + "\n"));
             });
 
     String projectId = tanagraExportConfiguration.getGcsBucketProjectId();
     String bucketName = tanagraExportConfiguration.getGcsBucketName();
     String fileName = "tanagra_export_annotations_" + System.currentTimeMillis();
+    if (StringUtils.isEmpty(projectId) || StringUtils.isEmpty(bucketName)) {
+      throw new SystemException(
+          "For export, gcsBucketProjectId and gcsBucketName properties must be set");
+    }
+
     GcsUtils.writeGcsFile(projectId, bucketName, fileName, fileContents.toString());
     return bio.terra.tanagra.utils.GcsUtils.createSignedUrl(projectId, bucketName, fileName);
   }
