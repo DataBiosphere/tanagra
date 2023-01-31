@@ -7,8 +7,10 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateAnnotationValueException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +28,13 @@ public class AnnotationValueDao {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationValueDao.class);
 
   // SQL query and row mapper for reading an annotation value.
+  private static final String ANNOTATION_VALUE_SELECT_CLAUSE =
+      "av.review_id, av.annotation_id, av.annotation_value_id, av.entity_instance_id, av.bool_val, av.int64_val, av.string_val, av.date_val, a.data_type ";
   private static final String ANNOTATION_VALUE_SELECT_SQL =
-      "SELECT av.review_id, av.annotation_id, av.annotation_value_id, av.entity_instance_id, av.bool_val, av.int64_val, av.string_val, av.date_val, a.data_type "
-          + "FROM annotation_value AS av "
-          + "JOIN annotation AS a ON a.annotation_id = av.annotation_id";
+      "SELECT "
+          + ANNOTATION_VALUE_SELECT_CLAUSE
+          + "FROM annotation AS a, annotation_value AS av "
+          + "WHERE a.annotation_id = av.annotation_id ";
   private static final RowMapper<AnnotationValue> ANNOTATION_VALUE_ROW_MAPPER =
       (rs, rowNum) ->
           AnnotationValue.builder()
@@ -132,8 +137,7 @@ public class AnnotationValueDao {
       throw new MissingRequiredFieldException(
           "Valid study, cohort, annotation, review, and annotation value ids are required");
     }
-    String sql =
-        ANNOTATION_VALUE_SELECT_SQL + " WHERE av.annotation_value_id = :annotation_value_id";
+    String sql = ANNOTATION_VALUE_SELECT_SQL + " AND av.annotation_value_id = :annotation_value_id";
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("annotation_value_id", annotationValueId);
     try {
@@ -162,13 +166,46 @@ public class AnnotationValueDao {
                     String.format("Annotation value %s not found.", annotationValueId)));
   }
 
+  /** @return list of pair of review create date and AnnotationValue */
   @ReadTransaction
-  public List<AnnotationValue> getAnnotationValues(
-      String studyId, String cohortRevisionGroupId, String reviewId) {
-    if (studyId == null || cohortRevisionGroupId == null || reviewId == null) {
+  public List<Pair<OffsetDateTime, AnnotationValue>> getAnnotationValuesForCohort(String cohortId) {
+    if (cohortId == null) {
+      throw new MissingRequiredFieldException("Valid cohort id is required");
+    }
+    String sql =
+        "SELECT "
+            + ANNOTATION_VALUE_SELECT_CLAUSE
+            + ", r.created AS review_created "
+            + "FROM annotation AS a, annotation_value AS av, review AS r "
+            + "WHERE a.annotation_id = av.annotation_id AND a.cohort_id = :cohort_id AND r.review_id = av.review_id";
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("cohort_id", cohortId);
+    RowMapper<Pair<OffsetDateTime, AnnotationValue>> mapper =
+        (rs, rowNum) ->
+            Pair.of(
+                DbUtils.timestampToOffsetDateTime(rs.getTimestamp("review_created")),
+                AnnotationValue.builder()
+                    .reviewId(rs.getString("review_id"))
+                    .annotationId(rs.getString("annotation_id"))
+                    .annotationValueId(rs.getString("annotation_value_id"))
+                    .entityInstanceId(rs.getString("entity_instance_id"))
+                    .literal(
+                        new Literal.Builder()
+                            .booleanVal(rs.getBoolean("bool_val"))
+                            .int64Val(rs.getLong("int64_val"))
+                            .stringVal(rs.getString("string_val"))
+                            .dateVal(rs.getDate("date_val"))
+                            .dataType(Literal.DataType.valueOf(rs.getString("data_type")))
+                            .build())
+                    .build());
+    return jdbcTemplate.query(sql, params, mapper);
+  }
+
+  @ReadTransaction
+  public List<AnnotationValue> getAnnotationValues(String reviewId) {
+    if (reviewId == null) {
       throw new MissingRequiredFieldException("Valid study, cohort, and review ids are required");
     }
-    String sql = ANNOTATION_VALUE_SELECT_SQL + " WHERE av.review_id = :review_id";
+    String sql = ANNOTATION_VALUE_SELECT_SQL + " AND av.review_id = :review_id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
     return jdbcTemplate.query(sql, params, ANNOTATION_VALUE_ROW_MAPPER);
   }

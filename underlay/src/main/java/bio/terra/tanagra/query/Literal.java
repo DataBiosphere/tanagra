@@ -118,6 +118,24 @@ public class Literal implements SQLExpression {
     }
   }
 
+  @Override
+  public String toString() {
+    switch (dataType) {
+      case STRING:
+        return stringVal;
+      case INT64:
+        return String.valueOf(int64Val);
+      case BOOLEAN:
+        return String.valueOf(booleanVal);
+      case DATE:
+        return dateVal.toString();
+      case DOUBLE:
+        return String.valueOf(doubleVal);
+      default:
+        throw new SystemException("Unknown Literal data type");
+    }
+  }
+
   public String getStringVal() {
     return dataType.equals(DataType.STRING) ? stringVal : null;
   }

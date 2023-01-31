@@ -67,6 +67,7 @@ dependencies {
 
     // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
+    implementation group: "com.google.cloud", name: "google-cloud-storage"
     implementation group: "com.google.guava", name: "guava"
     implementation 'com.google.apis:google-api-services-oauth2:v2-rev20200213-1.32.1'
 

@@ -636,6 +636,30 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotationValues/export":
+    parameters:
+    - $ref: '#/components/parameters/StudyIdV2'
+    - $ref: '#/components/parameters/CohortIdV2'
+    post:
+      summary: Export annotation values
+      description: |
+        Export a table with column headers: primary entity instance id, all
+        annotation keys. Table cells contain annotation values. For each cell,
+        the annotation value from the latest review is used, ordered by review
+        creation date. Exports to a TSV file in bucket specified in
+        application.yaml.
+      operationId: exportAnnotationValues
+      tags: [AnnotationsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportFile"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
@@ -2009,6 +2033,9 @@ components:
           $ref: "#/components/schemas/DataTypeV2"
         enumVals:
           type: array
+          description: |
+            May only be set if dataType=STRING. Annotation value must be one of
+            enumVals.
           items:
             type: string
       required:
@@ -2032,6 +2059,9 @@ components:
           $ref: "#/components/schemas/DataTypeV2"
         enumVals:
           type: array
+          description: |
+            May only be set if dataType=STRING. Annotation value must be one of
+            enumVals.
           items:
             type: string
       required:

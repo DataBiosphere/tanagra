@@ -209,9 +209,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
                 .attributes(attributes)
                 .entityFilter(entityFilter)
                 .annotationFilter(annotationFilter)
-                .entityInstanceIds(reviewService.getPrimaryEntityIds(studyId, cohortId, reviewId))
-                .annotationValues(
-                    annotationService.getAnnotationValues(studyId, cohortId, reviewId))
+                .entityInstanceIds(reviewService.getPrimaryEntityIds(reviewId))
+                .annotationValues(annotationService.getAnnotationValues(reviewId))
                 .orderBys(orderBys)
                 .build());
 
@@ -248,7 +247,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         new AttributeFilter(
             entity.getIdAttribute(),
             FunctionFilterVariable.FunctionTemplate.IN,
-            reviewService.getPrimaryEntityIds(studyId, cohortId, reviewId));
+            reviewService.getPrimaryEntityIds(reviewId));
 
     QueryRequest queryRequest =
         querysService.buildInstanceCountsQuery(

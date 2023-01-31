@@ -10,6 +10,7 @@ The project is shared across the All Of Us and Terra partnerships.
    * [Adding dependencies](#adding-dependencies)
    * [Generate SQL Golden Files](#generate-sql-golden-files)
 * [Deployment](#deployment)
+* [Tips](#tips)
 
 ## Development
 
@@ -116,3 +117,12 @@ To regenerate the golden files, run the tests with the `generateSqlFiles` Gradle
 
 If you want to export datasets to GCS bucket, create bucket and configure export
 properties. See TanagraExportConfiguration.java.
+
+## Tips
+
+For additional logging for debugging, add to property YAML (such as application.yaml):
+
+```
+# Print SQL queries
+logging.level.org.springframework.jdbc.core: trace
+```

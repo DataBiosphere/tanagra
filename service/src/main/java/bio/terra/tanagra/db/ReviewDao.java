@@ -10,6 +10,8 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -88,7 +90,7 @@ public class ReviewDao {
             .addValue("display_name", review.getDisplayName())
             .addValue("description", review.getDescription())
             .addValue("size", review.getSize())
-            // Don't need to set created. Liquibase defaultValueComputed handles that.
+            .addValue("created", Timestamp.from(Instant.now()))
             .addValue("created_by", review.getCreatedBy());
     try {
       jdbcTemplate.update(sql, params);
@@ -253,8 +255,7 @@ public class ReviewDao {
   }
 
   @ReadTransaction
-  public List<Literal> getPrimaryEntityIds(
-      String studyId, String cohortRevisionGroupId, String reviewId) {
+  public List<Literal> getPrimaryEntityIds(String reviewId) {
     String sql = REVIEW_INSTANCE_SELECT_SQL + " WHERE review_id = :review_id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
     return jdbcTemplate.query(sql, params, REVIEW_INSTANCE_ROW_MAPPER);
