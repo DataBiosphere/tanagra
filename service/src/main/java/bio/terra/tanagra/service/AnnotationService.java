@@ -251,7 +251,7 @@ public class AnnotationService {
         getAllAnnotations(studyId, cohortId, /*offset=*/ 0, /*limit=*/ Integer.MAX_VALUE);
     annotations.forEach(
         annotation -> {
-          columnHeaders.append(String.format(",%s", annotation.getDisplayName()));
+          columnHeaders.append(String.format("\t%s", annotation.getDisplayName()));
         });
     StringBuilder fileContents = new StringBuilder(columnHeaders + "\n");
     values
