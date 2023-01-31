@@ -13,6 +13,7 @@ public final class GcsUtils {
 
   private GcsUtils() {}
 
+  @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public static void writeGcsFile(
       String projectId, String bucketName, String fileName, String fileContents) {
     Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
