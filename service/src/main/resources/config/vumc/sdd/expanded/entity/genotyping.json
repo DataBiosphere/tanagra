@@ -58,6 +58,14 @@
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "GWAS Platforms"
+          },
+          "display" : "GWAS Platforms"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "HLA Typing"
           },
           "display" : "HLA Typing"
@@ -226,6 +234,14 @@
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "Non-GWAS and Targeted Genotyping Platforms"
+          },
+          "display" : "Non-GWAS and Targeted Genotyping Platforms"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "PREDICT Expansion"
           },
           "display" : "PREDICT Expansion"
@@ -245,6 +261,14 @@
             "stringVal" : "Sanger Sequencing"
           },
           "display" : "Sanger Sequencing"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Sequencing Platforms"
+          },
+          "display" : "Sequencing Platforms"
         },
         "count" : 1
       }, {
@@ -289,7 +313,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "/*  platform_id column has type NUMERIC. This causes index column to be FLOAT.  Currently indexing doesn't handle floats properly, so change column to INTEGER. */ SELECT CAST(platform_id as INT64) AS platform_id, assay_name as assay_name FROM `victr-tanagra-test.sd_static.platform` "
+      "rawSql" : "/*  platform_id column has type NUMERIC. This causes index column to be FLOAT.  Currently indexing doesn't handle floats properly, so change column to INTEGER. */ SELECT CAST(platform_id as INT64) AS platform_id, assay_name as assay_name FROM `victr-tanagra-test.sd_static.platform` UNION ALL /*  Add some rows to get hierarchy to work. Parent ids are defined in  genotype_criteria, criteria_meta_seq column. criteria_meta_seq is not in the  same \"ID space\" as platform_id. Tanagra requres parent id to be in same \"ID  space\" as platform_id. So create artificial platform_ids for parents.  */ (SELECT 101 AS platform_id, 'GWAS Platforms' AS assay_name UNION ALL  SELECT 102, 'Non-GWAS and Targeted Genotyping Platforms' UNION ALL  SELECT 103, 'Sequencing Platforms') "
     },
     "attributeMappings" : {
       "name" : {
@@ -306,7 +330,34 @@
     "textSearchMapping" : {
       "attributes" : [ "id" ]
     },
-    "hierarchyMappings" : { }
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "rawSql" : "SELECT /* Use parent ids defined in platform.sql */         parent_seq + 100 AS parent,         CAST(platform_id as INT64) AS child FROM `victr-tanagra-test.sd_static.genotype_criteria` g, `victr-tanagra-test.sd_static.platform` p WHERE g.name = p.assay_name "
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent"
+            },
+            "child" : {
+              "column" : "child"
+            }
+          }
+        },
+        "rootNodesFilter" : {
+          "tablePointer" : {
+            "rawSql" : "/* Match the platform ids in platform.sql */ SELECT 101 AS id UNION ALL SELECT 102 UNION ALL SELECT 103 "
+          },
+          "fieldPointers" : {
+            "id" : {
+              "column" : "id"
+            }
+          }
+        },
+        "maxHierarchyDepth" : 1
+      }
+    }
   },
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
@@ -330,6 +381,52 @@
         "column" : "text"
       }
     },
-    "hierarchyMappings" : { }
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "table" : "genotyping_standard_childParent"
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent"
+            },
+            "child" : {
+              "column" : "child"
+            }
+          }
+        },
+        "ancestorDescendant" : {
+          "tablePointer" : {
+            "table" : "genotyping_standard_ancestorDescendant"
+          },
+          "fieldPointers" : {
+            "ancestor" : {
+              "column" : "ancestor"
+            },
+            "descendant" : {
+              "column" : "descendant"
+            }
+          }
+        },
+        "pathNumChildren" : {
+          "tablePointer" : {
+            "table" : "genotyping"
+          },
+          "fieldPointers" : {
+            "path" : {
+              "column" : "t_standard_path"
+            },
+            "num_children" : {
+              "column" : "t_standard_num_children"
+            },
+            "id" : {
+              "column" : "id"
+            }
+          }
+        },
+        "maxHierarchyDepth" : 1
+      }
+    }
   }
 }

@@ -13,7 +13,18 @@
       "id": { "value": { "column": "platform_id" } },
       "name": { "value": { "column": "assay_name" } }
     },
-    "textSearchMapping" : { "attributes" : [ "id" ] }
+    "textSearchMapping" : { "attributes" : [ "id" ] },
+    "hierarchyMappings": {
+      "standard": {
+        "childParent": {
+          "tablePointer": { "rawSqlFile": "genotyping_parentChild.sql" }
+        },
+        "rootNodesFilter": {
+          "tablePointer": { "rawSqlFile": "genotyping_rootNodesFilter.sql" }
+        },
+        "maxHierarchyDepth": 1
+      }
+    }
   },
 
   "indexDataMapping": {
