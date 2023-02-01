@@ -23,6 +23,12 @@ public class SddGenotypingTest extends BaseQueriesTest {
   }
 
   @Test
+  void hierarchyRootFilter() throws IOException {
+    // filter for "genotyping" entity instances that are root nodes in the "standard" hierarchy
+    hierarchyRootFilter("standard");
+  }
+
+  @Test
   void relationshipCohort() throws IOException {
     // Cohort of people with >=1 relationship of genotyping = "Illumina 5M"
     relationshipCohort("name", "Illumina 5M");
