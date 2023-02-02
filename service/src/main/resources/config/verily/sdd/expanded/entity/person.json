@@ -14,7 +14,7 @@
           },
           "display" : "FEMALE"
         },
-        "count" : 1850236
+        "count" : 1850617
       }, {
         "enumVal" : {
           "value" : {
@@ -22,7 +22,7 @@
           },
           "display" : "MALE"
         },
-        "count" : 1594485
+        "count" : 1594910
       }, {
         "enumVal" : {
           "value" : {
@@ -46,7 +46,7 @@
           },
           "display" : "American Indian or Alaska Native"
         },
-        "count" : 4572
+        "count" : 4574
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +54,7 @@
           },
           "display" : "Asian"
         },
-        "count" : 45958
+        "count" : 45983
       }, {
         "enumVal" : {
           "value" : {
@@ -62,7 +62,7 @@
           },
           "display" : "Black"
         },
-        "count" : 327829
+        "count" : 328001
       }, {
         "enumVal" : {
           "value" : {
@@ -70,7 +70,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 953870
+        "count" : 953903
       }, {
         "enumVal" : {
           "value" : {
@@ -78,7 +78,7 @@
           },
           "display" : "White"
         },
-        "count" : 2116669
+        "count" : 2117243
       } ]
     }
   }, {
@@ -94,7 +94,7 @@
           },
           "display" : "Hispanic or Latino"
         },
-        "count" : 113110
+        "count" : 113133
       }, {
         "enumVal" : {
           "value" : {
@@ -102,7 +102,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 960195
+        "count" : 960199
       }, {
         "enumVal" : {
           "value" : {
@@ -110,13 +110,38 @@
           },
           "display" : "Not Hispanic or Latino"
         },
-        "count" : 2375593
+        "count" : 2376372
       } ]
     }
   }, {
     "type" : "SIMPLE",
+    "name" : "biovu_sample_has_plasma",
+    "dataType" : "BOOLEAN"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "biovu_sample_dna_yield",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -99999.0,
+      "maxVal" : 500.0
+    }
+  }, {
+    "type" : "SIMPLE",
+    "name" : "biovu_sample_is_compromised",
+    "dataType" : "BOOLEAN"
+  }, {
+    "type" : "SIMPLE",
     "name" : "id",
     "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "has_biovu_sample",
+    "dataType" : "BOOLEAN"
+  }, {
+    "type" : "SIMPLE",
+    "name" : "biovu_sample_is_nonshippable",
+    "dataType" : "BOOLEAN"
   }, {
     "type" : "SIMPLE",
     "name" : "year_of_birth",
@@ -130,7 +155,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "person"
+      "rawSql" : "SELECT     /* Can't do \"*\". During indexing, there's an error about person_id column being ambiguous. */     p.person_id, p.year_of_birth, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,      /* BioVU sample columns. */     EXISTS         (SELECT 1 FROM `victr-tanagra-test.sd_static.x_biovu_sample_status` x WHERE p.person_id = x.person_id)                                                                                                         AS has_biovu_sample,     x.dna_yield_ind AS biovu_sample_dna_yield,     /* As a courtesy, convert string fields to boolean: 0 -> No, 1 -> Yes */     CASE WHEN x.compromise_ind = '1' THEN true WHEN x.compromise_ind = '0' THEN false ELSE null END AS biovu_sample_is_compromised,     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma FROM `victr-tanagra-test.sd_static.person` p          LEFT OUTER JOIN `victr-tanagra-test.sd_static.x_biovu_sample_status` x ON p.person_id = x.person_id "
     },
     "attributeMappings" : {
       "gender" : {
@@ -166,9 +191,34 @@
           "foreignColumn" : "concept_name"
         }
       },
+      "biovu_sample_has_plasma" : {
+        "value" : {
+          "column" : "biovu_sample_has_plasma"
+        }
+      },
+      "biovu_sample_dna_yield" : {
+        "value" : {
+          "column" : "biovu_sample_dna_yield"
+        }
+      },
+      "biovu_sample_is_compromised" : {
+        "value" : {
+          "column" : "biovu_sample_is_compromised"
+        }
+      },
       "id" : {
         "value" : {
           "column" : "person_id"
+        }
+      },
+      "has_biovu_sample" : {
+        "value" : {
+          "column" : "has_biovu_sample"
+        }
+      },
+      "biovu_sample_is_nonshippable" : {
+        "value" : {
+          "column" : "biovu_sample_is_nonshippable"
         }
       },
       "year_of_birth" : {
@@ -210,9 +260,34 @@
           "column" : "t_display_ethnicity"
         }
       },
+      "biovu_sample_has_plasma" : {
+        "value" : {
+          "column" : "biovu_sample_has_plasma"
+        }
+      },
+      "biovu_sample_dna_yield" : {
+        "value" : {
+          "column" : "biovu_sample_dna_yield"
+        }
+      },
+      "biovu_sample_is_compromised" : {
+        "value" : {
+          "column" : "biovu_sample_is_compromised"
+        }
+      },
       "id" : {
         "value" : {
           "column" : "id"
+        }
+      },
+      "has_biovu_sample" : {
+        "value" : {
+          "column" : "has_biovu_sample"
+        }
+      },
+      "biovu_sample_is_nonshippable" : {
+        "value" : {
+          "column" : "biovu_sample_is_nonshippable"
         }
       },
       "year_of_birth" : {
