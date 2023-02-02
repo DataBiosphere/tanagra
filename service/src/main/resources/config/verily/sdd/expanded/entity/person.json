@@ -14,7 +14,7 @@
           },
           "display" : "FEMALE"
         },
-        "count" : 1850236
+        "count" : 1850617
       }, {
         "enumVal" : {
           "value" : {
@@ -22,7 +22,7 @@
           },
           "display" : "MALE"
         },
-        "count" : 1594485
+        "count" : 1594910
       }, {
         "enumVal" : {
           "value" : {
@@ -46,7 +46,7 @@
           },
           "display" : "American Indian or Alaska Native"
         },
-        "count" : 4572
+        "count" : 4574
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +54,7 @@
           },
           "display" : "Asian"
         },
-        "count" : 45958
+        "count" : 45983
       }, {
         "enumVal" : {
           "value" : {
@@ -62,7 +62,7 @@
           },
           "display" : "Black"
         },
-        "count" : 327829
+        "count" : 328001
       }, {
         "enumVal" : {
           "value" : {
@@ -70,7 +70,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 953870
+        "count" : 953903
       }, {
         "enumVal" : {
           "value" : {
@@ -78,7 +78,7 @@
           },
           "display" : "White"
         },
-        "count" : 2116669
+        "count" : 2117243
       } ]
     }
   }, {
@@ -94,7 +94,7 @@
           },
           "display" : "Hispanic or Latino"
         },
-        "count" : 113110
+        "count" : 113133
       }, {
         "enumVal" : {
           "value" : {
@@ -102,7 +102,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 960195
+        "count" : 960199
       }, {
         "enumVal" : {
           "value" : {
@@ -110,7 +110,7 @@
           },
           "display" : "Not Hispanic or Latino"
         },
-        "count" : 2375593
+        "count" : 2376372
       } ]
     }
   }, {
