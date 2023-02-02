@@ -1,5 +1,5 @@
 SELECT
-    /* Can't do "*". During indexing, there's an error about person_id column being ambiguous. */
+    /* Can't do "*". During expansion, there's an error about person_id column being ambiguous. */
     p.person_id, p.year_of_birth, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,
 
     /* BioVU sample columns. */
