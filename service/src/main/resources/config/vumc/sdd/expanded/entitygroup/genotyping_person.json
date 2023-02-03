@@ -34,6 +34,20 @@
           "column" : "id_person"
         },
         "rollupInformationMapA" : {
+          "standard" : {
+            "table" : {
+              "table" : "genotyping"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_person_standard"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person_standard"
+            }
+          },
           "NO_HIERARCHY" : {
             "table" : {
               "table" : "genotyping"
