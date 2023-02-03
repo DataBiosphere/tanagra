@@ -2,9 +2,6 @@
 
 # This script will fail if original and expanded config are not in sync in a PR.
 
-# For each underlay, this script expands config. Afterwards, if git reports any
-# modified files, this script will fail.
-
 # Expand configs for all Broad, VUMC underlays. (This repo's SA doesn't have
 # permission to read Verily source datasets.)
 underlay_root_dirs=$(find service/src/main/resources/config -mindepth 2 -maxdepth 2 -type d | grep -v verily)
