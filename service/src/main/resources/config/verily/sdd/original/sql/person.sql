@@ -2,7 +2,8 @@ SELECT
     /* Can't do "*". During expansion, there's an error about person_id column being ambiguous. */
     p.person_id, p.year_of_birth, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,
 
-    /* BioVU sample columns. */
+    /* Add BioVU sample columns. The way x_biovu_sample_status is created, there should be at
+       most one row per person. */
     EXISTS
         (SELECT 1 FROM `victr-tanagra-test.sd_static.x_biovu_sample_status` x WHERE p.person_id = x.person_id)
                                                                                                         AS has_biovu_sample,
