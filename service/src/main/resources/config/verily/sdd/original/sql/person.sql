@@ -12,4 +12,16 @@ SELECT
     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,
     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma
 FROM `victr-tanagra-test.sd_static.person` p
-         LEFT OUTER JOIN `victr-tanagra-test.sd_static.x_biovu_sample_status` x ON p.person_id = x.person_id
+    LEFT OUTER JOIN
+        (
+            /* Get rid of duplicate rows in x_biovu_sample_status. For example, person
+            4587323 has 11 duplicate rows. This returns just 1 row for each person. */
+            WITH x_biovu_sample_status AS (
+                SELECT
+                *,
+                ROW_NUMBER() OVER(PARTITION BY person_id) AS rn
+                FROM `sd_static.x_biovu_sample_status`
+            )
+            SELECT * FROM x_biovu_sample_status WHERE rn = 1
+        ) x
+        ON p.person_id = x.person_id

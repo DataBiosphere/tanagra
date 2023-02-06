@@ -14,7 +14,7 @@
           },
           "display" : "FEMALE"
         },
-        "count" : 1850617
+        "count" : 1850236
       }, {
         "enumVal" : {
           "value" : {
@@ -22,7 +22,7 @@
           },
           "display" : "MALE"
         },
-        "count" : 1594910
+        "count" : 1594485
       }, {
         "enumVal" : {
           "value" : {
@@ -46,7 +46,7 @@
           },
           "display" : "American Indian or Alaska Native"
         },
-        "count" : 4574
+        "count" : 4572
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +54,7 @@
           },
           "display" : "Asian"
         },
-        "count" : 45983
+        "count" : 45958
       }, {
         "enumVal" : {
           "value" : {
@@ -62,7 +62,7 @@
           },
           "display" : "Black"
         },
-        "count" : 328001
+        "count" : 327829
       }, {
         "enumVal" : {
           "value" : {
@@ -70,7 +70,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 953903
+        "count" : 953870
       }, {
         "enumVal" : {
           "value" : {
@@ -78,7 +78,7 @@
           },
           "display" : "White"
         },
-        "count" : 2117243
+        "count" : 2116669
       } ]
     }
   }, {
@@ -94,7 +94,7 @@
           },
           "display" : "Hispanic or Latino"
         },
-        "count" : 113133
+        "count" : 113110
       }, {
         "enumVal" : {
           "value" : {
@@ -102,7 +102,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 960199
+        "count" : 960195
       }, {
         "enumVal" : {
           "value" : {
@@ -110,7 +110,7 @@
           },
           "display" : "Not Hispanic or Latino"
         },
-        "count" : 2376372
+        "count" : 2375593
       } ]
     }
   }, {
@@ -155,7 +155,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT     /* Can't do \"*\". During indexing, there's an error about person_id column being ambiguous. */     p.person_id, p.year_of_birth, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,      /* BioVU sample columns. */     EXISTS         (SELECT 1 FROM `victr-tanagra-test.sd_static.x_biovu_sample_status` x WHERE p.person_id = x.person_id)                                                                                                         AS has_biovu_sample,     x.dna_yield_ind AS biovu_sample_dna_yield,     /* As a courtesy, convert string fields to boolean: 0 -> No, 1 -> Yes */     CASE WHEN x.compromise_ind = '1' THEN true WHEN x.compromise_ind = '0' THEN false ELSE null END AS biovu_sample_is_compromised,     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma FROM `victr-tanagra-test.sd_static.person` p          LEFT OUTER JOIN `victr-tanagra-test.sd_static.x_biovu_sample_status` x ON p.person_id = x.person_id "
+      "rawSql" : "SELECT     /* Can't do \"*\". During expansion, there's an error about person_id column being ambiguous. */     p.person_id, p.year_of_birth, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,      /* BioVU sample columns. */     EXISTS         (SELECT 1 FROM `victr-tanagra-test.sd_static.x_biovu_sample_status` x WHERE p.person_id = x.person_id)                                                                                                         AS has_biovu_sample,     x.dna_yield_ind AS biovu_sample_dna_yield,     /* As a courtesy, convert string fields to boolean: 0 -> No, 1 -> Yes */     CASE WHEN x.compromise_ind = '1' THEN true WHEN x.compromise_ind = '0' THEN false ELSE null END AS biovu_sample_is_compromised,     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma FROM `victr-tanagra-test.sd_static.person` p     LEFT OUTER JOIN         (             /* Get rid of duplicate rows in x_biovu_sample_status. For example, person             4587323 has 11 duplicate rows. This returns just 1 row for each person. */             WITH x_biovu_sample_status AS (                 SELECT                 *,                 ROW_NUMBER() OVER(PARTITION BY person_id) AS rn                 FROM `sd_static.x_biovu_sample_status`             )             SELECT * FROM x_biovu_sample_status WHERE rn = 1         ) x         ON p.person_id = x.person_id "
     },
     "attributeMappings" : {
       "gender" : {
