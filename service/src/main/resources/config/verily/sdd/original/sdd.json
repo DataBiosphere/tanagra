@@ -8,7 +8,7 @@
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "sdstatic_index_011923",
+      "datasetId": "sdstatic_index_020123",
       "dataflowServiceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com" } ],
   "entities": [
     "brand.json",
