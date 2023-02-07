@@ -460,9 +460,16 @@ export class BackendSource implements Source {
       let maxSource: MergeSource | undefined;
 
       sources.forEach((source) => {
+        const value = source.peek()[countKey];
+        if (maxSource === undefined) {
+          return;
+        }
+        const maxValue = maxSource.peek()[countKey];
         if (
           !source.done() &&
-          (!maxSource || source.peek()[countKey] > maxSource.peek()[countKey])
+          value !== undefined &&
+          maxValue !== undefined &&
+          value > maxValue
         ) {
           maxSource = source;
         }
@@ -653,17 +660,18 @@ function literalFromDataValue(value: DataValue): tanagra.LiteralV2 {
 }
 
 function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
-  switch (value?.dataType) {
+  if (!value) {
+    return undefined;
+  }
+  switch (value.dataType) {
     case tanagra.DataTypeV2.Int64:
-      return value.valueUnion?.int64Val ?? -1;
+      return value.valueUnion?.int64Val;
     case tanagra.DataTypeV2.String:
-      return value.valueUnion?.stringVal ?? "";
+      return value.valueUnion?.stringVal;
     case tanagra.DataTypeV2.Date:
-      return Date.parse(value.valueUnion?.dateVal ?? "") || new Date();
+      return value.valueUnion?.dateVal && Date.parse(value.valueUnion.dateVal);
     case tanagra.DataTypeV2.Boolean:
-      return value.valueUnion?.boolVal ?? false;
-    case undefined:
-      return -1;
+      return value.valueUnion?.boolVal;
   }
 
   throw new Error(`Unknown data type "${value?.dataType}".`);

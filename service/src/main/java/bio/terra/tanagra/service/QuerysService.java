@@ -347,7 +347,7 @@ public class QuerysService {
 
     Query query =
         new Query.Builder().select(selectFieldVars).tables(tableVars).where(filterVar).build();
-    LOGGER.info("Generated query: {}", query.renderSQL());
+    LOGGER.info("Generated display hint query: {}", query.renderSQL());
 
     return new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
   }
@@ -361,7 +361,8 @@ public class QuerysService {
     Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
     while (rowResultsItr.hasNext()) {
       RowResult rowResult = rowResultsItr.next();
-      String attrName = rowResult.get(MODIFIER_AUX_DATA_ATTR_COL).getLiteral().getStringVal();
+      String attrName =
+          rowResult.get(MODIFIER_AUX_DATA_ATTR_COL).getLiteral().orElseThrow().getStringVal();
 
       OptionalDouble min = rowResult.get(MODIFIER_AUX_DATA_MIN_COL).getDouble();
       if (min.isPresent()) {
@@ -370,7 +371,7 @@ public class QuerysService {
         displayHints.put(attrName, new NumericRange(min.getAsDouble(), max.getAsDouble()));
       } else {
         // This is an enum values hint.
-        Literal val = rowResult.get(MODIFIER_AUX_DATA_ENUM_VAL_COL).getLiteral();
+        Literal val = rowResult.get(MODIFIER_AUX_DATA_ENUM_VAL_COL).getLiteral().orElseThrow();
         Optional<String> display = rowResult.get(MODIFIER_AUX_DATA_ENUM_DISPLAY_COL).getString();
         OptionalLong count = rowResult.get(MODIFIER_AUX_DATA_ENUM_COUNT_COL).getLong();
         List<EnumVal> runningEnumVals =

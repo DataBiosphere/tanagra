@@ -258,7 +258,7 @@ function renderChildren(
                     }),
               }}
             >
-              {value}
+              {value === "undefined" ? "NULL" : value}
             </Link>
           ) : (
             <Typography
@@ -269,7 +269,7 @@ function renderChildren(
                 display: "inline",
               }}
             >
-              {value}
+              {value === "undefined" ? "NULL" : value}
             </Typography>
           )}
         </>
@@ -284,7 +284,7 @@ function renderChildren(
         }}
       >
         {props.columns.map((col, i) => {
-          let value = child.data[col.key] ?? "";
+          let value = child.data[col.key];
           let title = "";
           // Stringify values other than Elements.
           if (!(value instanceof Object)) {
@@ -317,6 +317,7 @@ function renderChildren(
                     paddingLeft: `${indent + 0.2}em`,
                   }),
                 }}
+                className={value === "undefined" ? "datasets-undefined-value" : ""}
               >
                 {renderColumn(i, value, title)}
               </div>

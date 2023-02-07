@@ -34,9 +34,11 @@ public final class ToApiConversionUtils {
   }
 
   public static ApiValueDisplayV2 toApiObject(ValueDisplay valueDisplay) {
-    return new ApiValueDisplayV2()
-        .value(toApiObject(valueDisplay.getValue()))
-        .display(valueDisplay.getDisplay());
+    ApiValueDisplayV2 apiObject = new ApiValueDisplayV2();
+    if (valueDisplay != null) {
+      apiObject.value(toApiObject(valueDisplay.getValue())).display(valueDisplay.getDisplay());
+    }
+    return apiObject;
   }
 
   public static ApiLiteralV2 toApiObject(Literal literal) {

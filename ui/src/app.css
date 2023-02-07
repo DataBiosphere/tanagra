@@ -22,6 +22,10 @@
   height: 300px;
 }
 
+.datasets-undefined-value {
+  color: #aaaaaa;
+}
+
 .new-cohort-dialog .MuiTextField-root {
   margin-bottom: 2em;
 }
