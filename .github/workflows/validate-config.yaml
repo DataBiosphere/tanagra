@@ -38,8 +38,7 @@ jobs:
         echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
       env:
         TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
-    - name: Expand config
-      run: |
-         echo Hello
+    - name: Verify underlay configs have been expanded
+      run: .github/tools/verify_config_has_been_expanded.sh
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
