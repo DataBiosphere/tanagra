@@ -54,8 +54,10 @@ export function useCohortAndGroup() {
 function useOptionalGroupAndCriteria(throwOnUnknown: boolean) {
   const cohort = useOptionalCohort(throwOnUnknown);
 
-  const { groupId, criteriaId } =
-    useParams<{ groupId: string; criteriaId: string }>();
+  const { groupId, criteriaId } = useParams<{
+    groupId: string;
+    criteriaId: string;
+  }>();
   const group =
     cohort?.groups.find((g) => g.id === groupId) ?? cohort?.groups?.[0];
   const criteria = group?.criteria.find((c) => c.id === criteriaId);

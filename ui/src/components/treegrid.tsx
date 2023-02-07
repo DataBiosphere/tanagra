@@ -317,7 +317,9 @@ function renderChildren(
                     paddingLeft: `${indent + 0.2}em`,
                   }),
                 }}
-                className={value === "undefined" ? "datasets-undefined-value" : ""}
+                className={
+                  value === "undefined" ? "datasets-undefined-value" : ""
+                }
               >
                 {renderColumn(i, value, title)}
               </div>
