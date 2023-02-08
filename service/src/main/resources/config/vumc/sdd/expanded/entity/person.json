@@ -123,7 +123,7 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 0.0,
+      "minVal" : 1799.0,
       "maxVal" : 2993.0
     }
   } ],
@@ -173,8 +173,7 @@
       },
       "year_of_birth" : {
         "value" : {
-          "column" : "year_of_birth",
-          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 0 ELSE ${fieldSql} END)"
+          "column" : "year_of_birth"
         }
       }
     },

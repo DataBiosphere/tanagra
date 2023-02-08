@@ -13,10 +13,6 @@
     "tablePointer": { "table": "person" },
     "attributeMappings": {
       "id": { "value": { "column": "person_id" } },
-      "year_of_birth": {
-        "value": {
-          "column": "year_of_birth",
-          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 0 ELSE ${fieldSql} END)" } },
       "gender": {
         "value": { "column": "gender_concept_id" },
         "display": {
