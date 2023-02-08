@@ -460,25 +460,21 @@ export class BackendSource implements Source {
       let maxSource: MergeSource | undefined;
 
       sources.forEach((source) => {
-        const value = source.peek()[countKey];
-        if (maxSource === undefined) {
-          return;
-        }
-        const maxValue = maxSource.peek()[countKey];
-        if (
-          !source.done() &&
-          value !== undefined &&
-          maxValue !== undefined &&
-          value > maxValue
-        ) {
-          maxSource = source;
+        if (!source.done()) {
+          if (!maxSource) {
+            maxSource = source;
+          } else {
+            const value = source.peek()[countKey];
+            const maxValue = maxSource.peek()[countKey];
+            if (value && maxValue && value > maxValue) {
+              maxSource = source;
+            }
+          }
         }
       });
-
       if (!maxSource || merged.length === maxCount) {
         break;
       }
-
       merged.push({ source: maxSource.source, data: maxSource.pop() });
     }
 
