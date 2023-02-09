@@ -13,6 +13,7 @@ import { useImmer } from "use-immer";
 export type TreeGridId = string | number;
 export type TreeGridValue =
   | undefined
+  | null
   | string
   | number
   | boolean

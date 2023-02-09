@@ -1,6 +1,6 @@
 import * as tanagra from "tanagra-api";
 export type DataKey = string | number;
-export type DataValue = undefined | string | number | boolean | Date;
+export type DataValue = null | string | number | boolean | Date;
 
 export type DataEntry = {
   key: DataKey;

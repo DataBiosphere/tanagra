@@ -660,17 +660,17 @@ function literalFromDataValue(value: DataValue): tanagra.LiteralV2 {
 
 function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
   if (!value) {
-    return undefined;
+    return null;
   }
   switch (value.dataType) {
     case tanagra.DataTypeV2.Int64:
-      return value.valueUnion?.int64Val;
+      return value.valueUnion?.int64Val ?? null;
     case tanagra.DataTypeV2.String:
-      return value.valueUnion?.stringVal;
+      return value.valueUnion?.stringVal ?? null;
     case tanagra.DataTypeV2.Date:
-      return value.valueUnion?.dateVal && Date.parse(value.valueUnion.dateVal);
+      return value.valueUnion?.dateVal ? Date.parse(value.valueUnion.dateVal) : null;
     case tanagra.DataTypeV2.Boolean:
-      return value.valueUnion?.boolVal;
+      return value.valueUnion?.boolVal ?? null;
   }
 
   throw new Error(`Unknown data type "${value?.dataType}".`);
