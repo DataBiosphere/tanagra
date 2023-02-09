@@ -466,7 +466,10 @@ export class BackendSource implements Source {
           } else {
             const value = source.peek()[countKey];
             const maxValue = maxSource.peek()[countKey];
-            if (value && maxValue && value > maxValue) {
+            if (
+              (value && !maxValue) ||
+              (value && maxValue && value > maxValue)
+            ) {
               maxSource = source;
             }
           }

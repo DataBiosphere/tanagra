@@ -1,3 +1,4 @@
+import Box from "@mui/material/Box";
 import ErrorIcon from "@mui/icons-material/Error";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -285,6 +286,11 @@ function renderChildren(
       >
         {props.columns.map((col, i) => {
           let value = child.data[col.key];
+          const isNull = value === null;
+          if (isNull) {
+            value = "NULL";
+          }
+
           let title = "";
           // Stringify values other than Elements.
           if (!(value instanceof Object)) {
@@ -303,7 +309,7 @@ function renderChildren(
                 }),
               }}
             >
-              <div
+              <Box
                 style={{
                   ...(props.wrapBodyText
                     ? { wordBreak: "break-all" }
@@ -317,12 +323,14 @@ function renderChildren(
                     paddingLeft: `${indent + 0.2}em`,
                   }),
                 }}
-                className={
-                  value === "undefined" ? "datasets-undefined-value" : ""
-                }
+                sx={{
+                  ...(value === "undefined" && {
+                    color: (theme) => theme.palette.text.disabled,
+                  }),
+                }}
               >
                 {renderColumn(i, value, title)}
-              </div>
+              </Box>
             </td>
           );
         })}
