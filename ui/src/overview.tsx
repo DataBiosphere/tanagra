@@ -16,20 +16,20 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
-  defaultFilter,
-  deleteCriteria,
-  deleteGroup,
-  insertGroup,
-  renameGroup,
-  setGroupFilter,
-} from "cohortsSlice";
+  deleteCohortCriteria,
+  deleteCohortGroup,
+  insertCohortGroup,
+  updateCohortGroup,
+  useCohortContext,
+} from "cohortContext";
+import { defaultFilter } from "cohortsSlice";
 import CohortToolbar from "cohortToolbar";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { DemographicCharts } from "demographicCharts";
-import { useAppDispatch, useCohort } from "hooks";
+import { useCohort } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback } from "react";
@@ -74,7 +74,7 @@ function GroupDivider() {
 }
 
 function GroupList() {
-  const dispatch = useAppDispatch();
+  const context = useCohortContext();
   const cohort = useCohort();
   const params = useBaseParams();
 
@@ -102,7 +102,7 @@ function GroupList() {
             <GroupDivider />
             <ListItem disableGutters key="" sx={{ p: 0 }}>
               <Button
-                onClick={() => dispatch(insertGroup(cohort.id))}
+                onClick={() => insertCohortGroup(context)}
                 variant="contained"
               >
                 Add group
@@ -121,7 +121,7 @@ function ParticipantsGroup(props: {
 }) {
   const source = useSource();
   const cohort = useCohort();
-  const dispatch = useAppDispatch();
+  const context = useCohortContext();
   const navigate = useNavigate();
 
   const fetchGroupCount = useCallback(async () => {
@@ -158,13 +158,7 @@ function ParticipantsGroup(props: {
     textLabel: "Group name",
     buttonLabel: "Rename group",
     onConfirm: (name: string) => {
-      dispatch(
-        renameGroup({
-          cohortId: cohort.id,
-          groupId: props.group.id,
-          groupName: name,
-        })
-      );
+      updateCohortGroup(context, props.group.id, name);
     },
   });
 
@@ -182,12 +176,10 @@ function ParticipantsGroup(props: {
               <Select
                 value={props.group.filter.excluded ? 1 : 0}
                 onChange={(event: SelectChangeEvent<number>) => {
-                  dispatch(
-                    setGroupFilter(cohort.id, props.group.id, {
-                      ...props.group.filter,
-                      excluded: event.target.value === 1,
-                    })
-                  );
+                  updateCohortGroup(context, props.group.id, undefined, {
+                    ...props.group.filter,
+                    excluded: event.target.value === 1,
+                  });
                 }}
               >
                 <MenuItem value={0}>Must</MenuItem>
@@ -199,12 +191,10 @@ function ParticipantsGroup(props: {
               <Select
                 value={props.group.filter.kind}
                 onChange={(event: SelectChangeEvent<string>) => {
-                  dispatch(
-                    setGroupFilter(cohort.id, props.group.id, {
-                      ...props.group.filter,
-                      kind: event.target.value as tanagra.GroupFilterKindEnum,
-                    })
-                  );
+                  updateCohortGroup(context, props.group.id, undefined, {
+                    ...props.group.filter,
+                    kind: event.target.value as tanagra.GroupFilterKindEnum,
+                  });
                 }}
               >
                 <MenuItem value={tanagra.GroupFilterKindEnum.Any}>any</MenuItem>
@@ -225,10 +215,7 @@ function ParticipantsGroup(props: {
             {renameGroupDialog}
             <IconButton
               onClick={() => {
-                const action = dispatch(deleteGroup(cohort, props.group.id));
-                navigate(
-                  "../" + cohortURL(cohort.id, action.payload.nextGroupId)
-                );
+                deleteCohortGroup(context, props.group.id);
               }}
             >
               <DeleteIcon />
@@ -289,7 +276,7 @@ function ParticipantCriteria(props: {
 }) {
   const source = useSource();
   const cohort = useCohort();
-  const dispatch = useAppDispatch();
+  const context = useCohortContext();
 
   const fetchCriteriaCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
@@ -346,13 +333,7 @@ function ParticipantCriteria(props: {
           )}
           <IconButton
             onClick={() => {
-              dispatch(
-                deleteCriteria({
-                  cohortId: cohort.id,
-                  groupId: props.group.id,
-                  criteriaId: props.criteria.id,
-                })
-              );
+              deleteCohortCriteria(context, props.group.id, props.criteria.id);
             }}
           >
             <DeleteIcon fontSize="small" sx={{ mt: "-3px" }} />

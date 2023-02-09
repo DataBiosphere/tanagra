@@ -4,7 +4,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { insertCriteria } from "cohortsSlice";
+import { insertCohortCriteria, useCohortContext } from "cohortContext";
 import CohortToolbar from "cohortToolbar";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -17,7 +17,7 @@ import {
 } from "components/treegrid";
 import { MergedDataEntry, useSource } from "data/source";
 import { DataEntry, DataKey } from "data/types";
-import { useAppDispatch, useCohortAndGroup, useUnderlay } from "hooks";
+import { useCohortAndGroup, useUnderlay } from "hooks";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cohortURL, newCriteriaURL } from "router";
@@ -29,7 +29,7 @@ export function AddCriteria() {
   const underlay = useUnderlay();
   const source = useSource();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const context = useCohortContext();
   const { cohort, group } = useCohortAndGroup();
 
   const query = useSearchParams()[0].get("search") ?? "";
@@ -77,13 +77,7 @@ export function AddCriteria() {
       if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
         navigate("../" + newCriteriaURL(config.id));
       } else {
-        dispatch(
-          insertCriteria({
-            cohortId: cohort.id,
-            groupId: group.id,
-            criteria,
-          })
-        );
+        insertCohortCriteria(context, group.id, criteria);
         navigate("../../" + cohortURL(cohort.id, group.id));
       }
     },

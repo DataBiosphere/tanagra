@@ -16,7 +16,6 @@ import {
   getCriteriaPlugin,
   getCriteriaTitle,
 } from "cohort";
-import { insertCohort } from "cohortsSlice";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -26,7 +25,7 @@ import { TreeGrid, TreeGridData } from "components/treegrid";
 import { findEntity } from "data/configuration";
 import { Filter, makeArrayFilter } from "data/filter";
 import { useSource } from "data/source";
-import { useAppDispatch, useAppSelector, useUnderlay } from "hooks";
+import { useStudyId, useUnderlay } from "hooks";
 import React, {
   Fragment,
   SyntheticEvent,
@@ -41,20 +40,32 @@ import {
   absoluteNewConceptSetURL,
   useBaseParams,
 } from "router";
+import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 
 export function Datasets() {
-  const dispatch = useAppDispatch();
-  const unfilteredCohorts = useAppSelector((state) => state.present.cohorts);
-  const workspaceConceptSets = useAppSelector(
-    (state) => state.present.conceptSets
+  const source = useSource();
+  const studyId = useStudyId();
+  const unfilteredCohorts = useSWR(
+    { type: "cohort", studyId, list: true },
+    async () => await source.listCohorts(studyId)
   );
+
+  const workspaceConceptSets = useSWR(
+    { type: "conceptSet", studyId, list: true },
+    async () =>
+      await source
+        .listConceptSets(studyId)
+        .then((conceptSets) =>
+          conceptSets.filter((cs) => cs.underlayName === underlay.name)
+        )
+  );
+
   const navigate = useNavigate();
 
   const underlay = useUnderlay();
-  const source = useSource();
   const params = useBaseParams();
 
   const [selectedCohorts, updateSelectedCohorts] = useImmer(new Set<string>());
@@ -65,21 +76,18 @@ export function Datasets() {
     new Map<string, Set<string>>()
   );
 
-  const conceptSetOccurrences = useConceptSetOccurrences(selectedConceptSets);
+  const conceptSetOccurrences = useConceptSetOccurrences(
+    selectedConceptSets,
+    workspaceConceptSets.data
+  );
 
   const [dialog, showNewCohort] = useTextInputDialog({
     title: "New cohort",
     textLabel: "Cohort name",
     buttonLabel: "Create",
-    onConfirm: (name: string) => {
-      const action = dispatch(insertCohort(name, underlay.name));
-      navigate(
-        absoluteCohortURL(
-          params,
-          action.payload.id,
-          action.payload.groups[0].id
-        )
-      );
+    onConfirm: async (name: string) => {
+      const cohort = await source.createCohort(underlay.name, studyId, name);
+      navigate(absoluteCohortURL(params, cohort.id, cohort.groups[0].id));
     },
   });
 
@@ -163,10 +171,10 @@ export function Datasets() {
 
   const cohorts = useMemo(
     () =>
-      unfilteredCohorts.filter(
+      (unfilteredCohorts.data ?? []).filter(
         (cohort) => cohort.underlayName === underlay.name
       ),
-    [unfilteredCohorts]
+    [unfilteredCohorts.data]
   );
 
   return (
@@ -266,12 +274,10 @@ export function Datasets() {
             <Typography variant="h4">Workspace</Typography>
             {listConceptSets(
               true,
-              workspaceConceptSets
-                .filter((cs) => cs.underlayName === underlay.name)
-                .map((cs) => ({
-                  id: cs.id,
-                  name: getCriteriaTitle(cs.criteria),
-                }))
+              (workspaceConceptSets.data ?? []).map((cs) => ({
+                id: cs.id,
+                name: getCriteriaTitle(cs.criteria),
+              }))
             )}
           </Paper>
         </Grid>
@@ -392,45 +398,47 @@ type ConceptSetOccurrence = {
 };
 
 function useConceptSetOccurrences(
-  selectedConceptSets: Set<string>
+  selectedConceptSets: Set<string>,
+  workspaceConceptSets?: tanagra.ConceptSet[]
 ): ConceptSetOccurrence[] {
   const underlay = useUnderlay();
   const source = useSource();
 
-  const occurrences = new Map<string, Filter[]>();
-  const addFilter = (occurrence: string, filter?: Filter | null) => {
-    if (!occurrences.has(occurrence)) {
-      occurrences.set(occurrence, []);
-    }
-    if (filter) {
-      occurrences.get(occurrence)?.push(filter);
-    }
-  };
+  return useMemo(() => {
+    const occurrences = new Map<string, Filter[]>();
+    const addFilter = (occurrence: string, filter?: Filter | null) => {
+      if (!occurrences.has(occurrence)) {
+        occurrences.set(occurrence, []);
+      }
+      if (filter) {
+        occurrences.get(occurrence)?.push(filter);
+      }
+    };
 
-  underlay.uiConfiguration.prepackagedConceptSets?.forEach((conceptSet) => {
-    if (selectedConceptSets.has(conceptSet.id)) {
-      addFilter(conceptSet.occurrence, conceptSet.filter);
-    }
-  });
-
-  const workspaceConceptSets = useAppSelector((state) =>
-    state.present.conceptSets.filter((cs) => selectedConceptSets.has(cs.id))
-  );
-  workspaceConceptSets.forEach((conceptSet) => {
-    const plugin = getCriteriaPlugin(conceptSet.criteria);
-    addFilter(plugin.occurrenceID(), plugin.generateFilter());
-  });
-
-  return Array.from(occurrences)
-    .sort()
-    .map(([id, filters]) => {
-      return {
-        id,
-        name: findEntity(id, source.config).entity,
-        attributes: source.listAttributes(id),
-        filters,
-      };
+    underlay.uiConfiguration.prepackagedConceptSets?.forEach((conceptSet) => {
+      if (selectedConceptSets.has(conceptSet.id)) {
+        addFilter(conceptSet.occurrence, conceptSet.filter);
+      }
     });
+
+    workspaceConceptSets
+      ?.filter((cs) => selectedConceptSets.has(cs.id))
+      ?.forEach((conceptSet) => {
+        const plugin = getCriteriaPlugin(conceptSet.criteria);
+        addFilter(plugin.occurrenceID(), plugin.generateFilter());
+      });
+
+    return Array.from(occurrences)
+      .sort()
+      .map(([id, filters]) => {
+        return {
+          id,
+          name: findEntity(id, source.config).entity,
+          attributes: source.listAttributes(id),
+          filters,
+        };
+      });
+  }, [selectedConceptSets, workspaceConceptSets]);
 }
 
 type PreviewProps = {
@@ -442,10 +450,19 @@ type PreviewProps = {
 
 function Preview(props: PreviewProps) {
   const source = useSource();
-  const cohorts = useAppSelector((state) =>
-    state.present.cohorts.filter((cohort) =>
-      props.selectedCohorts.has(cohort.id)
-    )
+  const studyId = useStudyId();
+
+  const unfilteredCohorts = useSWR(
+    { type: "cohort", studyId, list: true },
+    async () => await source.listCohorts(studyId)
+  );
+
+  const cohorts = useMemo(
+    () =>
+      (unfilteredCohorts.data ?? []).filter((cohort) =>
+        props.selectedCohorts.has(cohort.id)
+      ),
+    [unfilteredCohorts.data]
   );
 
   const [tab, setTab] = useState(0);
@@ -453,7 +470,7 @@ function Preview(props: PreviewProps) {
 
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
     {
-      component: "Datasets",
+      type: "previewData",
       cohorts,
       occurrences: props.conceptSetOccurrences,
       excludedAtrtibutes: props.excludedAttributes,
@@ -463,7 +480,7 @@ function Preview(props: PreviewProps) {
         props.conceptSetOccurrences.map(async (occurrence) => {
           const cohortsFilter = makeArrayFilter(
             { min: 1 },
-            cohorts.map((cohort) => generateCohortFilter(cohort))
+            (cohorts || []).map((cohort) => generateCohortFilter(cohort))
           );
           if (!cohortsFilter) {
             throw new Error("All selected cohorts are empty.");

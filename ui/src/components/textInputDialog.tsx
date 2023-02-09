@@ -37,7 +37,7 @@ export function useTextInputDialog(
       <Form
         onSubmit={({ text }) => {
           setOpen(false);
-          props.onConfirm(text);
+          props.onConfirm(text ?? "");
         }}
         initialValues={{
           text: props.initialText,
