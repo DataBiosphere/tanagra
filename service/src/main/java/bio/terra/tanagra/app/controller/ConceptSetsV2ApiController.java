@@ -58,9 +58,22 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     underlaysService.getEntity(body.getUnderlayName(), body.getEntity());
     studyService.getStudy(studyId);
 
-    // Generate random 10-character alphanumeric string for the new concept set ID.
+    // Generate random 10-character alphanumeric string for the new criteria and concept set IDs.
+    String newCriteriaId = RandomStringUtils.randomAlphanumeric(10);
     String newConceptSetId = RandomStringUtils.randomAlphanumeric(10);
 
+    Criteria criteria =
+        body.getCriteria() == null
+            ? null
+            : Criteria.builder()
+                .conceptSetId(newConceptSetId)
+                .criteriaId(newCriteriaId)
+                .userFacingCriteriaId(body.getCriteria().getId())
+                .displayName(body.getCriteria().getDisplayName())
+                .pluginName(body.getCriteria().getPluginName())
+                .selectionData(body.getCriteria().getSelectionData())
+                .uiConfig(body.getCriteria().getUiConfig())
+                .build();
     ConceptSet conceptSetToCreate =
         ConceptSet.builder()
             .studyId(studyId)
@@ -70,6 +83,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             .createdBy(SpringAuthentication.getCurrentUser().getEmail())
             .displayName(body.getDisplayName())
             .description(body.getDescription())
+            .criteria(criteria)
             .build();
     conceptSetService.createConceptSet(conceptSetToCreate);
     return ResponseEntity.ok(

@@ -1,9 +1,11 @@
 import {
+  CohortsApiContext,
+  ConceptSetsApiContext,
   EntityInstancesApiContext,
   HintsApiContext,
   StudiesApiContext,
 } from "apiContext";
-import { generateId } from "cohort";
+import { defaultGroup, generateId, getCriteriaPlugin } from "cohort";
 import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
 import produce from "immer";
@@ -158,6 +160,35 @@ export interface Source {
   createStudy(displayName: string): Promise<Study>;
 
   deleteStudy(studyId: string): void;
+
+  // TODO(tjennison): Use internal types for cohorts and related objects instead
+  // of V1 types from the service definition.
+  getCohort(studyId: string, cohortId: string): Promise<tanagra.Cohort>;
+
+  listCohorts(studyId: string): Promise<tanagra.Cohort[]>;
+
+  createCohort(
+    underlayName: string,
+    studyId: string,
+    displayName: string
+  ): Promise<tanagra.Cohort>;
+
+  updateCohort(studyId: string, cohort: tanagra.Cohort): void;
+
+  getConceptSet(
+    studyId: string,
+    conceptSetId: string
+  ): Promise<tanagra.ConceptSet>;
+
+  listConceptSets(studyId: string): Promise<tanagra.ConceptSet[]>;
+
+  createConceptSet(
+    underlayName: string,
+    studyId: string,
+    criteria: tanagra.Criteria
+  ): Promise<tanagra.ConceptSet>;
+
+  updateConceptSet(studyId: string, conceptSet: tanagra.ConceptSet): void;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -169,12 +200,18 @@ export function useSource(): Source {
   ) as tanagra.InstancesV2Api;
   const hintsApi = useContext(HintsApiContext) as tanagra.HintsV2Api;
   const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesV2Api;
+  const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsV2Api;
+  const conceptSetsApi = useContext(
+    ConceptSetsApiContext
+  ) as tanagra.ConceptSetsV2Api;
   return useMemo(
     () =>
       new BackendSource(
         instancesApi,
         hintsApi,
         studiesApi,
+        cohortsApi,
+        conceptSetsApi,
         underlay,
         underlay.uiConfiguration.dataConfig
       ),
@@ -187,6 +224,8 @@ export class BackendSource implements Source {
     private instancesApi: tanagra.InstancesV2Api,
     private hintsApi: tanagra.HintsV2Api,
     private studiesApi: tanagra.StudiesV2Api,
+    private cohortsApi: tanagra.CohortsV2Api,
+    private conceptSetsApi: tanagra.ConceptSetsV2Api,
     private underlay: Underlay,
     public config: Configuration
   ) {}
@@ -559,6 +598,109 @@ export class BackendSource implements Source {
     parseAPIError(
       this.studiesApi.deleteStudy({
         studyId,
+      })
+    );
+  }
+
+  public async getCohort(
+    studyId: string,
+    cohortId: string
+  ): Promise<tanagra.Cohort> {
+    return parseAPIError(
+      this.cohortsApi
+        .getCohort({ studyId, cohortId })
+        .then((c) => fromAPICohort(c))
+    );
+  }
+
+  public listCohorts(studyId: string): Promise<tanagra.Cohort[]> {
+    return parseAPIError(
+      this.cohortsApi
+        .listCohorts({ studyId })
+        .then((res) => res.map((c) => fromAPICohort(c)))
+    );
+  }
+
+  public createCohort(
+    underlayName: string,
+    studyId: string,
+    displayName: string
+  ): Promise<tanagra.Cohort> {
+    return parseAPIError(
+      this.cohortsApi
+        .createCohort({
+          studyId,
+          cohortCreateInfoV2: { underlayName, displayName },
+        })
+        .then((c) => fromAPICohort(c))
+    );
+  }
+
+  public async updateCohort(studyId: string, cohort: tanagra.Cohort) {
+    await parseAPIError(
+      this.cohortsApi.updateCohort({
+        studyId,
+        cohortId: cohort.id,
+        cohortUpdateInfoV2: {
+          displayName: cohort.name,
+          criteriaGroups: toAPICriteriaGroups(cohort.groups),
+        },
+      })
+    );
+  }
+
+  public async getConceptSet(
+    studyId: string,
+    conceptSetId: string
+  ): Promise<tanagra.ConceptSet> {
+    return parseAPIError(
+      this.conceptSetsApi
+        .getConceptSet({ studyId, conceptSetId })
+        .then((c) => fromAPIConceptSet(c))
+    );
+  }
+
+  public listConceptSets(studyId: string): Promise<tanagra.ConceptSet[]> {
+    return parseAPIError(
+      this.conceptSetsApi
+        .listConceptSets({ studyId })
+        .then((res) => res.map((c) => fromAPIConceptSet(c)))
+    );
+  }
+
+  public createConceptSet(
+    underlayName: string,
+    studyId: string,
+    criteria: tanagra.Criteria
+  ): Promise<tanagra.ConceptSet> {
+    return parseAPIError(
+      this.conceptSetsApi
+        .createConceptSet({
+          studyId,
+          conceptSetCreateInfoV2: {
+            underlayName,
+            criteria: toAPICriteria(criteria),
+            entity: findEntity(
+              getCriteriaPlugin(criteria).occurrenceID(),
+              this.config
+            ).entity,
+          },
+        })
+        .then((cs) => fromAPIConceptSet(cs))
+    );
+  }
+
+  public async updateConceptSet(
+    studyId: string,
+    conceptSet: tanagra.ConceptSet
+  ) {
+    await parseAPIError(
+      this.conceptSetsApi.updateConceptSet({
+        studyId,
+        conceptSetId: conceptSet.id,
+        conceptSetUpdateInfoV2: {
+          criteria: toAPICriteria(conceptSet.criteria),
+        },
       })
     );
   }
@@ -1118,23 +1260,47 @@ function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
     id: cohort.id,
     name: cohort.displayName,
     underlayName: cohort.underlayName,
-    groups: cohort.criteriaGroups.map((group) => ({
-      id: group.id,
-      name: group.displayName,
-      filter: {
-        kind:
-          group.operator === tanagra.CriteriaGroupV2OperatorEnum.And
-            ? tanagra.GroupFilterKindEnum.All
-            : tanagra.GroupFilterKindEnum.Any,
-        excluded: group.excluded,
-      },
-      criteria: group.criteria.map((criteria) => ({
-        id: criteria.id,
-        type: criteria.pluginName,
-        data: JSON.parse(criteria.selectionData),
-        config: JSON.parse(criteria.uiConfig),
-      })),
-    })),
+    groups: fromAPICohortGroups(cohort.criteriaGroups),
+  };
+}
+
+function fromAPICohortGroups(
+  groups: tanagra.CriteriaGroupV2[]
+): tanagra.Group[] {
+  if (groups.length === 0) {
+    return [defaultGroup()];
+  }
+
+  return groups.map((group) => ({
+    id: group.id,
+    name: group.displayName,
+    filter: {
+      kind:
+        group.operator === tanagra.CriteriaGroupV2OperatorEnum.And
+          ? tanagra.GroupFilterKindEnum.All
+          : tanagra.GroupFilterKindEnum.Any,
+      excluded: group.excluded,
+    },
+    criteria: group.criteria.map((criteria) => fromAPICriteria(criteria)),
+  }));
+}
+
+function fromAPICriteria(criteria: tanagra.CriteriaV2): tanagra.Criteria {
+  return {
+    id: criteria.id,
+    type: criteria.pluginName,
+    data: JSON.parse(criteria.selectionData),
+    config: JSON.parse(criteria.uiConfig),
+  };
+}
+
+function fromAPIConceptSet(
+  conceptSet: tanagra.ConceptSetV2
+): tanagra.ConceptSet {
+  return {
+    id: conceptSet.id,
+    underlayName: conceptSet.underlayName,
+    criteria: conceptSet.criteria && fromAPICriteria(conceptSet.criteria),
   };
 }
 
@@ -1146,22 +1312,32 @@ function toAPICohort(cohort: tanagra.Cohort): tanagra.CohortV2 {
     created: new Date(),
     createdBy: "",
     lastModified: new Date(),
-    criteriaGroups: cohort.groups.map((group) => ({
-      id: group.id,
-      displayName: group.name ?? "",
-      operator:
-        group.filter.kind === tanagra.GroupFilterKindEnum.All
-          ? tanagra.CriteriaGroupV2OperatorEnum.And
-          : tanagra.CriteriaGroupV2OperatorEnum.Or,
-      excluded: group.filter.excluded,
-      criteria: group.criteria.map((criteria) => ({
-        id: criteria.id,
-        displayName: "",
-        pluginName: criteria.type,
-        selectionData: JSON.stringify(criteria.data),
-        uiConfig: JSON.stringify(criteria.config),
-      })),
-    })),
+    criteriaGroups: toAPICriteriaGroups(cohort.groups),
+  };
+}
+
+function toAPICriteriaGroups(
+  groups: tanagra.Group[]
+): tanagra.CriteriaGroupV2[] {
+  return groups.map((group) => ({
+    id: group.id,
+    displayName: group.name ?? "",
+    operator:
+      group.filter.kind === tanagra.GroupFilterKindEnum.All
+        ? tanagra.CriteriaGroupV2OperatorEnum.And
+        : tanagra.CriteriaGroupV2OperatorEnum.Or,
+    excluded: group.filter.excluded,
+    criteria: group.criteria.map((criteria) => toAPICriteria(criteria)),
+  }));
+}
+
+function toAPICriteria(criteria: tanagra.Criteria): tanagra.CriteriaV2 {
+  return {
+    id: criteria.id,
+    displayName: "",
+    pluginName: criteria.type,
+    selectionData: JSON.stringify(criteria.data),
+    uiConfig: JSON.stringify(criteria.config),
   };
 }
 

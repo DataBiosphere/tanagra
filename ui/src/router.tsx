@@ -1,7 +1,9 @@
 import Button from "@mui/material/Button";
 import { AddCriteria } from "addCriteria";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
+import CohortRoot from "cohortRoot";
 import ConceptSetEdit from "conceptSetEdit";
+import ConceptSetRoot from "conceptSetRoot";
 import Edit from "edit";
 import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
@@ -28,38 +30,48 @@ export function createAppRouter() {
       element: <Outlet />,
       children: [
         {
-          path: "cohorts/:cohortId/:groupId",
+          element: <CohortRoot />,
           children: [
             {
-              index: true,
-              element: <Overview />,
-            },
-            {
-              path: "add",
+              path: "cohorts/:cohortId/:groupId",
               children: [
                 {
                   index: true,
-                  element: <AddCriteria />,
+                  element: <Overview />,
                 },
                 {
-                  path: ":configId",
-                  element: <NewCriteria />,
+                  path: "add",
+                  children: [
+                    {
+                      index: true,
+                      element: <AddCriteria />,
+                    },
+                    {
+                      path: ":configId",
+                      element: <NewCriteria />,
+                    },
+                  ],
+                },
+                {
+                  path: "edit/:criteriaId",
+                  element: <Edit />,
                 },
               ],
-            },
-            {
-              path: "edit/:criteriaId",
-              element: <Edit />,
             },
           ],
         },
         {
-          path: "conceptSets/new/:configId",
-          element: <NewConceptSet />,
-        },
-        {
-          path: "conceptSets/edit/:conceptSetId",
-          element: <ConceptSetEdit />,
+          element: <ConceptSetRoot />,
+          children: [
+            {
+              path: "conceptSets/new/:configId",
+              element: <NewConceptSet />,
+            },
+            {
+              path: "conceptSets/edit/:conceptSetId",
+              element: <ConceptSetEdit />,
+            },
+          ],
         },
         {
           path: "review/:cohortId",
