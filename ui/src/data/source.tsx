@@ -668,7 +668,9 @@ function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
     case tanagra.DataTypeV2.String:
       return value.valueUnion?.stringVal ?? null;
     case tanagra.DataTypeV2.Date:
-      return value.valueUnion?.dateVal ? Date.parse(value.valueUnion.dateVal) : null;
+      return value.valueUnion?.dateVal
+        ? Date.parse(value.valueUnion.dateVal)
+        : null;
     case tanagra.DataTypeV2.Boolean:
       return value.valueUnion?.boolVal ?? null;
   }
