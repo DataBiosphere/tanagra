@@ -42,3 +42,5 @@ jobs:
       run: .github/tools/verify_config_has_been_expanded.sh
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+    - name: Verify configs are in sync, for example vumc/sdd and verily/sdd
+      run: .github/tools/verify_config_in_sync.sh
