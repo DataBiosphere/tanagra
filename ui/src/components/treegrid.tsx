@@ -260,7 +260,7 @@ function renderChildren(
                     }),
               }}
             >
-              {value === "undefined" ? "NULL" : value}
+              {value}
             </Link>
           ) : (
             <Typography
@@ -271,7 +271,7 @@ function renderChildren(
                 display: "inline",
               }}
             >
-              {value === "undefined" ? "NULL" : value}
+              {value}
             </Typography>
           )}
         </>
@@ -290,6 +290,8 @@ function renderChildren(
           const isNull = value === null;
           if (isNull) {
             value = "NULL";
+          } else if (value === undefined) {
+            value = "";
           }
 
           let title = "";
@@ -325,7 +327,7 @@ function renderChildren(
                   }),
                 }}
                 sx={{
-                  ...(value === "undefined" && {
+                  ...(value === "NULL" && {
                     color: (theme) => theme.palette.text.disabled,
                   }),
                 }}
