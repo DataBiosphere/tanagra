@@ -213,5 +213,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "entityDateTime" : {
+    "column" : "observation_datetime"
   }
 }

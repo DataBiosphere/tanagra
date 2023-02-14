@@ -141,5 +141,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "entityDateTime" : {
+    "column" : "procedure_datetime"
   }
 }

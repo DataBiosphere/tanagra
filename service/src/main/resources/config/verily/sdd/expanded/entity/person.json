@@ -297,5 +297,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "entityDateTime" : {
+    "column" : "birth_datetime"
   }
 }

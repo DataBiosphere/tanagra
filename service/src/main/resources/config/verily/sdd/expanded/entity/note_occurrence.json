@@ -284,5 +284,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "entityDateTime" : {
+    "column" : "note_datetime"
   }
 }

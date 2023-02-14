@@ -433,5 +433,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "entityDateTime" : {
+    "column" : "drug_exposure_start_datetime"
   }
 }

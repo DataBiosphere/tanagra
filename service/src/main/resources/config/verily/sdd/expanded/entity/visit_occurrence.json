@@ -891,5 +891,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "entityDateTime" : {
+    "column" : "visit_start_datetime"
   }
 }
