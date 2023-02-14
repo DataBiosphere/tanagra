@@ -25,6 +25,10 @@
     }
   }, {
     "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
     "name" : "id",
     "dataType" : "INT64"
   }, {

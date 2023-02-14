@@ -26,6 +26,7 @@ public class CriteriaOccurrence extends EntityGroup {
   private static final String OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME = "occurrenceToCriteria";
   private static final String OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME = "occurrenceToPrimary";
   private static final String CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME = "criteriaToPrimary";
+  public static final String AGE_AT_OCCURRENCE_ATTRIBUTE_NAME = "age_at_occurrence";
 
   public static final String MODIFIER_AUX_DATA_ID_COL = "entity_id";
   public static final String MODIFIER_AUX_DATA_ATTR_COL = "attribute_name";

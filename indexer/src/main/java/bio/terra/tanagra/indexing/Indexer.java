@@ -1,5 +1,9 @@
 package bio.terra.tanagra.indexing;
 
+import static bio.terra.tanagra.underlay.EntityGroup.Type.GROUP_ITEMS;
+import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.AGE_AT_OCCURRENCE_ATTRIBUTE_NAME;
+
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
 import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
@@ -13,6 +17,8 @@ import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
+import bio.terra.tanagra.query.Literal.DataType;
+import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
@@ -63,10 +69,43 @@ public final class Indexer {
         .values()
         .forEach(
             e -> {
+              if (!e.getName().contains("occurrence")) return;
               LOGGER.info(
                   "Looking up attribute data types and generating UI hints for entity: "
                       + e.getName());
               e.scanSourceData();
+            });
+  }
+
+  /**
+   * Add age_at_occurrernce attribute to CRITERIA_OCCURRENCE entity group occurrence entities, eg
+   * condition_occurrence.
+   */
+  public void maybeAddAgeAtOccurrenceAttribute() {
+    underlay
+        .getEntityGroups()
+        .values()
+        .forEach(
+            entityGroup -> {
+              switch (entityGroup.getType()) {
+                case GROUP_ITEMS:
+                  return;
+                case CRITERIA_OCCURRENCE:
+                  LOGGER.info("Adding age_at_occurrence attribute to {}", entityGroup.getName());
+                  CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
+                  Attribute attribute =
+                      new Attribute(
+                          AGE_AT_OCCURRENCE_ATTRIBUTE_NAME,
+                          Attribute.Type.SIMPLE,
+                          DataType.INT64,
+                          /*displayHint=*/ null);
+                  criteriaOccurrence
+                      .getOccurrenceEntity()
+                      .addAttribute(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME, attribute);
+                  return;
+                default:
+                  throw new SystemException("Unknown entity group type: " + entityGroup.getType());
+              }
             });
   }
 

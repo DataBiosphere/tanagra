@@ -20,7 +20,7 @@ public final class Attribute {
   private AttributeMapping sourceMapping;
   private AttributeMapping indexMapping;
 
-  private Attribute(String name, Type type, Literal.DataType dataType, DisplayHint displayHint) {
+  public Attribute(String name, Type type, Literal.DataType dataType, DisplayHint displayHint) {
     this.name = name;
     this.type = type;
     this.dataType = dataType;

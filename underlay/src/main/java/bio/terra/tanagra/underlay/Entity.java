@@ -280,6 +280,10 @@ public final class Entity {
     return Collections.unmodifiableList(attributes.values().stream().collect(Collectors.toList()));
   }
 
+  public void addAttribute(String name, Attribute attribute) {
+    attributes.put(name, attribute);
+  }
+
   public Hierarchy getHierarchy(String name) {
     return hierarchies.get(name);
   }

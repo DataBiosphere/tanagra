@@ -31,6 +31,10 @@
       "maxVal" : 2.02102001E9
     }
   }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64"
+  }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "observation",
     "dataType" : "INT64"

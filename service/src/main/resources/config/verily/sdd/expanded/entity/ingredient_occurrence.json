@@ -29,6 +29,10 @@
     }
   }, {
     "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
     "name" : "stop_reason",
     "dataType" : "STRING",
     "displayHint" : {
