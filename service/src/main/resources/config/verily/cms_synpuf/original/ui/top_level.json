@@ -201,6 +201,13 @@
     },
     {
       "type": "attribute",
+      "id": "tanagra-sex_at_birth",
+      "title": "Sex assigned at birth",
+      "category": "Program data",
+      "attribute": "sex_at_birth"
+    },
+    {
+      "type": "attribute",
       "id": "tanagra-year_of_birth",
       "title": "Year of birth",
       "category": "Program data",
