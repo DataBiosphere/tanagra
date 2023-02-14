@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public final class EntityInstanceCount {
   public static final String DEFAULT_COUNT_COLUMN_NAME = "t_count";
@@ -29,7 +30,7 @@ public final class EntityInstanceCount {
     if (countCellValue == null) {
       throw new SystemException("Count column not found: " + DEFAULT_COUNT_COLUMN_NAME);
     }
-    long count = countCellValue.getLiteral().getInt64Val();
+    long count = countCellValue.getLiteral().orElseThrow().getInt64Val();
 
     Map<Attribute, ValueDisplay> attributeValues = new HashMap<>();
     for (Attribute selectedAttribute : selectedAttributes) {
@@ -38,24 +39,23 @@ public final class EntityInstanceCount {
         throw new SystemException("Attribute column not found: " + selectedAttribute.getName());
       }
 
-      Literal value = cellValue.getLiteral();
-      switch (selectedAttribute.getType()) {
-        case SIMPLE:
-          attributeValues.put(selectedAttribute, new ValueDisplay(value));
-          break;
-        case KEY_AND_DISPLAY:
-          String display =
-              rowResult
-                  .get(
-                      selectedAttribute
-                          .getMapping(Underlay.MappingType.INDEX)
-                          .getDisplayMappingAlias())
-                  .getString()
-                  .get();
-          attributeValues.put(selectedAttribute, new ValueDisplay(value, display));
-          break;
-        default:
-          throw new SystemException("Unknown attribute type: " + selectedAttribute.getType());
+      Optional<Literal> valueOpt = cellValue.getLiteral();
+      if (valueOpt.isEmpty()) {
+        attributeValues.put(selectedAttribute, null);
+      } else if (selectedAttribute.getType() == Attribute.Type.SIMPLE) {
+        attributeValues.put(selectedAttribute, new ValueDisplay(valueOpt.get()));
+      } else if (selectedAttribute.getType() == Attribute.Type.KEY_AND_DISPLAY) {
+        String display =
+            rowResult
+                .get(
+                    selectedAttribute
+                        .getMapping(Underlay.MappingType.INDEX)
+                        .getDisplayMappingAlias())
+                .getString()
+                .get();
+        attributeValues.put(selectedAttribute, new ValueDisplay(valueOpt.get(), display));
+      } else {
+        throw new SystemException("Unknown attribute type: " + selectedAttribute.getType());
       }
     }
 

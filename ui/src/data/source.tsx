@@ -460,18 +460,24 @@ export class BackendSource implements Source {
       let maxSource: MergeSource | undefined;
 
       sources.forEach((source) => {
-        if (
-          !source.done() &&
-          (!maxSource || source.peek()[countKey] > maxSource.peek()[countKey])
-        ) {
-          maxSource = source;
+        if (!source.done()) {
+          if (!maxSource) {
+            maxSource = source;
+          } else {
+            const value = source.peek()[countKey];
+            const maxValue = maxSource.peek()[countKey];
+            if (
+              (value && !maxValue) ||
+              (value && maxValue && value > maxValue)
+            ) {
+              maxSource = source;
+            }
+          }
         }
       });
-
       if (!maxSource || merged.length === maxCount) {
         break;
       }
-
       merged.push({ source: maxSource.source, data: maxSource.pop() });
     }
 
@@ -653,17 +659,20 @@ function literalFromDataValue(value: DataValue): tanagra.LiteralV2 {
 }
 
 function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
-  switch (value?.dataType) {
+  if (!value) {
+    return null;
+  }
+  switch (value.dataType) {
     case tanagra.DataTypeV2.Int64:
-      return value.valueUnion?.int64Val ?? -1;
+      return value.valueUnion?.int64Val ?? null;
     case tanagra.DataTypeV2.String:
-      return value.valueUnion?.stringVal ?? "";
+      return value.valueUnion?.stringVal ?? null;
     case tanagra.DataTypeV2.Date:
-      return Date.parse(value.valueUnion?.dateVal ?? "") || new Date();
+      return value.valueUnion?.dateVal
+        ? Date.parse(value.valueUnion.dateVal)
+        : null;
     case tanagra.DataTypeV2.Boolean:
-      return value.valueUnion?.boolVal ?? false;
-    case undefined:
-      return -1;
+      return value.valueUnion?.boolVal ?? null;
   }
 
   throw new Error(`Unknown data type "${value?.dataType}".`);

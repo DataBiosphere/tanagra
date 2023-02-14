@@ -197,7 +197,7 @@ public final class EnumVals extends DisplayHint {
       enumVals.add(
           new EnumVal(
               new ValueDisplay(
-                  cellValue.getLiteral(),
+                  cellValue.getLiteral().orElseThrow(),
                   rowResult.get(ENUM_DISPLAY_COLUMN_ALIAS).getString().orElse(null)),
               rowResult.get(ENUM_COUNT_COLUMN_ALIAS).getLong().getAsLong()));
       if (enumVals.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {

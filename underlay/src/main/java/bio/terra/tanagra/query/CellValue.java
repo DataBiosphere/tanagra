@@ -79,5 +79,5 @@ public interface CellValue {
    */
   OptionalDouble getDouble();
 
-  Literal getLiteral();
+  Optional<Literal> getLiteral();
 }
