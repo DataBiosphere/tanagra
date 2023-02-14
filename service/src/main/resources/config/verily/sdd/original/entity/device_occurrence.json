@@ -34,5 +34,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "entityDateTime": { "column" :  "device_exposure_start_datetime" }
+  "startDateTimeColumn": { "column" :  "device_exposure_start_datetime" }
 }

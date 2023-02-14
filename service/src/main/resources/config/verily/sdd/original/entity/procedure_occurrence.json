@@ -32,5 +32,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "entityDateTime": { "column" :  "procedure_datetime" }
+  "startDateTimeColumn": { "column" :  "procedure_datetime" }
 }

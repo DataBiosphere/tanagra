@@ -20,7 +20,7 @@ public class UFEntity {
   private final List<UFAttribute> attributes;
   private final UFEntityMapping sourceDataMapping;
   private final UFEntityMapping indexDataMapping;
-  private final @Nullable UFFieldPointer entityDateTime;
+  private final @Nullable UFFieldPointer startDateTimeColumn;
 
   public UFEntity(Entity entity) {
     this.name = entity.getName();
@@ -31,8 +31,10 @@ public class UFEntity {
             .collect(Collectors.toList());
     this.sourceDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.SOURCE));
     this.indexDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.INDEX));
-    this.entityDateTime =
-        entity.getEntityDateTime() != null ? new UFFieldPointer(entity.getEntityDateTime()) : null;
+    this.startDateTimeColumn =
+        entity.getStartDateTimeColumn() != null
+            ? new UFFieldPointer(entity.getStartDateTimeColumn())
+            : null;
   }
 
   private UFEntity(Builder builder) {
@@ -41,7 +43,7 @@ public class UFEntity {
     this.attributes = builder.attributes;
     this.sourceDataMapping = builder.sourceDataMapping;
     this.indexDataMapping = builder.indexDataMapping;
-    this.entityDateTime = builder.entityDateTime;
+    this.startDateTimeColumn = builder.startDateTimeColumn;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -51,7 +53,7 @@ public class UFEntity {
     private List<UFAttribute> attributes;
     private UFEntityMapping sourceDataMapping;
     private UFEntityMapping indexDataMapping;
-    private UFFieldPointer entityDateTime;
+    private UFFieldPointer startDateTimeColumn;
 
     public Builder name(String name) {
       this.name = name;
@@ -78,8 +80,8 @@ public class UFEntity {
       return this;
     }
 
-    public Builder entityDateTime(UFFieldPointer entityDateTime) {
-      this.entityDateTime = entityDateTime;
+    public Builder startDateTimeColumn(UFFieldPointer startDateTimeColumn) {
+      this.startDateTimeColumn = startDateTimeColumn;
       return this;
     }
 
@@ -109,7 +111,7 @@ public class UFEntity {
     return indexDataMapping;
   }
 
-  public UFFieldPointer getEntityDateTime() {
-    return entityDateTime;
+  public UFFieldPointer getStartDateTimeColumn() {
+    return startDateTimeColumn;
   }
 }

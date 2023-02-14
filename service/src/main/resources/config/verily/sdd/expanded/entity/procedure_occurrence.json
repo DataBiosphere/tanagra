@@ -146,7 +146,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "entityDateTime" : {
+  "startDateTimeColumn" : {
     "column" : "procedure_datetime"
   }
 }

@@ -50,5 +50,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "entityDateTime": { "column" :  "measurement_datetime" }
+  "startDateTimeColumn": { "column" :  "measurement_datetime" }
 }

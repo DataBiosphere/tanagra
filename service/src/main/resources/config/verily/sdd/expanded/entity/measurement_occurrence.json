@@ -206,7 +206,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "entityDateTime" : {
+  "startDateTimeColumn" : {
     "column" : "measurement_datetime"
   }
 }

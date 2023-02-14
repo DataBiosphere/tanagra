@@ -289,7 +289,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "entityDateTime" : {
+  "startDateTimeColumn" : {
     "column" : "note_datetime"
   }
 }
