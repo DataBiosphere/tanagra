@@ -37,5 +37,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "startDateTimeColumn": { "column" :  "drug_exposure_start_datetime" }
+  "startDateColumn": { "column" :  "drug_exposure_start_date" }
 }

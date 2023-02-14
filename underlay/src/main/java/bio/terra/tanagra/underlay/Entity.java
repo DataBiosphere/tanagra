@@ -33,7 +33,7 @@ public final class Entity {
   //   2) Occurrence entities in all CRITERIA_OCCURRENCE entity groups. Datetime column of when this
   //      occurrence started.
   // Used to compute age_at_occurrence column on occurrence tables.
-  private final @Nullable FieldPointer startDateTimeColumn;
+  private final @Nullable FieldPointer startDateColumn;
 
   private Entity(
       String name,
@@ -43,7 +43,7 @@ public final class Entity {
       TextSearch textSearch,
       EntityMapping sourceDataMapping,
       EntityMapping indexDataMapping,
-      @Nullable FieldPointer startDateTimeColumn) {
+      @Nullable FieldPointer startDateColumn) {
     this.name = name;
     this.idAttributeName = idAttributeName;
     this.attributes = attributes;
@@ -51,7 +51,7 @@ public final class Entity {
     this.textSearch = textSearch;
     this.sourceDataMapping = sourceDataMapping;
     this.indexDataMapping = indexDataMapping;
-    this.startDateTimeColumn = startDateTimeColumn;
+    this.startDateColumn = startDateColumn;
   }
 
   public void initialize(Underlay underlay) {
@@ -119,11 +119,11 @@ public final class Entity {
             indexDataMapping,
             attributes.get(serialized.getIdAttribute()).getMapping(Underlay.MappingType.INDEX));
 
-    FieldPointer startDateTimeColumn = null;
-    if (serialized.getStartDateTimeColumn() != null) {
-      startDateTimeColumn =
+    FieldPointer startDateColumn = null;
+    if (serialized.getStartDateColumn() != null) {
+      startDateColumn =
           FieldPointer.fromSerialized(
-              serialized.getStartDateTimeColumn(), sourceDataMapping.getTablePointer());
+              serialized.getStartDateColumn(), sourceDataMapping.getTablePointer());
     }
 
     Entity entity =
@@ -135,7 +135,7 @@ public final class Entity {
             textSearch,
             sourceDataMapping,
             indexDataMapping,
-            startDateTimeColumn);
+            startDateColumn);
 
     sourceDataMapping.initialize(entity);
     indexDataMapping.initialize(entity);
@@ -326,7 +326,7 @@ public final class Entity {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
   }
 
-  public FieldPointer getStartDateTimeColumn() {
-    return startDateTimeColumn;
+  public FieldPointer getStartDateColumn() {
+    return startDateColumn;
   }
 }

@@ -86,9 +86,9 @@ public final class Underlay {
     if (!entities.containsKey(primaryEntity)) {
       throw new InvalidConfigException("Primary Entity not found in the set of Entities");
     }
-    if (entities.get(primaryEntity).getStartDateTimeColumn() == null) {
+    if (entities.get(primaryEntity).getStartDateColumn() == null) {
       throw new InvalidConfigException(
-          "For primary entity, startDateTimeColumn must be set to column that contains birth datetime. This is used to compute age_at_occurrence columns in occurrrence tables.");
+          "For primary entity, startDateColumn must be set to column that contains birth datetime. This is used to compute age_at_occurrence columns in occurrrence tables.");
     }
 
     // deserialize entity groups

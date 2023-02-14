@@ -184,7 +184,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "startDateTimeColumn" : {
-    "column" : "condition_start_datetime"
+  "startDateColumn" : {
+    "column" : "condition_start_date"
   }
 }

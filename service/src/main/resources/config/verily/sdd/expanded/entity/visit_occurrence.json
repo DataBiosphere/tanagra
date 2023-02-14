@@ -896,7 +896,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "startDateTimeColumn" : {
+  "startDateColumn" : {
     "column" : "visit_start_datetime"
   }
 }

@@ -35,5 +35,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "startDateTimeColumn": { "column" :  "condition_start_datetime" }
+  "startDateColumn": { "column" :  "condition_start_date" }
 }

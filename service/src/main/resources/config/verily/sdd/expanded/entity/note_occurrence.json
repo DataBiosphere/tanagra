@@ -289,7 +289,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "startDateTimeColumn" : {
-    "column" : "note_datetime"
+  "startDateColumn" : {
+    "column" : "note_date"
   }
 }

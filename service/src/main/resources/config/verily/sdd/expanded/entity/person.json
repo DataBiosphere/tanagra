@@ -298,7 +298,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "startDateTimeColumn" : {
-    "column" : "birth_datetime"
+  "startDateColumn" : {
+    "column" : "birth_date"
   }
 }

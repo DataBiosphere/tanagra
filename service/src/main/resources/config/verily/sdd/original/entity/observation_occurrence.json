@@ -49,5 +49,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "startDateTimeColumn": { "column" :  "observation_datetime" }
+  "startDateColumn": { "column" :  "observation_date" }
 }
