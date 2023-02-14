@@ -38,9 +38,10 @@ jobs:
         echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
       env:
         TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
+    - name: Verify configs are in sync, for example vumc/sdd and verily/sdd
+      run: .github/tools/verify_config_in_sync.sh
     - name: Verify underlay configs have been expanded
+      if: always()
       run: .github/tools/verify_config_has_been_expanded.sh
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
-    - name: Verify configs are in sync, for example vumc/sdd and verily/sdd
-      run: .github/tools/verify_config_in_sync.sh
