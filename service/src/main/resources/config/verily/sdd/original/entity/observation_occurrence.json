@@ -47,5 +47,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "entityDateTime": { "column" :  "observation_datetime" }
 }

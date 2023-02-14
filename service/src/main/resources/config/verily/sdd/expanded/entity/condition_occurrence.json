@@ -179,5 +179,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "entityDateTime" : {
+    "column" : "condition_start_datetime"
   }
 }

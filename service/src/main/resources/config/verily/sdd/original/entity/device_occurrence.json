@@ -32,5 +32,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "entityDateTime": { "column" :  "device_exposure_start_datetime" }
 }

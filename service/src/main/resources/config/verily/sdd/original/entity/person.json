@@ -48,5 +48,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "entityDateTime": { "column" : "birth_datetime" }
 }

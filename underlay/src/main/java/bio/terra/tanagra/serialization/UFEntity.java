@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * External representation of an entity.
@@ -19,6 +20,7 @@ public class UFEntity {
   private final List<UFAttribute> attributes;
   private final UFEntityMapping sourceDataMapping;
   private final UFEntityMapping indexDataMapping;
+  private final @Nullable UFFieldPointer entityDateTime;
 
   public UFEntity(Entity entity) {
     this.name = entity.getName();
@@ -29,6 +31,8 @@ public class UFEntity {
             .collect(Collectors.toList());
     this.sourceDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.SOURCE));
     this.indexDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.INDEX));
+    this.entityDateTime =
+        entity.getEntityDateTime() != null ? new UFFieldPointer(entity.getEntityDateTime()) : null;
   }
 
   private UFEntity(Builder builder) {
@@ -37,6 +41,7 @@ public class UFEntity {
     this.attributes = builder.attributes;
     this.sourceDataMapping = builder.sourceDataMapping;
     this.indexDataMapping = builder.indexDataMapping;
+    this.entityDateTime = builder.entityDateTime;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -46,6 +51,7 @@ public class UFEntity {
     private List<UFAttribute> attributes;
     private UFEntityMapping sourceDataMapping;
     private UFEntityMapping indexDataMapping;
+    private UFFieldPointer entityDateTime;
 
     public Builder name(String name) {
       this.name = name;
@@ -69,6 +75,11 @@ public class UFEntity {
 
     public Builder indexDataMapping(UFEntityMapping indexDataMapping) {
       this.indexDataMapping = indexDataMapping;
+      return this;
+    }
+
+    public Builder entityDateTime(UFFieldPointer entityDateTime) {
+      this.entityDateTime = entityDateTime;
       return this;
     }
 
@@ -96,5 +107,9 @@ public class UFEntity {
 
   public UFEntityMapping getIndexDataMapping() {
     return indexDataMapping;
+  }
+
+  public UFFieldPointer getEntityDateTime() {
+    return entityDateTime;
   }
 }

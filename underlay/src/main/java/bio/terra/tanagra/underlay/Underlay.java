@@ -86,6 +86,10 @@ public final class Underlay {
     if (!entities.containsKey(primaryEntity)) {
       throw new InvalidConfigException("Primary Entity not found in the set of Entities");
     }
+    if (entities.get(primaryEntity).getEntityDateTime() == null) {
+      throw new InvalidConfigException(
+          "For primary entity, entityDateTime must be set to column that contains birth datetime. This is used to compute age_at_occurrence columns in occurrrence tables.");
+    }
 
     // deserialize entity groups
     Map<String, EntityGroup> entityGroups = new HashMap<>();
@@ -143,6 +147,7 @@ public final class Underlay {
     // Write out the entity POJOs to the entity/ sub-directory.
     Path entitySubDir = FileIO.getOutputParentDir().resolve(ENTITY_DIRECTORY_NAME);
     for (UFEntity expandedEntity : expandedEntities) {
+      if (!expandedEntity.getName().equals("condition_occurrence")) continue;
       JacksonMapper.writeJavaObjectToFile(
           entitySubDir.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
           expandedEntity);
@@ -151,9 +156,10 @@ public final class Underlay {
     // Write out the entity group POJOs to the entity_group/ sub-directory.
     Path entityGroupSubDir = FileIO.getOutputParentDir().resolve(ENTITY_GROUP_DIRECTORY_NAME);
     for (UFEntityGroup expandedEntityGroup : expandedEntityGroups) {
-      JacksonMapper.writeJavaObjectToFile(
-          entityGroupSubDir.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
-          expandedEntityGroup);
+      // JacksonMapper.writeJavaObjectToFile(
+      //     entityGroupSubDir.resolve(expandedEntityGroup.getName() +
+      // OUTPUT_UNDERLAY_FILE_EXTENSION),
+      //     expandedEntityGroup);
     }
   }
 

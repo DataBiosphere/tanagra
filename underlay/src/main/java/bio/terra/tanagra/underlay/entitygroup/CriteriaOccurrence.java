@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AuxiliaryData;
@@ -73,6 +74,12 @@ public class CriteriaOccurrence extends EntityGroup {
     Entity criteriaEntity = entities.get(serialized.getCriteriaEntity());
     Entity occurrenceEntity = entities.get(serialized.getOccurrenceEntity());
     Entity primaryEntity = entities.get(primaryEntityName);
+    if (occurrenceEntity.getEntityDateTime() == null) {
+      throw new InvalidConfigException(
+          String.format(
+              "entityDateTime not set for %s. For CRITERIA_OCCURRENCE occurrence entities, entityDateTime must be set to column that contains datetime of start of occurrence. This is used to compute age_at_occurrence columns in occurrrence tables.",
+              occurrenceEntity.getName()));
+    }
 
     // Modifier attributes.
     List<Attribute> modifierAttributes =

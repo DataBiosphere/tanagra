@@ -33,5 +33,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "entityDateTime": { "column" :  "visit_start_datetime" }
 }

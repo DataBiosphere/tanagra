@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFHierarchyMapping;
 import bio.terra.tanagra.utils.FileIO;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public final class Entity {
   public static final String ENTITY_DIRECTORY_NAME = "entity";
@@ -26,6 +28,13 @@ public final class Entity {
   private final EntityMapping indexDataMapping;
   private Underlay underlay;
 
+  // Required for:
+  //   1) Primary entity. This is birth datetime column.
+  //   2) Occurrence entities in all CRITERIA_OCCURRENCE entity groups. Datetime column of when this
+  //      occurrence started.
+  // Used to compute age_at_occurrence column on occurrence tables.
+  private final @Nullable FieldPointer entityDateTime;
+
   private Entity(
       String name,
       String idAttributeName,
@@ -33,7 +42,8 @@ public final class Entity {
       Map<String, Hierarchy> hierarchies,
       TextSearch textSearch,
       EntityMapping sourceDataMapping,
-      EntityMapping indexDataMapping) {
+      EntityMapping indexDataMapping,
+      @Nullable FieldPointer entityDateTime) {
     this.name = name;
     this.idAttributeName = idAttributeName;
     this.attributes = attributes;
@@ -41,6 +51,7 @@ public final class Entity {
     this.textSearch = textSearch;
     this.sourceDataMapping = sourceDataMapping;
     this.indexDataMapping = indexDataMapping;
+    this.entityDateTime = entityDateTime;
   }
 
   public void initialize(Underlay underlay) {
@@ -108,6 +119,13 @@ public final class Entity {
             indexDataMapping,
             attributes.get(serialized.getIdAttribute()).getMapping(Underlay.MappingType.INDEX));
 
+    FieldPointer entityDateTime = null;
+    if (serialized.getEntityDateTime() != null) {
+      entityDateTime =
+          FieldPointer.fromSerialized(
+              serialized.getEntityDateTime(), sourceDataMapping.getTablePointer());
+    }
+
     Entity entity =
         new Entity(
             serialized.getName(),
@@ -116,7 +134,8 @@ public final class Entity {
             hierarchies,
             textSearch,
             sourceDataMapping,
-            indexDataMapping);
+            indexDataMapping,
+            entityDateTime);
 
     sourceDataMapping.initialize(entity);
     indexDataMapping.initialize(entity);
@@ -301,5 +320,9 @@ public final class Entity {
 
   public EntityMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
+  }
+
+  public FieldPointer getEntityDateTime() {
+    return entityDateTime;
   }
 }
