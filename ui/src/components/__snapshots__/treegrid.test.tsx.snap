@@ -224,7 +224,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-1du0r86"
+              className="MuiBox-root css-0"
               style={
                 Object {
                   "whiteSpace": "nowrap",
@@ -233,9 +233,9 @@ Array [
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
-                title="undefined"
+                title=""
               >
-                NULL
+                
               </p>
             </div>
           </td>
