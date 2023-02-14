@@ -327,7 +327,7 @@ function renderChildren(
                   }),
                 }}
                 sx={{
-                  ...(value === "NULL" && {
+                  ...(isNull && {
                     color: (theme) => theme.palette.text.disabled,
                   }),
                 }}
