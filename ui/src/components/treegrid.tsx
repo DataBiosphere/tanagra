@@ -17,6 +17,7 @@ export type TreeGridValue =
   | string
   | number
   | boolean
+  | object
   | JSX.Element
   | Date;
 
@@ -40,8 +41,10 @@ export type TreeGridColumn = {
 };
 
 export type ColumnCustomization = {
+  column: number;
   prefixElements?: ReactNode;
   onClick?: () => void;
+  content?: ReactNode;
 };
 
 export type TreeGridProps = {
@@ -51,7 +54,7 @@ export type TreeGridProps = {
   rowCustomization?: (
     id: TreeGridId,
     data: TreeGridRowData
-  ) => Map<number, ColumnCustomization> | undefined;
+  ) => ColumnCustomization[] | undefined;
   loadChildren?: (id: TreeGridId) => Promise<void>;
   variableWidth?: boolean;
   wrapBodyText?: boolean;
@@ -223,7 +226,9 @@ function renderChildren(
       value: TreeGridValue,
       title: string
     ) => {
-      const columnCustomization = rowCustomization?.get(column);
+      const columnCustomization = rowCustomization?.find(
+        (c) => c.column === column
+      );
       return (
         <>
           {column === 0 &&
@@ -263,16 +268,18 @@ function renderChildren(
               {value}
             </Link>
           ) : (
-            <Typography
-              variant="body1"
-              noWrap={!props.wrapBodyText}
-              title={title}
-              sx={{
-                display: "inline",
-              }}
-            >
-              {value}
-            </Typography>
+            columnCustomization?.content ?? (
+              <Typography
+                variant="body1"
+                noWrap={!props.wrapBodyText}
+                title={title}
+                sx={{
+                  display: "inline",
+                }}
+              >
+                {value}
+              </Typography>
+            )
           )}
         </>
       );
