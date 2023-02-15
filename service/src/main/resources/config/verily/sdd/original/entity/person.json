@@ -50,5 +50,6 @@
     "dataPointer": "index_dataset"
   },
 
-  "startDateColumn": { "column" : "birth_date" }
+  // There's no birth_date column, so use birth_datetime
+  "startDateColumn": { "column" : "birth_datetime" }
 }
