@@ -188,14 +188,12 @@ export function AddCriteria() {
                 );
               }
 
-              return new Map([
-                [
-                  1,
-                  {
-                    onClick: () => onClick(config, item.entry.data),
-                  },
-                ],
-              ]);
+              return [
+                {
+                  column: 1,
+                  onClick: () => onClick(config, item.entry.data),
+                },
+              ];
             }}
           />
         )}

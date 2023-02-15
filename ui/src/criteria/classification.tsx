@@ -208,20 +208,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       res.nodes.forEach((node) => {
         const rowData: TreeGridRowData = { ...node.data };
         if (node.ancestors) {
-          rowData.view_hierarchy = (
-            <Stack alignItems="center">
-              <IconButton
-                size="small"
-                onClick={() => {
-                  updateSearchData((data: SearchData) => {
-                    data.hierarchy = node.ancestors;
-                  });
-                }}
-              >
-                <AccountTreeIcon fontSize="inherit" />
-              </IconButton>
-            </Stack>
-          );
+          rowData.view_hierarchy = node.ancestors;
         }
 
         const key = keyForNode(node);
@@ -361,53 +348,77 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 name: !!name ? String(name) : "",
               };
 
+              const viewHierarchyContent =
+                !searchData?.hierarchy && classification.hierarchy
+                  ? [
+                      {
+                        column: props.config.columns.length,
+                        content: (
+                          <Stack alignItems="center">
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                updateSearchData((data: SearchData) => {
+                                  if (rowData.view_hierarchy) {
+                                    data.hierarchy =
+                                      rowData.view_hierarchy as DataKey[];
+                                  }
+                                });
+                              }}
+                            >
+                              <AccountTreeIcon fontSize="inherit" />
+                            </IconButton>
+                          </Stack>
+                        ),
+                      },
+                    ]
+                  : [];
+
               if (props.config.multiSelect) {
                 const index = props.data.selected.findIndex(
                   (sel) => item.node.data.key === sel.key
                 );
 
-                return new Map([
-                  [
-                    nameColumnIndex,
-                    {
-                      prefixElements: (
-                        <Checkbox
-                          size="small"
-                          fontSize="inherit"
-                          checked={index > -1}
-                          onChange={() => {
-                            updateCriteria(
-                              produce(props.data, (data) => {
-                                if (index > -1) {
-                                  data.selected.splice(index, 1);
-                                } else {
-                                  data.selected.push(newItem);
-                                }
-                              })
-                            );
-                          }}
-                        />
-                      ),
-                    },
-                  ],
-                ]);
+                return [
+                  {
+                    column: nameColumnIndex,
+                    prefixElements: (
+                      <Checkbox
+                        size="small"
+                        fontSize="inherit"
+                        checked={index > -1}
+                        onChange={() => {
+                          updateCriteria(
+                            produce(props.data, (data) => {
+                              if (index > -1) {
+                                data.selected.splice(index, 1);
+                              } else {
+                                data.selected.push(newItem);
+                              }
+                            })
+                          );
+                        }}
+                      />
+                    ),
+                  },
+                  ...viewHierarchyContent,
+                ];
               }
 
-              return new Map([
-                [
-                  nameColumnIndex,
-                  {
-                    onClick: () => {
-                      updateCriteria(
-                        produce(props.data, (data) => {
-                          data.selected = [newItem];
-                        })
-                      );
-                      navigate(props.doneURL);
-                    },
+              return [
+                {
+                  column: nameColumnIndex,
+                  onClick: () => {
+                    updateCriteria(
+                      produce(props.data, (data) => {
+                        data.selected = [newItem];
+                      })
+                    );
+                    navigate(props.doneURL);
                   },
-                ],
-              ]);
+                },
+                ...viewHierarchyContent,
+              ];
             }}
             loadChildren={(id: TreeGridId) => {
               const data = classificationState.data;

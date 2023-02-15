@@ -56,18 +56,16 @@ test("Table renders correctly", () => {
     if (id !== 2) {
       return undefined;
     }
-    return new Map([
-      [
-        0,
-        {
-          prefixElements: (
-            <IconButton size="small">
-              <CheckBoxIcon fontSize="inherit" />
-            </IconButton>
-          ),
-        },
-      ],
-    ]);
+    return [
+      {
+        column: 0,
+        prefixElements: (
+          <IconButton size="small">
+            <CheckBoxIcon fontSize="inherit" />
+          </IconButton>
+        ),
+      },
+    ];
   };
 
   const tree = renderer
