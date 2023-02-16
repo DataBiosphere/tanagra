@@ -2,7 +2,6 @@ import AddIcon from "@mui/icons-material/Add";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
-import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
@@ -11,7 +10,6 @@ import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
-  createCriteria,
   generateCohortFilter,
   getCriteriaPlugin,
   getCriteriaTitle,
@@ -19,7 +17,6 @@ import {
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { findEntity } from "data/configuration";
@@ -135,25 +132,6 @@ export function Datasets() {
     ));
   };
 
-  const onInsertConceptSet = (criteria: tanagra.Criteria) => {
-    navigate(absoluteNewConceptSetURL(params, criteria.config.id));
-  };
-
-  const [menu, showInsertConceptSet] = useMenu({
-    children: underlay.uiConfiguration.criteriaConfigs
-      .filter((config) => !!config.conceptSet)
-      .map((config) => (
-        <MenuItem
-          key={config.title}
-          onClick={() => {
-            onInsertConceptSet(createCriteria(source, config));
-          }}
-        >
-          {config.title}
-        </MenuItem>
-      )),
-  });
-
   const allAttributesChecked = () => {
     if (conceptSetOccurrences.length === 0) {
       return false;
@@ -253,10 +231,14 @@ export function Datasets() {
                 Which information to include about participants
               </Typography>
             </Stack>
-            <IconButton id="insert-concept-set" onClick={showInsertConceptSet}>
+            <IconButton
+              id="insert-concept-set"
+              onClick={() => {
+                navigate(absoluteNewConceptSetURL(params));
+              }}
+            >
               <AddIcon />
             </IconButton>
-            {menu}
           </Stack>
           <Paper
             sx={{ p: 1, overflowY: "auto", display: "block" }}

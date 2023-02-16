@@ -41,7 +41,7 @@ describe("Basic tests", () => {
     cy.get("a[aria-label=back]").click();
 
     cy.get("button[id=insert-concept-set]").click();
-    cy.get("li:Contains(Condition)").click();
+    cy.get("button:Contains(Condition)").click();
     cy.get("[data-testid='AccountTreeIcon']").click();
     cy.get("button:Contains(Clinical finding)").click();
 
