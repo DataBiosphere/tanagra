@@ -4,7 +4,9 @@
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
       "projectId": "victr-tanagra-test",
-      "datasetId": "sd_static" },
+      "datasetId": "sd_static",
+      "dataflowTempLocation" : "gs://dataflow-staging-us-central1-694046000181/temp/"
+    },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",

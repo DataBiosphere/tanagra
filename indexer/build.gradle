@@ -46,6 +46,7 @@ dependencies {
     implementation "org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:${beam}"
     testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${beam}"
     implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${beam}"
+    implementation "org.apache.beam:beam-runners-direct-java:${beam}"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.3'

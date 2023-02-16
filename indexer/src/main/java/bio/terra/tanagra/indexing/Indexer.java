@@ -6,6 +6,7 @@ import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.AGE_AT_O
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
+import bio.terra.tanagra.indexing.job.ComputeAgeAtOccurrence;
 import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
 import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
 import bio.terra.tanagra.indexing.job.CreateEntityTable;
@@ -21,6 +22,7 @@ import bio.terra.tanagra.query.Literal.DataType;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
+import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.common.annotations.VisibleForTesting;
@@ -114,7 +116,7 @@ public final class Indexer {
     LOGGER.info("INDEXING all entities");
     List<SequencedJobSet> jobSets =
         underlay.getEntities().values().stream()
-            .map(Indexer::getJobSetForEntity)
+            .map(this::getJobSetForEntity)
             .collect(Collectors.toList());
     return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
@@ -154,7 +156,7 @@ public final class Indexer {
   }
 
   @VisibleForTesting
-  public static SequencedJobSet getJobSetForEntity(Entity entity) {
+  public SequencedJobSet getJobSetForEntity(Entity entity) {
     SequencedJobSet jobSet = new SequencedJobSet(entity.getName());
     jobSet.startNewStage();
     jobSet.addJob(new CreateEntityTable(entity));
@@ -176,6 +178,15 @@ public final class Indexer {
               jobSet.addJob(new WriteAncestorDescendantIdPairs(entity, hierarchy.getName()));
               jobSet.addJob(new BuildNumChildrenAndPaths(entity, hierarchy.getName()));
             });
+
+    if (entity.getAttribute(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME) != null) {
+      Relationship occurrencePrimaryRelationship =
+          ((CriteriaOccurrence)
+                  underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, entity))
+              .getOccurrencePrimaryRelationship();
+      jobSet.addJob(new ComputeAgeAtOccurrence(entity, occurrencePrimaryRelationship));
+    }
+
     return jobSet;
   }
 

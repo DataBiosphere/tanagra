@@ -1,3 +1,15 @@
+- [Indexing](#indexing)
+  * [Underlay Config Files](#underlay-config-files)
+    + [Environment](#environment)
+    + [Directory Structure](#directory-structure)
+  * [Running Indexing Jobs](#running-indexing-jobs)
+    + [Expand Underlay Config](#expand-underlay-config)
+    + [Create Index Dataset](#create-index-dataset)
+    + [Kickoff Jobs](#kickoff-jobs)
+    + [Tips](#tips)
+  * [OMOP Example](#omop-example)
+
+
 # Indexing
 Each **underlay config specifies the mapping from the source data** to Tanagra's [entity model](ENTITY_MODEL.md). 
 Tanagra can query the source data directly, but **for improved performance, Tanagra generates indexed tables and queries 
@@ -123,6 +135,19 @@ appending `SERIAL` to the command:
 ```
 ./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json DRY_RUN SERIAL"
 ./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json NOT_DRY_RUN SERIAL"
+```
+
+### Tips
+
+#### Run dataflow locally
+
+Running locally is faster. Also, you can use Intellij debugger. Add to `BigQueryIndexingJob.buildDataflowPipelineOptions()`:
+
+```
+    import org.apache.beam.runners.direct.DirectRunner;
+    
+    dataflowOptions.setRunner(DirectRunner.class);
+    dataflowOptions.setTempLocation("gs://dataflow-staging-us-central1-694046000181/temp");
 ```
 
 ## OMOP Example

@@ -31,8 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
+import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.MoreObjects;
@@ -204,7 +204,9 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
     DataflowPipelineOptions dataflowOptions =
         PipelineOptionsFactory.create().as(DataflowPipelineOptions.class);
-    dataflowOptions.setRunner(DataflowRunner.class);
+    //    dataflowOptions.setRunner(DataflowRunner.class);
+    dataflowOptions.setRunner(DirectRunner.class);
+    dataflowOptions.setTempLocation("gs://dataflow-staging-us-central1-694046000181/temp");
     dataflowOptions.setProject(outputBQDataset.getProjectId());
     // TODO: Allow overriding the default region.
     dataflowOptions.setRegion(DEFAULT_REGION);
