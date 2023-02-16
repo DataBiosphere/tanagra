@@ -1,5 +1,5 @@
 import Button from "@mui/material/Button";
-import { AddCriteria } from "addCriteria";
+import { AddCohortCriteria, AddConceptSetCriteria } from "addCriteria";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
 import ConceptSetEdit from "conceptSetEdit";
@@ -44,7 +44,7 @@ export function createAppRouter() {
                   children: [
                     {
                       index: true,
-                      element: <AddCriteria />,
+                      element: <AddCohortCriteria />,
                     },
                     {
                       path: ":configId",
@@ -61,14 +61,24 @@ export function createAppRouter() {
           ],
         },
         {
+          path: "conceptSets",
           element: <ConceptSetRoot />,
           children: [
             {
-              path: "conceptSets/new/:configId",
-              element: <NewConceptSet />,
+              path: "add",
+              children: [
+                {
+                  index: true,
+                  element: <AddConceptSetCriteria />,
+                },
+                {
+                  path: ":configId",
+                  element: <NewConceptSet />,
+                },
+              ],
             },
             {
-              path: "conceptSets/edit/:conceptSetId",
+              path: "edit/:conceptSetId",
               element: <ConceptSetEdit />,
             },
           ],
@@ -189,12 +199,12 @@ export function conceptSetURL(conceptSetId: string) {
   return "conceptSets/edit/" + conceptSetId;
 }
 
-export function absoluteNewConceptSetURL(params: BaseParams, configId: string) {
-  return absolutePrefix(params) + "conceptSets/new/" + configId;
+export function absoluteNewConceptSetURL(params: BaseParams) {
+  return absolutePrefix(params) + newConceptSetURL();
 }
 
-export function newConceptSetURL(configId: string) {
-  return `conceptSets/new/${configId}`;
+export function newConceptSetURL() {
+  return `conceptSets/add`;
 }
 
 export function criteriaURL(criteriaId: string) {
