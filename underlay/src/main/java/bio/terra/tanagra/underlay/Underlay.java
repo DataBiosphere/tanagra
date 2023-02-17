@@ -147,7 +147,6 @@ public final class Underlay {
     // Write out the entity POJOs to the entity/ sub-directory.
     Path entitySubDir = FileIO.getOutputParentDir().resolve(ENTITY_DIRECTORY_NAME);
     for (UFEntity expandedEntity : expandedEntities) {
-      if (!expandedEntity.getName().contains("occurrence")) continue;
       JacksonMapper.writeJavaObjectToFile(
           entitySubDir.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
           expandedEntity);
@@ -156,10 +155,9 @@ public final class Underlay {
     // Write out the entity group POJOs to the entity_group/ sub-directory.
     Path entityGroupSubDir = FileIO.getOutputParentDir().resolve(ENTITY_GROUP_DIRECTORY_NAME);
     for (UFEntityGroup expandedEntityGroup : expandedEntityGroups) {
-      // JacksonMapper.writeJavaObjectToFile(
-      //     entityGroupSubDir.resolve(expandedEntityGroup.getName() +
-      // OUTPUT_UNDERLAY_FILE_EXTENSION),
-      //     expandedEntityGroup);
+      JacksonMapper.writeJavaObjectToFile(
+          entityGroupSubDir.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
+          expandedEntityGroup);
     }
   }
 

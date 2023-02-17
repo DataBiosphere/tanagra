@@ -4,6 +4,9 @@ import bio.terra.tanagra.exception.SystemException;
 import java.time.Duration;
 
 public class JavaUtils {
+
+  private JavaUtils() {}
+
   /**
    * Retries until booleanFunction returns true. If booleanFunction never returns true, throws an
    * exception.

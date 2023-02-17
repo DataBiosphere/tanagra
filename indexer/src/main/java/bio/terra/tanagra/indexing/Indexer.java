@@ -71,7 +71,6 @@ public final class Indexer {
         .values()
         .forEach(
             e -> {
-              if (!e.getName().contains("occurrence")) return;
               LOGGER.info(
                   "Looking up attribute data types and generating UI hints for entity: "
                       + e.getName());

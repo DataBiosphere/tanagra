@@ -35,6 +35,7 @@ public final class Entity {
   // Used to compute age_at_occurrence column on occurrence tables.
   private final @Nullable FieldPointer sourceStartDateColumn;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private Entity(
       String name,
       String idAttributeName,
