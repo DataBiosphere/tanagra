@@ -33,7 +33,7 @@ public final class Entity {
   //   2) Occurrence entities in all CRITERIA_OCCURRENCE entity groups. Datetime column of when this
   //      occurrence started.
   // Used to compute age_at_occurrence column on occurrence tables.
-  private final @Nullable FieldPointer startDateColumn;
+  private final @Nullable FieldPointer sourceStartDateColumn;
 
   private Entity(
       String name,
@@ -43,7 +43,7 @@ public final class Entity {
       TextSearch textSearch,
       EntityMapping sourceDataMapping,
       EntityMapping indexDataMapping,
-      @Nullable FieldPointer startDateColumn) {
+      @Nullable FieldPointer sourceStartDateColumn) {
     this.name = name;
     this.idAttributeName = idAttributeName;
     this.attributes = attributes;
@@ -51,7 +51,7 @@ public final class Entity {
     this.textSearch = textSearch;
     this.sourceDataMapping = sourceDataMapping;
     this.indexDataMapping = indexDataMapping;
-    this.startDateColumn = startDateColumn;
+    this.sourceStartDateColumn = sourceStartDateColumn;
   }
 
   public void initialize(Underlay underlay) {
@@ -119,9 +119,9 @@ public final class Entity {
             indexDataMapping,
             attributes.get(serialized.getIdAttribute()).getMapping(Underlay.MappingType.INDEX));
 
-    FieldPointer startDateColumn = null;
+    FieldPointer sourceStartDateColumn = null;
     if (serialized.getStartDateColumn() != null) {
-      startDateColumn =
+      sourceStartDateColumn =
           FieldPointer.fromSerialized(
               serialized.getStartDateColumn(), sourceDataMapping.getTablePointer());
     }
@@ -135,7 +135,7 @@ public final class Entity {
             textSearch,
             sourceDataMapping,
             indexDataMapping,
-            startDateColumn);
+            sourceStartDateColumn);
 
     sourceDataMapping.initialize(entity);
     indexDataMapping.initialize(entity);
@@ -326,7 +326,7 @@ public final class Entity {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
   }
 
-  public FieldPointer getStartDateColumn() {
-    return startDateColumn;
+  public FieldPointer getSourceStartDateColumn() {
+    return sourceStartDateColumn;
   }
 }

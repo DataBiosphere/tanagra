@@ -8,7 +8,7 @@ public class JavaUtils {
    * Retries until booleanFunction returns true. If booleanFunction never returns true, throws an
    * exception.
    */
-  public static void runWithRetriesUntilTrue(
+  public static void retryUntilTrue(
       int numRetries,
       Duration sleepDuration,
       String errorMessage,

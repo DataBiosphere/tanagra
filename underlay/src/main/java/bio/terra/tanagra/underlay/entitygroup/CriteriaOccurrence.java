@@ -75,10 +75,10 @@ public class CriteriaOccurrence extends EntityGroup {
     Entity criteriaEntity = entities.get(serialized.getCriteriaEntity());
     Entity occurrenceEntity = entities.get(serialized.getOccurrenceEntity());
     Entity primaryEntity = entities.get(primaryEntityName);
-    if (occurrenceEntity.getStartDateColumn() == null) {
+    if (occurrenceEntity.getSourceStartDateColumn() == null) {
       throw new InvalidConfigException(
           String.format(
-              "startDateColumn not set for %s. For CRITERIA_OCCURRENCE occurrence entities, startDateColumn must be set to column that contains datetime of start of occurrence. This is used to compute age_at_occurrence columns in occurrrence tables.",
+              "sourceStartDateColumn not set for %s. For CRITERIA_OCCURRENCE occurrence entities, sourceStartDateColumn must be set to column that contains datetime of start of occurrence. This is used to compute age_at_occurrence columns in occurrrence tables.",
               occurrenceEntity.getName()));
     }
 

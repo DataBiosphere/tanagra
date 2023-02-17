@@ -146,7 +146,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "startDateColumn" : {
+  "sourceStartDateColumn" : {
     "column" : "procedure_date"
   }
 }

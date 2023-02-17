@@ -206,7 +206,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "startDateColumn" : {
+  "sourceStartDateColumn" : {
     "column" : "measurement_date"
   }
 }

@@ -438,7 +438,7 @@
     },
     "hierarchyMappings" : { }
   },
-  "startDateColumn" : {
+  "sourceStartDateColumn" : {
     "column" : "drug_exposure_start_date"
   }
 }

@@ -72,9 +72,9 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
 
   @Override
   public void run(boolean isDryRun) {
-    // This job can only run after DenormalizeEntityInstances. Wait for DenormalizeEntityInstances
-    // to run.
-    JavaUtils.runWithRetriesUntilTrue(
+    // Wait for DenormalizeEntityInstances to run.
+    LOGGER.info("Waiting for DenormalizeEntityInstances to run for {}", getEntity().getName());
+    JavaUtils.retryUntilTrue(
         15,
         Duration.ofSeconds(5),
         String.format("DenormalizeEntityInstances never ran for %s", getEntity().getName()),
@@ -178,9 +178,10 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
             .getMapping(MappingType.SOURCE)
             .buildFieldVariables(tableVar, tableVars)
             .get(0);
-    String startDateColumnName = primaryEntity.getStartDateColumn().getColumnName();
+    String sourceStartDateColumnName = primaryEntity.getSourceStartDateColumn().getColumnName();
     FieldVariable startDateFieldVar =
-        new FieldVariable(primaryEntity.getStartDateColumn(), tableVar, startDateColumnName);
+        new FieldVariable(
+            primaryEntity.getSourceStartDateColumn(), tableVar, sourceStartDateColumnName);
     Query query =
         new Query.Builder()
             .select(List.of(idFieldVar, startDateFieldVar))
@@ -211,7 +212,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
                     (TableRow row) -> {
                       String id = (String) row.get(idColumnName);
                       LocalDate startDate =
-                          BigQueryUtils.toLocalDate((String) row.get(startDateColumnName));
+                          BigQueryUtils.toLocalDate((String) row.get(sourceStartDateColumnName));
                       return KV.of(id, startDate);
                     }));
   }
@@ -242,10 +243,13 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
                 .build(),
             tableVar,
             primaryIdColumnName);
-    String occurrenceStartDateColumnName = occurrenceEntity.getStartDateColumn().getColumnName();
+    String occurrenceSourceStartDateColumnName =
+        occurrenceEntity.getSourceStartDateColumn().getColumnName();
     FieldVariable occurrenceStartDateFieldVar =
         new FieldVariable(
-            occurrenceEntity.getStartDateColumn(), tableVar, occurrenceStartDateColumnName);
+            occurrenceEntity.getSourceStartDateColumn(),
+            tableVar,
+            occurrenceSourceStartDateColumnName);
     Query query =
         new Query.Builder()
             .select(List.of(occurrenceIdFieldVar, primaryIdFieldVar, occurrenceStartDateFieldVar))
@@ -350,7 +354,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
     TupleTag<Iterable<TableRow>> indexOccurrenceRowsTag = new TupleTag<>();
     String sourceOccurrenceIdAlias = occurrenceEntity.getIdAttribute().getName();
     String sourceOccurrenceStartDateColumnName =
-        occurrenceEntity.getStartDateColumn().getColumnName();
+        occurrenceEntity.getSourceStartDateColumn().getColumnName();
     String indexOccurrenceIdColumnName =
         occurrenceEntity.getIdAttribute().getMapping(MappingType.INDEX).getValue().getColumnName();
     return KeyedPCollectionTuple.of(dateOfBirthTag, primaryIdToDateOfBirths)

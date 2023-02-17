@@ -35,5 +35,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "startDateColumn": { "column" :  "visit_start_date" }
+  "sourceStartDateColumn": { "column" :  "visit_start_date" }
 }
