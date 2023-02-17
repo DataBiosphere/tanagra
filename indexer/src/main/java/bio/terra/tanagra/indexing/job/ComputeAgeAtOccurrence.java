@@ -73,12 +73,14 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
   @Override
   public void run(boolean isDryRun) {
     // Wait for DenormalizeEntityInstances to run.
-    LOGGER.info("Waiting for DenormalizeEntityInstances to run for {}", getEntity().getName());
-    JavaUtils.retryUntilTrue(
-        15,
-        Duration.ofSeconds(5),
-        String.format("DenormalizeEntityInstances never ran for %s", getEntity().getName()),
-        () -> checkOneNotNullIdRowExists(getEntity()));
+    if (!isDryRun) {
+      LOGGER.info("Waiting for DenormalizeEntityInstances to run for {}", getEntity().getName());
+      JavaUtils.retryUntilTrue(
+          15,
+          Duration.ofSeconds(5),
+          String.format("DenormalizeEntityInstances never ran for %s", getEntity().getName()),
+          () -> checkOneNotNullIdRowExists(getEntity()));
+    }
 
     Entity primaryEntity = occurrencePrimaryRelationship.getEntityB();
     Entity occurrenceEntity = occurrencePrimaryRelationship.getEntityA();
