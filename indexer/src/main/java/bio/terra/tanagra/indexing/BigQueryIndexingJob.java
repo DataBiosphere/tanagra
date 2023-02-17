@@ -102,6 +102,18 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
         .isPresent();
   }
 
+  protected boolean checkOneNotNullIdRowExists(Entity entity) {
+    // Check if the table has at least 1 id row where id IS NOT NULL
+    FieldPointer idField =
+        getEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
+    ColumnSchema idColumnSchema =
+        getEntity()
+            .getIdAttribute()
+            .getMapping(Underlay.MappingType.INDEX)
+            .buildValueColumnSchema();
+    return checkOneNotNullRowExists(idField, idColumnSchema);
+  }
+
   protected boolean checkOneNotNullRowExists(FieldPointer field, ColumnSchema columnSchema) {
     // Check if the table has at least 1 row with a non-null field value.
     TableVariable outputTableVar = TableVariable.forPrimary(field.getTablePointer());

@@ -3,8 +3,6 @@ package bio.terra.tanagra.indexing.job;
 import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.AGE_AT_OCCURRENCE_ATTRIBUTE_NAME;
 
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.InsertFromSelect;
 import bio.terra.tanagra.query.Query;
@@ -112,16 +110,7 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
     }
 
     // Check if the table has at least 1 row where id IS NOT NULL
-    FieldPointer idField =
-        getEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX).getValue();
-    ColumnSchema idColumnSchema =
-        getEntity()
-            .getIdAttribute()
-            .getMapping(Underlay.MappingType.INDEX)
-            .buildValueColumnSchema();
-    return checkOneNotNullRowExists(idField, idColumnSchema)
-        ? JobStatus.COMPLETE
-        : JobStatus.NOT_STARTED;
+    return checkOneNotNullIdRowExists(getEntity()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
   }
 
   @Override

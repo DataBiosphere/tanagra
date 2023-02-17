@@ -19,10 +19,12 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.Underlay.MappingType;
+import bio.terra.tanagra.utils.JavaUtils;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.collect.Streams;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -48,6 +50,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Populate age_at_occurrence column. This column only exists for occurrence entities of
  * CRITERIA_OCCURRENCE entity groups.
+ *
+ * <p>This job must run after DenormalizeEntityInstances, which writes the index occurrence table
+ * (minus age_at_occurrence column). This job reads in the entire table, populates age_at_occurrence
+ * column, and writes back table.
  */
 public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(ComputeAgeAtOccurrence.class);
@@ -66,6 +72,14 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
 
   @Override
   public void run(boolean isDryRun) {
+    // This job can only run after DenormalizeEntityInstances. Wait for DenormalizeEntityInstances
+    // to run.
+    JavaUtils.runWithRetriesUntilTrue(
+        15,
+        Duration.ofSeconds(5),
+        String.format("DenormalizeEntityInstances never ran for %s", getEntity().getName()),
+        () -> checkOneNotNullIdRowExists(getEntity()));
+
     Entity primaryEntity = occurrencePrimaryRelationship.getEntityB();
     Entity occurrenceEntity = occurrencePrimaryRelationship.getEntityA();
     TablePointer indexTablePointer = primaryEntity.getMapping(MappingType.INDEX).getTablePointer();
@@ -146,7 +160,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
   @Override
   public void clean(boolean isDryRun) {
     LOGGER.info(
-        "Nothing to clean. CreateEntityTable will delete the output table, which includes all the rows inserted by this job.");
+        "Nothing to clean. CreateEntityTable will delete the output table, which includes the column inserted by this job.");
   }
 
   /**
