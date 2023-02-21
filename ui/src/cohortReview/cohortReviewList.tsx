@@ -10,13 +10,13 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { generateId } from "cohort";
-import { useCohortContext } from "cohortContext";
 import Empty from "components/empty";
 import LoadingOverlay from "components/loadingOverlay";
 import SelectablePaper from "components/selectablePaper";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { CohortReview } from "data/types";
+import { useCohort } from "hooks";
 import produce from "immer";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import {
@@ -60,21 +60,15 @@ function wrapResults(results: CohortReview[]): ReviewListItem[] {
 
 export function CohortReviewList() {
   const source = useSource();
+  const cohort = useCohort();
   const navigate = useNavigate();
   const params = useBaseParams();
   const { reviewId } = useParams<{ reviewId: string }>();
 
-  const cohort = useCohortContext().state?.present;
-  if (!cohort) {
-    throw new Error("Cohort context state is null.");
-  }
-
   const reviewsState = useSWR(
     { component: "CohortReviewList", cohortId: cohort.id },
     async () => {
-      return wrapResults(
-        await source.listCohortReviews(params.studyId, cohort.id)
-      );
+      return wrapResults(await source.listCohortReviews(cohort.id));
     }
   );
 
@@ -91,10 +85,8 @@ export function CohortReviewList() {
   const onCreateNewReview = (name: string, size: number) => {
     reviewsState.mutate(
       async () => {
-        await source.createCohortReview(params.studyId, cohort, name, size);
-        return wrapResults(
-          await source.listCohortReviews(params.studyId, cohort.id)
-        );
+        await source.createCohortReview(name, size, cohort);
+        return wrapResults(await source.listCohortReviews(cohort.id));
       },
       {
         optimisticData: [
@@ -114,16 +106,10 @@ export function CohortReviewList() {
     reviewsState.mutate(
       async () => {
         if (selectedReview?.id) {
-          await source.deleteCohortReview(
-            params.studyId,
-            cohort.id,
-            selectedReview.id
-          );
+          await source.deleteCohortReview(selectedReview.id, cohort.name);
           navigate(absoluteCohortReviewURL(params, cohort.id));
         }
-        return wrapResults(
-          await source.listCohortReviews(params.studyId, cohort.id)
-        );
+        return wrapResults(await source.listCohortReviews(cohort.id));
       },
       {
         optimisticData: [...(reviewsState?.data ?? [])].filter(
@@ -137,16 +123,9 @@ export function CohortReviewList() {
     reviewsState.mutate(
       async () => {
         if (selectedReview?.id) {
-          await source.renameCohortReview(
-            params.studyId,
-            cohort.id,
-            selectedReview.id,
-            name
-          );
+          await source.renameCohortReview(name, selectedReview.id, cohort.name);
         }
-        return wrapResults(
-          await source.listCohortReviews(params.studyId, cohort.id)
-        );
+        return wrapResults(await source.listCohortReviews(cohort.id));
       },
       {
         optimisticData: produce(reviewsState?.data, (data) => {

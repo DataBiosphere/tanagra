@@ -58,19 +58,6 @@ export function createAppRouter() {
                 },
               ],
             },
-            {
-              path: "review/:cohortId",
-              children: [
-                {
-                  index: true,
-                  element: <CohortReviewList />,
-                },
-                {
-                  path: ":reviewId",
-                  element: <CohortReviewList />,
-                },
-              ],
-            },
           ],
         },
         {
@@ -93,6 +80,19 @@ export function createAppRouter() {
             {
               path: "edit/:conceptSetId",
               element: <ConceptSetEdit />,
+            },
+          ],
+        },
+        {
+          path: "review/:cohortId",
+          children: [
+            {
+              index: true,
+              element: <CohortReviewList />,
+            },
+            {
+              path: ":reviewId",
+              element: <CohortReviewList />,
             },
           ],
         },
