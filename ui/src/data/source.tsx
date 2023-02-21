@@ -3,12 +3,12 @@ import {
   ConceptSetsApiContext,
   EntityInstancesApiContext,
   HintsApiContext,
+  ReviewsApiContext,
   StudiesApiContext,
 } from "apiContext";
-import { defaultGroup, generateId, getCriteriaPlugin } from "cohort";
+import { defaultGroup, generateCohortFilter, getCriteriaPlugin } from "cohort";
 import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
-import produce from "immer";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
 import { Underlay } from "underlaysSlice";
@@ -139,21 +139,23 @@ export interface Source {
     maxCount: number
   ): MergedDataEntry[];
 
-  listCohortReviews(cohortID: string): Promise<CohortReview[]>;
+  listCohortReviews(studyId: string, cohortId: string): Promise<CohortReview[]>;
 
   createCohortReview(
+    studyId: string,
+    cohort: tanagra.Cohort,
     displayName: string,
-    size: number,
-    cohort: tanagra.Cohort
+    size: number
   ): Promise<CohortReview>;
 
-  deleteCohortReview(reviewId: string, cohortId: string): void;
+  deleteCohortReview(studyId: string, cohortId: string, reviewId: string): void;
 
   renameCohortReview(
-    displayName: string,
+    studyId: string,
+    cohortId: string,
     reviewId: string,
-    cohortId: string
-  ): void;
+    displayName: string
+  ): Promise<CohortReview>;
 
   listStudies(): Promise<Study[]>;
 
@@ -204,6 +206,7 @@ export function useSource(): Source {
   const conceptSetsApi = useContext(
     ConceptSetsApiContext
   ) as tanagra.ConceptSetsV2Api;
+  const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsV2Api;
   return useMemo(
     () =>
       new BackendSource(
@@ -212,6 +215,7 @@ export function useSource(): Source {
         studiesApi,
         cohortsApi,
         conceptSetsApi,
+        reviewsApi,
         underlay,
         underlay.uiConfiguration.dataConfig
       ),
@@ -226,6 +230,7 @@ export class BackendSource implements Source {
     private studiesApi: tanagra.StudiesV2Api,
     private cohortsApi: tanagra.CohortsV2Api,
     private conceptSetsApi: tanagra.ConceptSetsV2Api,
+    private reviewsApi: tanagra.ReviewsV2Api,
     private underlay: Underlay,
     public config: Configuration
   ) {}
@@ -523,54 +528,66 @@ export class BackendSource implements Source {
     return merged;
   }
 
-  public async listCohortReviews(cohortID: string): Promise<CohortReview[]> {
-    // TODO(tjennison): Read from the API instead.
-    const reviews = loadLocalReviews()
-      .filter((review) => review?.cohort?.id === cohortID)
-      .map((review) => fromAPICohortReview(review));
-
-    await new Promise((r) => setTimeout(r, 2000));
-
-    return Promise.resolve(reviews);
+  public async listCohortReviews(
+    studyId: string,
+    cohortId: string
+  ): Promise<CohortReview[]> {
+    return parseAPIError(
+      this.reviewsApi
+        .listReviews({ studyId, cohortId })
+        .then((res) => res.map((r) => fromAPICohortReview(r)))
+    );
   }
 
   public createCohortReview(
+    studyId: string,
+    cohort: tanagra.Cohort,
     displayName: string,
-    size: number,
-    cohort: tanagra.Cohort
+    size: number
   ): Promise<CohortReview> {
-    const review = {
-      id: generateId(),
-      displayName,
-      description: "",
-      size,
-      cohort: toAPICohort(cohort),
-      created: new Date(),
-      createdBy: "",
-      lastModified: new Date(),
-    };
-
-    const reviews = loadLocalReviews();
-    saveLocalReviews([review, ...reviews]);
-
-    return Promise.resolve(fromAPICohortReview(review));
-  }
-
-  public async deleteCohortReview(reviewId: string) {
-    const reviews = loadLocalReviews();
-    saveLocalReviews(reviews.filter((review) => review.id != reviewId));
-  }
-
-  public async renameCohortReview(displayName: string, reviewId: string) {
-    const reviews = loadLocalReviews();
-    saveLocalReviews(
-      reviews.map((review) =>
-        produce(review, (review) => {
-          if (review.id === reviewId) {
-            review.displayName = displayName;
-          }
+    return parseAPIError(
+      this.reviewsApi
+        .createReview({
+          studyId,
+          cohortId: cohort.id,
+          reviewCreateInfoV2: {
+            displayName,
+            size,
+            filter:
+              generateFilter(this, generateCohortFilter(cohort), true) ?? {},
+          },
         })
-      )
+        .then((r) => fromAPICohortReview(r))
+    );
+  }
+
+  public async deleteCohortReview(
+    studyId: string,
+    cohortId: string,
+    reviewId: string
+  ) {
+    await parseAPIError(
+      this.reviewsApi.deleteReview({ studyId, cohortId, reviewId })
+    );
+  }
+
+  public async renameCohortReview(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    displayName: string
+  ): Promise<CohortReview> {
+    return parseAPIError(
+      this.reviewsApi
+        .updateReview({
+          studyId,
+          cohortId,
+          reviewId,
+          reviewUpdateInfoV2: {
+            displayName,
+          },
+        })
+        .then((r) => fromAPICohortReview(r))
     );
   }
 
@@ -1352,26 +1369,8 @@ function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
     description: review.description,
     size: review.size,
     cohort: fromAPICohort(review.cohort),
-    created: new Date(),
+    created: review.created,
   };
-}
-
-function loadLocalReviews(): tanagra.ReviewV2[] {
-  const data = JSON.parse(localStorage.getItem("tanagra-reviews") ?? "{}");
-  if (data?.version != 1) {
-    return [];
-  }
-  return data.reviews;
-}
-
-function saveLocalReviews(reviews: tanagra.ReviewV2[]) {
-  localStorage.setItem(
-    "tanagra-reviews",
-    JSON.stringify({
-      version: 1,
-      reviews,
-    })
-  );
 }
 
 function parseAPIError<T>(p: Promise<T>) {
