@@ -26,8 +26,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class IndexEntityTest {
+public class IndexEntityTest{
   private static Map<String, DataPointer> dataPointers;
+
+  private static Indexer indexer;
 
   @BeforeAll
   static void readDataPointers() throws IOException {
@@ -35,12 +37,14 @@ public class IndexEntityTest {
     FileIO.setInputParentDir(Path.of("config"));
     Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
+
+    indexer = Indexer.deserializeUnderlay("underlay/Omop.json");
   }
 
   @Test
   void person() throws IOException {
     Entity person = Entity.fromJSON("Person.json", dataPointers);
-    SequencedJobSet jobs = Indexer.getJobSetForEntity(person);
+    SequencedJobSet jobs = indexer.getJobSetForEntity(person);
 
     assertEquals(2, jobs.getNumStages(), "two indexing job stages generated");
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
@@ -61,7 +65,7 @@ public class IndexEntityTest {
   @Test
   void condition() throws IOException {
     Entity condition = Entity.fromJSON("Condition.json", dataPointers);
-    SequencedJobSet jobs = Indexer.getJobSetForEntity(condition);
+    SequencedJobSet jobs = indexer.getJobSetForEntity(condition);
 
     assertEquals(3, jobs.getNumStages(), "three indexing job stages generated");
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
