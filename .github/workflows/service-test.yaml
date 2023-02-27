@@ -58,9 +58,9 @@ jobs:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Gradle Build and Check
         # The check task includes the build, test and static analysis tasks.
-        run: ./gradlew service:check
+        run: ./gradlew service:check --scan
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Jib build
         # Check that jib builds a docker container.
-        run: ./gradlew service:jibDockerBuild
+        run: ./gradlew service:jibDockerBuild --scan

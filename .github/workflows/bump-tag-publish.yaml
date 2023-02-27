@@ -117,7 +117,7 @@ jobs:
 
       - name: Build the OpenAPI interface
         if: steps.skiptest.outputs.is-bump == 'no'
-        run: ./gradlew :service:generateSwaggerCodeServer
+        run: ./gradlew :service:generateSwaggerCodeServer --scan
       - name: Where is the file
         if: steps.skiptest.outputs.is-bump == 'no'
         run: |
