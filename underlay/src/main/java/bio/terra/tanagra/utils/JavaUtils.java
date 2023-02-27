@@ -3,7 +3,7 @@ package bio.terra.tanagra.utils;
 import bio.terra.tanagra.exception.SystemException;
 import java.time.Duration;
 
-public class JavaUtils {
+public final class JavaUtils {
 
   private JavaUtils() {}
 
@@ -25,7 +25,7 @@ public class JavaUtils {
       }
       throw new SystemException(errorMessage);
     } catch (InterruptedException e) {
-      throw new SystemException("runWithRetriesUntilTrue() was interrupted");
+      throw new SystemException("runWithRetriesUntilTrue() was interrupted", e);
     }
   }
 }
