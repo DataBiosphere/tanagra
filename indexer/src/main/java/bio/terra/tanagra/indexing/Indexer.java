@@ -3,6 +3,7 @@ package bio.terra.tanagra.indexing;
 import static bio.terra.tanagra.underlay.EntityGroup.Type.GROUP_ITEMS;
 import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.AGE_AT_OCCURRENCE_ATTRIBUTE_NAME;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
@@ -77,8 +78,8 @@ public final class Indexer {
 
   /**
    * For CRITERIA_OCCURRENCE entity group occurrence entities (eg condition_occurrence), if
-   * occurrence entity has sourceStartDateColumn, add age_at_occurrernce attribute to occurrence
-   * entity.
+   * occurrence entity config has sourceStartDateColumn, add age_at_occurrernce attribute to
+   * occurrence entity.
    */
   public void maybeAddAgeAtOccurrenceAttribute() {
     underlay
@@ -93,6 +94,12 @@ public final class Indexer {
                   CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
                   if (criteriaOccurrence.getOccurrenceEntity().getSourceStartDateColumn() == null) {
                     return;
+                  }
+                  if (underlay.getPrimaryEntity().getSourceStartDateColumn() == null) {
+                    throw new InvalidConfigException(
+                        String.format(
+                            "Occurrence entity %s config has sourceStartDateColumn. Primary entity config must have sourceStartDateColumn. Please set sourceStartDateColumn in primary entity config.",
+                            criteriaOccurrence.getName()));
                   }
                   LOGGER.info("Adding age_at_occurrence attribute to {}", entityGroup.getName());
                   Attribute attribute =
