@@ -21,7 +21,7 @@ public final class AttributeMapping {
   private final FieldPointer display;
   private Attribute attribute;
 
-  private AttributeMapping(FieldPointer value) {
+  public AttributeMapping(FieldPointer value) {
     this.value = value;
     this.display = null;
   }

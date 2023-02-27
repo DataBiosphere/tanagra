@@ -30,7 +30,10 @@ public final class Attribute {
   public void initialize(AttributeMapping sourceMapping, AttributeMapping indexMapping) {
     this.sourceMapping = sourceMapping;
     this.indexMapping = indexMapping;
-    sourceMapping.initialize(this);
+    // sourceMapping is null for age_of_occurrence attribute
+    if (sourceMapping != null) {
+      sourceMapping.initialize(this);
+    }
     indexMapping.initialize(this);
   }
 

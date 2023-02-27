@@ -144,7 +144,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
     }
 
     // Check if the table has at least 1 row where age_of_occurrence IS NOT NULL
-    FieldPointer field =
+    FieldPointer fieldPointer =
         new FieldPointer.Builder()
             .tablePointer(getEntityIndexTable())
             .columnName(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME)
@@ -154,7 +154,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
             .getAttribute(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME)
             .getMapping(Underlay.MappingType.INDEX)
             .buildValueColumnSchema();
-    return checkOneNotNullRowExists(field, columnSchema)
+    return checkOneNotNullRowExists(fieldPointer, columnSchema)
         ? JobStatus.COMPLETE
         : JobStatus.NOT_STARTED;
   }

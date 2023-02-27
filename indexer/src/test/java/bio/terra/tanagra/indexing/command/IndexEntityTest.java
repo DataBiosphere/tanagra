@@ -26,7 +26,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class IndexEntityTest{
+public class IndexEntityTest {
   private static Map<String, DataPointer> dataPointers;
 
   private static Indexer indexer;

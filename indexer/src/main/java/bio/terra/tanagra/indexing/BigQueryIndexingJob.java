@@ -114,12 +114,12 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     return checkOneNotNullRowExists(idField, idColumnSchema);
   }
 
-  protected boolean checkOneNotNullRowExists(FieldPointer field, ColumnSchema columnSchema) {
+  protected boolean checkOneNotNullRowExists(FieldPointer fieldPointer, ColumnSchema columnSchema) {
     // Check if the table has at least 1 row with a non-null field value.
-    TableVariable outputTableVar = TableVariable.forPrimary(field.getTablePointer());
+    TableVariable outputTableVar = TableVariable.forPrimary(fieldPointer.getTablePointer());
     List<TableVariable> tableVars = Lists.newArrayList(outputTableVar);
 
-    FieldVariable fieldVar = field.buildVariable(outputTableVar, tableVars);
+    FieldVariable fieldVar = fieldPointer.buildVariable(outputTableVar, tableVars);
     FilterVariable fieldNotNull =
         new BinaryFilterVariable(
             fieldVar, BinaryFilterVariable.BinaryOperator.IS_NOT, new Literal((String) null));
@@ -134,7 +134,7 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     ColumnHeaderSchema columnHeaderSchema = new ColumnHeaderSchema(List.of(columnSchema));
     QueryRequest queryRequest = new QueryRequest(query.renderSQL(), columnHeaderSchema);
     QueryResult queryResult =
-        getBQDataPointer(field.getTablePointer()).getQueryExecutor().execute(queryRequest);
+        getBQDataPointer(fieldPointer.getTablePointer()).getQueryExecutor().execute(queryRequest);
 
     return queryResult.getRowResults().iterator().hasNext();
   }

@@ -18,12 +18,9 @@ import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.Literal.DataType;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityGroup;
-import bio.terra.tanagra.underlay.Relationship;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -79,8 +76,9 @@ public final class Indexer {
   }
 
   /**
-   * Add age_at_occurrernce attribute to CRITERIA_OCCURRENCE entity group occurrence entities, eg
-   * condition_occurrence.
+   * For CRITERIA_OCCURRENCE entity group occurrence entities (eg condition_occurrence), if
+   * occurrence entity has sourceStartDateColumn, add age_at_occurrernce attribute to occurrence
+   * entity.
    */
   public void maybeAddAgeAtOccurrenceAttribute() {
     underlay
@@ -92,14 +90,27 @@ public final class Indexer {
                 case GROUP_ITEMS:
                   return;
                 case CRITERIA_OCCURRENCE:
-                  LOGGER.info("Adding age_at_occurrence attribute to {}", entityGroup.getName());
                   CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
+                  if (criteriaOccurrence.getOccurrenceEntity().getSourceStartDateColumn() == null) {
+                    return;
+                  }
+                  LOGGER.info("Adding age_at_occurrence attribute to {}", entityGroup.getName());
                   Attribute attribute =
                       new Attribute(
                           AGE_AT_OCCURRENCE_ATTRIBUTE_NAME,
                           Attribute.Type.SIMPLE,
                           DataType.INT64,
                           /*displayHint=*/ null);
+                  FieldPointer fieldPointer =
+                      new FieldPointer.Builder()
+                          .tablePointer(
+                              criteriaOccurrence
+                                  .getOccurrenceEntity()
+                                  .getMapping(Underlay.MappingType.INDEX)
+                                  .getTablePointer())
+                          .columnName(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME)
+                          .build();
+                  attribute.initialize(/*sourceMapping=*/ null, new AttributeMapping(fieldPointer));
                   criteriaOccurrence
                       .getOccurrenceEntity()
                       .addAttribute(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME, attribute);

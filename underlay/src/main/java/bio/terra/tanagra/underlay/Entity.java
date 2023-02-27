@@ -121,10 +121,10 @@ public final class Entity {
             attributes.get(serialized.getIdAttribute()).getMapping(Underlay.MappingType.INDEX));
 
     FieldPointer sourceStartDateColumn = null;
-    if (serialized.getStartDateColumn() != null) {
+    if (serialized.getSourceStartDateColumn() != null) {
       sourceStartDateColumn =
           FieldPointer.fromSerialized(
-              serialized.getStartDateColumn(), sourceDataMapping.getTablePointer());
+              serialized.getSourceStartDateColumn(), sourceDataMapping.getTablePointer());
     }
 
     Entity entity =

@@ -111,7 +111,7 @@ public class UFEntity {
     return indexDataMapping;
   }
 
-  public UFFieldPointer getStartDateColumn() {
+  public UFFieldPointer getSourceStartDateColumn() {
     return sourceStartDateColumn;
   }
 }
