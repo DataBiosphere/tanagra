@@ -2,6 +2,7 @@
   * [Underlay Config Files](#underlay-config-files)
     + [Environment](#environment)
     + [Directory Structure](#directory-structure)
+    + [Indexing Features](#indexing-features)
   * [Running Indexing Jobs](#running-indexing-jobs)
     + [Expand Underlay Config](#expand-underlay-config)
     + [Create Index Dataset](#create-index-dataset)
@@ -52,6 +53,17 @@ sql/
   rawsql.sql
 ```
 
+### Indexing Features
+
+#### age_at_occurrence
+
+If you want an occurrence entity to have an age_at_occurrence attribute (ie index table has age_of_occurrence column):
+
+- In primary entity config, set `sourceStartDateColumn` to the column containing birth date. Column can be DATE or TIMESTAMP.
+- In occurrence entity config, set `sourceStartDateColumn` to the column containing occurrence start date. Column can be DATE or TIMESTAMP.
+- There must be an entity group involving primary and occurrence entity.
+                     
+Tanagra will dynamically compute age_at_occurrence during indexing. 
 
 ## Running Indexing Jobs
 Before running the indexing jobs, you need to specify the underlay config files.
