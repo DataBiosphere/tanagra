@@ -63,7 +63,6 @@ public final class Indexer {
         .values()
         .forEach(
             e -> {
-              if (!e.getName().equals("condition")) { return; }
               LOGGER.info(
                   "Looking up attribute data types and generating UI hints for entity: "
                       + e.getName());
