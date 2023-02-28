@@ -147,7 +147,7 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
     Query occAllAttrsQ =
         criteriaOccurrence
             .getOccurrenceEntity()
-            .getMapping(Underlay.MappingType.SOURCE)
+            .getMapping(Underlay.MappingType.INDEX)
             .queryAllAttributes();
     LOGGER.info("occAllAttrsQ: {}", occAllAttrsQ.renderSQL());
     String occIdName = criteriaOccurrence.getOccurrenceEntity().getIdAttribute().getName();
