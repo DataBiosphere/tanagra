@@ -7,13 +7,9 @@ import bio.terra.tanagra.indexing.job.beam.BigQueryUtils;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.Literal.DataType;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Relationship;
@@ -187,11 +183,6 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
     Query query =
         new Query.Builder()
             .select(List.of(idFieldVar, startDateFieldVar))
-            .where(
-                new BinaryFilterVariable(
-                    idFieldVar,
-                    BinaryOperator.EQUALS,
-                    new Literal.Builder().dataType(DataType.INT64).int64Val(1107050).build()))
             .tables(tableVars)
             .build();
     String sql = query.renderSQL();
@@ -255,11 +246,6 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
     Query query =
         new Query.Builder()
             .select(List.of(occurrenceIdFieldVar, primaryIdFieldVar, occurrenceStartDateFieldVar))
-            .where(
-                new BinaryFilterVariable(
-                    primaryIdFieldVar,
-                    BinaryOperator.EQUALS,
-                    new Literal.Builder().dataType(DataType.INT64).int64Val(1107050).build()))
             .tables(tableVars)
             .build();
     String sql = query.renderSQL();
@@ -310,16 +296,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
             .getMapping(MappingType.INDEX)
             .buildFieldVariables(tableVar, tableVars)
             .get(0);
-    Query query =
-        new Query.Builder()
-            .select(selectFieldVars)
-            .where(
-                new BinaryFilterVariable(
-                    primaryIdFieldVar,
-                    BinaryOperator.EQUALS,
-                    new Literal.Builder().dataType(DataType.INT64).int64Val(1107050).build()))
-            .tables(tableVars)
-            .build();
+    Query query = new Query.Builder().select(selectFieldVars).tables(tableVars).build();
     String sql = query.renderSQL();
     LOGGER.info("Read index occurrence table SQL: {}", sql);
 

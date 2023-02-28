@@ -95,6 +95,7 @@ public final class Indexer {
                   if (criteriaOccurrence.getOccurrenceEntity().getSourceStartDateColumn() == null) {
                     return;
                   }
+                  // TODO: Confirm sourceStartDateColumn is DATE, DATETIME or TIMESTAMP
                   if (underlay.getPrimaryEntity().getSourceStartDateColumn() == null) {
                     throw new InvalidConfigException(
                         String.format(
