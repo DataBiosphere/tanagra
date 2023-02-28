@@ -45,7 +45,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This job must run after DenormalizeEntityInstances, which writes the index occurrence table
  * (minus age_at_occurrence column). This job reads in the entire table, populates age_at_occurrence
- * column, and writes back table.
+ * column, and writes back table. (BQ doesn't let you modify existing rows, so we read and write
+ * entire table.)
  */
 public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(ComputeAgeAtOccurrence.class);
