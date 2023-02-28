@@ -28,10 +28,6 @@ public final class Entity {
   private final EntityMapping indexDataMapping;
   private Underlay underlay;
 
-  // Required for:
-  //   1) Primary entity. This is birth datetime column.
-  //   2) Occurrence entities in all CRITERIA_OCCURRENCE entity groups. Datetime column of when this
-  //      occurrence started.
   // Used to compute age_at_occurrence column on occurrence tables.
   private final @Nullable FieldPointer sourceStartDateColumn;
 

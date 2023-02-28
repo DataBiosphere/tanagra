@@ -57,7 +57,7 @@ sql/
 
 #### age_at_occurrence
 
-If you want an occurrence entity to have an age_at_occurrence attribute (ie index table has age_of_occurrence column):
+If you want an occurrence entity to have an age_at_occurrence attribute (ie index occurrence table has age_of_occurrence column):
 
 - In primary entity config, set `sourceStartDateColumn` to the column containing birth date. Column can be DATE or TIMESTAMP.
 - In occurrence entity config, set `sourceStartDateColumn` to the column containing occurrence start date. Column can be DATE or TIMESTAMP.
@@ -153,14 +153,22 @@ appending `SERIAL` to the command:
 
 #### Run dataflow locally
 
-Running locally is faster. Also, you can use Intellij debugger. Add to `BigQueryIndexingJob.buildDataflowPipelineOptions()`:
-
-```
-    import org.apache.beam.runners.direct.DirectRunner;
-    
-    dataflowOptions.setRunner(DirectRunner.class);
-    dataflowOptions.setTempLocation("gs://dataflow-staging-us-central1-694046000181/temp");
-```
+While developing a job, running locally is faster. Also, you can use Intellij debugger.
+- Add to `BigQueryIndexingJob.buildDataflowPipelineOptions()`:
+  ```
+  import org.apache.beam.runners.direct.DirectRunner;
+  
+  dataflowOptions.setRunner(DirectRunner.class);
+  dataflowOptions.setTempLocation("gs://dataflow-staging-us-central1-694046000181/temp");
+  ```
+- Filter your queries on one person, eg:
+  ```
+  .where(
+      new BinaryFilterVariable(
+          idFieldVar,
+          BinaryOperator.EQUALS,
+          new Literal.Builder().dataType(DataType.INT64).int64Val(1107050).build()))
+  ```
 
 ## OMOP Example
 The `cms_synpuf` is a [public dataset](https://console.cloud.google.com/marketplace/product/hhs/synpuf) that uses the 
