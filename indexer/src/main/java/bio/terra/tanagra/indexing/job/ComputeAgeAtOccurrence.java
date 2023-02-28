@@ -288,13 +288,6 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
               selectFieldVars.addAll(attributeMapping.buildFieldVariables(tableVar, tableVars));
               columnSchemas.addAll(attributeMapping.buildColumnSchemas());
             });
-
-    FieldVariable primaryIdFieldVar =
-        occurrenceEntity
-            .getAttribute("person_id")
-            .getMapping(MappingType.INDEX)
-            .buildFieldVariables(tableVar, tableVars)
-            .get(0);
     Query query = new Query.Builder().select(selectFieldVars).tables(tableVars).build();
     String sql = query.renderSQL();
     LOGGER.info("Read index occurrence table SQL: {}", sql);
