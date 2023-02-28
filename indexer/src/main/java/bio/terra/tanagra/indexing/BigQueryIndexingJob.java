@@ -217,8 +217,6 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     DataflowPipelineOptions dataflowOptions =
         PipelineOptionsFactory.create().as(DataflowPipelineOptions.class);
     dataflowOptions.setRunner(DataflowRunner.class);
-    //    dataflowOptions.setRunner(DirectRunner.class);
-    //    dataflowOptions.setTempLocation("gs://dataflow-staging-us-central1-694046000181/temp");
     dataflowOptions.setProject(outputBQDataset.getProjectId());
     // TODO: Allow overriding the default region.
     dataflowOptions.setRegion(DEFAULT_REGION);

@@ -180,31 +180,6 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
         new Query.Builder()
             .select(List.of(idFieldVar, startDateFieldVar))
             .tables(tableVars)
-            //            .where(
-            //                new BooleanAndOrFilterVariable(
-            //                    BooleanAndOrFilterVariable.LogicalOperator.OR,
-            //                    List.of(
-            //                        new BinaryFilterVariable(
-            //                            idFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(1107050) // Has DOB
-            //                                .build()),
-            //                        new BinaryFilterVariable(
-            //                            idFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(746031) // No DOB, no CO
-            //                                .build()),
-            //                        new BinaryFilterVariable(
-            //                            idFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(4259330) // No DOB, yes CO
-            //                                .build()))))
             .build();
     String sql = query.renderSQL();
     LOGGER.info("Select date of births SQL: {}", sql);
@@ -271,31 +246,6 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
         new Query.Builder()
             .select(List.of(occurrenceIdFieldVar, primaryIdFieldVar, occurrenceStartDateFieldVar))
             .tables(tableVars)
-            //            .where(
-            //                new BooleanAndOrFilterVariable(
-            //                    BooleanAndOrFilterVariable.LogicalOperator.OR,
-            //                    List.of(
-            //                        new BinaryFilterVariable(
-            //                            primaryIdFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(1107050) // Has DOB
-            //                                .build()),
-            //                        new BinaryFilterVariable(
-            //                            primaryIdFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(746031) // No DOB, no CO
-            //                                .build()),
-            //                        new BinaryFilterVariable(
-            //                            primaryIdFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(4259330) // No DOB, yes CO
-            //                                .build()))))
             .build();
     String sql = query.renderSQL();
     LOGGER.info("Select occurrence start dates SQL: {}", sql);
@@ -345,36 +295,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
             .getMapping(MappingType.INDEX)
             .buildFieldVariables(tableVar, tableVars)
             .get(0);
-    Query query =
-        new Query.Builder()
-            .select(selectFieldVars)
-            .tables(tableVars)
-            //            .where(
-            //                new BooleanAndOrFilterVariable(
-            //                    BooleanAndOrFilterVariable.LogicalOperator.OR,
-            //                    List.of(
-            //                        new BinaryFilterVariable(
-            //                            primaryIdFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(1107050) // Has DOB
-            //                                .build()),
-            //                        new BinaryFilterVariable(
-            //                            primaryIdFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(746031) // No DOB, no CO
-            //                                .build()),
-            //                        new BinaryFilterVariable(
-            //                            primaryIdFieldVar,
-            //                            BinaryFilterVariable.BinaryOperator.EQUALS,
-            //                            new Literal.Builder()
-            //                                .dataType(Literal.DataType.INT64)
-            //                                .int64Val(4259330) // No DOB, yes CO
-            //                                .build()))))
-            .build();
+    Query query = new Query.Builder().select(selectFieldVars).tables(tableVars).build();
     String sql = query.renderSQL();
     LOGGER.info("Read index occurrence table SQL: {}", sql);
 
@@ -452,7 +373,6 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
                                       return indexRow;
                                     }
 
-                                    // Compute and set age_at_occurrence in index occurrence row.
                                     String occurrenceId =
                                         (String) indexRow.get(indexOccurrenceIdColumnName);
                                     LocalDate occurrenceStartDate =
@@ -463,13 +383,25 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
                                                         .get(sourceOccurrenceIdAlias)
                                                         .equals(occurrenceId))
                                             .map(
-                                                sourceOccurrenceIdAndStartDateTableRow ->
-                                                    BigQueryUtils.toLocalDate(
-                                                        (String)
-                                                            sourceOccurrenceIdAndStartDateTableRow
-                                                                .get(
-                                                                    sourceOccurrenceStartDateColumnName)))
+                                                sourceOccurrenceIdAndStartDateTableRow -> {
+                                                  Object occurrenceStartDateObj =
+                                                      sourceOccurrenceIdAndStartDateTableRow.get(
+                                                          sourceOccurrenceStartDateColumnName);
+                                                  if (occurrenceStartDateObj == null) {
+                                                    return null;
+                                                  }
+                                                  return BigQueryUtils.toLocalDate(
+                                                      (String) occurrenceStartDateObj);
+                                                })
                                             .collect(MoreCollectors.onlyElement());
+
+                                    // If occurrence doesn't have a start date, skip setting
+                                    // age_at_occurrence. Return index occurrence row as-is.
+                                    if (occurrenceStartDate == null) {
+                                      return indexRow;
+                                    }
+
+                                    // Compute age_at_occurrence, and set in index occurrence row.
                                     int ageAtOccurrence =
                                         Period.between(dateOfBirth, occurrenceStartDate).getYears();
                                     return indexRow
