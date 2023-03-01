@@ -296,5 +296,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "sourceStartDateColumn" : {
+    "column" : "birth_datetime"
   }
 }

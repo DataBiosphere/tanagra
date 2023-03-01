@@ -48,5 +48,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "sourceStartDateColumn": { "column" :  "measurement_date" }
 }

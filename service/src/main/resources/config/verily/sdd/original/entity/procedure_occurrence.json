@@ -30,5 +30,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "sourceStartDateColumn": { "column" :  "procedure_date" }
 }

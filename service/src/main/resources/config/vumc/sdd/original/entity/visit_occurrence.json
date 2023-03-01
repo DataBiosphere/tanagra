@@ -8,13 +8,12 @@
     { "type": "SIMPLE", "name": "start_date" },
     { "type": "SIMPLE", "name": "end_date" },
     { "type": "SIMPLE", "name": "source_value" },
-    { "type": "SIMPLE", "name": "source_criteria_id" },
-    { "type": "SIMPLE", "name": "age_at_event" }
+    { "type": "SIMPLE", "name": "source_criteria_id" }
   ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "rawSqlFile": "visit_occurrence.sql" },
+    "tablePointer": { "table": "visit_occurrence" },
     "attributeMappings": {
       "id": { "value": { "column": "visit_occurrence_id" } },
       "visit": {
@@ -33,5 +32,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "sourceStartDateColumn": { "column" :  "visit_start_date" }
 }

@@ -1,6 +1,6 @@
 SELECT
     /* Can't do "*". During expansion, there's an error about person_id column being ambiguous. */
-    p.person_id, p.year_of_birth, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,
+    p.person_id, p.year_of_birth, p.birth_datetime, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,
 
     /* Add BioVU sample columns. The way x_biovu_sample_status is created, there should be at
        most one row per person. */
@@ -21,7 +21,7 @@ FROM `victr-tanagra-test.sd_static.person` p
                 SELECT
                 *,
                 ROW_NUMBER() OVER(PARTITION BY person_id) AS rn
-                FROM `sd_static.x_biovu_sample_status`
+                FROM `victr-tanagra-test.sd_static.x_biovu_sample_status`
             )
             SELECT * FROM x_biovu_sample_status WHERE rn = 1
         ) x

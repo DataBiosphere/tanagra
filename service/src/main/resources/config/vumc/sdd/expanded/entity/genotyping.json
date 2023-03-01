@@ -428,5 +428,6 @@
         "maxHierarchyDepth" : 1
       }
     }
-  }
+  },
+  "sourceStartDateColumn" : null
 }

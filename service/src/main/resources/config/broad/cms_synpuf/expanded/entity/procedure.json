@@ -284,5 +284,6 @@
         "maxHierarchyDepth" : 19
       }
     }
-  }
+  },
+  "sourceStartDateColumn" : null
 }

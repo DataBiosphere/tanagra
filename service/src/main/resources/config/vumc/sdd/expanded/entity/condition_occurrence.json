@@ -20,6 +20,10 @@
     }
   }, {
     "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
     "name" : "stop_reason",
     "dataType" : "STRING",
     "displayHint" : {
@@ -147,6 +151,11 @@
           "column" : "source_criteria_id"
         }
       },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence"
+        }
+      },
       "stop_reason" : {
         "value" : {
           "column" : "stop_reason"
@@ -179,5 +188,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "sourceStartDateColumn" : {
+    "column" : "condition_start_date"
   }
 }

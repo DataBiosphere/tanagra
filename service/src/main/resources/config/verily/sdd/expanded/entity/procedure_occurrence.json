@@ -16,6 +16,10 @@
     }
   }, {
     "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
     "dataType" : "INT64",
     "displayHint" : {
@@ -141,5 +145,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "sourceStartDateColumn" : {
+    "column" : "procedure_date"
   }
 }

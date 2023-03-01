@@ -35,5 +35,7 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  "sourceStartDateColumn": { "column" :  "drug_exposure_start_date" }
 }

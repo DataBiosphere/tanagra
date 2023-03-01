@@ -21,7 +21,7 @@ public final class AttributeMapping {
   private final FieldPointer display;
   private Attribute attribute;
 
-  private AttributeMapping(FieldPointer value) {
+  public AttributeMapping(FieldPointer value) {
     this.value = value;
     this.display = null;
   }
@@ -68,6 +68,11 @@ public final class AttributeMapping {
     }
   }
 
+  /**
+   * @param tableVariables If this is a KEY_AND_DISPLAY attribute, the foreign table will appended
+   *     to tableVariables. So tableVariables must be mutable: "Lists.newArrayList(...)", not "new
+   *     List.of(...)".
+   */
   public List<FieldVariable> buildFieldVariables(
       TableVariable primaryTable, List<TableVariable> tableVariables) {
     FieldVariable valueVariable =
