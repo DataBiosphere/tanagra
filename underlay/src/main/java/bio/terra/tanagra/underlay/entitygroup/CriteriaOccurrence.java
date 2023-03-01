@@ -87,7 +87,7 @@ public class CriteriaOccurrence extends EntityGroup {
 
     // Relationships.
     Map<String, Relationship> relationships =
-        new HashMap<String, Relationship>(
+        new HashMap<>(
             Map.of(
                 OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
                 new Relationship(
