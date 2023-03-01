@@ -28,10 +28,7 @@
           "foreignKey": "vocabulary_id",
           "foreignColumn": "vocabulary_name" } },
       "standard_concept": {
-        "value": {
-          "column": "standard_concept",
-          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN '' ELSE ${fieldSql} END)"
-        },
+        "value": { "column": "standard_concept" },
         "display": {
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },

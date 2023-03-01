@@ -9,10 +9,8 @@
       "type" : "ENUM",
       "enumVals" : [ {
         "enumVal" : {
-          "value" : {
-            "stringVal" : ""
-          },
-          "display" : "Unknown"
+          "value" : { },
+          "display" : "Source"
         },
         "count" : 0
       }, {
@@ -120,8 +118,7 @@
     "attributeMappings" : {
       "standard_concept" : {
         "value" : {
-          "column" : "standard_concept",
-          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN '' ELSE ${fieldSql} END)"
+          "column" : "standard_concept"
         },
         "display" : {
           "column" : "standard_concept",
@@ -205,7 +202,7 @@
             }
           }
         },
-        "maxHierarchyDepth" : 20
+        "maxHierarchyDepth": 20
       }
     }
   },
@@ -296,7 +293,7 @@
             }
           }
         },
-        "maxHierarchyDepth" : 20
+        "maxHierarchyDepth": 20
       }
     }
   }
