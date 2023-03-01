@@ -1,6 +1,7 @@
 import ErrorIcon from "@mui/icons-material/Error";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
@@ -12,9 +13,11 @@ import { useImmer } from "use-immer";
 export type TreeGridId = string | number;
 export type TreeGridValue =
   | undefined
+  | null
   | string
   | number
   | boolean
+  | object
   | JSX.Element
   | Date;
 
@@ -38,8 +41,10 @@ export type TreeGridColumn = {
 };
 
 export type ColumnCustomization = {
+  column: number;
   prefixElements?: ReactNode;
   onClick?: () => void;
+  content?: ReactNode;
 };
 
 export type TreeGridProps = {
@@ -49,7 +54,7 @@ export type TreeGridProps = {
   rowCustomization?: (
     id: TreeGridId,
     data: TreeGridRowData
-  ) => Map<number, ColumnCustomization> | undefined;
+  ) => ColumnCustomization[] | undefined;
   loadChildren?: (id: TreeGridId) => Promise<void>;
   variableWidth?: boolean;
   wrapBodyText?: boolean;
@@ -221,7 +226,9 @@ function renderChildren(
       value: TreeGridValue,
       title: string
     ) => {
-      const columnCustomization = rowCustomization?.get(column);
+      const columnCustomization = rowCustomization?.find(
+        (c) => c.column === column
+      );
       return (
         <>
           {column === 0 &&
@@ -261,16 +268,18 @@ function renderChildren(
               {value}
             </Link>
           ) : (
-            <Typography
-              variant="body1"
-              noWrap={!props.wrapBodyText}
-              title={title}
-              sx={{
-                display: "inline",
-              }}
-            >
-              {value}
-            </Typography>
+            columnCustomization?.content ?? (
+              <Typography
+                variant="body1"
+                noWrap={!props.wrapBodyText}
+                title={title}
+                sx={{
+                  display: "inline",
+                }}
+              >
+                {value}
+              </Typography>
+            )
           )}
         </>
       );
@@ -284,7 +293,14 @@ function renderChildren(
         }}
       >
         {props.columns.map((col, i) => {
-          let value = child.data[col.key] ?? "";
+          let value = child.data[col.key];
+          const isNull = value === null;
+          if (isNull) {
+            value = "NULL";
+          } else if (value === undefined) {
+            value = "";
+          }
+
           let title = "";
           // Stringify values other than Elements.
           if (!(value instanceof Object)) {
@@ -303,7 +319,7 @@ function renderChildren(
                 }),
               }}
             >
-              <div
+              <Box
                 style={{
                   ...(props.wrapBodyText
                     ? { wordBreak: "break-all" }
@@ -317,9 +333,14 @@ function renderChildren(
                     paddingLeft: `${indent + 0.2}em`,
                   }),
                 }}
+                sx={{
+                  ...(isNull && {
+                    color: (theme) => theme.palette.text.disabled,
+                  }),
+                }}
               >
                 {renderColumn(i, value, title)}
-              </div>
+              </Box>
             </td>
           );
         })}

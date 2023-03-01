@@ -56,19 +56,23 @@ class BigQueryCellValue implements CellValue {
   }
 
   @Override
-  public Literal getLiteral() {
+  public Optional<Literal> getLiteral() {
+    if (fieldValue.isNull()) {
+      return Optional.empty();
+    }
+
     Literal.DataType dataType = dataType().toUnderlayDataType();
     switch (dataType) {
       case INT64:
-        return new Literal(fieldValue.getLongValue());
+        return Optional.of(new Literal(fieldValue.getLongValue()));
       case STRING:
-        return new Literal(fieldValue.isNull() ? null : fieldValue.getStringValue());
+        return Optional.of(new Literal(fieldValue.isNull() ? null : fieldValue.getStringValue()));
       case BOOLEAN:
-        return new Literal(fieldValue.getBooleanValue());
+        return Optional.of(new Literal(fieldValue.getBooleanValue()));
       case DATE:
-        return Literal.forDate(fieldValue.getStringValue());
+        return Optional.of(Literal.forDate(fieldValue.getStringValue()));
       case DOUBLE:
-        return new Literal(fieldValue.getDoubleValue());
+        return Optional.of(new Literal(fieldValue.getDoubleValue()));
       default:
         throw new SystemException("Unknown data type: " + dataType);
     }

@@ -1,7 +1,9 @@
 import Button from "@mui/material/Button";
-import { AddCriteria } from "addCriteria";
+import { AddCohortCriteria, AddConceptSetCriteria } from "addCriteria";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
+import CohortRoot from "cohortRoot";
 import ConceptSetEdit from "conceptSetEdit";
+import ConceptSetRoot from "conceptSetRoot";
 import Edit from "edit";
 import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
@@ -28,49 +30,69 @@ export function createAppRouter() {
       element: <Outlet />,
       children: [
         {
-          path: "cohorts/:cohortId/:groupId",
+          element: <CohortRoot />,
           children: [
             {
-              index: true,
-              element: <Overview />,
+              path: "cohorts/:cohortId/:groupId",
+              children: [
+                {
+                  index: true,
+                  element: <Overview />,
+                },
+                {
+                  path: "add",
+                  children: [
+                    {
+                      index: true,
+                      element: <AddCohortCriteria />,
+                    },
+                    {
+                      path: ":configId",
+                      element: <NewCriteria />,
+                    },
+                  ],
+                },
+                {
+                  path: "edit/:criteriaId",
+                  element: <Edit />,
+                },
+              ],
             },
+            {
+              path: "review/:cohortId",
+              children: [
+                {
+                  index: true,
+                  element: <CohortReviewList />,
+                },
+                {
+                  path: ":reviewId",
+                  element: <CohortReviewList />,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          path: "conceptSets",
+          element: <ConceptSetRoot />,
+          children: [
             {
               path: "add",
               children: [
                 {
                   index: true,
-                  element: <AddCriteria />,
+                  element: <AddConceptSetCriteria />,
                 },
                 {
                   path: ":configId",
-                  element: <NewCriteria />,
+                  element: <NewConceptSet />,
                 },
               ],
             },
             {
-              path: "edit/:criteriaId",
-              element: <Edit />,
-            },
-          ],
-        },
-        {
-          path: "conceptSets/new/:configId",
-          element: <NewConceptSet />,
-        },
-        {
-          path: "conceptSets/edit/:conceptSetId",
-          element: <ConceptSetEdit />,
-        },
-        {
-          path: "review/:cohortId",
-          children: [
-            {
-              index: true,
-              element: <CohortReviewList />,
-            },
-            {
-              path: ":reviewId",
-              element: <CohortReviewList />,
+              path: "edit/:conceptSetId",
+              element: <ConceptSetEdit />,
             },
           ],
         },
@@ -177,12 +199,12 @@ export function conceptSetURL(conceptSetId: string) {
   return "conceptSets/edit/" + conceptSetId;
 }
 
-export function absoluteNewConceptSetURL(params: BaseParams, configId: string) {
-  return absolutePrefix(params) + "conceptSets/new/" + configId;
+export function absoluteNewConceptSetURL(params: BaseParams) {
+  return absolutePrefix(params) + newConceptSetURL();
 }
 
-export function newConceptSetURL(configId: string) {
-  return `conceptSets/new/${configId}`;
+export function newConceptSetURL() {
+  return `conceptSets/add`;
 }
 
 export function criteriaURL(criteriaId: string) {

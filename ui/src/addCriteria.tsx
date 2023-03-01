@@ -4,7 +4,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { insertCriteria } from "cohortsSlice";
+import { insertCohortCriteria, useCohortContext } from "cohortContext";
 import CohortToolbar from "cohortToolbar";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -15,22 +15,68 @@ import {
   TreeGridId,
   TreeGridItem,
 } from "components/treegrid";
+import { createConceptSet, useConceptSetContext } from "conceptSetContext";
 import { MergedDataEntry, useSource } from "data/source";
 import { DataEntry, DataKey } from "data/types";
-import { useAppDispatch, useCohortAndGroup, useUnderlay } from "hooks";
+import { useCohortAndGroup, useUnderlay } from "hooks";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { cohortURL, newCriteriaURL } from "router";
+import { cohortURL, exitURL, newCriteriaURL, useBaseParams } from "router";
 import useSWRImmutable from "swr/immutable";
+import * as tanagra from "tanagra-api";
 import { CriteriaConfig } from "underlaysSlice";
 import { createCriteria, getCriteriaPlugin, searchCriteria } from "./cohort";
 
-export function AddCriteria() {
+export function AddConceptSetCriteria() {
+  const navigate = useNavigate();
+  const context = useConceptSetContext();
+
+  const params = useBaseParams();
+  const backURL = exitURL(params);
+
+  const onInsertCriteria = useCallback(
+    (criteria: tanagra.Criteria) => {
+      createConceptSet(context, criteria);
+      navigate(backURL);
+    },
+    [context]
+  );
+
+  return (
+    <AddCriteria
+      conceptSet
+      backURL={backURL}
+      onInsertCriteria={onInsertCriteria}
+    />
+  );
+}
+
+export function AddCohortCriteria() {
+  const navigate = useNavigate();
+  const context = useCohortContext();
+  const { cohort, group } = useCohortAndGroup();
+
+  const onInsertCriteria = useCallback(
+    (criteria: tanagra.Criteria) => {
+      insertCohortCriteria(context, group.id, criteria);
+      navigate("../../" + cohortURL(cohort.id, group.id));
+    },
+    [context, cohort.id, group.id]
+  );
+
+  return <AddCriteria onInsertCriteria={onInsertCriteria} />;
+}
+
+type AddCriteriaProps = {
+  conceptSet?: boolean;
+  backURL?: string;
+  onInsertCriteria: (criteria: tanagra.Criteria) => void;
+};
+
+function AddCriteria(props: AddCriteriaProps) {
   const underlay = useUnderlay();
   const source = useSource();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { cohort, group } = useCohortAndGroup();
 
   const query = useSearchParams()[0].get("search") ?? "";
 
@@ -41,6 +87,10 @@ export function AddCriteria() {
     const categories: CriteriaConfig[][] = [];
 
     for (const config of criteriaConfigs) {
+      if (props.conceptSet && !config.conceptSet) {
+        continue;
+      }
+
       let category: CriteriaConfig[] | undefined;
       for (const c of categories) {
         if (c[0].category === config.category) {
@@ -77,17 +127,10 @@ export function AddCriteria() {
       if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
         navigate("../" + newCriteriaURL(config.id));
       } else {
-        dispatch(
-          insertCriteria({
-            cohortId: cohort.id,
-            groupId: group.id,
-            criteria,
-          })
-        );
-        navigate("../../" + cohortURL(cohort.id, group.id));
+        props.onInsertCriteria(criteria);
       }
     },
-    [source, cohort.id, group.id]
+    [source]
   );
 
   const criteriaConfigMap = useMemo(
@@ -142,7 +185,11 @@ export function AddCriteria() {
       }}
     >
       <Search placeholder="Search criteria or select from the options below" />
-      <ActionBar title={"Add criteria"} extraControls={<CohortToolbar />} />
+      <ActionBar
+        title={"Add criteria"}
+        extraControls={!props.conceptSet ? <CohortToolbar /> : undefined}
+        backURL={props.backURL}
+      />
       <Loading status={searchState}>
         {!searchState.data?.root?.children?.length ? (
           query !== "" ? (
@@ -194,14 +241,12 @@ export function AddCriteria() {
                 );
               }
 
-              return new Map([
-                [
-                  1,
-                  {
-                    onClick: () => onClick(config, item.entry.data),
-                  },
-                ],
-              ]);
+              return [
+                {
+                  column: 1,
+                  onClick: () => onClick(config, item.entry.data),
+                },
+              ];
             }}
           />
         )}

@@ -67,7 +67,13 @@ export function StudiesList() {
                           {study.created.toLocaleString()}
                         </Typography>
                       </Stack>
-                      <IconButton onClick={() => onDeleteStudy(study.id)}>
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          onDeleteStudy(study.id);
+                        }}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </Stack>

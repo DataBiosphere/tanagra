@@ -1,11 +1,20 @@
 import { createCriteria } from "cohort";
-import { insertCriteria, updateCriteriaData } from "cohortsSlice";
-import { insertConceptSet, updateConceptSetData } from "conceptSetsSlice";
+import {
+  CohortContext,
+  insertCohortCriteria,
+  updateCohortCriteria,
+} from "cohortContext";
+import {
+  ConceptSetContext,
+  createConceptSet,
+  updateConceptSet,
+} from "conceptSetContext";
 import { useSource } from "data/source";
-import { useCallback, useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "rootReducer";
+import { absoluteCohortURL, useBaseParams } from "router";
 import { AppDispatch } from "store";
 import * as tanagra from "tanagra-api";
 
@@ -25,13 +34,18 @@ export function useUnderlay() {
   return underlay;
 }
 
+export function useStudyId() {
+  const { studyId } = useParams<{ studyId: string }>();
+  if (!studyId) {
+    throw new PathError("Study id not found in URL.");
+  }
+  return studyId;
+}
+
 function useOptionalCohort(throwOnUnknown: boolean) {
-  const { cohortId } = useParams<{ cohortId: string }>();
-  const cohort = useAppSelector((state) =>
-    state.present.cohorts.find((cohort) => cohort.id === cohortId)
-  );
+  const cohort = useContext(CohortContext)?.state?.present;
   if (throwOnUnknown && !cohort) {
-    throw new PathError(`Unknown cohort "${cohortId}".`);
+    throw new PathError(`No valid cohort in current context.`);
   }
   return cohort;
 }
@@ -54,8 +68,10 @@ export function useCohortAndGroup() {
 function useOptionalGroupAndCriteria(throwOnUnknown: boolean) {
   const cohort = useOptionalCohort(throwOnUnknown);
 
-  const { groupId, criteriaId } =
-    useParams<{ groupId: string; criteriaId: string }>();
+  const { groupId, criteriaId } = useParams<{
+    groupId: string;
+    criteriaId: string;
+  }>();
   const group =
     cohort?.groups.find((g) => g.id === groupId) ?? cohort?.groups?.[0];
   const criteria = group?.criteria.find((c) => c.id === criteriaId);
@@ -102,14 +118,9 @@ export function useGroupAndCriteria() {
 }
 
 function useOptionalConceptSet(throwOnUnknown: boolean) {
-  const { conceptSetId } = useParams<{ conceptSetId: string }>();
-  const conceptSet = useAppSelector((state) =>
-    state.present.conceptSets.find(
-      (conceptSet) => conceptSet.id === conceptSetId
-    )
-  );
+  const conceptSet = useContext(ConceptSetContext)?.state?.conceptSet;
   if (throwOnUnknown && !conceptSet) {
-    throw new PathError(`Unknown concept set "${conceptSetId}".`);
+    throw new PathError(`No valid concept set in current context.`);
   }
   return conceptSet;
 }
@@ -119,70 +130,53 @@ export function useConceptSet() {
 }
 
 export function useUpdateCriteria(criteriaId?: string) {
-  const underlay = useUnderlay();
   const cohort = useOptionalCohort(false);
   const { group, criteria } = useOptionalGroupAndCriteria(false);
   const newCriteria = useOptionalNewCriteria(false);
   const conceptSet = useOptionalConceptSet(false);
-  const dispatch = useAppDispatch();
+  const cohortContext = useContext(CohortContext);
+  const conceptSetContext = useContext(ConceptSetContext);
 
   if (cohort && group) {
+    if (!cohortContext) {
+      throw new Error("Null cohort context when updating a cohort criteria.");
+    }
+
     if (newCriteria) {
-      return useCallback(
-        (data: object) => {
-          dispatch(
-            insertCriteria({
-              cohortId: cohort.id,
-              groupId: group.id,
-              criteria: { ...newCriteria, data: data },
-            })
-          );
-        },
-        [cohort.id, group.id, newCriteria]
-      );
+      return (data: object) => {
+        insertCohortCriteria(cohortContext, group.id, {
+          ...newCriteria,
+          data: data,
+        });
+      };
     }
 
     const cId = criteriaId ?? criteria?.id;
     if (cId) {
-      return useCallback(
-        (data: object) => {
-          dispatch(
-            updateCriteriaData({
-              cohortId: cohort.id,
-              groupId: group.id,
-              criteriaId: cId,
-              data: data,
-            })
-          );
-        },
-        [cohort.id, group?.id, cId]
-      );
+      return (data: object) => {
+        updateCohortCriteria(cohortContext, group.id, cId, data);
+      };
     }
   }
 
   if (newCriteria) {
-    return useCallback(
-      (data: object) => {
-        dispatch(
-          insertConceptSet(underlay.name, { ...newCriteria, data: data })
-        );
-      },
-      [underlay, newCriteria]
-    );
+    if (!conceptSetContext) {
+      throw new Error("Null concept set context when creating a concept set.");
+    }
+
+    return (data: object) => {
+      createConceptSet(conceptSetContext, { ...newCriteria, data: data });
+    };
   }
 
   if (conceptSet) {
-    return useCallback(
-      (data: object) => {
-        dispatch(
-          updateConceptSetData({
-            conceptSetId: conceptSet.id,
-            data: data,
-          })
-        );
-      },
-      [conceptSet?.id]
-    );
+    if (!conceptSetContext) {
+      throw new Error("Null concept set context when updating a concept set.");
+    }
+
+    return (data: object) => {
+      updateConceptSet(conceptSetContext, data);
+    };
   }
 
   throw new Error(
@@ -191,9 +185,48 @@ export function useUpdateCriteria(criteriaId?: string) {
 }
 
 export function useUndoRedoUrls() {
-  const undoUrlPath = useAppSelector((state) => state.present.url);
-  const redoUrlPath = useAppSelector((state) =>
-    state.future.length > 0 ? state.future[0].url : ""
-  );
-  return [undoUrlPath, redoUrlPath];
+  const params = useBaseParams();
+  const context = useContext(CohortContext);
+
+  if (context?.state) {
+    const cohortURL = absoluteCohortURL(params, context.state.present.id);
+    return [
+      context.state.past.length > 0 ? cohortURL : "",
+      context.state.future.length > 0 ? cohortURL : "",
+    ];
+  }
+
+  return ["", ""];
+}
+
+export function useUndoAction() {
+  const context = useContext(CohortContext);
+
+  if (context?.state && context.state.past.length > 0) {
+    return () => {
+      context.updateState((state) => {
+        state.future.push(state.present);
+        state.present = state.past[state.past.length - 1];
+        state.past.pop();
+      });
+    };
+  }
+
+  return null;
+}
+
+export function useRedoAction() {
+  const context = useContext(CohortContext);
+
+  if (context?.state && context.state.future.length > 0) {
+    return () => {
+      context.updateState((state) => {
+        state.past.push(state.present);
+        state.present = state.future[state.future.length - 1];
+        state.future.pop();
+      });
+    };
+  }
+
+  return null;
 }

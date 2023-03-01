@@ -41,7 +41,18 @@ function generateFilter(group: tanagra.Group): Filter | null {
 }
 
 export function groupName(group: tanagra.Group, index: number) {
-  return group.name ?? "Group " + String(index + 1);
+  return group.name || "Group " + String(index + 1);
+}
+
+export function defaultGroup(criteria?: tanagra.Criteria): tanagra.Group {
+  return {
+    id: generateId(),
+    filter: {
+      kind: tanagra.GroupFilterKindEnum.Any,
+      excluded: false,
+    },
+    criteria: criteria ? [criteria] : [],
+  };
 }
 
 // Having typed data here allows the registry to treat all data generically

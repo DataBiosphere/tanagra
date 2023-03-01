@@ -1850,6 +1850,8 @@ components:
           $ref: "#/components/schemas/ConceptSetDisplayNameV2"
         description:
           $ref: "#/components/schemas/ConceptSetDescriptionV2"
+        criteria:
+          $ref: "#/components/schemas/CriteriaV2"
 
     ConceptSetUpdateInfoV2:
       type: object

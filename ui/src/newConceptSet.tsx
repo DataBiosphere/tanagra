@@ -11,7 +11,6 @@ export default function NewCriteria() {
     <CriteriaHolder
       title={`New ${criteria.config.title} Concept Set`}
       plugin={getCriteriaPlugin(criteria)}
-      defaultBackURL={exitURL(params)}
       doneURL={exitURL(params)}
     />
   );

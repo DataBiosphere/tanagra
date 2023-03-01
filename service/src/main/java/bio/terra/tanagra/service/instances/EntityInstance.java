@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public final class EntityInstance {
   private final Map<Attribute, ValueDisplay> attributeValues;
@@ -40,24 +41,23 @@ public final class EntityInstance {
         throw new SystemException("Attribute column not found: " + selectedAttribute.getName());
       }
 
-      Literal value = cellValue.getLiteral();
-      switch (selectedAttribute.getType()) {
-        case SIMPLE:
-          attributeValues.put(selectedAttribute, new ValueDisplay(value));
-          break;
-        case KEY_AND_DISPLAY:
-          String display =
-              rowResult
-                  .get(
-                      selectedAttribute
-                          .getMapping(Underlay.MappingType.INDEX)
-                          .getDisplayMappingAlias())
-                  .getString()
-                  .get();
-          attributeValues.put(selectedAttribute, new ValueDisplay(value, display));
-          break;
-        default:
-          throw new SystemException("Unknown attribute type: " + selectedAttribute.getType());
+      Optional<Literal> valueOpt = cellValue.getLiteral();
+      if (valueOpt.isEmpty()) {
+        attributeValues.put(selectedAttribute, null);
+      } else if (selectedAttribute.getType() == Attribute.Type.SIMPLE) {
+        attributeValues.put(selectedAttribute, new ValueDisplay(valueOpt.get()));
+      } else if (selectedAttribute.getType() == Attribute.Type.KEY_AND_DISPLAY) {
+        String display =
+            rowResult
+                .get(
+                    selectedAttribute
+                        .getMapping(Underlay.MappingType.INDEX)
+                        .getDisplayMappingAlias())
+                .getString()
+                .get();
+        attributeValues.put(selectedAttribute, new ValueDisplay(valueOpt.get(), display));
+      } else {
+        throw new SystemException("Unknown attribute type: " + selectedAttribute.getType());
       }
     }
 
@@ -71,7 +71,12 @@ public final class EntityInstance {
                 + ", "
                 + selectedHierarchyField.getType());
       }
-      hierarchyFieldValues.put(selectedHierarchyField, new ValueDisplay(cellValue.getLiteral()));
+      Optional<Literal> valueOpt = cellValue.getLiteral();
+      if (valueOpt.isEmpty()) {
+        hierarchyFieldValues.put(selectedHierarchyField, null);
+      } else {
+        hierarchyFieldValues.put(selectedHierarchyField, new ValueDisplay(valueOpt.get()));
+      }
     }
 
     Map<RelationshipField, ValueDisplay> relationshipFieldValues = new HashMap<>();
@@ -86,8 +91,12 @@ public final class EntityInstance {
                 + ", "
                 + selectedRelationshipField.getType());
       }
-      relationshipFieldValues.put(
-          selectedRelationshipField, new ValueDisplay(cellValue.getLiteral()));
+      Optional<Literal> valueOpt = cellValue.getLiteral();
+      if (valueOpt.isEmpty()) {
+        relationshipFieldValues.put(selectedRelationshipField, null);
+      } else {
+        relationshipFieldValues.put(selectedRelationshipField, new ValueDisplay(valueOpt.get()));
+      }
     }
 
     return new EntityInstance(attributeValues, hierarchyFieldValues, relationshipFieldValues);
