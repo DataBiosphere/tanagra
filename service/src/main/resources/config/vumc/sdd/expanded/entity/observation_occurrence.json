@@ -31,6 +31,10 @@
       "maxVal" : 2.02102001E9
     }
   }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64"
+  }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "observation",
     "dataType" : "INT64"
@@ -170,6 +174,11 @@
           "column" : "source_criteria_id"
         }
       },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence"
+        }
+      },
       "observation" : {
         "value" : {
           "column" : "observation"
@@ -213,5 +222,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "sourceStartDateColumn" : {
+    "column" : "condition_start_date"
   }
 }

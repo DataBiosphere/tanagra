@@ -48,5 +48,8 @@
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  }
+  },
+
+  /* There's no birth_date column, so use birth_datetime */
+  "sourceStartDateColumn": { "column" : "birth_datetime" }
 }

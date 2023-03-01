@@ -135,6 +135,10 @@
     }
   }, {
     "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64"
+  }, {
+    "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
     "dataType" : "INT64",
     "displayHint" : {
@@ -252,6 +256,11 @@
           "column" : "t_display_note"
         }
       },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence"
+        }
+      },
       "visit_occurrence_id" : {
         "value" : {
           "column" : "visit_occurrence_id"
@@ -284,5 +293,8 @@
       }
     },
     "hierarchyMappings" : { }
+  },
+  "sourceStartDateColumn" : {
+    "column" : "condition_start_date"
   }
 }
