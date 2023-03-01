@@ -13,10 +13,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.relationshipfield.Count;
 import bio.terra.tanagra.underlay.relationshipfield.DisplayHints;
 import com.google.common.collect.ImmutableMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CriteriaOccurrence extends EntityGroup {
@@ -90,31 +87,35 @@ public class CriteriaOccurrence extends EntityGroup {
 
     // Relationships.
     Map<String, Relationship> relationships =
-        Map.of(
-            OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
-            new Relationship(
+        new HashMap<String, Relationship>(
+            Map.of(
                 OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
-                occurrenceEntity,
-                criteriaEntity,
-                buildRelationshipFieldList(criteriaEntity)),
-            OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
-            new Relationship(
+                new Relationship(
+                    OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
+                    occurrenceEntity,
+                    criteriaEntity,
+                    buildRelationshipFieldList(criteriaEntity)),
                 OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
-                occurrenceEntity,
-                primaryEntity,
-                Collections.emptyList()),
-            CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
-            new Relationship(
+                new Relationship(
+                    OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
+                    occurrenceEntity,
+                    primaryEntity,
+                    Collections.emptyList()),
                 CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
-                criteriaEntity,
-                primaryEntity,
-                buildRelationshipFieldList(criteriaEntity)),
-            OCCURRENCE_TO_VISIT_OCCURRENCE_RELATIONSHIP_NAME,
-            new Relationship(
-                OCCURRENCE_TO_VISIT_OCCURRENCE_RELATIONSHIP_NAME,
-                occurrenceEntity,
-                visitOccurrenceEntity,
-                buildRelationshipFieldList(criteriaEntity)));
+                new Relationship(
+                    CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
+                    criteriaEntity,
+                    primaryEntity,
+                    buildRelationshipFieldList(criteriaEntity))));
+    if (visitOccurrenceEntity != null) {
+      relationships.put(
+          OCCURRENCE_TO_VISIT_OCCURRENCE_RELATIONSHIP_NAME,
+          new Relationship(
+              OCCURRENCE_TO_VISIT_OCCURRENCE_RELATIONSHIP_NAME,
+              occurrenceEntity,
+              visitOccurrenceEntity,
+              buildRelationshipFieldList(criteriaEntity)));
+    }
 
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =

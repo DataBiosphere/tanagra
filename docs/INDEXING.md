@@ -55,15 +55,26 @@ sql/
 
 ### Indexing Features
 
-#### age_at_occurrence
+#### age_at_occurrence modifier
 
-If you want an occurrence entity to have an age_at_occurrence attribute (ie index occurrence table has age_of_occurrence column):
+If you want to be able to query by age at occurrence (eg search for people who had diabetes when they were over 70):
 
 - In primary entity config, set `sourceStartDateColumn` to the column containing birth date. Column can be DATE or TIMESTAMP.
 - In occurrence entity config, set `sourceStartDateColumn` to the column containing occurrence start date. Column can be DATE or TIMESTAMP.
 - There must be an entity group involving primary and occurrence entity.
                      
-Tanagra will dynamically compute age_at_occurrence during indexing. 
+During indexing, Tanagra will add and populate age_at_occurrence column to occurrence table.
+
+#### Visit type modifier
+
+If you want to be able to query occurrence by visit type (eg search for people who had
+diabetes condition during in in-patient visit):
+
+- You must have a visit occurrence entity
+- In entity group config (eg condition_person_occurrence.json), set `visitOccurrenceEntity` and add `occurrenceToVisitOccurrence`
+  relationship.
+
+This feature is only available for `CRITERIA_OCCURRENCE` enttiy groups.
 
 ## Running Indexing Jobs
 Before running the indexing jobs, you need to specify the underlay config files.
