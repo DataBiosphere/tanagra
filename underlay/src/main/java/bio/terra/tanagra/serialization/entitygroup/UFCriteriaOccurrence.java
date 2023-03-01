@@ -20,12 +20,14 @@ import java.util.stream.Collectors;
 public class UFCriteriaOccurrence extends UFEntityGroup {
   private final String criteriaEntity;
   private final String occurrenceEntity;
+  private final String visitOccurrenceEntity;
   private final List<String> modifierAttributes;
 
   public UFCriteriaOccurrence(CriteriaOccurrence criteriaOccurrence) {
     super(criteriaOccurrence);
     this.criteriaEntity = criteriaOccurrence.getCriteriaEntity().getName();
     this.occurrenceEntity = criteriaOccurrence.getOccurrenceEntity().getName();
+    this.visitOccurrenceEntity = criteriaOccurrence.getVisitOccurrenceEntity().getName();
     this.modifierAttributes =
         criteriaOccurrence.getModifierAttributes().stream()
             .map(Attribute::getName)
@@ -36,6 +38,7 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
     super(builder);
     this.criteriaEntity = builder.criteriaEntity;
     this.occurrenceEntity = builder.occurrenceEntity;
+    this.visitOccurrenceEntity = builder.visitOccurrenceEntity;
     this.modifierAttributes = builder.modifierAttributes;
   }
 
@@ -43,6 +46,7 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
   public static class Builder extends UFEntityGroup.Builder {
     private String criteriaEntity;
     private String occurrenceEntity;
+    private String visitOccurrenceEntity;
     private List<String> modifierAttributes;
 
     public Builder criteriaEntity(String criteriaEntity) {
@@ -52,6 +56,11 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
 
     public Builder occurrenceEntity(String occurrenceEntity) {
       this.occurrenceEntity = occurrenceEntity;
+      return this;
+    }
+
+    public Builder visitOccurrenceEntity(String visitOccurrenceEntity) {
+      this.visitOccurrenceEntity = visitOccurrenceEntity;
       return this;
     }
 
@@ -81,6 +90,10 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
 
   public String getOccurrenceEntity() {
     return occurrenceEntity;
+  }
+
+  public String getVisitOccurrenceEntity() {
+    return visitOccurrenceEntity;
   }
 
   public List<String> getModifierAttributes() {

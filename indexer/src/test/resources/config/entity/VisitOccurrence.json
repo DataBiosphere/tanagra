@@ -1,0 +1,19 @@
+{
+  "name": "visit_occurrence",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "table": "visit_occurrence" },
+    "attributeMappings": {
+      "id": { "value": { "column": "visit_occurrence_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

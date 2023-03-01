@@ -42,6 +42,19 @@
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
+      },
+      "occurrenceToVisitOccurrence" : {
+        "idPairsTable" : {
+          "table" : "condition_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "condition_occurrence_id"
+        },
+        "idPairsIdB" : {
+          "column" : "visit_occurrence_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
       }
     },
     "auxiliaryDataMappings" : { }
@@ -177,11 +190,55 @@
             }
           }
         }
+      },
+      "occurrenceToVisitOccurrence" : {
+        "idPairsTable" : {
+          "table" : "idpairs_observation_occurrence_visit_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "id_observation_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_visit_occurrence"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_visit_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_visit_occurrence"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "visit_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_observation_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation_occurrence"
+            }
+          }
+        }
       }
     },
     "auxiliaryDataMappings" : { }
   },
   "criteriaEntity" : "observation",
   "occurrenceEntity" : "observation_occurrence",
+  "visitOccurrenceEntity" : "visit_occurrence",
   "modifierAttributes" : [ ]
 }
