@@ -9,7 +9,7 @@
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "broad-tanagra-dev",
-      "datasetId": "cmssynpuf_index_011523" } ],
+      "datasetId": "cmssynpuf_index_030123" } ],
   "entities": [
     "brand.json",
     "condition.json",
