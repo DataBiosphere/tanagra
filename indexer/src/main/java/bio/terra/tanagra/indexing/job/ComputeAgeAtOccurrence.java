@@ -69,7 +69,7 @@ public class ComputeAgeAtOccurrence extends BigQueryIndexingJob {
     if (!isDryRun) {
       LOGGER.info("Waiting for DenormalizeEntityInstances to run for {}", getEntity().getName());
       JavaUtils.retryUntilTrue(
-          15,
+          60,
           Duration.ofSeconds(5),
           String.format("DenormalizeEntityInstances never ran for %s", getEntity().getName()),
           () -> checkOneNotNullIdRowExists(getEntity()));
