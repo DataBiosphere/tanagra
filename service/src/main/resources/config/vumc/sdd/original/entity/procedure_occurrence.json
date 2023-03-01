@@ -32,5 +32,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "sourceStartDateColumn": { "column" :  "condition_start_date" }
+  "sourceStartDateColumn": { "column" :  "procedure_date" }
 }

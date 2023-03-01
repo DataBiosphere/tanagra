@@ -50,5 +50,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "sourceStartDateColumn": { "column" :  "condition_start_date" }
+  "sourceStartDateColumn": { "column" :  "measurement_date" }
 }

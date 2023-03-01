@@ -34,5 +34,5 @@
     "dataPointer": "index_dataset"
   },
 
-  "sourceStartDateColumn": { "column" :  "condition_start_date" }
+  "sourceStartDateColumn": { "column" :  "device_exposure_start_date" }
 }
