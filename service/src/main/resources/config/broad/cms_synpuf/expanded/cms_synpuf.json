@@ -4,7 +4,7 @@
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
     "projectId" : "broad-tanagra-dev",
-    "datasetId" : "cmssynpuf_index_030123",
+    "datasetId" : "cmssynpuf_index_011523",
     "queryProjectId" : "broad-tanagra-dev"
   }, {
     "type" : "BQ_DATASET",

@@ -4,7 +4,7 @@
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
     "projectId" : "verily-tanagra-dev",
-    "datasetId" : "cmssynpuf_index_030123",
+    "datasetId" : "cmssynpuf_index_011523",
     "queryProjectId" : "verily-tanagra-dev",
     "dataflowServiceAccountEmail" : "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com"
   }, {
