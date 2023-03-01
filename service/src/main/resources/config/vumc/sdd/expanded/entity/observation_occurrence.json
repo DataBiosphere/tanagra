@@ -224,6 +224,6 @@
     "hierarchyMappings" : { }
   },
   "sourceStartDateColumn" : {
-    "column" : "condition_start_date"
+    "column" : "observation_date"
   }
 }

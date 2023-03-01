@@ -152,6 +152,6 @@
     "hierarchyMappings" : { }
   },
   "sourceStartDateColumn" : {
-    "column" : "condition_start_date"
+    "column" : "procedure_date"
   }
 }

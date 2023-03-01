@@ -883,6 +883,6 @@
     "hierarchyMappings" : { }
   },
   "sourceStartDateColumn" : {
-    "column" : "condition_start_date"
+    "column" : "visit_start_date"
   }
 }
