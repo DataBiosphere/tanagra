@@ -36,7 +36,7 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add criteria)").last().click();
     cy.get("input").type("clinical");
-    cy.get("button:Contains(Imaging)").first().click();
+    cy.get("button:Contains(Imaging)", { timeout: 10000 }).first().click();
 
     cy.get("a[aria-label=back]").click();
 
