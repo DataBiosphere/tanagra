@@ -74,7 +74,7 @@ diabetes condition during in in-patient visit):
 - In entity group config (eg condition_person_occurrence.json), set `visitOccurrenceEntity` and add `occurrenceToVisitOccurrence`
   relationship.
 
-This feature is only available for `CRITERIA_OCCURRENCE` enttiy groups.
+This feature is only available for `CRITERIA_OCCURRENCE` entity groups.
 
 ## Running Indexing Jobs
 Before running the indexing jobs, you need to specify the underlay config files.
