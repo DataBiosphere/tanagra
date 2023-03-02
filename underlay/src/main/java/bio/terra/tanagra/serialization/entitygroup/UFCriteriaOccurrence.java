@@ -27,7 +27,10 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
     super(criteriaOccurrence);
     this.criteriaEntity = criteriaOccurrence.getCriteriaEntity().getName();
     this.occurrenceEntity = criteriaOccurrence.getOccurrenceEntity().getName();
-    this.visitOccurrenceEntity = criteriaOccurrence.getVisitOccurrenceEntity().getName();
+    this.visitOccurrenceEntity =
+        criteriaOccurrence.getVisitOccurrenceEntity() != null
+            ? criteriaOccurrence.getVisitOccurrenceEntity().getName()
+            : null;
     this.modifierAttributes =
         criteriaOccurrence.getModifierAttributes().stream()
             .map(Attribute::getName)
