@@ -30,6 +30,19 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       },
+      "occurrenceRelatedEntity0" : {
+        "idPairsTable" : {
+          "table" : "note"
+        },
+        "idPairsIdA" : {
+          "column" : "note_id"
+        },
+        "idPairsIdB" : {
+          "column" : "visit_occurrence_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "note"
@@ -135,6 +148,49 @@
           }
         }
       },
+      "occurrenceRelatedEntity0" : {
+        "idPairsTable" : {
+          "table" : "idpairs_note_occurrence_visit_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "id_note_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_visit_occurrence"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "note_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_visit_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_visit_occurrence"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "visit_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_note_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_note_occurrence"
+            }
+          }
+        }
+      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "idpairs_note_occurrence_person"
@@ -183,5 +239,6 @@
   },
   "criteriaEntity" : "note",
   "occurrenceEntity" : "note_occurrence",
+  "occurrenceRelatedEntities" : [ "visit_occurrence" ],
   "modifierAttributes" : [ ]
 }

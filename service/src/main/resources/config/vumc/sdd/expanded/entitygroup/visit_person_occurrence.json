@@ -183,5 +183,6 @@
   },
   "criteriaEntity" : "visit",
   "occurrenceEntity" : "visit_occurrence",
+  "occurrenceRelatedEntities" : [ ],
   "modifierAttributes" : [ ]
 }

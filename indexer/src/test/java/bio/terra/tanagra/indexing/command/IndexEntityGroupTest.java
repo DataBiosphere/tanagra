@@ -47,9 +47,9 @@ public class IndexEntityGroupTest {
             "ConditionPersonOccurrence.json", dataPointers, entities, primaryEntityName);
     SequencedJobSet jobs = Indexer.getJobSetForEntityGroup(conditionPersonOccurrence);
 
-    // copy relationship id pairs (x3 relationships)
+    // copy relationship id pairs (x4 relationships)
     // compute rollup counts (x2 relationships)
     // compute rollup counts with hierarchy (x2 relationships)
-    assertEquals(7, jobs.iterator().next().size());
+    assertEquals(8, jobs.iterator().next().size());
   }
 }

@@ -3,6 +3,7 @@
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "observation",
   "occurrenceEntity": "observation_occurrence",
+  "occurrenceRelatedEntities": [ "visit_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
@@ -20,6 +21,11 @@
         "idPairsTable": { "table": "observation" },
         "idPairsIdA": { "column": "observation_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
+      },
+      "occurrenceRelatedEntity0": {
+        "idPairsTable": { "table": "observation" },
+        "idPairsIdA": { "column": "observation_id" },
+        "idPairsIdB":  { "column": "visit_occurrence_id" }
       }
     }
   },

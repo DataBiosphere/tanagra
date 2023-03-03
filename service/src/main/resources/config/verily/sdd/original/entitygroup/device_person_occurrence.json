@@ -3,6 +3,7 @@
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "device",
   "occurrenceEntity": "device_occurrence",
+  "occurrenceRelatedEntities": [ "visit_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
@@ -20,6 +21,11 @@
         "idPairsTable": { "table": "device_exposure" },
         "idPairsIdA": { "column": "device_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
+      },
+      "occurrenceRelatedEntity0": {
+        "idPairsTable": { "table": "device_exposure" },
+        "idPairsIdA": { "column": "device_exposure_id" },
+        "idPairsIdB":  { "column": "visit_occurrence_id" }
       }
     }
   },

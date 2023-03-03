@@ -846,6 +846,11 @@
           "column" : "source_criteria_id"
         }
       },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence"
+        }
+      },
       "id" : {
         "value" : {
           "column" : "id"
@@ -878,6 +883,6 @@
     "hierarchyMappings" : { }
   },
   "sourceStartDateColumn" : {
-    "column" : "visit_start_datetime"
+    "column" : "visit_start_date"
   }
 }
