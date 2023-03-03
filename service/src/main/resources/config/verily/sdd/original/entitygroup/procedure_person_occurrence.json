@@ -3,7 +3,7 @@
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "procedure",
   "occurrenceEntity": "procedure_occurrence",
-  "visitOccurrenceEntity": "visit_occurrence",
+  "occurrenceRelatedEntities": [ "visit_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
@@ -22,9 +22,9 @@
         "idPairsIdA": { "column": "procedure_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
       },
-      "occurrenceToVisitOccurrence": {
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
+      "occurrenceRelatedEntity0": {
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
         "idPairsIdB":  { "column": "visit_occurrence_id" }
       }
     }

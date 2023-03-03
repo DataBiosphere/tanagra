@@ -400,6 +400,11 @@
           "column" : "source_criteria_id"
         }
       },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence"
+        }
+      },
       "stop_reason" : {
         "value" : {
           "column" : "stop_reason"

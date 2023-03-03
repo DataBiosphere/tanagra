@@ -22,8 +22,10 @@ public class CriteriaOccurrence extends EntityGroup {
   private static final String OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME = "occurrenceToCriteria";
   private static final String OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME = "occurrenceToPrimary";
   private static final String CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME = "criteriaToPrimary";
-  private static final String OCCURRENCE_TO_VISIT_OCCURRENCE_RELATIONSHIP_NAME =
-      "occurrenceToVisitOccurrence";
+  // There can be more than one occurrence related entity: occurrenceRelatedEntity0,
+  // occurrenceRelatedEntity1, etc
+  private static final String OCCURRENCE_RELATED_ENTITY_RELATIONSHIP_NAME_STARTS_WITH =
+      "occurrenceRelatedEntity";
   public static final String AGE_AT_OCCURRENCE_ATTRIBUTE_NAME = "age_at_occurrence";
 
   public static final String MODIFIER_AUX_DATA_ID_COL = "entity_id";
@@ -49,7 +51,7 @@ public class CriteriaOccurrence extends EntityGroup {
   private final Entity criteriaEntity;
   private final Entity occurrenceEntity;
   private final Entity primaryEntity;
-  private final Entity visitOccurrenceEntity;
+  private final List<Entity> occurrenceRelatedEntities;
   private final List<Attribute> modifierAttributes;
   private final AuxiliaryData modifierAuxiliaryData;
 
@@ -58,7 +60,7 @@ public class CriteriaOccurrence extends EntityGroup {
     this.criteriaEntity = builder.criteriaEntity;
     this.occurrenceEntity = builder.occurrenceEntity;
     this.primaryEntity = builder.primaryEntity;
-    this.visitOccurrenceEntity = builder.visitOccurrenceEntity;
+    this.occurrenceRelatedEntities = builder.occurrenceRelatedEntities;
     this.modifierAttributes = builder.modifierAttributes;
     boolean hasModifierAttributes =
         builder.modifierAttributes != null && !builder.modifierAttributes.isEmpty();
@@ -75,7 +77,12 @@ public class CriteriaOccurrence extends EntityGroup {
     Entity criteriaEntity = entities.get(serialized.getCriteriaEntity());
     Entity occurrenceEntity = entities.get(serialized.getOccurrenceEntity());
     Entity primaryEntity = entities.get(primaryEntityName);
-    Entity visitOccurrenceEntity = entities.get(serialized.getVisitOccurrenceEntity());
+    List<Entity> occurrenceRelatedEntities =
+        serialized.getOccurrenceRelatedEntities() != null
+            ? serialized.getOccurrenceRelatedEntities().stream()
+                .map(e -> entities.get(e))
+                .collect(Collectors.toList())
+            : List.of();
 
     // Modifier attributes.
     List<Attribute> modifierAttributes =
@@ -107,13 +114,14 @@ public class CriteriaOccurrence extends EntityGroup {
                     criteriaEntity,
                     primaryEntity,
                     buildRelationshipFieldList(criteriaEntity))));
-    if (visitOccurrenceEntity != null) {
+    for (int i = 0; i < occurrenceRelatedEntities.size(); i++) {
+      String relationshipName = OCCURRENCE_RELATED_ENTITY_RELATIONSHIP_NAME_STARTS_WITH + i;
       relationships.put(
-          OCCURRENCE_TO_VISIT_OCCURRENCE_RELATIONSHIP_NAME,
+          relationshipName,
           new Relationship(
-              OCCURRENCE_TO_VISIT_OCCURRENCE_RELATIONSHIP_NAME,
+              relationshipName,
               occurrenceEntity,
-              visitOccurrenceEntity,
+              occurrenceRelatedEntities.get(i),
               buildRelationshipFieldList(criteriaEntity)));
     }
 
@@ -136,7 +144,7 @@ public class CriteriaOccurrence extends EntityGroup {
             .criteriaEntity(criteriaEntity)
             .occurrenceEntity(occurrenceEntity)
             .primaryEntity(primaryEntity)
-            .visitOccurrenceEntity(visitOccurrenceEntity)
+            .occurrenceRelatedEntities(occurrenceRelatedEntities)
             .modifierAttributes(modifierAttributes)
             .build();
 
@@ -191,8 +199,8 @@ public class CriteriaOccurrence extends EntityGroup {
     return occurrenceEntity;
   }
 
-  public Entity getVisitOccurrenceEntity() {
-    return visitOccurrenceEntity;
+  public List<Entity> getOccurrenceRelatedEntities() {
+    return occurrenceRelatedEntities;
   }
 
   public List<Attribute> getModifierAttributes() {
@@ -229,7 +237,7 @@ public class CriteriaOccurrence extends EntityGroup {
     private Entity criteriaEntity;
     private Entity occurrenceEntity;
     private Entity primaryEntity;
-    private Entity visitOccurrenceEntity;
+    private List<Entity> occurrenceRelatedEntities;
     private List<Attribute> modifierAttributes;
 
     public Builder criteriaEntity(Entity criteriaEntity) {
@@ -247,8 +255,8 @@ public class CriteriaOccurrence extends EntityGroup {
       return this;
     }
 
-    public Builder visitOccurrenceEntity(Entity visitOccurrenceEntity) {
-      this.visitOccurrenceEntity = visitOccurrenceEntity;
+    public Builder occurrenceRelatedEntities(List<Entity> occurrenceRelatedEntities) {
+      this.occurrenceRelatedEntities = occurrenceRelatedEntities;
       return this;
     }
 

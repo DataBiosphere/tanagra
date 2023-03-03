@@ -3,7 +3,7 @@
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "measurement",
   "occurrenceEntity": "measurement_occurrence",
-  "visitOccurrenceEntity": "visit_occurrence",
+  "occurrenceRelatedEntities": [ "visit_occurrence" ],
   "modifierAttributes": [ "value_numeric", "value_enum" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
@@ -23,9 +23,9 @@
         "idPairsIdA": { "column": "measurement_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
       },
-      "occurrenceToVisitOccurrence": {
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
+      "occurrenceRelatedEntity0": {
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_id" },
         "idPairsIdB":  { "column": "visit_occurrence_id" }
       }
     }
