@@ -51,6 +51,7 @@ public class CriteriaOccurrence extends EntityGroup {
   private final Entity criteriaEntity;
   private final Entity occurrenceEntity;
   private final Entity primaryEntity;
+  // Entities related to occurrenceEntity
   private final List<Entity> occurrenceRelatedEntities;
   private final List<Attribute> modifierAttributes;
   private final AuxiliaryData modifierAuxiliaryData;
