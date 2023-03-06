@@ -29,6 +29,7 @@ import bio.terra.tanagra.service.instances.EntityQueryOrderBy;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
+import bio.terra.tanagra.service.utils.ValidationUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -74,6 +75,9 @@ public class InstancesV2ApiController implements InstancesV2Api {
         QUERY_INSTANCES,
         UNDERLAY,
         new ResourceId(underlayName));
+
+    ValidationUtils.validateApiFilter(body.getFilter());
+
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = selectAttributesFromRequest(body, entity);
     List<HierarchyField> selectHierarchyFields = selectHierarchyFieldsFromRequest(body, entity);
@@ -208,6 +212,8 @@ public class InstancesV2ApiController implements InstancesV2Api {
         new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
+    ValidationUtils.validateApiFilter(body.getFilter());
+
     List<Attribute> attributes = new ArrayList<>();
     if (body.getAttributes() != null) {
       attributes =
@@ -249,6 +255,8 @@ public class InstancesV2ApiController implements InstancesV2Api {
         QUERY_INSTANCES,
         UNDERLAY,
         new ResourceId(underlayName));
+
+    ValidationUtils.validateApiFilter(body.getFilter());
 
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = selectAttributesFromRequest(body, entity);

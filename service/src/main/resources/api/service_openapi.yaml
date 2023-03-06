@@ -1466,12 +1466,25 @@ components:
 
     RelationshipFilterV2:
       type: object
-      description: Filter on a relationship between entities (e.g. condition occurrences where condition=diabetes)
+      description: |
+        Filter on a relationship between entities (e.g. condition occurrences where condition=diabetes).
+        If one of the group_by fields are set, they must all be set. If group_by_fields are set:
+        - First subfilter runs
+        - subfilter results are grouped by group_by_count_attribute
+        - Instance will be returned only if there are group_by_count_operator group_by_count_value results for that
+          instance
       properties:
         entity:
           type: string
         subfilter:
           $ref: "#/components/schemas/FilterV2"
+        group_by_count_attribute:
+          type: string
+        group_by_count_operator":
+          type: string
+          enum: [ "EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN" ]
+        group_by_count_value:
+          $ref: "#/components/schemas/LiteralV2"
 
     BooleanLogicFilterV2:
       type: object
