@@ -2,13 +2,7 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.model.ApiAttributeFilterV2;
-import bio.terra.tanagra.generated.model.ApiBooleanLogicFilterV2;
-import bio.terra.tanagra.generated.model.ApiFilterV2;
-import bio.terra.tanagra.generated.model.ApiHierarchyFilterV2;
-import bio.terra.tanagra.generated.model.ApiLiteralV2;
-import bio.terra.tanagra.generated.model.ApiRelationshipFilterV2;
-import bio.terra.tanagra.generated.model.ApiTextFilterV2;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
@@ -143,8 +137,7 @@ public final class FromApiConversionService {
     }
   }
 
-  public static BinaryFilterVariable.BinaryOperator fromApiObject(
-      ApiAttributeFilterV2.OperatorEnum apiOperator) {
+  public static BinaryFilterVariable.BinaryOperator fromApiObject(ApiOperatorV2 apiOperator) {
     return BinaryFilterVariable.BinaryOperator.valueOf(apiOperator.name());
   }
 

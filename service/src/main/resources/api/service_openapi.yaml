@@ -1431,8 +1431,7 @@ components:
         attribute:
           type: string
         operator:
-          type: string
-          enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
+          $ref: "#/components/schemas/OperatorV2"
         value:
           $ref: "#/components/schemas/LiteralV2"
 
@@ -1481,8 +1480,7 @@ components:
         group_by_count_attribute:
           type: string
         group_by_count_operator":
-          type: string
-          enum: [ "EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN" ]
+          $ref: "#/components/schemas/OperatorV2"
         group_by_count_value:
           $ref: "#/components/schemas/LiteralV2"
 
@@ -2177,6 +2175,10 @@ components:
         gcsSignedUrl:
           description: GCS signed URL of exported dataset CSV file
           type: string
+
+    OperatorV2:
+      type: string
+      enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
 
   securitySchemes:
     authorization:
