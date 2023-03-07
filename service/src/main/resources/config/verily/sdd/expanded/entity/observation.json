@@ -309,5 +309,6 @@
       }
     },
     "hierarchyMappings" : { }
-  }
+  },
+  "sourceStartDateColumn" : null
 }

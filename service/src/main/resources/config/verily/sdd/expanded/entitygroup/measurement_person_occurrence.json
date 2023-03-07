@@ -30,6 +30,19 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       },
+      "occurrenceRelatedEntity0" : {
+        "idPairsTable" : {
+          "table" : "measurement"
+        },
+        "idPairsIdA" : {
+          "column" : "measurement_id"
+        },
+        "idPairsIdB" : {
+          "column" : "visit_occurrence_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "measurement"
@@ -39,19 +52,6 @@
         },
         "idPairsIdB" : {
           "column" : "person_id"
-        },
-        "rollupInformationMapA" : { },
-        "rollupInformationMapB" : { }
-      },
-      "occurrenceToVisitOccurrence" : {
-        "idPairsTable" : {
-          "table" : "condition_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "condition_occurrence_id"
-        },
-        "idPairsIdB" : {
-          "column" : "visit_occurrence_id"
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -176,6 +176,49 @@
           }
         }
       },
+      "occurrenceRelatedEntity0" : {
+        "idPairsTable" : {
+          "table" : "idpairs_measurement_occurrence_visit_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "id_measurement_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_visit_occurrence"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "measurement_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_visit_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_visit_occurrence"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "visit_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_measurement_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_measurement_occurrence"
+            }
+          }
+        }
+      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "idpairs_measurement_occurrence_person"
@@ -206,49 +249,6 @@
           "NO_HIERARCHY" : {
             "table" : {
               "table" : "person"
-            },
-            "id" : {
-              "column" : "id"
-            },
-            "count" : {
-              "column" : "t_count_measurement_occurrence"
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_measurement_occurrence"
-            }
-          }
-        }
-      },
-      "occurrenceToVisitOccurrence" : {
-        "idPairsTable" : {
-          "table" : "idpairs_measurement_occurrence_visit_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "id_measurement_occurrence"
-        },
-        "idPairsIdB" : {
-          "column" : "id_visit_occurrence"
-        },
-        "rollupInformationMapA" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "measurement_occurrence"
-            },
-            "id" : {
-              "column" : "id"
-            },
-            "count" : {
-              "column" : "t_count_visit_occurrence"
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence"
-            }
-          }
-        },
-        "rollupInformationMapB" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "visit_occurrence"
             },
             "id" : {
               "column" : "id"
@@ -296,6 +296,6 @@
   },
   "criteriaEntity" : "measurement",
   "occurrenceEntity" : "measurement_occurrence",
-  "visitOccurrenceEntity" : "visit_occurrence",
+  "occurrenceRelatedEntities" : [ "visit_occurrence" ],
   "modifierAttributes" : [ "value_numeric", "value_enum" ]
 }

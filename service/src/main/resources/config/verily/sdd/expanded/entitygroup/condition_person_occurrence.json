@@ -30,6 +30,19 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       },
+      "occurrenceRelatedEntity0" : {
+        "idPairsTable" : {
+          "table" : "condition_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "condition_occurrence_id"
+        },
+        "idPairsIdB" : {
+          "column" : "visit_occurrence_id"
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "condition_occurrence"
@@ -39,19 +52,6 @@
         },
         "idPairsIdB" : {
           "column" : "person_id"
-        },
-        "rollupInformationMapA" : { },
-        "rollupInformationMapB" : { }
-      },
-      "occurrenceToVisitOccurrence" : {
-        "idPairsTable" : {
-          "table" : "condition_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "condition_occurrence_id"
-        },
-        "idPairsIdB" : {
-          "column" : "visit_occurrence_id"
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -176,6 +176,49 @@
           }
         }
       },
+      "occurrenceRelatedEntity0" : {
+        "idPairsTable" : {
+          "table" : "idpairs_condition_occurrence_visit_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "id_condition_occurrence"
+        },
+        "idPairsIdB" : {
+          "column" : "id_visit_occurrence"
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "condition_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_visit_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_visit_occurrence"
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "visit_occurrence"
+            },
+            "id" : {
+              "column" : "id"
+            },
+            "count" : {
+              "column" : "t_count_condition_occurrence"
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_condition_occurrence"
+            }
+          }
+        }
+      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "idpairs_condition_occurrence_person"
@@ -218,55 +261,12 @@
             }
           }
         }
-      },
-      "occurrenceToVisitOccurrence" : {
-        "idPairsTable" : {
-          "table" : "idpairs_condition_occurrence_visit_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "id_condition_occurrence"
-        },
-        "idPairsIdB" : {
-          "column" : "id_visit_occurrence"
-        },
-        "rollupInformationMapA" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "condition_occurrence"
-            },
-            "id" : {
-              "column" : "id"
-            },
-            "count" : {
-              "column" : "t_count_visit_occurrence"
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence"
-            }
-          }
-        },
-        "rollupInformationMapB" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "visit_occurrence"
-            },
-            "id" : {
-              "column" : "id"
-            },
-            "count" : {
-              "column" : "t_count_condition_occurrence"
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_condition_occurrence"
-            }
-          }
-        }
       }
     },
     "auxiliaryDataMappings" : { }
   },
   "criteriaEntity" : "condition",
   "occurrenceEntity" : "condition_occurrence",
-  "visitOccurrenceEntity" : "visit_occurrence",
+  "occurrenceRelatedEntities" : [ "visit_occurrence" ],
   "modifierAttributes" : [ ]
 }

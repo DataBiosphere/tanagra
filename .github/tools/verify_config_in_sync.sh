@@ -25,7 +25,8 @@ do
 
   underlay_dir_1=$(echo service/src/main/resources/config/${underlay_1}/original)
   underlay_dir_2=$(echo service/src/main/resources/config/${underlay_2}/original)
-  diff_output=$(diff -rq --exclude ${underlay_name}.json --exclude sql ${underlay_dir_1} ${underlay_dir_2})
+  # --ignore-all-space because expanded files sometimes have newline and at of file, and sometimes don't
+  diff_output=$(diff -rq --ignore-all-space --exclude ${underlay_name}.json --exclude sql ${underlay_dir_1} ${underlay_dir_2})
 
   if [[ $(echo ${diff_output} | wc -c) -gt 1 ]]
   then

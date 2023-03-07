@@ -42,19 +42,6 @@
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
-      },
-      "occurrenceToVisitOccurrence" : {
-        "idPairsTable" : {
-          "table" : "condition_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "condition_occurrence_id"
-        },
-        "idPairsIdB" : {
-          "column" : "visit_occurrence_id"
-        },
-        "rollupInformationMapA" : { },
-        "rollupInformationMapB" : { }
       }
     },
     "auxiliaryDataMappings" : { }
@@ -190,55 +177,12 @@
             }
           }
         }
-      },
-      "occurrenceToVisitOccurrence" : {
-        "idPairsTable" : {
-          "table" : "idpairs_visit_occurrence_visit_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "id_visit_occurrence"
-        },
-        "idPairsIdB" : {
-          "column" : "id_visit_occurrence"
-        },
-        "rollupInformationMapA" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "visit_occurrence"
-            },
-            "id" : {
-              "column" : "id"
-            },
-            "count" : {
-              "column" : "t_count_visit_occurrence"
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence"
-            }
-          }
-        },
-        "rollupInformationMapB" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "visit_occurrence"
-            },
-            "id" : {
-              "column" : "id"
-            },
-            "count" : {
-              "column" : "t_count_visit_occurrence"
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence"
-            }
-          }
-        }
       }
     },
     "auxiliaryDataMappings" : { }
   },
   "criteriaEntity" : "visit",
   "occurrenceEntity" : "visit_occurrence",
-  "visitOccurrenceEntity" : "visit_occurrence",
+  "occurrenceRelatedEntities" : [ ],
   "modifierAttributes" : [ ]
 }

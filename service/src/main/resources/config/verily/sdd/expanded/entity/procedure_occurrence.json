@@ -115,6 +115,11 @@
           "column" : "source_criteria_id"
         }
       },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence"
+        }
+      },
       "visit_occurrence_id" : {
         "value" : {
           "column" : "visit_occurrence_id"

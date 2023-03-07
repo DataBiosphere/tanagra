@@ -71,10 +71,12 @@ If you want to be able to query occurrence by visit type (eg search for people w
 diabetes condition during in in-patient visit):
 
 - You must have a visit occurrence entity
-- In entity group config (eg condition_person_occurrence.json), set `visitOccurrenceEntity` and add `occurrenceToVisitOccurrence`
-  relationship.
+- In entity group config (eg condition_person_occurrence.json), set `occurrenceRelatedEntities` and add
+ `occurrenceRelatedEntity0` relationship.
+  - If you are interested in things besides visit occurrences, you can add more than one related entity/relationship. Relationship
+ names are `occurrenceRelatedEntity0`, `occurrenceRelatedEntity1`, etc.
 
-This feature is only available for `CRITERIA_OCCURRENCE` enttiy groups.
+This feature is only available for `CRITERIA_OCCURRENCE` entity groups.
 
 ## Running Indexing Jobs
 Before running the indexing jobs, you need to specify the underlay config files.
