@@ -66,7 +66,13 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
     // have concept_id=19082059
     // i.e. give me all the ingredients in "Tylenol Chest Congestion"
     RelationshipFilter ingredientsInTylenolChestCongestion =
-        new RelationshipFilter(getEntity(), brandIngredientRelationship, tylenolChestCongestion);
+        new RelationshipFilter(
+            getEntity(),
+            brandIngredientRelationship,
+            tylenolChestCongestion,
+            /*groupByCountAttribute=*/ null,
+            /*groupByCountOperator=*/ null,
+            /*groupByCountValue=*/ null);
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()

@@ -234,7 +234,10 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
         new RelationshipFilter(
             criteriaOccurrence.getOccurrenceEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(),
-            cohortFilter);
+            cohortFilter,
+            /*groupByCountAttribute=*/ null,
+            /*groupByCountOperator=*/ null,
+            /*groupByCountValue=*/ null);
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
@@ -433,7 +436,10 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                       new RelationshipFilter(
                           criteriaOccurrence.getOccurrenceEntity(),
                           criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-                          criteria);
+                          criteria,
+                          /*groupByCountAttribute=*/ null,
+                          /*groupByCountOperator=*/ null,
+                          /*groupByCountValue=*/ null);
 
                   // Filter for primary entity instances that are related to occurrence entity
                   // instances that are
@@ -442,7 +448,10 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                   return new RelationshipFilter(
                       criteriaOccurrence.getPrimaryEntity(),
                       criteriaOccurrence.getOccurrencePrimaryRelationship(),
-                      occurrencesOfCriteria);
+                      occurrencesOfCriteria,
+                      /*groupByCountAttribute=*/ null,
+                      /*groupByCountOperator=*/ null,
+                      /*groupByCountValue=*/ null);
                 })
             .collect(Collectors.toList());
 
@@ -464,6 +473,12 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     EntityFilter subfilter =
         new AttributeFilter(
             entity.getAttribute(filterAttributeName), BinaryOperator.EQUALS, new Literal(text));
-    return new RelationshipFilter(selectEntity, relationship, subfilter);
+    return new RelationshipFilter(
+        selectEntity,
+        relationship,
+        subfilter,
+        /*groupByCountAttribute=*/ null,
+        /*groupByCountOperator=*/ null,
+        /*groupByCountValue=*/ null);
   }
 }

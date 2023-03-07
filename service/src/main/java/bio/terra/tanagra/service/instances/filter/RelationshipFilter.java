@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,17 +20,17 @@ public class RelationshipFilter extends EntityFilter {
   private final Entity filterEntity;
   private final Relationship relationship;
   private final EntityFilter subFilter;
-  private final Attribute groupByCountAttribute;
-  private final BinaryFilterVariable.BinaryOperator groupByCountOperator;
-  private final Literal groupByCountValue;
+  private final @Nullable Attribute groupByCountAttribute;
+  private final @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator;
+  private final @Nullable Literal groupByCountValue;
 
   public RelationshipFilter(
       Entity selectEntity,
       Relationship relationship,
       EntityFilter subFilter,
-      Attribute groupByCountAttribute,
-      BinaryFilterVariable.BinaryOperator groupByCountOperator,
-      Literal groupByCountValue) {
+      @Nullable Attribute groupByCountAttribute,
+      @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
+      @Nullable Literal groupByCountValue) {
     this.selectEntity = selectEntity;
     this.filterEntity =
         relationship.getEntityA().equals(selectEntity)
