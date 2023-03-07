@@ -12,6 +12,7 @@ public class FieldVariable implements SQLExpression {
   private final FieldPointer fieldPointer;
   private final TableVariable tableVariable;
   private String alias;
+  private boolean isDistinct;
 
   public FieldVariable(FieldPointer fieldPointer, TableVariable tableVariable) {
     this.fieldPointer = fieldPointer;
@@ -22,6 +23,10 @@ public class FieldVariable implements SQLExpression {
     this.fieldPointer = fieldPointer;
     this.tableVariable = tableVariable;
     this.alias = alias;
+  }
+
+  public void setIsDistinct(boolean isDistinct) {
+    this.isDistinct = isDistinct;
   }
 
   @Override
@@ -38,7 +43,8 @@ public class FieldVariable implements SQLExpression {
   }
 
   private String renderSQL(boolean useAlias, boolean useFunctionWrapper) {
-    String template = "${tableAlias}.${columnName}";
+    String template = isDistinct ? "DISTINCT " : "";
+    template += "${tableAlias}.${columnName}";
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
             .put("tableAlias", tableVariable.getAlias())

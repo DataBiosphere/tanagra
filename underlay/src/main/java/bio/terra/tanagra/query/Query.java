@@ -1,6 +1,7 @@
 package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.filtervariable.HavingFilterVariable;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +18,7 @@ public class Query implements SQLExpression {
   private final FilterVariable where;
   private final List<OrderByVariable> orderBy;
   private final List<FieldVariable> groupBy;
+  private final HavingFilterVariable having;
   private final Integer limit;
 
   private Query(Builder builder) {
@@ -25,6 +27,7 @@ public class Query implements SQLExpression {
     this.where = builder.where;
     this.orderBy = builder.orderBy;
     this.groupBy = builder.groupBy;
+    this.having = builder.having;
     this.limit = builder.limit;
   }
 
@@ -89,6 +92,10 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
+    if (having != null) {
+      sql += " " + having.renderSQL();
+    }
+
     if (orderBy != null && !orderBy.isEmpty()) {
       // render each ORDER BY FieldVariable and join them into a single string
       String orderBySQL =
@@ -136,6 +143,7 @@ public class Query implements SQLExpression {
     private FilterVariable where;
     private List<OrderByVariable> orderBy;
     private List<FieldVariable> groupBy;
+    private HavingFilterVariable having;
     private Integer limit;
 
     public Builder select(List<FieldVariable> select) {
@@ -160,6 +168,11 @@ public class Query implements SQLExpression {
 
     public Builder groupBy(List<FieldVariable> groupBy) {
       this.groupBy = groupBy;
+      return this;
+    }
+
+    public Builder having(HavingFilterVariable having) {
+      this.having = having;
       return this;
     }
 

@@ -1431,7 +1431,7 @@ components:
         attribute:
           type: string
         operator:
-          $ref: "#/components/schemas/OperatorV2"
+          $ref: "#/components/schemas/BinaryOperatorV2"
         value:
           $ref: "#/components/schemas/LiteralV2"
 
@@ -1472,6 +1472,7 @@ components:
         - subfilter results are grouped by group_by_count_attribute
         - Instance will be returned only if there are group_by_count_operator group_by_count_value results for that
           instance
+        group_by fields can be used to filter on # of occurrence dates.
       properties:
         entity:
           type: string
@@ -1479,8 +1480,8 @@ components:
           $ref: "#/components/schemas/FilterV2"
         group_by_count_attribute:
           type: string
-        group_by_count_operator":
-          $ref: "#/components/schemas/OperatorV2"
+        group_by_count_operator:
+          $ref: "#/components/schemas/BinaryOperatorV2"
         group_by_count_value:
           $ref: "#/components/schemas/LiteralV2"
 
@@ -2176,7 +2177,7 @@ components:
           description: GCS signed URL of exported dataset CSV file
           type: string
 
-    OperatorV2:
+    BinaryOperatorV2:
       type: string
       enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
 

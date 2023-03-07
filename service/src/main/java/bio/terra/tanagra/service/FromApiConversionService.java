@@ -17,9 +17,8 @@ import bio.terra.tanagra.service.instances.filter.HierarchyParentFilter;
 import bio.terra.tanagra.service.instances.filter.HierarchyRootFilter;
 import bio.terra.tanagra.service.instances.filter.RelationshipFilter;
 import bio.terra.tanagra.service.instances.filter.TextFilter;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityGroup;
-import bio.terra.tanagra.underlay.Hierarchy;
+import bio.terra.tanagra.underlay.*;
+import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,16 +78,34 @@ public final class FromApiConversionService {
       case RELATIONSHIP:
         ApiRelationshipFilterV2 apiRelationshipFilter =
             apiFilter.getFilterUnion().getRelationshipFilter();
+        Collection<EntityGroup> entityGroups =
+            underlaysService.getUnderlay(underlayName).getEntityGroups().values();
         Entity relatedEntity =
             underlaysService.getEntity(underlayName, apiRelationshipFilter.getEntity());
-        // TODO: Allow building queries against the source data mapping also.
+        Relationship relationship =
+            querysService.getRelationship(entityGroups, entity, relatedEntity);
         EntityFilter subFilter =
             fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlayName);
 
-        Collection<EntityGroup> entityGroups =
-            underlaysService.getUnderlay(underlayName).getEntityGroups().values();
+        Attribute groupByCountAttribute = null;
+        BinaryFilterVariable.BinaryOperator groupByCountOperator = null;
+        Literal groupByCountValue = null;
+        if (!Strings.isNullOrEmpty(apiRelationshipFilter.getGroupByCountAttribute())) {
+          groupByCountAttribute =
+              relatedEntity.getAttribute(apiRelationshipFilter.getGroupByCountAttribute());
+          groupByCountOperator = fromApiObject(apiRelationshipFilter.getGroupByCountOperator());
+          groupByCountValue = fromApiObject(apiRelationshipFilter.getGroupByCountValue());
+        }
+
+        // TODO: Allow building queries against the source data mapping also.
+
         return new RelationshipFilter(
-            entity, querysService.getRelationship(entityGroups, entity, relatedEntity), subFilter);
+            entity,
+            relationship,
+            subFilter,
+            groupByCountAttribute,
+            groupByCountOperator,
+            groupByCountValue);
       case BOOLEAN_LOGIC:
         ApiBooleanLogicFilterV2 apiBooleanLogicFilter =
             apiFilter.getFilterUnion().getBooleanLogicFilter();
@@ -137,7 +154,7 @@ public final class FromApiConversionService {
     }
   }
 
-  public static BinaryFilterVariable.BinaryOperator fromApiObject(ApiOperatorV2 apiOperator) {
+  public static BinaryFilterVariable.BinaryOperator fromApiObject(ApiBinaryOperatorV2 apiOperator) {
     return BinaryFilterVariable.BinaryOperator.valueOf(apiOperator.name());
   }
 
