@@ -1160,8 +1160,7 @@ function generateOccurrenceFilter(
                   filterUnion: {
                     attributeFilter: {
                       attribute: filter.attribute,
-                      operator:
-                        tanagra.BinaryOperatorV2.GreaterThan,
+                      operator: tanagra.BinaryOperatorV2.GreaterThan,
                       value: literalFromDataValue(min),
                     },
                   },

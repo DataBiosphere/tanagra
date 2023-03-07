@@ -2,6 +2,7 @@ package bio.terra.tanagra.api;
 
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
@@ -222,7 +223,13 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       throws IOException {
     CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
     EntityFilter cohortFilter =
-        buildCohortFilterOccurrence(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+        buildCohortFilterOccurrence(
+            criteriaOccurrence,
+            criteriaEntityIds,
+            logicalOperator,
+            /*groupByCountAttribute=*/ null,
+            /*groupByCountOperator=*/ null,
+            /*groupByCountValue=*/ null);
 
     // Filter for occurrence entity instances that are related to primary entity instances that are
     // related to occurrence entity instances that are related to criteria entity instances that
@@ -264,18 +271,30 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
         criteriaEntity,
         description,
         List.of(criteriaEntityId),
-        BooleanAndOrFilterVariable.LogicalOperator.OR);
+        BooleanAndOrFilterVariable.LogicalOperator.OR,
+        /*groupByCountAttribute=*/ null,
+        /*groupByCountOperator=*/ null,
+        /*groupByCountValue=*/ null);
   }
 
   protected void singleCriteriaCohort(
       Entity criteriaEntity,
       String description,
       List<Long> criteriaEntityIds,
-      BooleanAndOrFilterVariable.LogicalOperator logicalOperator)
+      BooleanAndOrFilterVariable.LogicalOperator logicalOperator,
+      @Nullable Attribute groupByCountAttribute,
+      @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
+      @Nullable Literal groupByCountValue)
       throws IOException {
     CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
     EntityFilter cohortFilter =
-        buildCohortFilterOccurrence(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+        buildCohortFilterOccurrence(
+            criteriaOccurrence,
+            criteriaEntityIds,
+            logicalOperator,
+            groupByCountAttribute,
+            groupByCountOperator,
+            groupByCountValue);
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
@@ -350,7 +369,13 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       throws IOException {
     CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
     EntityFilter cohortFilter =
-        buildCohortFilterOccurrence(criteriaOccurrence, criteriaEntityIds, logicalOperator);
+        buildCohortFilterOccurrence(
+            criteriaOccurrence,
+            criteriaEntityIds,
+            logicalOperator,
+            /*groupByCountAttribute=*/ null,
+            /*groupByCountOperator=*/ null,
+            /*groupByCountValue=*/ null);
     count(criteriaOccurrence.getPrimaryEntity(), description, groupByAttributes, cohortFilter);
   }
 
@@ -396,7 +421,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   }
 
   /** Lookup the CRITERIA_OCCURRENCE entity group for the given criteria entity. */
-  private CriteriaOccurrence getCriteriaOccurrenceEntityGroup(Entity criteriaEntity) {
+  protected CriteriaOccurrence getCriteriaOccurrenceEntityGroup(Entity criteriaEntity) {
     // Find the CRITERIA_OCCURRENCE entity group for this entity. We need to lookup the entity group
     // with the criteria entity, not the primary entity, because the primary entity will be a member
     // of many groups.
@@ -414,7 +439,10 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   private EntityFilter buildCohortFilterOccurrence(
       CriteriaOccurrence criteriaOccurrence,
       List<Long> criteriaEntityIds,
-      BooleanAndOrFilterVariable.LogicalOperator logicalOperator) {
+      BooleanAndOrFilterVariable.LogicalOperator logicalOperator,
+      @Nullable Attribute groupByCountAttribute,
+      @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
+      @Nullable Literal groupByCountValue) {
 
     List<EntityFilter> criteriaFilters =
         criteriaEntityIds.stream()
@@ -449,9 +477,9 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                       criteriaOccurrence.getPrimaryEntity(),
                       criteriaOccurrence.getOccurrencePrimaryRelationship(),
                       occurrencesOfCriteria,
-                      /*groupByCountAttribute=*/ null,
-                      /*groupByCountOperator=*/ null,
-                      /*groupByCountValue=*/ null);
+                      groupByCountAttribute,
+                      groupByCountOperator,
+                      groupByCountValue);
                 })
             .collect(Collectors.toList());
 
@@ -464,7 +492,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
 
   /**
    * Build a RelationshipFilter for a cohort when there's no occurrence entity. There are fewer
-   * levels of nesting than in buildCohortFilter_occurrence().
+   * levels of nesting than in buildCohortFilterOccurrence().
    */
   private EntityFilter buildCohortFilterNoOccurrence(
       Entity selectEntity, String filterAttributeName, String text) {

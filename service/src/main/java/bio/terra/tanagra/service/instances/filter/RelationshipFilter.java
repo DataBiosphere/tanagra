@@ -180,7 +180,6 @@ public class RelationshipFilter extends EntityFilter {
               .groupBy(List.of(outerSelectFieldVar))
               .having(havingFilterVar)
               .build();
-      new HavingFilterVariable(groupByCountOperator, groupByCountValue);
       LOGGER.info("Generated group by count sub-query: {}", outerQuery.renderSQL());
 
       // build a filter variable for the entity table on the sub query
