@@ -6,8 +6,9 @@ import bio.terra.tanagra.query.filtervariable.HavingFilterVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
 import bio.terra.tanagra.underlay.*;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,14 +120,20 @@ public class RelationshipFilter extends EntityFilter {
           entityIdFieldVar, SubQueryFilterVariable.Operator.IN, relationshipQuery);
     } else {
       LOGGER.info("Group by count on filter entity");
-      // Build something like:
-      //      SELECT DISTINCT c.person_id
-      //      FROM `verily-tanagra-dev.sdstatic_index_022723`.condition_occurrence AS c
-      //      WHERE c.condition = 4002818
-      //      GROUP BY c.person_id, c.start_date
-      //      HAVING count(*) > 1
+      // See https://github.com/DataBiosphere/tanagra/pull/350#issue-1614006284
+      // Example query for "People who have > 1 occurrence date for condition 4002818":
+      //   SELECT x.person_id,
+      //   FROM (
+      //     SELECT c.person_id, c.start_date
+      //     FROM `verily-tanagra-dev.sdstatic_index_022723`.condition_occurrence AS c
+      //     WHERE c.condition = 4002818
+      //     GROUP BY c.person_id, c.start_date) as x
+      //   GROUP BY x.person_id
+      //   HAVING COUNT(*) > 1
+      // The inner GROUP BY only keeps one row per [person_id, start_date].
+      // The outer GROUP BY/HAVING implements "> 1 occurrence date".
 
-      // SELECT DISTINCT c.person_id
+      // SELECT c.person_id AS person_id, c.start_date AS start_date
       String selectEntityIdAttrName =
           relationship.getMapping(Underlay.MappingType.SOURCE).getIdPairsIdB().getColumnName();
       List<FieldVariable> selectEntityIdFieldVars =
@@ -134,33 +141,46 @@ public class RelationshipFilter extends EntityFilter {
               .getAttribute(selectEntityIdAttrName)
               .getMapping(Underlay.MappingType.INDEX)
               .buildFieldVariables(relatedEntityTableVar, relatedEntityTableVars);
-      List<FieldVariable> selectEntityIdFieldVarsDistinct =
+      List<FieldVariable> groupByCountAttrFieldVars =
+          groupByCountAttribute
+              .getMapping(Underlay.MappingType.INDEX)
+              .buildFieldVariables(relatedEntityTableVar, relatedEntityTableVars);
+      List<FieldVariable> innerSelectFieldVars =
+          Stream.concat(selectEntityIdFieldVars.stream(), groupByCountAttrFieldVars.stream())
+              .collect(Collectors.toList());
+
+      // Inner SELECT query
+      Query innerQuery =
+          new Query.Builder()
+              .select(innerSelectFieldVars)
+              .tables(relatedEntityTableVars)
+              .where(relatedEntityFilterVar)
+              .groupBy(innerSelectFieldVars)
+              .build();
+
+      // OUTER SELECT query
+      TableVariable innerQueryTableVar =
+          TableVariable.forPrimary(new TablePointer.Builder().sql(innerQuery.renderSQL()).build());
+      FieldPointer selectEntityIdFieldPointer =
           filterEntity
               .getAttribute(selectEntityIdAttrName)
               .getMapping(Underlay.MappingType.INDEX)
-              .buildFieldVariables(relatedEntityTableVar, relatedEntityTableVars);
-      selectEntityIdFieldVarsDistinct.get(0).setIsDistinct(true);
-
-      // GROUP BY c.person_id, c.start_date
-      List<FieldVariable> groupByFieldVars = new ArrayList<>(selectEntityIdFieldVars);
-      groupByFieldVars.addAll(
-          groupByCountAttribute
-              .getMapping(Underlay.MappingType.INDEX)
-              .buildFieldVariables(relatedEntityTableVar, relatedEntityTableVars));
-
-      // HAVING count(*) > 1
+              .getFieldPointers()
+              .get(0);
+      // SELECT x.person_id (as opposed to SELECT c.person_id)
+      FieldVariable outerSelectFieldVar =
+          new FieldVariable(selectEntityIdFieldPointer, innerQueryTableVar);
       HavingFilterVariable havingFilterVar =
           new HavingFilterVariable(groupByCountOperator, groupByCountValue);
-
-      Query groupByCountQuery =
+      Query outerQuery =
           new Query.Builder()
-              .select(selectEntityIdFieldVarsDistinct)
-              .tables(relatedEntityTableVars)
-              .where(relatedEntityFilterVar)
-              .groupBy(groupByFieldVars)
+              .select(List.of(outerSelectFieldVar))
+              .tables(List.of(innerQueryTableVar))
+              .groupBy(List.of(outerSelectFieldVar))
               .having(havingFilterVar)
               .build();
-      LOGGER.info("Generated group by count sub-query: {}", groupByCountQuery.renderSQL());
+      new HavingFilterVariable(groupByCountOperator, groupByCountValue);
+      LOGGER.info("Generated group by count sub-query: {}", outerQuery.renderSQL());
 
       // build a filter variable for the entity table on the sub query
       //  WHERE entityId IN (SELECT fromEntityId FROM relationshipTable WHERE
@@ -168,7 +188,7 @@ public class RelationshipFilter extends EntityFilter {
       FieldVariable entityIdFieldVar =
           entityIdFieldPointer.buildVariable(entityTableVar, tableVars);
       return new SubQueryFilterVariable(
-          entityIdFieldVar, SubQueryFilterVariable.Operator.IN, groupByCountQuery);
+          entityIdFieldVar, SubQueryFilterVariable.Operator.IN, outerQuery);
     }
   }
 }
