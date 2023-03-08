@@ -11,7 +11,13 @@ import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
-import { CohortV2, ConceptSetV2 } from "tanagra-api";
+import {
+  CohortV2,
+  ConceptSetV2,
+  DisplayHintListV2,
+  InstanceCountListV2,
+  InstanceListV2,
+} from "tanagra-api";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 import {
@@ -264,33 +270,54 @@ export class BackendSource implements Source {
 
     const query = !options?.parent ? options?.query || "" : undefined;
 
+    const request = searchRequest(
+      requestedAttributes,
+      this.underlay,
+      classification,
+      undefined,
+      query,
+      options?.parent
+    );
+
     const promises = [
-      this.instancesApi.queryInstances(
-        searchRequest(
-          requestedAttributes,
-          this.underlay,
-          classification,
-          undefined,
-          query,
-          options?.parent
-        )
-      ),
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${request.entityName}/instances`,
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify(request.queryV2),
+        }
+      ).then(async (response) => (await response.json()) as InstanceListV2),
     ];
 
     if (options?.includeGroupings) {
       promises.push(
-        ...(classification.groupings?.map((grouping) =>
-          this.instancesApi.queryInstances(
-            searchRequest(
-              requestedAttributes,
-              this.underlay,
-              classification,
-              grouping,
-              query,
-              options?.parent
-            )
-          )
-        ) || [])
+        ...(classification.groupings?.map((grouping) => {
+          const groupingRequest = searchRequest(
+            requestedAttributes,
+            this.underlay,
+            classification,
+            grouping,
+            query,
+            options?.parent
+          );
+          return fetch(
+            `http://localhost:8080/api/repository/v1/cohort-builder/entities/${groupingRequest.entityName}/instances`,
+            {
+              method: "POST",
+              mode: "no-cors",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              referrerPolicy: "no-referrer",
+              body: JSON.stringify(groupingRequest.queryV2),
+            }
+          ).then(async (response) => (await response.json()) as InstanceListV2);
+        }) || [])
       );
     }
 
@@ -330,11 +357,16 @@ export class BackendSource implements Source {
     const grouping = findByID(root.grouping, classification.groupings);
 
     return parseAPIError(
-      this.instancesApi
-        .queryInstances({
-          entityName: classification.entity,
-          underlayName: this.underlay.name,
-          queryV2: {
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${classification.entity}/instances`,
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
             includeAttributes:
               normalizeRequestedAttributes(requestedAttributes),
             filter: {
@@ -356,15 +388,15 @@ export class BackendSource implements Source {
               },
             },
             orderBys: [makeOrderBy(this.underlay, classification, grouping)],
-          },
-        })
-        .then((res) => ({
-          nodes: processEntitiesResponse(
-            classification.entityAttribute,
-            res,
-            classification.hierarchy
-          ),
-        }))
+          }),
+        }
+      ).then(async (response) => ({
+        nodes: processEntitiesResponse(
+          classification.entityAttribute,
+          (await response.json()) as InstanceListV2,
+          classification.hierarchy
+        ),
+      }))
     );
   }
 
@@ -392,16 +424,25 @@ export class BackendSource implements Source {
     const entity = findEntity(occurrenceID, this.config);
 
     const res = await parseAPIError(
-      this.instancesApi.queryInstances({
-        entityName: entity.entity,
-        underlayName: this.underlay.name,
-        queryV2: this.makeQuery(
-          requestedAttributes,
-          occurrenceID,
-          cohort,
-          conceptSet
-        ),
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${entity.entity}/instances`,
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify(
+            this.makeQuery(
+              requestedAttributes,
+              occurrenceID,
+              cohort,
+              conceptSet
+            )
+          ),
+        }
+      ).then(async (response) => (await response.json()) as InstanceListV2)
     );
 
     const data = res.instances?.map((instance) =>
@@ -427,11 +468,15 @@ export class BackendSource implements Source {
     }
 
     const res = await parseAPIError(
-      this.hintsApi.queryHints({
-        entityName: entity,
-        underlayName: this.underlay.name,
-        hintQueryV2: {},
-      })
+      fetch(`/api/repository/v1/cohort-builder/entities/${entity}/hints`, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({}),
+      }).then(async (response) => (await response.json()) as DisplayHintListV2)
     );
 
     const displayHint = res.displayHints?.find(
@@ -466,14 +511,21 @@ export class BackendSource implements Source {
     groupByAttributes?: string[]
   ): Promise<FilterCountValue[]> {
     const data = await parseAPIError(
-      this.instancesApi.countInstances({
-        underlayName: this.underlay.name,
-        entityName: this.config.primaryEntity.entity,
-        countQueryV2: {
-          attributes: groupByAttributes,
-          filter: generateFilter(this, filter, true) ?? undefined,
-        },
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${this.config.primaryEntity.entity}/instances`,
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            attributes: groupByAttributes,
+            filter: generateFilter(this, filter, true) ?? undefined,
+          }),
+        }
+      ).then(async (response) => (await response.json()) as InstanceCountListV2)
     );
 
     if (!data.instanceCounts) {

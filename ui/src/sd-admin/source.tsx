@@ -15,7 +15,6 @@ import {
   PropertyKeyValueV2,
   ReviewV2,
   StudyV2,
-  UpdateCohortRequest,
   UpdateStudyRequest,
 } from "tanagra-api";
 
@@ -148,24 +147,50 @@ export class BackendAdminSource implements AdminSource {
     description: string,
     criteriaGroups: Array<CriteriaGroupV2>
   ): Promise<CohortV2> {
-    const updateCohortRequest: UpdateCohortRequest = {
-      studyId,
-      cohortId,
-      cohortUpdateInfoV2: {
-        displayName,
-        description,
-        criteriaGroups,
-      },
-    };
-    return await this.cohortsApi.updateCohort(updateCohortRequest);
+    return await fetch(
+      `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohortId}`,
+      {
+        method: "PATCH",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({
+          displayName,
+          description,
+          criteriaGroups: criteriaGroups,
+        }),
+      }
+    ).then((res) => res.json());
   }
 
   async getCohortsForStudy(studyId: string): Promise<CohortV2[]> {
-    return await this.cohortsApi.listCohorts({ studyId });
+    return await fetch(
+      "http://localhost:8080/api/repository/v1/cohort-builder/cohorts",
+      {
+        method: "GET",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+      }
+    ).then(async (res) => (await res.json()) as CohortV2[]);
   }
 
   async getConceptSetsForStudy(studyId: string): Promise<ConceptSetV2[]> {
-    return await this.conceptSetsApi.listConceptSets({ studyId });
+    return await fetch(
+      "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
+      {
+        method: "GET",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+      }
+    ).then(async (res) => (await res.json()) as ConceptSetV2[]);
   }
 
   async getReviewsForStudy(
