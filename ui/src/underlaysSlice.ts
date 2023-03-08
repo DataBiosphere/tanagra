@@ -51,7 +51,7 @@ export type Bucket = {
 };
 
 export type CriteriaSearchConfig = {
-  criteriaTypeWidth: string;
+  criteriaTypeWidth: number;
   columns: TreeGridColumn[];
 };
 
@@ -64,6 +64,11 @@ export interface CriteriaConfig {
   title: string;
   conceptSet?: boolean;
   category?: string;
+  columns?: TreeGridColumn[];
+  hierarchyColumns?: TreeGridColumn[];
+  occurrence?: string;
+  classification?: string;
+  attribute?: string;
 
   // Plugin specific config.
   plugin?: unknown;

@@ -34,12 +34,14 @@ export default function App() {
             uiConfiguration: {
               dataConfig: {
                 primaryEntity: {
+                  displayName: "Person",
                   entity: "person",
                   key: "id",
                 },
                 occurrences: [
                   {
                     id: "condition_occurrence",
+                    displayName: "Condition Occurrences",
                     entity: "condition_occurrence",
                     key: "id",
                     classifications: [
@@ -58,6 +60,7 @@ export default function App() {
                   },
                   {
                     id: "procedure_occurrence",
+                    displayName: "Procedure Occurrences",
                     entity: "procedure_occurrence",
                     key: "id",
                     classifications: [
@@ -76,6 +79,7 @@ export default function App() {
                   },
                   {
                     id: "observation_occurrence",
+                    displayName: "Observation Occurrence",
                     entity: "observation_occurrence",
                     key: "id",
                     classifications: [
@@ -93,6 +97,7 @@ export default function App() {
                   },
                   {
                     id: "ingredient_occurrence",
+                    displayName: "Drug Occurrence",
                     entity: "ingredient_occurrence",
                     key: "drug",
                     classifications: [
@@ -134,6 +139,57 @@ export default function App() {
                   title: "Condition",
                   conceptSet: true,
                   category: "Domains",
+                  columns: [
+                    {
+                      key: "name",
+                      width: "100%",
+                      title: "Concept name",
+                    },
+                    {
+                      key: "id",
+                      width: 100,
+                      title: "Concept ID",
+                    },
+                    {
+                      key: "standard_concept",
+                      width: 120,
+                      title: "Source/standard",
+                    },
+                    {
+                      key: "vocabulary_t_value",
+                      width: 120,
+                      title: "Vocab",
+                    },
+                    {
+                      key: "concept_code",
+                      width: 120,
+                      title: "Code",
+                    },
+                    {
+                      key: "t_rollup_count",
+                      width: 120,
+                      title: "Roll-up count",
+                    },
+                  ],
+                  hierarchyColumns: [
+                    {
+                      key: "name",
+                      width: "100%",
+                      title: "Condition",
+                    },
+                    {
+                      key: "id",
+                      width: 120,
+                      title: "Concept ID",
+                    },
+                    {
+                      key: "t_rollup_count",
+                      width: 120,
+                      title: "Roll-up count",
+                    },
+                  ],
+                  occurrence: "condition_occurrence",
+                  classification: "condition",
                 },
                 {
                   type: "classification",
@@ -141,6 +197,57 @@ export default function App() {
                   title: "Procedure",
                   conceptSet: true,
                   category: "Domains",
+                  columns: [
+                    {
+                      key: "name",
+                      width: "100%",
+                      title: "Concept name",
+                    },
+                    {
+                      key: "id",
+                      width: 100,
+                      title: "Concept ID",
+                    },
+                    {
+                      key: "standard_concept",
+                      width: 120,
+                      title: "Source/standard",
+                    },
+                    {
+                      key: "vocabulary_t_value",
+                      width: 120,
+                      title: "Vocab",
+                    },
+                    {
+                      key: "concept_code",
+                      width: 120,
+                      title: "Code",
+                    },
+                    {
+                      key: "t_rollup_count",
+                      width: 120,
+                      title: "Roll-up count",
+                    },
+                  ],
+                  hierarchyColumns: [
+                    {
+                      key: "name",
+                      width: "100%",
+                      title: "Procedure",
+                    },
+                    {
+                      key: "id",
+                      width: 120,
+                      title: "Concept ID",
+                    },
+                    {
+                      key: "t_rollup_count",
+                      width: 120,
+                      title: "Roll-up count",
+                    },
+                  ],
+                  occurrence: "procedure_occurrence",
+                  classification: "procedure",
                 },
                 {
                   type: "classification",
@@ -148,6 +255,40 @@ export default function App() {
                   title: "Observation",
                   conceptSet: true,
                   category: "Domains",
+                  columns: [
+                    {
+                      key: "name",
+                      width: "100%",
+                      title: "Concept name",
+                    },
+                    {
+                      key: "id",
+                      width: 100,
+                      title: "Concept ID",
+                    },
+                    {
+                      key: "standard_concept",
+                      width: 120,
+                      title: "Source/standard",
+                    },
+                    {
+                      key: "vocabulary_t_value",
+                      width: 120,
+                      title: "Vocab",
+                    },
+                    {
+                      key: "concept_code",
+                      width: 120,
+                      title: "Code",
+                    },
+                    {
+                      key: "t_rollup_count",
+                      width: 120,
+                      title: "Roll-up count",
+                    },
+                  ],
+                  occurrence: "observation_occurrence",
+                  classification: "observation",
                 },
                 {
                   type: "classification",
@@ -155,36 +296,92 @@ export default function App() {
                   title: "Drug",
                   conceptSet: true,
                   category: "Domains",
+                  columns: [
+                    {
+                      key: "name",
+                      width: "100%",
+                      title: "Concept name",
+                    },
+                    {
+                      key: "id",
+                      width: 100,
+                      title: "Concept ID",
+                    },
+                    {
+                      key: "standard_concept",
+                      width: 120,
+                      title: "Source/standard",
+                    },
+                    {
+                      key: "vocabulary_t_value",
+                      width: 120,
+                      title: "Vocab",
+                    },
+                    {
+                      key: "concept_code",
+                      width: 120,
+                      title: "Code",
+                    },
+                    {
+                      key: "t_rollup_count",
+                      width: 120,
+                      title: "Roll-up count",
+                    },
+                  ],
+                  hierarchyColumns: [
+                    {
+                      key: "name",
+                      width: "100%",
+                      title: "Drug",
+                    },
+                    {
+                      key: "id",
+                      width: 120,
+                      title: "Concept ID",
+                    },
+                    {
+                      key: "t_rollup_count",
+                      width: 120,
+                      title: "Roll-up count",
+                    },
+                  ],
+                  occurrence: "ingredient_occurrence",
+                  classification: "ingredient",
                 },
                 {
                   type: "attribute",
                   id: "tanagra-ethnicity",
                   title: "Ethnicity",
                   category: "Program data",
+                  attribute: "ethnicity",
                 },
                 {
                   type: "attribute",
                   id: "tanagra-gender",
                   title: "Gender identity",
                   category: "Program data",
+                  attribute: "gender",
                 },
                 {
                   type: "attribute",
                   id: "tanagra-race",
                   title: "Race",
                   category: "Program data",
+                  attribute: "race",
                 },
                 {
                   type: "attribute",
                   id: "tanagra-sex_at_birth",
                   title: "Sex assigned at birth",
                   category: "Program data",
+                  attribute: "sex_at_birth",
                 },
                 {
                   type: "attribute",
                   id: "tanagra-year_of_birth",
                   title: "Year of birth",
                   category: "Program data",
+                  attribute: "year_of_birth",
                 },
               ],
               demographicChartConfigs: {
@@ -192,22 +389,41 @@ export default function App() {
                 chartConfigs: [
                   {
                     title: "Gender identity",
-                    primaryProperties: [{ key: "gender" }],
+                    primaryProperties: [
+                      {
+                        key: "gender",
+                      },
+                    ],
                   },
                   {
                     title: "Gender identity, Current age, Race",
                     primaryProperties: [
-                      { key: "gender" },
+                      {
+                        key: "gender",
+                      },
                       {
                         key: "age",
                         buckets: [
-                          { min: 18, max: 45, displayName: "18-44" },
-                          { min: 45, max: 65, displayName: "45-64" },
-                          { min: 65, displayName: "65+" },
+                          {
+                            min: 18,
+                            max: 45,
+                            displayName: "18-44",
+                          },
+                          {
+                            min: 45,
+                            max: 65,
+                            displayName: "45-64",
+                          },
+                          {
+                            min: 65,
+                            displayName: "65+",
+                          },
                         ],
                       },
                     ],
-                    stackedProperty: { key: "race" },
+                    stackedProperty: {
+                      key: "race",
+                    },
                   },
                 ],
               },
@@ -230,7 +446,7 @@ export default function App() {
                 },
               ],
               criteriaSearchConfig: {
-                criteriaTypeWidth: "120",
+                criteriaTypeWidth: 120,
                 columns: [
                   {
                     key: "name",
@@ -247,7 +463,11 @@ export default function App() {
                     width: 120,
                     title: "Code",
                   },
-                  { key: "t_rollup_count", width: 120, title: "Roll-up Count" },
+                  {
+                    key: "t_rollup_count",
+                    width: 120,
+                    title: "Roll-up Count",
+                  },
                 ],
               },
             },
