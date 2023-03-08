@@ -1,4 +1,5 @@
 import {
+  AnnotationsApiContext,
   CohortsApiContext,
   ConceptSetsApiContext,
   EntityInstancesApiContext,
@@ -92,6 +93,37 @@ export type Study = {
   properties: PropertyMap;
 };
 
+// TODO(tjennison): The AnnotationValue API is difficult to work with because
+// creating them is separate from editing them, but that doesn't mesh well with
+// how the UI actually works. Updates have to wait for create to succeed and
+// return the valueId before updates can be sent. Determine if it makes sense to
+// use the EntityInstance as the id and have a single CreateOrUpdate API.
+export type AnnotationValue = {
+  value: DataValue;
+  valueId: DataKey;
+  current: boolean;
+};
+
+export type AnnotationEntry = {
+  [x: DataKey]: AnnotationValue[];
+};
+
+export type ReviewInstance = {
+  data: DataEntry;
+  annotations: AnnotationEntry;
+};
+
+export enum AnnotationType {
+  String = "STRING",
+}
+
+export type Annotation = {
+  id: string;
+  displayName: string;
+  annotationType: AnnotationType;
+  enumVals?: string[];
+};
+
 export interface Source {
   config: Configuration;
 
@@ -157,6 +189,19 @@ export interface Source {
     displayName: string
   ): Promise<CohortReview>;
 
+  getCohortReview(
+    studyId: string,
+    cohortId: string,
+    reviewId: string
+  ): Promise<CohortReview>;
+
+  listReviewInstances(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    includeAttributes: string[]
+  ): Promise<ReviewInstance[]>;
+
   listStudies(): Promise<Study[]>;
 
   createStudy(displayName: string): Promise<Study>;
@@ -191,6 +236,22 @@ export interface Source {
   ): Promise<tanagra.ConceptSet>;
 
   updateConceptSet(studyId: string, conceptSet: tanagra.ConceptSet): void;
+
+  listAnnotations(studyId: string, cohortId: string): Promise<Annotation[]>;
+
+  createAnnotation(
+    studyId: string,
+    cohortId: string,
+    displayName: string,
+    annotationType: AnnotationType,
+    enumVals?: string[]
+  ): void;
+
+  deleteAnnotation(
+    studyId: string,
+    cohortId: string,
+    annotationId: string
+  ): void;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -207,6 +268,9 @@ export function useSource(): Source {
     ConceptSetsApiContext
   ) as tanagra.ConceptSetsV2Api;
   const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsV2Api;
+  const annotationsApi = useContext(
+    AnnotationsApiContext
+  ) as tanagra.AnnotationsV2Api;
   return useMemo(
     () =>
       new BackendSource(
@@ -216,6 +280,7 @@ export function useSource(): Source {
         cohortsApi,
         conceptSetsApi,
         reviewsApi,
+        annotationsApi,
         underlay,
         underlay.uiConfiguration.dataConfig
       ),
@@ -231,6 +296,7 @@ export class BackendSource implements Source {
     private cohortsApi: tanagra.CohortsV2Api,
     private conceptSetsApi: tanagra.ConceptSetsV2Api,
     private reviewsApi: tanagra.ReviewsV2Api,
+    private annotationsApi: tanagra.AnnotationsV2Api,
     private underlay: Underlay,
     public config: Configuration
   ) {}
@@ -591,6 +657,38 @@ export class BackendSource implements Source {
     );
   }
 
+  public async getCohortReview(
+    studyId: string,
+    cohortId: string,
+    reviewId: string
+  ): Promise<CohortReview> {
+    return parseAPIError(
+      this.reviewsApi
+        .getReview({ studyId, cohortId, reviewId })
+        .then((r) => fromAPICohortReview(r))
+    );
+  }
+
+  public async listReviewInstances(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    includeAttributes: string[]
+  ): Promise<ReviewInstance[]> {
+    return parseAPIError(
+      this.reviewsApi
+        .listReviewInstancesAndAnnotations({
+          studyId,
+          cohortId,
+          reviewId,
+          reviewQueryV2: {
+            includeAttributes,
+          },
+        })
+        .then((res) => res.map((i) => fromAPIReviewInstance(reviewId, i)))
+    );
+  }
+
   public listStudies(): Promise<Study[]> {
     return parseAPIError(
       this.studiesApi
@@ -718,6 +816,51 @@ export class BackendSource implements Source {
         conceptSetUpdateInfoV2: {
           criteria: toAPICriteria(conceptSet.criteria),
         },
+      })
+    );
+  }
+
+  public listAnnotations(
+    studyId: string,
+    cohortId: string
+  ): Promise<Annotation[]> {
+    return parseAPIError(
+      this.annotationsApi
+        .listAnnotations({ studyId, cohortId })
+        .then((res) => res.map((a) => fromAPIAnnotation(a)))
+    );
+  }
+
+  public async createAnnotation(
+    studyId: string,
+    cohortId: string,
+    displayName: string,
+    annotationType: AnnotationType,
+    enumVals?: string[]
+  ) {
+    await parseAPIError(
+      this.annotationsApi.createAnnotation({
+        studyId,
+        cohortId,
+        annotationCreateInfoV2: {
+          displayName,
+          dataType: toAPIAnnotationType(annotationType),
+          enumVals,
+        },
+      })
+    );
+  }
+
+  public async deleteAnnotation(
+    studyId: string,
+    cohortId: string,
+    annotationId: string
+  ) {
+    await parseAPIError(
+      this.annotationsApi.deleteAnnotation({
+        studyId,
+        cohortId,
+        annotationId,
       })
     );
   }
@@ -1357,6 +1500,60 @@ function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
     size: review.size,
     cohort: fromAPICohort(review.cohort),
     created: review.created,
+  };
+}
+
+function fromAPIReviewInstance(
+  reviewId: string,
+  instance: tanagra.ReviewInstanceV2
+): ReviewInstance {
+  const data: DataEntry = {
+    key: 0,
+  };
+
+  processAttributes(data, instance.attributes);
+
+  const annotations: AnnotationEntry = {};
+  for (const key in instance.annotations) {
+    annotations[key] = instance.annotations[key].map((v) => ({
+      value: dataValueFromLiteral(v.value),
+      valueId: v.id,
+      current: v.review === reviewId,
+    }));
+  }
+
+  return {
+    data,
+    annotations,
+  };
+}
+
+function fromAPIAnnotationType(dataType: string): AnnotationType {
+  switch (dataType) {
+    case "STRING":
+      return AnnotationType.String;
+  }
+
+  throw new Error(`Unknown annotation data type ${dataType}.`);
+}
+
+function toAPIAnnotationType(
+  annotationType: AnnotationType
+): tanagra.DataTypeV2 {
+  switch (annotationType) {
+    case AnnotationType.String:
+      return tanagra.DataTypeV2.String;
+  }
+
+  throw new Error(`Unhandled annotation type ${annotationType}.`);
+}
+
+function fromAPIAnnotation(annotation: tanagra.AnnotationV2): Annotation {
+  return {
+    id: annotation.id,
+    displayName: annotation.displayName,
+    annotationType: fromAPIAnnotationType(annotation.dataType),
+    enumVals: annotation.enumVals,
   };
 }
 

@@ -295,6 +295,8 @@ class FakeReviewsAPI {
   }
 }
 
+class FakeAnnotationsAPI {}
+
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
@@ -343,4 +345,8 @@ export const ConceptSetsApiContext = apiForEnvironment(
 export const ReviewsApiContext = apiForEnvironment(
   tanagra.ReviewsV2Api,
   FakeReviewsAPI
+);
+export const AnnotationsApiContext = apiForEnvironment(
+  tanagra.AnnotationsV2Api,
+  FakeAnnotationsAPI
 );

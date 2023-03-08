@@ -11,7 +11,7 @@ import {
   useUndoRedoUrls,
 } from "hooks";
 import { Link as RouterLink } from "react-router-dom";
-import { absoluteCohortReviewURL, useBaseParams } from "router";
+import { absoluteCohortReviewListURL, useBaseParams } from "router";
 
 export default function CohortToolbar() {
   const cohort = useCohort();
@@ -47,7 +47,7 @@ export default function CohortToolbar() {
       <Button
         startIcon={<RateReviewIcon />}
         component={RouterLink}
-        to={absoluteCohortReviewURL(params, cohort.id)}
+        to={absoluteCohortReviewListURL(params, cohort.id)}
       >
         Review
       </Button>
