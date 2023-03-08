@@ -89,12 +89,12 @@ public final class FromApiConversionService {
 
         Attribute groupByCountAttribute = null;
         BinaryFilterVariable.BinaryOperator groupByCountOperator = null;
-        Literal groupByCountValue = null;
+        Integer groupByCountValue = null;
         if (!Strings.isNullOrEmpty(apiRelationshipFilter.getGroupByCountAttribute())) {
           groupByCountAttribute =
               relatedEntity.getAttribute(apiRelationshipFilter.getGroupByCountAttribute());
           groupByCountOperator = fromApiObject(apiRelationshipFilter.getGroupByCountOperator());
-          groupByCountValue = fromApiObject(apiRelationshipFilter.getGroupByCountValue());
+          groupByCountValue = apiRelationshipFilter.getGroupByCountValue();
         }
 
         // TODO: Allow building queries against the source data mapping also.

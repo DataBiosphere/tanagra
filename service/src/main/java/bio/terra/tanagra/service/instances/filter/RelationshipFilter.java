@@ -22,7 +22,7 @@ public class RelationshipFilter extends EntityFilter {
   private final EntityFilter subFilter;
   private final @Nullable Attribute groupByCountAttribute;
   private final @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator;
-  private final @Nullable Literal groupByCountValue;
+  private final @Nullable Integer groupByCountValue;
 
   public RelationshipFilter(
       Entity selectEntity,
@@ -30,7 +30,7 @@ public class RelationshipFilter extends EntityFilter {
       EntityFilter subFilter,
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
-      @Nullable Literal groupByCountValue) {
+      @Nullable Integer groupByCountValue) {
     this.selectEntity = selectEntity;
     this.filterEntity =
         relationship.getEntityA().equals(selectEntity)

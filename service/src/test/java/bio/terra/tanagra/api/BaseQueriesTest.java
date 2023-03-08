@@ -284,7 +284,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       BooleanAndOrFilterVariable.LogicalOperator logicalOperator,
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
-      @Nullable Literal groupByCountValue)
+      @Nullable Integer groupByCountValue)
       throws IOException {
     CriteriaOccurrence criteriaOccurrence = getCriteriaOccurrenceEntityGroup(criteriaEntity);
     EntityFilter cohortFilter =
@@ -442,7 +442,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       BooleanAndOrFilterVariable.LogicalOperator logicalOperator,
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
-      @Nullable Literal groupByCountValue) {
+      @Nullable Integer groupByCountValue) {
 
     List<EntityFilter> criteriaFilters =
         criteriaEntityIds.stream()

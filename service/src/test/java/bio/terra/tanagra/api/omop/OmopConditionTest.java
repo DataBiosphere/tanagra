@@ -1,7 +1,6 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.underlay.Entity;
@@ -63,7 +62,7 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
         BooleanAndOrFilterVariable.LogicalOperator.AND,
         /*groupByCountAttribute=*/ occurrenceEntity.getAttribute("condition"),
         /*groupByCountOperator=*/ BinaryFilterVariable.BinaryOperator.GREATER_THAN,
-        /*groupByCountValue=*/ new Literal(1));
+        /*groupByCountValue=*/ 1);
   }
 
   @Test

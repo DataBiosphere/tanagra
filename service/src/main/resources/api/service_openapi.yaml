@@ -1483,7 +1483,8 @@ components:
         group_by_count_operator:
           $ref: "#/components/schemas/BinaryOperatorV2"
         group_by_count_value:
-          $ref: "#/components/schemas/LiteralV2"
+          type: integer
+          nullable: true
 
     BooleanLogicFilterV2:
       type: object
