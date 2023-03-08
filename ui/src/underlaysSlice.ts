@@ -15,7 +15,7 @@ export type Underlay = {
   name: string;
   displayName: string;
   primaryEntity: string;
-  entities: tanagra.EntityV2[];
+  entities?: tanagra.EntityV2[];
   uiConfiguration: UIConfiguration;
 };
 
@@ -28,7 +28,7 @@ export type UIConfiguration = {
 };
 
 export type DemographicChartConfig = {
-  additionalSelectedAttributes: string[];
+  additionalSelectedAttributes?: string[];
   groupByAttributes: string[];
   chartConfigs: ChartProperties[];
 };
@@ -66,7 +66,7 @@ export interface CriteriaConfig {
   category?: string;
 
   // Plugin specific config.
-  plugin: unknown;
+  plugin?: unknown;
 }
 
 const initialState: Underlay[] = [];

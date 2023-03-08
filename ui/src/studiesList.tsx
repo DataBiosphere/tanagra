@@ -24,7 +24,7 @@ export function StudiesList() {
 
   const onCreateNewStudy = (name: string) => {
     studiesState.mutate(async () => {
-      await source.createStudy(name);
+      // await source.createStudy(name);
       return await source.listStudies();
     });
   };

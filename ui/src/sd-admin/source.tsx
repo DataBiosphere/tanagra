@@ -127,7 +127,18 @@ export class BackendAdminSource implements AdminSource {
         underlayName,
       },
     };
-    return await this.cohortsApi.createCohort(createCohortRequest);
+    //api/repository/v1/cohort-builder/cohorts
+    return (await fetch(`http://localhost:8080`, {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      referrerPolicy: "no-referrer",
+      body: JSON.stringify(createCohortRequest)
+    }).then(response => response.json()));
   }
 
   async updateCohort(

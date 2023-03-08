@@ -374,7 +374,7 @@ export class BackendSource implements Source {
     }
 
     return (
-      this.underlay.entities
+      (this.underlay.entities || [])
         .find((e) => e.name === entity)
         ?.attributes?.map((a) => a.name)
         .filter(isValid)
@@ -593,8 +593,7 @@ export class BackendSource implements Source {
 
   public listStudies(): Promise<Study[]> {
     return parseAPIError(
-      this.studiesApi
-        .listStudies({})
+      Promise.resolve([{"id":"tPR8Cb1LnM","displayName":"My Study","properties":[],"created":new Date("2023-03-08T20:43:59.685828Z"),"createdBy":"authentication-disabled","lastModified":new Date("2023-03-08T20:43:59.685828Z")}])
         .then((studies) => studies.map((study) => processStudy(study)))
     );
   }
@@ -643,14 +642,15 @@ export class BackendSource implements Source {
     studyId: string,
     displayName: string
   ): Promise<tanagra.Cohort> {
-    return parseAPIError(
-      this.cohortsApi
-        .createCohort({
-          studyId,
-          cohortCreateInfoV2: { underlayName, displayName },
-        })
-        .then((c) => fromAPICohort(c))
-    );
+    return fetch('http://localhost:8080/api/repository/v1/cohort-builder/cohorts', {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      referrerPolicy: "no-referrer",
+      body: JSON.stringify({ displayName })
+    }).then(response => response.json())
   }
 
   public async updateCohort(studyId: string, cohort: tanagra.Cohort) {
