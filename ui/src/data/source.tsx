@@ -11,6 +11,7 @@ import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
+import { CohortV2, ConceptSetV2 } from "tanagra-api";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 import {
@@ -593,8 +594,16 @@ export class BackendSource implements Source {
 
   public listStudies(): Promise<Study[]> {
     return parseAPIError(
-      Promise.resolve([{"id":"tPR8Cb1LnM","displayName":"My Study","properties":[],"created":new Date("2023-03-08T20:43:59.685828Z"),"createdBy":"authentication-disabled","lastModified":new Date("2023-03-08T20:43:59.685828Z")}])
-        .then((studies) => studies.map((study) => processStudy(study)))
+      Promise.resolve([
+        {
+          id: "tPR8Cb1LnM",
+          displayName: "My Study",
+          properties: [],
+          created: new Date("2023-03-08T20:43:59.685828Z"),
+          createdBy: "authentication-disabled",
+          lastModified: new Date("2023-03-08T20:43:59.685828Z"),
+        },
+      ]).then((studies) => studies.map((study) => processStudy(study)))
     );
   }
 
@@ -623,17 +632,32 @@ export class BackendSource implements Source {
     cohortId: string
   ): Promise<tanagra.Cohort> {
     return parseAPIError(
-      this.cohortsApi
-        .getCohort({ studyId, cohortId })
-        .then((c) => fromAPICohort(c))
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohortId}`,
+        {
+          method: "GET",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+        }
+      ).then(async (response) => fromAPICohort(await response.json()))
     );
   }
 
   public listCohorts(studyId: string): Promise<tanagra.Cohort[]> {
     return parseAPIError(
-      this.cohortsApi
-        .listCohorts({ studyId })
-        .then((res) => res.map((c) => fromAPICohort(c)))
+      fetch("http://localhost:8080/api/repository/v1/cohort-builder/cohorts", {
+        method: "GET",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+      }).then(async (res) =>
+        (await res.json()).map((c: CohortV2) => fromAPICohort(c))
+      )
     );
   }
 
@@ -642,27 +666,37 @@ export class BackendSource implements Source {
     studyId: string,
     displayName: string
   ): Promise<tanagra.Cohort> {
-    return fetch('http://localhost:8080/api/repository/v1/cohort-builder/cohorts', {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      referrerPolicy: "no-referrer",
-      body: JSON.stringify({ displayName })
-    }).then(response => response.json())
+    return fetch(
+      "http://localhost:8080/api/repository/v1/cohort-builder/cohorts",
+      {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ displayName }),
+      }
+    ).then((response) => response.json());
   }
 
   public async updateCohort(studyId: string, cohort: tanagra.Cohort) {
     await parseAPIError(
-      this.cohortsApi.updateCohort({
-        studyId,
-        cohortId: cohort.id,
-        cohortUpdateInfoV2: {
-          displayName: cohort.name,
-          criteriaGroups: toAPICriteriaGroups(cohort.groups),
-        },
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohort.id}`,
+        {
+          method: "PATCH",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            displayName: cohort.name,
+            criteriaGroups: toAPICriteriaGroups(cohort.groups),
+          }),
+        }
+      )
     );
   }
 
@@ -671,17 +705,35 @@ export class BackendSource implements Source {
     conceptSetId: string
   ): Promise<tanagra.ConceptSet> {
     return parseAPIError(
-      this.conceptSetsApi
-        .getConceptSet({ studyId, conceptSetId })
-        .then((c) => fromAPIConceptSet(c))
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/concept-sets/${conceptSetId}`,
+        {
+          method: "GET",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+        }
+      ).then(async (res) => fromAPIConceptSet(await res.json()))
     );
   }
 
   public listConceptSets(studyId: string): Promise<tanagra.ConceptSet[]> {
     return parseAPIError(
-      this.conceptSetsApi
-        .listConceptSets({ studyId })
-        .then((res) => res.map((c) => fromAPIConceptSet(c)))
+      fetch(
+        "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
+        {
+          method: "GET",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+        }
+      ).then(async (res) =>
+        (await res.json()).map((c: ConceptSetV2) => fromAPIConceptSet(c))
+      )
     );
   }
 
@@ -691,19 +743,24 @@ export class BackendSource implements Source {
     criteria: tanagra.Criteria
   ): Promise<tanagra.ConceptSet> {
     return parseAPIError(
-      this.conceptSetsApi
-        .createConceptSet({
-          studyId,
-          conceptSetCreateInfoV2: {
-            underlayName,
+      fetch(
+        "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
             criteria: toAPICriteria(criteria),
             entity: findEntity(
               getCriteriaPlugin(criteria).occurrenceID(),
               this.config
             ).entity,
-          },
-        })
-        .then((cs) => fromAPIConceptSet(cs))
+          }),
+        }
+      ).then(async (res) => fromAPIConceptSet(await res.json()))
     );
   }
 
@@ -712,13 +769,20 @@ export class BackendSource implements Source {
     conceptSet: tanagra.ConceptSet
   ) {
     await parseAPIError(
-      this.conceptSetsApi.updateConceptSet({
-        studyId,
-        conceptSetId: conceptSet.id,
-        conceptSetUpdateInfoV2: {
-          criteria: toAPICriteria(conceptSet.criteria),
-        },
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${conceptSet.id}`,
+        {
+          method: "PATCH",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            criteria: toAPICriteria(conceptSet.criteria),
+          }),
+        }
+      )
     );
   }
 

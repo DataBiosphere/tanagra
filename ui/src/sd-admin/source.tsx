@@ -128,17 +128,17 @@ export class BackendAdminSource implements AdminSource {
       },
     };
     //api/repository/v1/cohort-builder/cohorts
-    return (await fetch(`http://localhost:8080`, {
+    return await fetch(`http://localhost:8080`, {
       method: "POST",
       mode: "cors",
       cache: "no-cache",
       credentials: "same-origin",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       referrerPolicy: "no-referrer",
-      body: JSON.stringify(createCohortRequest)
-    }).then(response => response.json()));
+      body: JSON.stringify(createCohortRequest),
+    }).then((response) => response.json());
   }
 
   async updateCohort(
