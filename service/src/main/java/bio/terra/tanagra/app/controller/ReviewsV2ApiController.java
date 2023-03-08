@@ -47,6 +47,7 @@ import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
+import bio.terra.tanagra.service.utils.ValidationUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
@@ -97,6 +98,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), CREATE, COHORT_REVIEW, new ResourceId(cohortId));
 
+    ValidationUtils.validateApiFilter(body.getFilter());
+
     // Generate a random 10-character alphanumeric string for the new review ID.
     String newReviewId = RandomStringUtils.randomAlphanumeric(10);
 
@@ -144,6 +147,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         QUERY_INSTANCES,
         COHORT_REVIEW,
         new ResourceId(reviewId));
+
+    ValidationUtils.validateApiFilter(body.getEntityFilter());
 
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
     Entity entity = underlaysService.getUnderlay(cohort.getUnderlayName()).getPrimaryEntity();

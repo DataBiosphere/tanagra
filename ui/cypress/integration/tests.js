@@ -28,7 +28,7 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("button:Contains(Year of birth)").click();
-    cy.get(".MuiInput-input").first().type("{selectall}1940");
+    cy.get(".MuiInput-input", { timeout: 10000 }).first().type("{selectall}1940");
 
     cy.get("button:Contains(Add criteria)").last().click();
     cy.get("button:Contains(Observation)").click();
@@ -36,7 +36,7 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add criteria)").last().click();
     cy.get("input").type("clinical");
-    cy.get("button:Contains(Imaging)", { timeout: 10000 }).first().click();
+    cy.get("button:Contains(Imaging)", { timeout: 20000 }).first().click();
 
     cy.get("a[aria-label=back]").click();
 

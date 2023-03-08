@@ -43,8 +43,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A batch Apache Beam pipeline that counts the number of distinct occurrences for each primary
- * node, which may optionally include a hierarchy, and writes the results to a BQ table.
+ * Count the number of distinct occurrences for entity, which may optionally include a hierarchy,
+ * and writes the results to the index entity BQ table.
+ *
+ * <p>This job is called 4 times for condition entity. For SDD condition 22274:
+ *
+ * <pre>
+ * critertiaToPrimary relationship, no hierarchy:
+ *
+ *     t_count_person column = 755 will be added to index condition table, because 775 people have
+ *          a condition occurrence entity with condition 22274
+ *
+ * critertiaToPrimary relationship, standard hierarchy:
+ *
+ *     t_count_person_standard: 775 people have an occurrence entity with condition 22274 or a
+ *         condition below it in the hierarchy
+ *
+ * criteriaToOccurrence, no hierarchy:
+ *
+ *   t_count_condition_occurrence: 3379 occurrences (across all people) for condition 22274
+ *
+ * criteriaToOccurrence, standard hierarchy:
+ *
+ *   t_count_condition_occurrence_standard: 3380 occurrences (across all people) for condition 22274
+ *       or conditions below 22274 in the hierarchy
+ * </pre>
  */
 public class ComputeRollupCounts extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(ComputeRollupCounts.class);

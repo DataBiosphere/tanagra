@@ -346,7 +346,7 @@ export class BackendSource implements Source {
                     filterUnion: {
                       attributeFilter: {
                         attribute: classification.entityAttribute,
-                        operator: tanagra.AttributeFilterV2OperatorEnum.Equals,
+                        operator: tanagra.BinaryOperatorV2.Equals,
                         value: literalFromDataValue(root.data.key),
                       },
                     },
@@ -1104,7 +1104,7 @@ function generateOccurrenceFilter(
         filterUnion: {
           attributeFilter: {
             attribute: classification.entityAttribute,
-            operator: tanagra.AttributeFilterV2OperatorEnum.Equals,
+            operator: tanagra.BinaryOperatorV2.Equals,
             value: literalFromDataValue(key),
           },
         },
@@ -1150,7 +1150,7 @@ function generateOccurrenceFilter(
                   filterUnion: {
                     attributeFilter: {
                       attribute: filter.attribute,
-                      operator: tanagra.AttributeFilterV2OperatorEnum.LessThan,
+                      operator: tanagra.BinaryOperatorV2.LessThan,
                       value: literalFromDataValue(max),
                     },
                   },
@@ -1160,8 +1160,7 @@ function generateOccurrenceFilter(
                   filterUnion: {
                     attributeFilter: {
                       attribute: filter.attribute,
-                      operator:
-                        tanagra.AttributeFilterV2OperatorEnum.GreaterThan,
+                      operator: tanagra.BinaryOperatorV2.GreaterThan,
                       value: literalFromDataValue(min),
                     },
                   },
@@ -1182,7 +1181,7 @@ function generateOccurrenceFilter(
             filterUnion: {
               attributeFilter: {
                 attribute: filter.attribute,
-                operator: tanagra.AttributeFilterV2OperatorEnum.Equals,
+                operator: tanagra.BinaryOperatorV2.Equals,
                 value: literalFromDataValue(value),
               },
             },

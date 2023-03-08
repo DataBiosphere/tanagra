@@ -1,7 +1,9 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
+import bio.terra.tanagra.underlay.Entity;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,21 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
   void cohort() throws IOException {
     // Cohort of people with >=1 occurrence of condition = "Type 2 diabetes mellitus".
     singleCriteriaCohort(getEntity(), "diabetes", 201_826L);
+  }
+
+  @Test
+  void cohortNumOccurrenceDates() throws IOException {
+    Entity occurrenceEntity = getCriteriaOccurrenceEntityGroup(getEntity()).getOccurrenceEntity();
+
+    // Cohort of people with > 1 occurrence date of condition = "Type 2 diabetes mellitus".
+    singleCriteriaCohort(
+        getEntity(),
+        "diabetes-numOccurrenceDates",
+        List.of(201_826L),
+        BooleanAndOrFilterVariable.LogicalOperator.AND,
+        /*groupByCountAttribute=*/ occurrenceEntity.getAttribute("condition"),
+        /*groupByCountOperator=*/ BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+        /*groupByCountValue=*/ 1);
   }
 
   @Test
