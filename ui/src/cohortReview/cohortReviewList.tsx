@@ -2,6 +2,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
@@ -20,7 +21,7 @@ import { CohortReview } from "data/types";
 import produce from "immer";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import {
-  absoluteCohortReviewURL,
+  absoluteCohortReviewListURL,
   absoluteCohortURL,
   useBaseParams,
 } from "router";
@@ -58,6 +59,13 @@ function wrapResults(results: CohortReview[]): ReviewListItem[] {
   return results.map((r) => new ReviewListItem(r));
 }
 
+function firstReview(list: ReviewListItem[]) {
+  return list.reduce<CohortReview | undefined>(
+    (cur, next) => cur ?? next.review,
+    undefined
+  );
+}
+
 export function CohortReviewList() {
   const source = useSource();
   const navigate = useNavigate();
@@ -72,9 +80,16 @@ export function CohortReviewList() {
   const reviewsState = useSWR(
     { component: "CohortReviewList", cohortId: cohort.id },
     async () => {
-      return wrapResults(
+      const res = wrapResults(
         await source.listCohortReviews(params.studyId, cohort.id)
       );
+      if (!reviewId) {
+        const first = firstReview(res);
+        if (first) {
+          navigate(first.id, { replace: true });
+        }
+      }
+      return res;
     }
   );
 
@@ -92,9 +107,16 @@ export function CohortReviewList() {
     reviewsState.mutate(
       async () => {
         await source.createCohortReview(params.studyId, cohort, name, size);
-        return wrapResults(
+        const res = wrapResults(
           await source.listCohortReviews(params.studyId, cohort.id)
         );
+        if (!reviewId) {
+          const first = firstReview(res);
+          if (first) {
+            navigate(first.id, { replace: true });
+          }
+        }
+        return res;
       },
       {
         optimisticData: [
@@ -119,7 +141,7 @@ export function CohortReviewList() {
             cohort.id,
             selectedReview.id
           );
-          navigate(absoluteCohortReviewURL(params, cohort.id));
+          navigate(absoluteCohortReviewListURL(params, cohort.id));
         }
         return wrapResults(
           await source.listCohortReviews(params.studyId, cohort.id)
@@ -208,7 +230,7 @@ export function CohortReviewList() {
                   sx={{ p: 0, mt: 1 }}
                   component={RouterLink}
                   key={item.id()}
-                  to={absoluteCohortReviewURL(params, cohort.id, item.id())}
+                  to={absoluteCohortReviewListURL(params, cohort.id, item.id())}
                   disabled={!!item.pending}
                 >
                   <SelectablePaper selected={item.id() === selectedReview?.id}>
@@ -291,8 +313,13 @@ export function CohortReviewList() {
 }
 
 function ReviewStats(props: { review: CohortReview }) {
+  const navigate = useNavigate();
+
   return (
     <Stack>
+      <Button variant="contained" onClick={() => navigate("review")}>
+        Review
+      </Button>
       <Typography variant="body1">
         TODO: Statistics for {props.review.displayName}!
       </Typography>

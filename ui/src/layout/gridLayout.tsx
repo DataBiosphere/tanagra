@@ -3,7 +3,7 @@ import { Theme, useTheme } from "@mui/material/styles";
 import { Children, PropsWithChildren } from "react";
 import { isValid } from "util/valid";
 
-type axisDesc = undefined | number | string | ((theme: Theme) => string);
+type axisDesc = undefined | number | string | ((theme: Theme) => string) | true;
 
 export type GridLayoutProps = {
   rows?: axisDesc;
@@ -11,13 +11,21 @@ export type GridLayoutProps = {
 
   fillRow?: number;
   fillCol?: number;
+
+  colAlign?: "stretch" | "left" | "center" | "right";
+  rowAlign?: "stretch" | "top" | "middle" | "bottom" | "baseline";
 };
 
 function parseDesc(
   theme: Theme,
   ad: axisDesc,
+  childCount: number,
   fillIndex?: number
 ): [string, number] {
+  if (ad === true) {
+    ad = childCount;
+  }
+
   if (!isValid(ad)) {
     return ["1fr", 1];
   }
@@ -36,13 +44,40 @@ function parseDesc(
   return [tmpl, tmpl.split(/\s+/).length];
 }
 
+function translateDirection(dir: string): string {
+  switch (dir) {
+    case "left":
+    case "top":
+      return "start";
+    case "middle":
+      return "center";
+    case "right":
+    case "bottom":
+      return "end";
+  }
+
+  return dir;
+}
+
 export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
   const theme = useTheme();
-
-  const [rowTmpl] = parseDesc(theme, props.rows, props.fillRow);
-  const [colTmpl, colCount] = parseDesc(theme, props.cols, props.fillCol);
-
   const children = Children.toArray(props.children);
+
+  const [rowTmpl] = parseDesc(
+    theme,
+    props.rows,
+    children?.length ?? 0,
+    props.fillRow
+  );
+  const [colTmpl, colCount] = parseDesc(
+    theme,
+    props.cols,
+    children?.length ?? 0,
+    props.fillCol
+  );
+
+  const ra = props.rowAlign ?? "stretch";
+  const ca = props.colAlign ?? "stretch";
 
   return (
     <Box
@@ -52,6 +87,8 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
         display: "grid",
         gridTemplateRows: rowTmpl,
         gridTemplateColumns: colTmpl,
+        alignItems: translateDirection(ra),
+        justifyItems: translateDirection(ca),
       }}
     >
       {children.map((child, i) => (
