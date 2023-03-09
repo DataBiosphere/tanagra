@@ -444,7 +444,7 @@ function Preview(props: PreviewProps) {
       (unfilteredCohorts.data ?? []).filter((cohort) =>
         props.selectedCohorts.has(cohort.id)
       ),
-    [unfilteredCohorts.data]
+    [unfilteredCohorts.data, props.selectedCohorts]
   );
 
   const [tab, setTab] = useState(0);
