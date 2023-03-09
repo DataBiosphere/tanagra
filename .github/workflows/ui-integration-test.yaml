@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
-          distribution: 'temurin'
+          distribution: "temurin"
 
       - name: Initialize Postgres DB
         env:
@@ -70,7 +70,7 @@ jobs:
         uses: ./.github/actions/start-local-server
 
       - name: Cypress run
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         with:
           build: npm run codegen
           start: npm start
