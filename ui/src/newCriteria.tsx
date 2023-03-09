@@ -7,7 +7,7 @@ export default function NewCriteria() {
 
   return (
     <CriteriaHolder
-      title={`New ${criteria.config.title} Criteria`}
+      title={`New "${criteria.config.title}" criteria`}
       plugin={getCriteriaPlugin(criteria)}
       doneURL={"../.."}
       cohort

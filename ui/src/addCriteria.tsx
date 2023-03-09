@@ -45,6 +45,7 @@ export function AddConceptSetCriteria() {
   return (
     <AddCriteria
       conceptSet
+      title="New data feature"
       backURL={backURL}
       onInsertCriteria={onInsertCriteria}
     />
@@ -64,11 +65,14 @@ export function AddCohortCriteria() {
     [context, cohort.id, group.id]
   );
 
-  return <AddCriteria onInsertCriteria={onInsertCriteria} />;
+  return (
+    <AddCriteria title="Add criteria" onInsertCriteria={onInsertCriteria} />
+  );
 }
 
 type AddCriteriaProps = {
   conceptSet?: boolean;
+  title: string;
   backURL?: string;
   onInsertCriteria: (criteria: tanagra.Criteria) => void;
 };
@@ -186,7 +190,7 @@ function AddCriteria(props: AddCriteriaProps) {
     >
       <Search placeholder="Search criteria or select from the options below" />
       <ActionBar
-        title={"Add criteria"}
+        title={props.title}
         extraControls={!props.conceptSet ? <CohortToolbar /> : undefined}
         backURL={props.backURL}
       />
