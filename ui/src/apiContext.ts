@@ -264,7 +264,7 @@ class FakeConceptSetsAPI {
         id: "test_concept_set",
         created: new Date(),
         createdBy: "test_user",
-        displayName: "Test Concept Set",
+        displayName: "Test data feature",
         lastModified: new Date(),
         underlayName: "test_underlay",
         entity: "test_entity",

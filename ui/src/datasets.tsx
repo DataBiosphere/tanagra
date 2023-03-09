@@ -225,7 +225,7 @@ export function Datasets() {
           >
             <Stack>
               <Typography variant="h4" sx={{ flexGrow: 1 }}>
-                2. Select concept sets
+                2. Select data features
               </Typography>
               <Typography variant="body1">
                 Which information to include about participants
@@ -310,7 +310,7 @@ export function Datasets() {
               <Empty
                 maxWidth="80%"
                 title="No inputs selected"
-                subtitle="You can view the available values by selecting at least one cohort and concept set"
+                subtitle="You can view the available values by selecting at least one cohort and data feature"
               />
             )}
             {conceptSetOccurrences.map((occurrence) => (
@@ -362,7 +362,7 @@ export function Datasets() {
                 minHeight="200px"
                 image="/empty.png"
                 title="No inputs selected"
-                subtitle="You can preview the data by selecting at least one cohort and concept set"
+                subtitle="You can preview the data by selecting at least one cohort and data feature"
               />
             )}
           </Paper>
@@ -567,7 +567,7 @@ function Preview(props: PreviewProps) {
                 minHeight="200px"
                 image="/empty.png"
                 title="No data matched"
-                subtitle="No data in this table matched the specified cohorts ands concept sets"
+                subtitle="No data in this table matched the specified cohorts and data features"
               />
             )}
           </div>
