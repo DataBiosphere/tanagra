@@ -284,10 +284,9 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/entities/${request.entityName}/instances`,
         {
           method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          mode: "cors",
+          cache: "no-cache",
+          headers: { 'Content-Type': 'application/json' },
           referrerPolicy: "no-referrer",
           body: JSON.stringify(request.queryV2),
         }
@@ -309,7 +308,8 @@ export class BackendSource implements Source {
             `http://localhost:8080/api/repository/v1/cohort-builder/entities/${groupingRequest.entityName}/instances`,
             {
               method: "POST",
-              mode: "no-cors",
+              mode: "cors",
+              cache: "no-cache",
               headers: {
                 "Content-Type": "application/json",
               },
@@ -361,7 +361,8 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/entities/${classification.entity}/instances`,
         {
           method: "POST",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -428,7 +429,8 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/entities/${entity.entity}/instances`,
         {
           method: "POST",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -470,7 +472,8 @@ export class BackendSource implements Source {
     const res = await parseAPIError(
       fetch(`/api/repository/v1/cohort-builder/entities/${entity}/hints`, {
         method: "POST",
-        mode: "no-cors",
+        mode: "cors",
+        cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
         },
@@ -515,7 +518,8 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/entities/${this.config.primaryEntity.entity}/instances`,
         {
           method: "POST",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -688,7 +692,8 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohortId}`,
         {
           method: "GET",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -702,7 +707,8 @@ export class BackendSource implements Source {
     return parseAPIError(
       fetch("http://localhost:8080/api/repository/v1/cohort-builder/cohorts", {
         method: "GET",
-        mode: "no-cors",
+        mode: "cors",
+        cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
         },
@@ -722,12 +728,11 @@ export class BackendSource implements Source {
       "http://localhost:8080/api/repository/v1/cohort-builder/cohorts",
       {
         method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        mode: "cors",
+        cache: "no-cache",
+        headers: { 'Content-Type': 'application/json' },
         referrerPolicy: "no-referrer",
-        body: JSON.stringify({ displayName }),
+        body: JSON.stringify({ displayName })
       }
     ).then((response) => response.json());
   }
@@ -738,7 +743,8 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohort.id}`,
         {
           method: "PATCH",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -761,7 +767,8 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/concept-sets/${conceptSetId}`,
         {
           method: "GET",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -777,7 +784,8 @@ export class BackendSource implements Source {
         "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
         {
           method: "GET",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -799,7 +807,8 @@ export class BackendSource implements Source {
         "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
         {
           method: "POST",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -825,7 +834,8 @@ export class BackendSource implements Source {
         `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${conceptSet.id}`,
         {
           method: "PATCH",
-          mode: "no-cors",
+          mode: "cors",
+          cache: "no-cache",
           headers: {
             "Content-Type": "application/json",
           },
@@ -1392,7 +1402,7 @@ function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
   return {
     id: cohort.id,
     name: cohort.displayName,
-    underlayName: cohort.underlayName,
+    underlayName: "cms_synpuf",
     groups: fromAPICohortGroups(cohort.criteriaGroups),
   };
 }
@@ -1432,7 +1442,7 @@ function fromAPIConceptSet(
 ): tanagra.ConceptSet {
   return {
     id: conceptSet.id,
-    underlayName: conceptSet.underlayName,
+    underlayName: "cms_synpuf",
     criteria: conceptSet.criteria && fromAPICriteria(conceptSet.criteria),
   };
 }
