@@ -151,7 +151,8 @@ export class BackendAdminSource implements AdminSource {
       `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohortId}`,
       {
         method: "PATCH",
-        mode: "no-cors",
+        mode: "cors",
+        cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
         },
@@ -170,7 +171,8 @@ export class BackendAdminSource implements AdminSource {
       "http://localhost:8080/api/repository/v1/cohort-builder/cohorts",
       {
         method: "GET",
-        mode: "no-cors",
+        mode: "cors",
+        cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
         },
@@ -184,7 +186,8 @@ export class BackendAdminSource implements AdminSource {
       "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
       {
         method: "GET",
-        mode: "no-cors",
+        mode: "cors",
+        cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
         },

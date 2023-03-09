@@ -286,7 +286,7 @@ export class BackendSource implements Source {
           method: "POST",
           mode: "cors",
           cache: "no-cache",
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
           referrerPolicy: "no-referrer",
           body: JSON.stringify(request.queryV2),
         }
@@ -515,7 +515,7 @@ export class BackendSource implements Source {
   ): Promise<FilterCountValue[]> {
     const data = await parseAPIError(
       fetch(
-        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${this.config.primaryEntity.entity}/instances`,
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${this.config.primaryEntity.entity}/counts`,
         {
           method: "POST",
           mode: "cors",
@@ -730,9 +730,9 @@ export class BackendSource implements Source {
         method: "POST",
         mode: "cors",
         cache: "no-cache",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
-        body: JSON.stringify({ displayName })
+        body: JSON.stringify({ displayName }),
       }
     ).then((response) => response.json());
   }
