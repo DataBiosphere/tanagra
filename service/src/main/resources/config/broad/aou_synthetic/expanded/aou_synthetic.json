@@ -4,7 +4,7 @@
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
     "projectId" : "broad-tanagra-dev",
-    "datasetId" : "aousynthetic_index_011523",
+    "datasetId" : "aousynthetic_index_031323",
     "queryProjectId" : "broad-tanagra-dev"
   }, {
     "type" : "BQ_DATASET",

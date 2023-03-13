@@ -49,12 +49,12 @@ import org.slf4j.LoggerFactory;
  * <p>This job is called 4 times for condition entity. For SDD condition 22274:
  *
  * <pre>
- * critertiaToPrimary relationship, no hierarchy:
+ * criteriaToPrimary relationship, no hierarchy:
  *
  *     t_count_person column = 755 will be added to index condition table, because 775 people have
  *          a condition occurrence entity with condition 22274
  *
- * critertiaToPrimary relationship, standard hierarchy:
+ * criteriaToPrimary relationship, standard hierarchy:
  *
  *     t_count_person_standard: 775 people have an occurrence entity with condition 22274 or a
  *         condition below it in the hierarchy
