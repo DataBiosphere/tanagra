@@ -46,7 +46,8 @@ import org.slf4j.LoggerFactory;
  * Count the number of distinct occurrences for entity, which may optionally include a hierarchy,
  * and writes the results to the index entity BQ table.
  *
- * <p>This job is called 4 times for condition entity. For SDD condition 22274:
+ * <p>This job is called 4 times for condition_person_occurrence entity group. For SDD condition
+ * 22274:
  *
  * <pre>
  * criteriaToPrimary relationship, no hierarchy:
