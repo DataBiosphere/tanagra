@@ -59,11 +59,21 @@ export type CriteriaSearchConfig = {
 export type CohortReviewConfig = {
   primaryKey: string;
   attributes: CohortReviewAttribute[];
+  pages: CohortReviewPageConfig[];
 };
 
 export type CohortReviewAttribute = {
   title: string;
   key: string;
+};
+
+export type CohortReviewPageConfig = {
+  type: string;
+  id: string;
+  title: string;
+
+  // Plugin specific config.
+  plugin: unknown;
 };
 
 // CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of

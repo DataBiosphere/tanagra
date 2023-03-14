@@ -5,22 +5,31 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LockIcon from "@mui/icons-material/Lock";
 import MenuIcon from "@mui/icons-material/Menu";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
 import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Tab from "@mui/material/Tab";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { useCohortContext } from "cohortContext";
+import { InstanceContext } from "cohortReview/instanceContext";
+import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
+import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
 import Loading from "components/loading";
+import { FilterType } from "data/filter";
 import {
   Annotation,
   AnnotationType,
   ReviewInstance,
   useSource,
 } from "data/source";
+import { DataEntry } from "data/types";
 import { useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -28,11 +37,12 @@ import { ReactNode, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 import { useSearchData } from "util/searchData";
-import { useNewAnnotationDialog } from "./newAnnotationDialog";
 
 type SearchData = {
-  index?: number;
+  instanceIndex?: number;
+  pageId?: string;
   editingAnnotations?: boolean;
 };
 
@@ -51,10 +61,16 @@ export function CohortReview() {
     throw new Error("Cohort context state is null.");
   }
 
+  const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
 
+  const pagePlugins = useMemo(
+    () => uiConfig.pages.map((p) => getCohortReviewPlugin(p)),
+    [uiConfig.pages]
+  );
+
   const primaryAttributes = useMemo(
-    () => [uiConfig.primaryKey, ...uiConfig.attributes.map((a) => a.key)],
+    () => [primaryKey, ...uiConfig.attributes.map((a) => a.key)],
     [uiConfig]
   );
 
@@ -71,7 +87,7 @@ export function CohortReview() {
 
   const instancesState = useSWR(
     {
-      type: "reviewInstances",
+      type: "reviewInstance",
       studyId: params.studyId,
       reviewId,
       cohortId: cohort.id,
@@ -118,9 +134,65 @@ export function CohortReview() {
 
   const [searchData, updateSearchData] = useSearchData<SearchData>();
 
-  const index = searchData.index ?? 0;
-  const instance = instancesState.data?.[index];
+  const instanceIndex = searchData.instanceIndex ?? 0;
+  const instance = instancesState.data?.[instanceIndex];
   const count = instancesState.data?.length ?? 1;
+
+  const pageId = searchData.pageId ?? pagePlugins[0].id;
+
+  const changePage = (event: React.SyntheticEvent, newValue: string) => {
+    updateSearchData((data) => {
+      data.pageId = newValue;
+    });
+  };
+
+  const instanceDataState = useSWRImmutable(
+    {
+      type: "reviewInstanceData",
+      studyId: params.studyId,
+      cohortId: cohort.id,
+      reviewId,
+      instanceIndex,
+    },
+    async () => {
+      if (!instance?.data) {
+        throw new Error("Instances not loaded yet.");
+      }
+
+      const occurrenceIds: string[] = [];
+      pagePlugins.forEach((p) => occurrenceIds.push(...p.occurrences));
+
+      const res = await Promise.all(
+        occurrenceIds.map((id) => {
+          return source.listData(
+            source.listAttributes(id),
+            id,
+            {
+              type: FilterType.Attribute,
+              occurrenceID: "",
+              attribute: "id",
+              values: [instance?.data?.[primaryKey]],
+            },
+            null,
+            10000
+          );
+        })
+      );
+
+      const occurrences: { [x: string]: DataEntry[] } = {};
+      res.forEach(
+        (r, i) =>
+          (occurrences[occurrenceIds[i]] = r.data.map((o) => ({
+            ...o,
+            timestamp: o["start_date"] as Date,
+          })))
+      );
+      console.log(occurrences);
+      return {
+        occurrences,
+      };
+    }
+  );
 
   return (
     <GridBox>
@@ -144,17 +216,17 @@ export function CohortReview() {
               <GridLayout rows colAlign="center">
                 <Typography variant="h3">Participant</Typography>
                 <Typography variant="h3">
-                  {instance?.data?.[uiConfig.primaryKey]}
+                  {instance?.data?.[primaryKey]}
                 </Typography>
                 <Typography variant="h4">
-                  {index + 1}/{count}
+                  {instanceIndex + 1}/{count}
                 </Typography>
                 <GridLayout cols>
                   <IconButton
-                    disabled={index === 0}
+                    disabled={instanceIndex === 0}
                     onClick={() =>
                       updateSearchData((data: SearchData) => {
-                        data.index = index - 1;
+                        data.instanceIndex = instanceIndex - 1;
                       })
                     }
                   >
@@ -164,10 +236,10 @@ export function CohortReview() {
                     <MenuIcon />
                   </IconButton>
                   <IconButton
-                    disabled={index === count - 1}
+                    disabled={instanceIndex === count - 1}
                     onClick={() =>
                       updateSearchData((data: SearchData) => {
-                        data.index = index + 1;
+                        data.instanceIndex = instanceIndex + 1;
                       })
                     }
                   >
@@ -231,14 +303,39 @@ export function CohortReview() {
           </GridBox>
           <GridBox
             sx={{
-              p: 1,
               backgroundColor: (theme) => theme.palette.background.paper,
               borderLeftStyle: "solid",
               borderColor: (theme) => theme.palette.divider,
               borderWidth: "1px",
             }}
           >
-            TODO
+            <Loading status={instanceDataState}>
+              <InstanceContext.Provider value={instanceDataState.data}>
+                <TabContext value={pageId}>
+                  <GridLayout rows>
+                    <TabList onChange={changePage}>
+                      {pagePlugins.map((p) => (
+                        <Tab key={p.id} label={p.title} value={p.id} />
+                      ))}
+                    </TabList>
+                    <GridBox
+                      sx={{
+                        p: 1,
+                        borderTopStyle: "solid",
+                        borderColor: (theme) => theme.palette.divider,
+                        borderWidth: "1px",
+                      }}
+                    >
+                      {pagePlugins.map((p) => (
+                        <TabPanel key={p.id} value={p.id} sx={{ p: 0 }}>
+                          {p.render()}
+                        </TabPanel>
+                      ))}
+                    </GridBox>
+                  </GridLayout>
+                </TabContext>
+              </InstanceContext.Provider>
+            </Loading>
           </GridBox>
         </GridLayout>
         {newAnnotationDialog}

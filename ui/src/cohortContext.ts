@@ -68,6 +68,7 @@ export function useNewCohortContext() {
   const { mutate } = useSWRConfig();
 
   return {
+    ...status,
     isLoading: status.isLoading || !state,
     context: {
       state: state,
