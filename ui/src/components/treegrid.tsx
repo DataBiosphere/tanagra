@@ -150,8 +150,8 @@ export function TreeGrid(props: TreeGridProps) {
                   }),
                 }}
               >
-                <div
-                  style={{
+                <Box
+                  sx={{
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
@@ -166,7 +166,7 @@ export function TreeGrid(props: TreeGridProps) {
                   >
                     {col.title}
                   </Typography>
-                </div>
+                </Box>
               </td>
             ))}
           </tr>
@@ -229,6 +229,19 @@ function renderChildren(
       const columnCustomization = rowCustomization?.find(
         (c) => c.column === column
       );
+
+      const textSx = {
+        width: "100%",
+        textAlign: "initial",
+        ...(props.wrapBodyText
+          ? { overflowWrap: "break-word", wordBreak: "normal" }
+          : {
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+            }),
+      };
+
       return (
         <>
           {column === 0 &&
@@ -253,30 +266,13 @@ function renderChildren(
               underline="hover"
               title={title}
               onClick={columnCustomization.onClick}
-              sx={{
-                width: "100%",
-                textAlign: "initial",
-                ...(props.wrapBodyText
-                  ? { wordBreak: "break-all" }
-                  : {
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                    }),
-              }}
+              sx={textSx}
             >
               {value}
             </Link>
           ) : (
             columnCustomization?.content ?? (
-              <Typography
-                variant="body1"
-                noWrap={!props.wrapBodyText}
-                title={title}
-                sx={{
-                  display: "inline",
-                }}
-              >
+              <Typography variant="body1" title={title} sx={textSx}>
                 {value}
               </Typography>
             )
@@ -303,7 +299,10 @@ function renderChildren(
 
           let title = "";
           // Stringify values other than Elements.
-          if (!(value instanceof Object)) {
+          if (value instanceof Date) {
+            value = value.toDateString();
+            title = value;
+          } else if (!(value instanceof Object)) {
             value = String(value);
             title = value;
           }

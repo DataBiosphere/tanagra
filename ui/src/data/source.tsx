@@ -153,7 +153,8 @@ export interface Source {
     requestedAttributes: string[],
     occurrenceID: string,
     cohort: Filter,
-    conceptSet: Filter | null
+    conceptSet: Filter | null,
+    limit?: number
   ): Promise<ListDataResponse>;
 
   getHintData(
@@ -452,7 +453,8 @@ export class BackendSource implements Source {
     requestedAttributes: string[],
     occurrenceID: string,
     cohort: Filter,
-    conceptSet: Filter | null
+    conceptSet: Filter | null,
+    limit?: number
   ): Promise<ListDataResponse> {
     const entity = findEntity(occurrenceID, this.config);
 
@@ -464,7 +466,8 @@ export class BackendSource implements Source {
           requestedAttributes,
           occurrenceID,
           cohort,
-          conceptSet
+          conceptSet,
+          limit
         ),
       })
     );
@@ -869,7 +872,8 @@ export class BackendSource implements Source {
     requestedAttributes: string[],
     occurrenceID: string,
     cohort: Filter,
-    conceptSet: Filter | null
+    conceptSet: Filter | null,
+    limit?: number
   ): tanagra.QueryV2 {
     let cohortFilter = generateFilter(this, cohort, true);
     if (!cohortFilter) {
@@ -904,7 +908,7 @@ export class BackendSource implements Source {
     return {
       includeAttributes: requestedAttributes,
       filter,
-      limit: 50,
+      limit: limit ?? 50,
     };
   }
 }
@@ -953,9 +957,7 @@ function literalFromDataValue(value: DataValue): tanagra.LiteralV2 {
       int64Val: typeof value === "number" ? value : undefined,
       stringVal: typeof value === "string" ? value : undefined,
       boolVal: typeof value === "boolean" ? value : undefined,
-      // The en-CA locale uses the ISO 8601 standard YYY-MM-DD.
-      dateVal:
-        value instanceof Date ? value.toLocaleDateString("en-CA") : undefined,
+      dateVal: value instanceof Date ? value.toISOString() : undefined,
     },
   };
 }
@@ -971,7 +973,7 @@ function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
       return value.valueUnion?.stringVal ?? null;
     case tanagra.DataTypeV2.Date:
       return value.valueUnion?.dateVal
-        ? Date.parse(value.valueUnion.dateVal)
+        ? new Date(value.valueUnion.dateVal)
         : null;
     case tanagra.DataTypeV2.Boolean:
       return value.valueUnion?.boolVal ?? null;

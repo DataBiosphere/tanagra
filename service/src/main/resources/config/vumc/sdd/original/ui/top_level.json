@@ -281,7 +281,6 @@
     ]
   },
   "cohortReviewConfig": {
-    "primaryKey": "id",
     "attributes": [
       {
         "title": "Gender",
@@ -298,6 +297,33 @@
       {
         "title": "Ethnicity",
         "key": "ethnicity"
+      }
+    ],
+    "pages": [
+      {
+        "type": "occurrenceTable",
+        "id": "condition",
+        "title": "Condition",
+        "plugin": {
+          "occurrence": "condition_occurrence",
+          "columns": [
+            { "key": "condition", "width": "100%", "title": "Condition name" },
+            { "key": "start_date", "width": 200, "title": "Start date" },
+            { "key": "end_date", "width": 200, "title": "End date" }
+          ]
+        }
+      },
+      {
+        "type": "occurrenceTable",
+        "id": "procedure",
+        "title": "Procedure",
+        "plugin": {
+          "occurrence": "procedure_occurrence",
+          "columns": [
+            { "key": "procedure", "width": "100%", "title": "Procedure name" },
+            { "key": "date", "width": 200, "title": "Date" }
+          ]
+        }
       }
     ]
   }
