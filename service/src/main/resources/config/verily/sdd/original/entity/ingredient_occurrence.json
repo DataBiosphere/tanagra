@@ -16,7 +16,7 @@
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "table": "drug_exposure" },
+    "tablePointer": { "rawSqlFile": "drug_exposure.sql" },
     "attributeMappings": {
       "id": { "value": { "column": "drug_exposure_id" } },
       "ingredient": {

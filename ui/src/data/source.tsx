@@ -336,6 +336,15 @@ export class BackendSource implements Source {
           queryV2: {
             includeAttributes:
               normalizeRequestedAttributes(requestedAttributes),
+            includeHierarchyFields: !!classification.hierarchy
+              ? {
+                  hierarchies: [classification.hierarchy],
+                  fields: [
+                    tanagra.QueryV2IncludeHierarchyFieldsFieldsEnum.Path,
+                    tanagra.QueryV2IncludeHierarchyFieldsFieldsEnum.NumChildren,
+                  ],
+                }
+              : undefined,
             filter: {
               filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
               filterUnion: {
