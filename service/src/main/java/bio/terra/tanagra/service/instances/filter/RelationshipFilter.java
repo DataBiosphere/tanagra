@@ -126,7 +126,7 @@ public class RelationshipFilter extends EntityFilter {
       //   SELECT x.person_id,
       //   FROM (
       //     SELECT c.person_id, c.start_date
-      //     FROM `verily-tanagra-dev.sdstatic_index_022723`.condition_occurrence AS c
+      //     FROM `verily-tanagra-dev.sdstatic_index_031523`.condition_occurrence AS c
       //     WHERE c.condition = 4002818
       //     GROUP BY c.person_id, c.start_date) as x
       //   GROUP BY x.person_id
