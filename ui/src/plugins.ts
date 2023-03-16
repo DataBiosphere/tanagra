@@ -3,6 +3,7 @@
 // Core plugins
 import "criteria/attribute";
 import "criteria/classification";
+import "criteria/textSearch";
 
 // Storage plugin
 import "storage/local";

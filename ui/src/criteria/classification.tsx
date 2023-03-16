@@ -56,6 +56,8 @@ export interface Data {
   selected: Selection[];
 }
 
+// "classification" plugins select occurrences based on an occurrence field that
+// references another entity, often using hierarchies and/or groupings.
 @registerCriteriaPlugin(
   "classification",
   (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {

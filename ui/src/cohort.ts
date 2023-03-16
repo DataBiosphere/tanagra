@@ -81,7 +81,8 @@ export function getCriteriaTitle<DataType>(
   plugin?: CriteriaPlugin<DataType>
 ) {
   const p = plugin ?? getCriteriaPlugin(criteria);
-  return `${criteria.config.title}: ${p.displayDetails().title}`;
+  const title = p.displayDetails().title;
+  return criteria.config.title + (title.length > 0 ? `: ${title}` : "");
 }
 
 export function searchCriteria(
