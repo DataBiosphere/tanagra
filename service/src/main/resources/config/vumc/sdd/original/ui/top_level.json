@@ -91,6 +91,12 @@
             ]
           }
         ]
+      },
+      {
+        "id": "note_occurrence",
+        "displayName": "Documents",
+        "entity": "note_occurrence",
+        "key": "id"
       }
     ]
   },
@@ -216,6 +222,16 @@
       "title": "Year of birth",
       "category": "Program data",
       "attribute": "year_of_birth"
+    },
+    {
+      "type": "search",
+      "id": "tanagra-documents",
+      "title": "Documents",
+      "conceptSet": true,
+      "category": "Domains",
+      "occurrenceId": "note_occurrence",
+      "searchAttribute": "title",
+      "categoryAttribute": "note"
     }
   ],
   "demographicChartConfigs": {

@@ -6,6 +6,7 @@ export enum FilterType {
   Array = "ARRAY",
   Classification = "CLASSIFICATION",
   Attribute = "ATTRIBUTE",
+  Text = "TEXT",
 }
 
 type BaseFilter = {
@@ -68,6 +69,16 @@ export function isAttributeFilter(filter: Filter): filter is AttributeFilter {
   return filter.type == FilterType.Attribute;
 }
 
+export type TextFilter = BaseFilter & {
+  occurrenceID: string;
+  text: string;
+  attribute?: string;
+};
+
+export function isTextFilter(filter: Filter): filter is TextFilter {
+  return filter.type == FilterType.Text;
+}
+
 export type ClassificationFilter = BaseFilter & {
   occurrenceID: string;
   classificationID: string;
@@ -84,4 +95,5 @@ export type Filter =
   | UnaryFilter
   | ArrayFilter
   | AttributeFilter
-  | ClassificationFilter;
+  | ClassificationFilter
+  | TextFilter;

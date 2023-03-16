@@ -31,6 +31,7 @@ import {
   isArrayFilter,
   isAttributeFilter,
   isClassificationFilter,
+  isTextFilter,
   isUnaryFilter,
 } from "./filter";
 import { CohortReview, DataEntry, DataKey, DataValue } from "./types";
@@ -485,18 +486,9 @@ export class BackendSource implements Source {
     occurrenceID: string,
     attributeID: string
   ): Promise<HintData | undefined> {
-    if (occurrenceID) {
-      return undefined;
-    }
-
-    let entity = this.config.primaryEntity.entity;
-    if (occurrenceID) {
-      entity = findByID(occurrenceID, this.config.occurrences).entity;
-    }
-
     const res = await parseAPIError(
       this.hintsApi.queryHints({
-        entityName: entity,
+        entityName: findEntity(occurrenceID, this.config).entity,
         underlayName: this.underlay.name,
         hintQueryV2: {},
       })
@@ -1338,6 +1330,27 @@ function generateOccurrenceFilter(
 
     return [null, ""];
   }
+
+  if (isTextFilter(filter)) {
+    if (filter.text.length === 0) {
+      return [null, ""];
+    }
+
+    return [
+      {
+        filterType: tanagra.FilterV2FilterTypeEnum.Text,
+        filterUnion: {
+          textFilter: {
+            matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
+            text: filter.text,
+            attribute: filter.attribute,
+          },
+        },
+      },
+      findEntity(filter.occurrenceID, source.config).entity,
+    ];
+  }
+
   throw new Error(`Unknown filter type: ${JSON.stringify(filter)}`);
 }
 
