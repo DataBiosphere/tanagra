@@ -43,7 +43,7 @@ jobs:
         run: psql -h 127.0.0.1 -U postgres -f ./service/local-dev/local-postgres-init.sql
 
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -81,14 +81,14 @@ jobs:
       # thus we store screenshots only on failures
       # Alternative: create and commit an empty cypress/screenshots folder
       # to always have something to upload
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots
           path: ui/cypress/screenshots
 
       # Test run video was always captured, so this action uses "always()" condition
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: cypress-videos
