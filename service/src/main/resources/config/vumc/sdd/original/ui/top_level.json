@@ -3,7 +3,19 @@
     "primaryEntity": {
       "displayName": "Person",
       "entity": "person",
-      "key": "id"
+      "key": "id",
+      "classifications": [
+        {
+          "id": "snp",
+          "attribute": "id",
+          "entity": "snp",
+          "entityAttribute": "id",
+          "defaultSort": {
+            "attribute": "id",
+            "direction": "ASC"
+          }
+        }
+      ]
     },
     "occurrences": [
       {
@@ -232,6 +244,15 @@
       "occurrenceId": "note_occurrence",
       "searchAttribute": "title",
       "categoryAttribute": "note"
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-snp",
+      "title": "SNP variant",
+      "category": "Program data",
+      "columns": [{ "key": "id", "width": "100%", "title": "SNP variant" }],
+      "occurrence": "",
+      "classification": "snp"
     }
   ],
   "demographicChartConfigs": {

@@ -304,6 +304,10 @@ export class BackendSource implements Source {
   ) {}
 
   lookupOccurrence(occurrenceID: string): Occurrence {
+    if (!occurrenceID) {
+      return { ...this.config.primaryEntity, id: "" };
+    }
+
     return findByID(occurrenceID, this.config.occurrences);
   }
 
@@ -323,10 +327,9 @@ export class BackendSource implements Source {
     classificationID: string,
     options?: SearchClassificationOptions
   ): Promise<SearchClassificationResult> {
-    const occurrence = findByID(occurrenceID, this.config.occurrences);
-    const classification = findByID(
-      classificationID,
-      occurrence.classifications
+    const classification = this.lookupClassification(
+      occurrenceID,
+      classificationID
     );
 
     const query = !options?.parent ? options?.query || "" : undefined;
@@ -336,6 +339,7 @@ export class BackendSource implements Source {
         searchRequest(
           requestedAttributes,
           this.underlay,
+          occurrenceID,
           classification,
           undefined,
           query,
@@ -351,6 +355,7 @@ export class BackendSource implements Source {
             searchRequest(
               requestedAttributes,
               this.underlay,
+              occurrenceID,
               classification,
               grouping,
               query,
@@ -977,6 +982,7 @@ function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
 function searchRequest(
   requestedAttributes: string[],
   underlay: Underlay,
+  occurrenceID: string,
   classification: Classification,
   grouping?: Grouping,
   query?: string,
@@ -1049,16 +1055,17 @@ function searchRequest(
               ],
             }
           : undefined,
-      includeRelationshipFields: !grouping
-        ? [
-            {
-              relatedEntity: underlay.primaryEntity,
-              hierarchies: !!classification.hierarchy
-                ? [classification.hierarchy]
-                : undefined,
-            },
-          ]
-        : undefined,
+      includeRelationshipFields:
+        !grouping && !!occurrenceID
+          ? [
+              {
+                relatedEntity: underlay.primaryEntity,
+                hierarchies: !!classification.hierarchy
+                  ? [classification.hierarchy]
+                  : undefined,
+              },
+            ]
+          : undefined,
       filter:
         makeBooleanLogicFilter(
           tanagra.BooleanLogicFilterV2OperatorEnum.And,
