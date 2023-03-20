@@ -3,11 +3,9 @@
 name: Nightly tests
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ '**' ]
   workflow_dispatch:
+  schedule:
+  - cron: '0 7 * * *' # 7AM UTC = 2AM EST
 
 jobs:
   test:
