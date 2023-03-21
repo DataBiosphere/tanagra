@@ -407,8 +407,10 @@ export class BackendSource implements Source {
           entityName: classification.entity,
           underlayName: this.underlay.name,
           queryV2: {
-            includeAttributes:
-              normalizeRequestedAttributes(requestedAttributes),
+            includeAttributes: normalizeRequestedAttributes(
+              requestedAttributes,
+              classification.entityAttribute
+            ),
             filter: {
               filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
               filterUnion: {
@@ -1043,7 +1045,8 @@ function searchRequest(
     underlayName: underlay.name,
     queryV2: {
       includeAttributes: normalizeRequestedAttributes(
-        grouping?.attributes ?? requestedAttributes
+        grouping?.attributes ?? requestedAttributes,
+        !grouping?.attributes ? classification.entityAttribute : undefined
       ),
       includeHierarchyFields:
         !!classification.hierarchy && !grouping
@@ -1420,20 +1423,25 @@ function makeOrderBy(
   return orderBy;
 }
 
-function normalizeRequestedAttributes(attributes: string[]) {
-  return [
-    ...new Set(
-      attributes
-        .filter((a) => a !== ROLLUP_COUNT_ATTRIBUTE)
-        .map((a) => {
-          const i = a.indexOf(VALUE_SUFFIX);
-          if (i != -1) {
-            return a.substring(0, i);
-          }
-          return a;
-        })
-    ),
-  ];
+function normalizeRequestedAttributes(
+  attributes: string[],
+  requiredAttribute?: string
+) {
+  const a = attributes
+    .filter((a) => a !== ROLLUP_COUNT_ATTRIBUTE)
+    .map((a) => {
+      const i = a.indexOf(VALUE_SUFFIX);
+      if (i != -1) {
+        return a.substring(0, i);
+      }
+      return a;
+    });
+
+  if (requiredAttribute) {
+    a.push(requiredAttribute);
+  }
+
+  return [...new Set(a)];
 }
 
 function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {

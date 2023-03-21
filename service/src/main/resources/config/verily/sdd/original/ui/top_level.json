@@ -14,6 +14,17 @@
             "attribute": "id",
             "direction": "ASC"
           }
+        },
+        {
+          "id": "genotyping",
+          "attribute": "id",
+          "entity": "genotyping",
+          "entityAttribute": "id",
+          "hierarchy": "standard",
+          "defaultSort": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
         }
       ]
     },
@@ -199,13 +210,17 @@
     {
       "type": "classification",
       "id": "tanagra-genotyping",
-      "title": "Genotyping Platform",
-      "conceptSet": true,
-      "category": "Domains",
+      "title": "Genotyping platform",
+      "category": "Program data",
       "columns": [
-        { "key": "name", "width": "100%", "title": "Genotyping Platform" }
+        { "key": "name", "width": "100%", "title": "Genotyping platform" }
       ],
-      "classification": "Genotyping"
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Genotyping platform" },
+        { "key": "id", "width": 100, "title": "Id" }
+      ],
+      "occurrence": "",
+      "classification": "genotyping"
     },
     {
       "type": "attribute",

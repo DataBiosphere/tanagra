@@ -195,7 +195,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         // parallel.
         let childChildren = data[key]?.children;
         if (!childChildren) {
-          if (!node.grouping && !hierarchy) {
+          if ((!node.grouping && !hierarchy) || node.childCount === 0) {
             childChildren = [];
           }
         }
