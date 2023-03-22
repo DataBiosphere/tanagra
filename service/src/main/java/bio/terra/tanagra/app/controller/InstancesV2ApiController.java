@@ -151,7 +151,9 @@ public class InstancesV2ApiController implements InstancesV2Api {
           hierarchyFieldSet.isRoot(valueDisplay.getValue().getBooleanVal());
           break;
         case PATH:
-          hierarchyFieldSet.path(valueDisplay.getValue().getStringVal());
+          if (valueDisplay != null) {
+            hierarchyFieldSet.path(valueDisplay.getValue().getStringVal());
+          }
           break;
         case NUM_CHILDREN:
           hierarchyFieldSet.numChildren(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
