@@ -6,6 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { ReactNode, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
@@ -318,11 +319,13 @@ function renderChildren(
                 }),
               }}
             >
-              <Box
-                style={{
-                  ...(props.wrapBodyText
-                    ? { wordBreak: "break-all" }
-                    : { whiteSpace: "nowrap" }),
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{
+                  ...(isNull && {
+                    color: (theme) => theme.palette.text.disabled,
+                  }),
                   ...(i === 0 && {
                     // TODO(tjennison): The removal of checkboxes revealed that
                     // the inline-block style on the <thead> that's use to keep
@@ -332,14 +335,9 @@ function renderChildren(
                     paddingLeft: `${indent + 0.2}em`,
                   }),
                 }}
-                sx={{
-                  ...(isNull && {
-                    color: (theme) => theme.palette.text.disabled,
-                  }),
-                }}
               >
                 {renderColumn(i, value, title)}
-              </Box>
+              </Stack>
             </td>
           );
         })}

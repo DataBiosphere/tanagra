@@ -124,13 +124,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "paddingLeft": "0.2em",
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1sg8hwy-MuiStack-root"
             >
               <button
                 className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
@@ -181,12 +175,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1d9cypr-MuiStack-root"
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
@@ -206,12 +195,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1d9cypr-MuiStack-root"
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
@@ -239,13 +223,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "paddingLeft": "1.2em",
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-kv8qlv-MuiStack-root"
             >
               <button
                 className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
@@ -295,12 +273,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1d9cypr-MuiStack-root"
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
@@ -320,12 +293,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1d9cypr-MuiStack-root"
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
@@ -349,13 +317,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "paddingLeft": "0.2em",
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1sg8hwy-MuiStack-root"
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
@@ -375,12 +337,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1d9cypr-MuiStack-root"
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
@@ -400,12 +357,7 @@ Array [
             }
           >
             <div
-              className="MuiBox-root css-0"
-              style={
-                Object {
-                  "whiteSpace": "nowrap",
-                }
-              }
+              className="MuiStack-root css-1d9cypr-MuiStack-root"
             >
               <p
                 className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
