@@ -1,7 +1,4 @@
-import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import Paper from "@mui/material/Paper";
@@ -10,7 +7,6 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { Link as RouterLink } from "react-router-dom";
 import useSWR from "swr";
@@ -20,27 +16,6 @@ export function StudiesList() {
 
   const studiesState = useSWR({ component: "StudiesList" }, async () => {
     return await source.listStudies();
-  });
-
-  const onCreateNewStudy = (name: string) => {
-    studiesState.mutate(async () => {
-      await source.createStudy(name);
-      return await source.listStudies();
-    });
-  };
-
-  const onDeleteStudy = (studyId: string) => {
-    studiesState.mutate(async () => {
-      await source.deleteStudy(studyId);
-      return await source.listStudies();
-    });
-  };
-
-  const [newStudyDialog, showNewStudyDialog] = useTextInputDialog({
-    title: "New study",
-    textLabel: "Study name",
-    buttonLabel: "Create",
-    onConfirm: onCreateNewStudy,
   });
 
   return (
@@ -67,15 +42,6 @@ export function StudiesList() {
                           {study.created.toLocaleString()}
                         </Typography>
                       </Stack>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          onDeleteStudy(study.id);
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
                     </Stack>
                   </Paper>
                 </ListItemButton>
@@ -88,10 +54,6 @@ export function StudiesList() {
               title="No studies created"
             />
           )}
-          <Button onClick={showNewStudyDialog} variant="contained">
-            Add study
-          </Button>
-          {newStudyDialog}
         </Box>
       </Loading>
     </>

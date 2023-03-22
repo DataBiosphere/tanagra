@@ -69,6 +69,7 @@ export function isAttributeFilter(filter: Filter): filter is AttributeFilter {
 }
 
 export type ClassificationFilter = BaseFilter & {
+  type?: FilterType;
   occurrenceID: string;
   classificationID: string;
   keys: DataKey[];

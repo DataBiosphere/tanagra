@@ -15,7 +15,7 @@ export type Underlay = {
   name: string;
   displayName: string;
   primaryEntity: string;
-  entities: tanagra.EntityV2[];
+  entities?: tanagra.EntityV2[];
   uiConfiguration: UIConfiguration;
 };
 
@@ -29,7 +29,7 @@ export type UIConfiguration = {
 };
 
 export type DemographicChartConfig = {
-  additionalSelectedAttributes: string[];
+  additionalSelectedAttributes?: string[];
   groupByAttributes: string[];
   chartConfigs: ChartProperties[];
 };
@@ -52,7 +52,7 @@ export type Bucket = {
 };
 
 export type CriteriaSearchConfig = {
-  criteriaTypeWidth: string;
+  criteriaTypeWidth: number;
   columns: TreeGridColumn[];
 };
 
@@ -75,9 +75,14 @@ export interface CriteriaConfig {
   title: string;
   conceptSet?: boolean;
   category?: string;
+  columns?: TreeGridColumn[];
+  hierarchyColumns?: TreeGridColumn[];
+  occurrence?: string;
+  classification?: string;
+  attribute?: string;
 
   // Plugin specific config.
-  plugin: unknown;
+  plugin?: unknown;
 }
 
 const initialState: Underlay[] = [];

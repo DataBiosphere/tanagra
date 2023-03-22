@@ -12,6 +12,13 @@ import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
 import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
+import {
+  CohortV2,
+  ConceptSetV2,
+  DisplayHintListV2,
+  InstanceCountListV2,
+  InstanceListV2,
+} from "tanagra-api";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 import {
@@ -329,33 +336,54 @@ export class BackendSource implements Source {
 
     const query = !options?.parent ? options?.query || "" : undefined;
 
+    const request = searchRequest(
+      requestedAttributes,
+      this.underlay,
+      classification,
+      undefined,
+      query,
+      options?.parent
+    );
+
     const promises = [
-      this.instancesApi.queryInstances(
-        searchRequest(
-          requestedAttributes,
-          this.underlay,
-          classification,
-          undefined,
-          query,
-          options?.parent
-        )
-      ),
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${request.entityName}/instances`,
+        {
+          method: "POST",
+          mode: "cors",
+          cache: "no-cache",
+          headers: { "Content-Type": "application/json" },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify(request.queryV2),
+        }
+      ).then(async (response) => (await response.json()) as InstanceListV2),
     ];
 
     if (options?.includeGroupings) {
       promises.push(
-        ...(classification.groupings?.map((grouping) =>
-          this.instancesApi.queryInstances(
-            searchRequest(
-              requestedAttributes,
-              this.underlay,
-              classification,
-              grouping,
-              query,
-              options?.parent
-            )
-          )
-        ) || [])
+        ...(classification.groupings?.map((grouping) => {
+          const groupingRequest = searchRequest(
+            requestedAttributes,
+            this.underlay,
+            classification,
+            grouping,
+            query,
+            options?.parent
+          );
+          return fetch(
+            `http://localhost:8080/api/repository/v1/cohort-builder/entities/${groupingRequest.entityName}/instances`,
+            {
+              method: "POST",
+              mode: "cors",
+              cache: "no-cache",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              referrerPolicy: "no-referrer",
+              body: JSON.stringify(groupingRequest.queryV2),
+            }
+          ).then(async (response) => (await response.json()) as InstanceListV2);
+        }) || [])
       );
     }
 
@@ -395,11 +423,17 @@ export class BackendSource implements Source {
     const grouping = findByID(root.grouping, classification.groupings);
 
     return parseAPIError(
-      this.instancesApi
-        .queryInstances({
-          entityName: classification.entity,
-          underlayName: this.underlay.name,
-          queryV2: {
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${classification.entity}/instances`,
+        {
+          method: "POST",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
             includeAttributes:
               normalizeRequestedAttributes(requestedAttributes),
             filter: {
@@ -421,15 +455,15 @@ export class BackendSource implements Source {
               },
             },
             orderBys: [makeOrderBy(this.underlay, classification, grouping)],
-          },
-        })
-        .then((res) => ({
-          nodes: processEntitiesResponse(
-            classification.entityAttribute,
-            res,
-            classification.hierarchy
-          ),
-        }))
+          }),
+        }
+      ).then(async (response) => ({
+        nodes: processEntitiesResponse(
+          classification.entityAttribute,
+          (await response.json()) as InstanceListV2,
+          classification.hierarchy
+        ),
+      }))
     );
   }
 
@@ -440,7 +474,7 @@ export class BackendSource implements Source {
     }
 
     return (
-      this.underlay.entities
+      (this.underlay.entities || [])
         .find((e) => e.name === entity)
         ?.attributes?.map((a) => a.name)
         .filter(isValid)
@@ -457,16 +491,26 @@ export class BackendSource implements Source {
     const entity = findEntity(occurrenceID, this.config);
 
     const res = await parseAPIError(
-      this.instancesApi.queryInstances({
-        entityName: entity.entity,
-        underlayName: this.underlay.name,
-        queryV2: this.makeQuery(
-          requestedAttributes,
-          occurrenceID,
-          cohort,
-          conceptSet
-        ),
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${entity.entity}/instances`,
+        {
+          method: "POST",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify(
+            this.makeQuery(
+              requestedAttributes,
+              occurrenceID,
+              cohort,
+              conceptSet
+            )
+          ),
+        }
+      ).then(async (response) => (await response.json()) as InstanceListV2)
     );
 
     const data = res.instances?.map((instance) =>
@@ -492,11 +536,16 @@ export class BackendSource implements Source {
     }
 
     const res = await parseAPIError(
-      this.hintsApi.queryHints({
-        entityName: entity,
-        underlayName: this.underlay.name,
-        hintQueryV2: {},
-      })
+      fetch(`/api/repository/v1/cohort-builder/entities/${entity}/hints`, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({}),
+      }).then(async (response) => (await response.json()) as DisplayHintListV2)
     );
 
     const displayHint = res.displayHints?.find(
@@ -531,14 +580,22 @@ export class BackendSource implements Source {
     groupByAttributes?: string[]
   ): Promise<FilterCountValue[]> {
     const data = await parseAPIError(
-      this.instancesApi.countInstances({
-        underlayName: this.underlay.name,
-        entityName: this.config.primaryEntity.entity,
-        countQueryV2: {
-          attributes: groupByAttributes,
-          filter: generateFilter(this, filter, true) ?? undefined,
-        },
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/entities/${this.config.primaryEntity.entity}/counts`,
+        {
+          method: "POST",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            attributes: groupByAttributes,
+            filter: generateFilter(this, filter, true) ?? undefined,
+          }),
+        }
+      ).then(async (response) => (await response.json()) as InstanceCountListV2)
     );
 
     if (!data.instanceCounts) {
@@ -691,9 +748,16 @@ export class BackendSource implements Source {
 
   public listStudies(): Promise<Study[]> {
     return parseAPIError(
-      this.studiesApi
-        .listStudies({})
-        .then((studies) => studies.map((study) => processStudy(study)))
+      Promise.resolve([
+        {
+          id: "tPR8Cb1LnM",
+          displayName: "My Study",
+          properties: [],
+          created: new Date("2023-03-08T20:43:59.685828Z"),
+          createdBy: "authentication-disabled",
+          lastModified: new Date("2023-03-08T20:43:59.685828Z"),
+        },
+      ]).then((studies) => studies.map((study) => processStudy(study)))
     );
   }
 
@@ -722,17 +786,34 @@ export class BackendSource implements Source {
     cohortId: string
   ): Promise<tanagra.Cohort> {
     return parseAPIError(
-      this.cohortsApi
-        .getCohort({ studyId, cohortId })
-        .then((c) => fromAPICohort(c))
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohortId}`,
+        {
+          method: "GET",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+        }
+      ).then(async (response) => fromAPICohort(await response.json()))
     );
   }
 
   public listCohorts(studyId: string): Promise<tanagra.Cohort[]> {
     return parseAPIError(
-      this.cohortsApi
-        .listCohorts({ studyId })
-        .then((res) => res.map((c) => fromAPICohort(c)))
+      fetch("http://localhost:8080/api/repository/v1/cohort-builder/cohorts", {
+        method: "GET",
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+      }).then(async (res) =>
+        (await res.json()).map((c: CohortV2) => fromAPICohort(c))
+      )
     );
   }
 
@@ -741,26 +822,37 @@ export class BackendSource implements Source {
     studyId: string,
     displayName: string
   ): Promise<tanagra.Cohort> {
-    return parseAPIError(
-      this.cohortsApi
-        .createCohort({
-          studyId,
-          cohortCreateInfoV2: { underlayName, displayName },
-        })
-        .then((c) => fromAPICohort(c))
-    );
+    return fetch(
+      "http://localhost:8080/api/repository/v1/cohort-builder/cohorts",
+      {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ displayName }),
+      }
+    ).then((response) => response.json());
   }
 
   public async updateCohort(studyId: string, cohort: tanagra.Cohort) {
     await parseAPIError(
-      this.cohortsApi.updateCohort({
-        studyId,
-        cohortId: cohort.id,
-        cohortUpdateInfoV2: {
-          displayName: cohort.name,
-          criteriaGroups: toAPICriteriaGroups(cohort.groups),
-        },
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${cohort.id}`,
+        {
+          method: "PATCH",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            displayName: cohort.name,
+            criteriaGroups: toAPICriteriaGroups(cohort.groups),
+          }),
+        }
+      )
     );
   }
 
@@ -769,17 +861,37 @@ export class BackendSource implements Source {
     conceptSetId: string
   ): Promise<tanagra.ConceptSet> {
     return parseAPIError(
-      this.conceptSetsApi
-        .getConceptSet({ studyId, conceptSetId })
-        .then((c) => fromAPIConceptSet(c))
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/concept-sets/${conceptSetId}`,
+        {
+          method: "GET",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+        }
+      ).then(async (res) => fromAPIConceptSet(await res.json()))
     );
   }
 
   public listConceptSets(studyId: string): Promise<tanagra.ConceptSet[]> {
     return parseAPIError(
-      this.conceptSetsApi
-        .listConceptSets({ studyId })
-        .then((res) => res.map((c) => fromAPIConceptSet(c)))
+      fetch(
+        "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
+        {
+          method: "GET",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+        }
+      ).then(async (res) =>
+        (await res.json()).map((c: ConceptSetV2) => fromAPIConceptSet(c))
+      )
     );
   }
 
@@ -789,19 +901,25 @@ export class BackendSource implements Source {
     criteria: tanagra.Criteria
   ): Promise<tanagra.ConceptSet> {
     return parseAPIError(
-      this.conceptSetsApi
-        .createConceptSet({
-          studyId,
-          conceptSetCreateInfoV2: {
-            underlayName,
+      fetch(
+        "http://localhost:8080/api/repository/v1/cohort-builder/concept-sets",
+        {
+          method: "POST",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
             criteria: toAPICriteria(criteria),
             entity: findEntity(
               getCriteriaPlugin(criteria).occurrenceID(),
               this.config
             ).entity,
-          },
-        })
-        .then((cs) => fromAPIConceptSet(cs))
+          }),
+        }
+      ).then(async (res) => fromAPIConceptSet(await res.json()))
     );
   }
 
@@ -810,13 +928,21 @@ export class BackendSource implements Source {
     conceptSet: tanagra.ConceptSet
   ) {
     await parseAPIError(
-      this.conceptSetsApi.updateConceptSet({
-        studyId,
-        conceptSetId: conceptSet.id,
-        conceptSetUpdateInfoV2: {
-          criteria: toAPICriteria(conceptSet.criteria),
-        },
-      })
+      fetch(
+        `http://localhost:8080/api/repository/v1/cohort-builder/cohorts/${conceptSet.id}`,
+        {
+          method: "PATCH",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            criteria: toAPICriteria(conceptSet.criteria),
+          }),
+        }
+      )
     );
   }
 
@@ -1418,7 +1544,7 @@ function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
   return {
     id: cohort.id,
     name: cohort.displayName,
-    underlayName: cohort.underlayName,
+    underlayName: "cms_synpuf",
     groups: fromAPICohortGroups(cohort.criteriaGroups),
   };
 }
@@ -1458,7 +1584,7 @@ function fromAPIConceptSet(
 ): tanagra.ConceptSet {
   return {
     id: conceptSet.id,
-    underlayName: conceptSet.underlayName,
+    underlayName: "cms_synpuf",
     criteria: conceptSet.criteria && fromAPICriteria(conceptSet.criteria),
   };
 }

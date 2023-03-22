@@ -37,6 +37,7 @@ export type Grouping = {
 };
 
 export type Entity = {
+  displayName?: string;
   entity: string;
   key: string;
 
