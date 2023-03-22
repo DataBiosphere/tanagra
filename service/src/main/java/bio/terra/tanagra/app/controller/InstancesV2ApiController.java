@@ -187,7 +187,9 @@ public class InstancesV2ApiController implements InstancesV2Api {
       }
       switch (relationshipField.getType()) {
         case COUNT:
-          relationshipFieldSet.count(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
+          if (valueDisplay != null) {
+            relationshipFieldSet.count(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
+          }
           break;
         case DISPLAY_HINTS:
           relationshipFieldSet.displayHints(valueDisplay.getValue().getStringVal());

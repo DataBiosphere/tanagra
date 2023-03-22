@@ -8,22 +8,22 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "idPairsTable": { "rawSqlFile": "drug_exposure.sql" },
+        "idPairsTable": { "table": "drug_exposure" },
         "idPairsIdA": { "column": "drug_exposure_id" },
         "idPairsIdB":  { "column": "drug_concept_id" }
       },
       "occurrenceToPrimary": {
-        "idPairsTable": { "rawSqlFile": "drug_exposure.sql" },
+        "idPairsTable": { "table": "drug_exposure" },
         "idPairsIdA": { "column": "drug_exposure_id" },
         "idPairsIdB":  { "column": "person_id" }
       },
       "criteriaToPrimary": {
-        "idPairsTable": { "rawSqlFile": "drug_exposure.sql" },
+        "idPairsTable": { "table": "drug_exposure" },
         "idPairsIdA": { "column": "drug_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
       },
       "occurrenceRelatedEntity0": {
-        "idPairsTable": { "rawSqlFile": "drug_exposure.sql" },
+        "idPairsTable": { "table": "drug_exposure" },
         "idPairsIdA": { "column": "drug_exposure_id" },
         "idPairsIdB":  { "column": "visit_occurrence_id" }
       }

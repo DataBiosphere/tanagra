@@ -8,7 +8,35 @@
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ingredient",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 1125315
+          },
+          "display" : "acetaminophen"
+        },
+        "count" : 84528
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 1127441
+          },
+          "display" : "acetaminophen 100 MG/ML"
+        },
+        "count" : 757
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 1126872
+          },
+          "display" : "acetaminophen 100 MG/ML Oral Suspension"
+        },
+        "count" : 187369
+      } ]
+    }
   }, {
     "type" : "SIMPLE",
     "name" : "refills",
@@ -16,7 +44,7 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 0.0,
-      "maxVal" : 365.0
+      "maxVal" : 11.0
     }
   }, {
     "type" : "SIMPLE",
@@ -24,8 +52,8 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 501343.0,
-      "maxVal" : 4.63659E7
+      "minVal" : 1125315.0,
+      "maxVal" : 4.5375565E7
     }
   }, {
     "type" : "SIMPLE",
@@ -46,59 +74,11 @@
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "Allergic res"
-          },
-          "display" : "Allergic res"
-        },
-        "count" : 4846
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Alternate tx"
-          },
-          "display" : "Alternate tx"
-        },
-        "count" : 84029
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Anes Stop"
-          },
-          "display" : "Anes Stop"
-        },
-        "count" : 2863009
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Availability"
-          },
-          "display" : "Availability"
-        },
-        "count" : 6600
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "CONTACT "
-          },
-          "display" : "CONTACT "
-        },
-        "count" : 614
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "Cleanup"
           },
           "display" : "Cleanup"
         },
-        "count" : 399229
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Cost of medi"
-          },
-          "display" : "Cost of medi"
-        },
-        "count" : 9054
+        "count" : 2
       }, {
         "enumVal" : {
           "value" : {
@@ -106,23 +86,7 @@
           },
           "display" : "DC'd by othr"
         },
-        "count" : 164096
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Dose adjustm"
-          },
-          "display" : "Dose adjustm"
-        },
-        "count" : 110534
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Drug interac"
-          },
-          "display" : "Drug interac"
-        },
-        "count" : 1982
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -130,7 +94,7 @@
           },
           "display" : "Duplicate or"
         },
-        "count" : 523173
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -138,7 +102,7 @@
           },
           "display" : "Error"
         },
-        "count" : 238189
+        "count" : 3
       }, {
         "enumVal" : {
           "value" : {
@@ -146,23 +110,7 @@
           },
           "display" : "Expired"
         },
-        "count" : 151543
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Formulary"
-          },
-          "display" : "Formulary"
-        },
-        "count" : 25726
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "NON-ADHEREN"
-          },
-          "display" : "NON-ADHEREN"
-        },
-        "count" : 9253
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -170,39 +118,7 @@
           },
           "display" : "Other"
         },
-        "count" : 195756
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "PATIENT DISC"
-          },
-          "display" : "PATIENT DISC"
-        },
-        "count" : 6654423
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Paradoxical "
-          },
-          "display" : "Paradoxical "
-        },
-        "count" : 275
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Pregnancy"
-          },
-          "display" : "Pregnancy"
-        },
-        "count" : 1116
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "RETURNED TO "
-          },
-          "display" : "RETURNED TO "
-        },
-        "count" : 19246
+        "count" : 4
       }, {
         "enumVal" : {
           "value" : {
@@ -210,15 +126,7 @@
           },
           "display" : "Reorder"
         },
-        "count" : 4317260
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "SE"
-          },
-          "display" : "SE"
-        },
-        "count" : 40002
+        "count" : 2
       }, {
         "enumVal" : {
           "value" : {
@@ -226,31 +134,7 @@
           },
           "display" : "STOP TAKING "
         },
-        "count" : 402507
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "SURGERY"
-          },
-          "display" : "SURGERY"
-        },
-        "count" : 921
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Stop Med"
-          },
-          "display" : "Stop Med"
-        },
-        "count" : 123398
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "TRANSFER"
-          },
-          "display" : "TRANSFER"
-        },
-        "count" : 571939
+        "count" : 7
       }, {
         "enumVal" : {
           "value" : {
@@ -258,7 +142,7 @@
           },
           "display" : "Therapy comp"
         },
-        "count" : 2198773
+        "count" : 18
       } ]
     }
   }, {
@@ -268,7 +152,7 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 0.0,
-      "maxVal" : 9.388852E7
+      "maxVal" : 9.3513154E7
     }
   }, {
     "type" : "SIMPLE",
@@ -280,21 +164,753 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 36135.0
+      "minVal" : 3.0,
+      "maxVal" : 30.0
     }
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN"
+          },
+          "display" : "ACETAMINOPHEN"
+        },
+        "count" : 21
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN (BULK) 100 % POWDER"
+          },
+          "display" : "ACETAMINOPHEN (BULK) 100 % POWDER"
+        },
+        "count" : 3
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN 100 MG/ML ORAL DROPS"
+          },
+          "display" : "ACETAMINOPHEN 100 MG/ML ORAL DROPS"
+        },
+        "count" : 60
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN 100 MG/ML ORAL DROPS,SUSPENSION"
+          },
+          "display" : "ACETAMINOPHEN 100 MG/ML ORAL DROPS,SUSPENSION"
+        },
+        "count" : 11
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN 80 MG/0.8 ML ORAL DROPS,SUSPENSION"
+          },
+          "display" : "ACETAMINOPHEN 80 MG/0.8 ML ORAL DROPS,SUSPENSION"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN : TYLENOL"
+          },
+          "display" : "ACETAMINOPHEN : TYLENOL"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN CHEWABLE:"
+          },
+          "display" : "ACETAMINOPHEN CHEWABLE:"
+        },
+        "count" : 6
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN INFANT DROPS"
+          },
+          "display" : "ACETAMINOPHEN INFANT DROPS"
+        },
+        "count" : 95309
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN ORAL DROPS:"
+          },
+          "display" : "ACETAMINOPHEN ORAL DROPS:"
+        },
+        "count" : 8546
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN ORAL LIQUID (INV)"
+          },
+          "display" : "ACETAMINOPHEN ORAL LIQUID (INV)"
+        },
+        "count" : 4
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN ORAL SOLUTION"
+          },
+          "display" : "ACETAMINOPHEN ORAL SOLUTION"
+        },
+        "count" : 257
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN ORAL SUSPENSION"
+          },
+          "display" : "ACETAMINOPHEN ORAL SUSPENSION"
+        },
+        "count" : 875
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN SUPPOSITORY"
+          },
+          "display" : "ACETAMINOPHEN SUPPOSITORY"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETAMINOPHEN: TYLENOL"
+          },
+          "display" : "ACETAMINOPHEN: TYLENOL"
+        },
+        "count" : 34964
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETOMINOPHEN"
+          },
+          "display" : "ACETOMINOPHEN"
+        },
+        "count" : 990
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ACETOMINOPHEN ( Percocet )"
+          },
+          "display" : "ACETOMINOPHEN ( Percocet )"
+        },
+        "count" : 4
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP"
+          },
+          "display" : "APAP"
+        },
+        "count" : 38209
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( DARVOCET )"
+          },
+          "display" : "APAP ( DARVOCET )"
+        },
+        "count" : 30
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Darvocet )"
+          },
+          "display" : "APAP ( Darvocet )"
+        },
+        "count" : 21
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Darvocet - N )"
+          },
+          "display" : "APAP ( Darvocet - N )"
+        },
+        "count" : 12
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Fioricet )"
+          },
+          "display" : "APAP ( Fioricet )"
+        },
+        "count" : 22
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( LORTAB )"
+          },
+          "display" : "APAP ( LORTAB )"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Lortab )"
+          },
+          "display" : "APAP ( Lortab )"
+        },
+        "count" : 216
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Midrin )"
+          },
+          "display" : "APAP ( Midrin )"
+        },
+        "count" : 10
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Percocet )"
+          },
+          "display" : "APAP ( Percocet )"
+        },
+        "count" : 10
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Tylenol )"
+          },
+          "display" : "APAP ( Tylenol )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Tylox )"
+          },
+          "display" : "APAP ( Tylox )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Ultracet )"
+          },
+          "display" : "APAP ( Ultracet )"
+        },
+        "count" : 67
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( Ultram )"
+          },
+          "display" : "APAP ( Ultram )"
+        },
+        "count" : 11
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( flexeril )"
+          },
+          "display" : "APAP ( flexeril )"
+        },
+        "count" : 11
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( lortab )"
+          },
+          "display" : "APAP ( lortab )"
+        },
+        "count" : 5
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( percocet )"
+          },
+          "display" : "APAP ( percocet )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP ( ultracet )"
+          },
+          "display" : "APAP ( ultracet )"
+        },
+        "count" : 6
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAP / caffeine"
+          },
+          "display" : "APAP / caffeine"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APAp"
+          },
+          "display" : "APAp"
+        },
+        "count" : 54
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APap"
+          },
+          "display" : "APap"
+        },
+        "count" : 12
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetaminophen"
+          },
+          "display" : "Acetaminophen"
+        },
+        "count" : 34852
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetaminophen ( Darvocet )"
+          },
+          "display" : "Acetaminophen ( Darvocet )"
+        },
+        "count" : 120
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetaminophen ( Darvocet - N )"
+          },
+          "display" : "Acetaminophen ( Darvocet - N )"
+        },
+        "count" : 32
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetaminophen Infant"
+          },
+          "display" : "Acetaminophen Infant"
+        },
+        "count" : 12
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetaminophen oral liquid"
+          },
+          "display" : "Acetaminophen oral liquid"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetominophen"
+          },
+          "display" : "Acetominophen"
+        },
+        "count" : 3607
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetominophen ( Lortab )"
+          },
+          "display" : "Acetominophen ( Lortab )"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetominophen ( Norco )"
+          },
+          "display" : "Acetominophen ( Norco )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetominophen ( Percocet )"
+          },
+          "display" : "Acetominophen ( Percocet )"
+        },
+        "count" : 9
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetominophen ( Tylenol )"
+          },
+          "display" : "Acetominophen ( Tylenol )"
+        },
+        "count" : 67
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Acetominophen ( tylenol )"
+          },
+          "display" : "Acetominophen ( tylenol )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ApAP"
+          },
+          "display" : "ApAP"
+        },
+        "count" : 4
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ApAp"
+          },
+          "display" : "ApAp"
+        },
+        "count" : 58
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Apap"
+          },
+          "display" : "Apap"
+        },
+        "count" : 3267
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Apap ( Lortab )"
+          },
+          "display" : "Apap ( Lortab )"
+        },
+        "count" : 34
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CHLORPHEN 2 MG-PE 5 MG-DM 10 MG-ACETAMINOPHN 325MG(NT)-GUAIFEN TABLETS"
+          },
+          "display" : "CHLORPHEN 2 MG-PE 5 MG-DM 10 MG-ACETAMINOPHN 325MG(NT)-GUAIFEN TABLETS"
+        },
+        "count" : 6
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Children ' s Acetaminophen"
+          },
+          "display" : "Children ' s Acetaminophen"
+        },
+        "count" : 24
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DIPHEN-PE-DM-ACETAMINOPHEN-GG 10 MG(DY)/25MG-10MG-650MG(NT) POWDER PKS"
+          },
+          "display" : "DIPHEN-PE-DM-ACETAMINOPHEN-GG 10 MG(DY)/25MG-10MG-650MG(NT) POWDER PKS"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DIPHENH-PE-DM-ACETAMINOPHEN-GG 5 MG(D)/12.5 MG-5 MG-325MG (N) TABLETS"
+          },
+          "display" : "DIPHENH-PE-DM-ACETAMINOPHEN-GG 5 MG(D)/12.5 MG-5 MG-325MG (N) TABLETS"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DOXYLAM-PE-DM-ACETAMINOPHEN-GG 6.25 MG-5 MG-10 MG-325 MG (NT) CAPSULES"
+          },
+          "display" : "DOXYLAM-PE-DM-ACETAMINOPHEN-GG 6.25 MG-5 MG-10 MG-325 MG (NT) CAPSULES"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ISOMETH-DICHLOR-APAP 65-100-325MG TAB"
+          },
+          "display" : "ISOMETH-DICHLOR-APAP 65-100-325MG TAB"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Infant APAP"
+          },
+          "display" : "Infant APAP"
+        },
+        "count" : 9
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Infant Acetaminophen"
+          },
+          "display" : "Infant Acetaminophen"
+        },
+        "count" : 20
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Infant's Non-Aspirin"
+          },
+          "display" : "Infant's Non-Aspirin"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Infants Acetaminophen"
+          },
+          "display" : "Infants Acetaminophen"
+        },
+        "count" : 12
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OXYCOD/APAP 10/325"
+          },
+          "display" : "OXYCOD/APAP 10/325"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Paracetamol"
+          },
+          "display" : "Paracetamol"
+        },
+        "count" : 173
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "RESOURCE+APAP PER STUDY "
+          },
+          "display" : "RESOURCE+APAP PER STUDY "
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "TYLENOL COLD-FLU SEVERE DAY-NT 2 MG-5 MG-10 MG-325 MG-200 MG TABLETS"
+          },
+          "display" : "TYLENOL COLD-FLU SEVERE DAY-NT 2 MG-5 MG-10 MG-325 MG-200 MG TABLETS"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "aPAP"
+          },
+          "display" : "aPAP"
+        },
+        "count" : 6
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetaminophen"
+          },
+          "display" : "acetaminophen"
+        },
+        "count" : 7049
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen"
+          },
+          "display" : "acetominophen"
+        },
+        "count" : 6464
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen ( Lortab )"
+          },
+          "display" : "acetominophen ( Lortab )"
+        },
+        "count" : 58
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen ( Panadol )"
+          },
+          "display" : "acetominophen ( Panadol )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen ( Tylenol )"
+          },
+          "display" : "acetominophen ( Tylenol )"
+        },
+        "count" : 24
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen ( lortab )"
+          },
+          "display" : "acetominophen ( lortab )"
+        },
+        "count" : 8
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen ( norco )"
+          },
+          "display" : "acetominophen ( norco )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen ( tylenol )"
+          },
+          "display" : "acetominophen ( tylenol )"
+        },
+        "count" : 9
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen ( ultracet )"
+          },
+          "display" : "acetominophen ( ultracet )"
+        },
+        "count" : 3
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen / tylenol"
+          },
+          "display" : "acetominophen / tylenol"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "acetominophen 500mg"
+          },
+          "display" : "acetominophen 500mg"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap"
+          },
+          "display" : "apap"
+        },
+        "count" : 36637
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap ( Darvocet )"
+          },
+          "display" : "apap ( Darvocet )"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap ( Darvocet - N )"
+          },
+          "display" : "apap ( Darvocet - N )"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap ( Lortab )"
+          },
+          "display" : "apap ( Lortab )"
+        },
+        "count" : 84
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap ( Norco )"
+          },
+          "display" : "apap ( Norco )"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap ( darvocet )"
+          },
+          "display" : "apap ( darvocet )"
+        },
+        "count" : 120
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap ( lortab )"
+          },
+          "display" : "apap ( lortab )"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "apap ( norco )"
+          },
+          "display" : "apap ( norco )"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "but/apap/caf"
+          },
+          "display" : "but/apap/caf"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "lortab elixier"
+          },
+          "display" : "lortab elixier"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "pain meds"
+          },
+          "display" : "pain meds"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "paracetamol"
+          },
+          "display" : "paracetamol"
+        },
+        "count" : 83
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "paracetamol ( Tylenol )"
+          },
+          "display" : "paracetamol ( Tylenol )"
+        },
+        "count" : 4
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "paracetamol ( tylenol )"
+          },
+          "display" : "paracetamol ( tylenol )"
+        },
+        "count" : 3
+      } ]
+    }
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 5227737.0
+      "minVal" : 3.0,
+      "maxVal" : 5225166.0
     }
   }, {
     "type" : "SIMPLE",
@@ -304,7 +920,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "drug_exposure"
+      "rawSql" : "/* sd_static drug_exposure is not yet in OMOP format. Use AoU fake data for now. */ SELECT * FROM `victr-tanagra-test.sd_static.drug_exposure`  /* DO NOT SUBMIT */ WHERE drug_concept_id IN (21049692, 1126872, 1127441, 1125315, 1123645, 1123896, 21604254, 21604253, 21604180)"
     },
     "attributeMappings" : {
       "end_date" : {
