@@ -1,5 +1,5 @@
 SELECT
-  c.concept_id AS id, c.concept_name AS name, c.vocabulary_id, c.concept_class_id, c.standard_concept, c.concept_code
+  c.concept_id AS id, c.concept_name AS name, c.vocabulary_id, c.standard_concept, c.concept_code
 FROM `victr-tanagra-test.sd_static.concept` c
 WHERE c.domain_id = 'Drug'
 AND (

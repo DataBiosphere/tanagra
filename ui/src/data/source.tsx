@@ -401,49 +401,6 @@ export class BackendSource implements Source {
     }
     const grouping = findByID(root.grouping, classification.groupings);
 
-    const relationshipFilter = {
-      filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
-      filterUnion: {
-        relationshipFilter: {
-          entity: grouping.entity,
-          subfilter: {
-            filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-            filterUnion: {
-              attributeFilter: {
-                attribute: classification.entityAttribute,
-                operator: tanagra.BinaryOperatorV2.Equals,
-                value: literalFromDataValue(root.data.key),
-              },
-            },
-          },
-        },
-      },
-    };
-    const ingredientFilter = {
-      filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-      filterUnion: {
-        attributeFilter: {
-          attribute: "concept_class_id",
-          operator: tanagra.BinaryOperatorV2.Equals,
-          value: literalFromDataValue("Ingredient"),
-        },
-      },
-    };
-    const filter =
-      classification.entity == "ingredient"
-        ? // If we're listing ingredients in a brand, we only want to show ingredients (concept_class_id=Ingredient),
-          // not their descendants (concept_class_id=Clinical Drug, Quant Clinical Drug, etc).
-          {
-            filterType: tanagra.FilterV2FilterTypeEnum.BooleanLogic,
-            filterUnion: {
-              booleanLogicFilter: {
-                operator: tanagra.BooleanLogicFilterV2OperatorEnum.And,
-                subfilters: [relationshipFilter, ingredientFilter],
-              },
-            },
-          }
-        : relationshipFilter;
-
     return parseAPIError(
       this.instancesApi
         .queryInstances({
@@ -454,7 +411,24 @@ export class BackendSource implements Source {
               requestedAttributes,
               classification.entityAttribute
             ),
-            filter: filter,
+            filter: {
+              filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+              filterUnion: {
+                relationshipFilter: {
+                  entity: grouping.entity,
+                  subfilter: {
+                    filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+                    filterUnion: {
+                      attributeFilter: {
+                        attribute: classification.entityAttribute,
+                        operator: tanagra.BinaryOperatorV2.Equals,
+                        value: literalFromDataValue(root.data.key),
+                      },
+                    },
+                  },
+                },
+              },
+            },
             orderBys: [makeOrderBy(this.underlay, classification, grouping)],
           },
         })

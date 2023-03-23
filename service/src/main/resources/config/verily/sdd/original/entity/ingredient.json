@@ -5,7 +5,6 @@
     { "type": "SIMPLE", "name": "id" },
     { "type": "SIMPLE", "name": "name" },
     { "type": "SIMPLE", "name": "vocabulary" },
-    { "type": "SIMPLE", "name": "concept_class_id" },
     { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
     { "type": "SIMPLE", "name": "concept_code" } ],
 
