@@ -190,7 +190,7 @@
             }
           }
         },
-        "maxHierarchyDepth": 8
+        "maxHierarchyDepth" : 8
       }
     }
   },
@@ -281,8 +281,9 @@
             }
           }
         },
-        "maxHierarchyDepth": 8
+        "maxHierarchyDepth" : 8
       }
     }
-  }
+  },
+  "sourceStartDateColumn" : null
 }

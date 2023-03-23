@@ -26,9 +26,10 @@ import { DataEntry, DataKey } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
+import { searchParamsFromData, useSearchData } from "util/searchData";
 
 type Selection = {
   key: DataKey;
@@ -55,6 +56,8 @@ export interface Data {
   selected: Selection[];
 }
 
+// "classification" plugins select occurrences based on an occurrence field that
+// references another entity, often using hierarchies and/or groupings.
 @registerCriteriaPlugin(
   "classification",
   (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
@@ -144,32 +147,6 @@ type SearchData = {
   hierarchy?: DataKey[];
 };
 
-function useSearchData() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const searchData = useMemo(() => {
-    const param = searchParams.get("search");
-    return JSON.parse(!!param ? atob(param) : "{}");
-  }, [searchParams]);
-
-  const updateSearchData = useCallback(
-    (update: (data?: SearchData) => void) => {
-      setSearchParams(
-        searchParamsFromData(
-          produce<SearchData | undefined>(searchData, update)
-        )
-      );
-    },
-    [searchData, setSearchParams]
-  );
-
-  return [searchData, updateSearchData];
-}
-
-function searchParamsFromData(data?: SearchData) {
-  return new URLSearchParams({ search: btoa(JSON.stringify(data ?? {})) });
-}
-
 type ClassificationEditProps = {
   data: Data;
   config: Config;
@@ -187,7 +164,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
   );
   const updateCriteria = useUpdateCriteria();
 
-  const [searchData, updateSearchData] = useSearchData();
+  const [searchData, updateSearchData] = useSearchData<SearchData>();
 
   props.setBackURL(
     searchData.hierarchy
@@ -218,7 +195,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         // parallel.
         let childChildren = data[key]?.children;
         if (!childChildren) {
-          if (!node.grouping && !hierarchy) {
+          if ((!node.grouping && !hierarchy) || node.childCount === 0) {
             childChildren = [];
           }
         }

@@ -264,7 +264,7 @@ class FakeConceptSetsAPI {
         id: "test_concept_set",
         created: new Date(),
         createdBy: "test_user",
-        displayName: "Test Concept Set",
+        displayName: "Test data feature",
         lastModified: new Date(),
         underlayName: "test_underlay",
         entity: "test_entity",
@@ -294,6 +294,8 @@ class FakeReviewsAPI {
     ];
   }
 }
+
+class FakeAnnotationsAPI {}
 
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
@@ -343,4 +345,8 @@ export const ConceptSetsApiContext = apiForEnvironment(
 export const ReviewsApiContext = apiForEnvironment(
   tanagra.ReviewsV2Api,
   FakeReviewsAPI
+);
+export const AnnotationsApiContext = apiForEnvironment(
+  tanagra.AnnotationsV2Api,
+  FakeAnnotationsAPI
 );

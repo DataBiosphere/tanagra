@@ -3,7 +3,30 @@
     "primaryEntity": {
       "displayName": "Person",
       "entity": "person",
-      "key": "id"
+      "key": "id",
+      "classifications": [
+        {
+          "id": "snp",
+          "attribute": "id",
+          "entity": "snp",
+          "entityAttribute": "id",
+          "defaultSort": {
+            "attribute": "id",
+            "direction": "ASC"
+          }
+        },
+        {
+          "id": "genotyping",
+          "attribute": "id",
+          "entity": "genotyping",
+          "entityAttribute": "id",
+          "hierarchy": "standard",
+          "defaultSort": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
+        }
+      ]
     },
     "occurrences": [
       {
@@ -91,6 +114,12 @@
             ]
           }
         ]
+      },
+      {
+        "id": "note_occurrence",
+        "displayName": "Documents",
+        "entity": "note_occurrence",
+        "key": "id"
       }
     ]
   },
@@ -181,13 +210,17 @@
     {
       "type": "classification",
       "id": "tanagra-genotyping",
-      "title": "Genotyping Platform",
-      "conceptSet": true,
-      "category": "Domains",
+      "title": "Genotyping platform",
+      "category": "Program data",
       "columns": [
-        { "key": "name", "width": "100%", "title": "Genotyping Platform" }
+        { "key": "name", "width": "100%", "title": "Genotyping platform" }
       ],
-      "classification": "Genotyping"
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Genotyping platform" },
+        { "key": "id", "width": 100, "title": "Id" }
+      ],
+      "occurrence": "",
+      "classification": "genotyping"
     },
     {
       "type": "attribute",
@@ -216,6 +249,25 @@
       "title": "Year of birth",
       "category": "Program data",
       "attribute": "year_of_birth"
+    },
+    {
+      "type": "search",
+      "id": "tanagra-documents",
+      "title": "Documents",
+      "conceptSet": true,
+      "category": "Domains",
+      "occurrenceId": "note_occurrence",
+      "searchAttribute": "title",
+      "categoryAttribute": "note"
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-snp",
+      "title": "SNP variant",
+      "category": "Program data",
+      "columns": [{ "key": "id", "width": "100%", "title": "SNP variant" }],
+      "occurrence": "",
+      "classification": "snp"
     }
   ],
   "demographicChartConfigs": {
@@ -278,6 +330,53 @@
       { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
       { "key": "concept_code", "width": 120, "title": "Code" },
       { "key": "t_rollup_count", "width": 120, "title": "Roll-up Count" }
+    ]
+  },
+  "cohortReviewConfig": {
+    "attributes": [
+      {
+        "title": "Gender",
+        "key": "gender"
+      },
+      {
+        "title": "Year of birth",
+        "key": "year_of_birth"
+      },
+      {
+        "title": "Race",
+        "key": "race"
+      },
+      {
+        "title": "Ethnicity",
+        "key": "ethnicity"
+      }
+    ],
+    "pages": [
+      {
+        "type": "occurrenceTable",
+        "id": "condition",
+        "title": "Condition",
+        "plugin": {
+          "occurrence": "condition_occurrence",
+          "columns": [
+            { "key": "condition", "width": "100%", "title": "Condition name" },
+            { "key": "start_date", "width": 200, "title": "Start date" },
+            { "key": "end_date", "width": 200, "title": "End date" }
+          ]
+        }
+      },
+      {
+        "type": "occurrenceTable",
+        "id": "procedure",
+        "title": "Procedure",
+        "plugin": {
+          "occurrence": "procedure_occurrence",
+          "columns": [
+            { "key": "procedure", "width": "100%", "title": "Procedure name" },
+            { "key": "date", "width": 200, "title": "Date" }
+          ]
+        }
+      }
     ]
   }
 }

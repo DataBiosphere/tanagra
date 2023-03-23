@@ -1,23 +1,17 @@
+function generateCohort() {
+  return `New cohort ${Math.floor(1000000 * Math.random())}`;
+}
+
 describe("Basic tests", () => {
-  it("Contains title", () => {
-    cy.visit("http://localhost:3000/");
-
-    const id = Math.floor(1000000 * Math.random());
-    const cohortName = `New cohort ${id}`;
-
-    cy.contains("aou_synthetic").click();
-    cy.contains("Add study").click();
-    cy.get("input[name=text]").type(`New study ${id}`);
-    cy.get("button:Contains(Create)").click();
-    cy.get(`.MuiListItemButton-root:Contains(New study ${id})`).click();
-    cy.contains("Datasets");
+  it("Basic walkthrough", () => {
+    const cohortName = generateCohort();
 
     cy.get("button[id=insert-cohort]").click();
     cy.get("input[name=text]").type(cohortName);
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("button:Contains(Condition)").click();
-    cy.get("[data-testid='AccountTreeIcon']", { timeout: 10000 }).click();
+    cy.get("[data-testid='AccountTreeIcon']").click();
     cy.get("button:Contains(Clinical finding)").click();
 
     cy.get("button:Contains(Add criteria)").first().click();
@@ -28,7 +22,7 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("button:Contains(Year of birth)").click();
-    cy.get(".MuiInput-input", { timeout: 10000 }).first().type("{selectall}1940");
+    cy.get(".MuiInput-input").first().type("{selectall}1940");
 
     cy.get("button:Contains(Add criteria)").last().click();
     cy.get("button:Contains(Observation)").click();

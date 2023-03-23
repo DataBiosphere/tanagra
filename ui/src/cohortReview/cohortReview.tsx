@@ -1,0 +1,432 @@
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import LockIcon from "@mui/icons-material/Lock";
+import MenuIcon from "@mui/icons-material/Menu";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Tab from "@mui/material/Tab";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import ActionBar from "actionBar";
+import { useCohortContext } from "cohortContext";
+import { InstanceContext } from "cohortReview/instanceContext";
+import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
+import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
+import Loading from "components/loading";
+import { FilterType } from "data/filter";
+import {
+  Annotation,
+  AnnotationType,
+  ReviewInstance,
+  useSource,
+} from "data/source";
+import { DataEntry } from "data/types";
+import { useUnderlay } from "hooks";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
+import { ReactNode, useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { absoluteCohortReviewListURL, useBaseParams } from "router";
+import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
+import { useSearchData } from "util/searchData";
+
+type SearchData = {
+  instanceIndex?: number;
+  pageId?: string;
+  editingAnnotations?: boolean;
+};
+
+export function CohortReview() {
+  const source = useSource();
+  const underlay = useUnderlay();
+  const params = useBaseParams();
+
+  const { reviewId } = useParams<{ reviewId: string }>();
+  if (!reviewId) {
+    throw new Error("Review ID is null.");
+  }
+
+  const cohort = useCohortContext().state?.present;
+  if (!cohort) {
+    throw new Error("Cohort context state is null.");
+  }
+
+  const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
+  const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
+
+  const pagePlugins = useMemo(
+    () => uiConfig.pages.map((p) => getCohortReviewPlugin(p)),
+    [uiConfig.pages]
+  );
+
+  const primaryAttributes = useMemo(
+    () => [primaryKey, ...uiConfig.attributes.map((a) => a.key)],
+    [uiConfig]
+  );
+
+  const reviewState = useSWR(
+    { type: "review", studyId: params.studyId, reviewId, cohortId: cohort.id },
+    async (key) => {
+      return await source.getCohortReview(
+        key.studyId,
+        key.cohortId,
+        key.reviewId
+      );
+    }
+  );
+
+  const instancesState = useSWR(
+    {
+      type: "reviewInstance",
+      studyId: params.studyId,
+      reviewId,
+      cohortId: cohort.id,
+    },
+    async (key) => {
+      return await source.listReviewInstances(
+        key.studyId,
+        key.cohortId,
+        key.reviewId,
+        primaryAttributes
+      );
+    }
+  );
+
+  const annotationsState = useSWR(
+    {
+      type: "annotation",
+      studyId: params.studyId,
+      cohortId: cohort.id,
+    },
+    async (key) => {
+      return await source.listAnnotations(key.studyId, key.cohortId);
+    }
+  );
+
+  const [newAnnotationDialog, showNewAnnotationDialog] = useNewAnnotationDialog(
+    {
+      onCreate: async (
+        displayName: string,
+        annotationType: AnnotationType,
+        enumVals?: string[]
+      ) => {
+        await source.createAnnotation(
+          params.studyId,
+          cohort.id,
+          displayName,
+          annotationType,
+          enumVals
+        );
+        annotationsState.mutate();
+      },
+    }
+  );
+
+  const [searchData, updateSearchData] = useSearchData<SearchData>();
+
+  const instanceIndex = searchData.instanceIndex ?? 0;
+  const instance = instancesState.data?.[instanceIndex];
+  const count = instancesState.data?.length ?? 1;
+
+  const pageId = searchData.pageId ?? pagePlugins[0].id;
+
+  const changePage = (event: React.SyntheticEvent, newValue: string) => {
+    updateSearchData((data) => {
+      data.pageId = newValue;
+    });
+  };
+
+  const instanceDataState = useSWRImmutable(
+    {
+      type: "reviewInstanceData",
+      studyId: params.studyId,
+      cohortId: cohort.id,
+      reviewId,
+      instanceIndex,
+    },
+    async () => {
+      if (!instance?.data) {
+        throw new Error("Instances not loaded yet.");
+      }
+
+      const occurrenceIds: string[] = [];
+      pagePlugins.forEach((p) => occurrenceIds.push(...p.occurrences));
+
+      const res = await Promise.all(
+        occurrenceIds.map((id) => {
+          return source.listData(
+            source.listAttributes(id),
+            id,
+            {
+              type: FilterType.Attribute,
+              occurrenceID: "",
+              attribute: "id",
+              values: [instance?.data?.[primaryKey]],
+            },
+            null,
+            10000
+          );
+        })
+      );
+
+      const occurrences: { [x: string]: DataEntry[] } = {};
+      res.forEach(
+        (r, i) =>
+          (occurrences[occurrenceIds[i]] = r.data.map((o) => ({
+            ...o,
+            timestamp: o["start_date"] as Date,
+          })))
+      );
+      console.log(occurrences);
+      return {
+        occurrences,
+      };
+    }
+  );
+
+  return (
+    <GridBox>
+      <ActionBar
+        title={
+          reviewState?.data?.displayName
+            ? `Review "${reviewState?.data?.displayName}"`
+            : ""
+        }
+        backURL={absoluteCohortReviewListURL(params, cohort.id, reviewId)}
+      />
+      <Loading status={instancesState}>
+        <GridLayout cols="240px auto">
+          <GridBox
+            sx={{
+              p: 1,
+              backgroundColor: (theme) => theme.palette.background.paper,
+            }}
+          >
+            <GridLayout rows>
+              <GridLayout rows colAlign="center">
+                <Typography variant="h3">Participant</Typography>
+                <Typography variant="h3">
+                  {instance?.data?.[primaryKey]}
+                </Typography>
+                <Typography variant="h4">
+                  {instanceIndex + 1}/{count}
+                </Typography>
+                <GridLayout cols>
+                  <IconButton
+                    disabled={instanceIndex === 0}
+                    onClick={() =>
+                      updateSearchData((data: SearchData) => {
+                        data.instanceIndex = instanceIndex - 1;
+                      })
+                    }
+                  >
+                    <KeyboardArrowLeftIcon />
+                  </IconButton>
+                  <IconButton disabled>
+                    <MenuIcon />
+                  </IconButton>
+                  <IconButton
+                    disabled={instanceIndex === count - 1}
+                    onClick={() =>
+                      updateSearchData((data: SearchData) => {
+                        data.instanceIndex = instanceIndex + 1;
+                      })
+                    }
+                  >
+                    <KeyboardArrowRightIcon />
+                  </IconButton>
+                </GridLayout>
+              </GridLayout>
+              <GridBox sx={{ m: 2 }} />
+              <GridLayout rows>
+                {uiConfig.attributes.map((attribute) => (
+                  <GridLayout cols rowAlign="baseline" key={attribute.key}>
+                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                      {attribute.title}:&nbsp;
+                    </Typography>
+                    <Typography variant="body2">
+                      {instance?.data?.[attribute.key]}
+                    </Typography>
+                  </GridLayout>
+                ))}
+              </GridLayout>
+              <GridBox sx={{ m: 2 }} />
+              <GridLayout rows={3}>
+                <GridLayout cols rowAlign="middle">
+                  <Typography variant="h3">Annotations</Typography>
+                  <IconButton
+                    onClick={() =>
+                      updateSearchData((data) => {
+                        data.editingAnnotations = !data?.editingAnnotations;
+                      })
+                    }
+                  >
+                    {searchData?.editingAnnotations ? (
+                      <LockIcon />
+                    ) : (
+                      <EditIcon />
+                    )}
+                  </IconButton>
+                  {searchData?.editingAnnotations ? (
+                    <IconButton onClick={() => showNewAnnotationDialog()}>
+                      <AddIcon />
+                    </IconButton>
+                  ) : null}
+                </GridLayout>
+                <Loading status={annotationsState}>
+                  <GridLayout rows>
+                    {annotationsState.data?.map((a) => (
+                      <AnnotationComponent
+                        studyId={params.studyId}
+                        cohortId={cohort.id}
+                        reviewId={reviewId}
+                        annotation={a}
+                        mutateAnnotation={() => annotationsState.mutate()}
+                        instance={instance}
+                        key={a.id}
+                      />
+                    ))}
+                  </GridLayout>
+                </Loading>
+              </GridLayout>
+            </GridLayout>
+          </GridBox>
+          <GridBox
+            sx={{
+              backgroundColor: (theme) => theme.palette.background.paper,
+              borderLeftStyle: "solid",
+              borderColor: (theme) => theme.palette.divider,
+              borderWidth: "1px",
+            }}
+          >
+            <Loading status={instanceDataState}>
+              <InstanceContext.Provider value={instanceDataState.data}>
+                <TabContext value={pageId}>
+                  <GridLayout rows>
+                    <TabList onChange={changePage}>
+                      {pagePlugins.map((p) => (
+                        <Tab key={p.id} label={p.title} value={p.id} />
+                      ))}
+                    </TabList>
+                    <GridBox
+                      sx={{
+                        p: 1,
+                        borderTopStyle: "solid",
+                        borderColor: (theme) => theme.palette.divider,
+                        borderWidth: "1px",
+                      }}
+                    >
+                      {pagePlugins.map((p) => (
+                        <TabPanel key={p.id} value={p.id} sx={{ p: 0 }}>
+                          {p.render()}
+                        </TabPanel>
+                      ))}
+                    </GridBox>
+                  </GridLayout>
+                </TabContext>
+              </InstanceContext.Provider>
+            </Loading>
+          </GridBox>
+        </GridLayout>
+        {newAnnotationDialog}
+      </Loading>
+    </GridBox>
+  );
+}
+
+function AnnotationComponent(props: {
+  studyId: string;
+  cohortId: string;
+  reviewId: string;
+
+  annotation: Annotation;
+  instance?: ReviewInstance;
+
+  mutateAnnotation: () => void;
+}) {
+  const [searchData, updateSearchData] = useSearchData<SearchData>();
+
+  const source = useSource();
+
+  const values = props.instance?.annotations?.[props.annotation.id];
+  const currentValue = values?.find((v) => v.current)?.value;
+  const latestValue = values?.[values?.length]?.value;
+
+  let comp: ReactNode | undefined;
+  switch (props.annotation.annotationType) {
+    case AnnotationType.String:
+      if (props.annotation.enumVals?.length) {
+        comp = (
+          <FormControl fullWidth>
+            <InputLabel id={`label-${props.annotation.id}`}>
+              {props.annotation.displayName}
+            </InputLabel>
+            <Select
+              labelId={`label-${props.annotation.id}`}
+              defaultValue={latestValue ?? ""}
+              value={currentValue ?? ""}
+              label={props.annotation.displayName}
+            >
+              <MenuItem value="" key="">
+                &nbsp;
+              </MenuItem>
+              {props.annotation.enumVals.map((v) => (
+                <MenuItem value={v} key={v}>
+                  {v}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        );
+      } else {
+        comp = (
+          <TextField
+            variant="outlined"
+            fullWidth
+            label={props.annotation.displayName}
+            value={currentValue}
+            defaultValue={latestValue}
+          />
+        );
+      }
+      break;
+
+    default:
+      throw new Error(
+        `Unhandled annotation type ${props.annotation.annotationType}.`
+      );
+  }
+
+  return (
+    <GridLayout cols fillCol={0} rowAlign="middle">
+      {comp}
+      {searchData?.editingAnnotations ? (
+        <IconButton
+          onClick={async () => {
+            await source.deleteAnnotation(
+              props.studyId,
+              props.cohortId,
+              props.annotation.id
+            );
+            await props.mutateAnnotation();
+            updateSearchData((data) => {
+              data.editingAnnotations = false;
+            });
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
+      ) : null}
+    </GridLayout>
+  );
+}

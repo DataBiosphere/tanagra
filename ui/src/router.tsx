@@ -1,5 +1,6 @@
 import Button from "@mui/material/Button";
 import { AddCohortCriteria, AddConceptSetCriteria } from "addCriteria";
+import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
 import ConceptSetEdit from "conceptSetEdit";
@@ -59,15 +60,15 @@ export function createAppRouter() {
               ],
             },
             {
-              path: "review/:cohortId",
+              path: "reviews/:cohortId/:reviewId?",
               children: [
                 {
                   index: true,
                   element: <CohortReviewList />,
                 },
                 {
-                  path: ":reviewId",
-                  element: <CohortReviewList />,
+                  path: "review",
+                  element: <CohortReview />,
                 },
               ],
             },
@@ -215,12 +216,12 @@ export function newCriteriaURL(configId: string) {
   return `add/${configId}`;
 }
 
-export function absoluteCohortReviewURL(
+export function absoluteCohortReviewListURL(
   params: BaseParams,
   cohortId: string,
   reviewId?: string
 ) {
-  return `${absolutePrefix(params)}review/${cohortId}/${reviewId ?? ""}`;
+  return `${absolutePrefix(params)}reviews/${cohortId}/${reviewId ?? ""}`;
 }
 
 // TODO(tjennison): Make a prettier error page.

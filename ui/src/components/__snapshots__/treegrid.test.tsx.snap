@@ -28,13 +28,7 @@ Array [
           }
         >
           <div
-            style={
-              Object {
-                "overflow": "hidden",
-                "textOverflow": "ellipsis",
-                "whiteSpace": "nowrap",
-              }
-            }
+            className="MuiBox-root css-1vkab4s"
           >
             <span
               className="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
@@ -54,13 +48,7 @@ Array [
           }
         >
           <div
-            style={
-              Object {
-                "overflow": "hidden",
-                "textOverflow": "ellipsis",
-                "whiteSpace": "nowrap",
-              }
-            }
+            className="MuiBox-root css-1vkab4s"
           >
             <span
               className="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
@@ -80,13 +68,7 @@ Array [
           }
         >
           <div
-            style={
-              Object {
-                "overflow": "hidden",
-                "textOverflow": "ellipsis",
-                "whiteSpace": "nowrap",
-              }
-            }
+            className="MuiBox-root css-1vkab4s"
           >
             <span
               className="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
@@ -182,7 +164,7 @@ Array [
                 </svg>
               </button>
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title="1-col1"
               >
                 1-col1
@@ -207,7 +189,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title="1-col2"
               >
                 1-col2
@@ -232,7 +214,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title=""
               >
                 
@@ -296,7 +278,7 @@ Array [
                 </svg>
               </button>
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title="2-col1"
               >
                 2-col1
@@ -321,7 +303,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title="2-col2"
               >
                 2-col2
@@ -346,7 +328,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title="2-col3"
               >
                 2-col3
@@ -376,7 +358,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title="3-col1"
               >
                 3-col1
@@ -401,7 +383,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title="3-col2"
               >
                 3-col2
@@ -426,7 +408,7 @@ Array [
               }
             >
               <p
-                className="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-q1lnya-MuiTypography-root"
+                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
                 title=""
               >
                 <svg

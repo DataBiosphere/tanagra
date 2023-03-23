@@ -275,5 +275,52 @@
       { "key": "concept_code", "width": 120, "title": "Code" },
       { "key": "t_rollup_count", "width": 120, "title": "Roll-up Count" }
     ]
+  },
+  "cohortReviewConfig": {
+    "attributes": [
+      {
+        "title": "Gender",
+        "key": "gender"
+      },
+      {
+        "title": "Year of birth",
+        "key": "year_of_birth"
+      },
+      {
+        "title": "Race",
+        "key": "race"
+      },
+      {
+        "title": "Ethnicity",
+        "key": "ethnicity"
+      }
+    ],
+    "pages": [
+      {
+        "type": "occurrenceTable",
+        "id": "condition",
+        "title": "Condition",
+        "plugin": {
+          "occurrence": "condition_occurrence",
+          "columns": [
+            { "key": "condition", "width": "100%", "title": "Condition name" },
+            { "key": "start_date", "width": 200, "title": "Start date" },
+            { "key": "end_date", "width": 200, "title": "End date" }
+          ]
+        }
+      },
+      {
+        "type": "occurrenceTable",
+        "id": "procedure",
+        "title": "Procedure",
+        "plugin": {
+          "occurrence": "procedure_occurrence",
+          "columns": [
+            { "key": "procedure", "width": "100%", "title": "Procedure name" },
+            { "key": "date", "width": 200, "title": "Date" }
+          ]
+        }
+      }
+    ]
   }
 }

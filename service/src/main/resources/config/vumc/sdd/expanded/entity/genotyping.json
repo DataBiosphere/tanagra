@@ -328,7 +328,7 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "id" ]
+      "attributes" : [ "id", "name" ]
     },
     "hierarchyMappings" : {
       "standard" : {
