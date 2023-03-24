@@ -158,6 +158,14 @@ export interface Source {
     limit?: number
   ): Promise<ListDataResponse>;
 
+  exportData(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null,
+    limit?: number
+  ): Promise<string>;
+
   getHintData(
     occurrenceID: string,
     attributeID: string
@@ -254,6 +262,8 @@ export interface Source {
     cohortId: string,
     annotationId: string
   ): void;
+
+  exportAnnotationValues(studyId: string, cohortId: string): Promise<string>;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -487,6 +497,36 @@ export class BackendSource implements Source {
       data: data ?? [],
       sql: res.sql ?? "",
     };
+  }
+
+  async exportData(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null,
+    limit?: number
+  ): Promise<string> {
+    const entity = findEntity(occurrenceID, this.config);
+
+    const res = await parseAPIError(
+      this.instancesApi.exportInstances({
+        entityName: entity.entity,
+        underlayName: this.underlay.name,
+        queryV2: this.makeQuery(
+          requestedAttributes,
+          occurrenceID,
+          cohort,
+          conceptSet,
+          limit
+        ),
+      })
+    );
+
+    if (!res.gcsSignedUrl) {
+      throw new Error("Invalid GCS signed URL.");
+    }
+
+    return res.gcsSignedUrl;
   }
 
   async getHintData(
@@ -865,6 +905,21 @@ export class BackendSource implements Source {
         annotationId,
       })
     );
+  }
+
+  public async exportAnnotationValues(
+    studyId: string,
+    cohortId: string
+  ): Promise<string> {
+    const res = await parseAPIError(
+      this.annotationsApi.exportAnnotationValues({ studyId, cohortId })
+    );
+
+    if (!res.gcsSignedUrl) {
+      throw new Error("Invalid GCS signed URL.");
+    }
+
+    return res.gcsSignedUrl;
   }
 
   private makeQuery(

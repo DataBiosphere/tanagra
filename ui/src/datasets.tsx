@@ -1,4 +1,9 @@
 import AddIcon from "@mui/icons-material/Add";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
@@ -25,8 +30,8 @@ import { useSource } from "data/source";
 import { useStudyId, useUnderlay } from "hooks";
 import React, {
   Fragment,
+  ReactNode,
   SyntheticEvent,
-  useCallback,
   useMemo,
   useState,
 } from "react";
@@ -158,7 +163,7 @@ export function Datasets() {
   return (
     <>
       <ActionBar title="Datasets" backURL={"/underlays/" + underlay.name} />
-      <Grid container columns={3} className="datasets">
+      <Grid container columns={3} spacing={1} sx={{ px: 4, py: 1 }}>
         <Grid item xs={1}>
           <Stack
             direction="row"
@@ -348,24 +353,12 @@ export function Datasets() {
           </Paper>
         </Grid>
         <Grid item xs={3}>
-          <Paper sx={{ p: 1 }}>
-            {selectedCohorts.size > 0 && selectedConceptSets.size > 0 ? (
-              <Preview
-                selectedCohorts={selectedCohorts}
-                selectedConceptSets={selectedConceptSets}
-                conceptSetOccurrences={conceptSetOccurrences}
-                excludedAttributes={excludedAttributes}
-              />
-            ) : (
-              <Empty
-                maxWidth="60%"
-                minHeight="200px"
-                image="/empty.png"
-                title="No inputs selected"
-                subtitle="You can preview the data by selecting at least one cohort and data feature"
-              />
-            )}
-          </Paper>
+          <Preview
+            selectedCohorts={selectedCohorts}
+            selectedConceptSets={selectedConceptSets}
+            conceptSetOccurrences={conceptSetOccurrences}
+            excludedAttributes={excludedAttributes}
+          />
         </Grid>
       </Grid>
     </>
@@ -447,6 +440,28 @@ function Preview(props: PreviewProps) {
     [unfilteredCohorts.data, props.selectedCohorts]
   );
 
+  const cohortsFilter = useMemo(
+    () =>
+      makeArrayFilter(
+        { min: 1 },
+        (cohorts || []).map((cohort) => generateCohortFilter(cohort))
+      ),
+    [cohorts]
+  );
+
+  const conceptSetParams = useMemo(
+    () =>
+      props.conceptSetOccurrences.map((occurrence) => ({
+        id: occurrence.id,
+        name: occurrence.name,
+        filter: makeArrayFilter({ min: 1 }, occurrence.filters),
+        attributes: occurrence.attributes.filter(
+          (a) => !props.excludedAttributes.get(occurrence.id)?.has(a)
+        ),
+      })),
+    [props.conceptSetOccurrences, props.excludedAttributes]
+  );
+
   const [tab, setTab] = useState(0);
   const [queriesMode, setQueriesMode] = useState(false);
 
@@ -457,31 +472,18 @@ function Preview(props: PreviewProps) {
       occurrences: props.conceptSetOccurrences,
       excludedAtrtibutes: props.excludedAttributes,
     },
-    useCallback(async () => {
+    async () => {
       return Promise.all(
-        props.conceptSetOccurrences.map(async (occurrence) => {
-          const cohortsFilter = makeArrayFilter(
-            { min: 1 },
-            (cohorts || []).map((cohort) => generateCohortFilter(cohort))
-          );
+        conceptSetParams.map(async (params) => {
           if (!cohortsFilter) {
             throw new Error("All selected cohorts are empty.");
           }
 
-          const conceptSetsFilter = makeArrayFilter(
-            { min: 1 },
-            occurrence.filters
-          );
-
-          const filteredAttributes = occurrence.attributes.filter(
-            (a) => !props.excludedAttributes.get(occurrence.id)?.has(a)
-          );
-
           const res = await source.listData(
-            filteredAttributes,
-            occurrence.id,
+            params.attributes,
+            params.id,
             cohortsFilter,
-            conceptSetsFilter
+            params.filter
           );
 
           const data: TreeGridData = {
@@ -494,18 +496,20 @@ function Preview(props: PreviewProps) {
           });
 
           return {
-            name: occurrence.name,
+            name: params.name,
             sql: res.sql,
             data: data,
           };
         })
       );
-    }, [
-      props.selectedCohorts,
-      props.selectedConceptSets,
-      props.excludedAttributes,
-    ])
+    }
   );
+
+  const [exportDialog, showExportDialog] = useExportDialog({
+    cohorts: cohorts,
+    cohortsFilter: cohortsFilter,
+    conceptSetParams: conceptSetParams,
+  });
 
   const onTabChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -515,65 +519,92 @@ function Preview(props: PreviewProps) {
     setQueriesMode(event.target.checked);
   };
 
+  const empty =
+    props.selectedCohorts.size === 0 || props.selectedConceptSets.size === 0;
+
   return (
-    <>
-      <Loading status={tabDataState}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{ borderBottom: 1, borderColor: "divider" }}
+    <Stack>
+      <Stack alignItems="flex-end" justifyContent="center" sx={{ pb: 1 }}>
+        <Button
+          variant="contained"
+          disabled={empty}
+          onClick={() => {
+            showExportDialog();
+          }}
         >
-          <Tabs value={tab} onChange={onTabChange} sx={{ flexGrow: 1 }}>
-            {tabDataState.data?.map((data) => (
-              <Tab key={data.name} label={data.name} />
-            ))}
-          </Tabs>
-          <Typography variant="button">Data</Typography>
-          <Switch onChange={onQueriesModeChange} name="queries-mode" />
-          <Typography variant="button">Queries</Typography>
-        </Stack>
-        {queriesMode ? (
-          <Typography sx={{ fontFamily: "monospace" }}>
-            {tabDataState.data?.[tab]?.sql}
-          </Typography>
-        ) : tabDataState.data?.[tab]?.data ? (
-          <div
-            style={{
-              overflowX: "auto",
-              display: "block",
-            }}
-          >
-            {tabDataState.data?.[tab]?.data?.root?.children?.length ? (
-              <TreeGrid
-                data={tabDataState.data?.[tab]?.data}
-                columns={props.conceptSetOccurrences[tab]?.attributes
-                  .filter(
-                    (a) =>
-                      !props.excludedAttributes
-                        .get(props.conceptSetOccurrences[tab]?.id)
-                        ?.has(a)
-                  )
-                  .map((attribute) => ({
-                    key: attribute,
-                    width: 120,
-                    title: attribute,
-                  }))}
-                variableWidth
-                wrapBodyText
-              />
-            ) : (
-              <Empty
-                maxWidth="60%"
-                minHeight="200px"
-                image="/empty.png"
-                title="No data matched"
-                subtitle="No data in this table matched the specified cohorts and data features"
-              />
-            )}
-          </div>
-        ) : undefined}
-      </Loading>
-    </>
+          Export
+        </Button>
+        {exportDialog}
+      </Stack>
+      <Paper sx={{ p: 1 }}>
+        {!empty ? (
+          <Loading status={tabDataState}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              sx={{ borderBottom: 1, borderColor: "divider" }}
+            >
+              <Tabs value={tab} onChange={onTabChange} sx={{ flexGrow: 1 }}>
+                {tabDataState.data?.map((data) => (
+                  <Tab key={data.name} label={data.name} />
+                ))}
+              </Tabs>
+              <Typography variant="button">Data</Typography>
+              <Switch onChange={onQueriesModeChange} name="queries-mode" />
+              <Typography variant="button">Queries</Typography>
+            </Stack>
+            {queriesMode ? (
+              <Typography sx={{ fontFamily: "monospace" }}>
+                {tabDataState.data?.[tab]?.sql}
+              </Typography>
+            ) : tabDataState.data?.[tab]?.data ? (
+              <div
+                style={{
+                  overflowX: "auto",
+                  display: "block",
+                }}
+              >
+                {tabDataState.data?.[tab]?.data?.root?.children?.length ? (
+                  <TreeGrid
+                    data={tabDataState.data?.[tab]?.data}
+                    columns={props.conceptSetOccurrences[tab]?.attributes
+                      .filter(
+                        (a) =>
+                          !props.excludedAttributes
+                            .get(props.conceptSetOccurrences[tab]?.id)
+                            ?.has(a)
+                      )
+                      .map((attribute) => ({
+                        key: attribute,
+                        width: 120,
+                        title: attribute,
+                      }))}
+                    variableWidth
+                    wrapBodyText
+                  />
+                ) : (
+                  <Empty
+                    maxWidth="60%"
+                    minHeight="200px"
+                    image="/empty.png"
+                    title="No data matched"
+                    subtitle="No data in this table matched the specified cohorts and data features"
+                  />
+                )}
+              </div>
+            ) : undefined}
+          </Loading>
+        ) : (
+          <Empty
+            maxWidth="60%"
+            minHeight="200px"
+            image="/empty.png"
+            title="No inputs selected"
+            subtitle="You can preview the data by selecting at least one cohort and data feature"
+          />
+        )}
+      </Paper>
+    </Stack>
   );
 }
 
@@ -582,3 +613,102 @@ type PreviewTabData = {
   sql: string;
   data: TreeGridData;
 };
+
+type ExportData = {
+  name: string;
+  url: string;
+};
+
+type ConceptSetParams = {
+  id: string;
+  name: string;
+  filter: Filter | null;
+  attributes: string[];
+};
+
+type ExportDialogProps = {
+  cohorts: tanagra.Cohort[];
+  cohortsFilter: Filter | null;
+  conceptSetParams: ConceptSetParams[];
+};
+
+function useExportDialog(props: ExportDialogProps): [ReactNode, () => void] {
+  const [open, setOpen] = useState(false);
+  const show = () => setOpen(true);
+
+  return [
+    // eslint-disable-next-line react/jsx-key
+    <ExportDialog {...props} open={open} hide={() => setOpen(false)} />,
+    show,
+  ];
+}
+
+function ExportDialog(
+  props: ExportDialogProps & { open: boolean; hide: () => void }
+) {
+  const source = useSource();
+  const studyId = useStudyId();
+
+  const exportState = useSWRImmutable<ExportData[]>(
+    {
+      type: "exportData",
+      cohorts: props.cohorts,
+      conceptSetParams: props.conceptSetParams,
+    },
+    async () => {
+      const res = await Promise.all([
+        ...props.cohorts.map((cohort) =>
+          source.exportAnnotationValues(studyId, cohort.id)
+        ),
+        ...props.conceptSetParams.map((params) => {
+          if (!props.cohortsFilter) {
+            throw new Error("All selected cohorts are empty.");
+          }
+
+          return source.exportData(
+            params.attributes,
+            params.id,
+            props.cohortsFilter,
+            params.filter
+          );
+        }),
+      ]);
+
+      return res.map((url, i) => ({
+        name:
+          i < props.cohorts.length
+            ? `"${props.cohorts[i].name}" annotations`
+            : props.conceptSetParams[i - props.cohorts.length].name,
+        url,
+      }));
+    }
+  );
+
+  return (
+    <Dialog
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="export-dialog-title"
+      open={props.open}
+      onClose={props.hide}
+    >
+      <DialogTitle id="export-dialog-title">Export</DialogTitle>
+      <DialogContent>
+        <Loading status={exportState}>
+          <Stack>
+            {exportState.data?.map((ed) => (
+              <Link href={ed.url} variant="h4" key={ed.name}>
+                {ed.name}
+              </Link>
+            ))}
+          </Stack>
+        </Loading>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" onClick={props.hide}>
+          Done
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
