@@ -25,7 +25,7 @@ do
 
   underlay_dir_1=$(echo service/src/main/resources/config/${underlay_1}/original)
   underlay_dir_2=$(echo service/src/main/resources/config/${underlay_2}/original)
-  # --ignore-all-space because expanded files sometimes have newline and at of file, and sometimes don't
+  # --ignore-all-space because files sometimes have newline and at of file, and sometimes don't
   diff_output=$(diff -rq --ignore-all-space --exclude ${underlay_name}.json --exclude sql ${underlay_dir_1} ${underlay_dir_2})
 
   if [[ $(echo ${diff_output} | wc -c) -gt 1 ]]
@@ -37,12 +37,13 @@ do
   fi
 
   # Ignore legitimate differences in SQL files
-  sql_diff_output=$(diff -rq --ignore-matching-lines '[FROM|JOIN|dataflowServiceAccountEmail]' ${underlay_dir_1}/sql ${underlay_dir_2}/sql)
+  # --ignore-all-space because files sometimes have newline and at of file, and sometimes don't
+  sql_diff_output=$(diff -rq --ignore-all-space --ignore-matching-lines '[FROM|JOIN|dataflowServiceAccountEmail]' ${underlay_dir_1}/sql ${underlay_dir_2}/sql)
 
   if [[ $(echo ${sql_diff_output} | wc -c) -gt 1 ]]
   then
     printf "Differences found:\n${sql_diff_output}\n"
-    printf "To see differences, run:\ndiff -r --ignore-matching-lines '[FROM|JOIN|dataflowServiceAccountEmail]' ${underlay_dir_1}/sql ${underlay_dir_2}/sql)\n"
+    printf "To see differences, run:\ndiff -rq --ignore-all-space --ignore-matching-lines '[FROM|JOIN|dataflowServiceAccountEmail]' ${underlay_dir_1}/sql ${underlay_dir_2}/sql\n"
     printf "Please update files and add to your PR.\n"
     exit_code=1
   fi
