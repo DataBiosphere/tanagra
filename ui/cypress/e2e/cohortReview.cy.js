@@ -42,7 +42,9 @@ describe("Basic tests", () => {
     cy.get(".MuiSelect-select:Contains(Free text)").click();
     cy.get("li:Contains(Review status)").click();
     cy.get("input[name=displayName]").type("Test status");
-    cy.get("button:Contains(Create)").click();
+    // "should" waits for dialog to close. If we don't do this, the following
+    // cy.get() may get a select from dialog.
+    cy.get("button:Contains(Create)").click().should("not.exist");
 
     cy.get(".MuiSelect-select").click();
     cy.get("li:Contains(Included)").click();

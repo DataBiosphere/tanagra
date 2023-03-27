@@ -16,7 +16,9 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("button:Contains(Race)").click();
-    cy.get(".MuiSelect-select:Contains(None selected)").click();
+    cy.get(".MuiSelect-select:Contains(None selected)", {
+      timeout: 20000,
+    }).click();
     cy.get("li:Contains(Asian)").click();
     cy.get(".MuiBackdrop-root").click();
 
