@@ -14,7 +14,7 @@
           },
           "display" : "Unknown"
         },
-        "count" : 108832
+        "count" : 82839
       } ]
     }
   }, {
@@ -33,52 +33,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "concept",
-      "filter" : {
-        "type" : "BOOLEAN_AND_OR",
-        "operator" : "AND",
-        "subfilters" : [ {
-          "type" : "BINARY",
-          "field" : {
-            "column" : "domain_id"
-          },
-          "operator" : "EQUALS",
-          "value" : {
-            "stringVal" : "Drug"
-          }
-        }, {
-          "type" : "BINARY",
-          "field" : {
-            "column" : "concept_class_id"
-          },
-          "operator" : "EQUALS",
-          "value" : {
-            "stringVal" : "Brand Name"
-          }
-        }, {
-          "type" : "BOOLEAN_AND_OR",
-          "operator" : "OR",
-          "subfilters" : [ {
-            "type" : "BINARY",
-            "field" : {
-              "column" : "vocabulary_id"
-            },
-            "operator" : "EQUALS",
-            "value" : {
-              "stringVal" : "RxNorm"
-            }
-          }, {
-            "type" : "BINARY",
-            "field" : {
-              "column" : "vocabulary_id"
-            },
-            "operator" : "EQUALS",
-            "value" : {
-              "stringVal" : "RxNorm Extension"
-            }
-          } ]
-        } ]
-      }
+      "rawSql" : "SELECT * FROM `victr-tanagra-test.sd_static.concept` WHERE         domain_id = 'Drug' AND concept_class_id = 'Brand Name'   AND vocabulary_id IN ('RxNorm', 'RxNorm Extension')   AND DATE_DIFF(valid_end_date, CURRENT_DATE(), DAY) > 0"
     },
     "attributeMappings" : {
       "standard_concept" : {

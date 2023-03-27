@@ -47,7 +47,7 @@
             "id": { "column": "concept_id" }
           }
         },
-        "maxHierarchyDepth": 8
+        "maxHierarchyDepth": 15
       }
     }
   },

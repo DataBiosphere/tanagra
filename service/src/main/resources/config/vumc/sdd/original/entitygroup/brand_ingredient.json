@@ -7,7 +7,7 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "groupToItems": {
-        "idPairsTable": { "table": "concept_relationship" },
+        "idPairsTable": { "rawSqlFile": "brand_ingredients.sql" },
         "idPairsIdA": { "column": "concept_id_1" },
         "idPairsIdB":  { "column": "concept_id_2" }
       }

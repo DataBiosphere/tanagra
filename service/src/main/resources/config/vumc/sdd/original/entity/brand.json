@@ -10,31 +10,8 @@
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "tablePointer": {
-      "table": "concept",
-      "filter": {
-        "type": "BOOLEAN_AND_OR",
-        "operator": "AND",
-        "subfilters": [
-          { "type": "BINARY",
-            "field": { "column": "domain_id" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "Drug" } },
-          { "type": "BINARY",
-            "field": { "column": "concept_class_id" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "Brand Name" } },
-          { "type": "BOOLEAN_AND_OR",
-            "operator": "OR",
-            "subfilters": [
-              { "type": "BINARY",
-                "field": { "column": "vocabulary_id" },
-                "operator": "EQUALS",
-                "value": { "stringVal": "RxNorm" } },
-              { "type": "BINARY",
-                "field": { "column": "vocabulary_id" },
-                "operator": "EQUALS",
-                "value": { "stringVal": "RxNorm Extension" } }
-            ] } ] } },
+      "rawSqlFile": "brand_all.sql"
+    },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } },
