@@ -41,13 +41,11 @@ jobs:
         echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
       env:
         TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
-#    - name: Setup tmate session
-#      uses: mxschmitt/action-tmate@v3
     - name: Expand config
       run: |
         underlay=$(echo ${{ matrix.company_and_underlay }} | awk -F/ '{print $NF}')
-        cmd='./gradlew indexer:index -Dexec.args="EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${{ matrix.company_and_underlay }}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${{ matrix.company_and_underlay }}/expanded"'
-        echo "Running: $cmd"
-        $(cmd)
+        cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/broad/aou_synthetic/original/aou_synthetic.json $(pwd)/service/src/main/resources/config/broad/aou_synthetic/expanded\""
+        echo "Running:  $cmd"
+        eval ${cmd}
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
