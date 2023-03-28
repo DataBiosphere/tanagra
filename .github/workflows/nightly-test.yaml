@@ -53,14 +53,14 @@ jobs:
 #        eval ${cmd}
 ##      env:
 ##        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+#    - name: Setup tmate session
+#      uses: mxschmitt/action-tmate@v3
     - name: Run INDEX_ALL
       run: |
         underlay=$(echo ${{ matrix.company_and_underlay }} | awk -F/ '{print $NF}')
         index_dataset_name="${underlay}_nightly"
         # In underlay.json, change index dataset name to "underlay_nightly"
-        sed -i '' 's/"datasetId" : "[a-zA-Z0-9_]*index.*"/"datasetId" : "${index_dataset_name}"/' service/src/main/resources/config/${company_and_underlay}/expanded/${underlay}.json
+        sed -i "s/\"datasetId\" : \"[a-zA-Z0-9_]*index.*\"/\"datasetId\" : \"${index_dataset_name}\"/" service/src/main/resources/config/${company_and_underlay}/expanded/${underlay}.json
         head service/src/main/resources/config/${company_and_underlay}/expanded/${underlay}.json
         cmd="./gradlew indexer:index -Dexec.args=\"INDEX_ALL $(pwd)/service/src/main/resources/config/${company_and_underlay}/expanded/${underlay}.json\""
         echo "Running:  $cmd"
