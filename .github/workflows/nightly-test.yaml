@@ -61,7 +61,6 @@ jobs:
         gcloud auth activate-service-account --key-file ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
         bq rm -r -f --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
         bq mk --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
-      env:
     - name: Run INDEX_ALL
       run: |
         underlay=$(echo ${{ matrix.company_and_underlay }} | awk -F/ '{print $NF}')
