@@ -66,5 +66,5 @@ jobs:
         echo "Running:  $cmd"
         eval ${cmd}
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
+        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
 
