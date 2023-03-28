@@ -184,8 +184,7 @@ export function Datasets() {
             {dialog}
           </Stack>
           <Paper
-            sx={{ p: 1, overflowY: "auto", display: "block" }}
-            className="datasets-select-panel"
+            sx={{ p: 1, overflowY: "auto", display: "block", height: "300px" }}
           >
             {cohorts.length === 0 && (
               <Empty
@@ -246,8 +245,7 @@ export function Datasets() {
             </IconButton>
           </Stack>
           <Paper
-            sx={{ p: 1, overflowY: "auto", display: "block" }}
-            className="datasets-select-panel"
+            sx={{ p: 1, overflowY: "auto", display: "block", height: "300px" }}
           >
             {underlay.uiConfiguration.prepackagedConceptSets && (
               <>
@@ -308,8 +306,7 @@ export function Datasets() {
             </Stack>
           </Stack>
           <Paper
-            sx={{ p: 1, overflowY: "auto", display: "block" }}
-            className="datasets-select-panel"
+            sx={{ p: 1, overflowY: "auto", display: "block", height: "300px" }}
           >
             {conceptSetOccurrences.length === 0 && (
               <Empty

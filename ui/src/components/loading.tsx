@@ -49,7 +49,7 @@ export default function Loading(props: Props) {
   }
 
   return (
-    <Box className={props.size === "small" ? "loading-small" : "loading"}>
+    <Box sx={props.size !== "small" ? { px: 4, py: 2 } : {}}>
       {showStatus(visible, props.status, props.size)}
     </Box>
   );
@@ -74,10 +74,18 @@ function showStatus(
 
     return (
       <>
-        <Typography variant="h2">Error</Typography>
-        <Typography paragraph>{errorMessage}</Typography>
+        <Typography variant="h2" sx={{ textAlign: "center" }}>
+          Error
+        </Typography>
+        <Typography paragraph sx={{ textAlign: "center" }}>
+          {errorMessage}
+        </Typography>
         <div>
-          <Button onClick={status?.mutate} variant="contained">
+          <Button
+            onClick={status?.mutate}
+            variant="contained"
+            sx={{ display: "block", m: "auto" }}
+          >
             Reload
           </Button>
         </div>
@@ -86,7 +94,14 @@ function showStatus(
   }
   return visible ? (
     <CircularProgress
-      style={size === "small" ? { width: "1em", height: "1em" } : {}}
+      sx={
+        size === "small"
+          ? { width: "1em", height: "1em" }
+          : {
+              display: "block",
+              m: "auto",
+            }
+      }
     />
   ) : null;
 }
