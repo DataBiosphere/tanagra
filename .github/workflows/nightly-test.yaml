@@ -1,5 +1,6 @@
 # Run EXPAND_CONFIG, INDEX_ALL every night. Even if there are no commits, this will
 # run every night and catch problems.
+# Writes index to "nightly" dataset, eg aou_synthetic_nightly.
 name: Nightly tests
 
 on:
@@ -44,10 +45,10 @@ jobs:
         echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
       env:
         TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
-#    - name: Expand config
+#    - name: Run EXPAND_CONFIG
 #      run: |
 #        underlay=$(echo ${{ matrix.company_and_underlay }} | awk -F/ '{print $NF}')
-#        cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/broad/aou_synthetic/original/aou_synthetic.json $(pwd)/service/src/main/resources/config/broad/aou_synthetic/expanded\""
+#        cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${company_and_underlay}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${company_and_underlay}/expanded\""
 #        echo "Running:  $cmd"
 #        eval ${cmd}
 ##      env:
@@ -59,6 +60,18 @@ jobs:
         gcloud auth activate-service-account --key-file ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
         bq rm -r -f --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
         bq mk --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
+    - name: Run INDEX_ALL
+      run: |
+        underlay=$(echo ${{ matrix.company_and_underlay }} | awk -F/ '{print $NF}')
+        index_dataset_name="${underlay}_nightly"
+        # In underlay.json, change index dataset name to "underlay_nightly"
+        sed -i '' 's/"datasetId" : "[a-zA-Z0-9_]*index.*"/"datasetId" : "${index_dataset_name}"/' service/src/main/resources/config/${company_and_underlay}/expanded/${underlay}.json
+        head service/src/main/resources/config/${company_and_underlay}/expanded/${underlay}.json
+        cmd="./gradlew indexer:index -Dexec.args=\"INDEX_ALL $(pwd)/service/src/main/resources/config/${company_and_underlay}/expanded/${underlay}.json\""
+        echo "Running:  $cmd"
+        eval ${cmd}
       env:
         GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
 
