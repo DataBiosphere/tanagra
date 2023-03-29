@@ -54,7 +54,7 @@ jobs:
 #        echo "Running:  $cmd"
 #        eval ${cmd}
 #      env:
-##        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+#        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
     - name: Delete and create index dataset (underlay_nightly dataset)
       # If one underlay fails, keep going with other underlays
       if: always()
@@ -66,7 +66,7 @@ jobs:
         bq mk --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
       env:
         GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
-   - name: Run INDEX_ALL (will index to underlay_nightly dataset)
+    - name: Run INDEX_ALL (will index to underlay_nightly dataset)
       # If one underlay fails, keep going with other underlays
       if: always()
       run: |
