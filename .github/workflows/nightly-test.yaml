@@ -9,7 +9,7 @@ on:
   - cron: '0 7 * * *' # 7AM UTC = 2AM EST
 
 env:
-  GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+  GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
   INDEX_PROJECT: "broad-tanagra-dev"
 
 jobs:
