@@ -73,4 +73,5 @@ task index (type:JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     systemProperties System.getProperties()
     args System.getProperty("exec.args", "").split()
+    jvmArgs "-Xmx7000m", "-XX:+HeapDumpOnOutOfMemoryError"
 }
