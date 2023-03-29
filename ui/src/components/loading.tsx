@@ -94,13 +94,14 @@ function showStatus(
   }
   return visible ? (
     <CircularProgress
+      size={size === "small" ? "1em" : undefined}
       sx={
-        size === "small"
-          ? { width: "1em", height: "1em" }
-          : {
+        size !== "small"
+          ? {
               display: "block",
               m: "auto",
             }
+          : {}
       }
     />
   ) : null;
