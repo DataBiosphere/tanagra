@@ -54,19 +54,19 @@ jobs:
 #        echo "Running:  $cmd"
 #        eval ${cmd}
 #      env:
-#        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
-#    - name: Delete and create index dataset (underlay_nightly dataset)
-#      # If one underlay fails, keep going with other underlays
-#      if: always()
-#      run: |
-#        underlay=$(echo ${{ matrix.company_and_underlay }} | awk -F/ '{print $NF}')
-#        index_dataset_name="${underlay}_nightly"
-#        gcloud auth activate-service-account --key-file ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
-#        bq rm -r -f --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
-#        bq mk --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
-#      env:
-#        GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
-    - name: Run INDEX_ALL (will index to underlay_nightly dataset)
+##        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+    - name: Delete and create index dataset (underlay_nightly dataset)
+      # If one underlay fails, keep going with other underlays
+      if: always()
+      run: |
+        underlay=$(echo ${{ matrix.company_and_underlay }} | awk -F/ '{print $NF}')
+        index_dataset_name="${underlay}_nightly"
+        gcloud auth activate-service-account --key-file ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+        bq rm -r -f --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
+        bq mk --project_id ${{ env.INDEX_PROJECT }} -d ${index_dataset_name}
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: rendered/broad/tanagra_sa.json
+   - name: Run INDEX_ALL (will index to underlay_nightly dataset)
       # If one underlay fails, keep going with other underlays
       if: always()
       run: |
@@ -81,8 +81,10 @@ jobs:
         eval ${cmd}
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
-        # Avoid OOM https://github.com/DataBiosphere/tanagra/actions/runs/4547100642/jobs/8016560406
-        GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g"
+        # Avoid OOM. Not sure why this isn't a problem on local runs.
+        # https://github.com/DataBiosphere/tanagra/actions/runs/4547100642/jobs/8016560406
+        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+        GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx7g -XX:MaxMetaspaceSize=7g"
     - name: Setup tmate session
       if: always()
       uses: mxschmitt/action-tmate@v3
