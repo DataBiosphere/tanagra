@@ -62,9 +62,9 @@ jobs:
         index-gcp-project: broad-tanagra-dev
         google_application_credentials_relative_path: rendered/broad/tanagra_sa.json
 
-    - name: Setup tmate session
-      if: always()
-      uses: mxschmitt/action-tmate@v3
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+#    - name: Setup tmate session
+#      if: always()
+#      uses: mxschmitt/action-tmate@v3
+#      env:
+#        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
 
