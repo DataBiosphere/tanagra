@@ -55,13 +55,17 @@ jobs:
         echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
       env:
         TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
     - name: Expand config and index
       uses: ./.github/actions/expand-config-and-index
       with:
         company-and-underlay: ${{ matrix.company-and-underlay }}
         index-gcp-project: broad-tanagra-dev
         google_application_credentials_relative_path: rendered/broad/tanagra_sa.json
-
 #    - name: Setup tmate session
 #      if: always()
 #      uses: mxschmitt/action-tmate@v3
