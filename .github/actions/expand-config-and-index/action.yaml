@@ -1,7 +1,7 @@
-# Say underlay is broad/cms_synpuf. In expanded/cms_synpuf.json, index dataset will be temporarily changed from
-# cmssynpuf_index_011523 will be changed to cms_synpuf_nightly. So cmssynpuf_index_011523 is not disturbed.
 name: Run EXPAND_CONFIG and INDEX_ALL
-description: 'For given underlay, run EXPAND_CONFIG and INDEX_ALL'
+description: 'For given underlay, run EXPAND_CONFIG and INDEX_ALL. Write index to underlay_nightly dataset.
+  Example: In expanded/cms_synpuf.json, index dataset will be temporarily changed from cmssynpuf_index_011523 to
+  cms_synpuf_nightly. So cmssynpuf_index_011523 is not disturbed.'
 
 inputs:
   company-and-underlay:
@@ -30,12 +30,6 @@ runs:
           ~/.gradle/wrapper
         key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
         restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-    - name: Dump inputs context
-      run: echo '${{ toJSON(inputs) }}'
-      shell: bash
-    - name: Dump github context
-      run: echo '${{ toJSON(github) }}'
-      shell: bash
     - name: Run EXPAND_CONFIG
       run: |
         underlay=$(echo ${{ inputs.company-and-underlay }} | awk -F/ '{print $NF}')
@@ -69,6 +63,3 @@ runs:
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../${{ inputs.google-application-credentials-relative-path }}
       shell: bash
-#      - name: Setup tmate session
-#        if: always()
-#        uses: mxschmitt/action-tmate@v3
