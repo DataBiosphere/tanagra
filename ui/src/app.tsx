@@ -12,7 +12,6 @@ import { createAppRouter } from "router";
 import { fetchUserData } from "storage/storage";
 import useSWRImmutable from "swr/immutable";
 import { setUnderlays } from "underlaysSlice";
-import "./app.css";
 import theme from "./theme";
 
 enableMapSet();

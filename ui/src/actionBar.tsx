@@ -1,7 +1,6 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
@@ -22,62 +21,60 @@ export default function ActionBar(props: ActionBarProps) {
   );
 
   return (
-    <Box className="action-bar">
-      <AppBar
-        position="fixed"
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          borderBottomColor: (theme) => theme.palette.divider,
-          borderBottomStyle: "solid",
-          borderBottomWidth: "1px",
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="primary"
-            aria-label="back"
-            component={RouterLink}
-            to={props.backURL ?? ".."}
-            sx={{
-              mx: 1,
-              visibility: props.backURL === null ? "hidden" : "visible",
-              "&.MuiIconButton-root": {
-                backgroundColor: (theme) => theme.palette.primary.main,
-                color: (theme) => theme.palette.primary.contrastText,
-              },
-              "&.MuiIconButton-root:hover": {
-                backgroundColor: (theme) => theme.palette.primary.dark,
-              },
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography
-            variant="h1"
-            sx={{
-              flexGrow: 1,
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-            }}
-          >
-            {props.title}
+    <AppBar
+      position="fixed"
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        borderBottomColor: (theme) => theme.palette.divider,
+        borderBottomStyle: "solid",
+        borderBottomWidth: "1px",
+      }}
+    >
+      <Toolbar disableGutters>
+        <IconButton
+          color="primary"
+          aria-label="back"
+          component={RouterLink}
+          to={props.backURL ?? ".."}
+          sx={{
+            mx: 1,
+            visibility: props.backURL === null ? "hidden" : "visible",
+            "&.MuiIconButton-root": {
+              backgroundColor: (theme) => theme.palette.primary.main,
+              color: (theme) => theme.palette.primary.contrastText,
+            },
+            "&.MuiIconButton-root:hover": {
+              backgroundColor: (theme) => theme.palette.primary.dark,
+            },
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography
+          variant="h1"
+          sx={{
+            flexGrow: 1,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        >
+          {props.title}
+        </Typography>
+        {props.extraControls}
+        <Button
+          startIcon={<SettingsIcon />}
+          component={RouterLink}
+          to="/sdAdmin"
+        >
+          SD Admin
+        </Button>
+        {underlay ? (
+          <Typography variant="h4" sx={{ mx: 1 }}>
+            Dataset: {underlay.name}
           </Typography>
-          {props.extraControls}
-          <Button
-            startIcon={<SettingsIcon />}
-            component={RouterLink}
-            to="/sdAdmin"
-          >
-            SD Admin
-          </Button>
-          {underlay ? (
-            <Typography variant="h4" className="underlay-name" sx={{ ml: 1 }}>
-              Dataset: {underlay.name}
-            </Typography>
-          ) : null}
-        </Toolbar>
-      </AppBar>
-    </Box>
+        ) : null}
+      </Toolbar>
+    </AppBar>
   );
 }
