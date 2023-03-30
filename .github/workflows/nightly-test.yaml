@@ -8,9 +8,6 @@ on:
   schedule:
   - cron: '0 7 * * *' # 7AM UTC = 2AM EST
 
-env:
-  INDEX_PROJECT: "broad-tanagra-dev"
-
 jobs:
   test:
     strategy:
@@ -55,7 +52,7 @@ jobs:
       with:
         company-and-underlay: ${{ matrix.company-and-underlay }}
         index-gcp-project: broad-tanagra-dev
-        google_application_credentials_relative_path: rendered/broad/tanagra_sa.json
+        google-application-credentials-relative-path: rendered/broad/tanagra_sa.json
 #    - name: Setup tmate session
 #      if: always()
 #      uses: mxschmitt/action-tmate@v3
