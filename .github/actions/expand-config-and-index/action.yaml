@@ -16,10 +16,6 @@ inputs:
 
 runs:
   using: "composite"
-  env:
-    # Most steps need ../ at the beginning
-    GOOGLE_APPLICATION_CREDENTIALS: ../${{ github.events.inputs.google-application-credentials-relative-path }}
-
   steps:
     - name: Set up AdoptOpenJDK 11
       uses: actions/setup-java@v3
@@ -46,6 +42,8 @@ runs:
         cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded\""
         echo "Running:  $cmd"
         eval ${cmd}
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ../${{ github.events.inputs.google-application-credentials-relative-path }}
       shell: bash
     - name: Delete and create index dataset (underlay_nightly dataset)
       run: |
@@ -55,7 +53,6 @@ runs:
         bq rm -r -f --project_id ${{ github.events.inputs.index-gcp-project }} -d ${index_dataset_name}
         bq mk --project_id ${{ github.events.inputs.index-gcp-project }} -d ${index_dataset_name}
       env:
-        # This step doesn't need ../ at the beginning
         GOOGLE_APPLICATION_CREDENTIALS: ${{ github.events.inputs.google-application-credentials-relative-path }}
       shell: bash
     - name: Run INDEX_ALL (will write index to underlay_nightly dataset)
@@ -69,6 +66,8 @@ runs:
         cmd="./gradlew indexer:index -Dexec.args=\"INDEX_ALL $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded/${underlay}.json\""
         echo "Running:  $cmd"
         eval ${cmd}
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ../${{ github.events.inputs.google-application-credentials-relative-path }}
       shell: bash
 #      - name: Setup tmate session
 #        if: always()
