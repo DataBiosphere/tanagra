@@ -5,6 +5,17 @@
 name: Run EXPAND_CONFIG and INDEX_ALL
 
 on:
+  workflow_dispatch:
+    inputs:
+      company-and-underlay:
+        required: true
+        type: string
+      index-gcp-project:
+        required: true
+        type: string
+      google-application-credentials-relative-path:
+        required: true
+        type: string
   workflow_call:
     inputs:
       # Eg broad/cms_synpuf
