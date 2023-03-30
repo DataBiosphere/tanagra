@@ -1,47 +1,27 @@
-# Given an underlay, runs EXPAND_CONFIG and INDEX_ALL.
-#
-# Say underlay is broad/cms_synpuf. In expanded/cms_synpuf.json, index dataset will be changed from
+# Say underlay is broad/cms_synpuf. In expanded/cms_synpuf.json, index dataset will be temporarily changed from
 # cmssynpuf_index_011523 will be changed to cms_synpuf_nightly. So cmssynpuf_index_011523 is not disturbed.
 name: Run EXPAND_CONFIG and INDEX_ALL
+description: 'For given underlay, run EXPAND_CONFIG and INDEX_ALL'
 
-on:
-  workflow_dispatch:
-    inputs:
-      company-and-underlay:
-        required: true
-        type: string
-      index-gcp-project:
-        required: true
-        type: string
-      google-application-credentials-relative-path:
-        required: true
-        type: string
-  workflow_call:
-    inputs:
-      # Eg broad/cms_synpuf
-      company-and-underlay:
-        required: true
-        type: string
-      index-gcp-project:
-        required: true
-        type: string
-      google-application-credentials-relative-path:
-        required: true
-        type: string
+inputs:
+  company-and-underlay:
+    description: 'Example: broad/cms_synpuf'
+    required: true
+  index-gcp-project:
+    description: 'GCP project containing underlay index'
+    required: true
+  google-application-credentials-relative-path:
+    description: 'Relative path to GOOGLE_APPLICATION_CREDENTIALS file. This file must have been written before this action is called.'
+    required: true
 
-#env:
-#  GOOGLE_APPLICATION_CREDENTIALS: ../${{ github.events.inputs.google-application-credentials-relative-path }}
-
-jobs:
-  expand-config-and-index:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up AdoptOpenJDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: 'temurin'
+runs:
+  using: "composite"
+  steps:
+    - name: Set up AdoptOpenJDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: 'temurin'
 #      - name: Cache Gradle packages
 #        uses: actions/cache@v2
 #        with:
