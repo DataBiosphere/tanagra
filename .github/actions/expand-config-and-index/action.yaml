@@ -30,12 +30,10 @@ runs:
 #            ~/.gradle/wrapper
 #          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
 #          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-#      - name: Dump inputs context
-#        run: echo '${{ toJSON(inputs) }}'
-#      - name: Dump inputs context
-#        run: echo '${{ toJSON(vars) }}'
-#      - name: Dump inputs context
-#        run: echo '${{ toJSON(on) }}'
+      - name: Dump inputs context
+        run: echo '${{ toJSON(inputs) }}'
+      - name: Dump github context
+        run: echo '${{ toJSON(github) }}'
 #      - name: Run EXPAND_CONFIG
 #        run: |
 #          underlay=$(echo ${{ github.events.inputs.company-and-underlay }} | awk -F/ '{print $NF}')
