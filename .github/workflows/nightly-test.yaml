@@ -5,6 +5,16 @@ name: Nightly tests
 
 on:
   workflow_dispatch:
+    inputs:
+      company-and-underlay:
+        required: true
+        type: string
+      index-gcp-project:
+        required: true
+        type: string
+      google-application-credentials-relative-path:
+        required: true
+        type: string
   schedule:
   - cron: '0 7 * * *' # 7AM UTC = 2AM EST
 
