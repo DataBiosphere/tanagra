@@ -16,53 +16,60 @@ inputs:
 
 runs:
   using: "composite"
+  env:
+    # Most steps need ../ at the beginning
+    GOOGLE_APPLICATION_CREDENTIALS: ../${{ github.events.inputs.google-application-credentials-relative-path }}
+
   steps:
     - name: Set up AdoptOpenJDK 11
       uses: actions/setup-java@v3
       with:
         java-version: 11
         distribution: 'temurin'
-#      - name: Cache Gradle packages
-#        uses: actions/cache@v2
-#        with:
-#          path: |
-#            ~/.gradle/caches
-#            ~/.gradle/wrapper
-#          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-#          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
     - name: Dump inputs context
       run: echo '${{ toJSON(inputs) }}'
       shell: bash
     - name: Dump github context
       run: echo '${{ toJSON(github) }}'
       shell: bash
-#      - name: Run EXPAND_CONFIG
-#        run: |
-#          underlay=$(echo ${{ github.events.inputs.company-and-underlay }} | awk -F/ '{print $NF}')
-#          cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded\""
-#          echo "Running:  $cmd"
-#          eval ${cmd}
-#      - name: Delete and create index dataset (underlay_nightly dataset)
-#        run: |
-#          underlay=$(echo ${{ github.events.inputs.company-and-underlay }} | awk -F/ '{print $NF}')
-#          index_dataset_name="${underlay}_nightly"
-#          gcloud auth activate-service-account --key-file ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
-#          bq rm -r -f --project_id ${{ github.events.inputs.index-gcp-project }} -d ${index_dataset_name}
-#          bq mk --project_id ${{ github.events.inputs.index-gcp-project }} -d ${index_dataset_name}
-#        env:
-#          # google_application_credentials_relative_path instead of ../google_application_credentials_relative_path
-#          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.events.inputs.google-application-credentials-relative-path }}
-#      - name: Run INDEX_ALL (will write index to underlay_nightly dataset)
-#        run: |
-#          underlay=$(echo ${{ github.events.inputs.company-and-underlay }} | awk -F/ '{print $NF}')
-#          index_dataset_name="${underlay}_nightly"
-#          # In underlay.json, change index dataset name to "underlay_nightly"
-#          sed -i "s/\"datasetId\" : \"[a-zA-Z0-9_]*index.*\"/\"datasetId\" : \"${index_dataset_name}\"/" service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded/${underlay}.json
-#          echo "underlay json has been changed to index to \"underlay_nightly\":"
-#          head service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded/${underlay}.json
-#          cmd="./gradlew indexer:index -Dexec.args=\"INDEX_ALL $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded/${underlay}.json\""
-#          echo "Running:  $cmd"
-#          eval ${cmd}
+    - name: Run EXPAND_CONFIG
+      run: |
+        underlay=$(echo ${{ github.events.inputs.company-and-underlay }} | awk -F/ '{print $NF}')
+        cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded\""
+        echo "Running:  $cmd"
+        eval ${cmd}
+      shell: bash
+    - name: Delete and create index dataset (underlay_nightly dataset)
+      run: |
+        underlay=$(echo ${{ github.events.inputs.company-and-underlay }} | awk -F/ '{print $NF}')
+        index_dataset_name="${underlay}_nightly"
+        gcloud auth activate-service-account --key-file ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+        bq rm -r -f --project_id ${{ github.events.inputs.index-gcp-project }} -d ${index_dataset_name}
+        bq mk --project_id ${{ github.events.inputs.index-gcp-project }} -d ${index_dataset_name}
+      env:
+        # This step doesn't need ../ at the beginning
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.events.inputs.google-application-credentials-relative-path }}
+      shell: bash
+    - name: Run INDEX_ALL (will write index to underlay_nightly dataset)
+      run: |
+        underlay=$(echo ${{ github.events.inputs.company-and-underlay }} | awk -F/ '{print $NF}')
+        index_dataset_name="${underlay}_nightly"
+        # In underlay.json, change index dataset name to "underlay_nightly"
+        sed -i "s/\"datasetId\" : \"[a-zA-Z0-9_]*index.*\"/\"datasetId\" : \"${index_dataset_name}\"/" service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded/${underlay}.json
+        echo "underlay json has been changed to index to \"underlay_nightly\":"
+        head service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded/${underlay}.json
+        cmd="./gradlew indexer:index -Dexec.args=\"INDEX_ALL $(pwd)/service/src/main/resources/config/${{ github.events.inputs.company-and-underlay }}/expanded/${underlay}.json\""
+        echo "Running:  $cmd"
+        eval ${cmd}
+      shell: bash
 #      - name: Setup tmate session
 #        if: always()
 #        uses: mxschmitt/action-tmate@v3
