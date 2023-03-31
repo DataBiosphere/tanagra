@@ -30,6 +30,8 @@ jobs:
       env:
         TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
     - name: Expand config and index
+      # If one underlay fails, keep running the other ones
+      if: always()
       uses: ./.github/actions/expand-config-and-index
       with:
         company-and-underlay: ${{ matrix.company-and-underlay }}

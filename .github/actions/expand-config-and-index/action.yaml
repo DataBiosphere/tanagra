@@ -33,7 +33,7 @@ runs:
     - name: Run EXPAND_CONFIG
       run: |
         underlay=$(echo ${{ inputs.company-and-underlay }} | awk -F/ '{print $NF}')
-        cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/expanded\""
+        cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/expanded\" --scan"
         echo "Running:  $cmd"
         eval ${cmd}
       env:
@@ -57,7 +57,7 @@ runs:
         sed -i "s/\"datasetId\" : \"[a-zA-Z0-9_]*index.*\"/\"datasetId\" : \"${index_dataset_name}\"/" service/src/main/resources/config/${{ inputs.company-and-underlay }}/expanded/${underlay}.json
         echo "underlay json has been changed to index to \"underlay_nightly\":"
         head service/src/main/resources/config/${{ inputs.company-and-underlay }}/expanded/${underlay}.json
-        cmd="./gradlew indexer:index -Dexec.args=\"INDEX_ALL $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/expanded/${underlay}.json\""
+        cmd="./gradlew indexer:index -Dexec.args=\"INDEX_ALL $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/expanded/${underlay}.json\" --scan"
         echo "Running:  $cmd"
         eval ${cmd}
       env:
