@@ -728,7 +728,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AnnotationValueCreateUpdateInfoV2"
+              $ref: "#/components/schemas/AnnotationValueCreateInfoV2"
       responses:
         200:
           description: OK
@@ -755,7 +755,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnnotationValueCreateUpdateInfoV2'
+              $ref: '#/components/schemas/LiteralV2'
       responses:
         200:
           description: OK
@@ -2114,9 +2114,12 @@ components:
         - value
         - review
 
-    AnnotationValueCreateUpdateInfoV2:
+    AnnotationValueCreateInfoV2:
       type: object
       properties:
+        id:
+          description: ID of the annotation value, immutable. Defaults to the entity instance id.
+          type: string
         instanceId:
           description: ID of the entity instance this annotation value is associated with
           type: string
@@ -2130,7 +2133,8 @@ components:
       type: object
       properties:
         attributes:
-          description: A map of entity attribute names to their value for this instance
+          description: |
+            A map of entity attribute names to their value for this instance. The id attribute will always be included.
           type: object
           additionalProperties:
             type: object

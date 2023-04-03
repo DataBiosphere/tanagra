@@ -9,14 +9,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.AnnotationsV2Api;
-import bio.terra.tanagra.generated.model.ApiAnnotationCreateInfoV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationListV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationUpdateInfoV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationValueCreateUpdateInfoV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
-import bio.terra.tanagra.generated.model.ApiDataTypeV2;
-import bio.terra.tanagra.generated.model.ApiExportFile;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.AnnotationService;
@@ -148,12 +141,13 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String cohortId,
       String annotationId,
       String reviewId,
-      ApiAnnotationValueCreateUpdateInfoV2 body) {
+      ApiAnnotationValueCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
 
-    // Generate a random 10-character alphanumeric string for the new annotation value ID.
-    String newAnnotationValueId = RandomStringUtils.randomAlphanumeric(10);
+    // If the caller did not specify the annotation value id, then default to the entity instance
+    // id.
+    String newAnnotationValueId = body.getId() == null ? body.getInstanceId() : body.getId();
 
     AnnotationValue annotationValueToCreate =
         AnnotationValue.builder()
@@ -186,7 +180,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String annotationId,
       String reviewId,
       String valueId,
-      ApiAnnotationValueCreateUpdateInfoV2 body) {
+      ApiLiteralV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
     AnnotationValue updatedAnnotationValue =
@@ -196,7 +190,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
             annotationId,
             reviewId,
             valueId,
-            FromApiConversionService.fromApiObject(body.getValue()));
+            FromApiConversionService.fromApiObject(body));
     return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedAnnotationValue));
   }
 
