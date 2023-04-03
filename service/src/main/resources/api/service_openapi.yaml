@@ -1923,28 +1923,28 @@ components:
         - operator
         - excluded
 
-    CriteriaGroupCollectionV3:
+    CriteriaGroupSectionV3:
       type: object
-      description: Collection of criteria groups and boolean logic operators to combine them
+      description: Section of criteria groups and boolean logic operators to combine them
       properties:
         id:
           type: string
-          description: ID of the collection, immutable
+          description: ID of the section, immutable
         displayName:
           type: string
-          description: Name of the collection
+          description: Name of the section
         criteriaGroups:
           type: array
-          description: Set of criteria groups in the collection
+          description: Set of criteria groups in the section
           items:
             $ref: "#/components/schemas/CriteriaGroupV3"
         operator:
           type: string
-          description: Operator to use when combining the criteria in the group
+          description: Operator to use when combining the criteria groups in the section
           enum: ["AND", "OR"]
         excluded:
           type: boolean
-          description: True to exclude the group, false to include it
+          description: True to exclude the section, false to include it
       required:
         - id
         - displayName
@@ -1967,8 +1967,8 @@ components:
           description: Set of criteria in the group
           items:
             $ref: "#/components/schemas/CriteriaV2"
-        primaryCriteriaEntity:
-          description: Entity referenced by the primary criteria
+        entity:
+          description: Entity referenced by the criteria
           type: string
         groupByCountOperator:
           description: Operator to use for the optional group by count modifier
@@ -1981,7 +1981,7 @@ components:
         - id
         - displayName
         - criteria
-        - primaryCriteriaEntity
+        - entity
 
     CriteriaV2:
       type: object
