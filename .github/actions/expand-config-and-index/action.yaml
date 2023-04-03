@@ -47,10 +47,7 @@ runs:
       with:
         status: ${{ job.status }}
         channel: "#melchang-test"
-        eventName: "eventName yo"
-        text: "text yo"
-        author_name: "author_name yo"
-        author: "author yo"
+        author_name: "EXPAND_CONFIG failed for ${{ inputs.company-and-underlay }}"
         fields: job, commit
 #    - name: Delete and create index dataset (underlay_nightly dataset)
 #      run: |
