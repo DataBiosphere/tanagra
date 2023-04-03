@@ -37,3 +37,5 @@ jobs:
         company-and-underlay: ${{ matrix.company-and-underlay }}
         index-gcp-project: broad-tanagra-dev
         google-application-credentials-relative-path: rendered/broad/tanagra_sa.json
+      secrets:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
