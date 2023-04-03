@@ -39,6 +39,16 @@ runs:
 #      env:
 #        GOOGLE_APPLICATION_CREDENTIALS: ../${{ inputs.google-application-credentials-relative-path }}
 #      shell: bash
+    - name: Post expand config failure to Slack
+      #      if: failure()
+      if: always()
+      uses: broadinstitute/action-slack@v3.8.0
+      # see https://github.com/broadinstitute/action-slack
+      with:
+        status: ${{ job.status }}
+        channel: "#melchang-test"
+        username: "Expand config and index"
+        fields: job, commit
 #    - name: Delete and create index dataset (underlay_nightly dataset)
 #      run: |
 #        underlay=$(echo ${{ inputs.company-and-underlay }} | awk -F/ '{print $NF}')
@@ -63,12 +73,3 @@ runs:
 #      env:
 #        GOOGLE_APPLICATION_CREDENTIALS: ../${{ inputs.google-application-credentials-relative-path }}
 #      shell: bash
-    - name: Post failures to Slack
-#      if: failure()
-      if: always()
-      uses: broadinstitute/action-slack@v3.8.0
-      # see https://github.com/broadinstitute/action-slack
-      with:
-        status: ${{ job.status }}
-        channel: "#melchang-test"
-        username: "Expand config and index"
