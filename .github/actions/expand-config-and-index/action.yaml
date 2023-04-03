@@ -47,7 +47,10 @@ runs:
       with:
         status: ${{ job.status }}
         channel: "#melchang-test"
-        username: "Expand config and index"
+        eventName: "eventName yo"
+        text: "text yo"
+        author_name: "author_name yo"
+        author: "author yo"
         fields: job, commit
 #    - name: Delete and create index dataset (underlay_nightly dataset)
 #      run: |
