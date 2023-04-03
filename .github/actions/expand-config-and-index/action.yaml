@@ -68,8 +68,6 @@ runs:
       if: always()
       uses: broadinstitute/action-slack@v3.8.0
       # see https://github.com/broadinstitute/action-slack
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       with:
         status: ${{ job.status }}
         channel: "#melchang-test"
