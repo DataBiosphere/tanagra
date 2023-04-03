@@ -38,4 +38,5 @@ jobs:
         index-gcp-project: broad-tanagra-dev
         google-application-credentials-relative-path: rendered/broad/tanagra_sa.json
       env:
+        MATRIX_CONTEXT: ${{ toJson(matrix) }}
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
