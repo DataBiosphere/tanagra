@@ -47,7 +47,7 @@ runs:
       # see https://github.com/broadinstitute/action-slack
       with:
         status: ${{ job.status }}
-        channel: "#tanagra-engineering"
+        channel: "#melchang-test"
 #        author_name: "EXPAND_CONFIG failed for ${{ inputs.company-and-underlay }}"
         author_name: "Test, please ignore"
         fields: job, commit
