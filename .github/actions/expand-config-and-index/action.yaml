@@ -39,7 +39,7 @@ runs:
 #        eval ${cmd}
 #      env:
 #        GOOGLE_APPLICATION_CREDENTIALS: ../${{ inputs.google-application-credentials-relative-path }}
-#      shell: bash
+      shell: bash
     - name: Post expand config failure to Slack
       #      if: failure()
       if: always()
