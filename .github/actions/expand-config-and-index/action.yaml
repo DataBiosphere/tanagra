@@ -30,8 +30,9 @@ runs:
 #          ~/.gradle/wrapper
 #        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
 #        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-#    - name: Run EXPAND_CONFIG
-#      run: |
+    - name: Run EXPAND_CONFIG
+      run: |
+         exit 1
 #        underlay=$(echo ${{ inputs.company-and-underlay }} | awk -F/ '{print $NF}')
 #        cmd="./gradlew indexer:index -Dexec.args=\"EXPAND_CONFIG $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/original/${underlay}.json $(pwd)/service/src/main/resources/config/${{ inputs.company-and-underlay }}/expanded\" --scan"
 #        echo "Running:  $cmd"
