@@ -18,7 +18,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { useCohortContext } from "cohortContext";
-import { InstanceContext } from "cohortReview/instanceContext";
+import { CohortReviewContext } from "cohortReview/cohortReviewContext";
 import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
 import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
 import Loading from "components/loading";
@@ -31,6 +31,7 @@ import {
 } from "data/source";
 import { DataEntry } from "data/types";
 import { useUnderlay } from "hooks";
+import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useMemo } from "react";
@@ -40,10 +41,16 @@ import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import { useSearchData } from "util/searchData";
 
+type PluginSearchData = {
+  [x: string]: object;
+};
+
 type SearchData = {
   instanceIndex?: number;
   pageId?: string;
   editingAnnotations?: boolean;
+
+  plugins?: PluginSearchData;
 };
 
 export function CohortReview() {
@@ -187,7 +194,6 @@ export function CohortReview() {
             timestamp: o["start_date"] as Date,
           })))
       );
-      console.log(occurrences);
       return {
         occurrences,
       };
@@ -310,7 +316,24 @@ export function CohortReview() {
             }}
           >
             <Loading status={instanceDataState}>
-              <InstanceContext.Provider value={instanceDataState.data}>
+              <CohortReviewContext.Provider
+                value={{
+                  occurrences: instanceDataState?.data?.occurrences ?? {},
+                  searchData: <T extends object>(plugin: string) =>
+                    searchData?.plugins?.[plugin] as T,
+                  updateSearchData: <T extends object>(
+                    plugin: string,
+                    fn: (value: T) => void
+                  ) =>
+                    updateSearchData((data) => {
+                      data.plugins = data.plugins ?? {};
+                      data.plugins[plugin] = produce(
+                        data.plugins[plugin] ?? {},
+                        fn
+                      );
+                    }),
+                }}
+              >
                 <TabContext value={pageId}>
                   <GridLayout rows>
                     <TabList onChange={changePage}>
@@ -320,21 +343,24 @@ export function CohortReview() {
                     </TabList>
                     <GridBox
                       sx={{
-                        p: 1,
                         borderTopStyle: "solid",
                         borderColor: (theme) => theme.palette.divider,
                         borderWidth: "1px",
                       }}
                     >
                       {pagePlugins.map((p) => (
-                        <TabPanel key={p.id} value={p.id} sx={{ p: 0 }}>
+                        <TabPanel
+                          key={p.id}
+                          value={p.id}
+                          sx={{ p: 0, height: "100%" }}
+                        >
                           {p.render()}
                         </TabPanel>
                       ))}
                     </GridBox>
                   </GridLayout>
                 </TabContext>
-              </InstanceContext.Provider>
+              </CohortReviewContext.Provider>
             </Loading>
           </GridBox>
         </GridLayout>
