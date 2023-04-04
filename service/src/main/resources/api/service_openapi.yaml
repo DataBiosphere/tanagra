@@ -2088,18 +2088,6 @@ components:
         - value
         - review
 
-    AnnotationValueCreateInfoV2:
-      type: object
-      properties:
-        instanceId:
-          description: ID of the entity instance this annotation value is associated with
-          type: string
-        value:
-          $ref: "#/components/schemas/LiteralV2"
-      required:
-        - instanceId
-        - value
-
     ReviewInstanceV2:
       type: object
       properties:
