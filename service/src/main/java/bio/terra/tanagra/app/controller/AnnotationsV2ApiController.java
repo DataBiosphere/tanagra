@@ -9,14 +9,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.AnnotationsV2Api;
-import bio.terra.tanagra.generated.model.ApiAnnotationCreateInfoV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationListV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationUpdateInfoV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationValueCreateUpdateInfoV2;
-import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
-import bio.terra.tanagra.generated.model.ApiDataTypeV2;
-import bio.terra.tanagra.generated.model.ApiExportFile;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.AnnotationService;
@@ -143,34 +136,6 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationValueV2> createAnnotationValue(
-      String studyId,
-      String cohortId,
-      String annotationId,
-      String reviewId,
-      ApiAnnotationValueCreateUpdateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
-
-    // Generate a random 10-character alphanumeric string for the new annotation value ID.
-    String newAnnotationValueId = RandomStringUtils.randomAlphanumeric(10);
-
-    AnnotationValue annotationValueToCreate =
-        AnnotationValue.builder()
-            .reviewId(reviewId)
-            .annotationId(annotationId)
-            .annotationValueId(newAnnotationValueId)
-            .entityInstanceId(body.getInstanceId())
-            .literal(FromApiConversionService.fromApiObject(body.getValue()))
-            .build();
-
-    AnnotationValue createdValue =
-        annotationService.createAnnotationValue(
-            studyId, cohortId, annotationId, reviewId, annotationValueToCreate);
-    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(createdValue));
-  }
-
-  @Override
   public ResponseEntity<Void> deleteAnnotationValue(
       String studyId, String cohortId, String annotationId, String reviewId, String valueId) {
     accessControlService.throwIfUnauthorized(
@@ -180,24 +145,31 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationValueV2> updateAnnotationValue(
+  public ResponseEntity<ApiAnnotationValueV2> createUpdateAnnotationValue(
       String studyId,
       String cohortId,
       String annotationId,
       String reviewId,
       String valueId,
-      ApiAnnotationValueCreateUpdateInfoV2 body) {
+      ApiLiteralV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
-    AnnotationValue updatedAnnotationValue =
-        annotationService.updateAnnotationValue(
-            studyId,
-            cohortId,
-            annotationId,
-            reviewId,
-            valueId,
-            FromApiConversionService.fromApiObject(body.getValue()));
-    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedAnnotationValue));
+
+    // Force the annotation value id = entity instance id. Note that this is not a constraint on the
+    // internal DB, just one imposed at the API level for the UI's convenience.
+    AnnotationValue annotationValueToCreateOrUpdate =
+        AnnotationValue.builder()
+            .reviewId(reviewId)
+            .annotationId(annotationId)
+            .annotationValueId(valueId)
+            .entityInstanceId(valueId)
+            .literal(FromApiConversionService.fromApiObject(body))
+            .build();
+
+    AnnotationValue annotationValue =
+        annotationService.createUpdateAnnotationValue(
+            studyId, cohortId, annotationId, reviewId, annotationValueToCreateOrUpdate);
+    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(annotationValue));
   }
 
   private static ApiAnnotationV2 toApiObject(Annotation annotation) {
