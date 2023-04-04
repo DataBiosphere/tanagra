@@ -108,10 +108,12 @@ public class AnnotationValueDao {
       String reviewId,
       String annotationValueId) {
     final String sql =
-        "DELETE FROM annotation_value WHERE annotation_value_id = :annotation_value_id";
+        "DELETE FROM annotation_value WHERE review_id = :review_id AND annotation_value_id = :annotation_value_id";
 
     MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("annotation_value_id", annotationValueId);
+        new MapSqlParameterSource()
+            .addValue("annotation_value_id", annotationValueId)
+            .addValue("review_id", reviewId);
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean deleted = rowsAffected > 0;
 
