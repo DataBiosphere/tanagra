@@ -166,6 +166,27 @@ public class AnnotationService {
         studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValueId);
   }
 
+  /** Create or update an annotation value. Only the annotation value's literal can be updated. */
+  @SuppressWarnings("PMD.UseObjectForClearerAPI")
+  public AnnotationValue createUpdateAnnotationValue(
+      String studyId,
+      String cohortRevisionGroupId,
+      String annotationId,
+      String reviewId,
+      AnnotationValue annotationValue) {
+    featureConfiguration.artifactStorageEnabledCheck();
+    validateAnnotationValueDataType(
+        studyId, cohortRevisionGroupId, annotationId, annotationValue.getLiteral());
+    annotationValueDao.createUpdateAnnotationValue(
+        studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValue);
+    return annotationValueDao.getAnnotationValue(
+        studyId,
+        cohortRevisionGroupId,
+        annotationId,
+        reviewId,
+        annotationValue.getAnnotationValueId());
+  }
+
   /** Retrieves a list of all annotation values for a review. */
   public List<AnnotationValue> getAnnotationValues(String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();

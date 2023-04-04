@@ -87,7 +87,7 @@ public class AnnotationValueDao {
           "Inserted record for annotation value {}", annotationValue.getAnnotationValueId());
     } catch (DuplicateKeyException dkEx) {
       if (dkEx.getMessage()
-          .contains("duplicate key value violates unique constraint \"annotation_value_pkey\"")) {
+          .contains("duplicate key value violates unique constraint \"pk_annotation_value\"")) {
         throw new DuplicateAnnotationValueException(
             String.format(
                 "Annotation value with id %s already exists",
@@ -237,5 +237,37 @@ public class AnnotationValueDao {
         updated ? "Updated" : "No Update - did not find",
         annotationValueId);
     return updated;
+  }
+
+  @WriteTransaction
+  public boolean createUpdateAnnotationValue(
+      String studyId,
+      String cohortRevisionGroupId,
+      String annotationId,
+      String reviewId,
+      AnnotationValue annotationValue) {
+    // Insert a new row or update it if it already exists.
+    final String upsertSql =
+        "INSERT INTO annotation_value (review_id, annotation_id, annotation_value_id, entity_instance_id, bool_val, int64_val, string_val, date_val) "
+            + "VALUES (:review_id, :annotation_id, :annotation_value_id, :entity_instance_id, :bool_val, :int64_val, :string_val, :date_val) "
+            + "ON CONFLICT ON CONSTRAINT pk_annotation_value DO "
+            + "UPDATE SET bool_val = :bool_val, int64_val = :int64_val, string_val = :string_val, date_val = :date_val";
+    MapSqlParameterSource upsertParams =
+        new MapSqlParameterSource()
+            .addValue("review_id", reviewId)
+            .addValue("annotation_id", annotationId)
+            .addValue("annotation_value_id", annotationValue.getAnnotationValueId())
+            .addValue("entity_instance_id", annotationValue.getEntityInstanceId())
+            .addValue("bool_val", annotationValue.getLiteral().getBooleanVal())
+            .addValue("int64_val", annotationValue.getLiteral().getInt64Val())
+            .addValue("string_val", annotationValue.getLiteral().getStringVal())
+            .addValue("date_val", annotationValue.getLiteral().getDateVal());
+
+    int rowsAffected = jdbcTemplate.update(upsertSql, upsertParams);
+    LOGGER.info(
+        "Updated {} records for annotation value {}",
+        rowsAffected,
+        annotationValue.getAnnotationValueId());
+    return rowsAffected > 0;
   }
 }

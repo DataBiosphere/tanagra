@@ -6,5 +6,6 @@ databaseChangeLog:
         - dropPrimaryKey:
             tableName: annotation_value
         - addUniqueConstraint:
+            constraintName: pk_annotation_value
             tableName: annotation_value
             columnNames: review_id, annotation_value_id
