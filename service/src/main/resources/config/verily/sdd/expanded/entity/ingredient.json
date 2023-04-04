@@ -59,198 +59,6 @@
     }
   }, {
     "type" : "SIMPLE",
-    "name" : "concept_class_id",
-    "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ATC 1st"
-          },
-          "display" : "ATC 1st"
-        },
-        "count" : 14
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ATC 2nd"
-          },
-          "display" : "ATC 2nd"
-        },
-        "count" : 94
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ATC 3rd"
-          },
-          "display" : "ATC 3rd"
-        },
-        "count" : 267
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ATC 4th"
-          },
-          "display" : "ATC 4th"
-        },
-        "count" : 889
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ATC 5th"
-          },
-          "display" : "ATC 5th"
-        },
-        "count" : 5071
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Branded Drug"
-          },
-          "display" : "Branded Drug"
-        },
-        "count" : 188458
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Branded Drug Box"
-          },
-          "display" : "Branded Drug Box"
-        },
-        "count" : 206014
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Branded Drug Comp"
-          },
-          "display" : "Branded Drug Comp"
-        },
-        "count" : 161227
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Branded Drug Form"
-          },
-          "display" : "Branded Drug Form"
-        },
-        "count" : 129751
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Branded Pack"
-          },
-          "display" : "Branded Pack"
-        },
-        "count" : 2056
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Branded Pack Box"
-          },
-          "display" : "Branded Pack Box"
-        },
-        "count" : 632
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Clinical Drug"
-          },
-          "display" : "Clinical Drug"
-        },
-        "count" : 110591
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Clinical Drug Box"
-          },
-          "display" : "Clinical Drug Box"
-        },
-        "count" : 110420
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Clinical Drug Comp"
-          },
-          "display" : "Clinical Drug Comp"
-        },
-        "count" : 92994
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Clinical Drug Form"
-          },
-          "display" : "Clinical Drug Form"
-        },
-        "count" : 48969
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Clinical Pack"
-          },
-          "display" : "Clinical Pack"
-        },
-        "count" : 1824
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Clinical Pack Box"
-          },
-          "display" : "Clinical Pack Box"
-        },
-        "count" : 500
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Ingredient"
-          },
-          "display" : "Ingredient"
-        },
-        "count" : 15565
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Marketed Product"
-          },
-          "display" : "Marketed Product"
-        },
-        "count" : 519198
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Quant Branded Box"
-          },
-          "display" : "Quant Branded Box"
-        },
-        "count" : 83906
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Quant Branded Drug"
-          },
-          "display" : "Quant Branded Drug"
-        },
-        "count" : 96469
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Quant Clinical Box"
-          },
-          "display" : "Quant Clinical Box"
-        },
-        "count" : 71635
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Quant Clinical Drug"
-          },
-          "display" : "Quant Clinical Drug"
-        },
-        "count" : 81098
-      } ]
-    }
-  }, {
-    "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING"
   }, {
@@ -265,7 +73,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   c.concept_id AS id, c.concept_name AS name, c.vocabulary_id, c.concept_class_id, c.standard_concept, c.concept_code FROM `victr-tanagra-test.sd_static.concept` c WHERE c.domain_id = 'Drug' AND (     (c.vocabulary_id = 'ATC' AND c.standard_concept = 'C')     OR (c.vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND c.standard_concept = 'S') )"
+      "rawSql" : "SELECT   c.concept_id AS id, c.concept_name AS name, c.vocabulary_id, c.standard_concept, c.concept_code FROM `victr-tanagra-test.sd_static.concept` c WHERE c.domain_id = 'Drug' AND (     (c.vocabulary_id = 'ATC' AND c.standard_concept = 'C')     OR (c.vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND c.standard_concept = 'S') )"
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -280,11 +88,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary_id"
-        }
-      },
-      "concept_class_id" : {
-        "value" : {
-          "column" : "concept_class_id"
         }
       },
       "name" : {
@@ -396,11 +199,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary"
-        }
-      },
-      "concept_class_id" : {
-        "value" : {
-          "column" : "concept_class_id"
         }
       },
       "name" : {

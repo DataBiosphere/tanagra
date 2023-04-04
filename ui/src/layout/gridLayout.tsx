@@ -94,7 +94,11 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
       {children.map((child, i) => (
         <Box
           key={i}
-          sx={{ gridArea: `${Math.floor(i / colCount)}/${i % colCount}` }}
+          sx={{
+            gridArea: `${Math.floor(i / colCount) + 1}/${(i % colCount) + 1}`,
+            minWidth: 0,
+            minHeight: 0,
+          }}
         >
           {child}
         </Box>

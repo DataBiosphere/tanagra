@@ -376,6 +376,21 @@
             { "key": "date", "width": 200, "title": "Date" }
           ]
         }
+      },
+      {
+        "type": "textSearch",
+        "id": "notes",
+        "title": "Notes",
+        "plugin": {
+          "occurrence": "note_occurrence",
+          "title": "title",
+          "subtitles": ["note", "date"],
+          "text": "text",
+          "sortOrder": {
+            "attribute": "date",
+            "direction": "ASC"
+          }
+        }
       }
     ]
   }
