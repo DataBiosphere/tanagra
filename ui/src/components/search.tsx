@@ -15,6 +15,7 @@ export type SearchProps = {
   onSearch?: (query: string) => void;
   initialValue?: string;
   searchKey?: string;
+  delayMs?: number;
 };
 
 export function Search(props: SearchProps) {
@@ -44,7 +45,7 @@ export function Search(props: SearchProps) {
 
     searchTimeout.current = setTimeout(() => {
       onSearch(query);
-    }, 500);
+    }, props.delayMs ?? 500);
   };
 
   return (

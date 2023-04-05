@@ -1,6 +1,18 @@
 import { createTheme } from "@mui/material/styles";
 
+declare module "@mui/material/styles" {
+  interface Theme {
+    highlightColor?: string;
+  }
+  // allow configuration using `createTheme`
+  interface ThemeOptions {
+    highlightColor?: string;
+  }
+}
+
 export const theme = createTheme({
+  highlightColor: "#FFD54F",
+
   typography: {
     fontFamily: "Inter, sans-serif",
     fontSize: 12,

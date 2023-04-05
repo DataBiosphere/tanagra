@@ -7,12 +7,16 @@ import {
   CohortReviewPlugin,
   registerCohortReviewPlugin,
 } from "cohortReview/pluginRegistry";
+import { HintDataSelect, Selection } from "components/hintDataSelect";
 import { Search } from "components/search";
 import { SortDirection, SortOrder } from "data/configuration";
+import { useSource } from "data/source";
 import { DataValue } from "data/types";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import React, { useMemo } from "react";
+import React, { PropsWithChildren, useMemo } from "react";
+import Highlighter from "react-highlight-words";
+import useSWRImmutable from "swr/immutable";
 import { CohortReviewPageConfig } from "underlaysSlice";
 
 type Config = {
@@ -20,6 +24,7 @@ type Config = {
   title: string;
   text: string;
   subtitles?: string[];
+  categoryAttribute?: string;
   sortOrder?: SortOrder;
 };
 
@@ -53,9 +58,12 @@ const fillerText = [
 
 type SearchData = {
   query: string;
+  categories?: Selection[];
 };
 
 function TextSearch({ id, config }: { id: string; config: Config }) {
+  const source = useSource();
+
   const context = useCohortReviewContext();
   if (!context) {
     return null;
@@ -81,6 +89,13 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
     () =>
       filledOccurrences
         .filter((o) => regExp.test(o[config.text] as string))
+        .filter((o) => {
+          const ca = config.categoryAttribute;
+          if (!ca || !searchData?.categories?.length) {
+            return true;
+          }
+          return searchData.categories.find((s) => s.name === o[ca]);
+        })
         .sort((left, right) => {
           const a = config.sortOrder?.attribute;
           if (!a) {
@@ -106,9 +121,32 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
     [filledOccurrences, searchData]
   );
 
+  const hintDataState = useSWRImmutable(
+    {
+      type: "hintData",
+      occurrence: config.occurrence,
+      attribute: config.categoryAttribute,
+    },
+    async () => {
+      return {
+        hintData: config.categoryAttribute
+          ? await source.getHintData(
+              config.occurrence,
+              config?.categoryAttribute
+            )
+          : undefined,
+      };
+    }
+  );
+
   const onSearch = (query: string) =>
     context.updateSearchData(id, (data: SearchData) => {
       data.query = query;
+    });
+
+  const onSelect = (sel: Selection[]) =>
+    context.updateSearchData(id, (data: SearchData) => {
+      data.categories = sel;
     });
 
   return (
@@ -121,8 +159,20 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
           borderWidth: "1px",
         }}
       >
-        <GridLayout cols="1fr 1fr">
-          <Search initialValue={searchData?.query} onSearch={onSearch} />
+        <GridLayout cols="1fr 1fr" rowAlign="middle">
+          <Search
+            initialValue={searchData?.query}
+            delayMs={0}
+            onSearch={onSearch}
+          />
+          {config.categoryAttribute ? (
+            <HintDataSelect
+              hintData={hintDataState.data?.hintData}
+              maxChips={2}
+              selected={searchData?.categories ?? []}
+              onSelect={onSelect}
+            />
+          ) : null}
         </GridLayout>
       </GridBox>
       <GridBox
@@ -152,6 +202,12 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
                 ))}
               </Stack>
               <Box sx={{ p: 1 }}>
+                <Highlighter
+                  searchWords={[regExp]}
+                  textToHighlight={String(o[config.text])}
+                  unhighlightTag={Unhighlighted}
+                  highlightTag={Highlighted}
+                />
                 <Typography>{o[config.text]}</Typography>
               </Box>
             </Paper>
@@ -164,4 +220,19 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
 
 function formatValue(value: DataValue) {
   return value instanceof Date ? value.toDateString() : String(value);
+}
+
+function Unhighlighted(props: PropsWithChildren<object>) {
+  return <Typography component="span">{props.children}</Typography>;
+}
+
+function Highlighted(props: PropsWithChildren<{ highlightIndex: number }>) {
+  return (
+    <Typography
+      component="span"
+      sx={{ backgroundColor: (theme) => theme.highlightColor }}
+    >
+      {props.children}
+    </Typography>
+  );
 }

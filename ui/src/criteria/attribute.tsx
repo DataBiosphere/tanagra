@@ -1,28 +1,23 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
-import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Input from "@mui/material/Input";
-import MenuItem from "@mui/material/MenuItem";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Slider from "@mui/material/Slider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
+import { HintDataSelect } from "components/hintDataSelect";
 import Loading from "components/loading";
 import { FilterType } from "data/filter";
-import { EnumHintOption, IntegerHint, useSource } from "data/source";
+import { IntegerHint, useSource } from "data/source";
 import { DataValue } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo, useState } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
-import { isValid } from "util/valid";
 
 type Selection = {
   value: DataValue;
@@ -323,30 +318,10 @@ function AttributeInline(props: AttributeInlineProps) {
     );
   };
 
-  const onSelect = (event: SelectChangeEvent<string[]>) => {
-    const {
-      target: { value: sel },
-    } = event;
+  const onSelect = (sel: Selection[]) => {
     updateCriteria(
       produce(props.data, (data) => {
-        if (typeof sel === "string") {
-          // This case is only for selects with text input.
-          return;
-        }
-        data.selected = sel
-          .map((name) => {
-            const value = hintDataState.data?.enumHintOptions?.find(
-              (hint: EnumHintOption) => hint.name === name
-            )?.value;
-            if (!isValid(value)) {
-              return undefined;
-            }
-            return {
-              name,
-              value,
-            };
-          })
-          .filter(isValid);
+        data.selected = sel;
       })
     );
   };
@@ -371,32 +346,13 @@ function AttributeInline(props: AttributeInlineProps) {
       </Box>
 
       {!!hintDataState.data?.enumHintOptions && (
-        <FormControl sx={{ maxWidth: 500 }}>
-          <Select
-            multiple
-            displayEmpty
-            value={props.data.selected.map((s) => s.name)}
-            input={<OutlinedInput />}
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.length > 0 ? (
-                  selected.map((s) => <Chip key={s} label={s} />)
-                ) : (
-                  <em>None selected</em>
-                )}
-              </Box>
-            )}
-            onChange={onSelect}
-          >
-            {hintDataState.data?.enumHintOptions?.map(
-              (hint: EnumHintOption) => (
-                <MenuItem key={hint.name} value={hint.name}>
-                  {hint.name}
-                </MenuItem>
-              )
-            )}
-          </Select>
-        </FormControl>
+        <Box sx={{ maxWidth: 500 }}>
+          <HintDataSelect
+            hintData={hintDataState.data}
+            selected={props.data.selected}
+            onSelect={onSelect}
+          />
+        </Box>
       )}
 
       {!hintDataState.data && (
