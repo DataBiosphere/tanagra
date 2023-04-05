@@ -386,6 +386,7 @@
           "title": "title",
           "subtitles": ["note", "date"],
           "text": "text",
+          "categoryAttribute": "note",
           "sortOrder": {
             "attribute": "date",
             "direction": "ASC"
