@@ -9,6 +9,7 @@ import React, { ReactNode, useEffect, useRef, useState } from "react";
 type Status = {
   error?: Error;
   isLoading?: boolean;
+  isMutating?: boolean;
   mutate?: () => void;
 };
 
@@ -16,14 +17,19 @@ type Props = {
   size?: string;
   status?: Status;
   children?: React.ReactNode;
+  showProgressOnMutate?: boolean;
 };
 
 export default function Loading(props: Props) {
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<number>();
 
+  const isLoading =
+    props.status?.isLoading ||
+    (props.showProgressOnMutate && props.status?.isMutating);
+
   useEffect(() => {
-    if (!props.status?.isLoading) {
+    if (!isLoading) {
       return;
     }
 
@@ -42,21 +48,22 @@ export default function Loading(props: Props) {
       setVisible(false);
       clearTimeout(timerRef.current);
     };
-  }, [props.status?.isLoading]);
+  }, [isLoading]);
 
-  if (props.status && !props.status.isLoading && !props.status.error) {
+  if (props.status && !isLoading && !props.status.error) {
     return <>{props.children}</>;
   }
 
   return (
     <Box sx={props.size !== "small" ? { px: 4, py: 2 } : {}}>
-      {showStatus(visible, props.status, props.size)}
+      {showStatus(visible, isLoading, props.status, props.size)}
     </Box>
   );
 }
 
 function showStatus(
   visible: boolean,
+  isLoading?: boolean,
   status?: Status,
   size?: string
 ): ReactNode {
@@ -82,7 +89,7 @@ function showStatus(
         </Typography>
         <div>
           <Button
-            onClick={status?.mutate}
+            onClick={() => status?.mutate?.()}
             variant="contained"
             sx={{ display: "block", m: "auto" }}
           >
