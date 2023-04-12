@@ -26,7 +26,22 @@ function generateFilter(group: tanagra.Group): Filter | null {
   const filter = makeArrayFilter(
     group.filter.kind === tanagra.GroupFilterKindEnum.Any ? { min: 1 } : {},
     group.criteria
-      .map((criteria) => getCriteriaPlugin(criteria).generateFilter())
+      .map((criteria) => {
+        const plugin = getCriteriaPlugin(criteria);
+        const filter = plugin.generateFilter();
+        if (!filter) {
+          return null;
+        }
+        if (!plugin.filterOccurrenceId()) {
+          return filter;
+        }
+
+        return {
+          type: FilterType.Relationship,
+          entityId: plugin.filterOccurrenceId(),
+          subfilter: filter,
+        };
+      })
       .filter(isValid)
   );
 
@@ -67,7 +82,8 @@ export interface CriteriaPlugin<DataType> {
   renderInline: (criteriaId: string) => JSX.Element;
   displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
-  occurrenceID: () => string;
+  filterOccurrenceId: () => string;
+  outputOccurrenceIds?: () => string[];
 }
 
 export type DisplayDetails = {

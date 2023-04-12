@@ -31,6 +31,7 @@ import {
   isArrayFilter,
   isAttributeFilter,
   isClassificationFilter,
+  isRelationshipFilter,
   isTextFilter,
   isUnaryFilter,
 } from "./filter";
@@ -587,7 +588,7 @@ export class BackendSource implements Source {
         entityName: this.config.primaryEntity.entity,
         countQueryV2: {
           attributes: groupByAttributes,
-          filter: generateFilter(this, filter, true) ?? undefined,
+          filter: generateFilter(this, filter) ?? undefined,
         },
       })
     );
@@ -670,8 +671,7 @@ export class BackendSource implements Source {
           reviewCreateInfoV2: {
             displayName,
             size,
-            filter:
-              generateFilter(this, generateCohortFilter(cohort), true) ?? {},
+            filter: generateFilter(this, generateCohortFilter(cohort)) ?? {},
           },
         })
         .then((r) => fromAPICohortReview(r))
@@ -847,7 +847,7 @@ export class BackendSource implements Source {
             underlayName,
             criteria: toAPICriteria(criteria),
             entity: findEntity(
-              getCriteriaPlugin(criteria).occurrenceID(),
+              getCriteriaPlugin(criteria).filterOccurrenceId(),
               this.config
             ).entity,
           },
@@ -938,7 +938,7 @@ export class BackendSource implements Source {
     conceptSet: Filter | null,
     limit?: number
   ): tanagra.QueryV2 {
-    let cohortFilter = generateFilter(this, cohort, true);
+    let cohortFilter = generateFilter(this, cohort);
     if (!cohortFilter) {
       throw new Error("Cohort filter is empty.");
     }
@@ -957,7 +957,7 @@ export class BackendSource implements Source {
     }
 
     let filter = cohortFilter;
-    const conceptSetFilter = generateFilter(this, conceptSet, false);
+    const conceptSetFilter = generateFilter(this, conceptSet);
     if (conceptSetFilter) {
       const combined = makeBooleanLogicFilter(
         tanagra.BooleanLogicFilterV2OperatorEnum.And,
@@ -1216,8 +1216,7 @@ function processEntityInstance(
 // count API uses have been converted.
 export function generateFilter(
   source: Source,
-  filter: Filter | null,
-  fromPrimary: boolean
+  filter: Filter | null
 ): tanagra.FilterV2 | null {
   if (!filter) {
     return null;
@@ -1225,7 +1224,7 @@ export function generateFilter(
 
   if (isArrayFilter(filter)) {
     const operands = filter.operands
-      .map((o) => generateFilter(source, o, fromPrimary))
+      .map((o) => generateFilter(source, o))
       .filter(isValid);
     if (operands.length === 0) {
       return null;
@@ -1234,7 +1233,7 @@ export function generateFilter(
     return makeBooleanLogicFilter(arrayFilterOperator(filter), operands);
   }
   if (isUnaryFilter(filter)) {
-    const operand = generateFilter(source, filter.operand, fromPrimary);
+    const operand = generateFilter(source, filter.operand);
     if (!operand) {
       return null;
     }
@@ -1250,48 +1249,28 @@ export function generateFilter(
     };
   }
 
-  // Cohort filters need to be related to the primary entity but concept sets
-  // filters don't because they're tied to particular occurrences.
-  const [occurrenceFilter, entity] = generateOccurrenceFilter(source, filter);
-  if (
-    occurrenceFilter &&
-    fromPrimary &&
-    entity !== source.config.primaryEntity.entity
-  ) {
+  if (isRelationshipFilter(filter)) {
+    const entity = findEntity(filter.entityId, source.config);
+    const subfilter = generateFilter(source, filter.subfilter);
+    if (!subfilter) {
+      return null;
+    }
+
     return {
       filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
       filterUnion: {
         relationshipFilter: {
-          entity,
-          subfilter: occurrenceFilter,
+          entity: entity.entity,
+          subfilter: subfilter,
         },
       },
     };
   }
-  return occurrenceFilter;
-}
 
-function arrayFilterOperator(
-  filter: ArrayFilter
-): tanagra.BooleanLogicFilterV2OperatorEnum {
-  if (!isValid(filter.operator.min) && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterV2OperatorEnum.And;
-  }
-  if (filter.operator.min === 1 && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterV2OperatorEnum.Or;
-  }
-
-  throw new Error("Only AND and OR equivalent operators are supported.");
-}
-
-function generateOccurrenceFilter(
-  source: Source,
-  filter: Filter
-): [tanagra.FilterV2 | null, string] {
   if (isClassificationFilter(filter)) {
-    const entity = findEntity(filter.occurrenceID, source.config);
+    const entity = findEntity(filter.occurrenceId, source.config);
     const classification = findByID(
-      filter.classificationID,
+      filter.classificationId,
       entity.classifications
     );
 
@@ -1333,99 +1312,96 @@ function generateOccurrenceFilter(
         ) ?? undefined;
     }
 
-    return [
-      {
-        filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
-        filterUnion: {
-          relationshipFilter: {
-            entity: classification.entity,
-            subfilter,
-          },
+    return {
+      filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+      filterUnion: {
+        relationshipFilter: {
+          entity: classification.entity,
+          subfilter,
         },
       },
-      entity.entity,
-    ];
+    };
   }
   if (isAttributeFilter(filter)) {
-    const entity = findEntity(filter.occurrenceID, source.config);
     if (filter.ranges?.length) {
-      return [
-        makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterV2OperatorEnum.Or,
-          filter.ranges.map(({ min, max }) =>
-            makeBooleanLogicFilter(
-              tanagra.BooleanLogicFilterV2OperatorEnum.And,
-              [
-                {
-                  filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-                  filterUnion: {
-                    attributeFilter: {
-                      attribute: filter.attribute,
-                      operator: tanagra.BinaryOperatorV2.LessThan,
-                      value: literalFromDataValue(max),
-                    },
-                  },
+      return makeBooleanLogicFilter(
+        tanagra.BooleanLogicFilterV2OperatorEnum.Or,
+        filter.ranges.map(({ min, max }) =>
+          makeBooleanLogicFilter(tanagra.BooleanLogicFilterV2OperatorEnum.And, [
+            {
+              filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+              filterUnion: {
+                attributeFilter: {
+                  attribute: filter.attribute,
+                  operator: tanagra.BinaryOperatorV2.LessThan,
+                  value: literalFromDataValue(max),
                 },
-                {
-                  filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-                  filterUnion: {
-                    attributeFilter: {
-                      attribute: filter.attribute,
-                      operator: tanagra.BinaryOperatorV2.GreaterThan,
-                      value: literalFromDataValue(min),
-                    },
-                  },
-                },
-              ]
-            )
-          )
-        ),
-        entity.entity,
-      ];
-    }
-    if (filter.values?.length) {
-      return [
-        makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterV2OperatorEnum.Or,
-          filter.values.map((value) => ({
-            filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-            filterUnion: {
-              attributeFilter: {
-                attribute: filter.attribute,
-                operator: tanagra.BinaryOperatorV2.Equals,
-                value: literalFromDataValue(value),
               },
             },
-          }))
-        ),
-        entity.entity,
-      ];
+            {
+              filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+              filterUnion: {
+                attributeFilter: {
+                  attribute: filter.attribute,
+                  operator: tanagra.BinaryOperatorV2.GreaterThan,
+                  value: literalFromDataValue(min),
+                },
+              },
+            },
+          ])
+        )
+      );
+    }
+    if (filter.values?.length) {
+      return makeBooleanLogicFilter(
+        tanagra.BooleanLogicFilterV2OperatorEnum.Or,
+        filter.values.map((value) => ({
+          filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+          filterUnion: {
+            attributeFilter: {
+              attribute: filter.attribute,
+              operator: tanagra.BinaryOperatorV2.Equals,
+              value: literalFromDataValue(value),
+            },
+          },
+        }))
+      );
     }
 
-    return [null, ""];
+    return null;
   }
 
   if (isTextFilter(filter)) {
     if (filter.text.length === 0) {
-      return [null, ""];
+      return null;
     }
 
-    return [
-      {
-        filterType: tanagra.FilterV2FilterTypeEnum.Text,
-        filterUnion: {
-          textFilter: {
-            matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
-            text: filter.text,
-            attribute: filter.attribute,
-          },
+    return {
+      filterType: tanagra.FilterV2FilterTypeEnum.Text,
+      filterUnion: {
+        textFilter: {
+          matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
+          text: filter.text,
+          attribute: filter.attribute,
         },
       },
-      findEntity(filter.occurrenceID, source.config).entity,
-    ];
+    };
   }
 
   throw new Error(`Unknown filter type: ${JSON.stringify(filter)}`);
+}
+
+function arrayFilterOperator(
+  filter: ArrayFilter
+): tanagra.BooleanLogicFilterV2OperatorEnum {
+  if (!isValid(filter.operator.min) && !isValid(filter.operator.max)) {
+    return tanagra.BooleanLogicFilterV2OperatorEnum.And;
+  }
+  if (filter.operator.min === 1 && !isValid(filter.operator.max)) {
+    return tanagra.BooleanLogicFilterV2OperatorEnum.Or;
+  }
+
+  throw new Error("Only AND and OR equivalent operators are supported.");
 }
 
 function processAttributes(

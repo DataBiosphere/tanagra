@@ -121,13 +121,13 @@ class _ implements CriteriaPlugin<Data> {
   generateFilter() {
     return {
       type: FilterType.Classification,
-      occurrenceID: this.config.occurrence,
-      classificationID: this.config.classification,
+      occurrenceId: this.config.occurrence,
+      classificationId: this.config.classification,
       keys: this.data.selected.map(({ key }) => key),
     };
   }
 
-  occurrenceID() {
+  filterOccurrenceId() {
     return this.config.occurrence;
   }
 }
