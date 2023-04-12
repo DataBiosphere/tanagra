@@ -30,6 +30,7 @@ import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
 import { useSearchData } from "util/searchData";
 import { useNewAnnotationDialog } from "./newAnnotationDialog";
+import {CohortReviewAttribute} from "../underlaysSlice";
 
 type SearchData = {
   index?: number;
@@ -51,7 +52,7 @@ export function CohortReview() {
     throw new Error("Cohort context state is null.");
   }
 
-  const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
+  const uiConfig = {attributes: [] as CohortReviewAttribute[], primaryKey: ''};
 
   const primaryAttributes = useMemo(
     () => [uiConfig.primaryKey, ...uiConfig.attributes.map((a) => a.key)],

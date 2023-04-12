@@ -25,7 +25,6 @@ export type UIConfiguration = {
   demographicChartConfigs: DemographicChartConfig;
   prepackagedConceptSets: PrepackagedConceptSet[];
   criteriaSearchConfig: CriteriaSearchConfig;
-  cohortReviewConfig: CohortReviewConfig;
 };
 
 export type DemographicChartConfig = {
