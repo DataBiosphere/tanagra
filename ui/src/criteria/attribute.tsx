@@ -101,14 +101,13 @@ class _ implements CriteriaPlugin<Data> {
   generateFilter() {
     return {
       type: FilterType.Attribute,
-      occurrenceID: "",
       attribute: this.config.attribute,
       values: this.data.selected?.map(({ value }) => value),
       ranges: this.data.dataRanges,
     };
   }
 
-  occurrenceID() {
+  filterOccurrenceId() {
     return "";
   }
 }
