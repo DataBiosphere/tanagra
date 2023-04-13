@@ -66,11 +66,11 @@
         "id": "ingredient_occurrence",
         "displayName": "Drug Occurrence",
         "entity": "ingredient_occurrence",
-        "key": "drug",
+        "key": "id",
         "classifications": [
           {
             "id": "ingredient",
-            "attribute": "drug",
+            "attribute": "id",
             "entity": "ingredient",
             "entityAttribute": "id",
             "hierarchy": "standard",
