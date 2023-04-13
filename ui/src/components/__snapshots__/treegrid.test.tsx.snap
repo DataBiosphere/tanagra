@@ -1,29 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Table renders correctly 1`] = `
-Array [
+<div
+  className="css-o1f3wd"
+>
   <table
     style={
       Object {
+        "borderCollapse": "collapse",
         "tableLayout": "fixed",
+        "textAlign": "left",
         "width": "100%",
       }
     }
   >
-    <thead
-      style={
-        Object {
-          "display": "block",
-        }
-      }
-    >
+    <thead>
       <tr>
-        <td
+        <th
           style={
             Object {
+              "backgroundColor": "#fff",
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
               "maxWidth": "100%",
               "minWidth": "100%",
+              "position": "sticky",
+              "top": 0,
               "width": "100%",
+              "zIndex": 1,
             }
           }
         >
@@ -37,13 +40,18 @@ Array [
               Column 1
             </span>
           </div>
-        </td>
-        <td
+        </th>
+        <th
           style={
             Object {
+              "backgroundColor": "#fff",
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
               "maxWidth": 150,
               "minWidth": 150,
+              "position": "sticky",
+              "top": 0,
               "width": 150,
+              "zIndex": 1,
             }
           }
         >
@@ -57,13 +65,18 @@ Array [
               Column 2
             </span>
           </div>
-        </td>
-        <td
+        </th>
+        <th
           style={
             Object {
+              "backgroundColor": "#fff",
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
               "maxWidth": 50,
               "minWidth": 50,
+              "position": "sticky",
+              "top": 0,
               "width": 50,
+              "zIndex": 1,
             }
           }
         >
@@ -87,299 +100,278 @@ Array [
               </svg>
             </span>
           </div>
-        </td>
+        </th>
       </tr>
     </thead>
-  </table>,
-  <hr
-    className="MuiDivider-root MuiDivider-fullWidth css-9mgopn-MuiDivider-root"
-  />,
-  <div
-    style={
-      Object {
-        "display": "inline-block",
-        "overflowY": "auto",
-      }
-    }
-  >
-    <table
-      style={
-        Object {
-          "tableLayout": "fixed",
-          "width": "100%",
-        }
-      }
-    >
-      <tbody>
-        <tr
-          style={Object {}}
-        >
-          <td
-            style={
-              Object {
-                "maxWidth": "100%",
-                "minWidth": "100%",
-                "width": "100%",
-              }
-            }
-          >
-            <div
-              className="MuiStack-root css-1sg8hwy-MuiStack-root"
-            >
-              <button
-                className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                disabled={false}
-                onBlur={[Function]}
-                onClick={[Function]}
-                onContextMenu={[Function]}
-                onDragLeave={[Function]}
-                onFocus={[Function]}
-                onKeyDown={[Function]}
-                onKeyUp={[Function]}
-                onMouseDown={[Function]}
-                onMouseLeave={[Function]}
-                onMouseUp={[Function]}
-                onTouchEnd={[Function]}
-                onTouchMove={[Function]}
-                onTouchStart={[Function]}
-                tabIndex={0}
-                type="button"
-              >
-                <svg
-                  aria-hidden={true}
-                  className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                  data-testid="KeyboardArrowRightIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                  />
-                </svg>
-              </button>
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title="1-col1"
-              >
-                1-col1
-              </p>
-            </div>
-          </td>
-          <td
-            style={
-              Object {
-                "maxWidth": 150,
-                "minWidth": 150,
-                "width": 150,
-              }
-            }
-          >
-            <div
-              className="MuiStack-root css-1d9cypr-MuiStack-root"
-            >
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title="1-col2"
-              >
-                1-col2
-              </p>
-            </div>
-          </td>
-          <td
-            style={
-              Object {
-                "maxWidth": 50,
-                "minWidth": 50,
-                "width": 50,
-              }
-            }
-          >
-            <div
-              className="MuiStack-root css-1d9cypr-MuiStack-root"
-            >
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title=""
-              >
-                
-              </p>
-            </div>
-          </td>
-        </tr>
-        <tr
+    <tbody>
+      <tr
+        style={Object {}}
+      >
+        <td
           style={
             Object {
-              "visibility": "collapse",
+              "maxWidth": "100%",
+              "minWidth": "100%",
+              "width": "100%",
             }
           }
         >
-          <td
-            style={
-              Object {
-                "maxWidth": "100%",
-                "minWidth": "100%",
-                "width": "100%",
-              }
-            }
+          <div
+            className="MuiStack-root css-1sg8hwy-MuiStack-root"
           >
-            <div
-              className="MuiStack-root css-kv8qlv-MuiStack-root"
+            <button
+              className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+              disabled={false}
+              onBlur={[Function]}
+              onClick={[Function]}
+              onContextMenu={[Function]}
+              onDragLeave={[Function]}
+              onFocus={[Function]}
+              onKeyDown={[Function]}
+              onKeyUp={[Function]}
+              onMouseDown={[Function]}
+              onMouseLeave={[Function]}
+              onMouseUp={[Function]}
+              onTouchEnd={[Function]}
+              onTouchMove={[Function]}
+              onTouchStart={[Function]}
+              tabIndex={0}
+              type="button"
             >
-              <button
-                className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                disabled={false}
-                onBlur={[Function]}
-                onContextMenu={[Function]}
-                onDragLeave={[Function]}
-                onFocus={[Function]}
-                onKeyDown={[Function]}
-                onKeyUp={[Function]}
-                onMouseDown={[Function]}
-                onMouseLeave={[Function]}
-                onMouseUp={[Function]}
-                onTouchEnd={[Function]}
-                onTouchMove={[Function]}
-                onTouchStart={[Function]}
-                tabIndex={0}
-                type="button"
+              <svg
+                aria-hidden={true}
+                className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                data-testid="KeyboardArrowRightIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  aria-hidden={true}
-                  className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                  data-testid="CheckBoxIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-                  />
-                </svg>
-              </button>
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title="2-col1"
-              >
-                2-col1
-              </p>
-            </div>
-          </td>
-          <td
-            style={
-              Object {
-                "maxWidth": 150,
-                "minWidth": 150,
-                "width": 150,
-              }
+                <path
+                  d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                />
+              </svg>
+            </button>
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title="1-col1"
+            >
+              1-col1
+            </p>
+          </div>
+        </td>
+        <td
+          style={
+            Object {
+              "maxWidth": 150,
+              "minWidth": 150,
+              "width": 150,
             }
-          >
-            <div
-              className="MuiStack-root css-1d9cypr-MuiStack-root"
-            >
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title="2-col2"
-              >
-                2-col2
-              </p>
-            </div>
-          </td>
-          <td
-            style={
-              Object {
-                "maxWidth": 50,
-                "minWidth": 50,
-                "width": 50,
-              }
-            }
-          >
-            <div
-              className="MuiStack-root css-1d9cypr-MuiStack-root"
-            >
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title="2-col3"
-              >
-                2-col3
-              </p>
-            </div>
-          </td>
-        </tr>
-        <tr
-          style={Object {}}
+          }
         >
-          <td
-            style={
-              Object {
-                "maxWidth": "100%",
-                "minWidth": "100%",
-                "width": "100%",
-              }
-            }
+          <div
+            className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
-            <div
-              className="MuiStack-root css-1sg8hwy-MuiStack-root"
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title="1-col2"
             >
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title="3-col1"
-              >
-                3-col1
-              </p>
-            </div>
-          </td>
-          <td
-            style={
-              Object {
-                "maxWidth": 150,
-                "minWidth": 150,
-                "width": 150,
-              }
+              1-col2
+            </p>
+          </div>
+        </td>
+        <td
+          style={
+            Object {
+              "maxWidth": 50,
+              "minWidth": 50,
+              "width": 50,
             }
+          }
+        >
+          <div
+            className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
-            <div
-              className="MuiStack-root css-1d9cypr-MuiStack-root"
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title=""
             >
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title="3-col2"
-              >
-                3-col2
-              </p>
-            </div>
-          </td>
-          <td
-            style={
-              Object {
-                "maxWidth": 50,
-                "minWidth": 50,
-                "width": 50,
-              }
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr
+        style={
+          Object {
+            "visibility": "collapse",
+          }
+        }
+      >
+        <td
+          style={
+            Object {
+              "maxWidth": "100%",
+              "minWidth": "100%",
+              "width": "100%",
             }
+          }
+        >
+          <div
+            className="MuiStack-root css-kv8qlv-MuiStack-root"
           >
-            <div
-              className="MuiStack-root css-1d9cypr-MuiStack-root"
+            <button
+              className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+              disabled={false}
+              onBlur={[Function]}
+              onContextMenu={[Function]}
+              onDragLeave={[Function]}
+              onFocus={[Function]}
+              onKeyDown={[Function]}
+              onKeyUp={[Function]}
+              onMouseDown={[Function]}
+              onMouseLeave={[Function]}
+              onMouseUp={[Function]}
+              onTouchEnd={[Function]}
+              onTouchMove={[Function]}
+              onTouchStart={[Function]}
+              tabIndex={0}
+              type="button"
             >
-              <p
-                className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
-                title=""
+              <svg
+                aria-hidden={true}
+                className="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                data-testid="CheckBoxIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  aria-hidden={true}
-                  className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                  data-testid="AccountTreeIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
-                  />
-                </svg>
-              </p>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>,
-]
+                <path
+                  d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                />
+              </svg>
+            </button>
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title="2-col1"
+            >
+              2-col1
+            </p>
+          </div>
+        </td>
+        <td
+          style={
+            Object {
+              "maxWidth": 150,
+              "minWidth": 150,
+              "width": 150,
+            }
+          }
+        >
+          <div
+            className="MuiStack-root css-1d9cypr-MuiStack-root"
+          >
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title="2-col2"
+            >
+              2-col2
+            </p>
+          </div>
+        </td>
+        <td
+          style={
+            Object {
+              "maxWidth": 50,
+              "minWidth": 50,
+              "width": 50,
+            }
+          }
+        >
+          <div
+            className="MuiStack-root css-1d9cypr-MuiStack-root"
+          >
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title="2-col3"
+            >
+              2-col3
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr
+        style={Object {}}
+      >
+        <td
+          style={
+            Object {
+              "maxWidth": "100%",
+              "minWidth": "100%",
+              "width": "100%",
+            }
+          }
+        >
+          <div
+            className="MuiStack-root css-1sg8hwy-MuiStack-root"
+          >
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title="3-col1"
+            >
+              3-col1
+            </p>
+          </div>
+        </td>
+        <td
+          style={
+            Object {
+              "maxWidth": 150,
+              "minWidth": 150,
+              "width": 150,
+            }
+          }
+        >
+          <div
+            className="MuiStack-root css-1d9cypr-MuiStack-root"
+          >
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title="3-col2"
+            >
+              3-col2
+            </p>
+          </div>
+        </td>
+        <td
+          style={
+            Object {
+              "maxWidth": 50,
+              "minWidth": 50,
+              "width": 50,
+            }
+          }
+        >
+          <div
+            className="MuiStack-root css-1d9cypr-MuiStack-root"
+          >
+            <p
+              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              title=""
+            >
+              <svg
+                aria-hidden={true}
+                className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="AccountTreeIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
+                />
+              </svg>
+            </p>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 `;
