@@ -656,8 +656,13 @@ function ExportDialog(
       type: "exportData",
       cohorts: props.cohorts,
       conceptSetParams: props.conceptSetParams,
+      open: props.open,
     },
     async () => {
+      if (!props.open) {
+        return [];
+      }
+
       const res = await Promise.all([
         ...props.cohorts.map((cohort) =>
           source.exportAnnotationValues(studyId, cohort.id)
@@ -683,6 +688,9 @@ function ExportDialog(
             : props.conceptSetParams[i - props.cohorts.length].name,
         url,
       }));
+    },
+    {
+      shouldRetryOnError: false,
     }
   );
 
@@ -695,8 +703,8 @@ function ExportDialog(
       onClose={props.hide}
     >
       <DialogTitle id="export-dialog-title">Export</DialogTitle>
-      <DialogContent>
-        <Loading status={exportState}>
+      <DialogContent sx={{ minHeight: 400 }}>
+        <Loading status={exportState} showProgressOnMutate>
           <Stack>
             {exportState.data?.map((ed) => (
               <Link href={ed.url} variant="h4" key={ed.name}>
