@@ -713,32 +713,6 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
-  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values":
-    parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
-      - $ref: '#/components/parameters/AnnotationIdV2'
-      - $ref: '#/components/parameters/ReviewIdV2'
-    post:
-      summary: Create a new annotation value
-      operationId: createAnnotationValue
-      tags: [AnnotationsV2]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AnnotationValueCreateUpdateInfoV2"
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AnnotationValueV2"
-        500:
-          $ref: "#/components/responses/ServerError"
-
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values/{valueId}":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
@@ -746,16 +720,16 @@ paths:
       - $ref: '#/components/parameters/AnnotationIdV2'
       - $ref: '#/components/parameters/ReviewIdV2'
       - $ref: '#/components/parameters/AnnotationValueIdV2'
-    patch:
-      summary: Update an existing annotation value
-      operationId: updateAnnotationValue
+    post:
+      summary: Create or update an annotation value
+      operationId: createUpdateAnnotationValue
       tags: [AnnotationsV2]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnnotationValueCreateUpdateInfoV2'
+              $ref: '#/components/schemas/LiteralV2'
       responses:
         200:
           description: OK
@@ -2179,23 +2153,12 @@ components:
         - value
         - review
 
-    AnnotationValueCreateUpdateInfoV2:
-      type: object
-      properties:
-        instanceId:
-          description: ID of the entity instance this annotation value is associated with
-          type: string
-        value:
-          $ref: "#/components/schemas/LiteralV2"
-      required:
-        - instanceId
-        - value
-
     ReviewInstanceV2:
       type: object
       properties:
         attributes:
-          description: A map of entity attribute names to their value for this instance
+          description: |
+            A map of entity attribute names to their value for this instance. The id attribute will always be included.
           type: object
           additionalProperties:
             type: object

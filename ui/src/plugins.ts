@@ -10,5 +10,6 @@ import "storage/local";
 
 // Cohort review plugins
 import "cohortReview/plugins/occurrenceTable";
+import "cohortReview/plugins/textSearch";
 
 // User plugins

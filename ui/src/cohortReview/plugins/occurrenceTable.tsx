@@ -1,4 +1,4 @@
-import { useInstanceContext } from "cohortReview/instanceContext";
+import { useCohortReviewContext } from "cohortReview/cohortReviewContext";
 import {
   CohortReviewPlugin,
   registerCohortReviewPlugin,
@@ -35,7 +35,7 @@ class _ implements CohortReviewPlugin {
 }
 
 function OccurrenceTable({ config }: { config: Config }) {
-  const context = useInstanceContext();
+  const context = useCohortReviewContext();
   if (!context) {
     return null;
   }
