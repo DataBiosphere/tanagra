@@ -58,7 +58,6 @@ function OccurrenceTable({ config }: { config: Config }) {
     <GridBox
       sx={{
         width: "100%",
-        p: 1,
       }}
     >
       <TreeGrid columns={config.columns} data={data} />

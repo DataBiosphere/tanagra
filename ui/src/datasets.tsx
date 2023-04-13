@@ -578,10 +578,10 @@ function Preview(props: PreviewProps) {
                       )
                       .map((attribute) => ({
                         key: attribute,
-                        width: 120,
+                        width: 140,
                         title: attribute,
                       }))}
-                    variableWidth
+                    minWidth
                     wrapBodyText
                   />
                 ) : (
