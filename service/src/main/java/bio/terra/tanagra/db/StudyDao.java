@@ -185,18 +185,16 @@ public class StudyDao {
     }
 
     var params = new MapSqlParameterSource().addValue("study_id", studyId);
-
     if (name != null) {
       params.addValue("display_name", name);
     }
-
     if (description != null) {
       params.addValue("description", description);
     }
 
     String sql =
         String.format(
-            "UPDATE study SET %s WHERE study_id = :study_id",
+            "UPDATE study SET %s, last_modified = current_timestamp WHERE study_id = :study_id",
             DbUtils.setColumnsClause(params, "properties"));
 
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -226,7 +224,7 @@ public class StudyDao {
         result == null ? new HashMap<>() : DbSerDes.jsonToProperties(result);
     properties.putAll(propertyMap);
     final String sql =
-        "UPDATE study SET properties = cast(:properties AS jsonb) WHERE study_id = :study_id";
+        "UPDATE study SET properties = cast(:properties AS jsonb), last_modified = current_timestamp WHERE study_id = :study_id";
 
     var params = new MapSqlParameterSource();
     params
@@ -255,7 +253,7 @@ public class StudyDao {
       properties.remove(key);
     }
     final String sql =
-        "UPDATE study SET properties = cast(:properties AS jsonb) WHERE study_id = :study_id";
+        "UPDATE study SET properties = cast(:properties AS jsonb), last_modified = current_timestamp WHERE study_id = :study_id";
 
     var params = new MapSqlParameterSource();
     params
