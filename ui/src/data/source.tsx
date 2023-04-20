@@ -95,11 +95,6 @@ export type Study = {
   properties: PropertyMap;
 };
 
-// TODO(tjennison): The AnnotationValue API is difficult to work with because
-// creating them is separate from editing them, but that doesn't mesh well with
-// how the UI actually works. Updates have to wait for create to succeed and
-// return the valueId before updates can be sent. Determine if it makes sense to
-// use the EntityInstance as the id and have a single CreateOrUpdate API.
 export type AnnotationValue = {
   value: DataValue;
   valueId: DataKey;
@@ -265,6 +260,23 @@ export interface Source {
   ): void;
 
   exportAnnotationValues(studyId: string, cohortId: string): Promise<string>;
+
+  createUpdateAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey,
+    value: DataValue
+  ): Promise<AnnotationValue>;
+
+  deleteAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey
+  ): Promise<void>;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -736,7 +748,11 @@ export class BackendSource implements Source {
             includeAttributes,
           },
         })
-        .then((res) => res.map((i) => fromAPIReviewInstance(reviewId, i)))
+        .then((res) =>
+          res.map((i) =>
+            fromAPIReviewInstance(reviewId, this.config.primaryEntity.key, i)
+          )
+        )
     );
   }
 
@@ -929,6 +945,45 @@ export class BackendSource implements Source {
     }
 
     return res.gcsSignedUrl;
+  }
+
+  public async createUpdateAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey,
+    value: DataValue
+  ): Promise<AnnotationValue> {
+    const res = await parseAPIError(
+      this.annotationsApi.createUpdateAnnotationValue({
+        studyId,
+        cohortId,
+        reviewId,
+        annotationId,
+        valueId: String(entityKey),
+        literalV2: literalFromDataValue(value),
+      })
+    );
+    return fromAPIAnnotationValue(res, reviewId);
+  }
+
+  public async deleteAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey
+  ): Promise<void> {
+    return await parseAPIError(
+      this.annotationsApi.deleteAnnotationValue({
+        studyId,
+        cohortId,
+        reviewId,
+        annotationId,
+        valueId: String(entityKey),
+      })
+    );
   }
 
   private makeQuery(
@@ -1575,6 +1630,7 @@ function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
 
 function fromAPIReviewInstance(
   reviewId: string,
+  keyAttribute: string,
   instance: tanagra.ReviewInstanceV2
 ): ReviewInstance {
   const data: DataEntry = {
@@ -1585,16 +1641,35 @@ function fromAPIReviewInstance(
 
   const annotations: AnnotationEntry = {};
   for (const key in instance.annotations) {
-    annotations[key] = instance.annotations[key].map((v) => ({
-      value: dataValueFromLiteral(v.value),
-      valueId: v.id,
-      current: v.review === reviewId,
-    }));
+    annotations[key] = instance.annotations[key].map((v) =>
+      fromAPIAnnotationValue(v, reviewId)
+    );
   }
+
+  const key = dataValueFromLiteral(
+    instance.attributes?.[keyAttribute]?.value ?? null
+  );
+  if (typeof key !== "string" && typeof key !== "number") {
+    throw new Error(
+      `Key attribute "${keyAttribute}" not found in entity instance ${data}`
+    );
+  }
+  data.key = key;
 
   return {
     data,
     annotations,
+  };
+}
+
+function fromAPIAnnotationValue(
+  value: tanagra.AnnotationValueV2,
+  reviewId: string
+): AnnotationValue {
+  return {
+    value: dataValueFromLiteral(value.value),
+    valueId: value.id,
+    current: value.review === reviewId,
   };
 }
 

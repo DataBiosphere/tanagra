@@ -12,7 +12,7 @@ import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Tab from "@mui/material/Tab";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -29,12 +29,12 @@ import {
   ReviewInstance,
   useSource,
 } from "data/source";
-import { DataEntry } from "data/types";
+import { DataEntry, DataValue } from "data/types";
 import { useUnderlay } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
@@ -108,6 +108,38 @@ export function CohortReview() {
       );
     }
   );
+
+  const mutateInstance = (
+    updateRemote: () => void,
+    updateLocal: (instance: ReviewInstance) => void
+  ) => {
+    if (!instancesState.data) {
+      return;
+    }
+
+    const data = produce(instancesState.data, (data) => {
+      const instance = data?.[instanceIndex];
+      if (instance) {
+        updateLocal(data?.[instanceIndex]);
+      }
+    });
+    instancesState.mutate(
+      async () => {
+        await updateRemote();
+        return await source.listReviewInstances(
+          params.studyId,
+          cohort.id,
+          reviewId,
+          primaryAttributes
+        );
+      },
+      {
+        optimisticData: data,
+        populateCache: true,
+        revalidate: false,
+      }
+    );
+  };
 
   const annotationsState = useSWR(
     {
@@ -291,17 +323,21 @@ export function CohortReview() {
                 </GridLayout>
                 <Loading status={annotationsState}>
                   <GridLayout rows>
-                    {annotationsState.data?.map((a) => (
-                      <AnnotationComponent
-                        studyId={params.studyId}
-                        cohortId={cohort.id}
-                        reviewId={reviewId}
-                        annotation={a}
-                        mutateAnnotation={() => annotationsState.mutate()}
-                        instance={instance}
-                        key={a.id}
-                      />
-                    ))}
+                    {annotationsState.data?.map(
+                      (a) =>
+                        !!instance && (
+                          <AnnotationComponent
+                            studyId={params.studyId}
+                            cohortId={cohort.id}
+                            reviewId={reviewId}
+                            annotation={a}
+                            mutateAnnotation={() => annotationsState.mutate()}
+                            instance={instance}
+                            mutateInstance={mutateInstance}
+                            key={`${a.id}-${instance?.data?.key}`}
+                          />
+                        )
+                    )}
                   </GridLayout>
                 </Loading>
               </GridLayout>
@@ -376,22 +412,84 @@ function AnnotationComponent(props: {
   reviewId: string;
 
   annotation: Annotation;
-  instance?: ReviewInstance;
+  instance: ReviewInstance;
 
   mutateAnnotation: () => void;
+  mutateInstance: (
+    updateRemote: () => void,
+    updateLocal: (instance: ReviewInstance) => void
+  ) => void;
 }) {
   const [searchData, updateSearchData] = useSearchData<SearchData>();
 
   const source = useSource();
 
+  // TODO(tjennison): Expand handling of older and newer revisions and improve
+  // their UI once the API is updated.
   const values = props.instance?.annotations?.[props.annotation.id];
   const currentValue = values?.find((v) => v.current)?.value;
   const latestValue = values?.[values?.length]?.value;
+
+  const [text, setText] = useState<string>(
+    !!currentValue ? String(currentValue) : ""
+  );
+
+  const updateValue = (value: DataValue) => {
+    if (!value) {
+      if (!currentValue) {
+        return;
+      }
+
+      props.mutateInstance(
+        async () =>
+          await source.deleteAnnotationValue(
+            props.studyId,
+            props.cohortId,
+            props.reviewId,
+            props.annotation.id,
+            props.instance.data.key
+          ),
+        (instance: ReviewInstance) => {
+          instance.annotations[props.annotation.id] = instance.annotations[
+            props.annotation.id
+          ]?.filter((v) => !v.current);
+        }
+      );
+    } else {
+      props.mutateInstance(
+        async () =>
+          await source.createUpdateAnnotationValue(
+            props.studyId,
+            props.cohortId,
+            props.reviewId,
+            props.annotation.id,
+            props.instance.data.key,
+            value
+          ),
+        (instance: ReviewInstance) =>
+          createUpdateCurrentValue(instance, props.annotation.id, value)
+      );
+    }
+  };
 
   let comp: ReactNode | undefined;
   switch (props.annotation.annotationType) {
     case AnnotationType.String:
       if (props.annotation.enumVals?.length) {
+        const currentIndex =
+          (props.annotation.enumVals?.indexOf(String(currentValue)) ?? -1) + 1;
+        const latestIndex =
+          (props.annotation.enumVals?.indexOf(String(latestValue)) ?? -1) + 1;
+
+        const onSelect = (event: SelectChangeEvent<string>) => {
+          const {
+            target: { value: sel },
+          } = event;
+          updateValue(
+            !!sel ? props.annotation.enumVals?.[Number(sel) - 1] ?? null : null
+          );
+        };
+
         comp = (
           <FormControl fullWidth>
             <InputLabel id={`label-${props.annotation.id}`}>
@@ -399,15 +497,16 @@ function AnnotationComponent(props: {
             </InputLabel>
             <Select
               labelId={`label-${props.annotation.id}`}
-              defaultValue={latestValue ?? ""}
-              value={currentValue ?? ""}
+              defaultValue={String(latestIndex)}
+              value={String(currentIndex)}
               label={props.annotation.displayName}
+              onChange={onSelect}
             >
-              <MenuItem value="" key="">
+              <MenuItem value={0} key="">
                 &nbsp;
               </MenuItem>
-              {props.annotation.enumVals.map((v) => (
-                <MenuItem value={v} key={v}>
+              {props.annotation.enumVals.map((v, i) => (
+                <MenuItem value={i + 1} key={v}>
                   {v}
                 </MenuItem>
               ))}
@@ -420,8 +519,11 @@ function AnnotationComponent(props: {
             variant="outlined"
             fullWidth
             label={props.annotation.displayName}
-            value={currentValue}
-            defaultValue={latestValue}
+            value={text}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setText(event.target.value)
+            }
+            onBlur={() => updateValue(text)}
           />
         );
       }
@@ -455,4 +557,25 @@ function AnnotationComponent(props: {
       ) : null}
     </GridLayout>
   );
+}
+
+function createUpdateCurrentValue(
+  instance: ReviewInstance,
+  annotationId: string,
+  value: DataValue
+) {
+  const annotations = instance.annotations;
+  const cur = annotations[annotationId]?.find((v) => v.current);
+  if (cur) {
+    cur.value = value;
+  } else {
+    annotations[annotationId] = [
+      ...(annotations[annotationId] ?? []),
+      {
+        current: true,
+        valueId: instance.data.key,
+        value: value,
+      },
+    ];
+  }
 }
