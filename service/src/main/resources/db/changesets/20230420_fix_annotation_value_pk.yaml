@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: fix_annotation_value_pk
+      author: marikomedlock
+      changes:
+        - dropUniqueConstraint:
+            constraintName: pk_annotation_value
+            tableName: annotation_value
+            columnNames: review_id, annotation_value_id
+        - addUniqueConstraint:
+            constraintName: pk_annotation_value_fix
+            tableName: annotation_value
+            columnNames: review_id, annotation_id, annotation_value_id
