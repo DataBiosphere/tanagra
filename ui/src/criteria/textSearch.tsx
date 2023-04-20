@@ -100,7 +100,7 @@ class _ implements CriteriaPlugin<Data> {
       },
       {
         type: FilterType.Attribute,
-        attribute: this.config.searchAttribute,
+        attribute: this.config.categoryAttribute ?? "",
         values: this.data.categories.map((c) => c.value),
       },
     ]);
@@ -153,7 +153,6 @@ function TextSearchInline(props: TextSearchInlineProps) {
             props.config.categoryAttribute
           )
         : undefined;
-      console.log(hintData);
       return {
         hintData,
       };
