@@ -17,10 +17,17 @@ import Tab from "@mui/material/Tab";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { useCohortContext } from "cohortContext";
 import { CohortReviewContext } from "cohortReview/cohortReviewContext";
 import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
+import { useParticipantsListDialog } from "cohortReview/participantsList";
 import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
+import {
+  SearchData,
+  useReviewAnnotations,
+  useReviewInstances,
+  useReviewParams,
+  useReviewSearchData,
+} from "cohortReview/reviewHooks";
 import Loading from "components/loading";
 import { FilterType } from "data/filter";
 import {
@@ -35,38 +42,15 @@ import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
 import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
-import { useSearchData } from "util/searchData";
-
-type PluginSearchData = {
-  [x: string]: object;
-};
-
-type SearchData = {
-  instanceIndex?: number;
-  pageId?: string;
-  editingAnnotations?: boolean;
-
-  plugins?: PluginSearchData;
-};
 
 export function CohortReview() {
   const source = useSource();
   const underlay = useUnderlay();
-  const params = useBaseParams();
-
-  const { reviewId } = useParams<{ reviewId: string }>();
-  if (!reviewId) {
-    throw new Error("Review ID is null.");
-  }
-
-  const cohort = useCohortContext().state?.present;
-  if (!cohort) {
-    throw new Error("Cohort context state is null.");
-  }
+  const baseParams = useBaseParams();
+  const params = useReviewParams();
 
   const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
@@ -76,13 +60,13 @@ export function CohortReview() {
     [uiConfig.pages]
   );
 
-  const primaryAttributes = useMemo(
-    () => [primaryKey, ...uiConfig.attributes.map((a) => a.key)],
-    [uiConfig]
-  );
-
   const reviewState = useSWR(
-    { type: "review", studyId: params.studyId, reviewId, cohortId: cohort.id },
+    {
+      type: "review",
+      studyId: params.studyId,
+      reviewId: params.reviewId,
+      cohortId: params.cohort.id,
+    },
     async (key) => {
       return await source.getCohortReview(
         key.studyId,
@@ -92,22 +76,7 @@ export function CohortReview() {
     }
   );
 
-  const instancesState = useSWR(
-    {
-      type: "reviewInstance",
-      studyId: params.studyId,
-      reviewId,
-      cohortId: cohort.id,
-    },
-    async (key) => {
-      return await source.listReviewInstances(
-        key.studyId,
-        key.cohortId,
-        key.reviewId,
-        primaryAttributes
-      );
-    }
-  );
+  const instancesState = useReviewInstances();
 
   const mutateInstance = (
     updateRemote: () => void,
@@ -128,9 +97,9 @@ export function CohortReview() {
         await updateRemote();
         return await source.listReviewInstances(
           params.studyId,
-          cohort.id,
-          reviewId,
-          primaryAttributes
+          params.cohort.id,
+          params.reviewId,
+          params.primaryAttributes
         );
       },
       {
@@ -141,16 +110,7 @@ export function CohortReview() {
     );
   };
 
-  const annotationsState = useSWR(
-    {
-      type: "annotation",
-      studyId: params.studyId,
-      cohortId: cohort.id,
-    },
-    async (key) => {
-      return await source.listAnnotations(key.studyId, key.cohortId);
-    }
-  );
+  const annotationsState = useReviewAnnotations();
 
   const [newAnnotationDialog, showNewAnnotationDialog] = useNewAnnotationDialog(
     {
@@ -161,7 +121,7 @@ export function CohortReview() {
       ) => {
         await source.createAnnotation(
           params.studyId,
-          cohort.id,
+          params.cohort.id,
           displayName,
           annotationType,
           enumVals
@@ -171,7 +131,7 @@ export function CohortReview() {
     }
   );
 
-  const [searchData, updateSearchData] = useSearchData<SearchData>();
+  const [searchData, updateSearchData] = useReviewSearchData();
 
   const instanceIndex = searchData.instanceIndex ?? 0;
   const instance = instancesState.data?.[instanceIndex];
@@ -189,8 +149,8 @@ export function CohortReview() {
     {
       type: "reviewInstanceData",
       studyId: params.studyId,
-      cohortId: cohort.id,
-      reviewId,
+      cohortId: params.cohort.id,
+      reviewId: params.reviewId,
       instanceIndex,
     },
     async () => {
@@ -232,6 +192,9 @@ export function CohortReview() {
     }
   );
 
+  const [participantsListDialog, showParticipantsListDialog] =
+    useParticipantsListDialog({ count });
+
   return (
     <GridBox>
       <ActionBar
@@ -240,7 +203,11 @@ export function CohortReview() {
             ? `Review "${reviewState?.data?.displayName}"`
             : ""
         }
-        backURL={absoluteCohortReviewListURL(params, cohort.id, reviewId)}
+        backURL={absoluteCohortReviewListURL(
+          baseParams,
+          params.cohort.id,
+          params.reviewId
+        )}
       />
       <Loading status={instancesState}>
         <GridLayout cols="240px auto">
@@ -270,8 +237,8 @@ export function CohortReview() {
                   >
                     <KeyboardArrowLeftIcon />
                   </IconButton>
-                  <IconButton disabled>
-                    <MenuIcon />
+                  <IconButton disabled={count === 0}>
+                    <MenuIcon onClick={() => showParticipantsListDialog()} />
                   </IconButton>
                   <IconButton
                     disabled={instanceIndex === count - 1}
@@ -328,8 +295,8 @@ export function CohortReview() {
                         !!instance && (
                           <AnnotationComponent
                             studyId={params.studyId}
-                            cohortId={cohort.id}
-                            reviewId={reviewId}
+                            cohortId={params.cohort.id}
+                            reviewId={params.reviewId}
                             annotation={a}
                             mutateAnnotation={() => annotationsState.mutate()}
                             instance={instance}
@@ -401,6 +368,7 @@ export function CohortReview() {
           </GridBox>
         </GridLayout>
         {newAnnotationDialog}
+        {participantsListDialog}
       </Loading>
     </GridBox>
   );
@@ -420,7 +388,7 @@ function AnnotationComponent(props: {
     updateLocal: (instance: ReviewInstance) => void
   ) => void;
 }) {
-  const [searchData, updateSearchData] = useSearchData<SearchData>();
+  const [searchData, updateSearchData] = useReviewSearchData();
 
   const source = useSource();
 
