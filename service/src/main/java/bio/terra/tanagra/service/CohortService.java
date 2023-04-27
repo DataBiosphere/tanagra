@@ -7,7 +7,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.model.CohortRevision;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -33,13 +32,14 @@ public class CohortService {
     this.studyService = studyService;
   }
 
-  public Cohort createCohort(String studyId, Cohort.Builder cohortBuilder) {
-    return createCohort(studyId, cohortBuilder, Collections.emptyList());
+  public Cohort createCohort(String studyId, Cohort.Builder cohortBuilder, String userEmail) {
+    return createCohort(studyId, cohortBuilder, userEmail, Collections.emptyList());
   }
 
   public Cohort createCohort(
       String studyId,
       Cohort.Builder cohortBuilder,
+      String userEmail,
       List<CohortRevision.CriteriaGroupSection> sections) {
     featureConfiguration.artifactStorageEnabledCheck();
 
@@ -53,10 +53,13 @@ public class CohortService {
             .sections(sections)
             .setIsMostRecent(true)
             .setIsEditable(true)
+            .createdBy(userEmail)
+            .lastModifiedBy(userEmail)
             .build();
     cohortBuilder.addRevision(firstRevision);
 
-    cohortDao.createCohort(studyId, cohortBuilder.build());
+    cohortDao.createCohort(
+        studyId, cohortBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
     return cohortDao.getCohort(cohortBuilder.getId());
   }
 
@@ -68,29 +71,17 @@ public class CohortService {
 
   public List<Cohort> listCohorts(
       ResourceIdCollection authorizedCohortIds, String studyId, int offset, int limit) {
+    featureConfiguration.artifactStorageEnabledCheck();
     if (authorizedCohortIds.isAllResourceIds()) {
-      return getAllCohorts(studyId, offset, limit);
+      return cohortDao.getAllCohorts(studyId, offset, limit);
     } else {
-      return getCohorts(
-          studyId,
+      return cohortDao.getCohortsMatchingList(
           authorizedCohortIds.getResourceIds().stream()
               .map(ResourceId::getId)
-              .collect(Collectors.toList()),
+              .collect(Collectors.toSet()),
           offset,
           limit);
     }
-  }
-
-  /** Retrieve a list of all cohorts. */
-  private List<Cohort> getAllCohorts(String studyId, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getAllCohorts(studyId, offset, limit);
-  }
-
-  /** Retrieve a list of cohorts that match the specified IDs. */
-  private List<Cohort> getCohorts(String studyId, List<String> cohortIds, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getCohortsMatchingList(new HashSet<>(cohortIds), offset, limit);
   }
 
   /** Retrieve a cohort with the latest revision. */
@@ -99,27 +90,17 @@ public class CohortService {
     return cohortDao.getCohort(cohortId);
   }
 
-  /**
-   * Update an existing cohort's latest version. Currently, can change the cohort's display name,
-   * description, or criteria groups.
-   *
-   * @param studyId study ID
-   * @param cohortId cohort ID
-   * @param displayName name to change - may be null
-   * @param description description to change - may be null
-   * @param criteriaGroupSections set of criteria group sections to change - may be null
-   */
+  /** Update an existing cohort's most recent revision. */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public Cohort updateCohort(
       String studyId,
       String cohortId,
-      String lastModifiedBy,
+      String userEmail,
       @Nullable String displayName,
       @Nullable String description,
       @Nullable List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
     featureConfiguration.artifactStorageEnabledCheck();
-    cohortDao.updateCohort(
-        cohortId, lastModifiedBy, displayName, description, criteriaGroupSections);
+    cohortDao.updateCohort(cohortId, userEmail, displayName, description, criteriaGroupSections);
     return cohortDao.getCohort(cohortId);
   }
 }

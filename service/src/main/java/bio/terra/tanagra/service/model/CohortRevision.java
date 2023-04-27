@@ -3,9 +3,7 @@ package bio.terra.tanagra.service.model;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -20,7 +18,7 @@ public class CohortRevision {
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
 
-  public CohortRevision(
+  private CohortRevision(
       String id,
       List<CriteriaGroupSection> sections,
       int version,
@@ -83,7 +81,7 @@ public class CohortRevision {
 
   public static class Builder {
     private String id;
-    private List<CriteriaGroupSection> sections;
+    private List<CriteriaGroupSection> sections = new ArrayList<>();;
     private int version;
     private boolean isMostRecent;
     private boolean isEditable;
@@ -141,6 +139,8 @@ public class CohortRevision {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
+      sections = new ArrayList<>(sections);
+      sections.sort(Comparator.comparing(CriteriaGroupSection::getId));
       return new CohortRevision(
           id,
           sections,
@@ -165,6 +165,36 @@ public class CohortRevision {
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    CohortRevision that = (CohortRevision) o;
+    return version == that.version
+        && isMostRecent == that.isMostRecent
+        && isEditable == that.isEditable
+        && id.equals(that.id)
+        && sections.equals(that.sections)
+        && created.equals(that.created)
+        && createdBy.equals(that.createdBy)
+        && lastModified.equals(that.lastModified)
+        && lastModifiedBy.equals(that.lastModifiedBy);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        id,
+        sections,
+        version,
+        isMostRecent,
+        isEditable,
+        created,
+        createdBy,
+        lastModified,
+        lastModifiedBy);
+  }
+
   public static class CriteriaGroupSection {
     private final String id;
     private final @Nullable String displayName;
@@ -172,7 +202,7 @@ public class CohortRevision {
     private final BooleanAndOrFilterVariable.LogicalOperator operator;
     private final boolean isExcluded;
 
-    public CriteriaGroupSection(
+    private CriteriaGroupSection(
         String id,
         String displayName,
         List<CriteriaGroup> criteriaGroups,
@@ -212,8 +242,9 @@ public class CohortRevision {
     public static class Builder {
       private String id;
       private String displayName;
-      private List<CriteriaGroup> criteriaGroups;
-      private BooleanAndOrFilterVariable.LogicalOperator operator;
+      private List<CriteriaGroup> criteriaGroups = new ArrayList<>();
+      private BooleanAndOrFilterVariable.LogicalOperator operator =
+          BooleanAndOrFilterVariable.LogicalOperator.OR;
       private boolean isExcluded;
 
       public Builder id(String id) {
@@ -242,6 +273,11 @@ public class CohortRevision {
       }
 
       public CriteriaGroupSection build() {
+        if (id == null) {
+          id = RandomStringUtils.randomAlphanumeric(10);
+        }
+        criteriaGroups = new ArrayList<>(criteriaGroups);
+        criteriaGroups.sort(Comparator.comparing(CriteriaGroup::getId));
         return new CriteriaGroupSection(id, displayName, criteriaGroups, operator, isExcluded);
       }
 
@@ -250,29 +286,43 @@ public class CohortRevision {
       }
 
       public void addCriteriaGroup(CriteriaGroup criteriaGroup) {
-        if (criteriaGroups == null) {
-          criteriaGroups = new ArrayList<>();
-        }
         criteriaGroups.add(criteriaGroup);
       }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      CriteriaGroupSection that = (CriteriaGroupSection) o;
+      return isExcluded == that.isExcluded
+          && id.equals(that.id)
+          && displayName.equals(that.displayName)
+          && criteriaGroups.equals(that.criteriaGroups)
+          && operator == that.operator;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(id, displayName, criteriaGroups, operator, isExcluded);
     }
   }
 
   public static class CriteriaGroup {
     private final String id;
-    private final @Nullable String displayName;
+    private final String displayName;
     private final List<Criteria> criteria;
     private final String entity;
     private final @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator;
-    private final @Nullable Integer groupByCountValue;
+    private final int groupByCountValue;
 
-    public CriteriaGroup(
+    private CriteriaGroup(
         String id,
         String displayName,
         List<Criteria> criteria,
         String entity,
         BinaryFilterVariable.BinaryOperator groupByCountOperator,
-        Integer groupByCountValue) {
+        int groupByCountValue) {
       this.id = id;
       this.displayName = displayName;
       this.criteria = criteria;
@@ -305,17 +355,17 @@ public class CohortRevision {
       return groupByCountOperator;
     }
 
-    public Integer getGroupByCountValue() {
+    public int getGroupByCountValue() {
       return groupByCountValue;
     }
 
     public static class Builder {
       private String id;
       private String displayName;
-      private List<Criteria> criteria;
+      private List<Criteria> criteria = new ArrayList<>();
       private String entity;
       private BinaryFilterVariable.BinaryOperator groupByCountOperator;
-      private Integer groupByCountValue;
+      private int groupByCountValue;
 
       public Builder id(String id) {
         this.id = id;
@@ -349,6 +399,11 @@ public class CohortRevision {
       }
 
       public CriteriaGroup build() {
+        if (id == null) {
+          id = RandomStringUtils.randomAlphanumeric(10);
+        }
+        criteria = new ArrayList<>(criteria);
+        criteria.sort(Comparator.comparing(Criteria::getId));
         return new CriteriaGroup(
             id, displayName, criteria, entity, groupByCountOperator, groupByCountValue);
       }
@@ -358,11 +413,27 @@ public class CohortRevision {
       }
 
       public void addCriteria(Criteria newCriteria) {
-        if (criteria == null) {
-          criteria = new ArrayList<>();
-        }
         criteria.add(newCriteria);
       }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      CriteriaGroup that = (CriteriaGroup) o;
+      return groupByCountValue == that.groupByCountValue
+          && id.equals(that.id)
+          && displayName.equals(that.displayName)
+          && criteria.equals(that.criteria)
+          && entity.equals(that.entity)
+          && groupByCountOperator == that.groupByCountOperator;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(
+          id, displayName, criteria, entity, groupByCountOperator, groupByCountValue);
     }
   }
 }

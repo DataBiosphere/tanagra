@@ -216,9 +216,7 @@ databaseChangeLog:
                   name: id
                   type: text
                   constraints:
-                    primaryKey: true
                     nullable: false
-                    unique: true
               - column:
                   name: cohort_revision_id
                   type: text
@@ -227,7 +225,7 @@ databaseChangeLog:
                     foreignKeyName: fk_cohort_revision
                     nullable: false
                     deleteCascade: true
-                  remarks: Deleting a cohort revision will cascade to delete the criteria group sections associated with it
+                  remarks: Deleting a cohort revision will cascade to delete the criteria group sections contained in it
               - column:
                   name: display_name
                   type: text
@@ -239,6 +237,10 @@ databaseChangeLog:
                   type: boolean
                   constraints:
                     nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_criteria_group_section
+            tableName: criteria_group_section
+            columnNames: id, cohort_revision_id
 
         - createTable:
             tableName: criteria_group
@@ -247,18 +249,21 @@ databaseChangeLog:
                   name: id
                   type: text
                   constraints:
-                    primaryKey: true
                     nullable: false
-                    unique: true
               - column:
                   name: criteria_group_section_id
                   type: text
                   constraints:
-                    references: criteria_group_section(id)
-                    foreignKeyName: fk_criteria_group_section
+                    nullable: false
+              - column:
+                  name: cohort_revision_id
+                  type: text
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_cohort_revision
                     nullable: false
                     deleteCascade: true
-                  remarks: Deleting a criteria group section will cascade to delete the criteria groups associated with it
+                  remarks: Deleting a cohort revision will cascade to delete the criteria groups contained in it
               - column:
                   name: display_name
                   type: text
@@ -271,6 +276,10 @@ databaseChangeLog:
               - column:
                   name: group_by_count_value
                   type: integer
+        - addUniqueConstraint:
+            constraintName: pk_criteria_group
+            tableName: criteria_group
+            columnNames: id, criteria_group_section_id, cohort_revision_id
 
         - createTable:
             tableName: criteria
@@ -279,18 +288,26 @@ databaseChangeLog:
                   name: id
                   type: text
                   constraints:
-                    primaryKey: false
                     nullable: false
-                    unique: false
               - column:
                   name: criteria_group_id
                   type: text
                   constraints:
-                    references: criteria_group(id)
-                    foreignKeyName: fk_criteria_group_id
                     nullable: true
+              - column:
+                  name: criteria_group_section_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_revision_id
+                  type: text
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_cohort_revision
+                    nullable: false
                     deleteCascade: true
-                  remarks: Deleting a criteria group will cascade to delete the criteria contained in it
+                  remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
               - column:
                   name: concept_set_id
                   type: text
@@ -300,12 +317,6 @@ databaseChangeLog:
                     nullable: true
                     deleteCascade: true
                   remarks: Deleting a concept set will cascade to delete the criteria contained in it
-              - column:
-                  name: user_facing_id
-                  type: text
-                  constraints:
-                    nullable: false
-                    unique: false
               - column:
                   name: display_name
                   type: text
@@ -332,28 +343,4 @@ databaseChangeLog:
         - addUniqueConstraint:
             constraintName: pk_criteria
             tableName: criteria
-            columnNames: id, criteria_group_id, concept_set_id
-
-        - createTable:
-            tableName: criteria_tag
-            columns:
-              - column:
-                  name: criteria_id
-                  type: text
-              - column:
-                  name: criteria_group_id
-                  type: text
-              - column:
-                  name: concept_set_id
-                  type: text
-#                  constraints:
-#                    references: criteria(id)
-#                    foreignKeyName: fk_criteria_id
-#                    nullable: true
-#                    deleteCascade: true
-#                  remarks: Deleting a criteria will cascade to delete the tags associated with it
-              - column:
-                  name: tag
-                  type: text
-                  constraints:
-                    nullable: false
+            columnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id

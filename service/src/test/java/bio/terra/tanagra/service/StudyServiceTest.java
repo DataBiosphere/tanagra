@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.model.Study;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -26,6 +29,19 @@ public class StudyServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
 
   @Autowired private StudyService studyService;
+
+  @AfterEach
+  void deleteAll() {
+    List<Study> allStudies =
+        studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 100);
+    for (Study study : allStudies) {
+      try {
+        studyService.deleteStudy(study.getId());
+      } catch (Exception ex) {
+        LOGGER.error("Error deleting study", ex);
+      }
+    }
+  }
 
   @Test
   void createUpdateDelete() throws InterruptedException {
@@ -74,13 +90,31 @@ public class StudyServiceTest {
     LOGGER.info("Created study {} at {}", study2.getId(), study2.getCreated());
 
     // List all.
-    List<Study> allStudies = studyService.getAllStudies(0, 10);
+    List<Study> allStudies = studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 10);
     assertEquals(2, allStudies.size());
 
     // List selected.
-    List<Study> selectedStudies = studyService.getStudies(List.of(study2.getId()), 0, 10);
+    List<Study> selectedStudies =
+        studyService.listStudies(
+            ResourceIdCollection.forCollection(List.of(new ResourceId(study2.getId()))), 0, 10);
     assertEquals(1, selectedStudies.size());
     assertEquals(study2.getId(), selectedStudies.get(0).getId());
+  }
+
+  @Test
+  void invalid() {
+    // List all.
+    List<Study> allStudies = studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 10);
+    assertTrue(allStudies.isEmpty());
+
+    // List selected.
+    List<Study> selectedStudies =
+        studyService.listStudies(
+            ResourceIdCollection.forCollection(List.of(new ResourceId("123"))), 0, 10);
+    assertTrue(selectedStudies.isEmpty());
+
+    // Get invalid.
+    assertThrows(NotFoundException.class, () -> studyService.getStudy("123"));
   }
 
   @Test

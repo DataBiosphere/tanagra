@@ -10,6 +10,7 @@ import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.model.CohortRevision;
 import bio.terra.tanagra.service.model.Criteria;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
@@ -78,39 +79,42 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria group.
   private static final String CRITERIA_GROUP_SELECT_SQL =
-      "SELECT criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value FROM criteria_group";
-  private static final RowMapper<Pair<String, CohortRevision.CriteriaGroup.Builder>>
+      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value FROM criteria_group";
+  private static final RowMapper<Pair<List<String>, CohortRevision.CriteriaGroup.Builder>>
       CRITERIA_GROUP_ROW_MAPPER =
           (rs, rowNum) ->
               Pair.of(
-                  rs.getString("criteria_group_section_id"),
+                  List.of(
+                      rs.getString("criteria_group_section_id"),
+                      rs.getString("cohort_revision_id")),
                   CohortRevision.CriteriaGroup.builder()
                       .id(rs.getString("id"))
                       .displayName(rs.getString("display_name"))
                       .entity(rs.getString("entity"))
                       .groupByCountOperator(
-                          BinaryFilterVariable.BinaryOperator.valueOf(
-                              rs.getString("group_by_count_operator")))
+                          rs.getString("group_by_count_operator") == null
+                              ? null
+                              : BinaryFilterVariable.BinaryOperator.valueOf(
+                                  rs.getString("group_by_count_operator")))
                       .groupByCountValue(rs.getInt("group_by_count_value")));
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
-      "SELECT criteria_group_id, id, display_name, plugin_name, selection_data, ui_config FROM criteria";
-  private static final RowMapper<Pair<String, Criteria.Builder>> CRITERIA_ROW_MAPPER =
+      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, tags FROM criteria";
+  private static final RowMapper<Pair<List<String>, Criteria.Builder>> CRITERIA_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
-              rs.getString("criteria_group_id"),
+              List.of(
+                  rs.getString("criteria_group_id"),
+                  rs.getString("criteria_group_section_id"),
+                  rs.getString("cohort_revision_id")),
               Criteria.builder()
-                  .id(rs.getString("criteria_group_id"))
+                  .id(rs.getString("id"))
                   .displayName(rs.getString("display_name"))
                   .pluginName(rs.getString("plugin_name"))
                   .selectionData(rs.getString("selection_data"))
-                  .uiConfig(rs.getString("ui_config")));
-
-  // SQL query and row mapper for reading a criteria tag.
-  private static final String CRITERIA_TAG_SELECT_SQL = "SELECT criteria_id, tag FROM criteria_tag";
-  private static final RowMapper<Pair<String, String>> CRITERIA_TAG_ROW_MAPPER =
-      (rs, rowNum) -> Pair.of(rs.getString("criteria_id"), rs.getString("tag"));
+                  .uiConfig(rs.getString("ui_config"))
+                  .tags(Arrays.asList((String[]) rs.getArray("tags").getArray())));
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -142,7 +146,7 @@ public class CohortDao {
     LOGGER.debug("GET MATCHING cohorts: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("ids", ids.stream().reduce(",", String::concat))
+            .addValue("ids", ids)
             .addValue("offset", offset)
             .addValue("limit", limit);
     List<Cohort> cohorts = getCohortsHelper(sql, params);
@@ -182,8 +186,8 @@ public class CohortDao {
     // Write the cohort. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
-        "INSERT INTO cohort (study_id, id, underlay_name, created_by, display_name, description) "
-            + "VALUES (:study_id, :id, :underlay_name, :created_by, :display_name, :description)";
+        "INSERT INTO cohort (study_id, id, underlay_name, created_by, last_modified_by, display_name, description) "
+            + "VALUES (:study_id, :id, :underlay_name, :created_by, :last_modified_by, :display_name, :description)";
     LOGGER.debug("CREATE cohort: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -191,6 +195,7 @@ public class CohortDao {
             .addValue("id", cohort.getId())
             .addValue("underlay_name", cohort.getUnderlayName())
             .addValue("created_by", cohort.getCreatedBy())
+            .addValue("last_modified_by", cohort.getLastModifiedBy())
             .addValue("display_name", cohort.getDisplayName())
             .addValue("description", cohort.getDescription());
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -272,9 +277,10 @@ public class CohortDao {
 
   private List<Cohort> getCohortsHelper(String cohortsSql, MapSqlParameterSource cohortsParams) {
     // Fetch cohorts.
-    Map<String, Cohort.Builder> cohorts =
-        jdbcTemplate.query(cohortsSql, cohortsParams, COHORT_ROW_MAPPER).stream()
-            .collect(Collectors.toMap(Cohort.Builder::getId, Function.identity()));
+    List<Cohort.Builder> cohorts = jdbcTemplate.query(cohortsSql, cohortsParams, COHORT_ROW_MAPPER);
+    if (cohorts.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     // Fetch the most recent cohort revisions. (cohort id -> cohort revision)
     String sql =
@@ -282,11 +288,9 @@ public class CohortDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue(
-                "cohort_ids",
-                cohorts.values().stream().map(c -> c.getId()).reduce(",", String::concat));
-    Map<String, CohortRevision.Builder> cohortRevisions =
-        jdbcTemplate.query(sql, params, COHORT_REVISION_ROW_MAPPER).stream()
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+                "cohort_ids", cohorts.stream().map(c -> c.getId()).collect(Collectors.toSet()));
+    List<Pair<String, CohortRevision.Builder>> cohortRevisions =
+        jdbcTemplate.query(sql, params, COHORT_REVISION_ROW_MAPPER);
 
     // Fetch criteria group sections. (cohort revision id -> criteria group section)
     sql = CRITERIA_GROUP_SECTION_SELECT_SQL + " WHERE cohort_revision_id IN (:cohort_revision_ids)";
@@ -294,114 +298,156 @@ public class CohortDao {
         new MapSqlParameterSource()
             .addValue(
                 "cohort_revision_ids",
-                cohortRevisions.values().stream()
-                    .map(cgs -> cgs.getId())
-                    .reduce(",", String::concat));
-    Map<String, CohortRevision.CriteriaGroupSection.Builder> criteriaGroupSections =
-        jdbcTemplate.query(sql, params, CRITERIA_GROUP_SECTION_ROW_MAPPER).stream()
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+                cohortRevisions.stream()
+                    .map(cr -> cr.getValue().getId())
+                    .collect(Collectors.toSet()));
+    List<Pair<String, CohortRevision.CriteriaGroupSection.Builder>> criteriaGroupSections =
+        jdbcTemplate.query(sql, params, CRITERIA_GROUP_SECTION_ROW_MAPPER);
 
     // Fetch criteria groups. (criteria group section -> criteria group)
-    sql =
-        CRITERIA_GROUP_SELECT_SQL
-            + " WHERE criteria_group_section_id IN (:criteria_group_section_ids)";
-    params =
-        new MapSqlParameterSource()
-            .addValue(
-                "criteria_group_section_ids",
-                criteriaGroupSections.values().stream()
-                    .map(cgs -> cgs.getId())
-                    .reduce(",", String::concat));
-    Map<String, CohortRevision.CriteriaGroup.Builder> criteriaGroups =
-        jdbcTemplate.query(sql, params, CRITERIA_GROUP_ROW_MAPPER).stream()
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+    List<Pair<List<String>, CohortRevision.CriteriaGroup.Builder>> criteriaGroups;
+    if (criteriaGroupSections.isEmpty()) {
+      criteriaGroups = Collections.emptyList();
+    } else {
+      sql =
+          CRITERIA_GROUP_SELECT_SQL
+              + " WHERE criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN (:cohort_revision_ids)";
+      params =
+          new MapSqlParameterSource()
+              .addValue(
+                  "criteria_group_section_ids",
+                  criteriaGroupSections.stream()
+                      .map(cgs -> cgs.getValue().getId())
+                      .collect(Collectors.toSet()))
+              .addValue(
+                  "cohort_revision_ids",
+                  cohortRevisions.stream()
+                      .map(cr -> cr.getValue().getId())
+                      .collect(Collectors.toSet()));
+      criteriaGroups = jdbcTemplate.query(sql, params, CRITERIA_GROUP_ROW_MAPPER);
+    }
 
     // Fetch criteria. (criteria group id -> criteria)
-    sql = CRITERIA_SELECT_SQL + " WHERE criteria_group_id IN (:criteria_group_ids)";
-    params =
-        new MapSqlParameterSource()
-            .addValue(
-                "criteria_group_ids",
-                criteriaGroups.values().stream().map(cg -> cg.getId()).reduce(",", String::concat));
-    Map<String, Criteria.Builder> criterias =
-        jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER).stream()
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+    List<Pair<List<String>, Criteria.Builder>> criterias;
+    if (criteriaGroups.isEmpty()) {
+      criterias = Collections.emptyList();
+    } else {
+      sql =
+          CRITERIA_SELECT_SQL
+              + " WHERE criteria_group_id IN (:criteria_group_ids) AND criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN (:cohort_revision_ids)";
+      params =
+          new MapSqlParameterSource()
+              .addValue(
+                  "criteria_group_ids",
+                  criteriaGroups.stream()
+                      .map(cg -> cg.getValue().getId())
+                      .collect(Collectors.toSet()))
+              .addValue(
+                  "criteria_group_section_ids",
+                  criteriaGroupSections.stream()
+                      .map(cgs -> cgs.getValue().getId())
+                      .collect(Collectors.toSet()))
+              .addValue(
+                  "cohort_revision_ids",
+                  cohortRevisions.stream()
+                      .map(cr -> cr.getValue().getId())
+                      .collect(Collectors.toSet()));
+      criterias = jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER);
+    }
 
-    // Fetch criteria tags. (criteria id -> criteria tag)
-    sql = CRITERIA_TAG_SELECT_SQL + "WHERE criteria_id IN (:criteria_ids)";
-    params =
-        new MapSqlParameterSource()
-            .addValue(
-                "criteria_ids",
-                criterias.values().stream().map(c -> c.getId()).reduce(",", String::concat));
-    Map<String, String> criteriaTags =
-        jdbcTemplate.query(sql, params, CRITERIA_TAG_ROW_MAPPER).stream()
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-
-    // Assemble criteria tags into criteria.
-    criteriaTags.entrySet().stream()
+    // Put criteria into their respective criteria groups.
+    Map<List<String>, CohortRevision.CriteriaGroup.Builder> criteriaGroupsMap =
+        criteriaGroups.stream()
+            .collect(
+                Collectors.toMap(
+                    cg -> {
+                      List<String> uniqueId = new ArrayList<>();
+                      uniqueId.add(cg.getValue().getId());
+                      uniqueId.addAll(cg.getKey());
+                      return uniqueId;
+                    },
+                    cg -> cg.getValue()));
+    criterias.stream()
         .forEach(
-            entry -> {
-              String criteriaId = entry.getKey();
-              String criteriaTag = entry.getValue();
-              criterias.get(criteriaId).addTag(criteriaTag);
+            pair -> {
+              List<String> criteriaGroupId = pair.getKey();
+              Criteria criteria = pair.getValue().build();
+              criteriaGroupsMap.get(criteriaGroupId).addCriteria(criteria);
             });
 
-    // Assemble criteria into criteria groups.
-    criterias.entrySet().stream()
+    // Put criteria groups into their respective criteria group sections.
+    Map<List<String>, CohortRevision.CriteriaGroupSection.Builder> criteriaGroupSectionsMap =
+        criteriaGroupSections.stream()
+            .collect(
+                Collectors.toMap(
+                    cgs -> {
+                      List<String> uniqueId = new ArrayList<>();
+                      uniqueId.add(cgs.getValue().getId());
+                      uniqueId.add(cgs.getKey());
+                      return uniqueId;
+                    },
+                    cgs -> cgs.getValue()));
+    criteriaGroups.stream()
         .forEach(
-            entry -> {
-              String criteriaGroupId = entry.getKey();
-              Criteria criteria = entry.getValue().build();
-              criteriaGroups.get(criteriaGroupId).addCriteria(criteria);
+            pair -> {
+              List<String> criteriaGroupSectionId = pair.getKey();
+              CohortRevision.CriteriaGroup criteriaGroup = pair.getValue().build();
+              criteriaGroupSectionsMap.get(criteriaGroupSectionId).addCriteriaGroup(criteriaGroup);
             });
 
-    // Assemble criteria groups into criteria group sections.
-    criteriaGroups.entrySet().stream()
+    // Put criteria group sections into their respective cohort revisions.
+    Map<String, CohortRevision.Builder> cohortRevisionsMap =
+        cohortRevisions.stream()
+            .collect(Collectors.toMap(cr -> cr.getValue().getId(), cr -> cr.getValue()));
+    criteriaGroupSections.stream()
         .forEach(
-            entry -> {
-              String criteriaGroupSectionId = entry.getKey();
-              CohortRevision.CriteriaGroup criteriaGroup = entry.getValue().build();
-              criteriaGroupSections.get(criteriaGroupSectionId).addCriteriaGroup(criteriaGroup);
+            pair -> {
+              String cohortRevisionId = pair.getKey();
+              CohortRevision.CriteriaGroupSection criteriaGroupSection = pair.getValue().build();
+              cohortRevisionsMap
+                  .get(cohortRevisionId)
+                  .addCriteriaGroupSection(criteriaGroupSection);
             });
 
-    // Assemble criteria group sections into cohort revisions.
-    criteriaGroupSections.entrySet().stream()
-        .forEach(
-            entry -> {
-              String cohortRevisionId = entry.getKey();
-              CohortRevision.CriteriaGroupSection criteriaGroupSection = entry.getValue().build();
-              cohortRevisions.get(cohortRevisionId).addCriteriaGroupSection(criteriaGroupSection);
-            });
-
-    // Assemble cohort revisions into cohorts.
-    cohortRevisions.entrySet().stream()
+    // Put cohort revisions into their respective cohorts.
+    Map<String, Cohort.Builder> cohortsMap =
+        cohorts.stream().collect(Collectors.toMap(Cohort.Builder::getId, Function.identity()));
+    cohortRevisions.stream()
         .forEach(
             entry -> {
               String cohortId = entry.getKey();
               CohortRevision cohortRevision = entry.getValue().build();
-              cohorts.get(cohortId).addRevision(cohortRevision);
+              cohortsMap.get(cohortId).addRevision(cohortRevision);
             });
 
-    return cohorts.values().stream().map(Cohort.Builder::build).collect(Collectors.toList());
+    return cohortsMap.values().stream().map(Cohort.Builder::build).collect(Collectors.toList());
   }
 
   private void updateCriteriaHelper(
       String cohortRevisionId, List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
     // Delete any existing criteria group sections, criteria groups, criteria, and criteria tags.
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("cohort_revision_id", cohortRevisionId);
     String sql =
         "DELETE FROM criteria_group_section WHERE cohort_revision_id = :cohort_revision_id";
     LOGGER.debug("DELETE criteria_group_section: {}", sql);
-    MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("cohort_revision_id", cohortRevisionId);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("DELETE criteria_group_section rowsAffected = {}", rowsAffected);
+
+    sql = "DELETE FROM criteria_group WHERE cohort_revision_id = :cohort_revision_id";
+    LOGGER.debug("DELETE criteria_group: {}", sql);
+    rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("DELETE criteria_group rowsAffected = {}", rowsAffected);
+
+    sql = "DELETE FROM criteria WHERE cohort_revision_id = :cohort_revision_id";
+    LOGGER.debug("DELETE criteria: {}", sql);
+    rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("DELETE criteria rowsAffected = {}", rowsAffected);
 
     // Write the criteria group sections, criteria groups, criteria, and criteria tags.
     List<MapSqlParameterSource> sectionParamSets = new ArrayList<>();
     List<MapSqlParameterSource> groupParamSets = new ArrayList<>();
     List<MapSqlParameterSource> criteriaParamSets = new ArrayList<>();
-    List<MapSqlParameterSource> tagParamSets = new ArrayList<>();
 
     criteriaGroupSections.stream()
         .forEach(
@@ -419,11 +465,16 @@ public class CohortDao {
                       cg -> {
                         groupParamSets.add(
                             new MapSqlParameterSource()
+                                .addValue("cohort_revision_id", cohortRevisionId)
                                 .addValue("criteria_group_section_id", cgs.getId())
                                 .addValue("id", cg.getId())
                                 .addValue("display_name", cg.getDisplayName())
                                 .addValue("entity", cg.getEntity())
-                                .addValue("group_by_count_operator", cg.getGroupByCountOperator())
+                                .addValue(
+                                    "group_by_count_operator",
+                                    cg.getGroupByCountOperator() == null
+                                        ? null
+                                        : cg.getGroupByCountOperator().name())
                                 .addValue("group_by_count_value", cg.getGroupByCountValue()));
 
                         cg.getCriteria().stream()
@@ -431,20 +482,18 @@ public class CohortDao {
                                 c -> {
                                   criteriaParamSets.add(
                                       new MapSqlParameterSource()
+                                          .addValue("cohort_revision_id", cohortRevisionId)
+                                          .addValue("criteria_group_section_id", cgs.getId())
                                           .addValue("criteria_group_id", cg.getId())
                                           .addValue("id", c.getId())
                                           .addValue("display_name", c.getDisplayName())
                                           .addValue("plugin_name", c.getPluginName())
                                           .addValue("selection_data", c.getSelectionData())
-                                          .addValue("ui_config", c.getUiConfig()));
-
-                                  c.getTags().stream()
-                                      .forEach(
-                                          ct ->
-                                              tagParamSets.add(
-                                                  new MapSqlParameterSource()
-                                                      .addValue("criteria_id", c.getId())
-                                                      .addValue("tag", ct)));
+                                          .addValue("ui_config", c.getUiConfig())
+                                          .addValue(
+                                              "tags",
+                                              c.getTags().toArray(new String[0]),
+                                              Types.ARRAY));
                                 });
                       });
             });
@@ -461,8 +510,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria_group (criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value) "
-            + "VALUES (:criteria_group_section_id, :id, :display_name, :entity, :group_by_count_operator, :group_by_count_value)";
+        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :entity, :group_by_count_operator, :group_by_count_value)";
     LOGGER.debug("CREATE criteria_group: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -471,21 +520,14 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria (criteria_group_id, id, display_name, plugin_name, selection_data, ui_config) "
-            + "VALUES (:criteria_group_id, :id, :display_name, :plugin_name, :selection_data, :ui_config)";
+        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, tags) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :tags)";
     LOGGER.debug("CREATE criteria: {}", sql);
     rowsAffected =
         Arrays.stream(
-                jdbcTemplate.batchUpdate(sql, groupParamSets.toArray(new MapSqlParameterSource[0])))
+                jdbcTemplate.batchUpdate(
+                    sql, criteriaParamSets.toArray(new MapSqlParameterSource[0])))
             .sum();
     LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
-
-    sql = "INSERT INTO criteria_tag (criteria_id, tag) " + "VALUES (:criteria_id, :tag)";
-    LOGGER.debug("CREATE criteria_tag: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(sql, groupParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria_tag rowsAffected = {}", rowsAffected);
   }
 }

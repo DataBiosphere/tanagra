@@ -2,11 +2,13 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.model.Study;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,21 +37,23 @@ public class StudyService {
     studyDao.deleteStudy(id);
   }
 
-  /** Retrieves a list of all studies. */
-  public List<Study> getAllStudies(int offset, int limit) {
+  public List<Study> listStudies(ResourceIdCollection authorizedIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return studyDao.getAllStudies(offset, limit);
-  }
-
-  /** Retrieves a list of existing studies by ID. */
-  public List<Study> getStudies(List<String> ids, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    // If the incoming list is empty, the caller does not have permission to see any
-    // studies, so we return an empty list.
-    if (ids.isEmpty()) {
-      return Collections.emptyList();
+    if (authorizedIds.isAllResourceIds()) {
+      return studyDao.getAllStudies(offset, limit);
+    } else {
+      // If the incoming list is empty, the caller does not have permission to see any
+      // studies, so we return an empty list.
+      if (authorizedIds.isEmpty()) {
+        return Collections.emptyList();
+      }
+      return studyDao.getStudiesMatchingList(
+          authorizedIds.getResourceIds().stream()
+              .map(ResourceId::getId)
+              .collect(Collectors.toSet()),
+          offset,
+          limit);
     }
-    return studyDao.getStudiesMatchingList(new HashSet<>(ids), offset, limit);
   }
 
   /** Retrieves an existing study by ID. */

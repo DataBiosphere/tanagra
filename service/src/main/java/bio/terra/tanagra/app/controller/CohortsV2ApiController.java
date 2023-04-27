@@ -46,10 +46,10 @@ public class CohortsV2ApiController implements CohortsV2Api {
         cohortService.createCohort(
             studyId,
             Cohort.builder()
-                .createdBy(SpringAuthentication.getCurrentUser().getEmail())
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .underlayName(body.getUnderlayName()));
+                .underlayName(body.getUnderlayName()),
+            SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(ToApiConversionUtils.toApiObject(createdCohort));
   }
 

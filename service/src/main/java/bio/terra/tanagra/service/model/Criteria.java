@@ -2,6 +2,8 @@ package bio.terra.tanagra.service.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class Criteria {
   private final String id;
@@ -11,7 +13,7 @@ public class Criteria {
   private final String uiConfig;
   private final List<String> tags;
 
-  public Criteria(
+  private Criteria(
       String id,
       String displayName,
       String pluginName,
@@ -60,7 +62,7 @@ public class Criteria {
     private String pluginName;
     private String selectionData;
     private String uiConfig;
-    private List<String> tags;
+    private List<String> tags = new ArrayList<>();
 
     public Builder id(String id) {
       this.id = id;
@@ -93,6 +95,9 @@ public class Criteria {
     }
 
     public Criteria build() {
+      if (id == null) {
+        id = RandomStringUtils.randomAlphanumeric(10);
+      }
       return new Criteria(id, displayName, pluginName, selectionData, uiConfig, tags);
     }
 
@@ -101,10 +106,25 @@ public class Criteria {
     }
 
     public void addTag(String tag) {
-      if (tags == null) {
-        tags = new ArrayList<>();
-      }
       tags.add(tag);
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Criteria criteria = (Criteria) o;
+    return id.equals(criteria.id)
+        && displayName.equals(criteria.displayName)
+        && pluginName.equals(criteria.pluginName)
+        && selectionData.equals(criteria.selectionData)
+        && uiConfig.equals(criteria.uiConfig)
+        && tags.equals(criteria.tags);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, displayName, pluginName, selectionData, uiConfig, tags);
   }
 }

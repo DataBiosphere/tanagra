@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,19 +74,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
     ResourceIdCollection authorizedStudyIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), STUDY, offset, limit);
-    List<Study> authorizedStudies;
-    if (authorizedStudyIds.isAllResourceIds()) {
-      authorizedStudies = studyService.getAllStudies(offset, limit);
-    } else {
-      authorizedStudies =
-          studyService.getStudies(
-              authorizedStudyIds.getResourceIds().stream()
-                  .map(ResourceId::getId)
-                  .collect(Collectors.toList()),
-              offset,
-              limit);
-    }
-
+    List<Study> authorizedStudies = studyService.listStudies(authorizedStudyIds, offset, limit);
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
     authorizedStudies.stream().forEach(study -> apiStudies.add(toApiObject(study)));
     return ResponseEntity.ok(apiStudies);
