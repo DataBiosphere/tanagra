@@ -513,7 +513,7 @@ export class BackendSource implements Source {
     );
 
     const data = res.instances?.map((instance) =>
-      processEntityInstance(entity.key, instance)
+      makeDataEntry(entity.key, instance.attributes)
     );
     return {
       data: data ?? [],
@@ -1206,7 +1206,7 @@ function convertSortDirection(dir: SortDirection) {
 }
 
 function processEntitiesResponse(
-  attributeID: string,
+  primaryKey: string,
   response: tanagra.InstanceListV2,
   hierarchy?: string,
   grouping?: string
@@ -1214,7 +1214,7 @@ function processEntitiesResponse(
   const nodes: ClassificationNode[] = [];
   if (response.instances) {
     response.instances.forEach((instance) => {
-      const data = processEntityInstance(attributeID, instance);
+      const data = makeDataEntry(primaryKey, instance.attributes);
 
       let ancestors: DataKey[] | undefined;
       const path = instance.hierarchyFields?.[0]?.path;
@@ -1245,22 +1245,20 @@ function processEntitiesResponse(
   return nodes;
 }
 
-function processEntityInstance(
-  attributeID: string,
-  instance: tanagra.InstanceV2
+function makeDataEntry(
+  primaryKey: string,
+  attributes?: { [key: string]: tanagra.ValueDisplayV2 }
 ): DataEntry {
   const data: DataEntry = {
     key: 0,
   };
 
-  processAttributes(data, instance.attributes);
+  processAttributes(data, attributes);
 
-  const key = dataValueFromLiteral(
-    instance.attributes?.[attributeID]?.value ?? null
-  );
+  const key = dataValueFromLiteral(attributes?.[primaryKey]?.value ?? null);
   if (typeof key !== "string" && typeof key !== "number") {
     throw new Error(
-      `Key attribute "${attributeID}" not found in entity instance ${data}`
+      `Key attribute "${primaryKey}" not found in entity instance ${data}`
     );
   }
   data.key = key;
@@ -1630,14 +1628,10 @@ function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
 
 function fromAPIReviewInstance(
   reviewId: string,
-  keyAttribute: string,
+  primaryKey: string,
   instance: tanagra.ReviewInstanceV2
 ): ReviewInstance {
-  const data: DataEntry = {
-    key: 0,
-  };
-
-  processAttributes(data, instance.attributes);
+  const data = makeDataEntry(primaryKey, instance.attributes);
 
   const annotations: AnnotationEntry = {};
   for (const key in instance.annotations) {
@@ -1645,16 +1639,6 @@ function fromAPIReviewInstance(
       fromAPIAnnotationValue(v, reviewId)
     );
   }
-
-  const key = dataValueFromLiteral(
-    instance.attributes?.[keyAttribute]?.value ?? null
-  );
-  if (typeof key !== "string" && typeof key !== "number") {
-    throw new Error(
-      `Key attribute "${keyAttribute}" not found in entity instance ${data}`
-    );
-  }
-  data.key = key;
 
   return {
     data,
