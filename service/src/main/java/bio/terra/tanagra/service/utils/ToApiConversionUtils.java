@@ -1,22 +1,16 @@
 package bio.terra.tanagra.service.utils;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
-import bio.terra.tanagra.generated.model.ApiAttributeV2;
-import bio.terra.tanagra.generated.model.ApiCohortV2;
-import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
-import bio.terra.tanagra.generated.model.ApiCriteriaV2;
-import bio.terra.tanagra.generated.model.ApiDataTypeV2;
-import bio.terra.tanagra.generated.model.ApiInstanceCountV2;
-import bio.terra.tanagra.generated.model.ApiLiteralV2;
-import bio.terra.tanagra.generated.model.ApiLiteralV2ValueUnion;
-import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.Criteria;
-import bio.terra.tanagra.service.artifact.CriteriaGroup;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
+import bio.terra.tanagra.service.artifact.CohortV1;
+import bio.terra.tanagra.service.artifact.CriteriaGroupV1;
+import bio.terra.tanagra.service.artifact.CriteriaV1;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
+import bio.terra.tanagra.service.model.Cohort;
+import bio.terra.tanagra.service.model.CohortRevision;
+import bio.terra.tanagra.service.model.Criteria;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.HashMap;
@@ -60,28 +54,18 @@ public final class ToApiConversionUtils {
     }
   }
 
-  /**
-   * Convert the internal Cohort object to an API Cohort object.
-   *
-   * <p>In the backend code, a Cohort = a filter on the primary entity, and a CohortRevisionGroup =
-   * all past versions and the current version of a filter on the primary entity.
-   */
-  public static ApiCohortV2 toApiObject(Cohort cohort) {
+  public static ApiCohortV2 toApiObject(CohortV1 cohort) {
     return new ApiCohortV2()
-        .id(cohort.getCohortRevisionGroupId())
+        .id(cohort.getCohortId())
         .underlayName(cohort.getUnderlayName())
         .displayName(cohort.getDisplayName())
         .description(cohort.getDescription())
         .created(cohort.getCreated())
         .createdBy(cohort.getCreatedBy())
-        .lastModified(cohort.getLastModified())
-        .criteriaGroups(
-            cohort.getCriteriaGroups().stream()
-                .map(criteriaGroup -> toApiObject(criteriaGroup))
-                .collect(Collectors.toList()));
+        .lastModified(cohort.getLastModified());
   }
 
-  private static ApiCriteriaGroupV2 toApiObject(CriteriaGroup criteriaGroup) {
+  private static ApiCriteriaGroupV2 toApiObject(CriteriaGroupV1 criteriaGroup) {
     return new ApiCriteriaGroupV2()
         .id(criteriaGroup.getUserFacingCriteriaGroupId())
         .displayName(criteriaGroup.getDisplayName())
@@ -93,9 +77,62 @@ public final class ToApiConversionUtils {
                 .collect(Collectors.toList()));
   }
 
-  public static ApiCriteriaV2 toApiObject(Criteria criteria) {
+  public static ApiCriteriaV2 toApiObject(CriteriaV1 criteria) {
     return new ApiCriteriaV2()
         .id(criteria.getUserFacingCriteriaId())
+        .displayName(criteria.getDisplayName())
+        .pluginName(criteria.getPluginName())
+        .selectionData(criteria.getSelectionData())
+        .uiConfig(criteria.getUiConfig());
+  }
+
+  public static ApiCohortV2 toApiObject(Cohort cohort) {
+    return new ApiCohortV2()
+        .id(cohort.getId())
+        .underlayName(cohort.getUnderlayName())
+        .displayName(cohort.getDisplayName())
+        .description(cohort.getDescription())
+        .created(cohort.getCreated())
+        .createdBy(cohort.getCreatedBy())
+        .lastModified(cohort.getLastModified())
+        .criteriaGroupSections(
+            cohort.getMostRecentRevision().getSections().stream()
+                .map(criteriaGroup -> toApiObject(criteriaGroup))
+                .collect(Collectors.toList()));
+  }
+
+  private static ApiCriteriaGroupSectionV3 toApiObject(
+      CohortRevision.CriteriaGroupSection criteriaGroupSection) {
+    return new ApiCriteriaGroupSectionV3()
+        .id(criteriaGroupSection.getId())
+        .displayName(criteriaGroupSection.getDisplayName())
+        .operator(
+            ApiCriteriaGroupSectionV3.OperatorEnum.fromValue(
+                criteriaGroupSection.getOperator().name()))
+        .excluded(criteriaGroupSection.isExcluded())
+        .criteriaGroups(
+            criteriaGroupSection.getCriteriaGroups().stream()
+                .map(criteriaGroup -> toApiObject(criteriaGroup))
+                .collect(Collectors.toList()));
+  }
+
+  private static ApiCriteriaGroupV3 toApiObject(CohortRevision.CriteriaGroup criteriaGroup) {
+    return new ApiCriteriaGroupV3()
+        .id(criteriaGroup.getId())
+        .displayName(criteriaGroup.getDisplayName())
+        .entity(criteriaGroup.getEntity())
+        .groupByCountOperator(
+            ApiBinaryOperatorV2.valueOf(criteriaGroup.getGroupByCountOperator().name()))
+        .groupByCountValue(criteriaGroup.getGroupByCountValue())
+        .criteria(
+            criteriaGroup.getCriteria().stream()
+                .map(criteria -> toApiObject(criteria))
+                .collect(Collectors.toList()));
+  }
+
+  public static ApiCriteriaV2 toApiObject(Criteria criteria) {
+    return new ApiCriteriaV2()
+        .id(criteria.getId())
         .displayName(criteria.getDisplayName())
         .pluginName(criteria.getPluginName())
         .selectionData(criteria.getSelectionData())
@@ -115,7 +152,7 @@ public final class ToApiConversionUtils {
         .attributes(attributes);
   }
 
-  public static ApiAnnotationValueV2 toApiObject(AnnotationValue annotationValue) {
+  public static ApiAnnotationValueV2 toApiObject(AnnotationValueV1 annotationValue) {
     return new ApiAnnotationValueV2()
         .id(annotationValue.getAnnotationValueId())
         .review(annotationValue.getReviewId())

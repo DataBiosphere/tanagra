@@ -6,8 +6,8 @@ import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateAnnotationException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.Annotation;
-import bio.terra.tanagra.service.artifact.Cohort;
+import bio.terra.tanagra.service.artifact.AnnotationV1;
+import bio.terra.tanagra.service.artifact.CohortV1;
 import java.sql.Array;
 import java.util.Collections;
 import java.util.List;
@@ -34,9 +34,9 @@ public class AnnotationDao {
   private static final String ANNOTATION_SELECT_SQL =
       "SELECT a.cohort_id, a.annotation_id, a.display_name, a.description, a.data_type, a.enum_vals FROM annotation AS a "
           + "JOIN cohort AS c ON c.cohort_id = a.cohort_id";
-  private static final RowMapper<Annotation> ANNOTATION_ROW_MAPPER =
+  private static final RowMapper<AnnotationV1> ANNOTATION_ROW_MAPPER =
       (rs, rowNum) ->
-          Annotation.builder()
+          AnnotationV1.builder()
               .cohortId(rs.getString("cohort_id"))
               .annotationId(rs.getString("annotation_id"))
               .displayName(rs.getString("display_name"))
@@ -46,10 +46,10 @@ public class AnnotationDao {
               .build();
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
-  private final CohortDao cohortDao;
+  private final CohortDao1 cohortDao;
 
   @Autowired
-  public AnnotationDao(NamedParameterJdbcTemplate jdbcTemplate, CohortDao cohortDao) {
+  public AnnotationDao(NamedParameterJdbcTemplate jdbcTemplate, CohortDao1 cohortDao) {
     this.jdbcTemplate = jdbcTemplate;
     this.cohortDao = cohortDao;
   }
@@ -57,8 +57,8 @@ public class AnnotationDao {
   /** Create a new annotation. */
   @WriteTransaction
   public void createAnnotation(
-      String studyId, String cohortRevisionGroupId, Annotation annotation) {
-    Cohort cohort = cohortDao.getCohortLatestVersionOrThrow(studyId, cohortRevisionGroupId);
+      String studyId, String cohortRevisionGroupId, AnnotationV1 annotation) {
+    CohortV1 cohort = cohortDao.getCohortLatestVersionOrThrow(studyId, cohortRevisionGroupId);
 
     final String sql =
         "INSERT INTO annotation (cohort_id, annotation_id, display_name, description, data_type, enum_vals) "
@@ -118,7 +118,7 @@ public class AnnotationDao {
 
   /** Fetch all annotations for a cohort. */
   @ReadTransaction
-  public List<Annotation> getAllAnnotations(
+  public List<AnnotationV1> getAllAnnotations(
       String studyId, String cohortRevisionGroupId, int offset, int limit) {
     String sql =
         ANNOTATION_SELECT_SQL
@@ -136,7 +136,7 @@ public class AnnotationDao {
    * list.
    */
   @ReadTransaction
-  public List<Annotation> getAnnotationsMatchingList(
+  public List<AnnotationV1> getAnnotationsMatchingList(
       String studyId,
       String cohortRevisionGroupId,
       Set<String> annotationIdList,
@@ -158,7 +158,7 @@ public class AnnotationDao {
     return jdbcTemplate.query(sql, params, ANNOTATION_ROW_MAPPER);
   }
 
-  private Optional<Annotation> getAnnotationIfExists(
+  private Optional<AnnotationV1> getAnnotationIfExists(
       String studyId, String cohortRevisionGroupId, String annotationId) {
     if (studyId == null || cohortRevisionGroupId == null || annotationId == null) {
       throw new MissingRequiredFieldException(
@@ -168,7 +168,7 @@ public class AnnotationDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("annotation_id", annotationId);
     try {
-      Annotation annotation =
+      AnnotationV1 annotation =
           DataAccessUtils.requiredSingleResult(
               jdbcTemplate.query(sql, params, ANNOTATION_ROW_MAPPER));
       LOGGER.info("Retrieved annotation record {}", annotation);
@@ -179,7 +179,7 @@ public class AnnotationDao {
   }
 
   @ReadTransaction
-  public Annotation getAnnotation(
+  public AnnotationV1 getAnnotation(
       String studyId, String cohortRevisionGroupId, String annotationId) {
     return getAnnotationIfExists(studyId, cohortRevisionGroupId, annotationId)
         .orElseThrow(

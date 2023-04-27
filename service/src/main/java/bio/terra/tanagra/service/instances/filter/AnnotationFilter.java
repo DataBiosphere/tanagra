@@ -3,22 +3,22 @@ package bio.terra.tanagra.service.instances.filter;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
-import bio.terra.tanagra.service.artifact.Annotation;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
+import bio.terra.tanagra.service.artifact.AnnotationV1;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import java.util.List;
 
 public class AnnotationFilter {
-  private final Annotation annotation;
+  private final AnnotationV1 annotation;
   private final BinaryOperator operator;
   private final Literal value;
 
-  public AnnotationFilter(Annotation annotation, BinaryOperator operator, Literal value) {
+  public AnnotationFilter(AnnotationV1 annotation, BinaryOperator operator, Literal value) {
     this.annotation = annotation;
     this.operator = operator;
     this.value = value;
   }
 
-  public boolean isMatch(List<AnnotationValue> annotationValues) {
+  public boolean isMatch(List<AnnotationValueV1> annotationValues) {
     return annotationValues.stream()
         .filter(
             av -> {

@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
  *
  * <p>A criteria is a single selection that defines a cohort or concept set.
  */
-public class Criteria {
+public class CriteriaV1 {
   private final String criteriaGroupId;
   private final String conceptSetId;
   private final String criteriaId;
@@ -17,7 +17,7 @@ public class Criteria {
   private final String selectionData;
   private final String uiConfig;
 
-  private Criteria(Builder builder) {
+  private CriteriaV1(Builder builder) {
     this.criteriaGroupId = builder.criteriaGroupId;
     this.conceptSetId = builder.conceptSetId;
     this.criteriaId = builder.criteriaId;
@@ -122,8 +122,8 @@ public class Criteria {
       return this;
     }
 
-    public Criteria build() {
-      return new Criteria(this);
+    public CriteriaV1 build() {
+      return new CriteriaV1(this);
     }
   }
 }

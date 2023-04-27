@@ -1,0 +1,359 @@
+databaseChangeLog:
+  - changeSet:
+      id: schema_reset
+      author: marikomedlock
+      changes:
+        - createTable:
+            tableName: study
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: properties
+                  type: jsonb
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+
+        - createTable:
+            tableName: concept_set
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: study_id
+                  type: text
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_study_id
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete the concept sets contained in it
+              - column:
+                  name: underlay
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamp
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: description
+                  type: text
+
+        - createTable:
+            tableName: cohort
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: study_id
+                  type: text
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_study
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete the cohorts contained in it
+              - column:
+                  name: underlay_name
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: false
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+
+
+        - createTable:
+            tableName: cohort_revision
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_cohort
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort will cascade to delete the cohort revisions associated with it
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_most_recent
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_editable
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: criteria_group_section
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: cohort_revision_id
+                  type: text
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_cohort_revision
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort revision will cascade to delete the criteria group sections associated with it
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: operator
+                  type: text
+              - column:
+                  name: is_excluded
+                  type: boolean
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: criteria_group
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: criteria_group_section_id
+                  type: text
+                  constraints:
+                    references: criteria_group_section(id)
+                    foreignKeyName: fk_criteria_group_section
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a criteria group section will cascade to delete the criteria groups associated with it
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: entity
+                  type: text
+              - column:
+                  name: group_by_count_operator
+                  type: text
+              - column:
+                  name: group_by_count_value
+                  type: integer
+
+        - createTable:
+            tableName: criteria
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: false
+                    nullable: false
+                    unique: false
+              - column:
+                  name: criteria_group_id
+                  type: text
+                  constraints:
+                    references: criteria_group(id)
+                    foreignKeyName: fk_criteria_group_id
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a criteria group will cascade to delete the criteria contained in it
+              - column:
+                  name: concept_set_id
+                  type: text
+                  constraints:
+                    references: concept_set(id)
+                    foreignKeyName: fk_concept_set_id
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a concept set will cascade to delete the criteria contained in it
+              - column:
+                  name: user_facing_id
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: false
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: plugin_name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: selection_data
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ui_config
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tags
+                  type: text[]
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_criteria
+            tableName: criteria
+            columnNames: id, criteria_group_id, concept_set_id
+
+        - createTable:
+            tableName: criteria_tag
+            columns:
+              - column:
+                  name: criteria_id
+                  type: text
+              - column:
+                  name: criteria_group_id
+                  type: text
+              - column:
+                  name: concept_set_id
+                  type: text
+#                  constraints:
+#                    references: criteria(id)
+#                    foreignKeyName: fk_criteria_id
+#                    nullable: true
+#                    deleteCascade: true
+#                  remarks: Deleting a criteria will cascade to delete the tags associated with it
+              - column:
+                  name: tag
+                  type: text
+                  constraints:
+                    nullable: false

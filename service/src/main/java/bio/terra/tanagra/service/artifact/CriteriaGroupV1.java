@@ -12,16 +12,16 @@ import javax.annotation.Nullable;
  * <p>A criteria group is a collection of criteria and boolean logic operator(s) that define a
  * cohort or concept set.
  */
-public class CriteriaGroup {
+public class CriteriaGroupV1 {
   private final String cohortId;
   private final String criteriaGroupId;
   private final String userFacingCriteriaGroupId;
   private final @Nullable String displayName;
   private final LogicalOperator operator;
   private final boolean isExcluded;
-  private final List<Criteria> criterias;
+  private final List<CriteriaV1> criterias;
 
-  private CriteriaGroup(Builder builder) {
+  private CriteriaGroupV1(Builder builder) {
     this.cohortId = builder.cohortId;
     this.criteriaGroupId = builder.criteriaGroupId;
     this.userFacingCriteriaGroupId = builder.userFacingCriteriaGroupId;
@@ -66,7 +66,7 @@ public class CriteriaGroup {
   }
 
   /** List of criteria in the group. */
-  public List<Criteria> getCriterias() {
+  public List<CriteriaV1> getCriterias() {
     return Collections.unmodifiableList(criterias);
   }
 
@@ -77,7 +77,7 @@ public class CriteriaGroup {
     private @Nullable String displayName;
     private LogicalOperator operator;
     private boolean isExcluded;
-    private List<Criteria> criterias = new ArrayList<>();
+    private List<CriteriaV1> criterias = new ArrayList<>();
 
     public Builder cohortId(String cohortId) {
       this.cohortId = cohortId;
@@ -109,12 +109,12 @@ public class CriteriaGroup {
       return this;
     }
 
-    public Builder criterias(List<Criteria> criterias) {
+    public Builder criterias(List<CriteriaV1> criterias) {
       this.criterias = criterias;
       return this;
     }
 
-    public Builder addCriteria(Criteria criteria) {
+    public Builder addCriteria(CriteriaV1 criteria) {
       this.criterias.add(criteria);
       return this;
     }
@@ -123,8 +123,8 @@ public class CriteriaGroup {
       return criteriaGroupId;
     }
 
-    public CriteriaGroup build() {
-      return new CriteriaGroup(this);
+    public CriteriaGroupV1 build() {
+      return new CriteriaGroupV1(this);
     }
   }
 }

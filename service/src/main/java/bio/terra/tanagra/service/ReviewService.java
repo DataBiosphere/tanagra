@@ -9,7 +9,7 @@ import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.service.artifact.Review;
+import bio.terra.tanagra.service.artifact.ReviewV1;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -40,7 +40,7 @@ public class ReviewService {
   public void createReview(
       String studyId,
       String cohortRevisionGroupId,
-      Review review,
+      ReviewV1 review,
       EntityFilter entityFilter,
       Underlay underlay) {
     featureConfiguration.artifactStorageEnabledCheck();
@@ -84,14 +84,14 @@ public class ReviewService {
   }
 
   /** Retrieves a list of all reviews for a cohort. */
-  public List<Review> getAllReviews(
+  public List<ReviewV1> getAllReviews(
       String studyId, String cohortRevisionGroupId, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     return reviewDao.getAllReviews(studyId, cohortRevisionGroupId, offset, limit);
   }
 
   /** Retrieves a list of reviews by ID. */
-  public List<Review> getReviews(
+  public List<ReviewV1> getReviews(
       String studyId, String cohortRevisionGroupId, List<String> reviewIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     return reviewDao.getReviewsMatchingList(
@@ -99,14 +99,14 @@ public class ReviewService {
   }
 
   /** Retrieves a review by ID. */
-  public Review getReview(String studyId, String cohortRevisionGroupId, String reviewId) {
+  public ReviewV1 getReview(String studyId, String cohortRevisionGroupId, String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
     return reviewDao.getReview(studyId, cohortRevisionGroupId, reviewId);
   }
 
   /** Update an existing review. Currently, can change the review's display name or description. */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public Review updateReview(
+  public ReviewV1 updateReview(
       String studyId,
       String cohortRevisionGroupId,
       String reviewId,

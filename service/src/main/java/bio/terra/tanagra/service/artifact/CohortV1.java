@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class Cohort {
+public class CohortV1 {
   public static final int STARTING_VERSION = 1;
 
   private final String studyId;
@@ -22,9 +22,9 @@ public class Cohort {
   private final OffsetDateTime lastModified;
   private final @Nullable String displayName;
   private final @Nullable String description;
-  private final List<CriteriaGroup> criteriaGroups;
+  private final List<CriteriaGroupV1> criteriaGroups;
 
-  private Cohort(Builder builder) {
+  private CohortV1(Builder builder) {
     this.studyId = builder.studyId;
     this.cohortId = builder.cohortId;
     this.underlayName = builder.underlayName;
@@ -128,11 +128,11 @@ public class Cohort {
   }
 
   /** List of criteria groups in the cohort. */
-  public List<CriteriaGroup> getCriteriaGroups() {
+  public List<CriteriaGroupV1> getCriteriaGroups() {
     return Collections.unmodifiableList(criteriaGroups);
   }
 
-  public void addCriteriaGroup(CriteriaGroup criteriaGroup) {
+  public void addCriteriaGroup(CriteriaGroupV1 criteriaGroup) {
     criteriaGroups.add(criteriaGroup);
   }
 
@@ -149,7 +149,7 @@ public class Cohort {
     private OffsetDateTime lastModified;
     private @Nullable String displayName;
     private @Nullable String description;
-    private List<CriteriaGroup> criteriaGroups = new ArrayList<>();
+    private List<CriteriaGroupV1> criteriaGroups = new ArrayList<>();
 
     public Builder studyId(String studyId) {
       this.studyId = studyId;
@@ -211,12 +211,12 @@ public class Cohort {
       return this;
     }
 
-    public Builder criteriaGroups(List<CriteriaGroup> criteriaGroups) {
+    public Builder criteriaGroups(List<CriteriaGroupV1> criteriaGroups) {
       this.criteriaGroups = criteriaGroups;
       return this;
     }
 
-    public Builder addCriteriaGroup(CriteriaGroup criteriaGroup) {
+    public Builder addCriteriaGroup(CriteriaGroupV1 criteriaGroup) {
       this.criteriaGroups.add(criteriaGroup);
       return this;
     }
@@ -225,11 +225,11 @@ public class Cohort {
       return cohortId;
     }
 
-    public Cohort build() {
+    public CohortV1 build() {
       if (cohortId == null) {
         throw new SystemException("Cohort requires id");
       }
-      return new Cohort(this);
+      return new CohortV1(this);
     }
   }
 }

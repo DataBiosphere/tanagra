@@ -2,14 +2,14 @@ package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.query.Literal;
 
-public class AnnotationValue {
+public class AnnotationValueV1 {
   private final String reviewId;
   private final String annotationId;
   private final String annotationValueId;
   private final String entityInstanceId;
   private final Literal literal;
 
-  private AnnotationValue(Builder builder) {
+  private AnnotationValueV1(Builder builder) {
     this.reviewId = builder.reviewId;
     this.annotationId = builder.annotationId;
     this.annotationValueId = builder.annotationValueId;
@@ -78,8 +78,8 @@ public class AnnotationValue {
       return this;
     }
 
-    public AnnotationValue build() {
-      return new AnnotationValue(this);
+    public AnnotationValueV1 build() {
+      return new AnnotationValueV1(this);
     }
   }
 }

@@ -5,12 +5,12 @@ import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraExportConfiguration;
 import bio.terra.tanagra.db.AnnotationDao;
 import bio.terra.tanagra.db.AnnotationValueDao;
-import bio.terra.tanagra.db.CohortDao;
+import bio.terra.tanagra.db.CohortDao1;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.Annotation;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
-import bio.terra.tanagra.service.artifact.Cohort;
+import bio.terra.tanagra.service.artifact.AnnotationV1;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
+import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.utils.GcsUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.Underlay.MappingType;
@@ -36,7 +36,7 @@ public class AnnotationService {
 
   private final AnnotationDao annotationDao;
   private final AnnotationValueDao annotationValueDao;
-  private final CohortDao cohortDao;
+  private final CohortDao1 cohortDao;
   private final CohortService cohortService;
   private final FeatureConfiguration featureConfiguration;
   private final TanagraExportConfiguration tanagraExportConfiguration;
@@ -46,7 +46,7 @@ public class AnnotationService {
   public AnnotationService(
       AnnotationDao annotationDao,
       AnnotationValueDao annotationValueDao,
-      CohortDao cohortDao,
+      CohortDao1 cohortDao,
       CohortService cohortService,
       FeatureConfiguration featureConfiguration,
       TanagraExportConfiguration tanagraExportConfiguration,
@@ -62,7 +62,7 @@ public class AnnotationService {
 
   /** Create a new annotation. */
   public void createAnnotation(
-      String studyId, String cohortRevisionGroupId, Annotation annotation) {
+      String studyId, String cohortRevisionGroupId, AnnotationV1 annotation) {
     featureConfiguration.artifactStorageEnabledCheck();
     annotationDao.createAnnotation(studyId, cohortRevisionGroupId, annotation);
   }
@@ -74,14 +74,14 @@ public class AnnotationService {
   }
 
   /** Retrieves a list of all annotations for a cohort. */
-  public List<Annotation> getAllAnnotations(
+  public List<AnnotationV1> getAllAnnotations(
       String studyId, String cohortRevisionGroupId, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     return annotationDao.getAllAnnotations(studyId, cohortRevisionGroupId, offset, limit);
   }
 
   /** Retrieves a list of annotations by ID. */
-  public List<Annotation> getAnnotations(
+  public List<AnnotationV1> getAnnotations(
       String studyId,
       String cohortRevisionGroupId,
       List<String> annotationIds,
@@ -93,7 +93,7 @@ public class AnnotationService {
   }
 
   /** Retrieves an annotation by ID. */
-  public Annotation getAnnotation(
+  public AnnotationV1 getAnnotation(
       String studyId, String cohortRevisionGroupId, String annotationId) {
     featureConfiguration.artifactStorageEnabledCheck();
     return annotationDao.getAnnotation(studyId, cohortRevisionGroupId, annotationId);
@@ -103,7 +103,7 @@ public class AnnotationService {
    * Update an existing annotation. Currently, can change the annotation's display name or
    * description.
    */
-  public Annotation updateAnnotation(
+  public AnnotationV1 updateAnnotation(
       String studyId,
       String cohortRevisionGroupId,
       String annotationId,
@@ -116,12 +116,12 @@ public class AnnotationService {
   }
 
   /** Create a new annotation value. */
-  public AnnotationValue createAnnotationValue(
+  public AnnotationValueV1 createAnnotationValue(
       String studyId,
       String cohortRevisionGroupId,
       String annotationId,
       String reviewId,
-      AnnotationValue annotationValue) {
+      AnnotationValueV1 annotationValue) {
     featureConfiguration.artifactStorageEnabledCheck();
     validateAnnotationValueDataType(
         studyId, cohortRevisionGroupId, annotationId, annotationValue.getLiteral());
@@ -151,7 +151,7 @@ public class AnnotationService {
    * Update an existing annotation value. Currently, can change the annotation value's literal only.
    */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public AnnotationValue updateAnnotationValue(
+  public AnnotationValueV1 updateAnnotationValue(
       String studyId,
       String cohortRevisionGroupId,
       String annotationId,
@@ -168,12 +168,12 @@ public class AnnotationService {
 
   /** Create or update an annotation value. Only the annotation value's literal can be updated. */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public AnnotationValue createUpdateAnnotationValue(
+  public AnnotationValueV1 createUpdateAnnotationValue(
       String studyId,
       String cohortRevisionGroupId,
       String annotationId,
       String reviewId,
-      AnnotationValue annotationValue) {
+      AnnotationValueV1 annotationValue) {
     featureConfiguration.artifactStorageEnabledCheck();
     validateAnnotationValueDataType(
         studyId, cohortRevisionGroupId, annotationId, annotationValue.getLiteral());
@@ -188,7 +188,7 @@ public class AnnotationService {
   }
 
   /** Retrieves a list of all annotation values for a review. */
-  public List<AnnotationValue> getAnnotationValues(String reviewId) {
+  public List<AnnotationValueV1> getAnnotationValues(String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
     return annotationValueDao.getAnnotationValues(reviewId);
   }
@@ -223,14 +223,14 @@ public class AnnotationService {
     // Get values for all reviews for cohort
     String cohortId =
         cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId).getCohortId();
-    List<Pair<OffsetDateTime, AnnotationValue>> reviewCreateDateAndValues =
+    List<Pair<OffsetDateTime, AnnotationValueV1>> reviewCreateDateAndValues =
         annotationValueDao.getAnnotationValuesForCohort(cohortId);
 
     // Sort values (for all reviews) by review creation date
     reviewCreateDateAndValues.sort(
         Comparator.comparingLong(
             reviewCreateDateAndValue -> reviewCreateDateAndValue.getLeft().toEpochSecond()));
-    List<AnnotationValue> sortedValuesForAllReviews =
+    List<AnnotationValueV1> sortedValuesForAllReviews =
         reviewCreateDateAndValues.stream().map(Pair::getRight).collect(Collectors.toList());
 
     // Traverse through sorted values and update table-to-be-returned. By the time we're done, we
@@ -238,7 +238,7 @@ public class AnnotationService {
     Table<String, String, String> tableToReturn = HashBasedTable.create();
     sortedValuesForAllReviews.forEach(
         value -> {
-          Annotation annotation =
+          AnnotationV1 annotation =
               getAnnotation(studyId, cohortRevisionGroupId, value.getAnnotationId());
           tableToReturn.put(
               value.getEntityInstanceId(), // row
@@ -268,7 +268,7 @@ public class AnnotationService {
             .getValue()
             .getColumnName();
     StringBuilder columnHeaders = new StringBuilder(primaryIdSourceColumnName);
-    List<Annotation> annotations =
+    List<AnnotationV1> annotations =
         getAllAnnotations(studyId, cohortId, /*offset=*/ 0, /*limit=*/ Integer.MAX_VALUE);
     annotations.forEach(
         annotation -> {
@@ -316,7 +316,7 @@ public class AnnotationService {
       String cohortRevisionGroupId,
       String annotationId,
       Literal annotationValueLiteral) {
-    Annotation annotation =
+    AnnotationV1 annotation =
         annotationDao.getAnnotation(studyId, cohortRevisionGroupId, annotationId);
     if (!annotation.getDataType().equals(annotationValueLiteral.getDataType())) {
       throw new BadRequestException(

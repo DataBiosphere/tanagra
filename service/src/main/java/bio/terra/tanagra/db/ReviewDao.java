@@ -8,8 +8,8 @@ import bio.terra.tanagra.db.exception.DuplicateStudyException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.Review;
+import bio.terra.tanagra.service.artifact.CohortV1;
+import bio.terra.tanagra.service.artifact.ReviewV1;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ public class ReviewDao {
   private static final String REVIEW_SELECT_SQL =
       "SELECT r.cohort_id, r.review_id, r.display_name, r.description, r.size, r.created, r.created_by, r.last_modified FROM review AS r "
           + "JOIN cohort AS c ON c.cohort_id = r.cohort_id";
-  private static final RowMapper<Review.Builder> REVIEW_ROW_MAPPER =
+  private static final RowMapper<ReviewV1.Builder> REVIEW_ROW_MAPPER =
       (rs, rowNum) ->
-          Review.builder()
+          ReviewV1.builder()
               .cohortId(rs.getString("cohort_id"))
               .reviewId(rs.getString("review_id"))
               .displayName(rs.getString("display_name"))
@@ -63,10 +63,10 @@ public class ReviewDao {
               .build();
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
-  private final CohortDao cohortDao;
+  private final CohortDao1 cohortDao;
 
   @Autowired
-  public ReviewDao(NamedParameterJdbcTemplate jdbcTemplate, CohortDao cohortDao) {
+  public ReviewDao(NamedParameterJdbcTemplate jdbcTemplate, CohortDao1 cohortDao) {
     this.jdbcTemplate = jdbcTemplate;
     this.cohortDao = cohortDao;
   }
@@ -76,8 +76,8 @@ public class ReviewDao {
    */
   @WriteTransaction
   public void createReview(
-      String studyId, String cohortRevisionGroupId, Review review, QueryResult queryResult) {
-    Cohort cohort = cohortDao.getCohortLatestVersionOrThrow(studyId, cohortRevisionGroupId);
+      String studyId, String cohortRevisionGroupId, ReviewV1 review, QueryResult queryResult) {
+    CohortV1 cohort = cohortDao.getCohortLatestVersionOrThrow(studyId, cohortRevisionGroupId);
     cohortDao.freezeCohortLatestVersionOrThrow(studyId, cohort.getCohortRevisionGroupId());
 
     final String sql =
@@ -145,7 +145,7 @@ public class ReviewDao {
 
   /** Fetch all reviews for a cohort. */
   @ReadTransaction
-  public List<Review> getAllReviews(
+  public List<ReviewV1> getAllReviews(
       String studyId, String cohortRevisionGroupId, int offset, int limit) {
     String sql =
         REVIEW_SELECT_SQL
@@ -160,7 +160,7 @@ public class ReviewDao {
 
   /** Fetch all reviews for a cohort. Only include reviews whose ids are in the specified list. */
   @ReadTransaction
-  public List<Review> getReviewsMatchingList(
+  public List<ReviewV1> getReviewsMatchingList(
       String studyId,
       String cohortRevisionGroupId,
       Set<String> reviewIdList,
@@ -182,10 +182,10 @@ public class ReviewDao {
     return populateCohorts(studyId, jdbcTemplate.query(sql, params, REVIEW_ROW_MAPPER));
   }
 
-  private List<Review> populateCohorts(String studyId, List<Review.Builder> builders) {
+  private List<ReviewV1> populateCohorts(String studyId, List<ReviewV1.Builder> builders) {
     Set<String> cohortIds =
-        builders.stream().map(Review.Builder::getCohortId).collect(Collectors.toSet());
-    List<Cohort> cohorts = cohortDao.getCohortsMatchingList(studyId, cohortIds);
+        builders.stream().map(ReviewV1.Builder::getCohortId).collect(Collectors.toSet());
+    List<CohortV1> cohorts = cohortDao.getCohortsMatchingList(studyId, cohortIds);
     return builders.stream()
         .map(
             review ->
@@ -200,7 +200,7 @@ public class ReviewDao {
   }
 
   @ReadTransaction
-  public Optional<Review> getReviewIfExists(
+  public Optional<ReviewV1> getReviewIfExists(
       String studyId, String cohortRevisionGroupId, String reviewId) {
     if (studyId == null || cohortRevisionGroupId == null || reviewId == null) {
       throw new MissingRequiredFieldException("Valid study, cohort, and review ids are required");
@@ -208,7 +208,7 @@ public class ReviewDao {
     String sql = REVIEW_SELECT_SQL + " WHERE r.review_id = :review_id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
     try {
-      Review.Builder review =
+      ReviewV1.Builder review =
           DataAccessUtils.requiredSingleResult(jdbcTemplate.query(sql, params, REVIEW_ROW_MAPPER));
       review.cohort(cohortDao.getCohortVersionOrThrow(studyId, review.getCohortId()));
       LOGGER.info("Retrieved review record {}", review);
@@ -218,7 +218,7 @@ public class ReviewDao {
     }
   }
 
-  public Review getReview(String studyId, String cohortRevisionGroupId, String reviewId) {
+  public ReviewV1 getReview(String studyId, String cohortRevisionGroupId, String reviewId) {
     return getReviewIfExists(studyId, cohortRevisionGroupId, reviewId)
         .orElseThrow(() -> new NotFoundException(String.format("Review %s not found.", reviewId)));
   }

@@ -2,8 +2,8 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ConceptSetDao;
-import bio.terra.tanagra.service.artifact.ConceptSet;
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.ConceptSetV1;
+import bio.terra.tanagra.service.artifact.CriteriaV1;
 import java.util.HashSet;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -22,7 +22,7 @@ public class ConceptSetService {
   }
 
   /** Create a new concept set. */
-  public void createConceptSet(ConceptSet conceptSet) {
+  public void createConceptSet(ConceptSetV1 conceptSet) {
     featureConfiguration.artifactStorageEnabledCheck();
     conceptSetDao.createConceptSet(conceptSet);
   }
@@ -34,13 +34,13 @@ public class ConceptSetService {
   }
 
   /** Retrieves a list of all concept sets for a study. */
-  public List<ConceptSet> getAllConceptSets(String studyId, int offset, int limit) {
+  public List<ConceptSetV1> getAllConceptSets(String studyId, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     return conceptSetDao.getAllConceptSets(studyId, offset, limit);
   }
 
   /** Retrieves a list of concept sets by ID. */
-  public List<ConceptSet> getConceptSets(
+  public List<ConceptSetV1> getConceptSets(
       String studyId, List<String> conceptSetIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     return conceptSetDao.getConceptSetsMatchingList(
@@ -48,7 +48,7 @@ public class ConceptSetService {
   }
 
   /** Retrieves a concept set by ID. */
-  public ConceptSet getConceptSet(String studyId, String conceptSetId) {
+  public ConceptSetV1 getConceptSet(String studyId, String conceptSetId) {
     featureConfiguration.artifactStorageEnabledCheck();
     return conceptSetDao.getConceptSetOrThrow(studyId, conceptSetId);
   }
@@ -65,13 +65,13 @@ public class ConceptSetService {
    * @param criteria criteria to change - may be null
    */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public ConceptSet updateConceptSet(
+  public ConceptSetV1 updateConceptSet(
       String studyId,
       String conceptSetId,
       @Nullable String entityName,
       @Nullable String displayName,
       @Nullable String description,
-      @Nullable Criteria criteria) {
+      @Nullable CriteriaV1 criteria) {
     featureConfiguration.artifactStorageEnabledCheck();
     conceptSetDao.updateConceptSet(
         studyId, conceptSetId, entityName, displayName, description, criteria);

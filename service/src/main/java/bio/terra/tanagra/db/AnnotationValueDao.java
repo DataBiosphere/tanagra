@@ -6,7 +6,7 @@ import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateAnnotationValueException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,9 +35,9 @@ public class AnnotationValueDao {
           + ANNOTATION_VALUE_SELECT_CLAUSE
           + "FROM annotation AS a, annotation_value AS av "
           + "WHERE a.annotation_id = av.annotation_id ";
-  private static final RowMapper<AnnotationValue> ANNOTATION_VALUE_ROW_MAPPER =
+  private static final RowMapper<AnnotationValueV1> ANNOTATION_VALUE_ROW_MAPPER =
       (rs, rowNum) ->
-          AnnotationValue.builder()
+          AnnotationValueV1.builder()
               .reviewId(rs.getString("review_id"))
               .annotationId(rs.getString("annotation_id"))
               .annotationValueId(rs.getString("annotation_value_id"))
@@ -66,7 +66,7 @@ public class AnnotationValueDao {
       String cohortRevisionGroupId,
       String annotationId,
       String reviewId,
-      AnnotationValue annotationValue) {
+      AnnotationValueV1 annotationValue) {
     final String sql =
         "INSERT INTO annotation_value (review_id, annotation_id, annotation_value_id, entity_instance_id, bool_val, int64_val, string_val, date_val) "
             + "VALUES (:review_id, :annotation_id, :annotation_value_id, :entity_instance_id, :bool_val, :int64_val, :string_val, :date_val)";
@@ -126,7 +126,7 @@ public class AnnotationValueDao {
     return deleted;
   }
 
-  private Optional<AnnotationValue> getAnnotationValueIfExists(
+  private Optional<AnnotationValueV1> getAnnotationValueIfExists(
       String studyId,
       String cohortRevisionGroupId,
       String annotationId,
@@ -149,7 +149,7 @@ public class AnnotationValueDao {
             .addValue("annotation_id", annotationId)
             .addValue("annotation_value_id", annotationValueId);
     try {
-      AnnotationValue annotationValue =
+      AnnotationValueV1 annotationValue =
           DataAccessUtils.requiredSingleResult(
               jdbcTemplate.query(sql, params, ANNOTATION_VALUE_ROW_MAPPER));
       LOGGER.info("Retrieved annotation value record {}", annotationValue);
@@ -160,7 +160,7 @@ public class AnnotationValueDao {
   }
 
   @ReadTransaction
-  public AnnotationValue getAnnotationValue(
+  public AnnotationValueV1 getAnnotationValue(
       String studyId,
       String cohortRevisionGroupId,
       String annotationId,
@@ -176,7 +176,8 @@ public class AnnotationValueDao {
 
   /** @return list of pair of review create date and AnnotationValue */
   @ReadTransaction
-  public List<Pair<OffsetDateTime, AnnotationValue>> getAnnotationValuesForCohort(String cohortId) {
+  public List<Pair<OffsetDateTime, AnnotationValueV1>> getAnnotationValuesForCohort(
+      String cohortId) {
     if (cohortId == null) {
       throw new MissingRequiredFieldException("Valid cohort id is required");
     }
@@ -187,11 +188,11 @@ public class AnnotationValueDao {
             + "FROM annotation AS a, annotation_value AS av, review AS r "
             + "WHERE a.annotation_id = av.annotation_id AND a.cohort_id = :cohort_id AND r.review_id = av.review_id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("cohort_id", cohortId);
-    RowMapper<Pair<OffsetDateTime, AnnotationValue>> mapper =
+    RowMapper<Pair<OffsetDateTime, AnnotationValueV1>> mapper =
         (rs, rowNum) ->
             Pair.of(
                 DbUtils.timestampToOffsetDateTime(rs.getTimestamp("review_created")),
-                AnnotationValue.builder()
+                AnnotationValueV1.builder()
                     .reviewId(rs.getString("review_id"))
                     .annotationId(rs.getString("annotation_id"))
                     .annotationValueId(rs.getString("annotation_value_id"))
@@ -209,7 +210,7 @@ public class AnnotationValueDao {
   }
 
   @ReadTransaction
-  public List<AnnotationValue> getAnnotationValues(String reviewId) {
+  public List<AnnotationValueV1> getAnnotationValues(String reviewId) {
     if (reviewId == null) {
       throw new MissingRequiredFieldException("Valid study, cohort, and review ids are required");
     }
@@ -253,7 +254,7 @@ public class AnnotationValueDao {
       String cohortRevisionGroupId,
       String annotationId,
       String reviewId,
-      AnnotationValue annotationValue) {
+      AnnotationValueV1 annotationValue) {
     // Insert a new row or update it if it already exists.
     final String upsertSql =
         "INSERT INTO annotation_value (review_id, annotation_id, annotation_value_id, entity_instance_id, bool_val, int64_val, string_val, date_val) "

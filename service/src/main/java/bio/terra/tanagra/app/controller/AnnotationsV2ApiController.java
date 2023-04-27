@@ -16,8 +16,8 @@ import bio.terra.tanagra.service.AnnotationService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.Annotation;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
+import bio.terra.tanagra.service.artifact.AnnotationV1;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import com.google.common.collect.Table;
 import java.util.List;
@@ -50,8 +50,8 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
     // Generate a random 10-character alphanumeric string for the new annotation ID.
     String newAnnotationId = RandomStringUtils.randomAlphanumeric(10);
 
-    Annotation annotationToCreate =
-        Annotation.builder()
+    AnnotationV1 annotationToCreate =
+        AnnotationV1.builder()
             .annotationId(newAnnotationId)
             .displayName(body.getDisplayName())
             .description(body.getDescription())
@@ -100,7 +100,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
     ResourceIdCollection authorizedAnnotationIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), ANNOTATION, offset, limit);
-    List<Annotation> authorizedAnnotations;
+    List<AnnotationV1> authorizedAnnotations;
     if (authorizedAnnotationIds.isAllResourceIds()) {
       authorizedAnnotations = annotationService.getAllAnnotations(studyId, cohortId, offset, limit);
     } else {
@@ -129,7 +129,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, String annotationId, ApiAnnotationUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, ANNOTATION, new ResourceId(cohortId));
-    Annotation updatedAnnotation =
+    AnnotationV1 updatedAnnotation =
         annotationService.updateAnnotation(
             studyId, cohortId, annotationId, body.getDisplayName(), body.getDescription());
     return ResponseEntity.ok(toApiObject(updatedAnnotation));
@@ -157,8 +157,8 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
 
     // Force the annotation value id = entity instance id. Note that this is not a constraint on the
     // internal DB, just one imposed at the API level for the UI's convenience.
-    AnnotationValue annotationValueToCreateOrUpdate =
-        AnnotationValue.builder()
+    AnnotationValueV1 annotationValueToCreateOrUpdate =
+        AnnotationValueV1.builder()
             .reviewId(reviewId)
             .annotationId(annotationId)
             .annotationValueId(valueId)
@@ -166,13 +166,13 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
             .literal(FromApiConversionService.fromApiObject(body))
             .build();
 
-    AnnotationValue annotationValue =
+    AnnotationValueV1 annotationValue =
         annotationService.createUpdateAnnotationValue(
             studyId, cohortId, annotationId, reviewId, annotationValueToCreateOrUpdate);
     return ResponseEntity.ok(ToApiConversionUtils.toApiObject(annotationValue));
   }
 
-  private static ApiAnnotationV2 toApiObject(Annotation annotation) {
+  private static ApiAnnotationV2 toApiObject(AnnotationV1 annotation) {
     return new ApiAnnotationV2()
         .id(annotation.getAnnotationId())
         .displayName(annotation.getDisplayName())

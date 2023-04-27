@@ -4,7 +4,7 @@ import bio.terra.tanagra.exception.SystemException;
 import java.time.OffsetDateTime;
 import javax.annotation.Nullable;
 
-public class ConceptSet {
+public class ConceptSetV1 {
   private final String studyId;
   private final String conceptSetId;
   private final String underlayName;
@@ -14,9 +14,9 @@ public class ConceptSet {
   private final OffsetDateTime lastModified;
   private final @Nullable String displayName;
   private final @Nullable String description;
-  private final Criteria criteria;
+  private final CriteriaV1 criteria;
 
-  private ConceptSet(Builder builder) {
+  private ConceptSetV1(Builder builder) {
     this.studyId = builder.studyId;
     this.conceptSetId = builder.conceptSetId;
     this.underlayName = builder.underlayName;
@@ -93,7 +93,7 @@ public class ConceptSet {
   }
 
   /** Criteria that defines the entity filter. */
-  public Criteria getCriteria() {
+  public CriteriaV1 getCriteria() {
     return criteria;
   }
 
@@ -107,7 +107,7 @@ public class ConceptSet {
     private OffsetDateTime lastModified;
     private @Nullable String displayName;
     private @Nullable String description;
-    private Criteria criteria;
+    private CriteriaV1 criteria;
 
     public Builder studyId(String studyId) {
       this.studyId = studyId;
@@ -154,7 +154,7 @@ public class ConceptSet {
       return this;
     }
 
-    public Builder criteria(Criteria criteria) {
+    public Builder criteria(CriteriaV1 criteria) {
       this.criteria = criteria;
       return this;
     }
@@ -163,11 +163,11 @@ public class ConceptSet {
       return conceptSetId;
     }
 
-    public ConceptSet build() {
+    public ConceptSetV1 build() {
       if (conceptSetId == null) {
         throw new SystemException("Concept set requires id");
       }
-      return new ConceptSet(this);
+      return new ConceptSetV1(this);
     }
   }
 }

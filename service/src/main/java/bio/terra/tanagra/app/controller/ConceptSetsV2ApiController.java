@@ -18,8 +18,8 @@ import bio.terra.tanagra.service.StudyService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.ConceptSet;
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.ConceptSetV1;
+import bio.terra.tanagra.service.artifact.CriteriaV1;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,10 +62,10 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     String newCriteriaId = RandomStringUtils.randomAlphanumeric(10);
     String newConceptSetId = RandomStringUtils.randomAlphanumeric(10);
 
-    Criteria criteria =
+    CriteriaV1 criteria =
         body.getCriteria() == null
             ? null
-            : Criteria.builder()
+            : CriteriaV1.builder()
                 .conceptSetId(newConceptSetId)
                 .criteriaId(newCriteriaId)
                 .userFacingCriteriaId(body.getCriteria().getId())
@@ -74,8 +74,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
                 .selectionData(body.getCriteria().getSelectionData())
                 .uiConfig(body.getCriteria().getUiConfig())
                 .build();
-    ConceptSet conceptSetToCreate =
-        ConceptSet.builder()
+    ConceptSetV1 conceptSetToCreate =
+        ConceptSetV1.builder()
             .studyId(studyId)
             .conceptSetId(newConceptSetId)
             .underlayName(body.getUnderlayName())
@@ -111,7 +111,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     ResourceIdCollection authorizedConceptSetIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), CONCEPT_SET, offset, limit);
-    List<ConceptSet> authorizedConceptSets;
+    List<ConceptSetV1> authorizedConceptSets;
     if (authorizedConceptSetIds.isAllResourceIds()) {
       authorizedConceptSets = conceptSetService.getAllConceptSets(studyId, offset, limit);
     } else {
@@ -139,17 +139,17 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
 
     // Make sure entity name is valid.
     if (body.getEntity() != null) {
-      ConceptSet conceptSet = conceptSetService.getConceptSet(studyId, conceptSetId);
+      ConceptSetV1 conceptSet = conceptSetService.getConceptSet(studyId, conceptSetId);
       underlaysService.getEntity(conceptSet.getUnderlayName(), body.getEntity());
     }
 
     // Generate random 10-character alphanumeric string for the new criteria ID.
     String newCriteriaId = RandomStringUtils.randomAlphanumeric(10);
 
-    Criteria criteria =
+    CriteriaV1 criteria =
         body.getCriteria() == null
             ? null
-            : Criteria.builder()
+            : CriteriaV1.builder()
                 .conceptSetId(conceptSetId)
                 .criteriaId(newCriteriaId)
                 .userFacingCriteriaId(body.getCriteria().getId())
@@ -158,7 +158,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
                 .selectionData(body.getCriteria().getSelectionData())
                 .uiConfig(body.getCriteria().getUiConfig())
                 .build();
-    ConceptSet updatedConceptSet =
+    ConceptSetV1 updatedConceptSet =
         conceptSetService.updateConceptSet(
             studyId,
             conceptSetId,
@@ -169,7 +169,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     return ResponseEntity.ok(toApiObject(updatedConceptSet));
   }
 
-  private static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
+  private static ApiConceptSetV2 toApiObject(ConceptSetV1 conceptSet) {
     return new ApiConceptSetV2()
         .id(conceptSet.getConceptSetId())
         .underlayName(conceptSet.getUnderlayName())

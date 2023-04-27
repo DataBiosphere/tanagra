@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class Annotation {
+public class AnnotationV1 {
   private final String cohortId;
   private final String annotationId;
   private final @Nullable String displayName;
@@ -14,7 +14,7 @@ public class Annotation {
   private final Literal.DataType dataType;
   private final List<String> enumVals;
 
-  private Annotation(Builder builder) {
+  private AnnotationV1(Builder builder) {
     this.cohortId = builder.cohortId;
     this.annotationId = builder.annotationId;
     this.displayName = builder.displayName;
@@ -99,11 +99,11 @@ public class Annotation {
       return cohortId;
     }
 
-    public Annotation build() {
+    public AnnotationV1 build() {
       if (enumVals != null && !enumVals.isEmpty() && !dataType.equals(Literal.DataType.STRING)) {
         throw new BadRequestException("Enum values are only supported for the STRING data type.");
       }
-      return new Annotation(this);
+      return new AnnotationV1(this);
     }
   }
 }

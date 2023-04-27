@@ -5,8 +5,7 @@ import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateStudyException;
-import bio.terra.tanagra.service.artifact.Study;
-import java.util.Collections;
+import bio.terra.tanagra.service.model.Study;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +29,11 @@ public class StudyDao {
 
   // SQL query and row mapper for reading a study.
   private static final String STUDY_SELECT_SQL =
-      "SELECT study_id, display_name, description, properties, created, created_by, last_modified FROM study";
+      "SELECT id, display_name, description, properties, created, created_by, last_modified, last_modified_by FROM study";
   private static final RowMapper<Study> STUDY_ROW_MAPPER =
       (rs, rowNum) ->
           Study.builder()
-              .studyId(rs.getString("study_id"))
+              .id(rs.getString("id"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
               .properties(
@@ -44,6 +43,7 @@ public class StudyDao {
               .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+              .lastModifiedBy(rs.getString("last_modified_by"))
               .build();
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -53,35 +53,32 @@ public class StudyDao {
     this.jdbcTemplate = jdbcTemplate;
   }
 
-  /**
-   * Persists a study to DB.
-   *
-   * @param study all properties of the study to create
-   */
   @WriteTransaction
   public void createStudy(Study study) {
-    final String sql =
-        "INSERT INTO study (study_id, display_name, description, properties, created_by) "
-            + "VALUES (:study_id, :display_name, :description, CAST(:properties AS jsonb), :created_by)";
-
+    String sql =
+        "INSERT INTO study (id, display_name, description, properties, created_by, last_modified_by) "
+            + "VALUES (:id, :display_name, :description, CAST(:properties AS jsonb), :created_by, :last_modified_by)";
+    LOGGER.debug("CREATE study: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("study_id", study.getStudyId())
+            .addValue("id", study.getId())
             .addValue("display_name", study.getDisplayName())
             .addValue("description", study.getDescription())
             .addValue("properties", DbSerDes.propertiesToJson(study.getProperties()))
-            // Don't need to set created. Liquibase defaultValueComputed handles that.
-            .addValue("created_by", study.getCreatedBy());
+            // Don't need to set created or last_modified. Liquibase defaultValueComputed handles
+            // that.
+            .addValue("created_by", study.getCreatedBy())
+            .addValue("last_modified_by", study.getLastModifiedBy());
     try {
-      jdbcTemplate.update(sql, params);
-      LOGGER.info("Inserted record for study {}", study.getStudyId());
+      int rowsAffected = jdbcTemplate.update(sql, params);
+      LOGGER.debug("CREATE study rowsAffected = {}", rowsAffected);
     } catch (DuplicateKeyException dkEx) {
       if (dkEx.getMessage()
           .contains("duplicate key value violates unique constraint \"study_pkey\"")) {
         throw new DuplicateStudyException(
             String.format(
                 "Study with id %s already exists - display name %s",
-                study.getStudyId(), study.getDisplayName()),
+                study.getId(), study.getDisplayName()),
             dkEx);
       } else {
         throw dkEx;
@@ -95,19 +92,12 @@ public class StudyDao {
    */
   @WriteTransaction
   public boolean deleteStudy(String studyId) {
-    final String sql = "DELETE FROM study WHERE study_id = :study_id";
-
-    MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyId);
+    String sql = "DELETE FROM study WHERE id = :id";
+    LOGGER.debug("DELETE study: {}", sql);
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", studyId);
     int rowsAffected = jdbcTemplate.update(sql, params);
-    boolean deleted = rowsAffected > 0;
-
-    if (deleted) {
-      LOGGER.info("Deleted record for study {}", studyId);
-    } else {
-      LOGGER.info("No record found for delete study {}", studyId);
-    }
-
-    return deleted;
+    LOGGER.debug("DELETE study rowsAffected = {}", rowsAffected);
+    return rowsAffected == 1;
   }
 
   /**
@@ -120,6 +110,7 @@ public class StudyDao {
   @ReadTransaction
   public List<Study> getAllStudies(int offset, int limit) {
     String sql = STUDY_SELECT_SQL + " ORDER BY display_name OFFSET :offset LIMIT :limit";
+    LOGGER.debug("GET all studies: {}", sql);
     var params = new MapSqlParameterSource().addValue("offset", offset).addValue("limit", limit);
     return jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER);
   }
@@ -134,17 +125,12 @@ public class StudyDao {
    */
   @ReadTransaction
   public List<Study> getStudiesMatchingList(Set<String> studyIdList, int offset, int limit) {
-    // If the incoming list is empty, the caller does not have permission to see any
-    // studies, so we return an empty list.
-    if (studyIdList.isEmpty()) {
-      return Collections.emptyList();
-    }
     String sql =
-        STUDY_SELECT_SQL
-            + " WHERE study_id IN (:study_ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
+        STUDY_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
+    LOGGER.debug("GET matching studies: {}", sql);
     var params =
         new MapSqlParameterSource()
-            .addValue("study_ids", studyIdList)
+            .addValue("ids", studyIdList)
             .addValue("offset", offset)
             .addValue("limit", limit);
     return jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER);
@@ -155,36 +141,35 @@ public class StudyDao {
     if (studyId == null) {
       throw new MissingRequiredFieldException("Valid study id is required");
     }
-    String sql = STUDY_SELECT_SQL + " WHERE study_id = :study_id";
-    MapSqlParameterSource params = new MapSqlParameterSource().addValue("study_id", studyId);
+    String sql = STUDY_SELECT_SQL + " WHERE id = :id";
+    LOGGER.debug("GET study: {}", sql);
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", studyId);
     try {
       Study result =
           DataAccessUtils.requiredSingleResult(jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER));
-      LOGGER.info("Retrieved study record {}", result);
+      LOGGER.debug("GET study: {}", result);
       return Optional.of(result);
     } catch (EmptyResultDataAccessException e) {
       return Optional.empty();
     }
   }
 
-  /**
-   * Retrieves a study from database by ID.
-   *
-   * @param studyId unique identifier of the study
-   * @return study object
-   */
   public Study getStudy(String studyId) {
     return getStudyIfExists(studyId)
         .orElseThrow(() -> new NotFoundException(String.format("Study %s not found.", studyId)));
   }
 
   @WriteTransaction
-  public boolean updateStudy(String studyId, @Nullable String name, @Nullable String description) {
+  public boolean updateStudy(
+      String studyId, String lastModifiedBy, @Nullable String name, @Nullable String description) {
     if (name == null && description == null) {
-      throw new MissingRequiredFieldException("Must specify field to update.");
+      throw new MissingRequiredFieldException("Study name or description must be not null.");
     }
 
-    var params = new MapSqlParameterSource().addValue("study_id", studyId);
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("id", studyId)
+            .addValue("last_modified_by", lastModifiedBy);
     if (name != null) {
       params.addValue("display_name", name);
     }
@@ -194,28 +179,25 @@ public class StudyDao {
 
     String sql =
         String.format(
-            "UPDATE study SET %s, last_modified = current_timestamp WHERE study_id = :study_id",
+            "UPDATE study SET %s, last_modified = current_timestamp WHERE id = :id",
             DbUtils.setColumnsClause(params, "properties"));
-
+    LOGGER.debug("UPDATE study: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
-    boolean updated = rowsAffected > 0;
-    LOGGER.info(
-        "{} record for study {}", updated ? "Updated" : "No Update - did not find", studyId);
-    return updated;
+    LOGGER.debug("UPDATE study rowsAffected = {}", rowsAffected);
+    return rowsAffected == 1;
   }
 
-  /** Update a study's properties */
   @WriteTransaction
-  public void updateStudyProperties(String studyId, Map<String, String> propertyMap) {
+  public void updateStudyProperties(
+      String studyId, String lastModifiedBy, Map<String, String> propertyMap) {
     // Get current property for this study ID.
-    String selectPropertiesSql = "SELECT properties FROM study WHERE study_id = :study_id";
-    MapSqlParameterSource propertiesParams =
-        new MapSqlParameterSource().addValue("study_id", studyId);
+    String sql = "SELECT properties FROM study WHERE id = :id";
+    LOGGER.debug("GET PROPERTIES study: {}", sql);
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", studyId);
     String result;
-
     try {
-      result = jdbcTemplate.queryForObject(selectPropertiesSql, propertiesParams, String.class);
-      LOGGER.info("Retrieved study properties {}", result);
+      result = jdbcTemplate.queryForObject(sql, params, String.class);
+      LOGGER.info("GET PROPERTIES study: {}", result);
     } catch (EmptyResultDataAccessException e) {
       throw new NotFoundException(String.format("Study %s not found.", studyId), e);
     }
@@ -223,43 +205,47 @@ public class StudyDao {
     Map<String, String> properties =
         result == null ? new HashMap<>() : DbSerDes.jsonToProperties(result);
     properties.putAll(propertyMap);
-    final String sql =
-        "UPDATE study SET properties = cast(:properties AS jsonb), last_modified = current_timestamp WHERE study_id = :study_id";
-
-    var params = new MapSqlParameterSource();
-    params
-        .addValue("properties", DbSerDes.propertiesToJson(properties))
-        .addValue("study_id", studyId);
-    jdbcTemplate.update(sql, params);
+    sql =
+        "UPDATE study SET properties = cast(:properties AS jsonb), last_modified = current_timestamp, last_modified_by = :last_modified_by WHERE id = :id";
+    LOGGER.debug("UPDATE study: {}", sql);
+    params =
+        new MapSqlParameterSource()
+            .addValue("properties", DbSerDes.propertiesToJson(properties))
+            .addValue("id", studyId)
+            .addValue("last_modified_by", lastModifiedBy);
+    int rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("UPDATE study rowsAffected = {}", rowsAffected);
   }
 
   @WriteTransaction
-  public void deleteStudyProperties(String studyId, List<String> propertyKeys) {
+  public void deleteStudyProperties(
+      String studyId, String lastModifiedBy, List<String> propertyKeys) {
     // Get current property for this study ID.
-    String selectPropertiesSql = "SELECT properties FROM study WHERE study_id = :study_id";
-    MapSqlParameterSource propertiesParams =
-        new MapSqlParameterSource().addValue("study_id", studyId);
+    String sql = "SELECT properties FROM study WHERE id = :id";
+    LOGGER.debug("GET PROPERTIES study: {}", sql);
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", studyId);
     String result;
-
     try {
-      result = jdbcTemplate.queryForObject(selectPropertiesSql, propertiesParams, String.class);
-      LOGGER.info("Retrieved study properties {}", result);
+      result = jdbcTemplate.queryForObject(sql, params, String.class);
+      LOGGER.debug("GET PROPERTIES study: {}", result);
     } catch (EmptyResultDataAccessException e) {
       throw new NotFoundException(String.format("Study %s not found.", studyId), e);
     }
+
     Map<String, String> properties =
         result == null ? new HashMap<>() : DbSerDes.jsonToProperties(result);
     for (String key : propertyKeys) {
       properties.remove(key);
     }
-    final String sql =
-        "UPDATE study SET properties = cast(:properties AS jsonb), last_modified = current_timestamp WHERE study_id = :study_id";
-
-    var params = new MapSqlParameterSource();
-    params
-        .addValue("properties", DbSerDes.propertiesToJson(properties))
-        .addValue("study_id", studyId);
-
-    jdbcTemplate.update(sql, params);
+    sql =
+        "UPDATE study SET properties = cast(:properties AS jsonb), last_modified = current_timestamp, last_modified_by = :last_modified_by WHERE id = :id";
+    LOGGER.debug("UPDATE study: {}", sql);
+    params =
+        new MapSqlParameterSource()
+            .addValue("properties", DbSerDes.propertiesToJson(properties))
+            .addValue("id", studyId)
+            .addValue("last_modified_by", lastModifiedBy);
+    int rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("UPDATE study rowsAffected = {}", rowsAffected);
   }
 }

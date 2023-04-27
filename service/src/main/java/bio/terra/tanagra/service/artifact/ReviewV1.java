@@ -3,7 +3,7 @@ package bio.terra.tanagra.service.artifact;
 import java.time.OffsetDateTime;
 import javax.annotation.Nullable;
 
-public class Review {
+public class ReviewV1 {
   private final String cohortId;
   private final String reviewId;
   private final @Nullable String displayName;
@@ -12,9 +12,9 @@ public class Review {
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
-  private final Cohort cohort;
+  private final CohortV1 cohort;
 
-  private Review(Builder builder) {
+  private ReviewV1(Builder builder) {
     this.cohortId = builder.cohortId;
     this.reviewId = builder.reviewId;
     this.displayName = builder.displayName;
@@ -68,7 +68,7 @@ public class Review {
   }
 
   /** Cohort revision that this review is pinned to. */
-  public Cohort getCohort() {
+  public CohortV1 getCohort() {
     return cohort;
   }
 
@@ -81,7 +81,7 @@ public class Review {
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
-    private Cohort cohort;
+    private CohortV1 cohort;
 
     public Builder cohortId(String cohortId) {
       this.cohortId = cohortId;
@@ -123,7 +123,7 @@ public class Review {
       return this;
     }
 
-    public Builder cohort(Cohort cohort) {
+    public Builder cohort(CohortV1 cohort) {
       this.cohort = cohort;
       return this;
     }
@@ -132,8 +132,8 @@ public class Review {
       return cohortId;
     }
 
-    public Review build() {
-      return new Review(this);
+    public ReviewV1 build() {
+      return new ReviewV1(this);
     }
   }
 }

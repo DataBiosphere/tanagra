@@ -2,12 +2,12 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
-import bio.terra.tanagra.service.artifact.Study;
+import bio.terra.tanagra.service.model.Study;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,14 +23,10 @@ public class StudyService {
   }
 
   /** Create a new study. */
-  public Study createStudy(Study.Builder studyBuilder) {
+  public Study createStudy(Study.Builder studyBuilder, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
-
-    // Generate a random 10-character alphanumeric string for the new study ID.
-    String newStudyId = RandomStringUtils.randomAlphanumeric(10);
-
-    studyDao.createStudy(studyBuilder.studyId(newStudyId).build());
-    return studyDao.getStudy(newStudyId);
+    studyDao.createStudy(studyBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
+    return studyDao.getStudy(studyBuilder.getId());
   }
 
   /** Delete an existing study by ID. */
@@ -48,6 +44,11 @@ public class StudyService {
   /** Retrieves a list of existing studies by ID. */
   public List<Study> getStudies(List<String> ids, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
+    // If the incoming list is empty, the caller does not have permission to see any
+    // studies, so we return an empty list.
+    if (ids.isEmpty()) {
+      return Collections.emptyList();
+    }
     return studyDao.getStudiesMatchingList(new HashSet<>(ids), offset, limit);
   }
 
@@ -64,9 +65,13 @@ public class StudyService {
    * @param displayName name to change - may be null
    * @param description description to change - may be null
    */
-  public Study updateStudy(String id, @Nullable String displayName, @Nullable String description) {
+  public Study updateStudy(
+      String id,
+      String lastModifiedBy,
+      @Nullable String displayName,
+      @Nullable String description) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.updateStudy(id, displayName, description);
+    studyDao.updateStudy(id, lastModifiedBy, displayName, description);
     return studyDao.getStudy(id);
   }
 
@@ -76,9 +81,10 @@ public class StudyService {
    * @param id study ID
    * @param properties list of keys in properties
    */
-  public Study updateStudyProperties(String id, Map<String, String> properties) {
+  public Study updateStudyProperties(
+      String id, String lastModifiedBy, Map<String, String> properties) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.updateStudyProperties(id, properties);
+    studyDao.updateStudyProperties(id, lastModifiedBy, properties);
     return studyDao.getStudy(id);
   }
 
@@ -88,9 +94,9 @@ public class StudyService {
    * @param id study ID
    * @param propertyKeys list of keys in properties
    */
-  public Study deleteStudyProperties(String id, List<String> propertyKeys) {
+  public Study deleteStudyProperties(String id, String lastModifiedBy, List<String> propertyKeys) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.deleteStudyProperties(id, propertyKeys);
+    studyDao.deleteStudyProperties(id, lastModifiedBy, propertyKeys);
     return studyDao.getStudy(id);
   }
 }

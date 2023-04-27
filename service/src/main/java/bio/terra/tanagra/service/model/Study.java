@@ -1,12 +1,12 @@
-package bio.terra.tanagra.service.artifact;
+package bio.terra.tanagra.service.model;
 
-import bio.terra.tanagra.exception.SystemException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -17,34 +17,37 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 @JsonDeserialize(builder = Study.Builder.class)
 public class Study {
-  private final String studyId;
+  private final String id;
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final Map<String, String> properties;
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
+  private final String lastModifiedBy;
 
   public Study(
-      String studyId,
+      String id,
       @Nullable String displayName,
       @Nullable String description,
       Map<String, String> properties,
       OffsetDateTime created,
       String createdBy,
-      OffsetDateTime lastModified) {
-    this.studyId = studyId;
+      OffsetDateTime lastModified,
+      String lastModifiedBy) {
+    this.id = id;
     this.displayName = displayName;
     this.description = description;
     this.properties = properties;
     this.created = created;
     this.createdBy = createdBy;
     this.lastModified = lastModified;
+    this.lastModifiedBy = lastModifiedBy;
   }
 
   /** The globally unique identifier of this study. */
-  public String getStudyId() {
-    return studyId;
+  public String getId() {
+    return id;
   }
 
   /** Optional display name for the study. */
@@ -74,6 +77,10 @@ public class Study {
     return lastModified;
   }
 
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -87,26 +94,28 @@ public class Study {
     Study study = (Study) o;
 
     return new EqualsBuilder()
-        .append(studyId, study.studyId)
+        .append(id, study.id)
         .append(displayName, study.displayName)
         .append(description, study.description)
         .append(properties, study.properties)
         .append(created, study.created)
         .append(createdBy, study.createdBy)
         .append(lastModified, study.lastModified)
+        .append(lastModifiedBy, study.lastModifiedBy)
         .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(15, 79)
-        .append(studyId)
+        .append(id)
         .append(displayName)
         .append(description)
         .append(properties)
         .append(created)
         .append(createdBy)
         .append(lastModified)
+        .append(lastModifiedBy)
         .toHashCode();
   }
 
@@ -116,16 +125,17 @@ public class Study {
 
   @JsonPOJOBuilder(withPrefix = "")
   public static class Builder {
-    private String studyId;
+    private String id;
     private @Nullable String displayName;
     private String description;
     private Map<String, String> properties;
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
+    private String lastModifiedBy;
 
-    public Builder studyId(String studyId) {
-      this.studyId = studyId;
+    public Builder id(String id) {
+      this.id = id;
       return this;
     }
 
@@ -159,16 +169,32 @@ public class Study {
       return this;
     }
 
+    public Builder lastModifiedBy(String lastModifiedBy) {
+      this.lastModifiedBy = lastModifiedBy;
+      return this;
+    }
+
     public Study build() {
       // Always have a map, even if it is empty
       if (properties == null) {
         properties = new HashMap<>();
       }
-      if (studyId == null) {
-        throw new SystemException("Study requires id");
+      if (id == null) {
+        id = RandomStringUtils.randomAlphanumeric(10);
       }
       return new Study(
-          studyId, displayName, description, properties, created, createdBy, lastModified);
+          id,
+          displayName,
+          description,
+          properties,
+          created,
+          createdBy,
+          lastModified,
+          lastModifiedBy);
+    }
+
+    public String getId() {
+      return id;
     }
   }
 }

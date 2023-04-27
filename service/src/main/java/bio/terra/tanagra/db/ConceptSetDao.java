@@ -1,15 +1,15 @@
 package bio.terra.tanagra.db;
 
-import static bio.terra.tanagra.db.CohortDao.CRITERIA_ROW_MAPPER;
-import static bio.terra.tanagra.db.CohortDao.CRITERIA_SELECT_SQL;
+import static bio.terra.tanagra.db.CohortDao1.CRITERIA_ROW_MAPPER;
+import static bio.terra.tanagra.db.CohortDao1.CRITERIA_SELECT_SQL;
 
 import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.db.exception.DuplicateConceptSetException;
-import bio.terra.tanagra.service.artifact.ConceptSet;
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.ConceptSetV1;
+import bio.terra.tanagra.service.artifact.CriteriaV1;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collections;
@@ -36,9 +36,9 @@ public class ConceptSetDao {
   // SQL query and row mapper for reading a concept set.
   private static final String CONCEPT_SET_SELECT_SQL =
       "SELECT study_id, concept_set_id, underlay_name, entity_name, created, created_by, last_modified, display_name, description FROM concept_set";
-  private static final RowMapper<ConceptSet.Builder> CONCEPT_SET_ROW_MAPPER =
+  private static final RowMapper<ConceptSetV1.Builder> CONCEPT_SET_ROW_MAPPER =
       (rs, rowNum) ->
-          ConceptSet.builder()
+          ConceptSetV1.builder()
               .studyId(rs.getString("study_id"))
               .conceptSetId(rs.getString("concept_set_id"))
               .underlayName(rs.getString("underlay_name"))
@@ -58,20 +58,20 @@ public class ConceptSetDao {
 
   /** Fetch all concept sets. */
   @ReadTransaction
-  public List<ConceptSet> getAllConceptSets(String studyId, int offset, int limit) {
+  public List<ConceptSetV1> getAllConceptSets(String studyId, int offset, int limit) {
     return getConceptSetsHelper(studyId, offset, limit, null);
   }
 
   /** Fetch the concept sets. Only returns concept sets with the specified ids. */
   @ReadTransaction
-  public List<ConceptSet> getConceptSetsMatchingList(
+  public List<ConceptSetV1> getConceptSetsMatchingList(
       String studyId, Set<String> conceptSetIdList, int offset, int limit) {
     return getConceptSetsHelper(studyId, offset, limit, conceptSetIdList);
   }
 
   /** Helper method for fetching a list of concept sets. */
   @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
-  private List<ConceptSet> getConceptSetsHelper(
+  private List<ConceptSetV1> getConceptSetsHelper(
       String studyId, int offset, int limit, @Nullable Set<String> conceptSetIdList) {
     if (conceptSetIdList != null && conceptSetIdList.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any concept sets,
@@ -90,15 +90,15 @@ public class ConceptSetDao {
       params.addValue("concept_set_ids", conceptSetIdList);
     }
     sql.append(" ORDER BY display_name OFFSET :offset LIMIT :limit");
-    List<ConceptSet.Builder> conceptSets =
+    List<ConceptSetV1.Builder> conceptSets =
         jdbcTemplate.query(sql.toString(), params, CONCEPT_SET_ROW_MAPPER);
     populateCriteria(conceptSets);
-    return conceptSets.stream().map(ConceptSet.Builder::build).collect(Collectors.toList());
+    return conceptSets.stream().map(ConceptSetV1.Builder::build).collect(Collectors.toList());
   }
 
   /** Fetch the concept set with the given id. */
   @ReadTransaction
-  public ConceptSet getConceptSetOrThrow(String studyId, String conceptSetId) {
+  public ConceptSetV1 getConceptSetOrThrow(String studyId, String conceptSetId) {
     return getConceptSetIfExistsHelper(studyId, conceptSetId)
         .orElseThrow(
             () ->
@@ -108,7 +108,7 @@ public class ConceptSetDao {
 
   /** Helper method for fetching a single concept set. */
   @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
-  private Optional<ConceptSet> getConceptSetIfExistsHelper(
+  private Optional<ConceptSetV1> getConceptSetIfExistsHelper(
       String studyId, @Nullable String conceptSetId) {
     if (studyId == null || conceptSetId == null) {
       throw new MissingRequiredFieldException("Valid study and concept set ids are required");
@@ -123,7 +123,7 @@ public class ConceptSetDao {
             .addValue("study_id", studyId)
             .addValue("concept_set_id", conceptSetId);
 
-    ConceptSet.Builder result;
+    ConceptSetV1.Builder result;
     try {
       result =
           DataAccessUtils.requiredSingleResult(
@@ -137,7 +137,7 @@ public class ConceptSetDao {
   }
 
   /** Helper method for reading in the criteria and populating the builder object. */
-  private void populateCriteria(List<ConceptSet.Builder> conceptSets) {
+  private void populateCriteria(List<ConceptSetV1.Builder> conceptSets) {
     if (conceptSets.isEmpty()) {
       return;
     }
@@ -150,9 +150,9 @@ public class ConceptSetDao {
             .addValue(
                 "concept_set_ids",
                 conceptSets.stream()
-                    .map(ConceptSet.Builder::getConceptSetId)
+                    .map(ConceptSetV1.Builder::getConceptSetId)
                     .collect(Collectors.toList()));
-    List<Criteria> criterias = jdbcTemplate.query(criteriaSql, params, CRITERIA_ROW_MAPPER);
+    List<CriteriaV1> criterias = jdbcTemplate.query(criteriaSql, params, CRITERIA_ROW_MAPPER);
 
     // Populate the criteria in the concept set builders.
     criterias.stream()
@@ -169,7 +169,7 @@ public class ConceptSetDao {
 
   /** Create a new concept set. */
   @WriteTransaction
-  public void createConceptSet(ConceptSet conceptSet) {
+  public void createConceptSet(ConceptSetV1 conceptSet) {
     // Store the concept set.
     final String sql =
         "INSERT INTO concept_set (study_id, concept_set_id, underlay_name, entity_name, created_by, last_modified, display_name, description) "
@@ -220,7 +220,7 @@ public class ConceptSetDao {
       @Nullable String entityName,
       @Nullable String displayName,
       @Nullable String description,
-      @Nullable Criteria criteria) {
+      @Nullable CriteriaV1 criteria) {
     if (displayName == null && description == null && criteria == null) {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
@@ -262,7 +262,7 @@ public class ConceptSetDao {
   }
 
   /** Helper method for inserting criteria into the auxiliary table. */
-  private boolean insertCriteria(String studyId, String conceptSetId, Criteria criteria) {
+  private boolean insertCriteria(String studyId, String conceptSetId, CriteriaV1 criteria) {
     // Store the criteria.
     final String sql =
         "INSERT INTO criteria (concept_set_id, criteria_id, user_facing_criteria_id, display_name, plugin_name, selection_data, ui_config) "

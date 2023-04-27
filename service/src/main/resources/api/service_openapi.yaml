@@ -1723,11 +1723,11 @@ components:
           $ref: "#/components/schemas/CohortDisplayNameV2"
         description:
           $ref: "#/components/schemas/CohortDescriptionV2"
-        criteriaGroups:
+        criteriaGroupSections:
           type: array
-          description: Groups of criteria that define the entity filter
+          description: Criteria group sections that define the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupV2"
+            $ref: "#/components/schemas/CriteriaGroupSectionV3"
         created:
           description: Timestamp of when the cohort was created
           type: string
@@ -1770,11 +1770,11 @@ components:
           $ref: "#/components/schemas/CohortDisplayNameV2"
         description:
           $ref: "#/components/schemas/CohortDescriptionV2"
-        criteriaGroups:
+        criteriaGroupSections:
           type: array
-          description: Groups of criteria that define the entity filter
+          description: Criteria group sections that define the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupV2"
+            $ref: "#/components/schemas/CriteriaGroupSectionV3"
 
     CohortDisplayNameV2:
       type: string

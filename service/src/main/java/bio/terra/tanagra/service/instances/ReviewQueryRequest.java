@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Attribute;
@@ -17,7 +17,7 @@ public class ReviewQueryRequest {
   private final EntityFilter entityFilter;
   private final AnnotationFilter annotationFilter;
   private final List<Literal> entityInstanceIds;
-  private final List<AnnotationValue> annotationValues;
+  private final List<AnnotationValueV1> annotationValues;
   private final List<ReviewQueryOrderBy> orderBys;
 
   private ReviewQueryRequest(Builder builder) {
@@ -59,7 +59,7 @@ public class ReviewQueryRequest {
     return Collections.unmodifiableList(entityInstanceIds);
   }
 
-  public List<AnnotationValue> getAnnotationValues() {
+  public List<AnnotationValueV1> getAnnotationValues() {
     return Collections.unmodifiableList(annotationValues);
   }
 
@@ -78,7 +78,7 @@ public class ReviewQueryRequest {
     private EntityFilter entityFilter;
     private AnnotationFilter annotationFilter;
     private List<Literal> entityInstanceIds;
-    private List<AnnotationValue> annotationValues;
+    private List<AnnotationValueV1> annotationValues;
     private List<ReviewQueryOrderBy> orderBys;
 
     public Builder entity(Entity entity) {
@@ -111,7 +111,7 @@ public class ReviewQueryRequest {
       return this;
     }
 
-    public Builder annotationValues(List<AnnotationValue> annotationValues) {
+    public Builder annotationValues(List<AnnotationValueV1> annotationValues) {
       this.annotationValues = annotationValues;
       return this;
     }

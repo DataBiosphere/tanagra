@@ -35,10 +35,9 @@ import bio.terra.tanagra.service.ReviewService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.Annotation;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.Review;
+import bio.terra.tanagra.service.artifact.AnnotationV1;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
+import bio.terra.tanagra.service.artifact.ReviewV1;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.ReviewInstance;
 import bio.terra.tanagra.service.instances.ReviewQueryOrderBy;
@@ -46,6 +45,7 @@ import bio.terra.tanagra.service.instances.ReviewQueryRequest;
 import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.service.utils.ValidationUtils;
 import bio.terra.tanagra.underlay.Attribute;
@@ -103,8 +103,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     // Generate a random 10-character alphanumeric string for the new review ID.
     String newReviewId = RandomStringUtils.randomAlphanumeric(10);
 
-    Review reviewToCreate =
-        Review.builder()
+    ReviewV1 reviewToCreate =
+        ReviewV1.builder()
             .reviewId(newReviewId)
             .displayName(body.getDisplayName())
             .description(body.getDescription())
@@ -167,7 +167,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
             : null;
     AnnotationFilter annotationFilter;
     if (body.getAnnotationFilter() != null) {
-      Annotation annotation =
+      AnnotationV1 annotation =
           annotationService.getAnnotation(
               studyId, cohortId, body.getAnnotationFilter().getAnnotation());
       BinaryOperator operator =
@@ -280,7 +280,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     ResourceIdCollection authorizedReviewIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), COHORT_REVIEW, offset, limit);
-    List<Review> authorizedReviews;
+    List<ReviewV1> authorizedReviews;
     if (authorizedReviewIds.isAllResourceIds()) {
       authorizedReviews = reviewService.getAllReviews(studyId, cohortId, offset, limit);
     } else {
@@ -309,13 +309,13 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
-    Review updatedReview =
+    ReviewV1 updatedReview =
         reviewService.updateReview(
             studyId, cohortId, reviewId, body.getDisplayName(), body.getDescription());
     return ResponseEntity.ok(toApiObject(updatedReview));
   }
 
-  private static ApiReviewV2 toApiObject(Review review) {
+  private static ApiReviewV2 toApiObject(ReviewV1 review) {
     return new ApiReviewV2()
         .id(review.getReviewId())
         .displayName(review.getDisplayName())
@@ -337,7 +337,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     }
 
     Map<String, List<ApiAnnotationValueV2>> annotationValues = new HashMap<>();
-    for (AnnotationValue annotationValue : reviewInstance.getAnnotationValues()) {
+    for (AnnotationValueV1 annotationValue : reviewInstance.getAnnotationValues()) {
       String annotationId = annotationValue.getAnnotationId();
       if (!annotationValues.containsKey(annotationId)) {
         annotationValues.put(

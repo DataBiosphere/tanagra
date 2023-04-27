@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.service.artifact.Annotation;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
+import bio.terra.tanagra.service.artifact.AnnotationV1;
+import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Comparator;
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
   private final Attribute attribute;
-  private final Annotation annotation;
+  private final AnnotationV1 annotation;
   private final OrderByDirection direction;
 
   public ReviewQueryOrderBy(Attribute attribute, OrderByDirection direction) {
@@ -19,7 +19,7 @@ public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
     this.direction = direction;
   }
 
-  public ReviewQueryOrderBy(Annotation annotation, OrderByDirection direction) {
+  public ReviewQueryOrderBy(AnnotationV1 annotation, OrderByDirection direction) {
     this.attribute = null;
     this.annotation = annotation;
     this.direction = direction;
@@ -29,7 +29,7 @@ public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
     return attribute;
   }
 
-  public Annotation getAnnotation() {
+  public AnnotationV1 getAnnotation() {
     return annotation;
   }
 
@@ -55,11 +55,11 @@ public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
         returnVal = valueDisplay1.getValue().compareTo(valueDisplay2.getValue());
       }
     } else {
-      Optional<AnnotationValue> annotationValue1 =
+      Optional<AnnotationValueV1> annotationValue1 =
           o1.getAnnotationValues().stream()
               .filter(av -> av.getAnnotationId().equals(getAnnotation().getAnnotationId()))
               .findFirst();
-      Optional<AnnotationValue> annotationValue2 =
+      Optional<AnnotationValueV1> annotationValue2 =
           o2.getAnnotationValues().stream()
               .filter(av -> av.getAnnotationId().equals(getAnnotation().getAnnotationId()))
               .findFirst();
