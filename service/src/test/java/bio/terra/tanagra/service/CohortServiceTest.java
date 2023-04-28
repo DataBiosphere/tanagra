@@ -77,13 +77,13 @@ public class CohortServiceTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder()
-                .underlayName(UNDERLAY_NAME)
+                .underlay(UNDERLAY_NAME)
                 .displayName(displayName)
                 .description(description),
             createdByEmail);
     assertNotNull(createdCohort);
     LOGGER.info("Created cohort {} at {}", createdCohort.getId(), createdCohort.getCreated());
-    assertEquals(UNDERLAY_NAME, createdCohort.getUnderlayName());
+    assertEquals(UNDERLAY_NAME, createdCohort.getUnderlay());
     assertEquals(displayName, createdCohort.getDisplayName());
     assertEquals(description, createdCohort.getDescription());
     assertEquals(createdByEmail, createdCohort.getCreatedBy());
@@ -127,7 +127,7 @@ public class CohortServiceTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder()
-                .underlayName(UNDERLAY_NAME)
+                .underlay(UNDERLAY_NAME)
                 .displayName("cohort 1")
                 .description("first cohort"),
             userEmail);
@@ -139,7 +139,7 @@ public class CohortServiceTest {
         cohortService.createCohort(
             study2.getId(),
             Cohort.builder()
-                .underlayName(UNDERLAY_NAME)
+                .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("second cohort"),
             userEmail);
@@ -149,7 +149,7 @@ public class CohortServiceTest {
         cohortService.createCohort(
             study2.getId(),
             Cohort.builder()
-                .underlayName(UNDERLAY_NAME)
+                .underlay(UNDERLAY_NAME)
                 .displayName("cohort 3")
                 .description("third cohort"),
             userEmail);
@@ -197,7 +197,7 @@ public class CohortServiceTest {
         NotFoundException.class,
         () ->
             cohortService.createCohort(
-                study1.getId(), Cohort.builder().underlayName("invalid_underlay"), "abc@123.com"));
+                study1.getId(), Cohort.builder().underlay("invalid_underlay"), "abc@123.com"));
   }
 
   @Test
@@ -245,7 +245,7 @@ public class CohortServiceTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder()
-                .underlayName(UNDERLAY_NAME)
+                .underlay(UNDERLAY_NAME)
                 .displayName("cohort 1")
                 .description("first cohort"),
             userEmail);
@@ -277,7 +277,7 @@ public class CohortServiceTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder()
-                .underlayName(UNDERLAY_NAME)
+                .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("first cohort"),
             userEmail,

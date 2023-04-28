@@ -2,16 +2,13 @@ package bio.terra.tanagra.service.model;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class Cohort {
   private final String id;
-  private final String underlayName;
+  private final String underlay;
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
@@ -22,7 +19,7 @@ public class Cohort {
 
   private Cohort(Builder builder) {
     this.id = builder.id;
-    this.underlayName = builder.underlayName;
+    this.underlay = builder.underlay;
     this.created = builder.created;
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
@@ -40,8 +37,8 @@ public class Cohort {
     return id;
   }
 
-  public String getUnderlayName() {
-    return underlayName;
+  public String getUnderlay() {
+    return underlay;
   }
 
   public OffsetDateTime getCreated() {
@@ -83,7 +80,7 @@ public class Cohort {
 
   public static class Builder {
     private String id;
-    private String underlayName;
+    private String underlay;
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
@@ -97,8 +94,8 @@ public class Cohort {
       return this;
     }
 
-    public Builder underlayName(String underlayName) {
-      this.underlayName = underlayName;
+    public Builder underlay(String underlay) {
+      this.underlay = underlay;
       return this;
     }
 
@@ -141,6 +138,8 @@ public class Cohort {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
+      revisions = new ArrayList<>(revisions);
+      revisions.sort(Comparator.comparing(CohortRevision::getVersion));
       return new Cohort(this);
     }
 
@@ -148,8 +147,8 @@ public class Cohort {
       return id;
     }
 
-    public String getUnderlayName() {
-      return underlayName;
+    public String getUnderlay() {
+      return underlay;
     }
 
     public void addRevision(CohortRevision cohortRevision) {

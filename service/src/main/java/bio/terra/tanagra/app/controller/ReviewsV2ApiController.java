@@ -115,7 +115,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     // TODO: Move this to the ReviewService once we can build the EntityFilter from the Cohort on
     // the backend, rather than having the UI pass it in.
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlayName());
+    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
     EntityFilter entityFilter =
         fromApiConversionService.fromApiObject(
             body.getFilter(), underlay.getPrimaryEntity(), underlay.getName());
@@ -151,7 +151,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     ValidationUtils.validateApiFilter(body.getEntityFilter());
 
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity entity = underlaysService.getUnderlay(cohort.getUnderlayName()).getPrimaryEntity();
+    Entity entity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
     List<Attribute> attributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
       attributes =
@@ -163,7 +163,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     EntityFilter entityFilter =
         (body.getEntityFilter() != null)
             ? fromApiConversionService.fromApiObject(
-                body.getEntityFilter(), entity, cohort.getUnderlayName())
+                body.getEntityFilter(), entity, cohort.getUnderlay())
             : null;
     AnnotationFilter annotationFilter;
     if (body.getAnnotationFilter() != null) {
@@ -238,7 +238,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         new ResourceId(reviewId));
 
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity entity = underlaysService.getUnderlay(cohort.getUnderlayName()).getPrimaryEntity();
+    Entity entity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
 
     List<Attribute> attributes = new ArrayList<>();
     if (body.getAttributes() != null) {

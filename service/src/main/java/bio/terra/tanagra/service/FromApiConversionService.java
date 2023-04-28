@@ -17,6 +17,7 @@ import bio.terra.tanagra.service.instances.filter.HierarchyParentFilter;
 import bio.terra.tanagra.service.instances.filter.HierarchyRootFilter;
 import bio.terra.tanagra.service.instances.filter.RelationshipFilter;
 import bio.terra.tanagra.service.instances.filter.TextFilter;
+import bio.terra.tanagra.service.model.Criteria;
 import bio.terra.tanagra.underlay.*;
 import com.google.common.base.Strings;
 import java.util.Collection;
@@ -168,5 +169,16 @@ public final class FromApiConversionService {
       default:
         throw new SystemException("Unknown API text match type: " + apiMatchType.name());
     }
+  }
+
+  public static Criteria fromApiObject(ApiCriteriaV2 apiObj) {
+    return Criteria.builder()
+        .id(apiObj.getId())
+        .displayName(apiObj.getDisplayName())
+        .pluginName(apiObj.getPluginName())
+        .uiConfig(apiObj.getUiConfig())
+        .selectionData(apiObj.getSelectionData())
+        .tags(apiObj.getTags())
+        .build();
   }
 }

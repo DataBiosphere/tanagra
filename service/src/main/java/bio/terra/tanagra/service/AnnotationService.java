@@ -259,7 +259,7 @@ public class AnnotationService {
       String studyId, String cohortId, Table<String, String, String> values) {
     // Convert table of annotation values to String representing CSV file
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlayName());
+    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
     String primaryIdSourceColumnName =
         underlay
             .getPrimaryEntity()

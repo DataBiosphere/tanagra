@@ -44,7 +44,7 @@ public class CohortService {
     featureConfiguration.artifactStorageEnabledCheck();
 
     // Make sure underlay name and study id are valid.
-    underlaysService.getUnderlay(cohortBuilder.getUnderlayName());
+    underlaysService.getUnderlay(cohortBuilder.getUnderlay());
     studyService.getStudy(studyId);
 
     // Create the first revision.

@@ -13,11 +13,11 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.CohortService;
+import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.model.CohortRevision;
-import bio.terra.tanagra.service.model.Criteria;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +48,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
             Cohort.builder()
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .underlayName(body.getUnderlayName()),
+                .underlay(body.getUnderlayName()),
             SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(ToApiConversionUtils.toApiObject(createdCohort));
   }
@@ -125,19 +125,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
         .groupByCountValue(apiObj.getGroupByCountValue())
         .criteria(
             apiObj.getCriteria().stream()
-                .map(CohortsV2ApiController::fromApiObject)
+                .map(FromApiConversionService::fromApiObject)
                 .collect(Collectors.toList()))
-        .build();
-  }
-
-  private static Criteria fromApiObject(ApiCriteriaV2 apiObj) {
-    return Criteria.builder()
-        .id(apiObj.getId())
-        .displayName(apiObj.getDisplayName())
-        .pluginName(apiObj.getPluginName())
-        .uiConfig(apiObj.getUiConfig())
-        .selectionData(apiObj.getSelectionData())
-        .tags(apiObj.getTags())
         .build();
   }
 }

@@ -82,14 +82,37 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: last_modified
-                  type: timestamp
-              - column:
                   name: display_name
                   type: text
+                  constraints:
+                    nullable: true
               - column:
                   name: description
                   type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
 
         - createTable:
             tableName: cohort
@@ -111,23 +134,20 @@ databaseChangeLog:
                     deleteCascade: true
                   remarks: Deleting a study will cascade to delete the cohorts contained in it
               - column:
-                  name: underlay_name
+                  name: underlay
                   type: text
                   constraints:
                     nullable: false
-                    unique: false
               - column:
                   name: display_name
                   type: text
                   constraints:
                     nullable: true
-                    unique: false
               - column:
                   name: description
                   type: text
                   constraints:
                     nullable: true
-                    unique: false
               - column:
                   name: created
                   type: timestamptz
@@ -298,14 +318,14 @@ databaseChangeLog:
                   name: criteria_group_section_id
                   type: text
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: cohort_revision_id
                   type: text
                   constraints:
                     references: cohort_revision(id)
                     foreignKeyName: fk_cohort_revision
-                    nullable: false
+                    nullable: true
                     deleteCascade: true
                   remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
               - column:

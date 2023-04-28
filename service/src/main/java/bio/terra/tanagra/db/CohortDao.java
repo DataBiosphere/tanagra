@@ -31,12 +31,12 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a cohort.
   private static final String COHORT_SELECT_SQL =
-      "SELECT id, underlay_name, created, created_by, last_modified, last_modified_by, display_name, description FROM cohort";
+      "SELECT id, underlay, created, created_by, last_modified, last_modified_by, display_name, description FROM cohort";
   private static final RowMapper<Cohort.Builder> COHORT_ROW_MAPPER =
       (rs, rowNum) ->
           Cohort.builder()
               .id(rs.getString("id"))
-              .underlayName(rs.getString("underlay_name"))
+              .underlay(rs.getString("underlay"))
               .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
@@ -186,14 +186,14 @@ public class CohortDao {
     // Write the cohort. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
-        "INSERT INTO cohort (study_id, id, underlay_name, created_by, last_modified_by, display_name, description) "
-            + "VALUES (:study_id, :id, :underlay_name, :created_by, :last_modified_by, :display_name, :description)";
+        "INSERT INTO cohort (study_id, id, underlay, created_by, last_modified_by, display_name, description) "
+            + "VALUES (:study_id, :id, :underlay, :created_by, :last_modified_by, :display_name, :description)";
     LOGGER.debug("CREATE cohort: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
             .addValue("id", cohort.getId())
-            .addValue("underlay_name", cohort.getUnderlayName())
+            .addValue("underlay", cohort.getUnderlay())
             .addValue("created_by", cohort.getCreatedBy())
             .addValue("last_modified_by", cohort.getLastModifiedBy())
             .addValue("display_name", cohort.getDisplayName())
@@ -425,7 +425,7 @@ public class CohortDao {
 
   private void updateCriteriaHelper(
       String cohortRevisionId, List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
-    // Delete any existing criteria group sections, criteria groups, criteria, and criteria tags.
+    // Delete any existing criteria group sections, criteria groups, and criteria.
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("cohort_revision_id", cohortRevisionId);
     String sql =
@@ -444,7 +444,7 @@ public class CohortDao {
     rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("DELETE criteria rowsAffected = {}", rowsAffected);
 
-    // Write the criteria group sections, criteria groups, criteria, and criteria tags.
+    // Write the criteria group sections, criteria groups, and criteria.
     List<MapSqlParameterSource> sectionParamSets = new ArrayList<>();
     List<MapSqlParameterSource> groupParamSets = new ArrayList<>();
     List<MapSqlParameterSource> criteriaParamSets = new ArrayList<>();

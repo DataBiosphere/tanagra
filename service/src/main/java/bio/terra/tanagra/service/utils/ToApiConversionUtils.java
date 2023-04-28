@@ -89,7 +89,7 @@ public final class ToApiConversionUtils {
   public static ApiCohortV2 toApiObject(Cohort cohort) {
     return new ApiCohortV2()
         .id(cohort.getId())
-        .underlayName(cohort.getUnderlayName())
+        .underlayName(cohort.getUnderlay())
         .displayName(cohort.getDisplayName())
         .description(cohort.getDescription())
         .created(cohort.getCreated())
