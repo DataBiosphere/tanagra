@@ -2002,11 +2002,8 @@ components:
           $ref: "#/components/schemas/ReviewDescriptionV2"
         size:
           $ref: "#/components/schemas/ReviewSizeV2"
-        criteriaGroupSections:
-          type: array
-          description: Criteria group sections that define the entity filter
-          items:
-            $ref: "#/components/schemas/CriteriaGroupSectionV3"
+        cohort:
+          $ref: "#/components/schemas/CohortV2"
         created:
           description: Timestamp of when the review was created
           type: string

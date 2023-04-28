@@ -10,17 +10,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.ReviewsV2Api;
-import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
-import bio.terra.tanagra.generated.model.ApiInstanceCountListV2;
-import bio.terra.tanagra.generated.model.ApiReviewCountQueryV2;
-import bio.terra.tanagra.generated.model.ApiReviewCreateInfoV2;
-import bio.terra.tanagra.generated.model.ApiReviewInstanceListV2;
-import bio.terra.tanagra.generated.model.ApiReviewInstanceV2;
-import bio.terra.tanagra.generated.model.ApiReviewListV2;
-import bio.terra.tanagra.generated.model.ApiReviewQueryV2;
-import bio.terra.tanagra.generated.model.ApiReviewUpdateInfoV2;
-import bio.terra.tanagra.generated.model.ApiReviewV2;
-import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
@@ -37,7 +27,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationV1;
 import bio.terra.tanagra.service.artifact.AnnotationValueV1;
-import bio.terra.tanagra.service.artifact.ReviewV1;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.ReviewInstance;
 import bio.terra.tanagra.service.instances.ReviewQueryOrderBy;
@@ -46,6 +35,7 @@ import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.model.Cohort;
+import bio.terra.tanagra.service.model.Review;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.service.utils.ValidationUtils;
 import bio.terra.tanagra.underlay.Attribute;
@@ -58,7 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,30 +87,23 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), CREATE, COHORT_REVIEW, new ResourceId(cohortId));
 
+    // TODO: Remove the entity filter from here once we store it for the cohort.
     ValidationUtils.validateApiFilter(body.getFilter());
-
-    // Generate a random 10-character alphanumeric string for the new review ID.
-    String newReviewId = RandomStringUtils.randomAlphanumeric(10);
-
-    ReviewV1 reviewToCreate =
-        ReviewV1.builder()
-            .reviewId(newReviewId)
-            .displayName(body.getDisplayName())
-            .description(body.getDescription())
-            .size(body.getSize())
-            .createdBy(SpringAuthentication.getCurrentUser().getEmail())
-            .build();
-
-    // TODO: Move this to the ReviewService once we can build the EntityFilter from the Cohort on
-    // the backend, rather than having the UI pass it in.
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
     EntityFilter entityFilter =
-        fromApiConversionService.fromApiObject(
-            body.getFilter(), underlay.getPrimaryEntity(), underlay.getName());
+        fromApiConversionService.fromApiObject(body.getFilter(), studyId, cohortId);
 
-    reviewService.createReview(studyId, cohortId, reviewToCreate, entityFilter, underlay);
-    return ResponseEntity.ok(toApiObject(reviewService.getReview(studyId, cohortId, newReviewId)));
+    Review createdReview =
+        reviewService.createReview(
+            studyId,
+            cohortId,
+            Review.builder()
+                .displayName(body.getDisplayName())
+                .description(body.getDescription())
+                .size(body.getSize()),
+            SpringAuthentication.getCurrentUser().getEmail(),
+            entityFilter);
+    return ResponseEntity.ok(
+        toApiObject(createdReview, cohortService.getCohort(studyId, cohortId)));
   }
 
   @Override
@@ -136,7 +118,41 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<ApiReviewV2> getReview(String studyId, String cohortId, String reviewId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, COHORT_REVIEW, new ResourceId(reviewId));
-    return ResponseEntity.ok(toApiObject(reviewService.getReview(studyId, cohortId, reviewId)));
+    return ResponseEntity.ok(
+        toApiObject(
+            reviewService.getReview(studyId, cohortId, reviewId),
+            cohortService.getCohort(studyId, cohortId)));
+  }
+
+  @Override
+  public ResponseEntity<ApiReviewListV2> listReviews(
+      String studyId, String cohortId, Integer offset, Integer limit) {
+    ResourceIdCollection authorizedReviewIds =
+        accessControlService.listResourceIds(
+            SpringAuthentication.getCurrentUser(), COHORT_REVIEW, offset, limit);
+    ApiReviewListV2 apiReviews = new ApiReviewListV2();
+    reviewService.listReviews(authorizedReviewIds, studyId, cohortId, offset, limit).stream()
+        .forEach(
+            review ->
+                apiReviews.add(toApiObject(review, cohortService.getCohort(studyId, cohortId))));
+    return ResponseEntity.ok(apiReviews);
+  }
+
+  @Override
+  public ResponseEntity<ApiReviewV2> updateReview(
+      String studyId, String cohortId, String reviewId, ApiReviewUpdateInfoV2 body) {
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
+    Review updatedReview =
+        reviewService.updateReview(
+            studyId,
+            cohortId,
+            reviewId,
+            SpringAuthentication.getCurrentUser().getEmail(),
+            body.getDisplayName(),
+            body.getDescription());
+    return ResponseEntity.ok(
+        toApiObject(updatedReview, cohortService.getCohort(studyId, cohortId)));
   }
 
   @Override
@@ -274,59 +290,6 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
             .sql(queryRequest.getSql()));
   }
 
-  @Override
-  public ResponseEntity<ApiReviewListV2> listReviews(
-      String studyId, String cohortId, Integer offset, Integer limit) {
-    ResourceIdCollection authorizedReviewIds =
-        accessControlService.listResourceIds(
-            SpringAuthentication.getCurrentUser(), COHORT_REVIEW, offset, limit);
-    List<ReviewV1> authorizedReviews;
-    if (authorizedReviewIds.isAllResourceIds()) {
-      authorizedReviews = reviewService.getAllReviews(studyId, cohortId, offset, limit);
-    } else {
-      authorizedReviews =
-          reviewService.getReviews(
-              studyId,
-              cohortId,
-              authorizedReviewIds.getResourceIds().stream()
-                  .map(ResourceId::getId)
-                  .collect(Collectors.toList()),
-              offset,
-              limit);
-    }
-
-    ApiReviewListV2 apiReviews = new ApiReviewListV2();
-    authorizedReviews.stream()
-        .forEach(
-            review -> {
-              apiReviews.add(toApiObject(review));
-            });
-    return ResponseEntity.ok(apiReviews);
-  }
-
-  @Override
-  public ResponseEntity<ApiReviewV2> updateReview(
-      String studyId, String cohortId, String reviewId, ApiReviewUpdateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
-    ReviewV1 updatedReview =
-        reviewService.updateReview(
-            studyId, cohortId, reviewId, body.getDisplayName(), body.getDescription());
-    return ResponseEntity.ok(toApiObject(updatedReview));
-  }
-
-  private static ApiReviewV2 toApiObject(ReviewV1 review) {
-    return new ApiReviewV2()
-        .id(review.getReviewId())
-        .displayName(review.getDisplayName())
-        .description(review.getDescription())
-        .size(review.getSize())
-        .created(review.getCreated())
-        .createdBy(review.getCreatedBy())
-        .lastModified(review.getLastModified())
-        .cohort(ToApiConversionUtils.toApiObject(review.getCohort()));
-  }
-
   private ApiReviewInstanceV2 toApiObject(ReviewInstance reviewInstance) {
     Map<String, ApiValueDisplayV2> attributes = new HashMap<>();
     for (Map.Entry<Attribute, ValueDisplay> attributeValue :
@@ -349,5 +312,30 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     }
 
     return new ApiReviewInstanceV2().attributes(attributes).annotations(annotationValues);
+  }
+
+  private static ApiReviewV2 toApiObject(Review review, Cohort cohort) {
+    // TODO: Remove the cohort argument here once we handle cohort revisions in the API objects.
+    return new ApiReviewV2()
+        .id(review.getId())
+        .displayName(review.getDisplayName())
+        .description(review.getDescription())
+        .size(review.getSize())
+        .created(review.getCreated())
+        .createdBy(review.getCreatedBy())
+        .lastModified(review.getLastModified())
+        .cohort(
+            new ApiCohortV2()
+                .id(review.getRevision().getId())
+                .underlayName(cohort.getUnderlay())
+                .displayName(cohort.getDisplayName())
+                .description(cohort.getDescription())
+                .created(cohort.getCreated())
+                .createdBy(cohort.getCreatedBy())
+                .lastModified(cohort.getLastModified())
+                .criteriaGroupSections(
+                    review.getRevision().getSections().stream()
+                        .map(criteriaGroup -> ToApiConversionUtils.toApiObject(criteriaGroup))
+                        .collect(Collectors.toList())));
   }
 }

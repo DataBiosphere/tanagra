@@ -43,6 +43,19 @@ public class CohortRevision {
     return new Builder();
   }
 
+  public Builder toBuilder() {
+    return builder()
+        .id(id)
+        .sections(sections)
+        .version(version)
+        .setIsMostRecent(isMostRecent)
+        .setIsEditable(isEditable)
+        .created(created)
+        .createdBy(createdBy)
+        .lastModified(lastModified)
+        .lastModifiedBy(lastModifiedBy);
+  }
+
   public String getId() {
     return id;
   }

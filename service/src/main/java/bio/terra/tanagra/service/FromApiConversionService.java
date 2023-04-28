@@ -17,6 +17,7 @@ import bio.terra.tanagra.service.instances.filter.HierarchyParentFilter;
 import bio.terra.tanagra.service.instances.filter.HierarchyRootFilter;
 import bio.terra.tanagra.service.instances.filter.RelationshipFilter;
 import bio.terra.tanagra.service.instances.filter.TextFilter;
+import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.model.Criteria;
 import bio.terra.tanagra.underlay.*;
 import com.google.common.base.Strings;
@@ -30,11 +31,20 @@ import org.springframework.stereotype.Component;
 public final class FromApiConversionService {
   private final UnderlaysService underlaysService;
   private final QuerysService querysService;
+  private final CohortService cohortService;
 
   @Autowired
-  public FromApiConversionService(UnderlaysService underlaysService, QuerysService querysService) {
+  public FromApiConversionService(
+      UnderlaysService underlaysService, QuerysService querysService, CohortService cohortService) {
     this.underlaysService = underlaysService;
     this.querysService = querysService;
+    this.cohortService = cohortService;
+  }
+
+  public EntityFilter fromApiObject(ApiFilterV2 apiFilter, String studyId, String cohortId) {
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
+    return fromApiObject(apiFilter, underlay.getPrimaryEntity(), underlay.getName());
   }
 
   public EntityFilter fromApiObject(ApiFilterV2 apiFilter, Entity entity, String underlayName) {

@@ -2,6 +2,7 @@ package bio.terra.tanagra.db;
 
 import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
+import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
@@ -201,27 +202,8 @@ public class CohortDao {
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("CREATE cohort rowsAffected = {}", rowsAffected);
 
-    // Write the first cohort revision. The created and last_modified fields are set by the DB
-    // automatically on insert.
-    sql =
-        "INSERT INTO cohort_revision (cohort_id, id, version, is_most_recent, is_editable, created_by, last_modified_by) "
-            + "VALUES (:cohort_id, :id, :version, :is_most_recent, :is_editable, :created_by, :last_modified_by)";
-    LOGGER.debug("CREATE cohort_revision: {}", sql);
-    CohortRevision cohortRevision = cohort.getMostRecentRevision();
-    params =
-        new MapSqlParameterSource()
-            .addValue("cohort_id", cohort.getId())
-            .addValue("id", cohortRevision.getId())
-            .addValue("version", cohortRevision.getVersion())
-            .addValue("is_most_recent", cohortRevision.isMostRecent())
-            .addValue("is_editable", cohortRevision.isEditable())
-            .addValue("created_by", cohortRevision.getCreatedBy())
-            .addValue("last_modified_by", cohortRevision.getLastModifiedBy());
-    rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.debug("CREATE cohort_revision rowsAffected = {}", rowsAffected);
-
-    // Write the criteria group sections.
-    updateCriteriaHelper(cohortRevision.getId(), cohortRevision.getSections());
+    // Write the first cohort revision.
+    createRevision(cohort.getId(), cohort.getMostRecentRevision());
   }
 
   @WriteTransaction
@@ -231,6 +213,10 @@ public class CohortDao {
       String displayName,
       String description,
       List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
+    if (displayName == null && description == null && criteriaGroupSections == null) {
+      throw new MissingRequiredFieldException("Must specify field to update.");
+    }
+
     // Update the cohort: display name, description, last modified, last modified by.
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -275,6 +261,40 @@ public class CohortDao {
     }
   }
 
+  @WriteTransaction
+  public void createNextRevision(String id, String userEmail) {
+    // Get the current most recent revision, so we can copy it.
+    Cohort cohort = getCohort(id);
+
+    // Update the current revision to be un-editable and no longer the most recent.
+    String sql =
+        "UPDATE cohort_revision SET is_editable = :is_editable, is_most_recent = :is_most_recent WHERE id = :id";
+    LOGGER.debug("UPDATE cohort_revision: {}", sql);
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("is_editable", false)
+            .addValue("is_most_recent", false)
+            .addValue("id", id);
+    int rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("UPDATE cohort_revision rowsAffected = {}", rowsAffected);
+
+    // Create a new revision.
+    CohortRevision nextRevision =
+        cohort
+            .getMostRecentRevision()
+            .toBuilder()
+            .setIsEditable(true)
+            .setIsMostRecent(true)
+            .version(cohort.getMostRecentRevision().getVersion() + 1)
+            .createdBy(userEmail)
+            .lastModifiedBy(userEmail)
+            .id(null) // Builder will generate a new id.
+            .created(null)
+            .lastModified(null)
+            .build();
+    createRevision(id, nextRevision);
+  }
+
   private List<Cohort> getCohortsHelper(String cohortsSql, MapSqlParameterSource cohortsParams) {
     // Fetch cohorts.
     List<Cohort.Builder> cohorts = jdbcTemplate.query(cohortsSql, cohortsParams, COHORT_ROW_MAPPER);
@@ -292,9 +312,175 @@ public class CohortDao {
     List<Pair<String, CohortRevision.Builder>> cohortRevisions =
         jdbcTemplate.query(sql, params, COHORT_REVISION_ROW_MAPPER);
 
+    // Populate the criteria.
+    getCriteriaHelper(cohortRevisions);
+
+    //    // Fetch criteria group sections. (cohort revision id -> criteria group section)
+    //    sql = CRITERIA_GROUP_SECTION_SELECT_SQL + " WHERE cohort_revision_id IN
+    // (:cohort_revision_ids)";
+    //    params =
+    //        new MapSqlParameterSource()
+    //            .addValue(
+    //                "cohort_revision_ids",
+    //                cohortRevisions.stream()
+    //                    .map(cr -> cr.getValue().getId())
+    //                    .collect(Collectors.toSet()));
+    //    List<Pair<String, CohortRevision.CriteriaGroupSection.Builder>> criteriaGroupSections =
+    //        jdbcTemplate.query(sql, params, CRITERIA_GROUP_SECTION_ROW_MAPPER);
+    //
+    //    // Fetch criteria groups. (criteria group section -> criteria group)
+    //    List<Pair<List<String>, CohortRevision.CriteriaGroup.Builder>> criteriaGroups;
+    //    if (criteriaGroupSections.isEmpty()) {
+    //      criteriaGroups = Collections.emptyList();
+    //    } else {
+    //      sql =
+    //          CRITERIA_GROUP_SELECT_SQL
+    //              + " WHERE criteria_group_section_id IN (:criteria_group_section_ids) AND
+    // cohort_revision_id IN (:cohort_revision_ids)";
+    //      params =
+    //          new MapSqlParameterSource()
+    //              .addValue(
+    //                  "criteria_group_section_ids",
+    //                  criteriaGroupSections.stream()
+    //                      .map(cgs -> cgs.getValue().getId())
+    //                      .collect(Collectors.toSet()))
+    //              .addValue(
+    //                  "cohort_revision_ids",
+    //                  cohortRevisions.stream()
+    //                      .map(cr -> cr.getValue().getId())
+    //                      .collect(Collectors.toSet()));
+    //      criteriaGroups = jdbcTemplate.query(sql, params, CRITERIA_GROUP_ROW_MAPPER);
+    //    }
+    //
+    //    // Fetch criteria. (criteria group id -> criteria)
+    //    List<Pair<List<String>, Criteria.Builder>> criterias;
+    //    if (criteriaGroups.isEmpty()) {
+    //      criterias = Collections.emptyList();
+    //    } else {
+    //      sql =
+    //          CRITERIA_SELECT_SQL
+    //              + " WHERE criteria_group_id IN (:criteria_group_ids) AND
+    // criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN
+    // (:cohort_revision_ids)";
+    //      params =
+    //          new MapSqlParameterSource()
+    //              .addValue(
+    //                  "criteria_group_ids",
+    //                  criteriaGroups.stream()
+    //                      .map(cg -> cg.getValue().getId())
+    //                      .collect(Collectors.toSet()))
+    //              .addValue(
+    //                  "criteria_group_section_ids",
+    //                  criteriaGroupSections.stream()
+    //                      .map(cgs -> cgs.getValue().getId())
+    //                      .collect(Collectors.toSet()))
+    //              .addValue(
+    //                  "cohort_revision_ids",
+    //                  cohortRevisions.stream()
+    //                      .map(cr -> cr.getValue().getId())
+    //                      .collect(Collectors.toSet()));
+    //      criterias = jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER);
+    //    }
+    //
+    //    // Put criteria into their respective criteria groups.
+    //    Map<List<String>, CohortRevision.CriteriaGroup.Builder> criteriaGroupsMap =
+    //        criteriaGroups.stream()
+    //            .collect(
+    //                Collectors.toMap(
+    //                    cg -> {
+    //                      List<String> uniqueId = new ArrayList<>();
+    //                      uniqueId.add(cg.getValue().getId());
+    //                      uniqueId.addAll(cg.getKey());
+    //                      return uniqueId;
+    //                    },
+    //                    cg -> cg.getValue()));
+    //    criterias.stream()
+    //        .forEach(
+    //            pair -> {
+    //              List<String> criteriaGroupId = pair.getKey();
+    //              Criteria criteria = pair.getValue().build();
+    //              criteriaGroupsMap.get(criteriaGroupId).addCriteria(criteria);
+    //            });
+    //
+    //    // Put criteria groups into their respective criteria group sections.
+    //    Map<List<String>, CohortRevision.CriteriaGroupSection.Builder> criteriaGroupSectionsMap =
+    //        criteriaGroupSections.stream()
+    //            .collect(
+    //                Collectors.toMap(
+    //                    cgs -> {
+    //                      List<String> uniqueId = new ArrayList<>();
+    //                      uniqueId.add(cgs.getValue().getId());
+    //                      uniqueId.add(cgs.getKey());
+    //                      return uniqueId;
+    //                    },
+    //                    cgs -> cgs.getValue()));
+    //    criteriaGroups.stream()
+    //        .forEach(
+    //            pair -> {
+    //              List<String> criteriaGroupSectionId = pair.getKey();
+    //              CohortRevision.CriteriaGroup criteriaGroup = pair.getValue().build();
+    //
+    // criteriaGroupSectionsMap.get(criteriaGroupSectionId).addCriteriaGroup(criteriaGroup);
+    //            });
+    //
+    //    // Put criteria group sections into their respective cohort revisions.
+    //    Map<String, CohortRevision.Builder> cohortRevisionsMap =
+    //        cohortRevisions.stream()
+    //            .collect(Collectors.toMap(cr -> cr.getValue().getId(), cr -> cr.getValue()));
+    //    criteriaGroupSections.stream()
+    //        .forEach(
+    //            pair -> {
+    //              String cohortRevisionId = pair.getKey();
+    //              CohortRevision.CriteriaGroupSection criteriaGroupSection =
+    // pair.getValue().build();
+    //              cohortRevisionsMap
+    //                  .get(cohortRevisionId)
+    //                  .addCriteriaGroupSection(criteriaGroupSection);
+    //            });
+
+    // Put cohort revisions into their respective cohorts.
+    Map<String, Cohort.Builder> cohortsMap =
+        cohorts.stream().collect(Collectors.toMap(Cohort.Builder::getId, Function.identity()));
+    cohortRevisions.stream()
+        .forEach(
+            entry -> {
+              String cohortId = entry.getKey();
+              CohortRevision cohortRevision = entry.getValue().build();
+              cohortsMap.get(cohortId).addRevision(cohortRevision);
+            });
+
+    return cohortsMap.values().stream().map(Cohort.Builder::build).collect(Collectors.toList());
+  }
+
+  private void createRevision(String cohortId, CohortRevision cohortRevision) {
+    // Create the review. The created and last_modified fields are set by the DB automatically on
+    // insert.
+    String sql =
+        "INSERT INTO cohort_revision (cohort_id, id, version, is_most_recent, is_editable, created_by, last_modified_by) "
+            + "VALUES (:cohort_id, :id, :version, :is_most_recent, :is_editable, :created_by, :last_modified_by)";
+    LOGGER.debug("CREATE cohort_revision: {}", sql);
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("cohort_id", cohortId)
+            .addValue("id", cohortRevision.getId())
+            .addValue("version", cohortRevision.getVersion())
+            .addValue("is_most_recent", cohortRevision.isMostRecent())
+            .addValue("is_editable", cohortRevision.isEditable())
+            .addValue("created_by", cohortRevision.getCreatedBy())
+            .addValue("last_modified_by", cohortRevision.getLastModifiedBy());
+    int rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("CREATE cohort_revision rowsAffected = {}", rowsAffected);
+
+    // Write the criteria group sections.
+    updateCriteriaHelper(cohortRevision.getId(), cohortRevision.getSections());
+  }
+
+  @ReadTransaction
+  public void getCriteriaHelper(List<Pair<String, CohortRevision.Builder>> cohortRevisions) {
     // Fetch criteria group sections. (cohort revision id -> criteria group section)
-    sql = CRITERIA_GROUP_SECTION_SELECT_SQL + " WHERE cohort_revision_id IN (:cohort_revision_ids)";
-    params =
+    String sql =
+        CRITERIA_GROUP_SECTION_SELECT_SQL + " WHERE cohort_revision_id IN (:cohort_revision_ids)";
+    MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue(
                 "cohort_revision_ids",
@@ -408,19 +594,6 @@ public class CohortDao {
                   .get(cohortRevisionId)
                   .addCriteriaGroupSection(criteriaGroupSection);
             });
-
-    // Put cohort revisions into their respective cohorts.
-    Map<String, Cohort.Builder> cohortsMap =
-        cohorts.stream().collect(Collectors.toMap(Cohort.Builder::getId, Function.identity()));
-    cohortRevisions.stream()
-        .forEach(
-            entry -> {
-              String cohortId = entry.getKey();
-              CohortRevision cohortRevision = entry.getValue().build();
-              cohortsMap.get(cohortId).addRevision(cohortRevision);
-            });
-
-    return cohortsMap.values().stream().map(Cohort.Builder::build).collect(Collectors.toList());
   }
 
   private void updateCriteriaHelper(

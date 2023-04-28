@@ -50,7 +50,6 @@ databaseChangeLog:
                   type: text
                   constraints:
                     nullable: false
-                  defaultValueComputed: now()
 
         - createTable:
             tableName: concept_set
@@ -171,6 +170,86 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
+        - createTable:
+            tableName: review
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_cohort
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort will cascade to delete the reviews associated with it
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: size
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: primary_entity_instance
+            columns:
+              - column:
+                  name: review_id
+                  type: text
+                  constraints:
+                    references: review(id)
+                    foreignKeyName: fk_review
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a review will cascade to delete the entity instances contained in it
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: false
+                  remarks: The primary entity instance id is defined by the underlying dataset, not by this application DB
+        - addUniqueConstraint:
+            constraintName: pk_primary_entity_instance
+            tableName: primary_entity_instance
+            columnNames: id, review_id
 
         - createTable:
             tableName: cohort_revision
@@ -191,6 +270,15 @@ databaseChangeLog:
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a cohort will cascade to delete the cohort revisions associated with it
+              - column:
+                  name: review_id
+                  type: text
+                  constraints:
+                    references: review(id)
+                    foreignKeyName: fk_review
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a review will cascade to delete the cohort revisions associated with it
               - column:
                   name: version
                   type: integer

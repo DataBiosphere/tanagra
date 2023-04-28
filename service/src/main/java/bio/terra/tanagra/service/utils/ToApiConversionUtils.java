@@ -101,7 +101,7 @@ public final class ToApiConversionUtils {
                 .collect(Collectors.toList()));
   }
 
-  private static ApiCriteriaGroupSectionV3 toApiObject(
+  public static ApiCriteriaGroupSectionV3 toApiObject(
       CohortRevision.CriteriaGroupSection criteriaGroupSection) {
     return new ApiCriteriaGroupSectionV3()
         .id(criteriaGroupSection.getId())

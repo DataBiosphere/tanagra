@@ -32,10 +32,12 @@ public class CohortService {
     this.studyService = studyService;
   }
 
+  /** Create a cohort and its first revision without any criteria. */
   public Cohort createCohort(String studyId, Cohort.Builder cohortBuilder, String userEmail) {
     return createCohort(studyId, cohortBuilder, userEmail, Collections.emptyList());
   }
 
+  /** Create a cohort and its first revision. */
   public Cohort createCohort(
       String studyId,
       Cohort.Builder cohortBuilder,
@@ -69,6 +71,7 @@ public class CohortService {
     cohortDao.deleteCohort(cohortId);
   }
 
+  /** List cohorts with their most recent revisions. */
   public List<Cohort> listCohorts(
       ResourceIdCollection authorizedCohortIds, String studyId, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
@@ -84,13 +87,13 @@ public class CohortService {
     }
   }
 
-  /** Retrieve a cohort with the latest revision. */
+  /** Retrieve a cohort with its most recent revision. */
   public Cohort getCohort(String studyId, String cohortId) {
     featureConfiguration.artifactStorageEnabledCheck();
     return cohortDao.getCohort(cohortId);
   }
 
-  /** Update an existing cohort's most recent revision. */
+  /** Update a cohort's most recent revision. */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public Cohort updateCohort(
       String studyId,

@@ -9,14 +9,17 @@ import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.service.artifact.ReviewV1;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.model.Cohort;
+import bio.terra.tanagra.service.model.Review;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.Lists;
-import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,25 +30,35 @@ import org.springframework.stereotype.Component;
 public class ReviewService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewService.class);
 
+  private final CohortService cohortService;
+  private final UnderlaysService underlaysService;
   private final ReviewDao reviewDao;
   private final FeatureConfiguration featureConfiguration;
 
   @Autowired
-  public ReviewService(ReviewDao reviewDao, FeatureConfiguration featureConfiguration) {
+  public ReviewService(
+      CohortService cohortService,
+      UnderlaysService underlaysService,
+      ReviewDao reviewDao,
+      FeatureConfiguration featureConfiguration) {
+    this.cohortService = cohortService;
+    this.underlaysService = underlaysService;
     this.reviewDao = reviewDao;
     this.featureConfiguration = featureConfiguration;
   }
 
-  /** Create a new review. */
-  public void createReview(
+  /** Create a review and a list of the primary entity instance ids it contains. */
+  public Review createReview(
       String studyId,
-      String cohortRevisionGroupId,
-      ReviewV1 review,
-      EntityFilter entityFilter,
-      Underlay underlay) {
+      String cohortId,
+      Review.Builder reviewBuilder,
+      String userEmail,
+      EntityFilter entityFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
 
     // Build a query of a random sample of primary entity instance ids in the cohort.
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
     TableVariable entityTableVar =
         TableVariable.forPrimary(
             underlay.getPrimaryEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer());
@@ -58,12 +71,12 @@ public class ReviewService {
             .tables(tableVars)
             .where(entityFilter.getFilterVariable(entityTableVar, tableVars))
             .orderBy(List.of(OrderByVariable.forRandom()))
-            .limit(review.getSize())
+            .limit(reviewBuilder.getSize())
             .build();
-    LOGGER.info("Generated query: {}", query.renderSQL());
     QueryRequest queryRequest =
         new QueryRequest(
             query.renderSQL(), new ColumnHeaderSchema(idAttributeMapping.buildColumnSchemas()));
+    LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", queryRequest.getSql());
 
     // Run the query and get an iterator to its results.
     DataPointer dataPointer =
@@ -74,50 +87,61 @@ public class ReviewService {
             .getDataPointer();
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
-    reviewDao.createReview(studyId, cohortRevisionGroupId, review, queryResult);
+    reviewDao.createReview(
+        studyId,
+        cohortId,
+        reviewBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build(),
+        queryResult);
+    return reviewDao.getReview(reviewBuilder.getId());
   }
 
-  /** Delete an existing review. */
-  public void deleteReview(String studyId, String cohortRevisionGroupId, String reviewId) {
+  /** Delete a review and all the primary entity instance ids and annotation values it contains. */
+  public void deleteReview(String studyId, String cohortId, String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    reviewDao.deleteReview(studyId, cohortRevisionGroupId, reviewId);
+    reviewDao.deleteReview(reviewId);
   }
 
-  /** Retrieves a list of all reviews for a cohort. */
-  public List<ReviewV1> getAllReviews(
-      String studyId, String cohortRevisionGroupId, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return reviewDao.getAllReviews(studyId, cohortRevisionGroupId, offset, limit);
-  }
-
-  /** Retrieves a list of reviews by ID. */
-  public List<ReviewV1> getReviews(
-      String studyId, String cohortRevisionGroupId, List<String> reviewIds, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return reviewDao.getReviewsMatchingList(
-        studyId, cohortRevisionGroupId, new HashSet<>(reviewIds), offset, limit);
-  }
-
-  /** Retrieves a review by ID. */
-  public ReviewV1 getReview(String studyId, String cohortRevisionGroupId, String reviewId) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return reviewDao.getReview(studyId, cohortRevisionGroupId, reviewId);
-  }
-
-  /** Update an existing review. Currently, can change the review's display name or description. */
-  @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public ReviewV1 updateReview(
+  /** List reviews with their cohort revisions. */
+  public List<Review> listReviews(
+      ResourceIdCollection authorizedReviewIds,
       String studyId,
-      String cohortRevisionGroupId,
+      String cohortId,
+      int offset,
+      int limit) {
+    featureConfiguration.artifactStorageEnabledCheck();
+    if (authorizedReviewIds.isAllResourceIds()) {
+      return reviewDao.getAllReviews(cohortId, offset, limit);
+    } else {
+      return reviewDao.getReviewsMatchingList(
+          authorizedReviewIds.getResourceIds().stream()
+              .map(ResourceId::getId)
+              .collect(Collectors.toSet()),
+          offset,
+          limit);
+    }
+  }
+
+  /** Retrieve a review with its cohort revision. */
+  public Review getReview(String studyId, String cohortId, String reviewId) {
+    featureConfiguration.artifactStorageEnabledCheck();
+    return reviewDao.getReview(reviewId);
+  }
+
+  /** Update a review's metadata. */
+  @SuppressWarnings("PMD.UseObjectForClearerAPI")
+  public Review updateReview(
+      String studyId,
+      String cohortId,
       String reviewId,
+      String userEmail,
       @Nullable String displayName,
       @Nullable String description) {
     featureConfiguration.artifactStorageEnabledCheck();
-    reviewDao.updateReview(studyId, cohortRevisionGroupId, reviewId, displayName, description);
-    return reviewDao.getReview(studyId, cohortRevisionGroupId, reviewId);
+    reviewDao.updateReview(reviewId, userEmail, displayName, description);
+    return reviewDao.getReview(reviewId);
   }
 
-  /** Retrieves a list of the frozen primary entity instance ids for this review. */
+  /** List the primary entity instance ids contained in a review. */
   public List<Literal> getPrimaryEntityIds(String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
     return reviewDao.getPrimaryEntityIds(reviewId);
