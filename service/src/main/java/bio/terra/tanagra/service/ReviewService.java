@@ -17,6 +17,7 @@ import bio.terra.tanagra.service.model.Review;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Underlay;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,8 +88,21 @@ public class ReviewService {
             .getDataPointer();
     QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
 
+    return createReviewHelper(studyId, cohortId, reviewBuilder, userEmail, queryResult);
+  }
+
+  @VisibleForTesting
+  public Review createReviewHelper(
+      String studyId,
+      String cohortId,
+      Review.Builder reviewBuilder,
+      String userEmail,
+      QueryResult queryResult) {
+    featureConfiguration.artifactStorageEnabledCheck();
+    if (!queryResult.getRowResults().iterator().hasNext()) {
+      throw new IllegalArgumentException("Cannot create a review with an empty query result");
+    }
     reviewDao.createReview(
-        studyId,
         cohortId,
         reviewBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build(),
         queryResult);

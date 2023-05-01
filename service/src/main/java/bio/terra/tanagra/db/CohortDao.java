@@ -262,19 +262,20 @@ public class CohortDao {
   }
 
   @WriteTransaction
-  public void createNextRevision(String id, String userEmail) {
+  public void createNextRevision(String cohortId, String reviewId, String userEmail) {
     // Get the current most recent revision, so we can copy it.
-    Cohort cohort = getCohort(id);
+    Cohort cohort = getCohort(cohortId);
 
     // Update the current revision to be un-editable and no longer the most recent.
     String sql =
-        "UPDATE cohort_revision SET is_editable = :is_editable, is_most_recent = :is_most_recent WHERE id = :id";
+        "UPDATE cohort_revision SET review_id = :review_id, is_editable = :is_editable, is_most_recent = :is_most_recent WHERE cohort_id = :cohort_id";
     LOGGER.debug("UPDATE cohort_revision: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
+            .addValue("review_id", reviewId)
             .addValue("is_editable", false)
             .addValue("is_most_recent", false)
-            .addValue("id", id);
+            .addValue("cohort_id", cohortId);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE cohort_revision rowsAffected = {}", rowsAffected);
 
@@ -292,7 +293,7 @@ public class CohortDao {
             .created(null)
             .lastModified(null)
             .build();
-    createRevision(id, nextRevision);
+    createRevision(cohortId, nextRevision);
   }
 
   private List<Cohort> getCohortsHelper(String cohortsSql, MapSqlParameterSource cohortsParams) {
@@ -452,7 +453,8 @@ public class CohortDao {
     return cohortsMap.values().stream().map(Cohort.Builder::build).collect(Collectors.toList());
   }
 
-  private void createRevision(String cohortId, CohortRevision cohortRevision) {
+  @WriteTransaction
+  public void createRevision(String cohortId, CohortRevision cohortRevision) {
     // Create the review. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =

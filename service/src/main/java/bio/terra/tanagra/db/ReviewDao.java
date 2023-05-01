@@ -82,14 +82,14 @@ public class ReviewDao {
   }
 
   @ReadTransaction
-  public List<Review> getAllReviews(String studyId, int offset, int limit) {
+  public List<Review> getAllReviews(String cohortId, int offset, int limit) {
     String sql =
         REVIEW_SELECT_SQL
-            + " WHERE study_id = :study_id ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " WHERE cohort_id = :cohort_id ORDER BY display_name OFFSET :offset LIMIT :limit";
     LOGGER.debug("GET ALL reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("study_id", studyId)
+            .addValue("cohort_id", cohortId)
             .addValue("offset", offset)
             .addValue("limit", limit);
     List<Review> reviews = getReviewsHelper(sql, params);
@@ -140,8 +140,7 @@ public class ReviewDao {
   }
 
   @WriteTransaction
-  public void createReview(
-      String studyId, String cohortId, Review review, QueryResult queryResult) {
+  public void createReview(String cohortId, Review review, QueryResult queryResult) {
     // Write the review. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
@@ -161,7 +160,7 @@ public class ReviewDao {
     LOGGER.debug("CREATE review rowsAffected = {}", rowsAffected);
 
     // Make the current cohort revision un-editable, and create the next version.
-    cohortDao.createNextRevision(cohortId, review.getCreatedBy());
+    cohortDao.createNextRevision(cohortId, review.getId(), review.getCreatedBy());
 
     // Write the primary entity instance ids contained in the review.
     sql = "INSERT INTO primary_entity_instance (review_id, id) VALUES (:review_id, :id)";

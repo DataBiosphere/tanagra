@@ -1,16 +1,15 @@
 package bio.terra.tanagra.service;
 
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_1;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
 import static bio.terra.tanagra.service.CriteriaValues.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.model.Cohort;
-import bio.terra.tanagra.service.model.CohortRevision;
 import bio.terra.tanagra.service.model.Study;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -204,42 +203,6 @@ public class CohortServiceTest {
   void withCriteria() throws InterruptedException {
     String userEmail = "abc@123.com";
 
-    // Build criteria.
-    CohortRevision.CriteriaGroup criteriaGroup1 =
-        CohortRevision.CriteriaGroup.builder()
-            .displayName("group 1")
-            .criteria(List.of(GENDER_EQ_WOMAN.getValue(), ETHNICITY_EQ_JAPANESE.getValue()))
-            .entity(GENDER_EQ_WOMAN.getKey())
-            .build();
-    CohortRevision.CriteriaGroup criteriaGroup2 =
-        CohortRevision.CriteriaGroup.builder()
-            .displayName("group 2")
-            .criteria(List.of(CONDITION_EQ_DIABETES.getValue()))
-            .entity(CONDITION_EQ_DIABETES.getKey())
-            .groupByCountOperator(BinaryFilterVariable.BinaryOperator.EQUALS)
-            .groupByCountValue(11)
-            .build();
-    CohortRevision.CriteriaGroup criteriaGroup3 =
-        CohortRevision.CriteriaGroup.builder()
-            .displayName("group 3")
-            .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
-            .entity(PROCEDURE_EQ_AMPUTATION.getKey())
-            .build();
-
-    CohortRevision.CriteriaGroupSection criteriaGroupSection1 =
-        CohortRevision.CriteriaGroupSection.builder()
-            .displayName("section 1")
-            .criteriaGroups(List.of(criteriaGroup1, criteriaGroup2))
-            .operator(BooleanAndOrFilterVariable.LogicalOperator.OR)
-            .build();
-    CohortRevision.CriteriaGroupSection criteriaGroupSection2 =
-        CohortRevision.CriteriaGroupSection.builder()
-            .displayName("section 2")
-            .criteriaGroups(List.of(criteriaGroup3))
-            .operator(BooleanAndOrFilterVariable.LogicalOperator.AND)
-            .setIsExcluded(true)
-            .build();
-
     // Create cohort1 without criteria.
     Cohort cohort1 =
         cohortService.createCohort(
@@ -261,16 +224,16 @@ public class CohortServiceTest {
             userEmail,
             null,
             null,
-            List.of(criteriaGroupSection1, criteriaGroupSection2));
+            List.of(CRITERIA_GROUP_SECTION_1, CRITERIA_GROUP_SECTION_2));
     assertNotNull(updatedCohort1);
     LOGGER.info(
         "Updated cohort {} at {}", updatedCohort1.getId(), updatedCohort1.getLastModified());
     assertTrue(updatedCohort1.getLastModified().isAfter(updatedCohort1.getCreated()));
     assertEquals(2, updatedCohort1.getMostRecentRevision().getSections().size());
     assertTrue(
-        updatedCohort1.getMostRecentRevision().getSections().contains(criteriaGroupSection1));
+        updatedCohort1.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_1));
     assertTrue(
-        updatedCohort1.getMostRecentRevision().getSections().contains(criteriaGroupSection2));
+        updatedCohort1.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_2));
 
     // Create cohort2 with criteria.
     Cohort cohort2 =
@@ -279,25 +242,30 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
-                .description("first cohort"),
+                .description("second cohort"),
             userEmail,
-            List.of(criteriaGroupSection2));
+            List.of(CRITERIA_GROUP_SECTION_2));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
     assertEquals(1, cohort2.getMostRecentRevision().getSections().size());
-    assertTrue(cohort2.getMostRecentRevision().getSections().contains(criteriaGroupSection2));
+    assertTrue(cohort2.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_2));
 
     // Update cohort2 criteria only.
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the last modified and created timestamps differ.
     Cohort updatedCohort2 =
         cohortService.updateCohort(
-            study1.getId(), cohort1.getId(), userEmail, null, null, List.of(criteriaGroupSection1));
+            study1.getId(),
+            cohort1.getId(),
+            userEmail,
+            null,
+            null,
+            List.of(CRITERIA_GROUP_SECTION_1));
     assertNotNull(updatedCohort2);
     LOGGER.info(
         "Updated cohort {} at {}", updatedCohort2.getId(), updatedCohort2.getLastModified());
     assertTrue(updatedCohort2.getLastModified().isAfter(updatedCohort2.getCreated()));
     assertEquals(1, updatedCohort2.getMostRecentRevision().getSections().size());
     assertTrue(
-        updatedCohort2.getMostRecentRevision().getSections().contains(criteriaGroupSection1));
+        updatedCohort2.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_1));
   }
 }
