@@ -604,8 +604,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/OffsetV2"
         - $ref: "#/components/parameters/LimitV2"
-      summary: List all annotations for a cohort
-      operationId: listAnnotations
+      summary: List all annotation keys for a cohort
+      operationId: listAnnotationKeys
       tags: [AnnotationsV2]
       responses:
         200:
@@ -617,8 +617,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
     post:
-      summary: Create a new annotation
-      operationId: createAnnotation
+      summary: Create a new annotation key
+      operationId: createAnnotationKey
       tags: [AnnotationsV2]
       requestBody:
         required: true
@@ -636,38 +636,14 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/studies/{studyId}/cohorts/{cohortId}/annotationValues/export":
-    parameters:
-    - $ref: '#/components/parameters/StudyIdV2'
-    - $ref: '#/components/parameters/CohortIdV2'
-    post:
-      summary: Export annotation values
-      description: |
-        Export a table with column headers: primary entity instance id, all
-        annotation keys. Table cells contain annotation values. For each cell,
-        the annotation value from the latest review is used, ordered by review
-        creation date. Exports to a TSV file in bucket specified in
-        application.yaml.
-      operationId: exportAnnotationValues
-      tags: [AnnotationsV2]
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ExportFile"
-        500:
-          $ref: "#/components/responses/ServerError"
-
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
       - $ref: '#/components/parameters/CohortIdV2'
       - $ref: '#/components/parameters/AnnotationIdV2'
     get:
-      summary: Get an existing annotation
-      operationId: getAnnotation
+      summary: Get an existing annotation key
+      operationId: getAnnotationKey
       tags: [AnnotationsV2]
       responses:
         200:
@@ -681,8 +657,8 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
     patch:
-      summary: Update an existing annotation
-      operationId: updateAnnotation
+      summary: Update an existing annotation key
+      operationId: updateAnnotationKey
       tags: [AnnotationsV2]
       requestBody:
         required: true
@@ -702,8 +678,8 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
     delete:
-      summary: Delete an annotation
-      operationId: deleteAnnotation
+      summary: Delete an annotation key
+      operationId: deleteAnnotationKey
       tags: [AnnotationsV2]
       responses:
         204:
@@ -752,6 +728,30 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotationValues/export":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+    post:
+      summary: Export annotation values
+      description: |
+        Export a table with column headers: primary entity instance id, all
+        annotation keys. Table cells contain annotation values. For each cell,
+        the annotation value from the latest review is used, ordered by review
+        creation date. Exports to a TSV file in bucket specified in
+        application.yaml.
+      operationId: exportAnnotationValues
+      tags: [AnnotationsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportFile"
+        500:
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/conceptSets":
     parameters:

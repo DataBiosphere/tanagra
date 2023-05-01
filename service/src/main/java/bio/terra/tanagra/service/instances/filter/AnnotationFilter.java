@@ -3,17 +3,17 @@ package bio.terra.tanagra.service.instances.filter;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
-import bio.terra.tanagra.service.artifact.AnnotationV1;
 import bio.terra.tanagra.service.artifact.AnnotationValueV1;
+import bio.terra.tanagra.service.model.AnnotationKey;
 import java.util.List;
 
 public class AnnotationFilter {
-  private final AnnotationV1 annotation;
+  private final AnnotationKey annotationKey;
   private final BinaryOperator operator;
   private final Literal value;
 
-  public AnnotationFilter(AnnotationV1 annotation, BinaryOperator operator, Literal value) {
-    this.annotation = annotation;
+  public AnnotationFilter(AnnotationKey annotationKey, BinaryOperator operator, Literal value) {
+    this.annotationKey = annotationKey;
     this.operator = operator;
     this.value = value;
   }
@@ -22,7 +22,7 @@ public class AnnotationFilter {
     return annotationValues.stream()
         .filter(
             av -> {
-              if (!av.getAnnotationId().equals(annotation.getAnnotationId())) {
+              if (!av.getAnnotationId().equals(annotationKey.getId())) {
                 return false;
               }
               int comparison = av.getLiteral().compareTo(value);

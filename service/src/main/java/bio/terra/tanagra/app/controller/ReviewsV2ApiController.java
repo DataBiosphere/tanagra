@@ -25,7 +25,6 @@ import bio.terra.tanagra.service.ReviewService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.AnnotationV1;
 import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.ReviewInstance;
@@ -34,6 +33,7 @@ import bio.terra.tanagra.service.instances.ReviewQueryRequest;
 import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.model.AnnotationKey;
 import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.model.Review;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
@@ -183,8 +183,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
             : null;
     AnnotationFilter annotationFilter;
     if (body.getAnnotationFilter() != null) {
-      AnnotationV1 annotation =
-          annotationService.getAnnotation(
+      AnnotationKey annotation =
+          annotationService.getAnnotationKey(
               studyId, cohortId, body.getAnnotationFilter().getAnnotation());
       BinaryOperator operator =
           BinaryFilterVariable.BinaryOperator.valueOf(
@@ -215,7 +215,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
                 } else {
                   orderBys.add(
                       new ReviewQueryOrderBy(
-                          annotationService.getAnnotation(
+                          annotationService.getAnnotationKey(
                               studyId, cohortId, orderBy.getAnnotation()),
                           direction));
                 }

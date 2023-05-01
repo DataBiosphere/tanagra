@@ -4,8 +4,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
 import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.ANNOTATION;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.AnnotationsV2Api;
@@ -16,13 +15,10 @@ import bio.terra.tanagra.service.AnnotationService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.AnnotationV1;
 import bio.terra.tanagra.service.artifact.AnnotationValueV1;
+import bio.terra.tanagra.service.model.AnnotationKey;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import com.google.common.collect.Table;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,97 +38,62 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationV2> createAnnotation(
+  public ResponseEntity<ApiAnnotationV2> createAnnotationKey(
       String studyId, String cohortId, ApiAnnotationCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), CREATE, ANNOTATION, new ResourceId(cohortId));
-
-    // Generate a random 10-character alphanumeric string for the new annotation ID.
-    String newAnnotationId = RandomStringUtils.randomAlphanumeric(10);
-
-    AnnotationV1 annotationToCreate =
-        AnnotationV1.builder()
-            .annotationId(newAnnotationId)
-            .displayName(body.getDisplayName())
-            .description(body.getDescription())
-            .dataType(Literal.DataType.valueOf(body.getDataType().toString()))
-            .enumVals(body.getEnumVals())
-            .build();
-
-    annotationService.createAnnotation(studyId, cohortId, annotationToCreate);
-    return ResponseEntity.ok(
-        toApiObject(annotationService.getAnnotation(studyId, cohortId, newAnnotationId)));
+    AnnotationKey createdAnnotationKey =
+        annotationService.createAnnotationKey(
+            studyId,
+            cohortId,
+            AnnotationKey.builder()
+                .displayName(body.getDisplayName())
+                .description(body.getDescription())
+                .dataType(Literal.DataType.valueOf(body.getDataType().name()))
+                .enumVals(body.getEnumVals()));
+    return ResponseEntity.ok(toApiObject(createdAnnotationKey));
   }
 
   @Override
-  public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(cohortId));
-
-    Table<String, String, String> latestValues =
-        annotationService.getAnnotationValuesForLatestReview(studyId, cohortId);
-    String gcsSignedUrl =
-        annotationService.writeAnnotationValuesToGcs(studyId, cohortId, latestValues);
-    return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
-  }
-
-  @Override
-  public ResponseEntity<Void> deleteAnnotation(
-      String studyId, String cohortId, String annotationId) {
+  public ResponseEntity<Void> deleteAnnotationKey(
+      String studyId, String cohortId, String annotationKeyId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), DELETE, ANNOTATION, new ResourceId(cohortId));
-    annotationService.deleteAnnotation(studyId, cohortId, annotationId);
+    annotationService.deleteAnnotationKey(studyId, cohortId, annotationKeyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationV2> getAnnotation(
-      String studyId, String cohortId, String annotationId) {
+  public ResponseEntity<ApiAnnotationV2> getAnnotationKey(
+      String studyId, String cohortId, String annotationKeyId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(cohortId));
     return ResponseEntity.ok(
-        toApiObject(annotationService.getAnnotation(studyId, cohortId, annotationId)));
+        toApiObject(annotationService.getAnnotationKey(studyId, cohortId, annotationKeyId)));
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationListV2> listAnnotations(
+  public ResponseEntity<ApiAnnotationListV2> listAnnotationKeys(
       String studyId, String cohortId, Integer offset, Integer limit) {
-    ResourceIdCollection authorizedAnnotationIds =
+    ResourceIdCollection authorizedAnnotationKeyIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), ANNOTATION, offset, limit);
-    List<AnnotationV1> authorizedAnnotations;
-    if (authorizedAnnotationIds.isAllResourceIds()) {
-      authorizedAnnotations = annotationService.getAllAnnotations(studyId, cohortId, offset, limit);
-    } else {
-      authorizedAnnotations =
-          annotationService.getAnnotations(
-              studyId,
-              cohortId,
-              authorizedAnnotationIds.getResourceIds().stream()
-                  .map(ResourceId::getId)
-                  .collect(Collectors.toList()),
-              offset,
-              limit);
-    }
-
-    ApiAnnotationListV2 apiAnnotations = new ApiAnnotationListV2();
-    authorizedAnnotations.stream()
-        .forEach(
-            annotation -> {
-              apiAnnotations.add(toApiObject(annotation));
-            });
-    return ResponseEntity.ok(apiAnnotations);
+    ApiAnnotationListV2 apiAnnotationKeys = new ApiAnnotationListV2();
+    annotationService
+        .listAnnotationKeys(authorizedAnnotationKeyIds, studyId, cohortId, offset, limit).stream()
+        .forEach(annotationKey -> apiAnnotationKeys.add(toApiObject(annotationKey)));
+    return ResponseEntity.ok(apiAnnotationKeys);
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationV2> updateAnnotation(
-      String studyId, String cohortId, String annotationId, ApiAnnotationUpdateInfoV2 body) {
+  public ResponseEntity<ApiAnnotationV2> updateAnnotationKey(
+      String studyId, String cohortId, String annotationKeyId, ApiAnnotationUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, ANNOTATION, new ResourceId(cohortId));
-    AnnotationV1 updatedAnnotation =
-        annotationService.updateAnnotation(
-            studyId, cohortId, annotationId, body.getDisplayName(), body.getDescription());
-    return ResponseEntity.ok(toApiObject(updatedAnnotation));
+    AnnotationKey updatedAnnotationKey =
+        annotationService.updateAnnotationKey(
+            studyId, cohortId, annotationKeyId, body.getDisplayName(), body.getDescription());
+    return ResponseEntity.ok(toApiObject(updatedAnnotationKey));
   }
 
   @Override
@@ -172,12 +133,24 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
     return ResponseEntity.ok(ToApiConversionUtils.toApiObject(annotationValue));
   }
 
-  private static ApiAnnotationV2 toApiObject(AnnotationV1 annotation) {
+  @Override
+  public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(cohortId));
+
+    Table<String, String, String> latestValues =
+        annotationService.getAnnotationValuesForLatestReview(studyId, cohortId);
+    String gcsSignedUrl =
+        annotationService.writeAnnotationValuesToGcs(studyId, cohortId, latestValues);
+    return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
+  }
+
+  private static ApiAnnotationV2 toApiObject(AnnotationKey annotationKey) {
     return new ApiAnnotationV2()
-        .id(annotation.getAnnotationId())
-        .displayName(annotation.getDisplayName())
-        .description(annotation.getDescription())
-        .dataType(ApiDataTypeV2.fromValue(annotation.getDataType().name()))
-        .enumVals(annotation.getEnumVals());
+        .id(annotationKey.getId())
+        .displayName(annotationKey.getDisplayName())
+        .description(annotationKey.getDescription())
+        .dataType(ApiDataTypeV2.fromValue(annotationKey.getDataType().name()))
+        .enumVals(annotationKey.getEnumVals());
   }
 }

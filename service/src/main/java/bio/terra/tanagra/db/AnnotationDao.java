@@ -4,22 +4,16 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
-import bio.terra.tanagra.db.exception.DuplicateAnnotationException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationV1;
-import bio.terra.tanagra.service.artifact.CohortV1;
+import bio.terra.tanagra.service.model.AnnotationKey;
 import java.sql.Array;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -30,15 +24,13 @@ import org.springframework.stereotype.Component;
 public class AnnotationDao {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationDao.class);
 
-  // SQL query and row mapper for reading an annotation.
-  private static final String ANNOTATION_SELECT_SQL =
-      "SELECT a.cohort_id, a.annotation_id, a.display_name, a.description, a.data_type, a.enum_vals FROM annotation AS a "
-          + "JOIN cohort AS c ON c.cohort_id = a.cohort_id";
-  private static final RowMapper<AnnotationV1> ANNOTATION_ROW_MAPPER =
+  // SQL query and row mapper for reading an annotation key.
+  private static final String ANNOTATION_KEY_SELECT_SQL =
+      "SELECT id, display_name, description, data_type, enum_vals FROM annotation_key";
+  private static final RowMapper<AnnotationKey> ANNOTATION_KEY_ROW_MAPPER =
       (rs, rowNum) ->
-          AnnotationV1.builder()
-              .cohortId(rs.getString("cohort_id"))
-              .annotationId(rs.getString("annotation_id"))
+          AnnotationKey.builder()
+              .id(rs.getString("id"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
               .dataType(Literal.DataType.valueOf(rs.getString("data_type")))
@@ -46,178 +38,123 @@ public class AnnotationDao {
               .build();
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
-  private final CohortDao1 cohortDao;
 
   @Autowired
-  public AnnotationDao(NamedParameterJdbcTemplate jdbcTemplate, CohortDao1 cohortDao) {
+  public AnnotationDao(NamedParameterJdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
-    this.cohortDao = cohortDao;
   }
 
-  /** Create a new annotation. */
   @WriteTransaction
-  public void createAnnotation(
-      String studyId, String cohortRevisionGroupId, AnnotationV1 annotation) {
-    CohortV1 cohort = cohortDao.getCohortLatestVersionOrThrow(studyId, cohortRevisionGroupId);
-
-    final String sql =
-        "INSERT INTO annotation (cohort_id, annotation_id, display_name, description, data_type, enum_vals) "
-            + "VALUES (:cohort_id, :annotation_id, :display_name, :description, :data_type, :enum_vals)";
+  public void createAnnotationKey(String cohortId, AnnotationKey annotationKey) {
+    String sql =
+        "INSERT INTO annotation_key (cohort_id, id, display_name, description, data_type, enum_vals) "
+            + "VALUES (:cohort_id, :id, :display_name, :description, :data_type, :enum_vals)";
+    LOGGER.debug("CREATE annotation key: {}", sql);
     Array enumValsArr =
         jdbcTemplate
             .getJdbcOperations()
             .execute(
                 (ConnectionCallback<Array>)
                     con ->
-                        con.createArrayOf("text", annotation.getEnumVals().toArray(new String[0])));
+                        con.createArrayOf(
+                            "text", annotationKey.getEnumVals().toArray(new String[0])));
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("cohort_id", cohort.getCohortId())
-            .addValue("annotation_id", annotation.getAnnotationId())
-            .addValue("display_name", annotation.getDisplayName())
-            .addValue("description", annotation.getDescription())
-            .addValue("data_type", annotation.getDataType().toString())
+            .addValue("cohort_id", cohortId)
+            .addValue("id", annotationKey.getId())
+            .addValue("display_name", annotationKey.getDisplayName())
+            .addValue("description", annotationKey.getDescription())
+            .addValue("data_type", annotationKey.getDataType().name())
             .addValue("enum_vals", enumValsArr);
-
-    try {
-      jdbcTemplate.update(sql, params);
-      LOGGER.info("Inserted record for annotation {}", annotation.getAnnotationId());
-    } catch (DuplicateKeyException dkEx) {
-      if (dkEx.getMessage()
-          .contains("duplicate key value violates unique constraint \"annotation_pkey\"")) {
-        throw new DuplicateAnnotationException(
-            String.format(
-                "Annotation with id %s already exists - display name %s",
-                annotation.getAnnotationId(), annotation.getDisplayName()),
-            dkEx);
-      } else {
-        throw dkEx;
-      }
-    }
-  }
-
-  /** Delete an annotation. */
-  @WriteTransaction
-  public boolean deleteAnnotation(
-      String studyId, String cohortRevisionGroupId, String annotationId) {
-    final String sql = "DELETE FROM annotation WHERE annotation_id = :annotation_id";
-
-    MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("annotation_id", annotationId);
     int rowsAffected = jdbcTemplate.update(sql, params);
-    boolean deleted = rowsAffected > 0;
-
-    if (deleted) {
-      LOGGER.info("Deleted annotation for cohort {}", annotationId);
-    } else {
-      LOGGER.info("No record found for delete annotation {}", annotationId);
-    }
-    // Annotation value rows will cascade delete.
-    return deleted;
+    LOGGER.debug("CREATE annotation key rowsAffected = {}", rowsAffected);
   }
 
-  /** Fetch all annotations for a cohort. */
+  @WriteTransaction
+  public void deleteAnnotationKey(String cohortId, String annotationKeyId) {
+    String sql = "DELETE FROM annotation_key WHERE cohort_id = :cohort_id AND id = :id";
+    LOGGER.debug("DELETE annotation key: {}", sql);
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("cohort_id", cohortId).addValue("id", annotationKeyId);
+    int rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("DELETE annotation key rowsAffected = {}", rowsAffected);
+  }
+
   @ReadTransaction
-  public List<AnnotationV1> getAllAnnotations(
-      String studyId, String cohortRevisionGroupId, int offset, int limit) {
+  public List<AnnotationKey> getAllAnnotationKeys(String cohortId, int offset, int limit) {
     String sql =
-        ANNOTATION_SELECT_SQL
-            + " WHERE c.cohort_revision_group_id = :cohort_revision_group_id ORDER BY a.display_name OFFSET :offset LIMIT :limit";
+        ANNOTATION_KEY_SELECT_SQL
+            + " WHERE cohort_id = :cohort_id ORDER BY display_name OFFSET :offset LIMIT :limit";
+    LOGGER.debug("GET all annotation keys: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("cohort_revision_group_id", cohortRevisionGroupId)
+            .addValue("cohort_id", cohortId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    return jdbcTemplate.query(sql, params, ANNOTATION_ROW_MAPPER);
+    return jdbcTemplate.query(sql, params, ANNOTATION_KEY_ROW_MAPPER);
   }
 
-  /**
-   * Fetch all annotations for a cohort. Only include annotations whose ids are in the specified
-   * list.
-   */
   @ReadTransaction
-  public List<AnnotationV1> getAnnotationsMatchingList(
-      String studyId,
-      String cohortRevisionGroupId,
-      Set<String> annotationIdList,
-      int offset,
-      int limit) {
+  public List<AnnotationKey> getAnnotationKeysMatchingList(
+      String cohortId, Set<String> annotationKeyIdList, int offset, int limit) {
     // If the incoming list is empty, the caller does not have permission to see any
     // annotations, so we return an empty list.
-    if (annotationIdList.isEmpty()) {
+    if (annotationKeyIdList.isEmpty()) {
       return Collections.emptyList();
     }
     String sql =
-        ANNOTATION_SELECT_SQL
-            + " WHERE a.annotation_id IN (:annotation_ids) ORDER BY a.display_name OFFSET :offset LIMIT :limit";
+        ANNOTATION_KEY_SELECT_SQL
+            + " WHERE cohort_id = :cohort_id AND id IN (:ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
+    LOGGER.debug("GET matching annotation keys: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("annotation_ids", annotationIdList)
+            .addValue("cohort_id", cohortId)
+            .addValue("ids", annotationKeyIdList)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    return jdbcTemplate.query(sql, params, ANNOTATION_ROW_MAPPER);
-  }
-
-  private Optional<AnnotationV1> getAnnotationIfExists(
-      String studyId, String cohortRevisionGroupId, String annotationId) {
-    if (studyId == null || cohortRevisionGroupId == null || annotationId == null) {
-      throw new MissingRequiredFieldException(
-          "Valid study, cohort, and annotation ids are required");
-    }
-    String sql = ANNOTATION_SELECT_SQL + " WHERE a.annotation_id = :annotation_id";
-    MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("annotation_id", annotationId);
-    try {
-      AnnotationV1 annotation =
-          DataAccessUtils.requiredSingleResult(
-              jdbcTemplate.query(sql, params, ANNOTATION_ROW_MAPPER));
-      LOGGER.info("Retrieved annotation record {}", annotation);
-      return Optional.of(annotation);
-    } catch (EmptyResultDataAccessException e) {
-      return Optional.empty();
-    }
+    return jdbcTemplate.query(sql, params, ANNOTATION_KEY_ROW_MAPPER);
   }
 
   @ReadTransaction
-  public AnnotationV1 getAnnotation(
-      String studyId, String cohortRevisionGroupId, String annotationId) {
-    return getAnnotationIfExists(studyId, cohortRevisionGroupId, annotationId)
-        .orElseThrow(
-            () -> new NotFoundException(String.format("Annotation %s not found.", annotationId)));
+  public AnnotationKey getAnnotationKey(String cohortId, String annotationKeyId) {
+    String sql = ANNOTATION_KEY_SELECT_SQL + " WHERE cohort_id = :cohort_id AND id = :id";
+    LOGGER.debug("GET annotation key: {}", sql);
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("cohort_id", cohortId).addValue("id", annotationKeyId);
+    List<AnnotationKey> annotationKeys = jdbcTemplate.query(sql, params, ANNOTATION_KEY_ROW_MAPPER);
+    LOGGER.debug("GET annotation key numFound = {}", annotationKeys.size());
+    if (annotationKeys.isEmpty()) {
+      throw new NotFoundException("Annotation key not found: " + cohortId + ", " + annotationKeys);
+    } else {
+      return annotationKeys.get(0);
+    }
   }
 
   @WriteTransaction
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public boolean updateAnnotation(
-      String studyId,
-      String cohortRevisionGroupId,
-      String annotationId,
-      @Nullable String name,
+  public void updateAnnotationKey(
+      String cohortId,
+      String annotationKeyId,
+      @Nullable String displayName,
       @Nullable String description) {
-    if (name == null && description == null) {
+    if (displayName == null && description == null) {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
 
     MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("annotation_id", annotationId);
-    if (name != null) {
-      params.addValue("display_name", name);
+        new MapSqlParameterSource().addValue("cohort_id", cohortId).addValue("id", annotationKeyId);
+    if (displayName != null) {
+      params.addValue("display_name", displayName);
     }
     if (description != null) {
       params.addValue("description", description);
     }
-
     String sql =
         String.format(
-            "UPDATE annotation SET %s WHERE annotation_id = :annotation_id",
+            "UPDATE annotation_key SET %s WHERE cohort_id = :cohort_id AND id = :id",
             DbUtils.setColumnsClause(params));
-
+    LOGGER.debug("UPDATE annotation key: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
-    boolean updated = rowsAffected > 0;
-    LOGGER.info(
-        "{} record for annotation {}",
-        updated ? "Updated" : "No Update - did not find",
-        annotationId);
-    return updated;
+    LOGGER.debug("UPDATE annotation key rowsAffected = {}", rowsAffected);
   }
 }

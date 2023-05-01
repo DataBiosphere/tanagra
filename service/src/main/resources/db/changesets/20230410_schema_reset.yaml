@@ -452,3 +452,45 @@ databaseChangeLog:
             constraintName: pk_criteria
             tableName: criteria
             columnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
+
+        - createTable:
+            tableName: annotation_key
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_cohort
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort will cascade to delete the annotation keys associated with it
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: data_type
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enum_vals
+                  type: text[]
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_annotation_key
+            tableName: annotation_key
+            columnNames: id, cohort_id

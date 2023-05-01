@@ -8,8 +8,10 @@ import bio.terra.tanagra.db.AnnotationValueDao;
 import bio.terra.tanagra.db.CohortDao1;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationV1;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationValueV1;
+import bio.terra.tanagra.service.model.AnnotationKey;
 import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.utils.GcsUtils;
 import bio.terra.tanagra.underlay.Underlay;
@@ -18,7 +20,6 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -33,86 +34,79 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class AnnotationService {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationService.class);
-
   private final AnnotationDao annotationDao;
-  private final AnnotationValueDao annotationValueDao;
-  private final CohortDao1 cohortDao;
   private final CohortService cohortService;
   private final FeatureConfiguration featureConfiguration;
   private final TanagraExportConfiguration tanagraExportConfiguration;
   private final UnderlaysService underlaysService;
 
+  private final AnnotationValueDao annotationValueDao;
+  private final CohortDao1 cohortDao1;
+
   @Autowired
   public AnnotationService(
       AnnotationDao annotationDao,
       AnnotationValueDao annotationValueDao,
-      CohortDao1 cohortDao,
+      CohortDao1 cohortDao1,
       CohortService cohortService,
       FeatureConfiguration featureConfiguration,
       TanagraExportConfiguration tanagraExportConfiguration,
       UnderlaysService underlaysService) {
     this.annotationDao = annotationDao;
     this.annotationValueDao = annotationValueDao;
-    this.cohortDao = cohortDao;
+    this.cohortDao1 = cohortDao1;
     this.cohortService = cohortService;
     this.featureConfiguration = featureConfiguration;
     this.tanagraExportConfiguration = tanagraExportConfiguration;
     this.underlaysService = underlaysService;
   }
 
-  /** Create a new annotation. */
-  public void createAnnotation(
-      String studyId, String cohortRevisionGroupId, AnnotationV1 annotation) {
+  public AnnotationKey createAnnotationKey(
+      String studyId, String cohortId, AnnotationKey.Builder annotationKeyBuilder) {
     featureConfiguration.artifactStorageEnabledCheck();
-    annotationDao.createAnnotation(studyId, cohortRevisionGroupId, annotation);
+    annotationDao.createAnnotationKey(cohortId, annotationKeyBuilder.build());
+    return annotationDao.getAnnotationKey(cohortId, annotationKeyBuilder.getId());
   }
 
-  /** Delete an existing annotation. */
-  public void deleteAnnotation(String studyId, String cohortRevisionGroupId, String annotationId) {
+  public void deleteAnnotationKey(String studyId, String cohortId, String annotationKeyId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    annotationDao.deleteAnnotation(studyId, cohortRevisionGroupId, annotationId);
+    annotationDao.deleteAnnotationKey(cohortId, annotationKeyId);
   }
 
-  /** Retrieves a list of all annotations for a cohort. */
-  public List<AnnotationV1> getAllAnnotations(
-      String studyId, String cohortRevisionGroupId, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return annotationDao.getAllAnnotations(studyId, cohortRevisionGroupId, offset, limit);
-  }
-
-  /** Retrieves a list of annotations by ID. */
-  public List<AnnotationV1> getAnnotations(
+  public List<AnnotationKey> listAnnotationKeys(
+      ResourceIdCollection authorizedAnnotationKeyIds,
       String studyId,
-      String cohortRevisionGroupId,
-      List<String> annotationIds,
+      String cohortId,
       int offset,
       int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return annotationDao.getAnnotationsMatchingList(
-        studyId, cohortRevisionGroupId, new HashSet<>(annotationIds), offset, limit);
+    if (authorizedAnnotationKeyIds.isAllResourceIds()) {
+      return annotationDao.getAllAnnotationKeys(cohortId, offset, limit);
+    } else {
+      return annotationDao.getAnnotationKeysMatchingList(
+          cohortId,
+          authorizedAnnotationKeyIds.getResourceIds().stream()
+              .map(ResourceId::getId)
+              .collect(Collectors.toSet()),
+          offset,
+          limit);
+    }
   }
 
-  /** Retrieves an annotation by ID. */
-  public AnnotationV1 getAnnotation(
-      String studyId, String cohortRevisionGroupId, String annotationId) {
+  public AnnotationKey getAnnotationKey(String studyId, String cohortId, String annotationKeyId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return annotationDao.getAnnotation(studyId, cohortRevisionGroupId, annotationId);
+    return annotationDao.getAnnotationKey(cohortId, annotationKeyId);
   }
 
-  /**
-   * Update an existing annotation. Currently, can change the annotation's display name or
-   * description.
-   */
-  public AnnotationV1 updateAnnotation(
+  public AnnotationKey updateAnnotationKey(
       String studyId,
-      String cohortRevisionGroupId,
-      String annotationId,
+      String cohortId,
+      String annotationKeyId,
       @Nullable String displayName,
       @Nullable String description) {
     featureConfiguration.artifactStorageEnabledCheck();
-    annotationDao.updateAnnotation(
-        studyId, cohortRevisionGroupId, annotationId, displayName, description);
-    return annotationDao.getAnnotation(studyId, cohortRevisionGroupId, annotationId);
+    annotationDao.updateAnnotationKey(cohortId, annotationKeyId, displayName, description);
+    return annotationDao.getAnnotationKey(cohortId, annotationKeyId);
   }
 
   /** Create a new annotation value. */
@@ -222,7 +216,7 @@ public class AnnotationService {
 
     // Get values for all reviews for cohort
     String cohortId =
-        cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId).getCohortId();
+        cohortDao1.getCohortLatestVersion(studyId, cohortRevisionGroupId).getCohortId();
     List<Pair<OffsetDateTime, AnnotationValueV1>> reviewCreateDateAndValues =
         annotationValueDao.getAnnotationValuesForCohort(cohortId);
 
@@ -238,8 +232,8 @@ public class AnnotationService {
     Table<String, String, String> tableToReturn = HashBasedTable.create();
     sortedValuesForAllReviews.forEach(
         value -> {
-          AnnotationV1 annotation =
-              getAnnotation(studyId, cohortRevisionGroupId, value.getAnnotationId());
+          AnnotationKey annotation =
+              getAnnotationKey(studyId, cohortRevisionGroupId, value.getAnnotationId());
           tableToReturn.put(
               value.getEntityInstanceId(), // row
               annotation.getDisplayName(), // column
@@ -268,8 +262,13 @@ public class AnnotationService {
             .getValue()
             .getColumnName();
     StringBuilder columnHeaders = new StringBuilder(primaryIdSourceColumnName);
-    List<AnnotationV1> annotations =
-        getAllAnnotations(studyId, cohortId, /*offset=*/ 0, /*limit=*/ Integer.MAX_VALUE);
+    List<AnnotationKey> annotations =
+        listAnnotationKeys(
+            ResourceIdCollection.allResourceIds(),
+            studyId,
+            cohortId,
+            /*offset=*/ 0,
+            /*limit=*/ Integer.MAX_VALUE);
     annotations.forEach(
         annotation -> {
           columnHeaders.append(String.format("\t%s", annotation.getDisplayName()));
@@ -316,8 +315,7 @@ public class AnnotationService {
       String cohortRevisionGroupId,
       String annotationId,
       Literal annotationValueLiteral) {
-    AnnotationV1 annotation =
-        annotationDao.getAnnotation(studyId, cohortRevisionGroupId, annotationId);
+    AnnotationKey annotation = annotationDao.getAnnotationKey(cohortRevisionGroupId, annotationId);
     if (!annotation.getDataType().equals(annotationValueLiteral.getDataType())) {
       throw new BadRequestException(
           String.format(
