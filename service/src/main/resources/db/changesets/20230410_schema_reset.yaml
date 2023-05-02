@@ -66,7 +66,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: study(id)
-                    foreignKeyName: fk_study_id
+                    foreignKeyName: fk_cs_s
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a study will cascade to delete the concept sets contained in it
@@ -128,7 +128,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: study(id)
-                    foreignKeyName: fk_study
+                    foreignKeyName: fk_c_s
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a study will cascade to delete the cohorts contained in it
@@ -185,7 +185,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: cohort(id)
-                    foreignKeyName: fk_cohort
+                    foreignKeyName: fk_r_c
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a cohort will cascade to delete the reviews associated with it
@@ -235,7 +235,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: review(id)
-                    foreignKeyName: fk_review
+                    foreignKeyName: fk_pei_r
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a review will cascade to delete the entity instances contained in it
@@ -247,7 +247,7 @@ databaseChangeLog:
                     unique: false
                   remarks: The primary entity instance id is defined by the underlying dataset, not by this application DB
         - addUniqueConstraint:
-            constraintName: pk_primary_entity_instance
+            constraintName: pk_pei
             tableName: primary_entity_instance
             columnNames: id, review_id
 
@@ -266,7 +266,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: cohort(id)
-                    foreignKeyName: fk_cohort
+                    foreignKeyName: fk_cr_c
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a cohort will cascade to delete the cohort revisions associated with it
@@ -275,7 +275,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: review(id)
-                    foreignKeyName: fk_review
+                    foreignKeyName: fk_cr_r
                     nullable: true
                     deleteCascade: true
                   remarks: Deleting a review will cascade to delete the cohort revisions associated with it
@@ -330,7 +330,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: cohort_revision(id)
-                    foreignKeyName: fk_cohort_revision
+                    foreignKeyName: fk_cgs_cr
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a cohort revision will cascade to delete the criteria group sections contained in it
@@ -346,7 +346,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - addUniqueConstraint:
-            constraintName: pk_criteria_group_section
+            constraintName: pk_cgs
             tableName: criteria_group_section
             columnNames: id, cohort_revision_id
 
@@ -368,7 +368,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: cohort_revision(id)
-                    foreignKeyName: fk_cohort_revision
+                    foreignKeyName: fk_cg_cr
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a cohort revision will cascade to delete the criteria groups contained in it
@@ -385,7 +385,7 @@ databaseChangeLog:
                   name: group_by_count_value
                   type: integer
         - addUniqueConstraint:
-            constraintName: pk_criteria_group
+            constraintName: pk_cg
             tableName: criteria_group
             columnNames: id, criteria_group_section_id, cohort_revision_id
 
@@ -412,7 +412,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: cohort_revision(id)
-                    foreignKeyName: fk_cohort_revision
+                    foreignKeyName: ck_crit_cr
                     nullable: true
                     deleteCascade: true
                   remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
@@ -421,7 +421,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: concept_set(id)
-                    foreignKeyName: fk_concept_set_id
+                    foreignKeyName: fk_crit_cs
                     nullable: true
                     deleteCascade: true
                   remarks: Deleting a concept set will cascade to delete the criteria contained in it
@@ -449,7 +449,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - addUniqueConstraint:
-            constraintName: pk_criteria
+            constraintName: pk_crit
             tableName: criteria
             columnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
 
@@ -466,7 +466,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     references: cohort(id)
-                    foreignKeyName: fk_cohort
+                    foreignKeyName: fk_ak_c
                     nullable: false
                     deleteCascade: true
                   remarks: Deleting a cohort will cascade to delete the annotation keys associated with it
@@ -491,6 +491,75 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - addUniqueConstraint:
-            constraintName: pk_annotation_key
+            constraintName: pk_ak
             tableName: annotation_key
             columnNames: id, cohort_id
+
+        - createTable:
+            tableName: annotation_value
+            columns:
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_av_c
+                    nullable: false
+              - column:
+                  name: annotation_key_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: review_id
+                  type: text
+                  constraints:
+                    references: review(id)
+                    foreignKeyName: fk_av_r
+                    nullable: false
+              - column:
+                  name: primary_entity_instance_id
+                  type: text
+                  constraints:
+                    unique: false
+                    nullable: false
+              - column:
+                  name: bool_val
+                  type: boolean
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: int64_val
+                  type: integer
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: string_val
+                  type: text
+                  constraints:
+                    nullable: true
+                    unique: false
+              - column:
+                  name: date_val
+                  type: date
+                  constraints:
+                    nullable: true
+                    unique: false
+        - addForeignKeyConstraint:
+            constraintName: fk_av_pei
+            baseColumnNames: review_id, primary_entity_instance_id
+            baseTableName: annotation_value
+            referencedColumnNames: review_id, id
+            referencedTableName: primary_entity_instance
+            onDelete: CASCADE
+            validate: true
+        - addForeignKeyConstraint:
+            constraintName: fk_av_ak
+            baseColumnNames: cohort_id, annotation_key_id
+            baseTableName: annotation_value
+            referencedColumnNames: cohort_id, id
+            referencedTableName: annotation_key
+            onDelete: CASCADE
+            validate: true

@@ -6,10 +6,10 @@ import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.model.AnnotationKey;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import java.sql.Array;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +36,28 @@ public class AnnotationDao {
               .dataType(Literal.DataType.valueOf(rs.getString("data_type")))
               .enumVals(List.of((String[]) rs.getArray("enum_vals").getArray()))
               .build();
+
+  // SQL query and row mapper for reading an annotation value.
+  private static final String ANNOTATION_VALUE_SELECT_SQL =
+      "SELECT cr.version, av.annotation_key_id, av.primary_entity_instance_id, av.bool_val, av.int64_val, av.string_val, av.date_val, ak.data_type "
+          + "FROM annotation_value AS av "
+          + "JOIN annotation_key AS ak ON ak.id = av.annotation_key_id "
+          + "JOIN cohort_revision AS cr ON cr.review_id = av.review_id";
+
+  private static final RowMapper<AnnotationValue.Builder> ANNOTATION_VALUE_ROW_MAPPER =
+      (rs, rowNum) ->
+          AnnotationValue.builder()
+              .cohortRevisionVersion(rs.getInt("version"))
+              .annotationKeyId(rs.getString("annotation_key_id"))
+              .instanceId(rs.getString("primary_entity_instance_id"))
+              .literal(
+                  new Literal.Builder()
+                      .booleanVal(rs.getBoolean("bool_val"))
+                      .int64Val(rs.getLong("int64_val"))
+                      .stringVal(rs.getString("string_val"))
+                      .dateVal(rs.getDate("date_val"))
+                      .dataType(Literal.DataType.valueOf(rs.getString("data_type")))
+                      .build());
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -156,5 +178,59 @@ public class AnnotationDao {
     LOGGER.debug("UPDATE annotation key: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE annotation key rowsAffected = {}", rowsAffected);
+  }
+
+  @WriteTransaction
+  public void updateAnnotationValues(
+      String cohortId,
+      String annotationKeyId,
+      String reviewId,
+      String instanceId,
+      List<Literal> annotationValues) {
+    // Delete any existing annotation values.
+    String sql =
+        "DELETE FROM annotation_value WHERE cohort_id = :cohort_id AND annotation_key_id = :annotation_key_id AND review_id = :review_id AND primary_entity_instance_id = :primary_entity_instance_id";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("cohort_id", cohortId)
+            .addValue("annotation_key_id", annotationKeyId)
+            .addValue("review_id", reviewId)
+            .addValue("primary_entity_instance_id", instanceId);
+    LOGGER.debug("DELETE annotation values: {}", sql);
+    int rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("DELETE annotation values rowsAffected = {}", rowsAffected);
+
+    // Write the annotation values.
+    sql =
+        "INSERT INTO annotation_value (cohort_id, annotation_key_id, review_id, primary_entity_instance_id, bool_val, int64_val, string_val, date_val) "
+            + "VALUES (:cohort_id, :annotation_key_id, :review_id, :primary_entity_instance_id, :bool_val, :int64_val, :string_val, :date_val)";
+    LOGGER.debug("CREATE annotation values: {}", sql);
+    List<MapSqlParameterSource> valueParamSets =
+        annotationValues.stream()
+            .map(
+                av ->
+                    new MapSqlParameterSource()
+                        .addValue("cohort_id", cohortId)
+                        .addValue("annotation_key_id", annotationKeyId)
+                        .addValue("review_id", reviewId)
+                        .addValue("primary_entity_instance_id", instanceId)
+                        .addValue("bool_val", av.getBooleanVal())
+                        .addValue("int64_val", av.getInt64Val())
+                        .addValue("string_val", av.getStringVal())
+                        .addValue("date_val", av.getDateVal()))
+            .collect(Collectors.toList());
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(sql, valueParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE annotation values rowsAffected = {}", rowsAffected);
+  }
+
+  @ReadTransaction
+  public List<AnnotationValue.Builder> getAllAnnotationValues(String cohortId) {
+    String sql = ANNOTATION_VALUE_SELECT_SQL + " WHERE av.cohort_id = :cohort_id";
+    LOGGER.debug("GET annotation values: {}", sql);
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("cohort_id", cohortId);
+    return jdbcTemplate.query(sql, params, ANNOTATION_VALUE_ROW_MAPPER);
   }
 }

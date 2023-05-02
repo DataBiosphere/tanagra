@@ -15,10 +15,9 @@ import bio.terra.tanagra.service.AnnotationService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.model.AnnotationKey;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import com.google.common.collect.Table;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,40 +96,35 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   }
 
   @Override
-  public ResponseEntity<Void> deleteAnnotationValue(
-      String studyId, String cohortId, String annotationId, String reviewId, String valueId) {
+  public ResponseEntity<Void> updateAnnotationValue(
+      String studyId,
+      String cohortId,
+      String annotationKeyId,
+      String reviewId,
+      String instanceId,
+      ApiLiteralV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
-    annotationService.deleteAnnotationValue(studyId, cohortId, annotationId, reviewId, valueId);
+    // The API currently restricts the caller to a single annotation value per review instance per
+    // annotation key, but the backend can handle a list.
+    annotationService.updateAnnotationValues(
+        studyId,
+        cohortId,
+        annotationKeyId,
+        reviewId,
+        instanceId,
+        List.of(FromApiConversionService.fromApiObject(body)));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationValueV2> createUpdateAnnotationValue(
-      String studyId,
-      String cohortId,
-      String annotationId,
-      String reviewId,
-      String valueId,
-      ApiLiteralV2 body) {
+  public ResponseEntity<Void> deleteAnnotationValues(
+      String studyId, String cohortId, String annotationKeyId, String reviewId, String instanceId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
-
-    // Force the annotation value id = entity instance id. Note that this is not a constraint on the
-    // internal DB, just one imposed at the API level for the UI's convenience.
-    AnnotationValueV1 annotationValueToCreateOrUpdate =
-        AnnotationValueV1.builder()
-            .reviewId(reviewId)
-            .annotationId(annotationId)
-            .annotationValueId(valueId)
-            .entityInstanceId(valueId)
-            .literal(FromApiConversionService.fromApiObject(body))
-            .build();
-
-    AnnotationValueV1 annotationValue =
-        annotationService.createUpdateAnnotationValue(
-            studyId, cohortId, annotationId, reviewId, annotationValueToCreateOrUpdate);
-    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(annotationValue));
+    annotationService.deleteAnnotationValues(
+        studyId, cohortId, annotationKeyId, reviewId, instanceId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override

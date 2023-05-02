@@ -689,16 +689,16 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
-  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values/{valueId}":
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values/{instanceId}":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
       - $ref: '#/components/parameters/CohortIdV2'
       - $ref: '#/components/parameters/AnnotationIdV2'
       - $ref: '#/components/parameters/ReviewIdV2'
-      - $ref: '#/components/parameters/AnnotationValueIdV2'
+      - $ref: '#/components/parameters/PrimaryEntityInstanceIdV2'
     post:
       summary: Create or update an annotation value
-      operationId: createUpdateAnnotationValue
+      operationId: updateAnnotationValue
       tags: [AnnotationsV2]
       requestBody:
         required: true
@@ -709,17 +709,13 @@ paths:
       responses:
         200:
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AnnotationValueV2'
         404:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
     delete:
       summary: Delete an annotation value
-      operationId: deleteAnnotationValue
+      operationId: deleteAnnotationValues
       tags: [AnnotationsV2]
       responses:
         204:
@@ -919,10 +915,10 @@ components:
       schema:
         type: string
 
-    AnnotationValueIdV2:
-      name: valueId
+    PrimaryEntityInstanceIdV2:
+      name: instanceId
       in: path
-      description: ID of the annotation value
+      description: ID of the primary entity instance that the annotation value is associated with
       required: true
       schema:
         type: string

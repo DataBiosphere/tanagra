@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service;
 
-import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraExportConfiguration;
 import bio.terra.tanagra.db.AnnotationDao;
@@ -12,15 +11,16 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.model.AnnotationKey;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.service.model.Cohort;
+import bio.terra.tanagra.service.model.Review;
 import bio.terra.tanagra.service.utils.GcsUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.Underlay.MappingType;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.time.OffsetDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +36,7 @@ public class AnnotationService {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationService.class);
   private final AnnotationDao annotationDao;
   private final CohortService cohortService;
+  private final ReviewService reviewService;
   private final FeatureConfiguration featureConfiguration;
   private final TanagraExportConfiguration tanagraExportConfiguration;
   private final UnderlaysService underlaysService;
@@ -49,6 +50,7 @@ public class AnnotationService {
       AnnotationValueDao annotationValueDao,
       CohortDao1 cohortDao1,
       CohortService cohortService,
+      ReviewService reviewService,
       FeatureConfiguration featureConfiguration,
       TanagraExportConfiguration tanagraExportConfiguration,
       UnderlaysService underlaysService) {
@@ -56,6 +58,7 @@ public class AnnotationService {
     this.annotationValueDao = annotationValueDao;
     this.cohortDao1 = cohortDao1;
     this.cohortService = cohortService;
+    this.reviewService = reviewService;
     this.featureConfiguration = featureConfiguration;
     this.tanagraExportConfiguration = tanagraExportConfiguration;
     this.underlaysService = underlaysService;
@@ -109,76 +112,95 @@ public class AnnotationService {
     return annotationDao.getAnnotationKey(cohortId, annotationKeyId);
   }
 
-  /** Create a new annotation value. */
-  public AnnotationValueV1 createAnnotationValue(
-      String studyId,
-      String cohortRevisionGroupId,
-      String annotationId,
-      String reviewId,
-      AnnotationValueV1 annotationValue) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    validateAnnotationValueDataType(
-        studyId, cohortRevisionGroupId, annotationId, annotationValue.getLiteral());
-    annotationValueDao.createAnnotationValue(
-        studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValue);
-    return annotationValueDao.getAnnotationValue(
-        studyId,
-        cohortRevisionGroupId,
-        annotationId,
-        reviewId,
-        annotationValue.getAnnotationValueId());
-  }
-
-  /** Delete an existing annotation value. */
-  public void deleteAnnotationValue(
-      String studyId,
-      String cohortRevisionGroupId,
-      String annotationId,
-      String reviewId,
-      String annotationValueId) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    annotationValueDao.deleteAnnotationValue(
-        studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValueId);
-  }
-
-  /**
-   * Update an existing annotation value. Currently, can change the annotation value's literal only.
-   */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public AnnotationValueV1 updateAnnotationValue(
+  public void updateAnnotationValues(
       String studyId,
-      String cohortRevisionGroupId,
-      String annotationId,
+      String cohortId,
+      String annotationKeyId,
       String reviewId,
-      String annotationValueId,
-      Literal literal) {
+      String instanceId,
+      List<Literal> annotationValues) {
     featureConfiguration.artifactStorageEnabledCheck();
-    validateAnnotationValueDataType(studyId, cohortRevisionGroupId, annotationId, literal);
-    annotationValueDao.updateAnnotationValue(
-        studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValueId, literal);
-    return annotationValueDao.getAnnotationValue(
-        studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValueId);
+    AnnotationKey annotationKey = annotationDao.getAnnotationKey(cohortId, annotationKeyId);
+    annotationValues.stream().forEach(av -> annotationKey.validateValue(av));
+    annotationDao.updateAnnotationValues(
+        cohortId, annotationKeyId, reviewId, instanceId, annotationValues);
   }
 
-  /** Create or update an annotation value. Only the annotation value's literal can be updated. */
-  @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  public AnnotationValueV1 createUpdateAnnotationValue(
-      String studyId,
-      String cohortRevisionGroupId,
-      String annotationId,
-      String reviewId,
-      AnnotationValueV1 annotationValue) {
+  public void deleteAnnotationValues(
+      String studyId, String cohortId, String annotationKeyId, String reviewId, String instanceId) {
+    updateAnnotationValues(
+        studyId, cohortId, annotationKeyId, reviewId, instanceId, Collections.emptyList());
+  }
+
+  public List<AnnotationValue> listAnnotationValues(
+      String studyId, String cohortId, @Nullable String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    validateAnnotationValueDataType(
-        studyId, cohortRevisionGroupId, annotationId, annotationValue.getLiteral());
-    annotationValueDao.createUpdateAnnotationValue(
-        studyId, cohortRevisionGroupId, annotationId, reviewId, annotationValue);
-    return annotationValueDao.getAnnotationValue(
-        studyId,
-        cohortRevisionGroupId,
-        annotationId,
-        reviewId,
-        annotationValue.getAnnotationValueId());
+
+    int selectedVersion;
+    if (reviewId != null) {
+      // Look up the cohort revision associated with the specified review.
+      Review review = reviewService.getReview(studyId, cohortId, reviewId);
+      selectedVersion = review.getRevision().getVersion();
+    } else {
+      // No review is specified, so use the most recent cohort revision.
+      Cohort cohort = cohortService.getCohort(studyId, cohortId);
+      selectedVersion = cohort.getMostRecentRevision().getVersion();
+    }
+
+    // Fetch all the annotation values for this cohort.
+    List<AnnotationValue.Builder> allValues = annotationDao.getAllAnnotationValues(cohortId);
+
+    // Build a map of the values by key: annotation key id -> list of annotation values
+    Map<String, List<AnnotationValue.Builder>> allValuesMap = new HashMap<>();
+    allValues.stream()
+        .forEach(
+            v -> {
+              List<AnnotationValue.Builder> valuesForKey = allValuesMap.get(v.getAnnotationKeyId());
+              if (valuesForKey == null) {
+                valuesForKey = new ArrayList<>();
+                allValuesMap.put(v.getAnnotationKeyId(), valuesForKey);
+              }
+              valuesForKey.add(v);
+            });
+
+    // Filter the values, keeping only the most recent ones and those that belong to the specified
+    // revision.
+    List<AnnotationValue> filteredValues = new ArrayList<>();
+    allValuesMap.entrySet().stream()
+        .forEach(
+            keyValues -> {
+              String keyId = keyValues.getKey();
+              List<AnnotationValue.Builder> allValuesForKey = keyValues.getValue();
+              int maxVersionForKey =
+                  allValuesForKey.stream()
+                      .max(
+                          Comparator.comparingInt(
+                              AnnotationValue.Builder::getCohortRevisionVersion))
+                      .get()
+                      .getCohortRevisionVersion();
+
+              List<AnnotationValue> filteredValuesForKey = new ArrayList<>();
+              allValuesForKey.stream()
+                  .forEach(
+                      v -> {
+                        boolean isMostRecent = v.getCohortRevisionVersion() == maxVersionForKey;
+                        boolean isPartOfSelectedReview =
+                            (v.getCohortRevisionVersion() == selectedVersion);
+                        if (isMostRecent || isPartOfSelectedReview) {
+                          filteredValuesForKey.add(
+                              v.isMostRecent(isMostRecent)
+                                  .isPartOfSelectedReview(isPartOfSelectedReview)
+                                  .build());
+                        }
+                      });
+              filteredValues.addAll(filteredValuesForKey);
+            });
+    return filteredValues;
+  }
+
+  public List<AnnotationValue> listAnnotationValues(String studyId, String cohortId) {
+    return listAnnotationValues(studyId, cohortId, null);
   }
 
   /** Retrieves a list of all annotation values for a review. */
@@ -305,60 +327,5 @@ public class AnnotationService {
 
     GcsUtils.writeGcsFile(projectId, bucketName, fileName, fileContents.toString());
     return bio.terra.tanagra.utils.GcsUtils.createSignedUrl(projectId, bucketName, fileName);
-  }
-
-  /**
-   * Throw if the annotation value data type does not match the annotation data type or enum values.
-   */
-  private void validateAnnotationValueDataType(
-      String studyId,
-      String cohortRevisionGroupId,
-      String annotationId,
-      Literal annotationValueLiteral) {
-    AnnotationKey annotation = annotationDao.getAnnotationKey(cohortRevisionGroupId, annotationId);
-    if (!annotation.getDataType().equals(annotationValueLiteral.getDataType())) {
-      throw new BadRequestException(
-          String.format(
-              "Annotation value data type (%s) does not match the annotation data type (%s)",
-              annotationValueLiteral.getDataType(), annotation.getDataType()));
-    }
-
-    switch (annotationValueLiteral.getDataType()) {
-      case STRING:
-        if (annotationValueLiteral.getStringVal() == null) {
-          throw new BadRequestException("String value cannot be null");
-        }
-        break;
-      case INT64:
-        if (annotationValueLiteral.getInt64Val() == null) {
-          throw new BadRequestException("Integer value cannot be null");
-        }
-        break;
-      case BOOLEAN:
-        if (annotationValueLiteral.getBooleanVal() == null) {
-          throw new BadRequestException("Boolean value cannot be null");
-        }
-        break;
-      case DATE:
-        if (annotationValueLiteral.getDateVal() == null) {
-          throw new BadRequestException("Date value cannot be null");
-        }
-        break;
-      case DOUBLE:
-        if (annotationValueLiteral.getDoubleVal() == null) {
-          throw new BadRequestException("Double value cannot be null");
-        }
-        break;
-      default:
-        throw new SystemException("Unknown data type: " + annotationValueLiteral.getDataType());
-    }
-
-    if (!annotation.getEnumVals().isEmpty()
-        && !annotation.getEnumVals().contains(annotationValueLiteral.getStringVal())) {
-      throw new BadRequestException(
-          String.format(
-              "Annotation value (%s) is not one of the annotation enum values (%s)",
-              annotationValueLiteral.getStringVal(), String.join(",", annotation.getEnumVals())));
-    }
   }
 }
