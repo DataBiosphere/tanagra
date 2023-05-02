@@ -1,5 +1,4 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
@@ -25,6 +24,8 @@ import {
 import { DataEntry, DataKey } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
 import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
@@ -121,13 +122,13 @@ class _ implements CriteriaPlugin<Data> {
   generateFilter() {
     return {
       type: FilterType.Classification,
-      occurrenceID: this.config.occurrence,
-      classificationID: this.config.classification,
+      occurrenceId: this.config.occurrence,
+      classificationId: this.config.classification,
       keys: this.data.selected.map(({ key }) => key),
     };
   }
 
-  occurrenceID() {
+  filterOccurrenceId() {
     return this.config.occurrence;
   }
 }
@@ -273,172 +274,172 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const nameColumnIndex = props.config.nameColumnIndex ?? 0;
 
   return (
-    <Box
+    <GridBox
       sx={{
-        p: 1,
-        minHeight: "100%",
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
-      {!searchData?.hierarchy && (
-        <Search
-          placeholder="Search by code or description"
-          onSearch={(query: string) => {
-            updateSearchData((data: SearchData) => {
-              data.query = query;
-            });
-          }}
-          initialValue={searchData?.query}
-        />
-      )}
-      <Loading status={classificationState}>
-        {!classificationState.data?.root?.children?.length ? (
-          <Empty
-            minHeight="300px"
-            image="/empty.png"
-            title="No matches found"
+      <GridLayout rows>
+        {!searchData?.hierarchy && (
+          <Search
+            placeholder="Search by code or description"
+            onSearch={(query: string) => {
+              updateSearchData((data: SearchData) => {
+                data.query = query;
+              });
+            }}
+            initialValue={searchData?.query}
           />
-        ) : (
-          <TreeGrid
-            columns={!!searchData?.hierarchy ? hierarchyColumns : allColumns}
-            data={classificationState?.data ?? {}}
-            defaultExpanded={searchData?.hierarchy}
-            rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
-              if (!classificationState.data) {
-                return undefined;
-              }
+        )}
+        <Loading status={classificationState}>
+          {!classificationState.data?.root?.children?.length ? (
+            <Empty
+              minHeight="300px"
+              image="/empty.png"
+              title="No matches found"
+            />
+          ) : (
+            <TreeGrid
+              columns={!!searchData?.hierarchy ? hierarchyColumns : allColumns}
+              data={classificationState?.data ?? {}}
+              defaultExpanded={searchData?.hierarchy}
+              rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
+                if (!classificationState.data) {
+                  return undefined;
+                }
 
-              // TODO(tjennison): Make TreeGridData's type generic so we can avoid
-              // this type assertion. Also consider passing the TreeGridItem to
-              // the callback instead of the TreeGridRowData.
-              const item = classificationState.data[
-                id
-              ] as ClassificationNodeItem;
-              if (!item || item.node.grouping) {
-                return undefined;
-              }
+                // TODO(tjennison): Make TreeGridData's type generic so we can avoid
+                // this type assertion. Also consider passing the TreeGridItem to
+                // the callback instead of the TreeGridRowData.
+                const item = classificationState.data[
+                  id
+                ] as ClassificationNodeItem;
+                if (!item || item.node.grouping) {
+                  return undefined;
+                }
 
-              const column = props.config.columns[nameColumnIndex];
-              const name = rowData[column.key];
-              const newItem = {
-                key: item.node.data.key,
-                name: !!name ? String(name) : "",
-              };
+                const column = props.config.columns[nameColumnIndex];
+                const name = rowData[column.key];
+                const newItem = {
+                  key: item.node.data.key,
+                  name: !!name ? String(name) : "",
+                };
 
-              const viewHierarchyContent =
-                !searchData?.hierarchy && classification.hierarchy
-                  ? [
-                      {
-                        column: props.config.columns.length,
-                        content: (
-                          <Stack alignItems="center">
-                            <IconButton
-                              size="small"
-                              onClick={() => {
-                                updateSearchData((data: SearchData) => {
-                                  if (rowData.view_hierarchy) {
-                                    data.hierarchy =
-                                      rowData.view_hierarchy as DataKey[];
-                                  }
-                                });
-                              }}
-                            >
-                              <AccountTreeIcon fontSize="inherit" />
-                            </IconButton>
-                          </Stack>
-                        ),
-                      },
-                    ]
-                  : [];
+                const viewHierarchyContent =
+                  !searchData?.hierarchy && classification.hierarchy
+                    ? [
+                        {
+                          column: props.config.columns.length,
+                          content: (
+                            <Stack alignItems="center">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  updateSearchData((data: SearchData) => {
+                                    if (rowData.view_hierarchy) {
+                                      data.hierarchy =
+                                        rowData.view_hierarchy as DataKey[];
+                                    }
+                                  });
+                                }}
+                              >
+                                <AccountTreeIcon fontSize="inherit" />
+                              </IconButton>
+                            </Stack>
+                          ),
+                        },
+                      ]
+                    : [];
 
-              if (props.config.multiSelect) {
-                const index = props.data.selected.findIndex(
-                  (sel) => item.node.data.key === sel.key
-                );
+                if (props.config.multiSelect) {
+                  const index = props.data.selected.findIndex(
+                    (sel) => item.node.data.key === sel.key
+                  );
+
+                  return [
+                    {
+                      column: nameColumnIndex,
+                      prefixElements: (
+                        <Checkbox
+                          size="small"
+                          fontSize="inherit"
+                          checked={index > -1}
+                          onChange={() => {
+                            updateCriteria(
+                              produce(props.data, (data) => {
+                                if (index > -1) {
+                                  data.selected.splice(index, 1);
+                                } else {
+                                  data.selected.push(newItem);
+                                }
+                              })
+                            );
+                          }}
+                        />
+                      ),
+                    },
+                    ...viewHierarchyContent,
+                  ];
+                }
 
                 return [
                   {
                     column: nameColumnIndex,
-                    prefixElements: (
-                      <Checkbox
-                        size="small"
-                        fontSize="inherit"
-                        checked={index > -1}
-                        onChange={() => {
-                          updateCriteria(
-                            produce(props.data, (data) => {
-                              if (index > -1) {
-                                data.selected.splice(index, 1);
-                              } else {
-                                data.selected.push(newItem);
-                              }
-                            })
-                          );
-                        }}
-                      />
-                    ),
+                    onClick: () => {
+                      updateCriteria(
+                        produce(props.data, (data) => {
+                          data.selected = [newItem];
+                        })
+                      );
+                      navigate(props.doneURL);
+                    },
                   },
                   ...viewHierarchyContent,
                 ];
-              }
+              }}
+              loadChildren={(id: TreeGridId) => {
+                const data = classificationState.data;
+                if (!data) {
+                  return Promise.resolve();
+                }
 
-              return [
-                {
-                  column: nameColumnIndex,
-                  onClick: () => {
-                    updateCriteria(
-                      produce(props.data, (data) => {
-                        data.selected = [newItem];
-                      })
-                    );
-                    navigate(props.doneURL);
-                  },
-                },
-                ...viewHierarchyContent,
-              ];
-            }}
-            loadChildren={(id: TreeGridId) => {
-              const data = classificationState.data;
-              if (!data) {
-                return Promise.resolve();
-              }
-
-              const item = data[id] as ClassificationNodeItem;
-              const key = item?.node ? keyForNode(item.node) : id;
-              if (item?.node.grouping) {
-                return source
-                  .searchGrouping(
-                    attributes,
-                    occurrence.id,
-                    classification.id,
-                    item.node
-                  )
-                  .then((res) => {
-                    updateData(
-                      processEntities(res, searchData?.hierarchy, key, data)
-                    );
-                  });
-              } else {
-                return source
-                  .searchClassification(
-                    attributes,
-                    occurrence.id,
-                    classification.id,
-                    {
-                      parent: key,
-                    }
-                  )
-                  .then((res) => {
-                    updateData(
-                      processEntities(res, searchData?.hierarchy, key, data)
-                    );
-                  });
-              }
-            }}
-          />
-        )}
-      </Loading>
-    </Box>
+                const item = data[id] as ClassificationNodeItem;
+                const key = item?.node ? keyForNode(item.node) : id;
+                if (item?.node.grouping) {
+                  return source
+                    .searchGrouping(
+                      attributes,
+                      occurrence.id,
+                      classification.id,
+                      item.node
+                    )
+                    .then((res) => {
+                      updateData(
+                        processEntities(res, searchData?.hierarchy, key, data)
+                      );
+                    });
+                } else {
+                  return source
+                    .searchClassification(
+                      attributes,
+                      occurrence.id,
+                      classification.id,
+                      {
+                        parent: key,
+                      }
+                    )
+                    .then((res) => {
+                      updateData(
+                        processEntities(res, searchData?.hierarchy, key, data)
+                      );
+                    });
+                }
+              }}
+            />
+          )}
+        </Loading>
+      </GridLayout>
+    </GridBox>
   );
 }
 

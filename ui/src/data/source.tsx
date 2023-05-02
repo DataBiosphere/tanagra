@@ -31,6 +31,7 @@ import {
   isArrayFilter,
   isAttributeFilter,
   isClassificationFilter,
+  isRelationshipFilter,
   isTextFilter,
   isUnaryFilter,
 } from "./filter";
@@ -94,11 +95,6 @@ export type Study = {
   properties: PropertyMap;
 };
 
-// TODO(tjennison): The AnnotationValue API is difficult to work with because
-// creating them is separate from editing them, but that doesn't mesh well with
-// how the UI actually works. Updates have to wait for create to succeed and
-// return the valueId before updates can be sent. Determine if it makes sense to
-// use the EntityInstance as the id and have a single CreateOrUpdate API.
 export type AnnotationValue = {
   value: DataValue;
   valueId: DataKey;
@@ -264,6 +260,23 @@ export interface Source {
   ): void;
 
   exportAnnotationValues(studyId: string, cohortId: string): Promise<string>;
+
+  createUpdateAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey,
+    value: DataValue
+  ): Promise<AnnotationValue>;
+
+  deleteAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey
+  ): Promise<void>;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -500,7 +513,7 @@ export class BackendSource implements Source {
     );
 
     const data = res.instances?.map((instance) =>
-      processEntityInstance(entity.key, instance)
+      makeDataEntry(entity.key, instance.attributes)
     );
     return {
       data: data ?? [],
@@ -587,7 +600,7 @@ export class BackendSource implements Source {
         entityName: this.config.primaryEntity.entity,
         countQueryV2: {
           attributes: groupByAttributes,
-          filter: generateFilter(this, filter, true) ?? undefined,
+          filter: generateFilter(this, filter) ?? undefined,
         },
       })
     );
@@ -670,8 +683,7 @@ export class BackendSource implements Source {
           reviewCreateInfoV2: {
             displayName,
             size,
-            filter:
-              generateFilter(this, generateCohortFilter(cohort), true) ?? {},
+            filter: generateFilter(this, generateCohortFilter(cohort)) ?? {},
           },
         })
         .then((r) => fromAPICohortReview(r))
@@ -736,7 +748,11 @@ export class BackendSource implements Source {
             includeAttributes,
           },
         })
-        .then((res) => res.map((i) => fromAPIReviewInstance(reviewId, i)))
+        .then((res) =>
+          res.map((i) =>
+            fromAPIReviewInstance(reviewId, this.config.primaryEntity.key, i)
+          )
+        )
     );
   }
 
@@ -847,7 +863,7 @@ export class BackendSource implements Source {
             underlayName,
             criteria: toAPICriteria(criteria),
             entity: findEntity(
-              getCriteriaPlugin(criteria).occurrenceID(),
+              getCriteriaPlugin(criteria).filterOccurrenceId(),
               this.config
             ).entity,
           },
@@ -931,6 +947,45 @@ export class BackendSource implements Source {
     return res.gcsSignedUrl;
   }
 
+  public async createUpdateAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey,
+    value: DataValue
+  ): Promise<AnnotationValue> {
+    const res = await parseAPIError(
+      this.annotationsApi.createUpdateAnnotationValue({
+        studyId,
+        cohortId,
+        reviewId,
+        annotationId,
+        valueId: String(entityKey),
+        literalV2: literalFromDataValue(value),
+      })
+    );
+    return fromAPIAnnotationValue(res, reviewId);
+  }
+
+  public async deleteAnnotationValue(
+    studyId: string,
+    cohortId: string,
+    reviewId: string,
+    annotationId: string,
+    entityKey: DataKey
+  ): Promise<void> {
+    return await parseAPIError(
+      this.annotationsApi.deleteAnnotationValue({
+        studyId,
+        cohortId,
+        reviewId,
+        annotationId,
+        valueId: String(entityKey),
+      })
+    );
+  }
+
   private makeQuery(
     requestedAttributes: string[],
     occurrenceID: string,
@@ -938,7 +993,7 @@ export class BackendSource implements Source {
     conceptSet: Filter | null,
     limit?: number
   ): tanagra.QueryV2 {
-    let cohortFilter = generateFilter(this, cohort, true);
+    let cohortFilter = generateFilter(this, cohort);
     if (!cohortFilter) {
       throw new Error("Cohort filter is empty.");
     }
@@ -957,7 +1012,7 @@ export class BackendSource implements Source {
     }
 
     let filter = cohortFilter;
-    const conceptSetFilter = generateFilter(this, conceptSet, false);
+    const conceptSetFilter = generateFilter(this, conceptSet);
     if (conceptSetFilter) {
       const combined = makeBooleanLogicFilter(
         tanagra.BooleanLogicFilterV2OperatorEnum.And,
@@ -1151,7 +1206,7 @@ function convertSortDirection(dir: SortDirection) {
 }
 
 function processEntitiesResponse(
-  attributeID: string,
+  primaryKey: string,
   response: tanagra.InstanceListV2,
   hierarchy?: string,
   grouping?: string
@@ -1159,7 +1214,7 @@ function processEntitiesResponse(
   const nodes: ClassificationNode[] = [];
   if (response.instances) {
     response.instances.forEach((instance) => {
-      const data = processEntityInstance(attributeID, instance);
+      const data = makeDataEntry(primaryKey, instance.attributes);
 
       let ancestors: DataKey[] | undefined;
       const path = instance.hierarchyFields?.[0]?.path;
@@ -1190,22 +1245,20 @@ function processEntitiesResponse(
   return nodes;
 }
 
-function processEntityInstance(
-  attributeID: string,
-  instance: tanagra.InstanceV2
+function makeDataEntry(
+  primaryKey: string,
+  attributes?: { [key: string]: tanagra.ValueDisplayV2 }
 ): DataEntry {
   const data: DataEntry = {
     key: 0,
   };
 
-  processAttributes(data, instance.attributes);
+  processAttributes(data, attributes);
 
-  const key = dataValueFromLiteral(
-    instance.attributes?.[attributeID]?.value ?? null
-  );
+  const key = dataValueFromLiteral(attributes?.[primaryKey]?.value ?? null);
   if (typeof key !== "string" && typeof key !== "number") {
     throw new Error(
-      `Key attribute "${attributeID}" not found in entity instance ${data}`
+      `Key attribute "${primaryKey}" not found in entity instance ${data}`
     );
   }
   data.key = key;
@@ -1216,8 +1269,7 @@ function processEntityInstance(
 // count API uses have been converted.
 export function generateFilter(
   source: Source,
-  filter: Filter | null,
-  fromPrimary: boolean
+  filter: Filter | null
 ): tanagra.FilterV2 | null {
   if (!filter) {
     return null;
@@ -1225,7 +1277,7 @@ export function generateFilter(
 
   if (isArrayFilter(filter)) {
     const operands = filter.operands
-      .map((o) => generateFilter(source, o, fromPrimary))
+      .map((o) => generateFilter(source, o))
       .filter(isValid);
     if (operands.length === 0) {
       return null;
@@ -1234,7 +1286,7 @@ export function generateFilter(
     return makeBooleanLogicFilter(arrayFilterOperator(filter), operands);
   }
   if (isUnaryFilter(filter)) {
-    const operand = generateFilter(source, filter.operand, fromPrimary);
+    const operand = generateFilter(source, filter.operand);
     if (!operand) {
       return null;
     }
@@ -1250,48 +1302,28 @@ export function generateFilter(
     };
   }
 
-  // Cohort filters need to be related to the primary entity but concept sets
-  // filters don't because they're tied to particular occurrences.
-  const [occurrenceFilter, entity] = generateOccurrenceFilter(source, filter);
-  if (
-    occurrenceFilter &&
-    fromPrimary &&
-    entity !== source.config.primaryEntity.entity
-  ) {
+  if (isRelationshipFilter(filter)) {
+    const entity = findEntity(filter.entityId, source.config);
+    const subfilter = generateFilter(source, filter.subfilter);
+    if (!subfilter) {
+      return null;
+    }
+
     return {
       filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
       filterUnion: {
         relationshipFilter: {
-          entity,
-          subfilter: occurrenceFilter,
+          entity: entity.entity,
+          subfilter: subfilter,
         },
       },
     };
   }
-  return occurrenceFilter;
-}
 
-function arrayFilterOperator(
-  filter: ArrayFilter
-): tanagra.BooleanLogicFilterV2OperatorEnum {
-  if (!isValid(filter.operator.min) && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterV2OperatorEnum.And;
-  }
-  if (filter.operator.min === 1 && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterV2OperatorEnum.Or;
-  }
-
-  throw new Error("Only AND and OR equivalent operators are supported.");
-}
-
-function generateOccurrenceFilter(
-  source: Source,
-  filter: Filter
-): [tanagra.FilterV2 | null, string] {
   if (isClassificationFilter(filter)) {
-    const entity = findEntity(filter.occurrenceID, source.config);
+    const entity = findEntity(filter.occurrenceId, source.config);
     const classification = findByID(
-      filter.classificationID,
+      filter.classificationId,
       entity.classifications
     );
 
@@ -1333,99 +1365,96 @@ function generateOccurrenceFilter(
         ) ?? undefined;
     }
 
-    return [
-      {
-        filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
-        filterUnion: {
-          relationshipFilter: {
-            entity: classification.entity,
-            subfilter,
-          },
+    return {
+      filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+      filterUnion: {
+        relationshipFilter: {
+          entity: classification.entity,
+          subfilter,
         },
       },
-      entity.entity,
-    ];
+    };
   }
   if (isAttributeFilter(filter)) {
-    const entity = findEntity(filter.occurrenceID, source.config);
     if (filter.ranges?.length) {
-      return [
-        makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterV2OperatorEnum.Or,
-          filter.ranges.map(({ min, max }) =>
-            makeBooleanLogicFilter(
-              tanagra.BooleanLogicFilterV2OperatorEnum.And,
-              [
-                {
-                  filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-                  filterUnion: {
-                    attributeFilter: {
-                      attribute: filter.attribute,
-                      operator: tanagra.BinaryOperatorV2.LessThan,
-                      value: literalFromDataValue(max),
-                    },
-                  },
+      return makeBooleanLogicFilter(
+        tanagra.BooleanLogicFilterV2OperatorEnum.Or,
+        filter.ranges.map(({ min, max }) =>
+          makeBooleanLogicFilter(tanagra.BooleanLogicFilterV2OperatorEnum.And, [
+            {
+              filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+              filterUnion: {
+                attributeFilter: {
+                  attribute: filter.attribute,
+                  operator: tanagra.BinaryOperatorV2.LessThan,
+                  value: literalFromDataValue(max),
                 },
-                {
-                  filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-                  filterUnion: {
-                    attributeFilter: {
-                      attribute: filter.attribute,
-                      operator: tanagra.BinaryOperatorV2.GreaterThan,
-                      value: literalFromDataValue(min),
-                    },
-                  },
-                },
-              ]
-            )
-          )
-        ),
-        entity.entity,
-      ];
-    }
-    if (filter.values?.length) {
-      return [
-        makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterV2OperatorEnum.Or,
-          filter.values.map((value) => ({
-            filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
-            filterUnion: {
-              attributeFilter: {
-                attribute: filter.attribute,
-                operator: tanagra.BinaryOperatorV2.Equals,
-                value: literalFromDataValue(value),
               },
             },
-          }))
-        ),
-        entity.entity,
-      ];
+            {
+              filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+              filterUnion: {
+                attributeFilter: {
+                  attribute: filter.attribute,
+                  operator: tanagra.BinaryOperatorV2.GreaterThan,
+                  value: literalFromDataValue(min),
+                },
+              },
+            },
+          ])
+        )
+      );
+    }
+    if (filter.values?.length) {
+      return makeBooleanLogicFilter(
+        tanagra.BooleanLogicFilterV2OperatorEnum.Or,
+        filter.values.map((value) => ({
+          filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+          filterUnion: {
+            attributeFilter: {
+              attribute: filter.attribute,
+              operator: tanagra.BinaryOperatorV2.Equals,
+              value: literalFromDataValue(value),
+            },
+          },
+        }))
+      );
     }
 
-    return [null, ""];
+    return null;
   }
 
   if (isTextFilter(filter)) {
     if (filter.text.length === 0) {
-      return [null, ""];
+      return null;
     }
 
-    return [
-      {
-        filterType: tanagra.FilterV2FilterTypeEnum.Text,
-        filterUnion: {
-          textFilter: {
-            matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
-            text: filter.text,
-            attribute: filter.attribute,
-          },
+    return {
+      filterType: tanagra.FilterV2FilterTypeEnum.Text,
+      filterUnion: {
+        textFilter: {
+          matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
+          text: filter.text,
+          attribute: filter.attribute,
         },
       },
-      findEntity(filter.occurrenceID, source.config).entity,
-    ];
+    };
   }
 
   throw new Error(`Unknown filter type: ${JSON.stringify(filter)}`);
+}
+
+function arrayFilterOperator(
+  filter: ArrayFilter
+): tanagra.BooleanLogicFilterV2OperatorEnum {
+  if (!isValid(filter.operator.min) && !isValid(filter.operator.max)) {
+    return tanagra.BooleanLogicFilterV2OperatorEnum.And;
+  }
+  if (filter.operator.min === 1 && !isValid(filter.operator.max)) {
+    return tanagra.BooleanLogicFilterV2OperatorEnum.Or;
+  }
+
+  throw new Error("Only AND and OR equivalent operators are supported.");
 }
 
 function processAttributes(
@@ -1599,26 +1628,32 @@ function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
 
 function fromAPIReviewInstance(
   reviewId: string,
+  primaryKey: string,
   instance: tanagra.ReviewInstanceV2
 ): ReviewInstance {
-  const data: DataEntry = {
-    key: 0,
-  };
-
-  processAttributes(data, instance.attributes);
+  const data = makeDataEntry(primaryKey, instance.attributes);
 
   const annotations: AnnotationEntry = {};
   for (const key in instance.annotations) {
-    annotations[key] = instance.annotations[key].map((v) => ({
-      value: dataValueFromLiteral(v.value),
-      valueId: v.id,
-      current: v.review === reviewId,
-    }));
+    annotations[key] = instance.annotations[key].map((v) =>
+      fromAPIAnnotationValue(v, reviewId)
+    );
   }
 
   return {
     data,
     annotations,
+  };
+}
+
+function fromAPIAnnotationValue(
+  value: tanagra.AnnotationValueV2,
+  reviewId: string
+): AnnotationValue {
+  return {
+    value: dataValueFromLiteral(value.value),
+    valueId: value.id,
+    current: value.review === reviewId,
   };
 }
 

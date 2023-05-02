@@ -7,6 +7,7 @@ export enum FilterType {
   Classification = "CLASSIFICATION",
   Attribute = "ATTRIBUTE",
   Text = "TEXT",
+  Relationship = "RELATIONSHIP",
 }
 
 type BaseFilter = {
@@ -59,7 +60,6 @@ export function makeArrayFilter(
 }
 
 export type AttributeFilter = BaseFilter & {
-  occurrenceID: string;
   attribute: string;
   values?: DataValue[];
   ranges?: { min: number; max: number }[];
@@ -70,7 +70,6 @@ export function isAttributeFilter(filter: Filter): filter is AttributeFilter {
 }
 
 export type TextFilter = BaseFilter & {
-  occurrenceID: string;
   text: string;
   attribute?: string;
 };
@@ -79,9 +78,20 @@ export function isTextFilter(filter: Filter): filter is TextFilter {
   return filter.type == FilterType.Text;
 }
 
+export type RelationshipFilter = BaseFilter & {
+  entityId: string;
+  subfilter: Filter;
+};
+
+export function isRelationshipFilter(
+  filter: Filter
+): filter is RelationshipFilter {
+  return filter.type == FilterType.Relationship;
+}
+
 export type ClassificationFilter = BaseFilter & {
-  occurrenceID: string;
-  classificationID: string;
+  occurrenceId: string;
+  classificationId: string;
   keys: DataKey[];
 };
 
@@ -96,4 +106,5 @@ export type Filter =
   | ArrayFilter
   | AttributeFilter
   | ClassificationFilter
-  | TextFilter;
+  | TextFilter
+  | RelationshipFilter;

@@ -95,20 +95,18 @@ class _ implements CriteriaPlugin<Data> {
     return makeArrayFilter({}, [
       {
         type: FilterType.Text,
-        occurrenceID: this.config.occurrenceId,
         attribute: this.config.searchAttribute,
         text: this.data.query,
       },
       {
         type: FilterType.Attribute,
-        occurrenceID: this.config.occurrenceId,
-        attribute: this.config.searchAttribute,
+        attribute: this.config.categoryAttribute ?? "",
         values: this.data.categories.map((c) => c.value),
       },
     ]);
   }
 
-  occurrenceID() {
+  filterOccurrenceId() {
     return this.config.occurrenceId;
   }
 }
@@ -155,7 +153,6 @@ function TextSearchInline(props: TextSearchInlineProps) {
             props.config.categoryAttribute
           )
         : undefined;
-      console.log(hintData);
       return {
         hintData,
       };

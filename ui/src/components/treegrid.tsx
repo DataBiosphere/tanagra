@@ -3,11 +3,12 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
+import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { GridBox } from "layout/gridBox";
 import { ReactNode, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
 
@@ -57,11 +58,13 @@ export type TreeGridProps = {
     data: TreeGridRowData
   ) => ColumnCustomization[] | undefined;
   loadChildren?: (id: TreeGridId) => Promise<void>;
-  variableWidth?: boolean;
+  minWidth?: boolean;
   wrapBodyText?: boolean;
 };
 
 export function TreeGrid(props: TreeGridProps) {
+  const theme = useTheme();
+
   const [state, updateState] = useImmer<TreeGridState>(
     new Map<TreeGridId, TreeGridItemState>()
   );
@@ -126,29 +129,35 @@ export function TreeGrid(props: TreeGridProps) {
     }
   }, [props.defaultExpanded]);
 
+  const paperColor = theme.palette.background.paper;
+  const dividerColor = theme.palette.divider;
+
   return (
-    <>
+    <GridBox sx={{ overflowY: "auto", px: 1 }}>
       <table
         style={{
           tableLayout: "fixed",
-          ...(!props.variableWidth ? { width: "100%" } : undefined),
+          ...(props.minWidth ? { minWidth: "100%" } : { width: "100%" }),
+          textAlign: "left",
+          borderCollapse: "collapse",
         }}
       >
-        <thead
-          style={{
-            display: "block",
-          }}
-        >
+        <thead>
           <tr>
             {props.columns.map((col, i) => (
-              <td
+              <th
                 key={i}
                 style={{
+                  position: "sticky",
+                  top: 0,
                   ...(col.width && {
                     maxWidth: col.width,
                     width: col.width,
                     minWidth: col.width,
                   }),
+                  backgroundColor: paperColor,
+                  boxShadow: `inset 0 -1px 0 ${dividerColor}`,
+                  zIndex: 1,
                 }}
               >
                 <Box
@@ -168,38 +177,23 @@ export function TreeGrid(props: TreeGridProps) {
                     {col.title}
                   </Typography>
                 </Box>
-              </td>
+              </th>
             ))}
           </tr>
         </thead>
+        <tbody>
+          {renderChildren(
+            props,
+            state,
+            (id: TreeGridId) =>
+              updateState((draft) => toggleExpanded(draft, id)),
+            "root",
+            0,
+            false
+          )}
+        </tbody>
       </table>
-      <Divider />
-      <div
-        style={{
-          overflowY: "auto",
-          display: "inline-block",
-        }}
-      >
-        <table
-          style={{
-            tableLayout: "fixed",
-            width: "100%",
-          }}
-        >
-          <tbody>
-            {renderChildren(
-              props,
-              state,
-              (id: TreeGridId) =>
-                updateState((draft) => toggleExpanded(draft, id)),
-              "root",
-              0,
-              false
-            )}
-          </tbody>
-        </table>
-      </div>
-    </>
+    </GridBox>
   );
 }
 

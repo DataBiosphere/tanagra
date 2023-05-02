@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +23,14 @@ public class StudyService {
   }
 
   /** Create a new study. */
-  public void createStudy(Study study) {
+  public Study createStudy(Study.Builder studyBuilder) {
     featureConfiguration.artifactStorageEnabledCheck();
-    studyDao.createStudy(study);
+
+    // Generate a random 10-character alphanumeric string for the new study ID.
+    String newStudyId = RandomStringUtils.randomAlphanumeric(10);
+
+    studyDao.createStudy(studyBuilder.studyId(newStudyId).build());
+    return studyDao.getStudy(newStudyId);
   }
 
   /** Delete an existing study by ID. */

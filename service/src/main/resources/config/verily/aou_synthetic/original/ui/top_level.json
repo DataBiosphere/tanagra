@@ -66,11 +66,11 @@
         "id": "ingredient_occurrence",
         "displayName": "Drug Occurrence",
         "entity": "ingredient_occurrence",
-        "key": "drug",
+        "key": "id",
         "classifications": [
           {
             "id": "ingredient",
-            "attribute": "drug",
+            "attribute": "id",
             "entity": "ingredient",
             "entityAttribute": "id",
             "hierarchy": "standard",
@@ -277,6 +277,13 @@
     ]
   },
   "cohortReviewConfig": {
+    "participantsListColumns": [
+      { "key": "id", "width": 100, "title": "Id" },
+      { "key": "gender", "width": 100, "title": "Gender" },
+      { "key": "race", "width": 100, "title": "Race" },
+      { "key": "ethnicity", "width": 100, "title": "Ethnicity" },
+      { "key": "year_of_birth", "width": 60, "title": "Year of Birth" }
+    ],
     "attributes": [
       {
         "title": "Gender",
@@ -299,7 +306,7 @@
       {
         "type": "occurrenceTable",
         "id": "condition",
-        "title": "Condition",
+        "title": "Conditions",
         "plugin": {
           "occurrence": "condition_occurrence",
           "columns": [
@@ -312,12 +319,41 @@
       {
         "type": "occurrenceTable",
         "id": "procedure",
-        "title": "Procedure",
+        "title": "Procedures",
         "plugin": {
           "occurrence": "procedure_occurrence",
           "columns": [
             { "key": "procedure", "width": "100%", "title": "Procedure name" },
             { "key": "date", "width": 200, "title": "Date" }
+          ]
+        }
+      },
+      {
+        "type": "occurrenceTable",
+        "id": "observation",
+        "title": "Observations",
+        "plugin": {
+          "occurrence": "observation_occurrence",
+          "columns": [
+            {
+              "key": "observation",
+              "width": "100%",
+              "title": "Observation name"
+            },
+            { "key": "date", "width": 200, "title": "Date" }
+          ]
+        }
+      },
+      {
+        "type": "occurrenceTable",
+        "id": "ingredient",
+        "title": "Drugs",
+        "plugin": {
+          "occurrence": "ingredient_occurrence",
+          "columns": [
+            { "key": "ingredient", "width": "100%", "title": "Drug name" },
+            { "key": "start_date", "width": 200, "title": "Start date" },
+            { "key": "end_date", "width": 200, "title": "End date" }
           ]
         }
       }

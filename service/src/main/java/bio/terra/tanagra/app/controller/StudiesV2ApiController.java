@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,20 +44,13 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> createStudy(ApiStudyCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(SpringAuthentication.getCurrentUser(), CREATE, STUDY);
-
-    // Generate a random 10-character alphanumeric string for the new study ID.
-    String newStudyId = RandomStringUtils.randomAlphanumeric(10);
-
-    Study studyToCreate =
+    Study.Builder studyToCreate =
         Study.builder()
-            .studyId(newStudyId)
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .properties(fromApiObject(body.getProperties()))
-            .createdBy(SpringAuthentication.getCurrentUser().getEmail())
-            .build();
-    studyService.createStudy(studyToCreate);
-    return ResponseEntity.ok(toApiObject(studyToCreate));
+            .createdBy(SpringAuthentication.getCurrentUser().getEmail());
+    return ResponseEntity.ok(toApiObject(studyService.createStudy(studyToCreate)));
   }
 
   @Override

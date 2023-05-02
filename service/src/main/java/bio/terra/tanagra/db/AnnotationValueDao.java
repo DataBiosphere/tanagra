@@ -87,7 +87,7 @@ public class AnnotationValueDao {
           "Inserted record for annotation value {}", annotationValue.getAnnotationValueId());
     } catch (DuplicateKeyException dkEx) {
       if (dkEx.getMessage()
-          .contains("duplicate key value violates unique constraint \"pk_annotation_value\"")) {
+          .contains("duplicate key value violates unique constraint \"pk_annotation_value_fix\"")) {
         throw new DuplicateAnnotationValueException(
             String.format(
                 "Annotation value with id %s already exists",
@@ -108,11 +108,12 @@ public class AnnotationValueDao {
       String reviewId,
       String annotationValueId) {
     final String sql =
-        "DELETE FROM annotation_value WHERE review_id = :review_id AND annotation_value_id = :annotation_value_id";
+        "DELETE FROM annotation_value WHERE review_id = :review_id AND annotation_id = :annotation_id AND annotation_value_id = :annotation_value_id";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("annotation_value_id", annotationValueId)
+            .addValue("annotation_id", annotationId)
             .addValue("review_id", reviewId);
     int rowsAffected = jdbcTemplate.update(sql, params);
     boolean deleted = rowsAffected > 0;
@@ -139,9 +140,14 @@ public class AnnotationValueDao {
       throw new MissingRequiredFieldException(
           "Valid study, cohort, annotation, review, and annotation value ids are required");
     }
-    String sql = ANNOTATION_VALUE_SELECT_SQL + " AND av.annotation_value_id = :annotation_value_id";
+    String sql =
+        ANNOTATION_VALUE_SELECT_SQL
+            + " AND av.review_id = :review_id AND av.annotation_id = :annotation_id AND av.annotation_value_id = :annotation_value_id";
     MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("annotation_value_id", annotationValueId);
+        new MapSqlParameterSource()
+            .addValue("review_id", reviewId)
+            .addValue("annotation_id", annotationId)
+            .addValue("annotation_value_id", annotationValueId);
     try {
       AnnotationValue annotationValue =
           DataAccessUtils.requiredSingleResult(
@@ -252,7 +258,7 @@ public class AnnotationValueDao {
     final String upsertSql =
         "INSERT INTO annotation_value (review_id, annotation_id, annotation_value_id, entity_instance_id, bool_val, int64_val, string_val, date_val) "
             + "VALUES (:review_id, :annotation_id, :annotation_value_id, :entity_instance_id, :bool_val, :int64_val, :string_val, :date_val) "
-            + "ON CONFLICT ON CONSTRAINT pk_annotation_value DO "
+            + "ON CONFLICT ON CONSTRAINT pk_annotation_value_fix DO "
             + "UPDATE SET bool_val = :bool_val, int64_val = :int64_val, string_val = :string_val, date_val = :date_val";
     MapSqlParameterSource upsertParams =
         new MapSqlParameterSource()
