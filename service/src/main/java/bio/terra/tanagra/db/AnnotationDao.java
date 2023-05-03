@@ -41,7 +41,7 @@ public class AnnotationDao {
   private static final String ANNOTATION_VALUE_SELECT_SQL =
       "SELECT cr.version, av.annotation_key_id, av.primary_entity_instance_id, av.bool_val, av.int64_val, av.string_val, av.date_val, ak.data_type "
           + "FROM annotation_value AS av "
-          + "JOIN annotation_key AS ak ON ak.id = av.annotation_key_id "
+          + "JOIN annotation_key AS ak ON ak.id = av.annotation_key_id AND ak.cohort_id = av.cohort_id "
           + "JOIN cohort_revision AS cr ON cr.review_id = av.review_id";
 
   private static final RowMapper<AnnotationValue.Builder> ANNOTATION_VALUE_ROW_MAPPER =

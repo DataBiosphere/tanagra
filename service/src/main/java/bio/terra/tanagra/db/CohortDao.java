@@ -268,14 +268,14 @@ public class CohortDao {
 
     // Update the current revision to be un-editable and no longer the most recent.
     String sql =
-        "UPDATE cohort_revision SET review_id = :review_id, is_editable = :is_editable, is_most_recent = :is_most_recent WHERE cohort_id = :cohort_id";
+        "UPDATE cohort_revision SET review_id = :review_id, is_editable = :is_editable, is_most_recent = :is_most_recent WHERE id = :id";
     LOGGER.debug("UPDATE cohort_revision: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("review_id", reviewId)
             .addValue("is_editable", false)
             .addValue("is_most_recent", false)
-            .addValue("cohort_id", cohortId);
+            .addValue("id", cohort.getMostRecentRevision().getId());
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE cohort_revision rowsAffected = {}", rowsAffected);
 

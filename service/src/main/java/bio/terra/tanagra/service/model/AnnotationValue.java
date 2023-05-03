@@ -108,5 +108,9 @@ public class AnnotationValue {
     public String getAnnotationKeyId() {
       return annotationKeyId;
     }
+
+    public String getInstanceId() {
+      return instanceId;
+    }
   }
 }

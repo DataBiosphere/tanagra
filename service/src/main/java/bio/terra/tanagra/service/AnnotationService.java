@@ -147,21 +147,27 @@ public class AnnotationService {
       Cohort cohort = cohortService.getCohort(studyId, cohortId);
       selectedVersion = cohort.getMostRecentRevision().getVersion();
     }
+    LOGGER.debug("selectedVersion: {}", selectedVersion);
 
     // Fetch all the annotation values for this cohort.
     List<AnnotationValue.Builder> allValues = annotationDao.getAllAnnotationValues(cohortId);
+    LOGGER.debug("allValues.size = {}", allValues.size());
 
-    // Build a map of the values by key: annotation key id -> list of annotation values
-    Map<String, List<AnnotationValue.Builder>> allValuesMap = new HashMap<>();
+    // Build a map of the values by key and instance id: annotation key id -> list of annotation
+    // values
+    Map<Pair<String, String>, List<AnnotationValue.Builder>> allValuesMap = new HashMap<>();
     allValues.stream()
         .forEach(
             v -> {
-              List<AnnotationValue.Builder> valuesForKey = allValuesMap.get(v.getAnnotationKeyId());
-              if (valuesForKey == null) {
-                valuesForKey = new ArrayList<>();
-                allValuesMap.put(v.getAnnotationKeyId(), valuesForKey);
+              Pair<String, String> keyAndInstance =
+                  Pair.of(v.getAnnotationKeyId(), v.getInstanceId());
+              List<AnnotationValue.Builder> valuesForKeyAndInstance =
+                  allValuesMap.get(keyAndInstance);
+              if (valuesForKeyAndInstance == null) {
+                valuesForKeyAndInstance = new ArrayList<>();
+                allValuesMap.put(keyAndInstance, valuesForKeyAndInstance);
               }
-              valuesForKey.add(v);
+              valuesForKeyAndInstance.add(v);
             });
 
     // Filter the values, keeping only the most recent ones and those that belong to the specified
@@ -170,10 +176,10 @@ public class AnnotationService {
     allValuesMap.entrySet().stream()
         .forEach(
             keyValues -> {
-              String keyId = keyValues.getKey();
-              List<AnnotationValue.Builder> allValuesForKey = keyValues.getValue();
-              int maxVersionForKey =
-                  allValuesForKey.stream()
+              Pair<String, String> keyAndInstance = keyValues.getKey();
+              List<AnnotationValue.Builder> allValuesForKeyAndInstance = keyValues.getValue();
+              int maxVersionForKeyAndInstance =
+                  allValuesForKeyAndInstance.stream()
                       .max(
                           Comparator.comparingInt(
                               AnnotationValue.Builder::getCohortRevisionVersion))
@@ -181,10 +187,11 @@ public class AnnotationService {
                       .getCohortRevisionVersion();
 
               List<AnnotationValue> filteredValuesForKey = new ArrayList<>();
-              allValuesForKey.stream()
+              allValuesForKeyAndInstance.stream()
                   .forEach(
                       v -> {
-                        boolean isMostRecent = v.getCohortRevisionVersion() == maxVersionForKey;
+                        boolean isMostRecent =
+                            v.getCohortRevisionVersion() == maxVersionForKeyAndInstance;
                         boolean isPartOfSelectedReview =
                             (v.getCohortRevisionVersion() == selectedVersion);
                         if (isMostRecent || isPartOfSelectedReview) {
@@ -192,6 +199,15 @@ public class AnnotationService {
                               v.isMostRecent(isMostRecent)
                                   .isPartOfSelectedReview(isPartOfSelectedReview)
                                   .build());
+                        } else {
+                          LOGGER.debug(
+                              "filtering out av {} - {} - {} - {} ({}, {})",
+                              v.build().getCohortRevisionVersion(),
+                              v.build().getInstanceId(),
+                              v.build().getAnnotationKeyId(),
+                              v.build().getLiteral().getStringVal(),
+                              maxVersionForKeyAndInstance,
+                              selectedVersion);
                         }
                       });
               filteredValues.addAll(filteredValuesForKey);
