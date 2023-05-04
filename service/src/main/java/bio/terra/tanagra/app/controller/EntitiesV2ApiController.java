@@ -12,6 +12,7 @@ import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Entity;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,19 +31,17 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiEntityListV2> listEntitiesV2(String underlayName) {
+  public ResponseEntity<ApiEntityListV2> listEntities(String underlayName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
-    return ResponseEntity.ok(
-        new ApiEntityListV2()
-            .entities(
-                underlaysService.getUnderlay(underlayName).getEntities().values().stream()
-                    .map(e -> toApiObject(e))
-                    .collect(Collectors.toList())));
+    ApiEntityListV2 apiEntities = new ApiEntityListV2();
+    List<Entity> entities = underlaysService.listEntities(underlayName);
+    entities.stream().forEach(entity -> apiEntities.addEntitiesItem(toApiObject(entity)));
+    return ResponseEntity.ok(apiEntities);
   }
 
   @Override
-  public ResponseEntity<ApiEntityV2> getEntityV2(String underlayName, String entityName) {
+  public ResponseEntity<ApiEntityV2> getEntity(String underlayName, String entityName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);

@@ -56,7 +56,7 @@ paths:
   "/v2/underlays":
     get:
       summary: List the underlays
-      operationId: listUnderlaysV2
+      operationId: listUnderlays
       tags: [UnderlaysV2]
       responses:
         200:
@@ -73,7 +73,7 @@ paths:
       - $ref: "#/components/parameters/UnderlayNameV2"
     get:
       summary: Get an underlay
-      operationId: getUnderlayV2
+      operationId: getUnderlay
       tags: [UnderlaysV2]
       responses:
         200:
@@ -92,7 +92,7 @@ paths:
       - $ref: "#/components/parameters/UnderlayNameV2"
     get:
       summary: List the entities in an underlay
-      operationId: listEntitiesV2
+      operationId: listEntities
       tags: [EntitiesV2]
       responses:
         200:
@@ -112,7 +112,7 @@ paths:
       - $ref: "#/components/parameters/EntityNameV2"
     get:
       summary: Get an entity
-      operationId: getEntityV2
+      operationId: getEntity
       tags: [EntitiesV2]
       responses:
         200:
