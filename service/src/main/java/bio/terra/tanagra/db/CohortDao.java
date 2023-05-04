@@ -165,7 +165,7 @@ public class CohortDao {
     LOGGER.debug("GET cohort numFound = {}", cohorts.size());
 
     // Make sure there's only one cohort returned for this id.
-    if (cohorts.size() == 0) {
+    if (cohorts.isEmpty()) {
       throw new NotFoundException("Cohort not found " + id);
     } else if (cohorts.size() > 1) {
       throw new SystemException("Multiple cohorts found " + id);

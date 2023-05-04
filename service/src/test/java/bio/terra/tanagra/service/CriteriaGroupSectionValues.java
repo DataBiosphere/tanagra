@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaValues.*;
+import static bio.terra.tanagra.service.CriteriaValues.CONDITION_EQ_DIABETES;
+import static bio.terra.tanagra.service.CriteriaValues.ETHNICITY_EQ_JAPANESE;
+import static bio.terra.tanagra.service.CriteriaValues.GENDER_EQ_WOMAN;
 import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
 
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;

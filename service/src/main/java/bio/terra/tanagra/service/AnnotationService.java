@@ -167,6 +167,11 @@ public class AnnotationService {
         .forEach(
             keyValues -> {
               Pair<String, String> keyAndInstance = keyValues.getKey();
+              LOGGER.debug(
+                  "Building filtered list of values for annotation key {} and instance id {}",
+                  keyAndInstance.getKey(),
+                  keyAndInstance.getValue());
+
               List<AnnotationValue.Builder> allValuesForKeyAndInstance = keyValues.getValue();
               int maxVersionForKeyAndInstance =
                   allValuesForKeyAndInstance.stream()
@@ -183,7 +188,7 @@ public class AnnotationService {
                         boolean isMostRecent =
                             v.getCohortRevisionVersion() == maxVersionForKeyAndInstance;
                         boolean isPartOfSelectedReview =
-                            (v.getCohortRevisionVersion() == selectedVersion);
+                            v.getCohortRevisionVersion() == selectedVersion;
                         if (isMostRecent || isPartOfSelectedReview) {
                           filteredValuesForKey.add(
                               v.isMostRecent(isMostRecent)
@@ -191,7 +196,7 @@ public class AnnotationService {
                                   .build());
                         } else {
                           LOGGER.debug(
-                              "filtering out av {} - {} - {} - {} ({}, {})",
+                              "Filtering out annotation value {} - {} - {} - {} ({}, {})",
                               v.build().getCohortRevisionVersion(),
                               v.build().getInstanceId(),
                               v.build().getAnnotationKeyId(),
@@ -225,7 +230,7 @@ public class AnnotationService {
           "For export, gcsBucketProjectId and gcsBucketName properties must be set");
     }
 
-    GcsUtils.writeGcsFile(projectId, bucketName, fileName, fileContents.toString());
+    GcsUtils.writeGcsFile(projectId, bucketName, fileName, fileContents);
     return bio.terra.tanagra.utils.GcsUtils.createSignedUrl(projectId, bucketName, fileName);
   }
 

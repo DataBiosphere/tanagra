@@ -122,7 +122,7 @@ public class ReviewDao {
     LOGGER.debug("GET review numFound = {}", reviews.size());
 
     // Make sure there's only one review returned for this id.
-    if (reviews.size() == 0) {
+    if (reviews.isEmpty()) {
       throw new NotFoundException("Review not found " + id);
     } else if (reviews.size() > 1) {
       throw new SystemException("Multiple reviews found " + id);

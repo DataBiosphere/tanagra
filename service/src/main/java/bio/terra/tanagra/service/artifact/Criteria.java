@@ -112,8 +112,12 @@ public class Criteria {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Criteria criteria = (Criteria) o;
     return id.equals(criteria.id)
         && displayName.equals(criteria.displayName)

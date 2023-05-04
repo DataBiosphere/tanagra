@@ -45,7 +45,8 @@ public class ReviewServiceTest {
   @Autowired private ReviewService reviewService;
 
   private Study study1;
-  private Cohort cohort1, cohort2;
+  private Cohort cohort1;
+  private Cohort cohort2;
 
   @BeforeEach
   void createTwoCohorts() {

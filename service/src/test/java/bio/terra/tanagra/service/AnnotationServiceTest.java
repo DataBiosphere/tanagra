@@ -13,7 +13,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.*;
 import java.sql.Date;
-import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
@@ -43,8 +42,12 @@ public class AnnotationServiceTest {
   @Autowired private ReviewService reviewService;
 
   private Study study1;
-  private Cohort cohort1, cohort2;
-  private Review review1, review2, review3, review4;
+  private Cohort cohort1;
+  private Cohort cohort2;
+  private Review review1;
+  private Review review2;
+  private Review review3;
+  private Review review4;
 
   @BeforeEach
   void createCohortsAndReviews() {
@@ -419,8 +422,7 @@ public class AnnotationServiceTest {
     assertNotNull(annotationKeyDate);
     LOGGER.info("Created annotation key {}", annotationKeyDate.getId());
 
-    Literal dateVal =
-        Literal.forDate(new Date(Calendar.getInstance().getTimeInMillis()).toString());
+    Literal dateVal = Literal.forDate(new Date(System.currentTimeMillis()).toString());
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -467,7 +469,7 @@ public class AnnotationServiceTest {
         List.of(updatedEnumVal));
 
     Literal updatedDateVal =
-        Literal.forDate(new Date(Calendar.getInstance().getTimeInMillis() + 1000).toString());
+        Literal.forDate(new Date(System.currentTimeMillis() + 1000).toString());
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),

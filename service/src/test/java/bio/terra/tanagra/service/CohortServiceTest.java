@@ -35,7 +35,8 @@ public class CohortServiceTest {
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
 
-  private Study study1, study2;
+  private Study study1;
+  private Study study2;
 
   @BeforeEach
   void createTwoStudies() {

@@ -61,7 +61,7 @@ class InMemoryCellValue implements CellValue {
       case INT64:
         return Optional.of(new Literal((Long) value));
       case STRING:
-        return Optional.of(new Literal(value == null ? null : (String) value));
+        return Optional.of(new Literal((String) value));
       case BOOLEAN:
         return Optional.of(new Literal((Boolean) value));
       case DATE:

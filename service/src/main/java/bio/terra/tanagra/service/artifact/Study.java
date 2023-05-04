@@ -26,23 +26,15 @@ public class Study {
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
 
-  public Study(
-      String id,
-      @Nullable String displayName,
-      @Nullable String description,
-      Map<String, String> properties,
-      OffsetDateTime created,
-      String createdBy,
-      OffsetDateTime lastModified,
-      String lastModifiedBy) {
-    this.id = id;
-    this.displayName = displayName;
-    this.description = description;
-    this.properties = properties;
-    this.created = created;
-    this.createdBy = createdBy;
-    this.lastModified = lastModified;
-    this.lastModifiedBy = lastModifiedBy;
+  public Study(Builder builder) {
+    this.id = builder.id;
+    this.displayName = builder.displayName;
+    this.description = builder.description;
+    this.properties = builder.properties;
+    this.created = builder.created;
+    this.createdBy = builder.createdBy;
+    this.lastModified = builder.lastModified;
+    this.lastModifiedBy = builder.lastModifiedBy;
   }
 
   /** The globally unique identifier of this study. */
@@ -182,15 +174,7 @@ public class Study {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
-      return new Study(
-          id,
-          displayName,
-          description,
-          properties,
-          created,
-          createdBy,
-          lastModified,
-          lastModifiedBy);
+      return new Study(this);
     }
 
     public String getId() {

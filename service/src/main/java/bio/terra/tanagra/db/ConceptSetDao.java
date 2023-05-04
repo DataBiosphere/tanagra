@@ -105,7 +105,7 @@ public class ConceptSetDao {
     LOGGER.debug("GET concept set numFound = {}", conceptSets.size());
 
     // Make sure there's only one concept set returned for this id.
-    if (conceptSets.size() == 0) {
+    if (conceptSets.isEmpty()) {
       throw new NotFoundException("Concept set not found " + id);
     } else if (conceptSets.size() > 1) {
       throw new SystemException("Multiple concept sets found " + id);

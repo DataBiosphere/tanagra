@@ -7,6 +7,7 @@ import java.util.*;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
+@SuppressWarnings("PMD.ExcessivePublicCount")
 public class CohortRevision {
   private final String id;
   private final List<CriteriaGroupSection> sections;
@@ -18,25 +19,16 @@ public class CohortRevision {
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
 
-  private CohortRevision(
-      String id,
-      List<CriteriaGroupSection> sections,
-      int version,
-      boolean isMostRecent,
-      boolean isEditable,
-      OffsetDateTime created,
-      String createdBy,
-      OffsetDateTime lastModified,
-      String lastModifiedBy) {
-    this.id = id;
-    this.sections = sections;
-    this.version = version;
-    this.isMostRecent = isMostRecent;
-    this.isEditable = isEditable;
-    this.created = created;
-    this.createdBy = createdBy;
-    this.lastModified = lastModified;
-    this.lastModifiedBy = lastModifiedBy;
+  private CohortRevision(Builder builder) {
+    this.id = builder.id;
+    this.sections = builder.sections;
+    this.version = builder.version;
+    this.isMostRecent = builder.isMostRecent;
+    this.isEditable = builder.isEditable;
+    this.created = builder.created;
+    this.createdBy = builder.createdBy;
+    this.lastModified = builder.lastModified;
+    this.lastModifiedBy = builder.lastModifiedBy;
   }
 
   public static Builder builder() {
@@ -94,7 +86,7 @@ public class CohortRevision {
 
   public static class Builder {
     private String id;
-    private List<CriteriaGroupSection> sections = new ArrayList<>();;
+    private List<CriteriaGroupSection> sections = new ArrayList<>();
     private int version;
     private boolean isMostRecent;
     private boolean isEditable;
@@ -154,16 +146,7 @@ public class CohortRevision {
       }
       sections = new ArrayList<>(sections);
       sections.sort(Comparator.comparing(CriteriaGroupSection::getId));
-      return new CohortRevision(
-          id,
-          sections,
-          version,
-          isMostRecent,
-          isEditable,
-          created,
-          createdBy,
-          lastModified,
-          lastModifiedBy);
+      return new CohortRevision(this);
     }
 
     public String getId() {
@@ -180,8 +163,12 @@ public class CohortRevision {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     CohortRevision that = (CohortRevision) o;
     return version == that.version
         && isMostRecent == that.isMostRecent
@@ -305,8 +292,12 @@ public class CohortRevision {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       CriteriaGroupSection that = (CriteriaGroupSection) o;
       return isExcluded == that.isExcluded
           && id.equals(that.id)
@@ -432,8 +423,12 @@ public class CohortRevision {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       CriteriaGroup that = (CriteriaGroup) o;
       return groupByCountValue == that.groupByCountValue
           && id.equals(that.id)
