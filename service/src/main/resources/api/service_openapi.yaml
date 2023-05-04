@@ -2137,17 +2137,20 @@ components:
     AnnotationValueV2:
       type: object
       properties:
-        id:
+        instanceId:
           description: ID of the annotation value, immutable
           type: string
         value:
           $ref: "#/components/schemas/LiteralV2"
-        review:
-          $ref: "#/components/schemas/ReviewIdV2"
+        isMostRecent:
+          type: boolean
+        isPartOfSelectedReview:
+          type: boolean
       required:
-        - id
+        - instanceId
         - value
-        - review
+        - isMostRecent
+        - isPartOfSelectedReview
 
     ReviewInstanceV2:
       type: object

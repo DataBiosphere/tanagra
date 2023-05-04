@@ -1,8 +1,5 @@
 package bio.terra.tanagra.db;
 
-import static bio.terra.tanagra.db.CohortDao1.CRITERIA_ROW_MAPPER;
-import static bio.terra.tanagra.db.CohortDao1.CRITERIA_SELECT_SQL;
-
 import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.NotFoundException;

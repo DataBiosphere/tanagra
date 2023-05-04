@@ -3,13 +3,10 @@ package bio.terra.tanagra.service;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraExportConfiguration;
 import bio.terra.tanagra.db.AnnotationDao;
-import bio.terra.tanagra.db.AnnotationValueDao;
-import bio.terra.tanagra.db.CohortDao1;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.model.AnnotationKey;
 import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.service.model.Cohort;
@@ -41,22 +38,15 @@ public class AnnotationService {
   private final TanagraExportConfiguration tanagraExportConfiguration;
   private final UnderlaysService underlaysService;
 
-  private final AnnotationValueDao annotationValueDao;
-  private final CohortDao1 cohortDao1;
-
   @Autowired
   public AnnotationService(
       AnnotationDao annotationDao,
-      AnnotationValueDao annotationValueDao,
-      CohortDao1 cohortDao1,
       CohortService cohortService,
       ReviewService reviewService,
       FeatureConfiguration featureConfiguration,
       TanagraExportConfiguration tanagraExportConfiguration,
       UnderlaysService underlaysService) {
     this.annotationDao = annotationDao;
-    this.annotationValueDao = annotationValueDao;
-    this.cohortDao1 = cohortDao1;
     this.cohortService = cohortService;
     this.reviewService = reviewService;
     this.featureConfiguration = featureConfiguration;
@@ -241,6 +231,35 @@ public class AnnotationService {
 
   @VisibleForTesting
   public String buildTsvStringForAnnotationValues(String studyId, String cohortId) {
+    // Build the column headers: id column name in source data, then annotation key display names.
+    // Sort the annotation keys by display name, so that we get a consistent ordering.
+    // e.g. person_id, key1, key2
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
+    String primaryIdSourceColumnName =
+        underlay
+            .getPrimaryEntity()
+            .getIdAttribute()
+            .getMapping(MappingType.SOURCE)
+            .getValue()
+            .getColumnName();
+    StringBuilder columnHeaders = new StringBuilder(primaryIdSourceColumnName);
+    List<AnnotationKey> annotationKeys =
+        listAnnotationKeys(
+                ResourceIdCollection.allResourceIds(),
+                studyId,
+                cohortId,
+                /*offset=*/ 0,
+                /*limit=*/ Integer.MAX_VALUE)
+            .stream()
+            .sorted(Comparator.comparing(AnnotationKey::getDisplayName))
+            .collect(Collectors.toList());
+    annotationKeys.forEach(
+        annotation -> {
+          columnHeaders.append(String.format("\t%s", annotation.getDisplayName()));
+        });
+    StringBuilder fileContents = new StringBuilder(columnHeaders + "\n");
+
     // Get all the annotation values for the latest revision.
     List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId);
 
@@ -257,30 +276,9 @@ public class AnnotationService {
         });
 
     // Convert table of annotation values to String representing TSV file.
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
-    String primaryIdSourceColumnName =
-        underlay
-            .getPrimaryEntity()
-            .getIdAttribute()
-            .getMapping(MappingType.SOURCE)
-            .getValue()
-            .getColumnName();
-    StringBuilder columnHeaders = new StringBuilder(primaryIdSourceColumnName);
-    List<AnnotationKey> annotationKeys =
-        listAnnotationKeys(
-            ResourceIdCollection.allResourceIds(),
-            studyId,
-            cohortId,
-            /*offset=*/ 0,
-            /*limit=*/ Integer.MAX_VALUE);
-    annotationKeys.forEach(
-        annotation -> {
-          columnHeaders.append(String.format("\t%s", annotation.getDisplayName()));
-        });
-    StringBuilder fileContents = new StringBuilder(columnHeaders + "\n");
-    tsvValues
-        .rowKeySet()
+    // Sort the instance ids, so that we get a consistent ordering.
+    tsvValues.rowKeySet().stream()
+        .sorted()
         .forEach(
             instanceId -> {
               StringBuilder row = new StringBuilder(instanceId);
@@ -295,11 +293,5 @@ public class AnnotationService {
               fileContents.append(String.format(row + "\n"));
             });
     return fileContents.toString();
-  }
-
-  /** Retrieves a list of all annotation values for a review. */
-  public List<AnnotationValueV1> getAnnotationValues(String reviewId) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return annotationValueDao.getAnnotationValues(reviewId);
   }
 }

@@ -3,11 +3,8 @@ package bio.terra.tanagra.service.utils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
-import bio.terra.tanagra.service.artifact.CohortV1;
-import bio.terra.tanagra.service.artifact.CriteriaGroupV1;
-import bio.terra.tanagra.service.artifact.CriteriaV1;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.model.CohortRevision;
 import bio.terra.tanagra.service.model.Criteria;
@@ -52,38 +49,6 @@ public final class ToApiConversionUtils {
       default:
         throw new SystemException("Unknown literal data type: " + literal.getDataType());
     }
-  }
-
-  public static ApiCohortV2 toApiObject(CohortV1 cohort) {
-    return new ApiCohortV2()
-        .id(cohort.getCohortId())
-        .underlayName(cohort.getUnderlayName())
-        .displayName(cohort.getDisplayName())
-        .description(cohort.getDescription())
-        .created(cohort.getCreated())
-        .createdBy(cohort.getCreatedBy())
-        .lastModified(cohort.getLastModified());
-  }
-
-  private static ApiCriteriaGroupV2 toApiObject(CriteriaGroupV1 criteriaGroup) {
-    return new ApiCriteriaGroupV2()
-        .id(criteriaGroup.getUserFacingCriteriaGroupId())
-        .displayName(criteriaGroup.getDisplayName())
-        .operator(ApiCriteriaGroupV2.OperatorEnum.fromValue(criteriaGroup.getOperator().name()))
-        .excluded(criteriaGroup.isExcluded())
-        .criteria(
-            criteriaGroup.getCriterias().stream()
-                .map(criteria -> toApiObject(criteria))
-                .collect(Collectors.toList()));
-  }
-
-  public static ApiCriteriaV2 toApiObject(CriteriaV1 criteria) {
-    return new ApiCriteriaV2()
-        .id(criteria.getUserFacingCriteriaId())
-        .displayName(criteria.getDisplayName())
-        .pluginName(criteria.getPluginName())
-        .selectionData(criteria.getSelectionData())
-        .uiConfig(criteria.getUiConfig());
   }
 
   public static ApiCohortV2 toApiObject(Cohort cohort) {
@@ -152,10 +117,11 @@ public final class ToApiConversionUtils {
         .attributes(attributes);
   }
 
-  public static ApiAnnotationValueV2 toApiObject(AnnotationValueV1 annotationValue) {
+  public static ApiAnnotationValueV2 toApiObject(AnnotationValue annotationValue) {
     return new ApiAnnotationValueV2()
-        .id(annotationValue.getAnnotationValueId())
-        .review(annotationValue.getReviewId())
-        .value(toApiObject(annotationValue.getLiteral()));
+        .instanceId(annotationValue.getInstanceId())
+        .value(toApiObject(annotationValue.getLiteral()))
+        .isMostRecent(annotationValue.isMostRecent())
+        .isPartOfSelectedReview(annotationValue.isPartOfSelectedReview());
   }
 }

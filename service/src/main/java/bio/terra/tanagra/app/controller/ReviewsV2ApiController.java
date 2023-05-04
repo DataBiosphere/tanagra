@@ -25,7 +25,6 @@ import bio.terra.tanagra.service.ReviewService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.ReviewInstance;
 import bio.terra.tanagra.service.instances.ReviewQueryOrderBy;
@@ -34,6 +33,7 @@ import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.model.AnnotationKey;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.service.model.Cohort;
 import bio.terra.tanagra.service.model.Review;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
@@ -231,7 +231,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
                 .entityFilter(entityFilter)
                 .annotationFilter(annotationFilter)
                 .entityInstanceIds(reviewService.getPrimaryEntityIds(reviewId))
-                .annotationValues(annotationService.getAnnotationValues(reviewId))
+                .annotationValues(
+                    annotationService.listAnnotationValues(studyId, cohortId, reviewId))
                 .orderBys(orderBys)
                 .build());
 
@@ -300,14 +301,16 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     }
 
     Map<String, List<ApiAnnotationValueV2>> annotationValues = new HashMap<>();
-    for (AnnotationValueV1 annotationValue : reviewInstance.getAnnotationValues()) {
-      String annotationId = annotationValue.getAnnotationId();
-      if (!annotationValues.containsKey(annotationId)) {
+    for (AnnotationValue annotationValue : reviewInstance.getAnnotationValues()) {
+      String annotationKeyId = annotationValue.getAnnotationKeyId();
+      if (!annotationValues.containsKey(annotationKeyId)) {
         annotationValues.put(
-            annotationId,
+            annotationKeyId,
             new ArrayList<>(Arrays.asList(ToApiConversionUtils.toApiObject(annotationValue))));
       } else {
-        annotationValues.get(annotationId).add(ToApiConversionUtils.toApiObject(annotationValue));
+        annotationValues
+            .get(annotationKeyId)
+            .add(ToApiConversionUtils.toApiObject(annotationValue));
       }
     }
 

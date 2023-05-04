@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.instances;
 
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Collections;
@@ -9,10 +9,10 @@ import java.util.Map;
 
 public final class ReviewInstance {
   private final Map<Attribute, ValueDisplay> attributeValues;
-  private final List<AnnotationValueV1> annotationValues;
+  private final List<AnnotationValue> annotationValues;
 
   public ReviewInstance(
-      Map<Attribute, ValueDisplay> attributeValues, List<AnnotationValueV1> annotationValues) {
+      Map<Attribute, ValueDisplay> attributeValues, List<AnnotationValue> annotationValues) {
     this.attributeValues = attributeValues;
     this.annotationValues = annotationValues;
   }
@@ -21,11 +21,11 @@ public final class ReviewInstance {
     return Collections.unmodifiableMap(attributeValues);
   }
 
-  public List<AnnotationValueV1> getAnnotationValues() {
+  public List<AnnotationValue> getAnnotationValues() {
     return Collections.unmodifiableList(annotationValues);
   }
 
-  public void addAnnotationValue(AnnotationValueV1 annotationValue) {
+  public void addAnnotationValue(AnnotationValue annotationValue) {
     annotationValues.add(annotationValue);
   }
 }

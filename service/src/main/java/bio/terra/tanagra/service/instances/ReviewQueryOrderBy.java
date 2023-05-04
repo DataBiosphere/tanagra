@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.model.AnnotationKey;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Comparator;
@@ -55,13 +55,13 @@ public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
         returnVal = valueDisplay1.getValue().compareTo(valueDisplay2.getValue());
       }
     } else {
-      Optional<AnnotationValueV1> annotationValue1 =
+      Optional<AnnotationValue> annotationValue1 =
           o1.getAnnotationValues().stream()
-              .filter(av -> av.getAnnotationId().equals(getAnnotationKey().getId()))
+              .filter(av -> av.getAnnotationKeyId().equals(getAnnotationKey().getId()))
               .findFirst();
-      Optional<AnnotationValueV1> annotationValue2 =
+      Optional<AnnotationValue> annotationValue2 =
           o2.getAnnotationValues().stream()
-              .filter(av -> av.getAnnotationId().equals(getAnnotationKey().getId()))
+              .filter(av -> av.getAnnotationKeyId().equals(getAnnotationKey().getId()))
               .findFirst();
 
       if (annotationValue1.isEmpty() && annotationValue2.isEmpty()) {

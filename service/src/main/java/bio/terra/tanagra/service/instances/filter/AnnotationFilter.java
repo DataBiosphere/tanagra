@@ -3,8 +3,8 @@ package bio.terra.tanagra.service.instances.filter;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.model.AnnotationKey;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import java.util.List;
 
 public class AnnotationFilter {
@@ -18,11 +18,11 @@ public class AnnotationFilter {
     this.value = value;
   }
 
-  public boolean isMatch(List<AnnotationValueV1> annotationValues) {
+  public boolean isMatch(List<AnnotationValue> annotationValues) {
     return annotationValues.stream()
         .filter(
             av -> {
-              if (!av.getAnnotationId().equals(annotationKey.getId())) {
+              if (!av.getAnnotationKeyId().equals(annotationKey.getId())) {
                 return false;
               }
               int comparison = av.getLiteral().compareTo(value);

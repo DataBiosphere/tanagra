@@ -29,7 +29,6 @@ import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.artifact.AnnotationValueV1;
 import bio.terra.tanagra.service.instances.EntityInstance;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
@@ -39,6 +38,7 @@ import bio.terra.tanagra.service.instances.ReviewQueryRequest;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
@@ -446,9 +446,9 @@ public class QuerysService {
               // TODO: Handle ID data types other than long.
               String entityInstanceIdStr = entityInstanceId.getInt64Val().toString();
 
-              List<AnnotationValueV1> associatedAnnotationValues =
+              List<AnnotationValue> associatedAnnotationValues =
                   reviewQueryRequest.getAnnotationValues().stream()
-                      .filter(av -> av.getEntityInstanceId().equals(entityInstanceIdStr))
+                      .filter(av -> av.getInstanceId().equals(entityInstanceIdStr))
                       .collect(Collectors.toList());
 
               if (!reviewQueryRequest.hasAnnotationFilter()
