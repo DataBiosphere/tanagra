@@ -58,7 +58,9 @@ export type CriteriaSearchConfig = {
 
 export type CohortReviewConfig = {
   primaryKey: string;
+  annotationColumnWidth?: string | number;
   attributes: CohortReviewAttribute[];
+  participantsListColumns: TreeGridColumn[];
   pages: CohortReviewPageConfig[];
 };
 
