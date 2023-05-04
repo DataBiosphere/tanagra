@@ -6,7 +6,7 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.model.Study;
+import bio.terra.tanagra.service.artifact.Study;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

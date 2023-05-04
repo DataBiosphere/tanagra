@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.instances;
 
-import bio.terra.tanagra.service.model.AnnotationValue;
+import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Collections;

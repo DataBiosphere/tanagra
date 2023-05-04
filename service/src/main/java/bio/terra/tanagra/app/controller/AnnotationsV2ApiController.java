@@ -15,7 +15,7 @@ import bio.terra.tanagra.service.AnnotationService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.model.AnnotationKey;
+import bio.terra.tanagra.service.artifact.AnnotationKey;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

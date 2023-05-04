@@ -4,7 +4,7 @@ import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.model.Study;
+import bio.terra.tanagra.service.artifact.Study;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

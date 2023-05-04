@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.model;
+package bio.terra.tanagra.service.artifact;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;

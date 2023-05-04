@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.model;
+package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;

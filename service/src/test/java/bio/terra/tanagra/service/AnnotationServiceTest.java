@@ -2,7 +2,6 @@ package bio.terra.tanagra.service;
 
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_1;
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
-import static bio.terra.tanagra.service.CriteriaValues.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.BadRequestException;
@@ -12,7 +11,7 @@ import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.model.*;
+import bio.terra.tanagra.service.artifact.*;
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.List;

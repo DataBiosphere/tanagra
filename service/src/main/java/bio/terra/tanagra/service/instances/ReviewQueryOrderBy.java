@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.service.model.AnnotationKey;
-import bio.terra.tanagra.service.model.AnnotationValue;
+import bio.terra.tanagra.service.artifact.AnnotationKey;
+import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Comparator;

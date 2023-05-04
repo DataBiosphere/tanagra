@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.model;
+package bio.terra.tanagra.service.artifact;
 
 import java.util.ArrayList;
 import java.util.List;

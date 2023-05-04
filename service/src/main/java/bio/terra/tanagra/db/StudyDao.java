@@ -2,10 +2,10 @@ package bio.terra.tanagra.db;
 
 import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
-import bio.terra.tanagra.db.exception.DuplicateStudyException;
-import bio.terra.tanagra.service.model.Study;
+import bio.terra.tanagra.service.artifact.Study;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +75,7 @@ public class StudyDao {
     } catch (DuplicateKeyException dkEx) {
       if (dkEx.getMessage()
           .contains("duplicate key value violates unique constraint \"study_pkey\"")) {
-        throw new DuplicateStudyException(
+        throw new BadRequestException(
             String.format(
                 "Study with id %s already exists - display name %s",
                 study.getId(), study.getDisplayName()),

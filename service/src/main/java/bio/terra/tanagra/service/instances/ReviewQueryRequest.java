@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
-import bio.terra.tanagra.service.model.AnnotationValue;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;

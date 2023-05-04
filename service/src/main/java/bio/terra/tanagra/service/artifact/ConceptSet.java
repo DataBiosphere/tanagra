@@ -1,26 +1,31 @@
-package bio.terra.tanagra.service.model;
+package bio.terra.tanagra.service.artifact;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class Review {
+public class ConceptSet {
   private final String id;
+  private final String underlay;
+  private final String entity;
+  private final List<Criteria> criteria;
   private final @Nullable String displayName;
   private final @Nullable String description;
-  private final int size;
-  private final CohortRevision revision;
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
 
-  private Review(Builder builder) {
+  private ConceptSet(Builder builder) {
     this.id = builder.id;
+    this.underlay = builder.underlay;
+    this.entity = builder.entity;
+    this.criteria = builder.criteria;
     this.displayName = builder.displayName;
     this.description = builder.description;
-    this.size = builder.size;
-    this.revision = builder.revision;
     this.created = builder.created;
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
@@ -35,20 +40,16 @@ public class Review {
     return id;
   }
 
-  public String getDisplayName() {
-    return displayName;
+  public String getUnderlay() {
+    return underlay;
   }
 
-  public String getDescription() {
-    return description;
+  public String getEntity() {
+    return entity;
   }
 
-  public int getSize() {
-    return size;
-  }
-
-  public CohortRevision getRevision() {
-    return revision;
+  public List<Criteria> getCriteria() {
+    return criteria;
   }
 
   public OffsetDateTime getCreated() {
@@ -67,12 +68,23 @@ public class Review {
     return lastModifiedBy;
   }
 
+  @Nullable
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  @Nullable
+  public String getDescription() {
+    return description;
+  }
+
   public static class Builder {
     private String id;
+    private String underlay;
+    private String entity;
+    private List<Criteria> criteria = new ArrayList<>();
     private String displayName;
     private String description;
-    private int size;
-    private CohortRevision revision;
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
@@ -83,6 +95,21 @@ public class Review {
       return this;
     }
 
+    public Builder underlay(String underlay) {
+      this.underlay = underlay;
+      return this;
+    }
+
+    public Builder entity(String entity) {
+      this.entity = entity;
+      return this;
+    }
+
+    public Builder criteria(List<Criteria> criteria) {
+      this.criteria = criteria;
+      return this;
+    }
+
     public Builder displayName(String displayName) {
       this.displayName = displayName;
       return this;
@@ -90,16 +117,6 @@ public class Review {
 
     public Builder description(String description) {
       this.description = description;
-      return this;
-    }
-
-    public Builder size(int size) {
-      this.size = size;
-      return this;
-    }
-
-    public Builder revision(CohortRevision revision) {
-      this.revision = revision;
       return this;
     }
 
@@ -123,19 +140,29 @@ public class Review {
       return this;
     }
 
-    public Review build() {
+    public ConceptSet build() {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
-      return new Review(this);
+      criteria = new ArrayList<>(criteria);
+      criteria.sort(Comparator.comparing(Criteria::getId));
+      return new ConceptSet(this);
     }
 
     public String getId() {
       return id;
     }
 
-    public int getSize() {
-      return size;
+    public String getUnderlay() {
+      return underlay;
+    }
+
+    public String getEntity() {
+      return entity;
+    }
+
+    public void addCriteria(Criteria newCriteria) {
+      criteria.add(newCriteria);
     }
   }
 }

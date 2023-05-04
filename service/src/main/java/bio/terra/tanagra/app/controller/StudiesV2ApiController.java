@@ -18,7 +18,7 @@ import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.StudyService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.model.Study;
+import bio.terra.tanagra.service.artifact.Study;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;

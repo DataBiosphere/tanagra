@@ -5,7 +5,7 @@ import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
 
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.service.model.CohortRevision;
+import bio.terra.tanagra.service.artifact.CohortRevision;
 import java.util.List;
 
 public final class CriteriaGroupSectionValues {
