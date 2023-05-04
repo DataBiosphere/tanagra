@@ -135,6 +135,9 @@ public class AnnotationKey {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
+      if (displayName == null) {
+        throw new BadRequestException("Annotation key requires a display name");
+      }
       return new AnnotationKey(id, displayName, description, dataType, enumVals);
     }
 

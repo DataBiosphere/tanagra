@@ -5,6 +5,7 @@ import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROU
 import static bio.terra.tanagra.service.CriteriaValues.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.*;
@@ -267,6 +268,15 @@ public class AnnotationServiceTest {
     assertThrows(
         NotFoundException.class,
         () -> annotationService.getAnnotationKey(study1.getId(), cohort1.getId(), "123"));
+
+    // Don't specify the display name.
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            annotationService.createAnnotationKey(
+                study1.getId(),
+                cohort1.getId(),
+                AnnotationKey.builder().dataType(Literal.DataType.INT64)));
   }
 
   @Test
@@ -277,7 +287,10 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.STRING).enumVals(enumVals));
+            AnnotationKey.builder()
+                .dataType(Literal.DataType.STRING)
+                .enumVals(enumVals)
+                .displayName("key1"));
     assertNotNull(createdAnnotationKey);
     LOGGER.info("Created annotation key {}", createdAnnotationKey.getId());
     assertEquals(Literal.DataType.STRING, createdAnnotationKey.getDataType());
@@ -318,7 +331,7 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.INT64));
+            AnnotationKey.builder().dataType(Literal.DataType.INT64).displayName("intkey"));
     assertNotNull(annotationKeyInt);
     LOGGER.info("Created annotation key {}", annotationKeyInt.getId());
 
@@ -346,7 +359,7 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.BOOLEAN));
+            AnnotationKey.builder().dataType(Literal.DataType.BOOLEAN).displayName("boolkey"));
     assertNotNull(annotationKeyBool);
     LOGGER.info("Created annotation key {}", annotationKeyBool.getId());
 
@@ -375,7 +388,8 @@ public class AnnotationServiceTest {
             cohort1.getId(),
             AnnotationKey.builder()
                 .dataType(Literal.DataType.STRING)
-                .enumVals(List.of("STATUS", "NOTES")));
+                .enumVals(List.of("STATUS", "NOTES"))
+                .displayName("enumkey"));
     assertNotNull(annotationKeyStrEnum);
     LOGGER.info("Created annotation key {}", annotationKeyStrEnum.getId());
 
@@ -402,7 +416,7 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.DATE));
+            AnnotationKey.builder().dataType(Literal.DataType.DATE).displayName("datekey"));
     assertNotNull(annotationKeyDate);
     LOGGER.info("Created annotation key {}", annotationKeyDate.getId());
 
@@ -515,7 +529,7 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.INT64));
+            AnnotationKey.builder().dataType(Literal.DataType.INT64).displayName("key1"));
     assertNotNull(annotationKeyInt1);
     LOGGER.info("Created annotation key {}", annotationKeyInt1.getId());
     annotationService.updateAnnotationValues(
@@ -532,7 +546,7 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort2.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.STRING));
+            AnnotationKey.builder().dataType(Literal.DataType.STRING).displayName("key2"));
     assertNotNull(annotationKeyStr1);
     LOGGER.info("Created annotation key {}", annotationKeyStr1.getId());
     annotationService.updateAnnotationValues(
@@ -553,7 +567,7 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort2.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.STRING));
+            AnnotationKey.builder().dataType(Literal.DataType.STRING).displayName("key3"));
     assertNotNull(annotationKeyStr2);
     LOGGER.info("Created annotation key {}", annotationKeyStr2.getId());
     annotationService.updateAnnotationValues(
@@ -628,7 +642,7 @@ public class AnnotationServiceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort2.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.STRING));
+            AnnotationKey.builder().dataType(Literal.DataType.STRING).displayName("key1"));
     assertNotNull(annotationKeyStr);
     LOGGER.info("Created annotation key {}", annotationKeyStr.getId());
 
@@ -669,5 +683,47 @@ public class AnnotationServiceTest {
                 review1.getId(),
                 "10",
                 List.of(new Literal("val 4"))));
+  }
+
+  @Test
+  void tsv() {
+    // Create one annotation key and value for cohort2, review2.
+    AnnotationKey annotationKeyStr1 =
+        annotationService.createAnnotationKey(
+            study1.getId(),
+            cohort2.getId(),
+            AnnotationKey.builder().dataType(Literal.DataType.STRING).displayName("key1"));
+    assertNotNull(annotationKeyStr1);
+    LOGGER.info("Created annotation key {}", annotationKeyStr1.getId());
+    annotationService.updateAnnotationValues(
+        study1.getId(),
+        cohort2.getId(),
+        annotationKeyStr1.getId(),
+        review2.getId(),
+        "24",
+        List.of(new Literal("val 1")));
+    LOGGER.info("Created annotation value");
+
+    // Create one annotation key and value for cohort2, review3.
+    AnnotationKey annotationKeyStr2 =
+        annotationService.createAnnotationKey(
+            study1.getId(),
+            cohort2.getId(),
+            AnnotationKey.builder().dataType(Literal.DataType.STRING).displayName("key2"));
+    assertNotNull(annotationKeyStr2);
+    LOGGER.info("Created annotation key {}", annotationKeyStr2.getId());
+    annotationService.updateAnnotationValues(
+        study1.getId(),
+        cohort2.getId(),
+        annotationKeyStr2.getId(),
+        review3.getId(),
+        "25",
+        List.of(new Literal("val 2")));
+    LOGGER.info("Created annotation value");
+
+    // Generate a TSV string with the annotation values data.
+    String tsv =
+        annotationService.buildTsvStringForAnnotationValues(study1.getId(), cohort2.getId());
+    assertEquals("person_id\tkey1\tkey2\n24\tval 1\t\n25\t\tval 2\n", tsv);
   }
 }

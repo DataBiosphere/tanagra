@@ -478,7 +478,7 @@ databaseChangeLog:
                   name: display_name
                   type: text
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: description
                   type: text
