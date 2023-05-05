@@ -6,10 +6,9 @@ import App from "./app";
 test("render included datasets heading", async () => {
   render(<App />);
   await waitFor(() => {
-    expect(screen.getByText(/select dataset/i)).toBeInTheDocument();
     expect(screen.getByText(/underlay_name/i)).toBeInTheDocument();
   });
 
   userEvent.click(screen.getByText("underlay_name"));
-  await waitFor(() => expect(screen.getByText(/studies/i)).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByText(/add study/i)).toBeInTheDocument());
 });

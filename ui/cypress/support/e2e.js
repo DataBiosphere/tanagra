@@ -8,19 +8,26 @@ beforeEach(() => {
   cy.get("input[name=text]").type(studyName);
   cy.get("button:Contains(Create)").click();
   cy.get(`.MuiListItemButton-root:Contains(${studyName})`).click();
-  cy.contains("Creating dataset");
+  cy.contains("Create cohorts and data features");
 });
 
 Cypress.Commands.add("createCohortFromSearch", (name, search, domain) => {
   cy.get("button:Contains(New cohort)").click();
-  cy.get("[data-testid='EditIcon']").first().click();
-  cy.get("input[name=text]").type("{selectall}" + name);
-  cy.get("button:Contains(Update)").click();
-  cy.get("button:Contains(Add criteria)").first().click();
+  cy.wait(2000);
+
+  cy.iframe().find("[data-testid='EditIcon']").first().click();
+  cy.iframe()
+    .find("input[name=text]")
+    .type("{selectall}" + name);
+  cy.iframe().find("button:Contains(Update)").click();
+  cy.iframe().find("button:Contains(Add criteria)").first().click();
   if (domain) {
-    cy.get(`[data-testid='${domain}']`).click();
+    cy.iframe().find(`[data-testid='${domain}']`).click();
   }
-  cy.get("input").type(search);
-  cy.get(`[data-testid='${search}']`, { timeout: 20000 }).first().click();
-  cy.get("a[aria-label=back]").click();
+  cy.iframe().find("input").type(search);
+  cy.iframe()
+    .find(`[data-testid='${search}']`, { timeout: 20000 })
+    .first()
+    .click();
+  cy.iframe().find("button[aria-label=back]").click();
 });

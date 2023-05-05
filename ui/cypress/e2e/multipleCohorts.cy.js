@@ -1,3 +1,6 @@
+///<reference types="cypress-iframe" />
+import "cypress-iframe";
+
 describe("Basic tests", () => {
   it("Multiple cohorts", () => {
     const cohortName1 = "multiple cohorts 1";
@@ -13,17 +16,20 @@ describe("Basic tests", () => {
     const id1 = "20320899";
     const id2 = "20230426";
 
-    cy.get("button[name='Demographics']").click();
-    cy.get(`button[name='${cohortName1}']`).click();
-    cy.contains(id1);
-    cy.contains(id2).should("not.exist");
+    cy.get("button:Contains(Export)").click();
+    cy.wait(2000);
 
-    cy.get(`button[name='${cohortName2}']`).click();
-    cy.contains(id1);
-    cy.contains(id2);
+    cy.iframe().find("button[name='Demographics']").click();
+    cy.iframe().find(`button[name='${cohortName1}']`).click();
+    cy.iframe().contains(id1);
+    cy.iframe().contains(id2).should("not.exist");
 
-    cy.get(`button[name='${cohortName1}']`).click();
-    cy.contains(id1).should("not.exist");
-    cy.contains(id2);
+    cy.iframe().find(`button[name='${cohortName2}']`).click();
+    cy.iframe().contains(id1);
+    cy.iframe().contains(id2);
+
+    cy.iframe().find(`button[name='${cohortName1}']`).click();
+    cy.iframe().contains(id1).should("not.exist");
+    cy.iframe().contains(id2);
   });
 });

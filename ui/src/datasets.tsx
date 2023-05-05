@@ -47,10 +47,10 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  absoluteCohortURL,
-  absoluteConceptSetURL,
-  absoluteNewConceptSetURL,
-  useBaseParams,
+  cohortURL,
+  conceptSetURL,
+  newConceptSetURL,
+  useExitAction,
 } from "router";
 import { StudyName } from "studyName";
 import useSWR from "swr";
@@ -62,6 +62,7 @@ import { isValid } from "util/valid";
 export function Datasets() {
   const source = useSource();
   const studyId = useStudyId();
+  const exit = useExitAction();
   const unfilteredCohorts = useSWR(
     { type: "cohort", studyId, list: true },
     async () => await source.listCohorts(studyId)
@@ -78,9 +79,7 @@ export function Datasets() {
   );
 
   const navigate = useNavigate();
-
   const underlay = useUnderlay();
-  const params = useBaseParams();
 
   const [selectedCohorts, updateSelectedCohorts] = useImmer(new Set<string>());
   const [selectedConceptSets, updateSelectedConceptSets] = useImmer(
@@ -101,7 +100,7 @@ export function Datasets() {
       studyId,
       `Untitled cohort ${new Date().toLocaleString()}`
     );
-    navigate(absoluteCohortURL(params, cohort.id, cohort.groupSections[0].id));
+    navigate(cohortURL(cohort.id, cohort.groupSections[0].id));
   };
 
   const onToggle = <T,>(
@@ -156,9 +155,7 @@ export function Datasets() {
           <Button
             data-testid={conceptSet.name}
             variant="outlined"
-            onClick={() =>
-              navigate(absoluteConceptSetURL(params, conceptSet.id))
-            }
+            onClick={() => navigate(conceptSetURL(conceptSet.id))}
             sx={{ minWidth: "auto" }}
           >
             Edit
@@ -189,7 +186,7 @@ export function Datasets() {
             </Typography>
           </GridLayout>
         }
-        backURL={"/underlays/" + underlay.name}
+        backAction={exit}
       />
       <GridBox sx={{ overflowY: "auto" }}>
         <GridLayout height="auto" sx={{ py: 1, px: 5 }}>
@@ -272,11 +269,7 @@ export function Datasets() {
                             variant="outlined"
                             onClick={() =>
                               navigate(
-                                absoluteCohortURL(
-                                  params,
-                                  cohort.id,
-                                  cohort.groupSections[0].id
-                                )
+                                cohortURL(cohort.id, cohort.groupSections[0].id)
                               )
                             }
                             sx={{ minWidth: "auto" }}
@@ -304,7 +297,7 @@ export function Datasets() {
                   startIcon={<AddIcon />}
                   variant="contained"
                   onClick={() => {
-                    navigate(absoluteNewConceptSetURL(params));
+                    navigate(newConceptSetURL());
                   }}
                 >
                   New data feature

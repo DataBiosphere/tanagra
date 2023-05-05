@@ -7,13 +7,13 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import ActionBar from "actionBar";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/sourceContext";
 import GridLayout from "layout/gridLayout";
 import { Link as RouterLink } from "react-router-dom";
+import { Header } from "sampleApp/header";
 import useSWR from "swr";
 
 export function StudiesList() {
@@ -46,7 +46,7 @@ export function StudiesList() {
 
   return (
     <GridLayout rows>
-      <ActionBar title={"Studies"} />
+      <Header />
       <Loading status={studiesState}>
         <Box sx={{ p: 1 }}>
           {!!studiesState.data?.length ? (

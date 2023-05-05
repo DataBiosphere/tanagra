@@ -200,7 +200,7 @@ export function CohortReviewList() {
     <GridLayout rows>
       <ActionBar
         title={`Reviews for cohort ${cohort.name}`}
-        backURL={absoluteCohortURL(params, cohort.id)}
+        backAction={absoluteCohortURL(params, cohort.id)}
       />
       <Box
         sx={{

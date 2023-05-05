@@ -6,30 +6,36 @@ import CohortRoot from "cohortRoot";
 import ConceptSetEdit from "conceptSetEdit";
 import ConceptSetRoot from "conceptSetRoot";
 import { SourceContextRoot } from "data/sourceContext";
+import { Datasets } from "datasets";
 import Edit from "edit";
 import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
 import { Overview } from "overview";
+import { useCallback, useEffect } from "react";
 import {
   createHashRouter,
   generatePath,
   isRouteErrorResponse,
+  useLocation,
   useNavigate,
   useParams,
   useRouteError,
 } from "react-router-dom";
-import { SdAdmin } from "sd-admin/sdAdmin";
-import { Studies } from "sd-admin/studies";
-import { StudiesList } from "studiesList";
-import { UnderlaySelect } from "underlaySelect";
-import { Datasets } from "./datasets";
+import { StudiesList } from "sampleApp/studiesList";
+import { StudyOverview } from "sampleApp/studyOverview";
+import { TanagraContainer } from "sampleApp/tanagraContainer";
+import { UnderlaySelect } from "sampleApp/underlaySelect";
 
 export function createAppRouter() {
   return createHashRouter([
     {
-      path: prefix,
+      path: prefix + "export?/",
       element: <SourceContextRoot />,
       children: [
+        {
+          index: true,
+          element: <Datasets />,
+        },
         {
           element: <CohortRoot />,
           children: [
@@ -107,18 +113,6 @@ function additionalRoutes() {
   switch (process.env.REACT_APP_ADDITIONAL_ROUTES) {
     case "none":
       return [];
-
-    case "sd":
-      return [
-        {
-          path: "sdAdmin",
-          element: <SdAdmin />,
-        },
-        {
-          path: "studies",
-          element: <Studies />,
-        },
-      ];
   }
 
   return [
@@ -139,7 +133,11 @@ function additionalRoutes() {
             },
             {
               path: "underlays/:underlayName/studies/:studyId",
-              element: <Datasets />,
+              element: <StudyOverview />,
+            },
+            {
+              path: "underlays/:underlayName/studies/:studyId/*",
+              element: <TanagraContainer />,
             },
           ],
         },
@@ -149,6 +147,48 @@ function additionalRoutes() {
 }
 
 // Used when navigating back from a root Tanagra page.
+export function useExitAction() {
+  const location = useLocation();
+  const params = useBaseParams();
+  const navigate = useNavigate();
+
+  return useCallback(() => {
+    const match = location.pathname.match(/^(.*\/export\/).+$/);
+    if (match) {
+      navigate(match[1]);
+    } else {
+      if (process.env.REACT_APP_USE_EXIT_URL) {
+        navigate(exitURL(params));
+      } else {
+        window.parent.postMessage({ message: "CLOSE" }, window.location.origin);
+      }
+    }
+  }, [location, params, navigate]);
+}
+
+export function useExitActionListener(callback: () => void) {
+  const listener = useCallback(
+    (event) => {
+      if (
+        event.origin != window.window.location.origin ||
+        typeof event.data !== "object" ||
+        event.data.message != "CLOSE"
+      ) {
+        return;
+      }
+      callback();
+    },
+    [callback]
+  );
+
+  useEffect(() => {
+    window.addEventListener("message", listener);
+    return () => {
+      window.removeEventListener("message", listener);
+    };
+  }, [listener]);
+}
+
 export function exitURL(params: BaseParams) {
   const url = process.env.REACT_APP_EXIT_URL;
   if (url) {
@@ -192,6 +232,10 @@ export function absoluteCohortURL(
   groupSectionId?: string
 ) {
   return absolutePrefix(params) + cohortURL(cohortId, groupSectionId);
+}
+
+export function absoluteExportURL(params: BaseParams) {
+  return absolutePrefix(params) + "export";
 }
 
 export function absoluteConceptSetURL(

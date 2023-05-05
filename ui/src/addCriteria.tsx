@@ -24,7 +24,7 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { cohortURL, exitURL, newCriteriaURL, useBaseParams } from "router";
+import { cohortURL, newCriteriaURL, useExitAction } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import { CriteriaConfig } from "underlaysSlice";
@@ -36,16 +36,13 @@ import {
 } from "./cohort";
 
 export function AddConceptSetCriteria() {
-  const navigate = useNavigate();
   const context = useConceptSetContext();
-
-  const params = useBaseParams();
-  const backURL = exitURL(params);
+  const exit = useExitAction();
 
   const onInsertCriteria = useCallback(
     (criteria: tanagra.Criteria) => {
       createConceptSet(context, criteria);
-      navigate(backURL);
+      exit();
     },
     [context]
   );
@@ -54,7 +51,7 @@ export function AddConceptSetCriteria() {
     <AddCriteria
       conceptSet
       title="Adding data feature"
-      backURL={backURL}
+      backAction={exit}
       onInsertCriteria={onInsertCriteria}
     />
   );
@@ -86,7 +83,7 @@ export function AddCohortCriteria() {
 type AddCriteriaProps = {
   conceptSet?: boolean;
   title: string;
-  backURL?: string;
+  backAction?: () => void;
   onInsertCriteria: (criteria: tanagra.Criteria) => void;
 };
 
@@ -215,7 +212,7 @@ function AddCriteria(props: AddCriteriaProps) {
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
-      <ActionBar title={props.title} backURL={props.backURL} />
+      <ActionBar title={props.title} backAction={props.backAction} />
       <GridLayout rows>
         <GridBox sx={{ px: 5, py: 3 }}>
           <Search placeholder="Search by code or description" />

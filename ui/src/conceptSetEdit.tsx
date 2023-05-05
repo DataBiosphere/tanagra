@@ -1,12 +1,12 @@
 import { getCriteriaPlugin, getCriteriaTitle } from "cohort";
 import CriteriaHolder from "criteriaHolder";
 import { useConceptSet } from "hooks";
-import { exitURL, useBaseParams } from "router";
+import { useExitAction } from "router";
 
 export default function Edit() {
   const conceptSet = useConceptSet();
   const plugin = getCriteriaPlugin(conceptSet.criteria);
-  const params = useBaseParams();
+  const exit = useExitAction();
 
   return (
     <CriteriaHolder
@@ -15,8 +15,7 @@ export default function Edit() {
         plugin
       )}"`}
       plugin={plugin}
-      defaultBackURL={exitURL(params)}
-      doneURL={exitURL(params)}
+      exitAction={exit}
     />
   );
 }

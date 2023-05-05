@@ -39,8 +39,8 @@ import {
   absoluteCohortReviewListURL,
   cohortURL,
   criteriaURL,
-  exitURL,
   useBaseParams,
+  useExitAction,
 } from "router";
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
@@ -58,6 +58,7 @@ export function Overview() {
   const context = useCohortContext();
   const cohort = useCohort();
   const params = useBaseParams();
+  const exit = useExitAction();
 
   const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog({
     title: "Editing cohort name",
@@ -95,7 +96,7 @@ export function Overview() {
             Review cohort
           </Button>
         }
-        backURL={exitURL(params)}
+        backAction={exit}
       />
       <GridLayout
         rows="minmax(max-content, 100%)"
