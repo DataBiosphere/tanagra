@@ -24,14 +24,14 @@ export default function App() {
   const underlaysState = useSWRImmutable(
     { component: "App" },
     useCallback(async () => {
-      const res = await underlaysApi.listUnderlaysV2({});
+      const res = await underlaysApi.listUnderlays({});
       if (!res?.underlays || res.underlays.length == 0) {
         throw new Error("No underlays are configured.");
       }
 
       const underlays = await Promise.all(
         res.underlays.map(async (underlay) => {
-          const entitiesRes = await entitiesApi.listEntitiesV2({
+          const entitiesRes = await entitiesApi.listEntities({
             underlayName: underlay.name,
           });
           if (!entitiesRes?.entities) {

@@ -893,7 +893,7 @@ export class BackendSource implements Source {
   ): Promise<Annotation[]> {
     return parseAPIError(
       this.annotationsApi
-        .listAnnotations({ studyId, cohortId })
+        .listAnnotationKeys({ studyId, cohortId })
         .then((res) => res.map((a) => fromAPIAnnotation(a)))
     );
   }
@@ -906,7 +906,7 @@ export class BackendSource implements Source {
     enumVals?: string[]
   ) {
     await parseAPIError(
-      this.annotationsApi.createAnnotation({
+      this.annotationsApi.createAnnotationKey({
         studyId,
         cohortId,
         annotationCreateInfoV2: {
@@ -924,7 +924,7 @@ export class BackendSource implements Source {
     annotationId: string
   ) {
     await parseAPIError(
-      this.annotationsApi.deleteAnnotation({
+      this.annotationsApi.deleteAnnotationKey({
         studyId,
         cohortId,
         annotationId,
@@ -956,12 +956,12 @@ export class BackendSource implements Source {
     value: DataValue
   ): Promise<AnnotationValue> {
     const res = await parseAPIError(
-      this.annotationsApi.createUpdateAnnotationValue({
+      this.annotationsApi.updateAnnotationValue({
         studyId,
         cohortId,
         reviewId,
         annotationId,
-        valueId: String(entityKey),
+        instanceId: String(entityKey),
         literalV2: literalFromDataValue(value),
       })
     );
@@ -976,12 +976,12 @@ export class BackendSource implements Source {
     entityKey: DataKey
   ): Promise<void> {
     return await parseAPIError(
-      this.annotationsApi.deleteAnnotationValue({
+      this.annotationsApi.deleteAnnotationValues({
         studyId,
         cohortId,
         reviewId,
         annotationId,
-        valueId: String(entityKey),
+        instanceId: String(entityKey),
       })
     );
   }
@@ -1652,7 +1652,7 @@ function fromAPIAnnotationValue(
 ): AnnotationValue {
   return {
     value: dataValueFromLiteral(value.value),
-    valueId: value.id,
+    valueId: value.instanceId,
     current: value.review === reviewId,
   };
 }

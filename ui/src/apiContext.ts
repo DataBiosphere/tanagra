@@ -3,7 +3,7 @@ import * as tanagra from "./tanagra-api";
 
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
 class FakeUnderlaysApi {
-  async listUnderlaysV2(): Promise<tanagra.UnderlayListV2> {
+  async listUnderlays(): Promise<tanagra.UnderlayListV2> {
     const columns = [{ key: "name", width: "100%", title: "Concept name" }];
 
     const uiConfiguration = {
@@ -97,7 +97,7 @@ class FakeUnderlaysApi {
 }
 
 class FakeEntitiesApi {
-  async listEntitiesV2(): Promise<tanagra.EntityListV2> {
+  async listEntities(): Promise<tanagra.EntityListV2> {
     return {
       entities: [
         {
