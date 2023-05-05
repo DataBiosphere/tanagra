@@ -1,3 +1,6 @@
+///<reference types="cypress-iframe" />
+import "cypress-iframe";
+
 function generateCohort() {
   return `New cohort ${Math.floor(1000000 * Math.random())}`;
 }
@@ -11,24 +14,29 @@ describe("Basic tests", () => {
     cy.createCohortFromSearch(cohort2, "Papule of skin");
 
     cy.get("button:Contains(New data feature)").click();
-    cy.get("[data-testid='tanagra-conditions']").click();
-    cy.get("input").type("Red color");
-    cy.get("[data-testid='Red color']").click();
+    cy.wait(2000);
 
-    cy.get(`button[name='${cohort1}']`).click();
-    cy.get(`button[name='${cohort2}']`).click();
-    cy.get("button[name='Demographics']").click();
-    cy.get("button[name='Condition: Red color']").click();
+    cy.iframe().find("[data-testid='tanagra-conditions']").click();
+    cy.iframe().find("input").type("Red color");
+    cy.iframe().find("[data-testid='Red color']").click();
 
     cy.get("button:Contains(Export)").click();
+    cy.wait(2000);
 
-    cy.get(".MuiSelect-select:Contains(Import to VWB)").click();
-    cy.get("li:Contains(Download individual files)").click();
-    cy.get("button:Contains(Export)").last().click();
+    cy.iframe().find(`button[name='${cohort1}']`).click();
+    cy.iframe().find(`button[name='${cohort2}']`).click();
+    cy.iframe().find("button[name='Demographics']").click();
+    cy.iframe().find("button[name='Condition: Red color']").click();
 
-    cy.get(`a:Contains(${cohort1})`, { timeout: 20000 });
-    cy.get(`a:Contains(${cohort2})`);
-    cy.get("a:Contains(person)");
-    cy.get("a:Contains(condition_occurrence)");
+    cy.iframe().find("button:Contains(Export)").click();
+
+    cy.iframe().find(".MuiSelect-select:Contains(Import to VWB)").click();
+    cy.iframe().find("li:Contains(Download individual files)").click();
+    cy.iframe().find("button:Contains(Export)").last().click();
+
+    cy.iframe().find(`a:Contains(${cohort1})`, { timeout: 20000 });
+    cy.iframe().find(`a:Contains(${cohort2})`);
+    cy.iframe().find("a:Contains(person)");
+    cy.iframe().find("a:Contains(condition_occurrence)");
   });
 });

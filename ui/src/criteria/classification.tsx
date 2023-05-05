@@ -31,8 +31,7 @@ import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import React, { useCallback, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
 import { searchParamsFromData, useSearchData } from "util/searchData";
@@ -128,12 +127,12 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderEdit(doneURL: string, setBackURL: (url?: string) => void) {
+  renderEdit(doneAction: () => void, setBackURL: (url?: string) => void) {
     return (
       <ClassificationEdit
         data={this.data}
         config={this.config}
-        doneURL={doneURL}
+        doneAction={doneAction}
         setBackURL={setBackURL}
       />
     );
@@ -216,12 +215,11 @@ type SearchData = {
 type ClassificationEditProps = {
   data: Data;
   config: Config;
-  doneURL: string;
+  doneAction: () => void;
   setBackURL: (url?: string) => void;
 };
 
 function ClassificationEdit(props: ClassificationEditProps) {
-  const navigate = useNavigate();
   const source = useSource();
   const occurrence = source.lookupOccurrence(props.config.occurrence);
   const classification = source.lookupClassification(
@@ -427,7 +425,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                           data.valueData = DEFAULT_VALUE_DATA;
                         })
                       );
-                      navigate(props.doneURL);
+                      props.doneAction();
                     }}
                     variant="outlined"
                     sx={{ minWidth: "auto" }}

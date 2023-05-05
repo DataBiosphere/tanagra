@@ -8,10 +8,25 @@ import { Link as RouterLink } from "react-router-dom";
 type ActionBarProps = {
   title: string;
   subtitle?: string | JSX.Element;
-  backURL?: string | null; // null hides the back button.
+  backAction?: (() => void) | string | null; // null hides the back button.
   titleControls?: JSX.Element;
   rightControls?: JSX.Element;
 };
+
+function backActionProps(backAction?: (() => void) | string | null) {
+  if (backAction === null) {
+    return {};
+  }
+  if (typeof backAction === "function") {
+    return {
+      onClick: () => backAction(),
+    };
+  }
+  return {
+    component: RouterLink,
+    to: backAction ?? "..",
+  };
+}
 
 export default function ActionBar(props: ActionBarProps) {
   return (
@@ -36,11 +51,17 @@ export default function ActionBar(props: ActionBarProps) {
       >
         <IconButton
           aria-label="back"
-          component={RouterLink}
-          to={props.backURL ?? ".."}
+          {...backActionProps(props.backAction)}
           sx={{
             mr: 2,
-            visibility: props.backURL === null ? "hidden" : "visible",
+            visibility: props.backAction === null ? "hidden" : "visible",
+            "&.MuiIconButton-root": {
+              backgroundColor: (theme) => theme.palette.primary.main,
+              color: (theme) => theme.palette.primary.contrastText,
+            },
+            "&.MuiIconButton-root:hover": {
+              backgroundColor: (theme) => theme.palette.primary.dark,
+            },
           }}
         >
           <ArrowBackIcon />

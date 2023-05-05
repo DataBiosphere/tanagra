@@ -199,7 +199,7 @@ export function CohortReview() {
             ? `Review "${reviewState?.data?.displayName}"`
             : ""
         }
-        backURL={absoluteCohortReviewListURL(
+        backAction={absoluteCohortReviewListURL(
           baseParams,
           params.cohort.id,
           params.reviewId
