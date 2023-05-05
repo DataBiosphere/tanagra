@@ -6,16 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.QueryResult;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.Review;
-import bio.terra.tanagra.service.artifact.Study;
+import bio.terra.tanagra.service.artifact.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

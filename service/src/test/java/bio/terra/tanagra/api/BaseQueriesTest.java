@@ -86,7 +86,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .functionTemplate(FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH)
             .text(text);
     if (attributeName != null) {
-      textFilterBuilder.attribute(querysService.getAttribute(entity, "id"));
+      textFilterBuilder.attribute(entity.getAttribute("id"));
     }
     TextFilter textFilter = textFilterBuilder.build();
 

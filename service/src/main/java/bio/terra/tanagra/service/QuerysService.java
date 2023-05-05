@@ -27,17 +27,9 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.instances.EntityInstance;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
-import bio.terra.tanagra.service.instances.ReviewInstance;
-import bio.terra.tanagra.service.instances.ReviewQueryOrderBy;
-import bio.terra.tanagra.service.instances.ReviewQueryRequest;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
-import bio.terra.tanagra.service.instances.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
@@ -63,8 +55,6 @@ import bio.terra.tanagra.utils.GcsUtils;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -72,7 +62,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -386,91 +375,6 @@ public class QuerysService {
         .forEach(entry -> displayHints.put(entry.getKey(), new EnumVals(entry.getValue())));
 
     return displayHints;
-  }
-
-  public List<ReviewInstance> buildAndRunReviewInstancesQuery(
-      ReviewQueryRequest reviewQueryRequest) {
-    // Make sure the entity ID attribute is included, so we can match the entity instances to their
-    // associated annotations.
-    Attribute idAttribute = reviewQueryRequest.getEntity().getIdAttribute();
-    if (!reviewQueryRequest.getAttributes().contains(idAttribute)) {
-      reviewQueryRequest.addAttribute(idAttribute);
-    }
-
-    // Add a filter on the entity: ID is included in the review.
-    EntityFilter entityFilter =
-        new AttributeFilter(
-            idAttribute,
-            FunctionFilterVariable.FunctionTemplate.IN,
-            reviewQueryRequest.getEntityInstanceIds());
-    if (reviewQueryRequest.getEntityFilter() != null) {
-      entityFilter =
-          new BooleanAndOrFilter(
-              BooleanAndOrFilterVariable.LogicalOperator.AND,
-              List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
-    }
-
-    // Build and run the query for entity instances against the index dataset.
-    QueryRequest queryRequest =
-        buildInstancesQuery(
-            new EntityQueryRequest.Builder()
-                .entity(reviewQueryRequest.getEntity())
-                .mappingType(Underlay.MappingType.INDEX)
-                .selectAttributes(reviewQueryRequest.getAttributes())
-                .selectHierarchyFields(Collections.EMPTY_LIST)
-                .selectRelationshipFields(Collections.EMPTY_LIST)
-                .filter(entityFilter)
-                .build());
-    DataPointer indexDataPointer =
-        reviewQueryRequest
-            .getEntity()
-            .getMapping(Underlay.MappingType.INDEX)
-            .getTablePointer()
-            .getDataPointer();
-    List<EntityInstance> entityInstances =
-        runInstancesQuery(
-            indexDataPointer,
-            reviewQueryRequest.getAttributes(),
-            Collections.EMPTY_LIST,
-            Collections.EMPTY_LIST,
-            queryRequest);
-
-    // Merge entity instances and annotation values, filtering out any instances that don't match
-    // the annotation filter (if specified).
-    List<ReviewInstance> reviewInstances = new ArrayList<>();
-    entityInstances.stream()
-        .forEach(
-            ei -> {
-              Literal entityInstanceId = ei.getAttributeValues().get(idAttribute).getValue();
-
-              // TODO: Handle ID data types other than long.
-              String entityInstanceIdStr = entityInstanceId.getInt64Val().toString();
-
-              List<AnnotationValue> associatedAnnotationValues =
-                  reviewQueryRequest.getAnnotationValues().stream()
-                      .filter(av -> av.getInstanceId().equals(entityInstanceIdStr))
-                      .collect(Collectors.toList());
-
-              if (!reviewQueryRequest.hasAnnotationFilter()
-                  || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
-                reviewInstances.add(
-                    new ReviewInstance(ei.getAttributeValues(), associatedAnnotationValues));
-              }
-            });
-
-    // Order by the attributes and annotation values, preserving the list order.
-    if (!reviewQueryRequest.getOrderBys().isEmpty()) {
-      Comparator<ReviewInstance> comparator = null;
-      for (ReviewQueryOrderBy reviewOrderBy : reviewQueryRequest.getOrderBys()) {
-        if (comparator == null) {
-          comparator = Comparator.comparing(Function.identity(), reviewOrderBy::compare);
-        } else {
-          comparator = comparator.thenComparing(Function.identity(), reviewOrderBy::compare);
-        }
-      }
-      reviewInstances.sort(comparator);
-    }
-    return reviewInstances;
   }
 
   public Attribute getAttribute(Entity entity, String attributeName) {

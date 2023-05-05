@@ -209,6 +209,7 @@ public class ReviewDao {
   @ReadTransaction
   public List<Literal> getPrimaryEntityIds(String reviewId) {
     String sql = PRIMARY_ENTITY_INSTANCE_SELECT_SQL + " WHERE review_id = :review_id";
+    LOGGER.debug("GET primary entity instance ids: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
     return jdbcTemplate.query(sql, params, PRIMARY_ENTITY_INSTANCE_ROW_MAPPER);
   }
