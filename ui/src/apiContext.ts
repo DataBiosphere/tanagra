@@ -251,7 +251,7 @@ class FakeCohortsAPI {
         displayName: "Test Cohort",
         lastModified: new Date(),
         underlayName: "test_underlay",
-        criteriaGroups: [],
+        criteriaGroupSections: [],
       },
     ];
   }
@@ -274,6 +274,7 @@ class FakeConceptSetsAPI {
           pluginName: "test_plugin",
           selectionData: "test_data",
           uiConfig: "test_config",
+          tags: [],
         },
       },
     ];

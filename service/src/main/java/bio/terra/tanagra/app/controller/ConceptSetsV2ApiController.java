@@ -49,6 +49,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
                 .underlay(body.getUnderlayName())
+                .entity(body.getEntity())
                 .criteria(List.of(singleCriteria)),
             SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(ConceptSetsV2ApiController.toApiObject(createdConceptSet));
