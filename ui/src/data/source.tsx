@@ -7,7 +7,12 @@ import {
   ReviewsApiContext,
   StudiesApiContext,
 } from "apiContext";
-import { defaultGroup, generateCohortFilter, getCriteriaPlugin } from "cohort";
+import {
+  defaultGroup,
+  generateCohortFilter,
+  getCriteriaPlugin,
+  getCriteriaTitle,
+} from "cohort";
 import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
 import { useContext, useMemo } from "react";
@@ -97,7 +102,7 @@ export type Study = {
 
 export type AnnotationValue = {
   value: DataValue;
-  valueId: DataKey;
+  instanceId: DataKey;
   current: boolean;
 };
 
@@ -268,7 +273,7 @@ export interface Source {
     annotationId: string,
     entityKey: DataKey,
     value: DataValue
-  ): Promise<AnnotationValue>;
+  ): Promise<void>;
 
   deleteAnnotationValue(
     studyId: string,
@@ -825,7 +830,7 @@ export class BackendSource implements Source {
         cohortId: cohort.id,
         cohortUpdateInfoV2: {
           displayName: cohort.name,
-          criteriaGroups: toAPICriteriaGroups(cohort.groups),
+          criteriaGroupSections: toAPICriteriaGroupSections(cohort.groups),
         },
       })
     );
@@ -954,8 +959,8 @@ export class BackendSource implements Source {
     annotationId: string,
     entityKey: DataKey,
     value: DataValue
-  ): Promise<AnnotationValue> {
-    const res = await parseAPIError(
+  ): Promise<void> {
+    parseAPIError(
       this.annotationsApi.updateAnnotationValue({
         studyId,
         cohortId,
@@ -965,7 +970,6 @@ export class BackendSource implements Source {
         literalV2: literalFromDataValue(value),
       })
     );
-    return fromAPIAnnotationValue(res, reviewId);
   }
 
   public async deleteAnnotationValue(
@@ -1542,28 +1546,30 @@ function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
     id: cohort.id,
     name: cohort.displayName,
     underlayName: cohort.underlayName,
-    groups: fromAPICohortGroups(cohort.criteriaGroups),
+    groups: fromAPICriteriaGroupSections(cohort.criteriaGroupSections),
   };
 }
 
-function fromAPICohortGroups(
-  groups: tanagra.CriteriaGroupV2[]
+function fromAPICriteriaGroupSections(
+  sections?: tanagra.CriteriaGroupSectionV3[]
 ): tanagra.Group[] {
-  if (groups.length === 0) {
+  if (!sections?.length) {
     return [defaultGroup()];
   }
 
-  return groups.map((group) => ({
-    id: group.id,
-    name: group.displayName,
+  return sections.map((section) => ({
+    id: section.id,
+    name: section.displayName,
     filter: {
       kind:
-        group.operator === tanagra.CriteriaGroupV2OperatorEnum.And
+        section.operator === tanagra.CriteriaGroupSectionV3OperatorEnum.And
           ? tanagra.GroupFilterKindEnum.All
           : tanagra.GroupFilterKindEnum.Any,
-      excluded: group.excluded,
+      excluded: section.excluded,
     },
-    criteria: group.criteria.map((criteria) => fromAPICriteria(criteria)),
+    criteria: section.criteriaGroups.map((group) =>
+      fromAPICriteria(group.criteria[0])
+    ),
   }));
 }
 
@@ -1586,18 +1592,26 @@ function fromAPIConceptSet(
   };
 }
 
-function toAPICriteriaGroups(
+function toAPICriteriaGroupSections(
   groups: tanagra.Group[]
-): tanagra.CriteriaGroupV2[] {
+): tanagra.CriteriaGroupSectionV3[] {
   return groups.map((group) => ({
     id: group.id,
     displayName: group.name ?? "",
     operator:
       group.filter.kind === tanagra.GroupFilterKindEnum.All
-        ? tanagra.CriteriaGroupV2OperatorEnum.And
-        : tanagra.CriteriaGroupV2OperatorEnum.Or,
+        ? tanagra.CriteriaGroupSectionV3OperatorEnum.And
+        : tanagra.CriteriaGroupSectionV3OperatorEnum.Or,
     excluded: group.filter.excluded,
-    criteria: group.criteria.map((criteria) => toAPICriteria(criteria)),
+    criteriaGroups: group.criteria.map((criteria) => {
+      const plugin = getCriteriaPlugin(criteria);
+      return {
+        id: criteria.id,
+        displayName: getCriteriaTitle(criteria, plugin),
+        entity: plugin.filterOccurrenceId(),
+        criteria: [toAPICriteria(criteria)],
+      };
+    }),
   }));
 }
 
@@ -1605,6 +1619,7 @@ function toAPICriteria(criteria: tanagra.Criteria): tanagra.CriteriaV2 {
   return {
     id: criteria.id,
     displayName: "",
+    tags: [],
     pluginName: criteria.type,
     selectionData: JSON.stringify(criteria.data),
     uiConfig: JSON.stringify(criteria.config),
@@ -1636,7 +1651,7 @@ function fromAPIReviewInstance(
   const annotations: AnnotationEntry = {};
   for (const key in instance.annotations) {
     annotations[key] = instance.annotations[key].map((v) =>
-      fromAPIAnnotationValue(v, reviewId)
+      fromAPIAnnotationValue(v)
     );
   }
 
@@ -1647,13 +1662,12 @@ function fromAPIReviewInstance(
 }
 
 function fromAPIAnnotationValue(
-  value: tanagra.AnnotationValueV2,
-  reviewId: string
+  value: tanagra.AnnotationValueV2
 ): AnnotationValue {
   return {
     value: dataValueFromLiteral(value.value),
-    valueId: value.instanceId,
-    current: value.review === reviewId,
+    instanceId: value.instanceId,
+    current: value.isPartOfSelectedReview,
   };
 }
 

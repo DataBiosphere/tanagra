@@ -23,7 +23,7 @@ const mapCohortToResource = (
     underlayName,
     displayName,
     lastModified,
-    criteriaGroups,
+    criteriaGroupSections,
     createdBy,
   }: CohortV2,
   study: StudyV2
@@ -37,7 +37,9 @@ const mapCohortToResource = (
     createdBy,
     studyId: study.id,
     studyName: study.displayName,
-    path: `/${underlayName}/cohorts/${id}/${criteriaGroups[0]?.id ?? "first"}`,
+    path: `/${underlayName}/cohorts/${id}/${
+      criteriaGroupSections?.[0]?.id ?? "first"
+    }`,
   } as StudyResource);
 
 const mapReviewToResource = (
