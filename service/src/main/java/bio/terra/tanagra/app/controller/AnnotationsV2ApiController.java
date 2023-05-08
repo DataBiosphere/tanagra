@@ -13,6 +13,7 @@ import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.AnnotationService;
 import bio.terra.tanagra.service.FromApiConversionService;
+import bio.terra.tanagra.service.ReviewService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationKey;
@@ -26,12 +27,16 @@ import org.springframework.stereotype.Controller;
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class AnnotationsV2ApiController implements AnnotationsV2Api {
   private final AnnotationService annotationService;
+  private final ReviewService reviewService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public AnnotationsV2ApiController(
-      AnnotationService annotationService, AccessControlService accessControlService) {
+      AnnotationService annotationService,
+      ReviewService reviewService,
+      AccessControlService accessControlService) {
     this.annotationService = annotationService;
+    this.reviewService = reviewService;
     this.accessControlService = accessControlService;
   }
 
@@ -130,7 +135,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(cohortId));
-    String gcsSignedUrl = annotationService.exportAnnotationValuesToGcs(studyId, cohortId);
+    String gcsSignedUrl = reviewService.exportAnnotationValuesToGcs(studyId, cohortId);
     return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
   }
 

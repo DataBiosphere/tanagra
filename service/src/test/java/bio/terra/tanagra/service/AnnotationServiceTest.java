@@ -348,7 +348,7 @@ public class AnnotationServiceTest {
     LOGGER.info("Created annotation value");
 
     List<AnnotationValue> allVals =
-        annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+        reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     AnnotationValue intAnnotationVal =
         allVals.stream()
             .filter(av -> av.getAnnotationKeyId().equals(annotationKeyInt.getId()))
@@ -375,7 +375,7 @@ public class AnnotationServiceTest {
         List.of(boolVal));
     LOGGER.info("Created annotation value");
 
-    allVals = annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     AnnotationValue boolAnnotationVal =
         allVals.stream()
             .filter(av -> av.getAnnotationKeyId().equals(annotationKeyBool.getId()))
@@ -405,7 +405,7 @@ public class AnnotationServiceTest {
         List.of(enumVal));
     LOGGER.info("Created annotation value");
 
-    allVals = annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     AnnotationValue enumAnnotationVal =
         allVals.stream()
             .filter(av -> av.getAnnotationKeyId().equals(annotationKeyStrEnum.getId()))
@@ -432,7 +432,7 @@ public class AnnotationServiceTest {
         List.of(dateVal));
     LOGGER.info("Created annotation value");
 
-    allVals = annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     AnnotationValue dateAnnotationVal =
         allVals.stream()
             .filter(av -> av.getAnnotationKeyId().equals(annotationKeyDate.getId()))
@@ -478,7 +478,7 @@ public class AnnotationServiceTest {
         instanceId,
         List.of(updatedDateVal));
 
-    allVals = annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     assertEquals(4, allVals.size());
 
     intAnnotationVal =
@@ -519,7 +519,7 @@ public class AnnotationServiceTest {
     annotationService.deleteAnnotationValues(
         study1.getId(), cohort1.getId(), annotationKeyDate.getId(), review1.getId(), instanceId);
 
-    allVals = annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     assertTrue(allVals.isEmpty());
   }
 
@@ -560,7 +560,7 @@ public class AnnotationServiceTest {
     LOGGER.info("Created two annotation values");
 
     List<AnnotationValue> allVals2 =
-        annotationService.listAnnotationValues(study1.getId(), cohort2.getId());
+        reviewService.listAnnotationValues(study1.getId(), cohort2.getId());
     assertEquals(1, allVals2.size());
 
     // Create one annotation key and value for cohort2, review3.
@@ -582,11 +582,11 @@ public class AnnotationServiceTest {
 
     // List all annotation values for cohort1 (review1 only).
     List<AnnotationValue> allVals =
-        annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+        reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     assertEquals(2, allVals.size());
 
     // List all annotation values for cohort2 (review2 and review3 both).
-    allVals = annotationService.listAnnotationValues(study1.getId(), cohort2.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort2.getId());
     assertEquals(2, allVals.size());
 
     // Create a new value for cohort2, review3 that has the same instance id as a value in cohort2,
@@ -612,22 +612,19 @@ public class AnnotationServiceTest {
     LOGGER.info("Created annotation value");
 
     // List all annotation values for cohort2, with review2 selected.
-    allVals =
-        annotationService.listAnnotationValues(study1.getId(), cohort2.getId(), review2.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort2.getId(), review2.getId());
     assertEquals(4, allVals.size());
 
     // List all annotation values for cohort2, with review3 selected.
-    allVals =
-        annotationService.listAnnotationValues(study1.getId(), cohort2.getId(), review3.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort2.getId(), review3.getId());
     assertEquals(3, allVals.size());
 
     // List all annotation values for cohort2, with review4 selected.
-    allVals =
-        annotationService.listAnnotationValues(study1.getId(), cohort2.getId(), review4.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort2.getId(), review4.getId());
     assertEquals(3, allVals.size());
 
     // List all annotation values for cohort2, with no review selected.
-    allVals = annotationService.listAnnotationValues(study1.getId(), cohort2.getId());
+    allVals = reviewService.listAnnotationValues(study1.getId(), cohort2.getId());
     assertEquals(3, allVals.size());
   }
 
@@ -635,7 +632,7 @@ public class AnnotationServiceTest {
   void invalidValues() {
     // List all.
     List<AnnotationValue> allVals =
-        annotationService.listAnnotationValues(study1.getId(), cohort1.getId());
+        reviewService.listAnnotationValues(study1.getId(), cohort1.getId());
     assertTrue(allVals.isEmpty());
 
     // Create an annotation key for cohort2.
@@ -723,8 +720,7 @@ public class AnnotationServiceTest {
     LOGGER.info("Created annotation value");
 
     // Generate a TSV string with the annotation values data.
-    String tsv =
-        annotationService.buildTsvStringForAnnotationValues(study1.getId(), cohort2.getId());
+    String tsv = reviewService.buildTsvStringForAnnotationValues(study1.getId(), cohort2.getId());
     assertEquals("person_id\tkey1\tkey2\n24\tval 1\t\n25\t\tval 2\n", tsv);
   }
 }
