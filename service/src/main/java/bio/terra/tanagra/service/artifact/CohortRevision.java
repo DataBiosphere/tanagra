@@ -398,7 +398,7 @@ public class CohortRevision {
       }
 
       public Builder groupByCountValue(Integer groupByCountValue) {
-        this.groupByCountValue = groupByCountValue;
+        this.groupByCountValue = groupByCountValue == null ? 0 : groupByCountValue;
         return this;
       }
 

@@ -87,7 +87,9 @@ public final class ToApiConversionUtils {
         .displayName(criteriaGroup.getDisplayName())
         .entity(criteriaGroup.getEntity())
         .groupByCountOperator(
-            ApiBinaryOperatorV2.valueOf(criteriaGroup.getGroupByCountOperator().name()))
+            criteriaGroup.getGroupByCountOperator() == null
+                ? null
+                : ApiBinaryOperatorV2.valueOf(criteriaGroup.getGroupByCountOperator().name()))
         .groupByCountValue(criteriaGroup.getGroupByCountValue())
         .criteria(
             criteriaGroup.getCriteria().stream()
