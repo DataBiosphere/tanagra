@@ -230,10 +230,9 @@ public class CohortServiceTest {
         "Updated cohort {} at {}", updatedCohort1.getId(), updatedCohort1.getLastModified());
     assertTrue(updatedCohort1.getLastModified().isAfter(updatedCohort1.getCreated()));
     assertEquals(2, updatedCohort1.getMostRecentRevision().getSections().size());
-    assertTrue(
-        updatedCohort1.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_1));
-    assertTrue(
-        updatedCohort1.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_2));
+    assertEquals(
+        List.of(CRITERIA_GROUP_SECTION_1, CRITERIA_GROUP_SECTION_2),
+        updatedCohort1.getMostRecentRevision().getSections());
 
     // Create cohort2 with criteria.
     Cohort cohort2 =
@@ -248,7 +247,7 @@ public class CohortServiceTest {
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
     assertEquals(1, cohort2.getMostRecentRevision().getSections().size());
-    assertTrue(cohort2.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_2));
+    assertEquals(List.of(CRITERIA_GROUP_SECTION_2), cohort2.getMostRecentRevision().getSections());
 
     // Update cohort2 criteria only.
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the last modified and created timestamps differ.
@@ -265,7 +264,7 @@ public class CohortServiceTest {
         "Updated cohort {} at {}", updatedCohort2.getId(), updatedCohort2.getLastModified());
     assertTrue(updatedCohort2.getLastModified().isAfter(updatedCohort2.getCreated()));
     assertEquals(1, updatedCohort2.getMostRecentRevision().getSections().size());
-    assertTrue(
-        updatedCohort2.getMostRecentRevision().getSections().contains(CRITERIA_GROUP_SECTION_1));
+    assertEquals(
+        List.of(CRITERIA_GROUP_SECTION_1), updatedCohort2.getMostRecentRevision().getSections());
   }
 }

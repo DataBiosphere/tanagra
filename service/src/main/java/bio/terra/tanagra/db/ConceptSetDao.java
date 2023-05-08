@@ -229,8 +229,8 @@ public class ConceptSetDao {
 
     // Write the criteria.
     sql =
-        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, selection_data, ui_config, tags) "
-            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :tags)";
+        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, selection_data, ui_config, tags, list_index) "
+            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :tags, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
     List<MapSqlParameterSource> criteriaParamSets =
         criteria.stream()
@@ -243,7 +243,8 @@ public class ConceptSetDao {
                         .addValue("plugin_name", c.getPluginName())
                         .addValue("selection_data", c.getSelectionData())
                         .addValue("ui_config", c.getUiConfig())
-                        .addValue("tags", c.getTags().toArray(new String[0]), Types.ARRAY))
+                        .addValue("tags", c.getTags().toArray(new String[0]), Types.ARRAY)
+                        .addValue("list_index", 0))
             .collect(Collectors.toList());
     rowsAffected =
         Arrays.stream(

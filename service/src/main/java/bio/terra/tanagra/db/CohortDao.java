@@ -358,7 +358,9 @@ public class CohortDao {
   public void getCriteriaHelper(List<Pair<String, CohortRevision.Builder>> cohortRevisions) {
     // Fetch criteria group sections. (cohort revision id -> criteria group section)
     String sql =
-        CRITERIA_GROUP_SECTION_SELECT_SQL + " WHERE cohort_revision_id IN (:cohort_revision_ids)";
+        CRITERIA_GROUP_SECTION_SELECT_SQL
+            + " WHERE cohort_revision_id IN (:cohort_revision_ids) "
+            + "ORDER BY list_index ASC";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue(
@@ -376,7 +378,8 @@ public class CohortDao {
     } else {
       sql =
           CRITERIA_GROUP_SELECT_SQL
-              + " WHERE criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN (:cohort_revision_ids)";
+              + " WHERE criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN (:cohort_revision_ids) "
+              + "ORDER BY list_index ASC";
       params =
           new MapSqlParameterSource()
               .addValue(
@@ -399,7 +402,8 @@ public class CohortDao {
     } else {
       sql =
           CRITERIA_SELECT_SQL
-              + " WHERE criteria_group_id IN (:criteria_group_ids) AND criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN (:cohort_revision_ids)";
+              + " WHERE criteria_group_id IN (:criteria_group_ids) AND criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN (:cohort_revision_ids) "
+              + "ORDER BY list_index ASC";
       params =
           new MapSqlParameterSource()
               .addValue(
@@ -432,13 +436,11 @@ public class CohortDao {
                       return uniqueId;
                     },
                     cg -> cg.getValue()));
-    criterias.stream()
-        .forEach(
-            pair -> {
-              List<String> criteriaGroupId = pair.getKey();
-              Criteria criteria = pair.getValue().build();
-              criteriaGroupsMap.get(criteriaGroupId).addCriteria(criteria);
-            });
+    for (Pair<List<String>, Criteria.Builder> pair : criterias) {
+      List<String> criteriaGroupId = pair.getKey();
+      Criteria criteria = pair.getValue().build();
+      criteriaGroupsMap.get(criteriaGroupId).addCriteria(criteria);
+    }
 
     // Put criteria groups into their respective criteria group sections.
     Map<List<String>, CohortRevision.CriteriaGroupSection.Builder> criteriaGroupSectionsMap =
@@ -452,27 +454,21 @@ public class CohortDao {
                       return uniqueId;
                     },
                     cgs -> cgs.getValue()));
-    criteriaGroups.stream()
-        .forEach(
-            pair -> {
-              List<String> criteriaGroupSectionId = pair.getKey();
-              CohortRevision.CriteriaGroup criteriaGroup = pair.getValue().build();
-              criteriaGroupSectionsMap.get(criteriaGroupSectionId).addCriteriaGroup(criteriaGroup);
-            });
+    for (Pair<List<String>, CohortRevision.CriteriaGroup.Builder> pair : criteriaGroups) {
+      List<String> criteriaGroupSectionId = pair.getKey();
+      CohortRevision.CriteriaGroup criteriaGroup = pair.getValue().build();
+      criteriaGroupSectionsMap.get(criteriaGroupSectionId).addCriteriaGroup(criteriaGroup);
+    }
 
     // Put criteria group sections into their respective cohort revisions.
     Map<String, CohortRevision.Builder> cohortRevisionsMap =
         cohortRevisions.stream()
             .collect(Collectors.toMap(cr -> cr.getValue().getId(), cr -> cr.getValue()));
-    criteriaGroupSections.stream()
-        .forEach(
-            pair -> {
-              String cohortRevisionId = pair.getKey();
-              CohortRevision.CriteriaGroupSection criteriaGroupSection = pair.getValue().build();
-              cohortRevisionsMap
-                  .get(cohortRevisionId)
-                  .addCriteriaGroupSection(criteriaGroupSection);
-            });
+    for (Pair<String, CohortRevision.CriteriaGroupSection.Builder> pair : criteriaGroupSections) {
+      String cohortRevisionId = pair.getKey();
+      CohortRevision.CriteriaGroupSection criteriaGroupSection = pair.getValue().build();
+      cohortRevisionsMap.get(cohortRevisionId).addCriteriaGroupSection(criteriaGroupSection);
+    }
   }
 
   private void updateCriteriaHelper(
@@ -501,58 +497,55 @@ public class CohortDao {
     List<MapSqlParameterSource> groupParamSets = new ArrayList<>();
     List<MapSqlParameterSource> criteriaParamSets = new ArrayList<>();
 
-    criteriaGroupSections.stream()
-        .forEach(
-            cgs -> {
-              sectionParamSets.add(
-                  new MapSqlParameterSource()
-                      .addValue("cohort_revision_id", cohortRevisionId)
-                      .addValue("id", cgs.getId())
-                      .addValue("display_name", cgs.getDisplayName())
-                      .addValue("operator", cgs.getOperator().name())
-                      .addValue("is_excluded", cgs.isExcluded()));
+    for (int cgsListIndex = 0; cgsListIndex < criteriaGroupSections.size(); cgsListIndex++) {
+      CohortRevision.CriteriaGroupSection cgs = criteriaGroupSections.get(cgsListIndex);
+      sectionParamSets.add(
+          new MapSqlParameterSource()
+              .addValue("cohort_revision_id", cohortRevisionId)
+              .addValue("id", cgs.getId())
+              .addValue("display_name", cgs.getDisplayName())
+              .addValue("operator", cgs.getOperator().name())
+              .addValue("is_excluded", cgs.isExcluded())
+              .addValue("list_index", cgsListIndex));
 
-              cgs.getCriteriaGroups().stream()
-                  .forEach(
-                      cg -> {
-                        groupParamSets.add(
-                            new MapSqlParameterSource()
-                                .addValue("cohort_revision_id", cohortRevisionId)
-                                .addValue("criteria_group_section_id", cgs.getId())
-                                .addValue("id", cg.getId())
-                                .addValue("display_name", cg.getDisplayName())
-                                .addValue("entity", cg.getEntity())
-                                .addValue(
-                                    "group_by_count_operator",
-                                    cg.getGroupByCountOperator() == null
-                                        ? null
-                                        : cg.getGroupByCountOperator().name())
-                                .addValue("group_by_count_value", cg.getGroupByCountValue()));
+      for (int cgListIndex = 0; cgListIndex < cgs.getCriteriaGroups().size(); cgListIndex++) {
+        CohortRevision.CriteriaGroup cg = cgs.getCriteriaGroups().get(cgListIndex);
+        groupParamSets.add(
+            new MapSqlParameterSource()
+                .addValue("cohort_revision_id", cohortRevisionId)
+                .addValue("criteria_group_section_id", cgs.getId())
+                .addValue("id", cg.getId())
+                .addValue("display_name", cg.getDisplayName())
+                .addValue("entity", cg.getEntity())
+                .addValue(
+                    "group_by_count_operator",
+                    cg.getGroupByCountOperator() == null
+                        ? null
+                        : cg.getGroupByCountOperator().name())
+                .addValue("group_by_count_value", cg.getGroupByCountValue())
+                .addValue("list_index", cgListIndex));
 
-                        cg.getCriteria().stream()
-                            .forEach(
-                                c -> {
-                                  criteriaParamSets.add(
-                                      new MapSqlParameterSource()
-                                          .addValue("cohort_revision_id", cohortRevisionId)
-                                          .addValue("criteria_group_section_id", cgs.getId())
-                                          .addValue("criteria_group_id", cg.getId())
-                                          .addValue("id", c.getId())
-                                          .addValue("display_name", c.getDisplayName())
-                                          .addValue("plugin_name", c.getPluginName())
-                                          .addValue("selection_data", c.getSelectionData())
-                                          .addValue("ui_config", c.getUiConfig())
-                                          .addValue(
-                                              "tags",
-                                              c.getTags().toArray(new String[0]),
-                                              Types.ARRAY));
-                                });
-                      });
-            });
+        for (int cListIndex = 0; cListIndex < cg.getCriteria().size(); cListIndex++) {
+          Criteria c = cg.getCriteria().get(cListIndex);
+          criteriaParamSets.add(
+              new MapSqlParameterSource()
+                  .addValue("cohort_revision_id", cohortRevisionId)
+                  .addValue("criteria_group_section_id", cgs.getId())
+                  .addValue("criteria_group_id", cg.getId())
+                  .addValue("id", c.getId())
+                  .addValue("display_name", c.getDisplayName())
+                  .addValue("plugin_name", c.getPluginName())
+                  .addValue("selection_data", c.getSelectionData())
+                  .addValue("ui_config", c.getUiConfig())
+                  .addValue("tags", c.getTags().toArray(new String[0]), Types.ARRAY)
+                  .addValue("list_index", cListIndex));
+        }
+      }
+    }
 
     sql =
-        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded) "
-            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded)";
+        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, list_index) "
+            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :list_index)";
     LOGGER.debug("CREATE criteria_group_section: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -562,8 +555,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :entity, :group_by_count_operator, :group_by_count_value)";
+        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value, list_index) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :entity, :group_by_count_operator, :group_by_count_value, :list_index)";
     LOGGER.debug("CREATE criteria_group: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -572,8 +565,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, tags) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :tags)";
+        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, tags, list_index) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :tags, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
     rowsAffected =
         Arrays.stream(

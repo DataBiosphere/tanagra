@@ -144,8 +144,6 @@ public class CohortRevision {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
-      sections = new ArrayList<>(sections);
-      sections.sort(Comparator.comparing(CriteriaGroupSection::getId));
       return new CohortRevision(this);
     }
 
@@ -276,8 +274,6 @@ public class CohortRevision {
         if (id == null) {
           id = RandomStringUtils.randomAlphanumeric(10);
         }
-        criteriaGroups = new ArrayList<>(criteriaGroups);
-        criteriaGroups.sort(Comparator.comparing(CriteriaGroup::getId));
         return new CriteriaGroupSection(id, displayName, criteriaGroups, operator, isExcluded);
       }
 
@@ -406,8 +402,6 @@ public class CohortRevision {
         if (id == null) {
           id = RandomStringUtils.randomAlphanumeric(10);
         }
-        criteria = new ArrayList<>(criteria);
-        criteria.sort(Comparator.comparing(Criteria::getId));
         return new CriteriaGroup(
             id, displayName, criteria, entity, groupByCountOperator, groupByCountValue);
       }

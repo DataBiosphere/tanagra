@@ -349,6 +349,11 @@ databaseChangeLog:
                   type: boolean
                   constraints:
                     nullable: false
+              - column:
+                  name: list_index
+                  type: int
+                  constraints:
+                    nullable: false
         - addUniqueConstraint:
             constraintName: pk_cgs
             tableName: criteria_group_section
@@ -388,6 +393,11 @@ databaseChangeLog:
               - column:
                   name: group_by_count_value
                   type: integer
+              - column:
+                  name: list_index
+                  type: int
+                  constraints:
+                    nullable: false
         - addUniqueConstraint:
             constraintName: pk_cg
             tableName: criteria_group
@@ -450,6 +460,11 @@ databaseChangeLog:
               - column:
                   name: tags
                   type: text[]
+                  constraints:
+                    nullable: false
+              - column:
+                  name: list_index
+                  type: int
                   constraints:
                     nullable: false
         - addUniqueConstraint:
