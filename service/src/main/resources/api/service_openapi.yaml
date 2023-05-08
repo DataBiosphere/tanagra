@@ -1986,6 +1986,7 @@ components:
         - pluginName
         - selectionData
         - uiConfig
+        - tags
 
     ReviewV2:
       type: object

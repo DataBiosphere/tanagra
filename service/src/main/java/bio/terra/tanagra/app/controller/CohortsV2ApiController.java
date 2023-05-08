@@ -121,7 +121,10 @@ public class CohortsV2ApiController implements CohortsV2Api {
         .displayName(apiObj.getDisplayName())
         .entity(apiObj.getEntity())
         .groupByCountOperator(
-            BinaryFilterVariable.BinaryOperator.valueOf(apiObj.getGroupByCountOperator().name()))
+            apiObj.getGroupByCountOperator() == null
+                ? null
+                : BinaryFilterVariable.BinaryOperator.valueOf(
+                    apiObj.getGroupByCountOperator().name()))
         .groupByCountValue(apiObj.getGroupByCountValue())
         .criteria(
             apiObj.getCriteria().stream()
