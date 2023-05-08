@@ -11,7 +11,7 @@ import {
   ConceptSetV2,
   CreateCohortRequest,
   CreateStudyRequest,
-  CriteriaGroupV2,
+  CriteriaGroupSectionV3,
   PropertyKeyValueV2,
   ReviewV2,
   StudyV2,
@@ -46,7 +46,7 @@ export interface AdminSource {
     cohortId: string,
     displayName: string,
     description: string,
-    criteriaGroups: Array<CriteriaGroupV2>
+    criteriaGroupSections: Array<CriteriaGroupSectionV3>
   ): Promise<CohortV2>;
 
   getCohortsForStudy(studyId: string): Promise<CohortV2[]>;
@@ -135,7 +135,7 @@ export class BackendAdminSource implements AdminSource {
     cohortId: string,
     displayName: string,
     description: string,
-    criteriaGroups: Array<CriteriaGroupV2>
+    criteriaGroupSections: Array<CriteriaGroupSectionV3>
   ): Promise<CohortV2> {
     const updateCohortRequest: UpdateCohortRequest = {
       studyId,
@@ -143,7 +143,7 @@ export class BackendAdminSource implements AdminSource {
       cohortUpdateInfoV2: {
         displayName,
         description,
-        criteriaGroups,
+        criteriaGroupSections,
       },
     };
     return await this.cohortsApi.updateCohort(updateCohortRequest);

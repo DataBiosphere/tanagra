@@ -14,7 +14,11 @@ import Typography from "@mui/material/Typography";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { useAdminSource } from "sd-admin/source";
-import { CohortV2, CriteriaGroupV2OperatorEnum, StudyV2 } from "tanagra-api";
+import {
+  CohortV2,
+  CriteriaGroupSectionV3OperatorEnum,
+  StudyV2,
+} from "tanagra-api";
 import { CohortRow, mapCohortRow } from "./cohortAdmin";
 
 // TODO dolbeew: may move the study table and functions to a separate component
@@ -110,64 +114,99 @@ const mockCohort: CohortV2 = {
   lastModified: new Date(),
   created: new Date(),
   createdBy: "test user",
-  criteriaGroups: [
+  criteriaGroupSections: [
     {
       id: "n3jTaIjK",
       displayName: "Group 1",
-      operator: CriteriaGroupV2OperatorEnum.And,
+      operator: CriteriaGroupSectionV3OperatorEnum.And,
       excluded: false,
-      criteria: [
+      criteriaGroups: [
         {
           id: "ZMiJsSL8",
-          displayName: "Condition: Disorder of body system",
-          pluginName: "",
-          selectionData: "",
-          uiConfig: "",
+          displayName: "",
+          entity: "",
+          criteria: [
+            {
+              id: "ZMiJsSL8",
+              displayName: "Condition: Disorder of body system",
+              pluginName: "",
+              selectionData: "",
+              uiConfig: "",
+            },
+          ],
         },
         {
           id: "GkWUoXtT",
-          displayName:
-            "Condition: Traumatic and/or non-traumatic injury of anatomical site",
-          pluginName: "",
-          selectionData: "",
-          uiConfig: "",
+          displayName: "",
+          entity: "",
+          criteria: [
+            {
+              id: "GkWUoXtT",
+              displayName:
+                "Condition: Traumatic and/or non-traumatic injury of anatomical site",
+              pluginName: "",
+              selectionData: "",
+              uiConfig: "",
+            },
+          ],
         },
         {
           id: "Rto3T4r6",
-          displayName: "Condition: Neoplasm by body site",
-          pluginName: "",
-          selectionData: "",
-          uiConfig: "",
+          displayName: "",
+          entity: "",
+          criteria: [
+            {
+              id: "Rto3T4r6",
+              displayName: "Condition: Neoplasm by body site",
+              pluginName: "",
+              selectionData: "",
+              uiConfig: "",
+            },
+          ],
         },
       ],
     },
     {
       id: "iZM84IuY",
       displayName: "Group 2",
-      operator: CriteriaGroupV2OperatorEnum.Or,
+      operator: CriteriaGroupSectionV3OperatorEnum.Or,
       excluded: false,
-      criteria: [
+      criteriaGroups: [
         {
           id: "zyX8UoO8",
-          displayName: "Ethnicity: Not Hispanic or Latino",
-          pluginName: "",
-          selectionData: "",
-          uiConfig: "",
+          displayName: "",
+          entity: "",
+          criteria: [
+            {
+              id: "zyX8UoO8",
+              displayName: "Ethnicity: Not Hispanic or Latino",
+              pluginName: "",
+              selectionData: "",
+              uiConfig: "",
+            },
+          ],
         },
       ],
     },
     {
       id: "CPYKJ3yH",
       displayName: "Group 2",
-      operator: CriteriaGroupV2OperatorEnum.Or,
+      operator: CriteriaGroupSectionV3OperatorEnum.Or,
       excluded: true,
-      criteria: [
+      criteriaGroups: [
         {
           id: "lxYjNNH3",
-          displayName: "Sex assigned at birth: Male",
-          pluginName: "",
-          selectionData: "",
-          uiConfig: "",
+          displayName: "",
+          entity: "",
+          criteria: [
+            {
+              id: "lxYjNNH3",
+              displayName: "Sex assigned at birth: Male",
+              pluginName: "",
+              selectionData: "",
+              uiConfig: "",
+            },
+          ],
         },
       ],
     },
@@ -255,7 +294,7 @@ interface StudyRow {
 
 function CohortTableRow(props: { cohortRow: CohortRow }) {
   const {
-    cohortRow: { id, created, createdBy, criteriaGroups, displayName },
+    cohortRow: { id, created, createdBy, criteriaGroupSections, displayName },
   } = props;
   const [open, setOpen] = useState(false);
   const closedStyle = {
@@ -277,23 +316,21 @@ function CohortTableRow(props: { cohortRow: CohortRow }) {
       <TableRow>
         <TableCell style={!open ? closedStyle : {}} colSpan={4}>
           <Collapse in={open}>
-            {criteriaGroups.length === 0 && (
+            {criteriaGroupSections.length === 0 && (
               <Typography variant="body2">
                 Cohort &quot;{displayName}&quot; has no criteria groups
               </Typography>
             )}
-            {criteriaGroups.map(
+            {criteriaGroupSections.map(
               ({
-                id: gid,
-                criteria,
-                displayName: groupName,
                 excluded,
                 operator,
+                criteriaGroups: [{ id: gid, criteria, displayName: groupName }],
               }) => (
                 <div key={gid}>
                   <Typography variant="h6">
                     {excluded ? "Excludes" : "Includes"}{" "}
-                    {operator === CriteriaGroupV2OperatorEnum.Or
+                    {operator === CriteriaGroupSectionV3OperatorEnum.Or
                       ? "any of"
                       : "all of"}
                   </Typography>

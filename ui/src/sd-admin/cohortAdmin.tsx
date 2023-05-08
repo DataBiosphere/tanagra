@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { useAdminSource } from "sd-admin/source";
-import { CohortV2, CriteriaGroupV2, StudyV2 } from "tanagra-api";
+import { CohortV2, CriteriaGroupSectionV3, StudyV2 } from "tanagra-api";
 
 const columns = (
   filterFn: (name: string, value: string) => void
@@ -110,7 +110,7 @@ export const mapCohortRow = (
   {
     created,
     createdBy,
-    criteriaGroups,
+    criteriaGroupSections,
     description,
     displayName,
     id,
@@ -121,7 +121,7 @@ export const mapCohortRow = (
   ({
     created: created.toLocaleDateString(),
     createdBy,
-    criteriaGroups,
+    criteriaGroupSections,
     description,
     displayName,
     id,
@@ -145,7 +145,7 @@ const emptyCohort: CohortRow = {
   displayName: "",
   description: "",
   studyName: "",
-  criteriaGroups: [],
+  criteriaGroupSections: [],
   created: "",
   createdBy: "",
   lastModified: "",
@@ -181,7 +181,7 @@ export interface CohortRow {
   studyName: string;
   displayName: string;
   description: string;
-  criteriaGroups: CriteriaGroupV2[];
+  criteriaGroupSections: CriteriaGroupSectionV3[];
   created: string;
   createdBy: string;
   lastModified: string;
@@ -240,7 +240,7 @@ export function CohortAdmin() {
         activeCohort.id,
         formState.displayName.value,
         formState.description.value,
-        activeCohort.criteriaGroups
+        activeCohort.criteriaGroupSections
       );
       setActiveCohort(mapCohortRow(updatedCohort, cohortStudy.displayName));
       setLoadingCohortList(true);

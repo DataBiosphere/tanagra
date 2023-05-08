@@ -541,7 +541,7 @@ function createUpdateCurrentValue(
       ...(annotations[annotationId] ?? []),
       {
         current: true,
-        valueId: instance.data.key,
+        instanceId: instance.data.key,
         value: value,
       },
     ];
