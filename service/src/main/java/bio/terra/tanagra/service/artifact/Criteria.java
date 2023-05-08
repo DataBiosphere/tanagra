@@ -1,104 +1,71 @@
 package bio.terra.tanagra.service.artifact;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import org.apache.commons.lang3.RandomStringUtils;
 
-/**
- * Internal representation of a Criteria.
- *
- * <p>A criteria is a single selection that defines a cohort or concept set.
- */
 public class Criteria {
-  private final String criteriaGroupId;
-  private final String conceptSetId;
-  private final String criteriaId;
-  private final String userFacingCriteriaId;
-  private final @Nullable String displayName;
+  private final String id;
+  private final String displayName;
   private final String pluginName;
   private final String selectionData;
   private final String uiConfig;
+  private final List<String> tags;
 
-  private Criteria(Builder builder) {
-    this.criteriaGroupId = builder.criteriaGroupId;
-    this.conceptSetId = builder.conceptSetId;
-    this.criteriaId = builder.criteriaId;
-    this.userFacingCriteriaId = builder.userFacingCriteriaId;
-    this.displayName = builder.displayName;
-    this.pluginName = builder.pluginName;
-    this.selectionData = builder.selectionData;
-    this.uiConfig = builder.uiConfig;
+  private Criteria(
+      String id,
+      String displayName,
+      String pluginName,
+      String selectionData,
+      String uiConfig,
+      List<String> tags) {
+    this.id = id;
+    this.displayName = displayName;
+    this.pluginName = pluginName;
+    this.selectionData = selectionData;
+    this.uiConfig = uiConfig;
+    this.tags = tags;
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Unique (per cohort) identifier of the criteria group this criteria belongs to. */
-  public String getCriteriaGroupId() {
-    return criteriaGroupId;
+  public String getId() {
+    return id;
   }
 
-  /** Unique (per study) identifier of the concept set this criteria belongs to. */
-  public String getConceptSetId() {
-    return conceptSetId;
-  }
-
-  /** Unique (per criteria group) identifier of this criteria. */
-  public String getCriteriaId() {
-    return criteriaId;
-  }
-
-  /** User-defined identifier of this criteria group. */
-  public String getUserFacingCriteriaId() {
-    return userFacingCriteriaId;
-  }
-
-  /** Optional display name for the criteria. */
   public String getDisplayName() {
     return displayName;
   }
 
-  /** Name of the plugin that generated this criteria. */
   public String getPluginName() {
     return pluginName;
   }
 
-  /** Serialized (JSON-format) plugin-specific representation of the user's selection. */
   public String getSelectionData() {
     return selectionData;
   }
 
-  /** Serialized (JSON-format) plugin-specific UI configuration for the criteria. */
   public String getUiConfig() {
     return uiConfig;
   }
 
+  public List<String> getTags() {
+    return tags;
+  }
+
   public static class Builder {
-    private String criteriaGroupId;
-    private String conceptSetId;
-    private String criteriaId;
-    private String userFacingCriteriaId;
-    private @Nullable String displayName;
+    private String id;
+    private String displayName;
     private String pluginName;
     private String selectionData;
     private String uiConfig;
+    private List<String> tags = new ArrayList<>();
 
-    public Builder criteriaGroupId(String criteriaGroupId) {
-      this.criteriaGroupId = criteriaGroupId;
-      return this;
-    }
-
-    public Builder conceptSetId(String conceptSetId) {
-      this.conceptSetId = conceptSetId;
-      return this;
-    }
-
-    public Builder criteriaId(String criteriaId) {
-      this.criteriaId = criteriaId;
-      return this;
-    }
-
-    public Builder userFacingCriteriaId(String userFacingCriteriaId) {
-      this.userFacingCriteriaId = userFacingCriteriaId;
+    public Builder id(String id) {
+      this.id = id;
       return this;
     }
 
@@ -122,8 +89,46 @@ public class Criteria {
       return this;
     }
 
-    public Criteria build() {
-      return new Criteria(this);
+    public Builder tags(List<String> tags) {
+      this.tags = tags;
+      return this;
     }
+
+    public Criteria build() {
+      if (id == null) {
+        id = RandomStringUtils.randomAlphanumeric(10);
+      }
+      return new Criteria(id, displayName, pluginName, selectionData, uiConfig, tags);
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public void addTag(String tag) {
+      tags.add(tag);
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Criteria criteria = (Criteria) o;
+    return id.equals(criteria.id)
+        && displayName.equals(criteria.displayName)
+        && pluginName.equals(criteria.pluginName)
+        && selectionData.equals(criteria.selectionData)
+        && uiConfig.equals(criteria.uiConfig)
+        && tags.equals(criteria.tags);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, displayName, pluginName, selectionData, uiConfig, tags);
   }
 }

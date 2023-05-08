@@ -2,187 +2,100 @@ package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class Cohort {
-  public static final int STARTING_VERSION = 1;
-
-  private final String studyId;
-  private final String cohortId;
-  private final String underlayName;
-  private final String cohortRevisionGroupId;
-  private final int version;
-  private final boolean isMostRecent;
-  private final boolean isEditable;
+  private final String id;
+  private final String underlay;
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
+  private final String lastModifiedBy;
   private final @Nullable String displayName;
   private final @Nullable String description;
-  private final List<CriteriaGroup> criteriaGroups;
+  private final List<CohortRevision> revisions;
 
   private Cohort(Builder builder) {
-    this.studyId = builder.studyId;
-    this.cohortId = builder.cohortId;
-    this.underlayName = builder.underlayName;
-    this.cohortRevisionGroupId = builder.cohortRevisionGroupId;
-    this.version = builder.version;
-    this.isMostRecent = builder.isMostRecent;
-    this.isEditable = builder.isEditable;
+    this.id = builder.id;
+    this.underlay = builder.underlay;
     this.created = builder.created;
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
+    this.lastModifiedBy = builder.lastModifiedBy;
     this.displayName = builder.displayName;
     this.description = builder.description;
-    this.criteriaGroups = builder.criteriaGroups;
+    this.revisions = builder.revisions;
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  public Builder toBuilder() {
-    return builder()
-        .studyId(studyId)
-        .cohortId(cohortId)
-        .underlayName(underlayName)
-        .cohortRevisionGroupId(cohortRevisionGroupId)
-        .version(version)
-        .isMostRecent(isMostRecent)
-        .isEditable(isEditable)
-        .created(created)
-        .createdBy(createdBy)
-        .lastModified(lastModified)
-        .displayName(displayName)
-        .description(description)
-        .criteriaGroups(criteriaGroups);
+  public String getId() {
+    return id;
   }
 
-  /** Globally unique identifier of the study this cohort belongs to. */
-  public String getStudyId() {
-    return studyId;
+  public String getUnderlay() {
+    return underlay;
   }
 
-  /** Unique (per study) identifier of this cohort + version. */
-  public String getCohortId() {
-    return cohortId;
-  }
-
-  /** Globally unique name of the underlay this cohort is pinned to. */
-  public String getUnderlayName() {
-    return underlayName;
-  }
-
-  /**
-   * User-facing unique (per study) identifier of this set of cohort revisions (current and all
-   * frozen ones).
-   */
-  public String getCohortRevisionGroupId() {
-    return cohortRevisionGroupId;
-  }
-
-  /** Integer version of the cohort. */
-  public int getVersion() {
-    return version;
-  }
-
-  /** True if this cohort is the most recent. */
-  public boolean isMostRecent() {
-    return isMostRecent;
-  }
-
-  /**
-   * True if this cohort is editable. False if the cohort has been frozen (e.g. by someone creating
-   * a review).
-   */
-  public boolean isEditable() {
-    return isEditable;
-  }
-
-  /** Timestamp of when this cohort was created. */
   public OffsetDateTime getCreated() {
     return created;
   }
 
-  /** Email of user who created this cohort. */
   public String getCreatedBy() {
     return createdBy;
   }
 
-  /** Timestamp of when this cohort was last modified. */
   public OffsetDateTime getLastModified() {
     return lastModified;
   }
 
-  /** Optional display name for the cohort. */
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
+
   public String getDisplayName() {
     return displayName;
   }
 
-  /** Optional description for the cohort. */
   public String getDescription() {
     return description;
   }
 
-  /** List of criteria groups in the cohort. */
-  public List<CriteriaGroup> getCriteriaGroups() {
-    return Collections.unmodifiableList(criteriaGroups);
+  public List<CohortRevision> getRevisions() {
+    return Collections.unmodifiableList(revisions);
   }
 
-  public void addCriteriaGroup(CriteriaGroup criteriaGroup) {
-    criteriaGroups.add(criteriaGroup);
+  public CohortRevision getMostRecentRevision() {
+    Optional<CohortRevision> mostRecentRevision =
+        revisions.stream().filter(r -> r.isMostRecent()).findFirst();
+    if (mostRecentRevision.isEmpty()) {
+      throw new SystemException("Most recent cohort revision not found " + id);
+    }
+    return mostRecentRevision.get();
   }
 
   public static class Builder {
-    private String studyId;
-    private String cohortId;
-    private String underlayName;
-    private String cohortRevisionGroupId;
-    private int version;
-    private boolean isMostRecent;
-    private boolean isEditable;
+    private String id;
+    private String underlay;
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
+    private String lastModifiedBy;
     private @Nullable String displayName;
     private @Nullable String description;
-    private List<CriteriaGroup> criteriaGroups = new ArrayList<>();
+    private List<CohortRevision> revisions;
 
-    public Builder studyId(String studyId) {
-      this.studyId = studyId;
+    public Builder id(String id) {
+      this.id = id;
       return this;
     }
 
-    public Builder cohortId(String cohortId) {
-      this.cohortId = cohortId;
-      return this;
-    }
-
-    public Builder underlayName(String underlayName) {
-      this.underlayName = underlayName;
-      return this;
-    }
-
-    public Builder cohortRevisionGroupId(String cohortRevisionGroupId) {
-      this.cohortRevisionGroupId = cohortRevisionGroupId;
-      return this;
-    }
-
-    public Builder version(int version) {
-      this.version = version;
-      return this;
-    }
-
-    public Builder isMostRecent(boolean isMostRecent) {
-      this.isMostRecent = isMostRecent;
-      return this;
-    }
-
-    public Builder isEditable(boolean isEditable) {
-      this.isEditable = isEditable;
+    public Builder underlay(String underlay) {
+      this.underlay = underlay;
       return this;
     }
 
@@ -201,6 +114,11 @@ public class Cohort {
       return this;
     }
 
+    public Builder lastModifiedBy(String lastModifiedBy) {
+      this.lastModifiedBy = lastModifiedBy;
+      return this;
+    }
+
     public Builder displayName(String displayName) {
       this.displayName = displayName;
       return this;
@@ -211,25 +129,33 @@ public class Cohort {
       return this;
     }
 
-    public Builder criteriaGroups(List<CriteriaGroup> criteriaGroups) {
-      this.criteriaGroups = criteriaGroups;
+    public Builder revisions(List<CohortRevision> revisions) {
+      this.revisions = revisions;
       return this;
-    }
-
-    public Builder addCriteriaGroup(CriteriaGroup criteriaGroup) {
-      this.criteriaGroups.add(criteriaGroup);
-      return this;
-    }
-
-    public String getCohortId() {
-      return cohortId;
     }
 
     public Cohort build() {
-      if (cohortId == null) {
-        throw new SystemException("Cohort requires id");
+      if (id == null) {
+        id = RandomStringUtils.randomAlphanumeric(10);
       }
+      revisions = new ArrayList<>(revisions);
+      revisions.sort(Comparator.comparing(CohortRevision::getVersion));
       return new Cohort(this);
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public String getUnderlay() {
+      return underlay;
+    }
+
+    public void addRevision(CohortRevision cohortRevision) {
+      if (revisions == null) {
+        revisions = new ArrayList<>();
+      }
+      revisions.add(cohortRevision);
     }
   }
 }

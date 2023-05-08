@@ -2,57 +2,53 @@ package bio.terra.tanagra.service.artifact;
 
 import java.time.OffsetDateTime;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class Review {
-  private final String cohortId;
-  private final String reviewId;
+  private final String id;
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final int size;
+  private final CohortRevision revision;
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
-  private final Cohort cohort;
+  private final String lastModifiedBy;
 
   private Review(Builder builder) {
-    this.cohortId = builder.cohortId;
-    this.reviewId = builder.reviewId;
+    this.id = builder.id;
     this.displayName = builder.displayName;
     this.description = builder.description;
     this.size = builder.size;
+    this.revision = builder.revision;
     this.created = builder.created;
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
-    this.cohort = builder.cohort;
+    this.lastModifiedBy = builder.lastModifiedBy;
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Unique (per study) identifier of the cohort this review belongs to. */
-  public String getCohortId() {
-    return cohortId;
+  public String getId() {
+    return id;
   }
 
-  /** Unique (per cohort) identifier of this review. */
-  public String getReviewId() {
-    return reviewId;
-  }
-
-  /** Optional display name of this review. */
   public String getDisplayName() {
     return displayName;
   }
 
-  /** Optional description of this review. */
   public String getDescription() {
     return description;
   }
 
-  /** Size of the review, number of primary entity instances. */
   public int getSize() {
     return size;
+  }
+
+  public CohortRevision getRevision() {
+    return revision;
   }
 
   public OffsetDateTime getCreated() {
@@ -67,29 +63,23 @@ public class Review {
     return lastModified;
   }
 
-  /** Cohort revision that this review is pinned to. */
-  public Cohort getCohort() {
-    return cohort;
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
   }
 
   public static class Builder {
-    private String cohortId;
-    private String reviewId;
-    private @Nullable String displayName;
-    private @Nullable String description;
+    private String id;
+    private String displayName;
+    private String description;
     private int size;
+    private CohortRevision revision;
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
-    private Cohort cohort;
+    private String lastModifiedBy;
 
-    public Builder cohortId(String cohortId) {
-      this.cohortId = cohortId;
-      return this;
-    }
-
-    public Builder reviewId(String reviewId) {
-      this.reviewId = reviewId;
+    public Builder id(String id) {
+      this.id = id;
       return this;
     }
 
@@ -108,6 +98,11 @@ public class Review {
       return this;
     }
 
+    public Builder revision(CohortRevision revision) {
+      this.revision = revision;
+      return this;
+    }
+
     public Builder created(OffsetDateTime created) {
       this.created = created;
       return this;
@@ -123,17 +118,24 @@ public class Review {
       return this;
     }
 
-    public Builder cohort(Cohort cohort) {
-      this.cohort = cohort;
+    public Builder lastModifiedBy(String lastModifiedBy) {
+      this.lastModifiedBy = lastModifiedBy;
       return this;
     }
 
-    public String getCohortId() {
-      return cohortId;
+    public Review build() {
+      if (id == null) {
+        id = RandomStringUtils.randomAlphanumeric(10);
+      }
+      return new Review(this);
     }
 
-    public Review build() {
-      return new Review(this);
+    public String getId() {
+      return id;
+    }
+
+    public int getSize() {
+      return size;
     }
   }
 }

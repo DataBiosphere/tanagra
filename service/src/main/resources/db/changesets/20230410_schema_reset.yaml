@@ -1,0 +1,583 @@
+databaseChangeLog:
+  - changeSet:
+      id: schema_reset
+      author: marikomedlock
+      changes:
+        - createTable:
+            tableName: study
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: properties
+                  type: jsonb
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: concept_set
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: study_id
+                  type: text
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_cs_s
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete the concept sets contained in it
+              - column:
+                  name: underlay
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: cohort
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: study_id
+                  type: text
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_c_s
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete the cohorts contained in it
+              - column:
+                  name: underlay
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: review
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_r_c
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort will cascade to delete the reviews associated with it
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: size
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: u_r_c
+            tableName: review
+            columnNames: id, cohort_id
+
+        - createTable:
+            tableName: primary_entity_instance
+            columns:
+              - column:
+                  name: review_id
+                  type: text
+                  constraints:
+                    references: review(id)
+                    foreignKeyName: fk_pei_r
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a review will cascade to delete the entity instances contained in it
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: false
+                  remarks: The primary entity instance id is defined by the underlying dataset, not by this application DB
+        - addUniqueConstraint:
+            constraintName: pk_pei
+            tableName: primary_entity_instance
+            columnNames: id, review_id
+
+        - createTable:
+            tableName: cohort_revision
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_cr_c
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort will cascade to delete the cohort revisions associated with it
+              - column:
+                  name: review_id
+                  type: text
+                  constraints:
+                    references: review(id)
+                    foreignKeyName: fk_cr_r
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a review will cascade to delete the cohort revisions associated with it
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_most_recent
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_editable
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: criteria_group_section
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_revision_id
+                  type: text
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_cgs_cr
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort revision will cascade to delete the criteria group sections contained in it
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: operator
+                  type: text
+              - column:
+                  name: is_excluded
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: list_index
+                  type: int
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_cgs
+            tableName: criteria_group_section
+            columnNames: id, cohort_revision_id
+
+        - createTable:
+            tableName: criteria_group
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criteria_group_section_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_revision_id
+                  type: text
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_cg_cr
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort revision will cascade to delete the criteria groups contained in it
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: entity
+                  type: text
+              - column:
+                  name: group_by_count_operator
+                  type: text
+              - column:
+                  name: group_by_count_value
+                  type: integer
+              - column:
+                  name: list_index
+                  type: int
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_cg
+            tableName: criteria_group
+            columnNames: id, criteria_group_section_id, cohort_revision_id
+
+        - createTable:
+            tableName: criteria
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criteria_group_id
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: criteria_group_section_id
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cohort_revision_id
+                  type: text
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: ck_crit_cr
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
+              - column:
+                  name: concept_set_id
+                  type: text
+                  constraints:
+                    references: concept_set(id)
+                    foreignKeyName: fk_crit_cs
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a concept set will cascade to delete the criteria contained in it
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: plugin_name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: selection_data
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ui_config
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tags
+                  type: text[]
+                  constraints:
+                    nullable: false
+              - column:
+                  name: list_index
+                  type: int
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_crit
+            tableName: criteria
+            columnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
+
+        - createTable:
+            tableName: annotation_key
+            columns:
+              - column:
+                  name: id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_ak_c
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a cohort will cascade to delete the annotation keys associated with it
+              - column:
+                  name: display_name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: data_type
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enum_vals
+                  type: text[]
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_ak
+            tableName: annotation_key
+            columnNames: id, cohort_id
+
+        - createTable:
+            tableName: annotation_value
+            columns:
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: annotation_key_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: review_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: primary_entity_instance_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: bool_val
+                  type: boolean
+                  constraints:
+                    nullable: true
+              - column:
+                  name: int64_val
+                  type: integer
+                  constraints:
+                    nullable: true
+              - column:
+                  name: string_val
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: date_val
+                  type: date
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            constraintName: fk_av_pei
+            baseColumnNames: review_id, primary_entity_instance_id
+            baseTableName: annotation_value
+            referencedColumnNames: review_id, id
+            referencedTableName: primary_entity_instance
+            onDelete: CASCADE
+            validate: true
+        - addForeignKeyConstraint:
+            constraintName: fk_av_ak
+            baseColumnNames: cohort_id, annotation_key_id
+            baseTableName: annotation_value
+            referencedColumnNames: cohort_id, id
+            referencedTableName: annotation_key
+            onDelete: CASCADE
+            validate: true
+        - addForeignKeyConstraint:
+            constraintName: fk_av_r
+            baseColumnNames: review_id, cohort_id
+            baseTableName: annotation_value
+            referencedColumnNames: id, cohort_id
+            referencedTableName: review
+            onDelete: CASCADE
+            validate: true
