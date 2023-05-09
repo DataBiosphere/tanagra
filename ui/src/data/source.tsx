@@ -360,8 +360,6 @@ export class BackendSource implements Source {
       classificationID
     );
 
-    const query = !options?.parent ? options?.query || "" : undefined;
-
     const promises = [
       this.instancesApi.queryInstances(
         searchRequest(
@@ -370,7 +368,7 @@ export class BackendSource implements Source {
           occurrenceID,
           classification,
           undefined,
-          query,
+          options?.query,
           options?.parent
         )
       ),
@@ -386,7 +384,7 @@ export class BackendSource implements Source {
               occurrenceID,
               classification,
               grouping,
-              query,
+              options?.query,
               options?.parent
             )
           )
@@ -1140,16 +1138,18 @@ function searchRequest(
         },
       },
     });
-  } else if (query) {
-    operands.push({
-      filterType: tanagra.FilterV2FilterTypeEnum.Text,
-      filterUnion: {
-        textFilter: {
-          matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
-          text: query,
+  } else if (isValid(query)) {
+    if (query !== "") {
+      operands.push({
+        filterType: tanagra.FilterV2FilterTypeEnum.Text,
+        filterUnion: {
+          textFilter: {
+            matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
+            text: query,
+          },
         },
-      },
-    });
+      });
+    }
   } else if (classification.hierarchy && !grouping) {
     operands.push({
       filterType: tanagra.FilterV2FilterTypeEnum.Hierarchy,

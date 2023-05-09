@@ -232,10 +232,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const fetchClassification = useCallback(() => {
     return source
       .searchClassification(attributes, occurrence.id, classification.id, {
-        query:
-          !searchData?.hierarchy && !!searchData?.query
-            ? searchData?.query
-            : undefined,
+        query: !searchData?.hierarchy ? searchData?.query ?? "" : undefined,
         includeGroupings: !searchData?.hierarchy,
       })
       .then((res) => processEntities(res, searchData?.hierarchy));
