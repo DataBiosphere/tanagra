@@ -153,7 +153,7 @@ public final class FromApiConversionService {
     }
   }
 
-  public ReviewQueryRequest.Builder fromApiObject(
+  public ReviewQueryRequest fromApiObject(
       ApiReviewQueryV2 apiObj, String studyId, String cohortId) {
     ValidationUtils.validateApiFilter(apiObj.getEntityFilter());
 
@@ -209,13 +209,12 @@ public final class FromApiConversionService {
                 }
               });
     }
-    return new ReviewQueryRequest.Builder()
-        .entity(entity)
-        .mappingType(Underlay.MappingType.INDEX)
+    return ReviewQueryRequest.builder()
         .attributes(attributes)
         .entityFilter(entityFilter)
         .annotationFilter(annotationFilter)
-        .orderBys(orderBys);
+        .orderBys(orderBys)
+        .build();
   }
 
   public static Literal fromApiObject(ApiLiteralV2 apiLiteral) {

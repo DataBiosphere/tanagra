@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.query.Literal;
+import java.util.Objects;
 
 public class AnnotationValue {
   private final Literal literal;
@@ -51,6 +52,34 @@ public class AnnotationValue {
 
   public boolean isPartOfSelectedReview() {
     return isPartOfSelectedReview;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AnnotationValue that = (AnnotationValue) o;
+    return cohortRevisionVersion == that.cohortRevisionVersion
+        && isMostRecent == that.isMostRecent
+        && isPartOfSelectedReview == that.isPartOfSelectedReview
+        && literal.equals(that.literal)
+        && annotationKeyId.equals(that.annotationKeyId)
+        && instanceId.equals(that.instanceId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        literal,
+        cohortRevisionVersion,
+        annotationKeyId,
+        instanceId,
+        isMostRecent,
+        isPartOfSelectedReview);
   }
 
   public static class Builder {

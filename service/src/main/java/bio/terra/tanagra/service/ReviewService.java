@@ -208,19 +208,13 @@ public class ReviewService {
   }
 
   public List<ReviewInstance> listReviewInstances(
-      String studyId,
-      String cohortId,
-      String reviewId,
-      ReviewQueryRequest.Builder reviewQueryRequestBuilder) {
-    ReviewQueryRequest reviewQueryRequest =
-        reviewQueryRequestBuilder
-            .entityInstanceIds(reviewDao.getPrimaryEntityIds(reviewId))
-            .annotationValues(listAnnotationValues(studyId, cohortId, reviewId))
-            .build();
+      String studyId, String cohortId, String reviewId, ReviewQueryRequest reviewQueryRequest) {
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Entity primaryEntity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
 
     // Make sure the entity ID attribute is included, so we can match the entity instances to their
     // associated annotations.
-    Attribute idAttribute = reviewQueryRequest.getEntity().getIdAttribute();
+    Attribute idAttribute = primaryEntity.getIdAttribute();
     if (!reviewQueryRequest.getAttributes().contains(idAttribute)) {
       reviewQueryRequest.addAttribute(idAttribute);
     }
@@ -230,7 +224,7 @@ public class ReviewService {
         new AttributeFilter(
             idAttribute,
             FunctionFilterVariable.FunctionTemplate.IN,
-            reviewQueryRequest.getEntityInstanceIds());
+            reviewDao.getPrimaryEntityIds(reviewId));
     if (reviewQueryRequest.getEntityFilter() != null) {
       entityFilter =
           new BooleanAndOrFilter(
@@ -242,7 +236,7 @@ public class ReviewService {
     QueryRequest queryRequest =
         querysService.buildInstancesQuery(
             new EntityQueryRequest.Builder()
-                .entity(reviewQueryRequest.getEntity())
+                .entity(primaryEntity)
                 .mappingType(Underlay.MappingType.INDEX)
                 .selectAttributes(reviewQueryRequest.getAttributes())
                 .selectHierarchyFields(Collections.EMPTY_LIST)
@@ -250,11 +244,7 @@ public class ReviewService {
                 .filter(entityFilter)
                 .build());
     DataPointer indexDataPointer =
-        reviewQueryRequest
-            .getEntity()
-            .getMapping(Underlay.MappingType.INDEX)
-            .getTablePointer()
-            .getDataPointer();
+        primaryEntity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer();
     List<EntityInstance> entityInstances =
         querysService.runInstancesQuery(
             indexDataPointer,
@@ -262,6 +252,9 @@ public class ReviewService {
             Collections.EMPTY_LIST,
             Collections.EMPTY_LIST,
             queryRequest);
+
+    // Get the annotation values.
+    List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId, reviewId);
 
     // Merge entity instances and annotation values, filtering out any instances that don't match
     // the annotation filter (if specified).
@@ -275,7 +268,7 @@ public class ReviewService {
               String entityInstanceIdStr = entityInstanceId.getInt64Val().toString();
 
               List<AnnotationValue> associatedAnnotationValues =
-                  reviewQueryRequest.getAnnotationValues().stream()
+                  annotationValues.stream()
                       .filter(av -> av.getInstanceId().equals(entityInstanceIdStr))
                       .collect(Collectors.toList());
 
@@ -301,6 +294,7 @@ public class ReviewService {
     return reviewInstances;
   }
 
+  @VisibleForTesting
   public List<AnnotationValue> listAnnotationValues(
       String studyId, String cohortId, @Nullable String reviewId) {
     featureConfiguration.artifactStorageEnabledCheck();
@@ -389,6 +383,7 @@ public class ReviewService {
     return filteredValues;
   }
 
+  @VisibleForTesting
   public List<AnnotationValue> listAnnotationValues(String studyId, String cohortId) {
     return listAnnotationValues(studyId, cohortId, null);
   }
