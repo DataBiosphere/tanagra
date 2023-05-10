@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.vumc.admin.client.ApiException;
-import bio.terra.tanagra.vumc.admin.model.CoreServiceTest;
-import bio.terra.tanagra.vumc.admin.model.SystemVersion;
+import org.vumc.vda.tanagra.admin.client.ApiException;
+import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
+import org.vumc.vda.tanagra.admin.model.SystemVersion;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;

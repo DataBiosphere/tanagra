@@ -6,14 +6,17 @@ import bio.terra.tanagra.app.configuration.VumcAdminConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.auth.AppDefaultUtils;
 import bio.terra.tanagra.service.auth.UserId;
-import bio.terra.tanagra.vumc.admin.api.AuthorizationApi;
-import bio.terra.tanagra.vumc.admin.api.TestApi;
-import bio.terra.tanagra.vumc.admin.api.UnauthenticatedApi;
-import bio.terra.tanagra.vumc.admin.client.ApiClient;
-import bio.terra.tanagra.vumc.admin.client.ApiException;
-import bio.terra.tanagra.vumc.admin.model.CoreServiceTest;
-import bio.terra.tanagra.vumc.admin.model.ResourceIdList;
-import bio.terra.tanagra.vumc.admin.model.SystemVersion;
+import org.vumc.vda.tanagra.admin.api.AuthorizationApi;
+import org.vumc.vda.tanagra.admin.api.TestApi;
+import org.vumc.vda.tanagra.admin.api.UnauthenticatedApi;
+import org.vumc.vda.tanagra.admin.client.ApiClient;
+import org.vumc.vda.tanagra.admin.client.ApiException;
+import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
+import org.vumc.vda.tanagra.admin.model.ResourceAction;
+import org.vumc.vda.tanagra.admin.model.ResourceList;
+import org.vumc.vda.tanagra.admin.model.ResourceType;
+import org.vumc.vda.tanagra.admin.model.ResourceTypeList;
+import org.vumc.vda.tanagra.admin.model.SystemVersion;
 import javax.ws.rs.client.Client;
 import org.apache.http.HttpStatus;
 import org.slf4j.MDC;
@@ -67,10 +70,10 @@ public class VumcAdminService {
 
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public boolean isAuthorized(
-      String action, String resourceType, String resourceId, String userId) {
+      String userId, ResourceAction resourceAction, ResourceType resourceType, String resourceId) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      authorizationApi.isAuthorized(action, resourceType, resourceId, userId);
+      authorizationApi.isAuthorized(userId, resourceAction, resourceType, resourceId);
       return true;
     } catch (ApiException apiEx) {
       if (apiEx.getCode() == HttpStatus.SC_UNAUTHORIZED) {
@@ -80,10 +83,10 @@ public class VumcAdminService {
     }
   }
 
-  public ResourceIdList listAuthorizedResources(String resourceType, String userId) {
+  public ResourceList listAuthorizedResources(String userId, ResourceTypeList resourceTypeList) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      return authorizationApi.listAuthorizedResources(resourceType, userId);
+      return authorizationApi.listAuthorizedResources(userId, resourceTypeList);
     } catch (ApiException apiEx) {
       throw new SystemException(
           "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);
