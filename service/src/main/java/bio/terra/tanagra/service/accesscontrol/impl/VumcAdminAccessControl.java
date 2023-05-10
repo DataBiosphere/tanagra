@@ -30,7 +30,7 @@ public class VumcAdminAccessControl implements AccessControl {
         action.toString(),
         resourceType.toString(),
         resourceId == null ? null : resourceId.toString(),
-        userId.getEmail());
+        userId.getSubject());
   }
 
   @Override

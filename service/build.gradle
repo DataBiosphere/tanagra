@@ -34,6 +34,9 @@ repositories {
     maven {
         url "https://packages.confluent.io/maven/"
     }
+    maven {
+        url "https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries"
+    }
 }
 
 dependencyManagement {
@@ -60,7 +63,7 @@ dependencies {
     annotationProcessor group: "org.springframework.boot", name: "spring-boot-configuration-processor"
 
     // VUMC Admin dependency
-    implementation group: "bio.terra", name: "tanagra-vumc-admin-client", version: "0.0.3-SNAPSHOT"
+    implementation group: "org.vumc.vda", name: "tanagra-admin-client", version: "0.0.5-SNAPSHOT"
     implementation group: "org.glassfish.jersey.core", name: "jersey-client", version: "2.32"
     // hk2 is required to use VUMC admin client, but not correctly exposed by the client
     implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.32'

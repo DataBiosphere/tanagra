@@ -67,10 +67,10 @@ public class VumcAdminService {
 
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public boolean isAuthorized(
-      String action, String resourceType, String resourceId, String userEmail) {
+      String action, String resourceType, String resourceId, String userId) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      authorizationApi.isAuthorized(action, resourceType, resourceId, userEmail);
+      authorizationApi.isAuthorized(action, resourceType, resourceId, userId);
       return true;
     } catch (ApiException apiEx) {
       if (apiEx.getCode() == HttpStatus.SC_UNAUTHORIZED) {
@@ -80,10 +80,10 @@ public class VumcAdminService {
     }
   }
 
-  public ResourceIdList listAuthorizedResources(String resourceType, String userEmail) {
+  public ResourceIdList listAuthorizedResources(String resourceType, String userId) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      return authorizationApi.listAuthorizedResources(resourceType, userEmail);
+      return authorizationApi.listAuthorizedResources(resourceType, userId);
     } catch (ApiException apiEx) {
       throw new SystemException(
           "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);
