@@ -46,7 +46,7 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormat.forPattern("MMddHHmm").withZone(DateTimeZone.UTC);
 
-  protected static final String DEFAULT_REGION = "us-central1";
+  protected static final String DEFAULT_REGION = "us-east1";
 
   private final Entity entity;
 

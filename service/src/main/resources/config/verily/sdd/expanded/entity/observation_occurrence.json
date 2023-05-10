@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "unit",
@@ -18,9 +19,10 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 501848
+        "count" : 158435
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -28,20 +30,24 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 8689.0,
-      "maxVal" : 2.02102001E9
-    }
+      "maxVal" : 2.023980077E9
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "observation",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "value_as_string",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -49,20 +55,24 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 0.0,
-      "maxVal" : 9.3888519E7
-    }
+      "maxVal" : 1.11142016E8
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "value",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -70,8 +80,9 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    }
+      "maxVal" : 6855336.0
+    },
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -81,7 +92,8 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "observation_date"
+          "column" : "observation_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       },
       "unit" : {

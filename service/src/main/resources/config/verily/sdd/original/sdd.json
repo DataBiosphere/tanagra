@@ -4,14 +4,14 @@
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
       "projectId": "victr-tanagra-test",
-      "datasetId": "sd_static",
-      "dataflowTempLocation" : "gs://dataflow-staging-us-central1-694046000181/temp/"
+      "datasetId": "sd_20230328"
     },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "sdstatic_index_031523",
-      "dataflowServiceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com" } ],
+      "datasetId": "sd20230328_index_050923",
+      "dataflowServiceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
+      "dataflowTempLocation" : "gs://dataflow-staging-us-east1-694046000181/temp/"} ],
   "entities": [
     "brand.json",
     "condition.json",

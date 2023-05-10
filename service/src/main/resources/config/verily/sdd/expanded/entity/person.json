@@ -14,7 +14,7 @@
           },
           "display" : "FEMALE"
         },
-        "count" : 1850236
+        "count" : 1940496
       }, {
         "enumVal" : {
           "value" : {
@@ -22,7 +22,7 @@
           },
           "display" : "MALE"
         },
-        "count" : 1594485
+        "count" : 1673369
       }, {
         "enumVal" : {
           "value" : {
@@ -30,9 +30,10 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 4177
+        "count" : 4273
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "race",
@@ -46,7 +47,7 @@
           },
           "display" : "American Indian or Alaska Native"
         },
-        "count" : 4572
+        "count" : 5078
       }, {
         "enumVal" : {
           "value" : {
@@ -54,7 +55,7 @@
           },
           "display" : "Asian"
         },
-        "count" : 45958
+        "count" : 48897
       }, {
         "enumVal" : {
           "value" : {
@@ -62,7 +63,7 @@
           },
           "display" : "Black"
         },
-        "count" : 327829
+        "count" : 343615
       }, {
         "enumVal" : {
           "value" : {
@@ -70,7 +71,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 953870
+        "count" : 1000410
       }, {
         "enumVal" : {
           "value" : {
@@ -78,9 +79,10 @@
           },
           "display" : "White"
         },
-        "count" : 2116669
+        "count" : 2220138
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ethnicity",
@@ -94,7 +96,7 @@
           },
           "display" : "Hispanic or Latino"
         },
-        "count" : 113110
+        "count" : 123186
       }, {
         "enumVal" : {
           "value" : {
@@ -102,7 +104,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 960195
+        "count" : 1027401
       }, {
         "enumVal" : {
           "value" : {
@@ -110,38 +112,45 @@
           },
           "display" : "Not Hispanic or Latino"
         },
-        "count" : 2375593
+        "count" : 2467551
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_has_plasma",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_dna_yield",
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -99999.0,
+      "minVal" : 0.0,
       "maxVal" : 500.0
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_is_compromised",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "has_biovu_sample",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_is_nonshippable",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "year_of_birth",
@@ -150,12 +159,13 @@
       "type" : "RANGE",
       "minVal" : 1799.0,
       "maxVal" : 2993.0
-    }
+    },
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT     /* Can't do \"*\". During expansion, there's an error about person_id column being ambiguous. */     p.person_id, p.year_of_birth, p.birth_datetime, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,      /* Add BioVU sample columns. The way x_biovu_sample_status is created, there should be at        most one row per person. */     EXISTS         (SELECT 1 FROM `victr-tanagra-test.sd_static.x_biovu_sample_status` x WHERE p.person_id = x.person_id)                                                                                                         AS has_biovu_sample,     x.dna_yield_ind AS biovu_sample_dna_yield,     /* As a courtesy, convert string fields to boolean: 0 -> No, 1 -> Yes */     CASE WHEN x.compromise_ind = '1' THEN true WHEN x.compromise_ind = '0' THEN false ELSE null END AS biovu_sample_is_compromised,     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma FROM `victr-tanagra-test.sd_static.person` p     LEFT OUTER JOIN         (             /* Get rid of duplicate rows in x_biovu_sample_status. For example, person             4587323 has 11 duplicate rows. This returns just 1 row for each person. */             WITH x_biovu_sample_status AS (                 SELECT                 *,                 ROW_NUMBER() OVER(PARTITION BY person_id) AS rn                 FROM `victr-tanagra-test.sd_static.x_biovu_sample_status`             )             SELECT * FROM x_biovu_sample_status WHERE rn = 1         ) x         ON p.person_id = x.person_id "
+      "rawSql" : "SELECT     /* Can't do \"*\". During expansion, there's an error about person_id column being ambiguous. */     p.person_id, p.year_of_birth, p.birth_datetime, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id,      /* Add BioVU sample columns. The way x_biovu_sample_status is created, there should be at        most one row per person. */     EXISTS         (SELECT 1 FROM `victr-tanagra-test.sd_20230328.x_biovu_sample_status` x WHERE p.person_id = x.person_id)                                                                                                         AS has_biovu_sample,     x.dna_yield_ind AS biovu_sample_dna_yield,     /* As a courtesy, convert string fields to boolean: 0 -> No, 1 -> Yes */     CASE WHEN x.compromise_ind = '1' THEN true WHEN x.compromise_ind = '0' THEN false ELSE null END AS biovu_sample_is_compromised,     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma FROM `victr-tanagra-test.sd_20230328.person` p     LEFT OUTER JOIN         (             /* Get rid of duplicate rows in x_biovu_sample_status. For example, person             4587323 has 11 duplicate rows. This returns just 1 row for each person. */             WITH x_biovu_sample_status AS (                 SELECT                 *,                 ROW_NUMBER() OVER(PARTITION BY person_id) AS rn                 FROM `victr-tanagra-test.sd_20230328.x_biovu_sample_status`             )             SELECT * FROM x_biovu_sample_status WHERE rn = 1         ) x         ON p.person_id = x.person_id "
     },
     "attributeMappings" : {
       "gender" : {

@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "note",
@@ -18,7 +19,7 @@
           },
           "display" : "Admission note"
         },
-        "count" : 2211781
+        "count" : 2442874
       }, {
         "enumVal" : {
           "value" : {
@@ -26,7 +27,7 @@
           },
           "display" : "Ancillary report"
         },
-        "count" : 11923399
+        "count" : 11932638
       }, {
         "enumVal" : {
           "value" : {
@@ -34,7 +35,7 @@
           },
           "display" : "Discharge summary"
         },
-        "count" : 5590516
+        "count" : 5844946
       }, {
         "enumVal" : {
           "value" : {
@@ -42,7 +43,7 @@
           },
           "display" : "ECG_IMPRESSION"
         },
-        "count" : 1993820
+        "count" : 2133266
       }, {
         "enumVal" : {
           "value" : {
@@ -50,7 +51,7 @@
           },
           "display" : "Emergency department note"
         },
-        "count" : 2970051
+        "count" : 3497555
       }, {
         "enumVal" : {
           "value" : {
@@ -58,7 +59,7 @@
           },
           "display" : "Inpatient note"
         },
-        "count" : 15472924
+        "count" : 19765349
       }, {
         "enumVal" : {
           "value" : {
@@ -66,7 +67,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 6844205
+        "count" : 9356183
       }, {
         "enumVal" : {
           "value" : {
@@ -74,7 +75,7 @@
           },
           "display" : "Note"
         },
-        "count" : 68281428
+        "count" : 76574511
       }, {
         "enumVal" : {
           "value" : {
@@ -82,7 +83,7 @@
           },
           "display" : "Nursing report"
         },
-        "count" : 6777679
+        "count" : 6939641
       }, {
         "enumVal" : {
           "value" : {
@@ -90,7 +91,7 @@
           },
           "display" : "Outpatient note"
         },
-        "count" : 69556237
+        "count" : 87119775
       }, {
         "enumVal" : {
           "value" : {
@@ -98,7 +99,7 @@
           },
           "display" : "PL_PROBLEM LIST"
         },
-        "count" : 679215564
+        "count" : 537792653
       }, {
         "enumVal" : {
           "value" : {
@@ -106,7 +107,7 @@
           },
           "display" : "Pathology report"
         },
-        "count" : 2697212
+        "count" : 2188991
       }, {
         "enumVal" : {
           "value" : {
@@ -114,7 +115,7 @@
           },
           "display" : "Pss Problem snomed data"
         },
-        "count" : 29508422
+        "count" : 29685278
       }, {
         "enumVal" : {
           "value" : {
@@ -122,7 +123,7 @@
           },
           "display" : "Radiology report"
         },
-        "count" : 16997484
+        "count" : 18457033
       }, {
         "enumVal" : {
           "value" : {
@@ -130,13 +131,15 @@
           },
           "display" : "VUMC forms data"
         },
-        "count" : 479294
+        "count" : 1317981
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -144,34 +147,29 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 0.0,
-      "maxVal" : 9.388852E7
-    }
+      "maxVal" : 1.11142017E8
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "text",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : { },
-          "display" : null
-        },
-        "count" : 0
-      } ]
-    }
+    "skipDisplayHint" : true
   }, {
     "type" : "SIMPLE",
     "name" : "title",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : true
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -179,8 +177,9 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    }
+      "maxVal" : 6855336.0
+    },
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -190,7 +189,8 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "note_date"
+          "column" : "note_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       },
       "note" : {

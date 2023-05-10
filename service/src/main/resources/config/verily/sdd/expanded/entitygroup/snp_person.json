@@ -9,7 +9,7 @@
           "table" : "x_snp"
         },
         "idPairsIdA" : {
-          "column" : "snp"
+          "column" : "snp_id"
         },
         "idPairsIdB" : {
           "column" : "person_id"

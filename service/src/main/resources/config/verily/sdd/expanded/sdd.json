@@ -4,16 +4,16 @@
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
     "projectId" : "verily-tanagra-dev",
-    "datasetId" : "sdstatic_index_031523",
+    "datasetId" : "sd20230328_index_050923",
     "queryProjectId" : "verily-tanagra-dev",
-    "dataflowServiceAccountEmail" : "backend-default@verily-tanagra-dev.iam.gserviceaccount.com"
+    "dataflowServiceAccountEmail" : "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
+    "dataflowTempLocation" : "gs://dataflow-staging-us-east1-694046000181/temp/"
   }, {
     "type" : "BQ_DATASET",
     "name" : "omop_dataset",
     "projectId" : "victr-tanagra-test",
-    "datasetId" : "sd_static",
-    "queryProjectId" : "victr-tanagra-test",
-    "dataflowTempLocation" : "gs://dataflow-staging-us-central1-694046000181/temp/"
+    "datasetId" : "sd_20230328",
+    "queryProjectId" : "victr-tanagra-test"
   } ],
   "entities" : [ "measurement_occurrence.json", "note.json", "condition_occurrence.json", "ingredient.json", "observation.json", "genotyping.json", "procedure.json", "measurement.json", "ingredient_occurrence.json", "condition.json", "snp.json", "person.json", "visit_occurrence.json", "observation_occurrence.json", "procedure_occurrence.json", "visit.json", "brand.json", "note_occurrence.json" ],
   "entityGroups" : [ "genotyping_person.json", "visit_person_occurrence.json", "condition_person_occurrence.json", "snp_person.json", "note_person_occurrence.json", "ingredient_person_occurrence.json", "observation_person_occurrence.json", "brand_ingredient.json", "measurement_person_occurrence.json", "procedure_person_occurrence.json" ],

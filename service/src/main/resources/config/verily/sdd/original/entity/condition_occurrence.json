@@ -24,8 +24,8 @@
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
-      "start_date": { "value": { "column": "condition_start_date" } },
-      "end_date": { "value": { "column": "condition_end_date" } },
+      "start_date": { "value": { "column": "condition_start_date", "sqlFunctionWrapper": "CAST(${fieldSql} AS DATE)" } },
+      "end_date": { "value": { "column": "condition_end_date", "sqlFunctionWrapper": "CAST(${fieldSql} AS DATE)" } },
       "source_value": { "value": { "column": "condition_source_value" } },
       "source_criteria_id": { "value": { "column": "condition_source_concept_id" } }
     }

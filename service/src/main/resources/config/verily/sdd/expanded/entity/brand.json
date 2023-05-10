@@ -9,31 +9,41 @@
       "type" : "ENUM",
       "enumVals" : [ {
         "enumVal" : {
+          "value" : { },
+          "display" : "Source"
+        },
+        "count" : 0
+      }, {
+        "enumVal" : {
           "value" : {
             "stringVal" : ""
           },
           "display" : "Unknown"
         },
-        "count" : 82839
+        "count" : 7
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "name",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT * FROM `victr-tanagra-test.sd_static.concept` WHERE   domain_id = 'Drug' AND concept_class_id = 'Brand Name'   AND vocabulary_id IN ('RxNorm', 'RxNorm Extension')   AND DATE_DIFF(valid_end_date, CURRENT_DATE(), DAY) > 0"
+      "rawSql" : "SELECT * FROM `victr-tanagra-test.sd_20230328.concept` WHERE   domain_id = 'Drug' AND concept_class_id = 'Brand Name'   AND vocabulary_id IN ('RxNorm', 'RxNorm Extension')   AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0"
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -64,7 +74,7 @@
     "textSearchMapping" : {
       "searchStringTable" : {
         "tablePointer" : {
-          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Drug' AND c.concept_class_id = 'Brand Name' AND c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')"
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_20230328.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Drug' AND c.concept_class_id = 'Brand Name' AND c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')"
         },
         "fieldPointers" : {
           "id" : {

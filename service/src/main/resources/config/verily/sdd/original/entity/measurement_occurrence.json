@@ -25,7 +25,7 @@
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
-      "date": { "value": { "column": "measurement_date" } },
+      "date": { "value": { "column": "measurement_date", "sqlFunctionWrapper": "CAST(${fieldSql} AS DATE)" } },
       "value_numeric": { "value": { "column": "value_as_number" } },
       "value_enum": {
         "value": { "column": "value_as_concept_id" },

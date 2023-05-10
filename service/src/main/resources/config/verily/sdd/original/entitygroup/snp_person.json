@@ -8,7 +8,7 @@
     "relationshipMappings": {
       "groupToItems": {
         "idPairsTable": { "table": "x_snp" },
-        "idPairsIdA": { "column": "snp" },
+        "idPairsIdA": { "column": "snp_id" },
         "idPairsIdB":  { "column": "person_id" }
       }
     }

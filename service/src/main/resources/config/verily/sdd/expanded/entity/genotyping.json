@@ -18,6 +18,22 @@
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "Adaptive Biotechnologies immunoSEQ Human B-cell Assay (Immunoglobulin Heavy Chain)"
+          },
+          "display" : "Adaptive Biotechnologies immunoSEQ Human B-cell Assay (Immunoglobulin Heavy Chain)"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Adaptive Biotechnologies immunoSEQ Human T-Cell Assay (T-Cell Receptor)"
+          },
+          "display" : "Adaptive Biotechnologies immunoSEQ Human T-Cell Assay (T-Cell Receptor)"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "Affymetrix Axiom Biobank Array"
           },
           "display" : "Affymetrix Axiom Biobank Array"
@@ -37,6 +53,22 @@
             "stringVal" : "Affymetrix World Array"
           },
           "display" : "Affymetrix World Array"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Agena MassARRAY System"
+          },
+          "display" : "Agena MassARRAY System"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Custom Axiom 2.0 mini 96f"
+          },
+          "display" : "Custom Axiom 2.0 mini 96f"
         },
         "count" : 1
       }, {
@@ -146,6 +178,14 @@
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "Illumina Global Screening Array"
+          },
+          "display" : "Illumina Global Screening Array"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "Illumina GoldenGate"
           },
           "display" : "Illumina GoldenGate"
@@ -218,9 +258,25 @@
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "Infinium Methylation EPIC Array"
+          },
+          "display" : "Infinium Methylation EPIC Array"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "NGS 101 Panel Assay"
           },
           "display" : "NGS 101 Panel Assay"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NexCourse Complete"
+          },
+          "display" : "NexCourse Complete"
         },
         "count" : 1
       }, {
@@ -298,22 +354,40 @@
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "VUMC Clonal Hematopoiesis Sequencing Assay v2.0"
+          },
+          "display" : "VUMC Clonal Hematopoiesis Sequencing Assay v2.0"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Whole Genome Sequencing"
+          },
+          "display" : "Whole Genome Sequencing"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "human hemoglobin beta (HBB) gene sequencing"
           },
           "display" : "human hemoglobin beta (HBB) gene sequencing"
         },
         "count" : 1
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "/*  platform_id column has type NUMERIC. This causes index column to be FLOAT.  Currently indexing doesn't handle floats properly, so change column to INTEGER. */ SELECT CAST(platform_id as INT64) AS platform_id, assay_name as assay_name FROM `victr-tanagra-test.sd_static.platform` UNION ALL /*  Add some rows to get hierarchy to work. Parent ids are defined in  genotype_criteria, criteria_meta_seq column. criteria_meta_seq is not in the  same \"ID space\" as platform_id. Tanagra requres parent id to be in same \"ID  space\" as platform_id. So create artificial platform_ids for parents.  */ (SELECT 101 AS platform_id, 'GWAS Platforms' AS assay_name UNION ALL  SELECT 102, 'Non-GWAS and Targeted Genotyping Platforms' UNION ALL  SELECT 103, 'Sequencing Platforms') "
+      "rawSql" : "/*  platform_id column has type NUMERIC. This causes index column to be FLOAT.  Currently indexing doesn't handle floats properly, so change column to INTEGER. */ SELECT CAST(platform_id as INT64) AS platform_id, assay_name as assay_name FROM `victr-tanagra-test.sd_20230328.platform` UNION ALL /*  Add some rows to get hierarchy to work. Parent ids are defined in  genotype_criteria, criteria_meta_seq column. criteria_meta_seq is not in the  same \"ID space\" as platform_id. Tanagra requres parent id to be in same \"ID  space\" as platform_id. So create artificial platform_ids for parents.  */ (SELECT 101 AS platform_id, 'GWAS Platforms' AS assay_name UNION ALL  SELECT 102, 'Non-GWAS and Targeted Genotyping Platforms' UNION ALL  SELECT 103, 'Sequencing Platforms') "
     },
     "attributeMappings" : {
       "name" : {
@@ -334,7 +408,7 @@
       "standard" : {
         "childParent" : {
           "tablePointer" : {
-            "rawSql" : "SELECT /* Use parent ids defined in platform.sql */     parent_seq + 100 AS parent,     CAST(platform_id as INT64) AS child FROM `victr-tanagra-test.sd_static.genotype_criteria` g, `victr-tanagra-test.sd_static.platform` p WHERE g.name = p.assay_name "
+            "rawSql" : "SELECT /* Use parent ids defined in platform.sql */     parent_seq + 100 AS parent,     CAST(platform_id as INT64) AS child FROM `victr-tanagra-test.sd_20230328.genotype_criteria` g, `victr-tanagra-test.sd_20230328.platform` p WHERE g.name = p.assay_name "
           },
           "fieldPointers" : {
             "parent" : {

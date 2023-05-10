@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -13,11 +14,13 @@
       "type" : "RANGE",
       "minVal" : 704057.0,
       "maxVal" : 4.6257758E7
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -25,20 +28,24 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 0.0,
-      "maxVal" : 9.388852E7
-    }
+      "maxVal" : 1.11142016E8
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "procedure",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -46,8 +53,9 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    }
+      "maxVal" : 6855336.0
+    },
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -57,7 +65,8 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "procedure_date"
+          "column" : "procedure_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       },
       "source_criteria_id" : {

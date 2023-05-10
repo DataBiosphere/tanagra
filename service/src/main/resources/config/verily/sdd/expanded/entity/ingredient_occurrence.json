@@ -4,11 +4,13 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "end_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ingredient",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "refills",
@@ -17,7 +19,8 @@
       "type" : "RANGE",
       "minVal" : 0.0,
       "maxVal" : 365.0
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -25,12 +28,14 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 501343.0,
-      "maxVal" : 4.63659E7
-    }
+      "maxVal" : 2.02194068E9
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "stop_reason",
@@ -50,7 +55,7 @@
           },
           "display" : "Allergic res"
         },
-        "count" : 4846
+        "count" : 6246
       }, {
         "enumVal" : {
           "value" : {
@@ -58,7 +63,7 @@
           },
           "display" : "Alternate tx"
         },
-        "count" : 84029
+        "count" : 115351
       }, {
         "enumVal" : {
           "value" : {
@@ -66,7 +71,7 @@
           },
           "display" : "Anes Stop"
         },
-        "count" : 2863009
+        "count" : 3911532
       }, {
         "enumVal" : {
           "value" : {
@@ -74,7 +79,7 @@
           },
           "display" : "Availability"
         },
-        "count" : 6600
+        "count" : 9361
       }, {
         "enumVal" : {
           "value" : {
@@ -82,7 +87,7 @@
           },
           "display" : "CONTACT "
         },
-        "count" : 614
+        "count" : 858
       }, {
         "enumVal" : {
           "value" : {
@@ -90,7 +95,7 @@
           },
           "display" : "Cleanup"
         },
-        "count" : 399229
+        "count" : 892415
       }, {
         "enumVal" : {
           "value" : {
@@ -98,7 +103,7 @@
           },
           "display" : "Cost of medi"
         },
-        "count" : 9054
+        "count" : 12304
       }, {
         "enumVal" : {
           "value" : {
@@ -106,7 +111,7 @@
           },
           "display" : "DC'd by othr"
         },
-        "count" : 164096
+        "count" : 222665
       }, {
         "enumVal" : {
           "value" : {
@@ -114,7 +119,7 @@
           },
           "display" : "Dose adjustm"
         },
-        "count" : 110534
+        "count" : 163200
       }, {
         "enumVal" : {
           "value" : {
@@ -122,7 +127,7 @@
           },
           "display" : "Drug interac"
         },
-        "count" : 1982
+        "count" : 2748
       }, {
         "enumVal" : {
           "value" : {
@@ -130,7 +135,7 @@
           },
           "display" : "Duplicate or"
         },
-        "count" : 523173
+        "count" : 602987
       }, {
         "enumVal" : {
           "value" : {
@@ -138,7 +143,7 @@
           },
           "display" : "Error"
         },
-        "count" : 238189
+        "count" : 319842
       }, {
         "enumVal" : {
           "value" : {
@@ -146,7 +151,7 @@
           },
           "display" : "Expired"
         },
-        "count" : 151543
+        "count" : 165053
       }, {
         "enumVal" : {
           "value" : {
@@ -154,7 +159,7 @@
           },
           "display" : "Formulary"
         },
-        "count" : 25726
+        "count" : 34057
       }, {
         "enumVal" : {
           "value" : {
@@ -162,7 +167,7 @@
           },
           "display" : "NON-ADHEREN"
         },
-        "count" : 9253
+        "count" : 11216
       }, {
         "enumVal" : {
           "value" : {
@@ -170,7 +175,7 @@
           },
           "display" : "Other"
         },
-        "count" : 195756
+        "count" : 240539
       }, {
         "enumVal" : {
           "value" : {
@@ -178,15 +183,15 @@
           },
           "display" : "PATIENT DISC"
         },
-        "count" : 6654423
+        "count" : 9038687
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "Paradoxical "
+            "stringVal" : "Paradoxical"
           },
-          "display" : "Paradoxical "
+          "display" : "Paradoxical"
         },
-        "count" : 275
+        "count" : 343
       }, {
         "enumVal" : {
           "value" : {
@@ -194,7 +199,7 @@
           },
           "display" : "Pregnancy"
         },
-        "count" : 1116
+        "count" : 1330
       }, {
         "enumVal" : {
           "value" : {
@@ -202,7 +207,7 @@
           },
           "display" : "RETURNED TO "
         },
-        "count" : 19246
+        "count" : 23983
       }, {
         "enumVal" : {
           "value" : {
@@ -210,7 +215,7 @@
           },
           "display" : "Reorder"
         },
-        "count" : 4317260
+        "count" : 5801736
       }, {
         "enumVal" : {
           "value" : {
@@ -218,7 +223,7 @@
           },
           "display" : "SE"
         },
-        "count" : 40002
+        "count" : 47335
       }, {
         "enumVal" : {
           "value" : {
@@ -226,7 +231,7 @@
           },
           "display" : "STOP TAKING "
         },
-        "count" : 402507
+        "count" : 547157
       }, {
         "enumVal" : {
           "value" : {
@@ -234,7 +239,7 @@
           },
           "display" : "SURGERY"
         },
-        "count" : 921
+        "count" : 1049
       }, {
         "enumVal" : {
           "value" : {
@@ -242,7 +247,7 @@
           },
           "display" : "Stop Med"
         },
-        "count" : 123398
+        "count" : 352498
       }, {
         "enumVal" : {
           "value" : {
@@ -250,7 +255,7 @@
           },
           "display" : "TRANSFER"
         },
-        "count" : 571939
+        "count" : 797968
       }, {
         "enumVal" : {
           "value" : {
@@ -258,9 +263,10 @@
           },
           "display" : "Therapy comp"
         },
-        "count" : 2198773
+        "count" : 2998407
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -268,12 +274,14 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 0.0,
-      "maxVal" : 9.388852E7
-    }
+      "maxVal" : 1.1114201E8
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "days_supply",
@@ -282,11 +290,13 @@
       "type" : "RANGE",
       "minVal" : 1.0,
       "maxVal" : 36135.0
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -294,12 +304,14 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    }
+      "maxVal" : 6855336.0
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -309,7 +321,8 @@
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "drug_exposure_end_date"
+          "column" : "drug_exposure_end_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       },
       "ingredient" : {
@@ -365,7 +378,8 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "drug_exposure_start_date"
+          "column" : "drug_exposure_start_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       }
     },

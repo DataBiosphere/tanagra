@@ -4,11 +4,13 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "end_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "condition",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -17,11 +19,13 @@
       "type" : "RANGE",
       "minVal" : 0.0,
       "maxVal" : 4.5890988E7
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "stop_reason",
@@ -35,7 +39,8 @@
         },
         "count" : 0
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -43,16 +48,19 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 0.0,
-      "maxVal" : 9.388852E7
-    }
+      "maxVal" : 1.11142017E8
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -60,12 +68,14 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    }
+      "maxVal" : 6855336.0
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -75,7 +85,8 @@
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "condition_end_date"
+          "column" : "condition_end_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       },
       "condition" : {
@@ -121,7 +132,8 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "condition_start_date"
+          "column" : "condition_start_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       }
     },

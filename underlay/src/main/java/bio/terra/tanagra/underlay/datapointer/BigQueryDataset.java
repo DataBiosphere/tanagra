@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BigQueryDataset extends DataPointer {
   private final String projectId;
@@ -125,13 +127,13 @@ public final class BigQueryDataset extends DataPointer {
             : fieldPointer.getColumnName();
 
     Schema tableSchema;
-    if (tablePointer.isRawSql()) {
+    if (tablePointer.isRawSql() || fieldPointer.hasSqlFunctionWrapper()) {
       // If the table is a raw SQL string, then we can't fetch a table schema directly.
       // Instead, fetch a single row result and inspect the data types of that.
       TableVariable tableVar = TableVariable.forPrimary(tablePointer);
       List<TableVariable> tableVars = List.of(tableVar);
       FieldVariable fieldVarStar =
-          FieldPointer.allFields(tablePointer).buildVariable(tableVar, tableVars);
+              fieldPointer.buildVariable(tableVar, tableVars, columnName);
       Query queryOneRow =
           new Query.Builder().select(List.of(fieldVarStar)).tables(tableVars).limit(1).build();
       tableSchema = getBigQueryService().getQuerySchemaWithCaching(queryOneRow.renderSQL());
@@ -155,7 +157,7 @@ public final class BigQueryDataset extends DataPointer {
         || LegacySQLTypeName.NUMERIC.equals(fieldType)) {
       return Literal.DataType.DOUBLE;
     } else {
-      throw new SystemException("BigQuery SQL data type not supported: " + fieldType);
+      throw new SystemException("BigQuery SQL data type not supported: " + fieldType + ", " + columnName);
     }
   }
 

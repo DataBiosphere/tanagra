@@ -4,17 +4,18 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT DISTINCT snp FROM `victr-tanagra-test.sd_static.x_snp` ORDER BY snp "
+      "rawSql" : "SELECT DISTINCT snp_id FROM `victr-tanagra-test.sd_20230328.x_snp` ORDER BY snp_id "
     },
     "attributeMappings" : {
       "id" : {
         "value" : {
-          "column" : "snp"
+          "column" : "snp_id"
         }
       }
     },

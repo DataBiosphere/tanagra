@@ -6,8 +6,8 @@
     { "type": "SIMPLE", "name": "person_id" },
     { "type": "SIMPLE", "name": "date" },
     { "type": "KEY_AND_DISPLAY", "name": "note" },
-    { "type": "SIMPLE", "name": "title" },
-    { "type": "SIMPLE", "name": "text" },
+    { "type": "SIMPLE", "name": "title", "skipDisplayHint": true },
+    { "type": "SIMPLE", "name": "text", "skipDisplayHint": true },
     { "type": "SIMPLE", "name": "visit_occurrence_id" },
     { "type": "SIMPLE", "name": "source_value" } ],
 
@@ -16,7 +16,7 @@
     "tablePointer": { "table": "note" },
     "attributeMappings": {
       "id": { "value": { "column": "note_id" } },
-      "date": { "value": { "column": "note_date" } },
+      "date": { "value": { "column": "note_date", "sqlFunctionWrapper": "CAST(${fieldSql} AS DATE)" } },
       "note": {
         "value": { "column": "note_type_concept_id" },
         "display": {

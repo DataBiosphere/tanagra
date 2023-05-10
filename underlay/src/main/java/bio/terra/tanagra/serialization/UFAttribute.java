@@ -18,6 +18,7 @@ public class UFAttribute {
   private final String name;
   private final Literal.DataType dataType;
   private final UFDisplayHint displayHint;
+  private final boolean skipDisplayHint;
 
   public UFAttribute(Attribute attribute) {
     this.type = attribute.getType();
@@ -25,6 +26,7 @@ public class UFAttribute {
     this.dataType = attribute.getDataType();
     this.displayHint =
         attribute.getDisplayHint() == null ? null : attribute.getDisplayHint().serialize();
+    this.skipDisplayHint = attribute.getSkipDisplayHint();
   }
 
   protected UFAttribute(Builder builder) {
@@ -32,6 +34,7 @@ public class UFAttribute {
     this.name = builder.name;
     this.dataType = builder.dataType;
     this.displayHint = builder.displayHint;
+    this.skipDisplayHint = builder.skipDisplayHint;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -40,6 +43,7 @@ public class UFAttribute {
     private String name;
     private Literal.DataType dataType;
     private UFDisplayHint displayHint;
+    private boolean skipDisplayHint;
 
     public Builder type(Attribute.Type type) {
       this.type = type;
@@ -58,6 +62,11 @@ public class UFAttribute {
 
     public Builder displayHint(UFDisplayHint displayHint) {
       this.displayHint = displayHint;
+      return this;
+    }
+
+    public Builder skipDisplayHint(boolean skipDisplayHint) {
+      this.skipDisplayHint = skipDisplayHint;
       return this;
     }
 
@@ -82,4 +91,6 @@ public class UFAttribute {
   public UFDisplayHint getDisplayHint() {
     return displayHint;
   }
+
+  public boolean getSkipDisplayHint() {return skipDisplayHint;}
 }

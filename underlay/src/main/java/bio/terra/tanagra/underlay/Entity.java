@@ -251,7 +251,7 @@ public final class Entity {
               attribute.setDataType(attributeMapping.computeDataType());
 
               // generate the display hint
-              if (!isIdAttribute(attribute)) {
+              if (!isIdAttribute(attribute) && !attribute.getSkipDisplayHint()) {
                 attribute.setDisplayHint(attributeMapping.computeDisplayHint());
               }
             });

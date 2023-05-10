@@ -23,8 +23,8 @@
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
-      "start_date": { "value": { "column": "visit_start_date" } },
-      "end_date": { "value": { "column": "visit_end_date" } },
+      "start_date": { "value": { "column": "visit_start_date", "sqlFunctionWrapper": "CAST(${fieldSql} AS DATE)" } },
+      "end_date": { "value": { "column": "visit_end_date", "sqlFunctionWrapper": "CAST(${fieldSql} AS DATE)" } },
       "source_value": { "value": { "column": "visit_source_value" } },
       "source_criteria_id": { "value": { "column": "visit_source_concept_id" } }
     }

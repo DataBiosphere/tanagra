@@ -40,7 +40,8 @@
         },
         "count" : 1
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "name",
@@ -168,7 +169,8 @@
         },
         "count" : 1
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
@@ -272,11 +274,13 @@
         },
         "count" : 4
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -349,7 +353,7 @@
     "textSearchMapping" : {
       "searchStringTable" : {
         "tablePointer" : {
-          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.vocabulary_id IN ('Note Type', 'VUMC Note Type', 'VUMC PSS Type') OR c.concept_id = 0"
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_20230328.concept` c ON c.concept_id = textsearch.id  WHERE c.vocabulary_id IN ('Note Type', 'VUMC Note Type', 'VUMC PSS Type') OR c.concept_id = 0"
         },
         "fieldPointers" : {
           "id" : {

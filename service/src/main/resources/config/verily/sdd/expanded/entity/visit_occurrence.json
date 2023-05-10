@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "end_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -13,15 +14,18 @@
       "type" : "RANGE",
       "minVal" : 2.000093142E9,
       "maxVal" : 2.004794154E9
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "skipDisplayHint" : false
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "visit",
@@ -35,7 +39,7 @@
           },
           "display" : "Emergency Room Visit"
         },
-        "count" : 1690886
+        "count" : 1854114
       }, {
         "enumVal" : {
           "value" : {
@@ -43,7 +47,7 @@
           },
           "display" : "Inpatient Visit"
         },
-        "count" : 3078021
+        "count" : 3830834
       }, {
         "enumVal" : {
           "value" : {
@@ -51,7 +55,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 1077644
+        "count" : 1527518
       }, {
         "enumVal" : {
           "value" : {
@@ -59,9 +63,10 @@
           },
           "display" : "Outpatient Visit"
         },
-        "count" : 57044408
+        "count" : 61824433
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
@@ -69,6 +74,12 @@
     "displayHint" : {
       "type" : "ENUM",
       "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : null
+        },
+        "count" : 0
+      }, {
         "enumVal" : {
           "value" : {
             "stringVal" : "0"
@@ -91,7 +102,7 @@
           },
           "display" : "10"
         },
-        "count" : 806601
+        "count" : 806820
       }, {
         "enumVal" : {
           "value" : {
@@ -99,7 +110,7 @@
           },
           "display" : "2"
         },
-        "count" : 396579
+        "count" : 396601
       }, {
         "enumVal" : {
           "value" : {
@@ -107,7 +118,7 @@
           },
           "display" : "3"
         },
-        "count" : 66882
+        "count" : 66961
       }, {
         "enumVal" : {
           "value" : {
@@ -115,7 +126,7 @@
           },
           "display" : "4"
         },
-        "count" : 73037
+        "count" : 73030
       }, {
         "enumVal" : {
           "value" : {
@@ -123,7 +134,7 @@
           },
           "display" : "5"
         },
-        "count" : 40791
+        "count" : 40856
       }, {
         "enumVal" : {
           "value" : {
@@ -131,7 +142,7 @@
           },
           "display" : "6"
         },
-        "count" : 701
+        "count" : 711
       }, {
         "enumVal" : {
           "value" : {
@@ -139,7 +150,7 @@
           },
           "display" : "7"
         },
-        "count" : 236934
+        "count" : 237156
       }, {
         "enumVal" : {
           "value" : {
@@ -147,7 +158,7 @@
           },
           "display" : "8"
         },
-        "count" : 26854
+        "count" : 26857
       }, {
         "enumVal" : {
           "value" : {
@@ -155,7 +166,7 @@
           },
           "display" : "9"
         },
-        "count" : 63067
+        "count" : 63323
       }, {
         "enumVal" : {
           "value" : {
@@ -163,7 +174,7 @@
           },
           "display" : "A"
         },
-        "count" : 447030
+        "count" : 446931
       }, {
         "enumVal" : {
           "value" : {
@@ -171,7 +182,7 @@
           },
           "display" : "Ancillary Procedure"
         },
-        "count" : 336027
+        "count" : 508004
       }, {
         "enumVal" : {
           "value" : {
@@ -179,7 +190,7 @@
           },
           "display" : "Anesthesia"
         },
-        "count" : 503253
+        "count" : 682727
       }, {
         "enumVal" : {
           "value" : {
@@ -187,7 +198,7 @@
           },
           "display" : "Anesthesia Event"
         },
-        "count" : 509269
+        "count" : 691591
       }, {
         "enumVal" : {
           "value" : {
@@ -195,7 +206,7 @@
           },
           "display" : "Anticoagulation Visit"
         },
-        "count" : 294628
+        "count" : 373067
       }, {
         "enumVal" : {
           "value" : {
@@ -203,7 +214,7 @@
           },
           "display" : "B"
         },
-        "count" : 33677
+        "count" : 33727
       }, {
         "enumVal" : {
           "value" : {
@@ -211,7 +222,7 @@
           },
           "display" : "BMT Presentation"
         },
-        "count" : 12
+        "count" : 15
       }, {
         "enumVal" : {
           "value" : {
@@ -219,7 +230,7 @@
           },
           "display" : "Behavioral Health Series"
         },
-        "count" : 2
+        "count" : 3
       }, {
         "enumVal" : {
           "value" : {
@@ -227,7 +238,7 @@
           },
           "display" : "C"
         },
-        "count" : 537037
+        "count" : 536571
       }, {
         "enumVal" : {
           "value" : {
@@ -235,7 +246,7 @@
           },
           "display" : "Clinical Support"
         },
-        "count" : 229373
+        "count" : 302943
       }, {
         "enumVal" : {
           "value" : {
@@ -243,7 +254,7 @@
           },
           "display" : "Consult"
         },
-        "count" : 177342
+        "count" : 207843
       }, {
         "enumVal" : {
           "value" : {
@@ -251,7 +262,7 @@
           },
           "display" : "D"
         },
-        "count" : 232318
+        "count" : 232304
       }, {
         "enumVal" : {
           "value" : {
@@ -259,7 +270,7 @@
           },
           "display" : "Device Check"
         },
-        "count" : 74193
+        "count" : 74365
       }, {
         "enumVal" : {
           "value" : {
@@ -267,7 +278,7 @@
           },
           "display" : "E"
         },
-        "count" : 1350672
+        "count" : 1350274
       }, {
         "enumVal" : {
           "value" : {
@@ -275,7 +286,7 @@
           },
           "display" : "Education"
         },
-        "count" : 26932
+        "count" : 36074
       }, {
         "enumVal" : {
           "value" : {
@@ -283,7 +294,7 @@
           },
           "display" : "Emergency"
         },
-        "count" : 340214
+        "count" : 503840
       }, {
         "enumVal" : {
           "value" : {
@@ -291,7 +302,7 @@
           },
           "display" : "Evaluation"
         },
-        "count" : 134620
+        "count" : 181917
       }, {
         "enumVal" : {
           "value" : {
@@ -299,7 +310,7 @@
           },
           "display" : "External Hospital Admission"
         },
-        "count" : 222
+        "count" : 252
       }, {
         "enumVal" : {
           "value" : {
@@ -315,7 +326,7 @@
           },
           "display" : "Follow-Up"
         },
-        "count" : 132450
+        "count" : 197566
       }, {
         "enumVal" : {
           "value" : {
@@ -323,7 +334,7 @@
           },
           "display" : "G"
         },
-        "count" : 355082
+        "count" : 355127
       }, {
         "enumVal" : {
           "value" : {
@@ -339,7 +350,7 @@
           },
           "display" : "Hospice"
         },
-        "count" : 322
+        "count" : 543
       }, {
         "enumVal" : {
           "value" : {
@@ -355,7 +366,7 @@
           },
           "display" : "I"
         },
-        "count" : 920609
+        "count" : 920414
       }, {
         "enumVal" : {
           "value" : {
@@ -363,7 +374,7 @@
           },
           "display" : "Infusion"
         },
-        "count" : 222006
+        "count" : 297130
       }, {
         "enumVal" : {
           "value" : {
@@ -371,7 +382,7 @@
           },
           "display" : "Inpatient"
         },
-        "count" : 267518
+        "count" : 351029
       }, {
         "enumVal" : {
           "value" : {
@@ -379,7 +390,7 @@
           },
           "display" : "J"
         },
-        "count" : 25527
+        "count" : 25523
       }, {
         "enumVal" : {
           "value" : {
@@ -395,7 +406,7 @@
           },
           "display" : "L"
         },
-        "count" : 31288
+        "count" : 31279
       }, {
         "enumVal" : {
           "value" : {
@@ -403,7 +414,7 @@
           },
           "display" : "Lab"
         },
-        "count" : 1535333
+        "count" : 2121300
       }, {
         "enumVal" : {
           "value" : {
@@ -411,7 +422,7 @@
           },
           "display" : "Lab Requisition"
         },
-        "count" : 15106
+        "count" : 15439
       }, {
         "enumVal" : {
           "value" : {
@@ -419,7 +430,7 @@
           },
           "display" : "Lab Specimen"
         },
-        "count" : 177180
+        "count" : 227563
       }, {
         "enumVal" : {
           "value" : {
@@ -427,7 +438,7 @@
           },
           "display" : "Lactation Encounter"
         },
-        "count" : 9864
+        "count" : 14155
       }, {
         "enumVal" : {
           "value" : {
@@ -443,7 +454,7 @@
           },
           "display" : "Medication Management"
         },
-        "count" : 45661
+        "count" : 71870
       }, {
         "enumVal" : {
           "value" : {
@@ -451,15 +462,7 @@
           },
           "display" : "Mobile Behavioral Health"
         },
-        "count" : 65749
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "NULL"
-          },
-          "display" : "NULL"
-        },
-        "count" : 13869438
+        "count" : 80917
       }, {
         "enumVal" : {
           "value" : {
@@ -467,7 +470,7 @@
           },
           "display" : "Newborn"
         },
-        "count" : 150
+        "count" : 207
       }, {
         "enumVal" : {
           "value" : {
@@ -475,7 +478,7 @@
           },
           "display" : "Nuclear Medicine"
         },
-        "count" : 10927
+        "count" : 12724
       }, {
         "enumVal" : {
           "value" : {
@@ -483,7 +486,7 @@
           },
           "display" : "Nurse Only"
         },
-        "count" : 182857
+        "count" : 267714
       }, {
         "enumVal" : {
           "value" : {
@@ -491,7 +494,7 @@
           },
           "display" : "Nurse Triage"
         },
-        "count" : 46544
+        "count" : 85788
       }, {
         "enumVal" : {
           "value" : {
@@ -499,7 +502,7 @@
           },
           "display" : "Nutrition"
         },
-        "count" : 81148
+        "count" : 114933
       }, {
         "enumVal" : {
           "value" : {
@@ -507,7 +510,7 @@
           },
           "display" : "O"
         },
-        "count" : 635991
+        "count" : 636033
       }, {
         "enumVal" : {
           "value" : {
@@ -515,7 +518,7 @@
           },
           "display" : "OP"
         },
-        "count" : 127974
+        "count" : 127935
       }, {
         "enumVal" : {
           "value" : {
@@ -523,7 +526,7 @@
           },
           "display" : "Observation"
         },
-        "count" : 51247
+        "count" : 72945
       }, {
         "enumVal" : {
           "value" : {
@@ -531,7 +534,7 @@
           },
           "display" : "Office Visit"
         },
-        "count" : 6472561
+        "count" : 8689214
       }, {
         "enumVal" : {
           "value" : {
@@ -539,7 +542,7 @@
           },
           "display" : "Ophth After Hours"
         },
-        "count" : 1264
+        "count" : 1718
       }, {
         "enumVal" : {
           "value" : {
@@ -547,7 +550,7 @@
           },
           "display" : "Ophth Exam"
         },
-        "count" : 14082
+        "count" : 19302
       }, {
         "enumVal" : {
           "value" : {
@@ -555,7 +558,7 @@
           },
           "display" : "Outpatient"
         },
-        "count" : 1542812
+        "count" : 2140241
       }, {
         "enumVal" : {
           "value" : {
@@ -579,7 +582,7 @@
           },
           "display" : "PV"
         },
-        "count" : 149483
+        "count" : 149481
       }, {
         "enumVal" : {
           "value" : {
@@ -587,7 +590,7 @@
           },
           "display" : "Postpartum Visit"
         },
-        "count" : 23
+        "count" : 30
       }, {
         "enumVal" : {
           "value" : {
@@ -595,7 +598,7 @@
           },
           "display" : "Procedure visit"
         },
-        "count" : 273087
+        "count" : 363857
       }, {
         "enumVal" : {
           "value" : {
@@ -611,7 +614,7 @@
           },
           "display" : "R"
         },
-        "count" : 20595
+        "count" : 20603
       }, {
         "enumVal" : {
           "value" : {
@@ -619,7 +622,7 @@
           },
           "display" : "Radiation Oncology"
         },
-        "count" : 17419
+        "count" : 33346
       }, {
         "enumVal" : {
           "value" : {
@@ -627,7 +630,7 @@
           },
           "display" : "Radiation/Oncology Series"
         },
-        "count" : 90875
+        "count" : 126773
       }, {
         "enumVal" : {
           "value" : {
@@ -635,7 +638,7 @@
           },
           "display" : "Retail"
         },
-        "count" : 22514
+        "count" : 27879
       }, {
         "enumVal" : {
           "value" : {
@@ -643,7 +646,7 @@
           },
           "display" : "Routine Prenatal"
         },
-        "count" : 247568
+        "count" : 343638
       }, {
         "enumVal" : {
           "value" : {
@@ -651,7 +654,7 @@
           },
           "display" : "S"
         },
-        "count" : 218377
+        "count" : 218351
       }, {
         "enumVal" : {
           "value" : {
@@ -659,7 +662,7 @@
           },
           "display" : "Same Day Procedure"
         },
-        "count" : 413700
+        "count" : 578964
       }, {
         "enumVal" : {
           "value" : {
@@ -667,7 +670,7 @@
           },
           "display" : "Social Work"
         },
-        "count" : 53441
+        "count" : 69216
       }, {
         "enumVal" : {
           "value" : {
@@ -675,7 +678,7 @@
           },
           "display" : "Specialty Pharmacy Services"
         },
-        "count" : 19546
+        "count" : 24779
       }, {
         "enumVal" : {
           "value" : {
@@ -683,7 +686,7 @@
           },
           "display" : "Surgery"
         },
-        "count" : 603899
+        "count" : 820739
       }, {
         "enumVal" : {
           "value" : {
@@ -691,7 +694,7 @@
           },
           "display" : "Surgery Admit"
         },
-        "count" : 12370
+        "count" : 16768
       }, {
         "enumVal" : {
           "value" : {
@@ -707,7 +710,7 @@
           },
           "display" : "Telemedicine"
         },
-        "count" : 373210
+        "count" : 559766
       }, {
         "enumVal" : {
           "value" : {
@@ -715,7 +718,7 @@
           },
           "display" : "Therapy/Rehab Series"
         },
-        "count" : 19
+        "count" : 20
       }, {
         "enumVal" : {
           "value" : {
@@ -723,7 +726,7 @@
           },
           "display" : "Treatment"
         },
-        "count" : 356694
+        "count" : 497078
       }, {
         "enumVal" : {
           "value" : {
@@ -731,7 +734,7 @@
           },
           "display" : "V"
         },
-        "count" : 270621
+        "count" : 270659
       }, {
         "enumVal" : {
           "value" : {
@@ -747,7 +750,7 @@
           },
           "display" : "X"
         },
-        "count" : 25932590
+        "count" : 25933662
       }, {
         "enumVal" : {
           "value" : {
@@ -755,7 +758,7 @@
           },
           "display" : "Y"
         },
-        "count" : 2510
+        "count" : 2507
       }, {
         "enumVal" : {
           "value" : {
@@ -765,7 +768,8 @@
         },
         "count" : 44
       } ]
-    }
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -773,12 +777,14 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    }
+      "maxVal" : 6855336.0
+    },
+    "skipDisplayHint" : false
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "skipDisplayHint" : false
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -788,7 +794,8 @@
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "visit_end_date"
+          "column" : "visit_end_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       },
       "source_criteria_id" : {
@@ -824,7 +831,8 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "visit_start_date"
+          "column" : "visit_start_date",
+          "sqlFunctionWrapper" : "CAST(${fieldSql} AS DATE)"
         }
       }
     },

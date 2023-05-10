@@ -17,14 +17,20 @@ public final class Attribute {
   private final Type type;
   private Literal.DataType dataType;
   private DisplayHint displayHint;
+  private boolean skipDisplayHint;
   private AttributeMapping sourceMapping;
   private AttributeMapping indexMapping;
 
   public Attribute(String name, Type type, Literal.DataType dataType, DisplayHint displayHint) {
+    this(name, type, dataType, displayHint, false);
+  }
+
+  public Attribute(String name, Type type, Literal.DataType dataType, DisplayHint displayHint, boolean skipDisplayHint) {
     this.name = name;
     this.type = type;
     this.dataType = dataType;
     this.displayHint = displayHint;
+    this.skipDisplayHint = skipDisplayHint;
   }
 
   public void initialize(AttributeMapping sourceMapping, AttributeMapping indexMapping) {
@@ -46,7 +52,7 @@ public final class Attribute {
             ? null
             : serialized.getDisplayHint().deserializeToInternal();
     return new Attribute(
-        serialized.getName(), serialized.getType(), serialized.getDataType(), displayHint);
+        serialized.getName(), serialized.getType(), serialized.getDataType(), displayHint, serialized.getSkipDisplayHint());
   }
 
   public String getName() {
@@ -73,6 +79,7 @@ public final class Attribute {
     this.displayHint = displayHint;
   }
 
+  public boolean getSkipDisplayHint() {return skipDisplayHint;}
   public AttributeMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceMapping : indexMapping;
   }

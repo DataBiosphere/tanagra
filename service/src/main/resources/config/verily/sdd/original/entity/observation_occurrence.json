@@ -25,7 +25,7 @@
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
-      "date": { "value": { "column": "observation_date" } },
+      "date": { "value": { "column": "observation_date", "sqlFunctionWrapper": "CAST(${fieldSql} AS DATE)" } },
       "value": {
         "value": { "column": "value_as_concept_id" },
         "display": {
