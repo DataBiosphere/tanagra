@@ -1,21 +1,12 @@
 package bio.terra.tanagra.service.utils;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.model.ApiAnnotationValueV2;
-import bio.terra.tanagra.generated.model.ApiAttributeV2;
-import bio.terra.tanagra.generated.model.ApiCohortV2;
-import bio.terra.tanagra.generated.model.ApiCriteriaGroupV2;
-import bio.terra.tanagra.generated.model.ApiCriteriaV2;
-import bio.terra.tanagra.generated.model.ApiDataTypeV2;
-import bio.terra.tanagra.generated.model.ApiInstanceCountV2;
-import bio.terra.tanagra.generated.model.ApiLiteralV2;
-import bio.terra.tanagra.generated.model.ApiLiteralV2ValueUnion;
-import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.artifact.Cohort;
+import bio.terra.tanagra.service.artifact.CohortRevision;
 import bio.terra.tanagra.service.artifact.Criteria;
-import bio.terra.tanagra.service.artifact.CriteriaGroup;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
@@ -60,42 +51,55 @@ public final class ToApiConversionUtils {
     }
   }
 
-  /**
-   * Convert the internal Cohort object to an API Cohort object.
-   *
-   * <p>In the backend code, a Cohort = a filter on the primary entity, and a CohortRevisionGroup =
-   * all past versions and the current version of a filter on the primary entity.
-   */
   public static ApiCohortV2 toApiObject(Cohort cohort) {
     return new ApiCohortV2()
-        .id(cohort.getCohortRevisionGroupId())
-        .underlayName(cohort.getUnderlayName())
+        .id(cohort.getId())
+        .underlayName(cohort.getUnderlay())
         .displayName(cohort.getDisplayName())
         .description(cohort.getDescription())
         .created(cohort.getCreated())
         .createdBy(cohort.getCreatedBy())
         .lastModified(cohort.getLastModified())
-        .criteriaGroups(
-            cohort.getCriteriaGroups().stream()
+        .criteriaGroupSections(
+            cohort.getMostRecentRevision().getSections().stream()
                 .map(criteriaGroup -> toApiObject(criteriaGroup))
                 .collect(Collectors.toList()));
   }
 
-  private static ApiCriteriaGroupV2 toApiObject(CriteriaGroup criteriaGroup) {
-    return new ApiCriteriaGroupV2()
-        .id(criteriaGroup.getUserFacingCriteriaGroupId())
+  public static ApiCriteriaGroupSectionV3 toApiObject(
+      CohortRevision.CriteriaGroupSection criteriaGroupSection) {
+    return new ApiCriteriaGroupSectionV3()
+        .id(criteriaGroupSection.getId())
+        .displayName(criteriaGroupSection.getDisplayName())
+        .operator(
+            ApiCriteriaGroupSectionV3.OperatorEnum.fromValue(
+                criteriaGroupSection.getOperator().name()))
+        .excluded(criteriaGroupSection.isExcluded())
+        .criteriaGroups(
+            criteriaGroupSection.getCriteriaGroups().stream()
+                .map(criteriaGroup -> toApiObject(criteriaGroup))
+                .collect(Collectors.toList()));
+  }
+
+  private static ApiCriteriaGroupV3 toApiObject(CohortRevision.CriteriaGroup criteriaGroup) {
+    return new ApiCriteriaGroupV3()
+        .id(criteriaGroup.getId())
         .displayName(criteriaGroup.getDisplayName())
-        .operator(ApiCriteriaGroupV2.OperatorEnum.fromValue(criteriaGroup.getOperator().name()))
-        .excluded(criteriaGroup.isExcluded())
+        .entity(criteriaGroup.getEntity())
+        .groupByCountOperator(
+            criteriaGroup.getGroupByCountOperator() == null
+                ? null
+                : ApiBinaryOperatorV2.valueOf(criteriaGroup.getGroupByCountOperator().name()))
+        .groupByCountValue(criteriaGroup.getGroupByCountValue())
         .criteria(
-            criteriaGroup.getCriterias().stream()
+            criteriaGroup.getCriteria().stream()
                 .map(criteria -> toApiObject(criteria))
                 .collect(Collectors.toList()));
   }
 
   public static ApiCriteriaV2 toApiObject(Criteria criteria) {
     return new ApiCriteriaV2()
-        .id(criteria.getUserFacingCriteriaId())
+        .id(criteria.getId())
         .displayName(criteria.getDisplayName())
         .pluginName(criteria.getPluginName())
         .selectionData(criteria.getSelectionData())
@@ -117,8 +121,9 @@ public final class ToApiConversionUtils {
 
   public static ApiAnnotationValueV2 toApiObject(AnnotationValue annotationValue) {
     return new ApiAnnotationValueV2()
-        .id(annotationValue.getAnnotationValueId())
-        .review(annotationValue.getReviewId())
-        .value(toApiObject(annotationValue.getLiteral()));
+        .instanceId(annotationValue.getInstanceId())
+        .value(toApiObject(annotationValue.getLiteral()))
+        .isMostRecent(annotationValue.isMostRecent())
+        .isPartOfSelectedReview(annotationValue.isPartOfSelectedReview());
   }
 }

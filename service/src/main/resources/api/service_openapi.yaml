@@ -56,7 +56,7 @@ paths:
   "/v2/underlays":
     get:
       summary: List the underlays
-      operationId: listUnderlaysV2
+      operationId: listUnderlays
       tags: [UnderlaysV2]
       responses:
         200:
@@ -73,7 +73,7 @@ paths:
       - $ref: "#/components/parameters/UnderlayNameV2"
     get:
       summary: Get an underlay
-      operationId: getUnderlayV2
+      operationId: getUnderlay
       tags: [UnderlaysV2]
       responses:
         200:
@@ -92,7 +92,7 @@ paths:
       - $ref: "#/components/parameters/UnderlayNameV2"
     get:
       summary: List the entities in an underlay
-      operationId: listEntitiesV2
+      operationId: listEntities
       tags: [EntitiesV2]
       responses:
         200:
@@ -112,7 +112,7 @@ paths:
       - $ref: "#/components/parameters/EntityNameV2"
     get:
       summary: Get an entity
-      operationId: getEntityV2
+      operationId: getEntity
       tags: [EntitiesV2]
       responses:
         200:
@@ -604,8 +604,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/OffsetV2"
         - $ref: "#/components/parameters/LimitV2"
-      summary: List all annotations for a cohort
-      operationId: listAnnotations
+      summary: List all annotation keys for a cohort
+      operationId: listAnnotationKeys
       tags: [AnnotationsV2]
       responses:
         200:
@@ -617,8 +617,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
     post:
-      summary: Create a new annotation
-      operationId: createAnnotation
+      summary: Create a new annotation key
+      operationId: createAnnotationKey
       tags: [AnnotationsV2]
       requestBody:
         required: true
@@ -636,38 +636,14 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/studies/{studyId}/cohorts/{cohortId}/annotationValues/export":
-    parameters:
-    - $ref: '#/components/parameters/StudyIdV2'
-    - $ref: '#/components/parameters/CohortIdV2'
-    post:
-      summary: Export annotation values
-      description: |
-        Export a table with column headers: primary entity instance id, all
-        annotation keys. Table cells contain annotation values. For each cell,
-        the annotation value from the latest review is used, ordered by review
-        creation date. Exports to a TSV file in bucket specified in
-        application.yaml.
-      operationId: exportAnnotationValues
-      tags: [AnnotationsV2]
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ExportFile"
-        500:
-          $ref: "#/components/responses/ServerError"
-
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
       - $ref: '#/components/parameters/CohortIdV2'
       - $ref: '#/components/parameters/AnnotationIdV2'
     get:
-      summary: Get an existing annotation
-      operationId: getAnnotation
+      summary: Get an existing annotation key
+      operationId: getAnnotationKey
       tags: [AnnotationsV2]
       responses:
         200:
@@ -681,8 +657,8 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
     patch:
-      summary: Update an existing annotation
-      operationId: updateAnnotation
+      summary: Update an existing annotation key
+      operationId: updateAnnotationKey
       tags: [AnnotationsV2]
       requestBody:
         required: true
@@ -702,8 +678,8 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
     delete:
-      summary: Delete an annotation
-      operationId: deleteAnnotation
+      summary: Delete an annotation key
+      operationId: deleteAnnotationKey
       tags: [AnnotationsV2]
       responses:
         204:
@@ -713,16 +689,16 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
-  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values/{valueId}":
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values/{instanceId}":
     parameters:
       - $ref: '#/components/parameters/StudyIdV2'
       - $ref: '#/components/parameters/CohortIdV2'
       - $ref: '#/components/parameters/AnnotationIdV2'
       - $ref: '#/components/parameters/ReviewIdV2'
-      - $ref: '#/components/parameters/AnnotationValueIdV2'
+      - $ref: '#/components/parameters/PrimaryEntityInstanceIdV2'
     post:
       summary: Create or update an annotation value
-      operationId: createUpdateAnnotationValue
+      operationId: updateAnnotationValue
       tags: [AnnotationsV2]
       requestBody:
         required: true
@@ -733,17 +709,13 @@ paths:
       responses:
         200:
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AnnotationValueV2'
         404:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
     delete:
       summary: Delete an annotation value
-      operationId: deleteAnnotationValue
+      operationId: deleteAnnotationValues
       tags: [AnnotationsV2]
       responses:
         204:
@@ -752,6 +724,30 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
+
+  "/v2/studies/{studyId}/cohorts/{cohortId}/annotationValues/export":
+    parameters:
+      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: '#/components/parameters/CohortIdV2'
+    post:
+      summary: Export annotation values
+      description: |
+        Export a table with column headers: primary entity instance id, all
+        annotation keys. Table cells contain annotation values. For each cell,
+        the annotation value from the latest review is used, ordered by review
+        creation date. Exports to a TSV file in bucket specified in
+        application.yaml.
+      operationId: exportAnnotationValues
+      tags: [AnnotationsV2]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportFile"
+        500:
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/conceptSets":
     parameters:
@@ -919,10 +915,10 @@ components:
       schema:
         type: string
 
-    AnnotationValueIdV2:
-      name: valueId
+    PrimaryEntityInstanceIdV2:
+      name: instanceId
       in: path
-      description: ID of the annotation value
+      description: ID of the primary entity instance that the annotation value is associated with
       required: true
       schema:
         type: string
@@ -1723,11 +1719,11 @@ components:
           $ref: "#/components/schemas/CohortDisplayNameV2"
         description:
           $ref: "#/components/schemas/CohortDescriptionV2"
-        criteriaGroups:
+        criteriaGroupSections:
           type: array
-          description: Groups of criteria that define the entity filter
+          description: Criteria group sections that define the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupV2"
+            $ref: "#/components/schemas/CriteriaGroupSectionV3"
         created:
           description: Timestamp of when the cohort was created
           type: string
@@ -1770,11 +1766,11 @@ components:
           $ref: "#/components/schemas/CohortDisplayNameV2"
         description:
           $ref: "#/components/schemas/CohortDescriptionV2"
-        criteriaGroups:
+        criteriaGroupSections:
           type: array
-          description: Groups of criteria that define the entity filter
+          description: Criteria group sections that define the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupV2"
+            $ref: "#/components/schemas/CriteriaGroupSectionV3"
 
     CohortDisplayNameV2:
       type: string
@@ -1990,6 +1986,7 @@ components:
         - pluginName
         - selectionData
         - uiConfig
+        - tags
 
     ReviewV2:
       type: object
@@ -2141,17 +2138,20 @@ components:
     AnnotationValueV2:
       type: object
       properties:
-        id:
+        instanceId:
           description: ID of the annotation value, immutable
           type: string
         value:
           $ref: "#/components/schemas/LiteralV2"
-        review:
-          $ref: "#/components/schemas/ReviewIdV2"
+        isMostRecent:
+          type: boolean
+        isPartOfSelectedReview:
+          type: boolean
       required:
-        - id
+        - instanceId
         - value
-        - review
+        - isMostRecent
+        - isPartOfSelectedReview
 
     ReviewInstanceV2:
       type: object

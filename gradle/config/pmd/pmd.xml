@@ -79,6 +79,7 @@
         <exclude name="SignatureDeclareThrowsException"/>
         <exclude name="StdCyclomaticComplexity"/>
         <exclude name="TooManyMethods"/>
+        <exclude name="UseObjectForClearerAPI"/>
     </rule>
     <rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts">
         <properties>

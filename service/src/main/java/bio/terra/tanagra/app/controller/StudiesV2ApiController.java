@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +47,11 @@ public class StudiesV2ApiController implements StudiesV2Api {
         Study.builder()
             .displayName(body.getDisplayName())
             .description(body.getDescription())
-            .properties(fromApiObject(body.getProperties()))
-            .createdBy(SpringAuthentication.getCurrentUser().getEmail());
-    return ResponseEntity.ok(toApiObject(studyService.createStudy(studyToCreate)));
+            .properties(fromApiObject(body.getProperties()));
+    return ResponseEntity.ok(
+        toApiObject(
+            studyService.createStudy(
+                studyToCreate, SpringAuthentication.getCurrentUser().getEmail())));
   }
 
   @Override
@@ -73,19 +74,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
     ResourceIdCollection authorizedStudyIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), STUDY, offset, limit);
-    List<Study> authorizedStudies;
-    if (authorizedStudyIds.isAllResourceIds()) {
-      authorizedStudies = studyService.getAllStudies(offset, limit);
-    } else {
-      authorizedStudies =
-          studyService.getStudies(
-              authorizedStudyIds.getResourceIds().stream()
-                  .map(ResourceId::getId)
-                  .collect(Collectors.toList()),
-              offset,
-              limit);
-    }
-
+    List<Study> authorizedStudies = studyService.listStudies(authorizedStudyIds, offset, limit);
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
     authorizedStudies.stream().forEach(study -> apiStudies.add(toApiObject(study)));
     return ResponseEntity.ok(apiStudies);
@@ -96,7 +85,11 @@ public class StudiesV2ApiController implements StudiesV2Api {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
     Study updatedStudy =
-        studyService.updateStudy(studyId, body.getDisplayName(), body.getDescription());
+        studyService.updateStudy(
+            studyId,
+            SpringAuthentication.getCurrentUser().getEmail(),
+            body.getDisplayName(),
+            body.getDescription());
     return ResponseEntity.ok(toApiObject(updatedStudy));
   }
 
@@ -105,7 +98,8 @@ public class StudiesV2ApiController implements StudiesV2Api {
       String studyId, List<ApiPropertyKeyValueV2> body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
-    studyService.updateStudyProperties(studyId, fromApiObject(body));
+    studyService.updateStudyProperties(
+        studyId, SpringAuthentication.getCurrentUser().getEmail(), fromApiObject(body));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
@@ -113,7 +107,8 @@ public class StudiesV2ApiController implements StudiesV2Api {
   public ResponseEntity<Void> deleteStudyProperties(String studyId, List<String> body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
-    studyService.deleteStudyProperties(studyId, body);
+    studyService.deleteStudyProperties(
+        studyId, SpringAuthentication.getCurrentUser().getEmail(), body);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
@@ -124,7 +119,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
         .forEach(
             (key, value) -> apiProperties.add(new ApiPropertyKeyValueV2().key(key).value(value)));
     return new ApiStudyV2()
-        .id(study.getStudyId())
+        .id(study.getId())
         .displayName(study.getDisplayName())
         .description(study.getDescription())
         .properties(apiProperties)

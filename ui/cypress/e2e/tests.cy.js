@@ -11,7 +11,7 @@ describe("Basic tests", () => {
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("button:Contains(Condition)").click();
-    cy.get("[data-testid='AccountTreeIcon']").click();
+    cy.get("[data-testid='AccountTreeIcon']").first().click();
     cy.get("button:Contains(Clinical finding)").click();
 
     cy.get("button:Contains(Add criteria)").first().click();
@@ -38,7 +38,7 @@ describe("Basic tests", () => {
 
     cy.get("button[id=insert-concept-set]").click();
     cy.get("button:Contains(Condition)").click();
-    cy.get("[data-testid='AccountTreeIcon']").click();
+    cy.get("[data-testid='AccountTreeIcon']").first().click();
     cy.get("button:Contains(Clinical finding)").click();
 
     cy.get(`button[name='${cohortName}']`).click();

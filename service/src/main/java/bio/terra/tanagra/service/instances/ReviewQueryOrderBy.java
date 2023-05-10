@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.instances;
 
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.service.artifact.Annotation;
+import bio.terra.tanagra.service.artifact.AnnotationKey;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
@@ -10,18 +10,18 @@ import java.util.Optional;
 
 public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
   private final Attribute attribute;
-  private final Annotation annotation;
+  private final AnnotationKey annotationKey;
   private final OrderByDirection direction;
 
   public ReviewQueryOrderBy(Attribute attribute, OrderByDirection direction) {
     this.attribute = attribute;
-    this.annotation = null;
+    this.annotationKey = null;
     this.direction = direction;
   }
 
-  public ReviewQueryOrderBy(Annotation annotation, OrderByDirection direction) {
+  public ReviewQueryOrderBy(AnnotationKey annotationKey, OrderByDirection direction) {
     this.attribute = null;
-    this.annotation = annotation;
+    this.annotationKey = annotationKey;
     this.direction = direction;
   }
 
@@ -29,8 +29,8 @@ public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
     return attribute;
   }
 
-  public Annotation getAnnotation() {
-    return annotation;
+  public AnnotationKey getAnnotationKey() {
+    return annotationKey;
   }
 
   public OrderByDirection getDirection() {
@@ -57,11 +57,11 @@ public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
     } else {
       Optional<AnnotationValue> annotationValue1 =
           o1.getAnnotationValues().stream()
-              .filter(av -> av.getAnnotationId().equals(getAnnotation().getAnnotationId()))
+              .filter(av -> av.getAnnotationKeyId().equals(getAnnotationKey().getId()))
               .findFirst();
       Optional<AnnotationValue> annotationValue2 =
           o2.getAnnotationValues().stream()
-              .filter(av -> av.getAnnotationId().equals(getAnnotation().getAnnotationId()))
+              .filter(av -> av.getAnnotationKeyId().equals(getAnnotationKey().getId()))
               .findFirst();
 
       if (annotationValue1.isEmpty() && annotationValue2.isEmpty()) {

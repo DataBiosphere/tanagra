@@ -8,22 +8,14 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.ConceptSetsV2Api;
-import bio.terra.tanagra.generated.model.ApiConceptSetCreateInfoV2;
-import bio.terra.tanagra.generated.model.ApiConceptSetListV2;
-import bio.terra.tanagra.generated.model.ApiConceptSetUpdateInfoV2;
-import bio.terra.tanagra.generated.model.ApiConceptSetV2;
-import bio.terra.tanagra.service.AccessControlService;
-import bio.terra.tanagra.service.ConceptSetService;
-import bio.terra.tanagra.service.StudyService;
-import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.service.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,20 +23,13 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
-  private final StudyService studyService;
   private final ConceptSetService conceptSetService;
-  private final UnderlaysService underlaysService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public ConceptSetsV2ApiController(
-      StudyService studyService,
-      ConceptSetService conceptSetService,
-      UnderlaysService underlaysService,
-      AccessControlService accessControlService) {
-    this.studyService = studyService;
+      ConceptSetService conceptSetService, AccessControlService accessControlService) {
     this.conceptSetService = conceptSetService;
-    this.underlaysService = underlaysService;
     this.accessControlService = accessControlService;
   }
 
@@ -53,41 +38,21 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
       String studyId, ApiConceptSetCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), CREATE, CONCEPT_SET, new ResourceId(studyId));
-
-    // Make sure underlay name, entity name, and study id are valid.
-    underlaysService.getEntity(body.getUnderlayName(), body.getEntity());
-    studyService.getStudy(studyId);
-
-    // Generate random 10-character alphanumeric string for the new criteria and concept set IDs.
-    String newCriteriaId = RandomStringUtils.randomAlphanumeric(10);
-    String newConceptSetId = RandomStringUtils.randomAlphanumeric(10);
-
-    Criteria criteria =
+    Criteria singleCriteria =
         body.getCriteria() == null
             ? null
-            : Criteria.builder()
-                .conceptSetId(newConceptSetId)
-                .criteriaId(newCriteriaId)
-                .userFacingCriteriaId(body.getCriteria().getId())
-                .displayName(body.getCriteria().getDisplayName())
-                .pluginName(body.getCriteria().getPluginName())
-                .selectionData(body.getCriteria().getSelectionData())
-                .uiConfig(body.getCriteria().getUiConfig())
-                .build();
-    ConceptSet conceptSetToCreate =
-        ConceptSet.builder()
-            .studyId(studyId)
-            .conceptSetId(newConceptSetId)
-            .underlayName(body.getUnderlayName())
-            .entityName(body.getEntity())
-            .createdBy(SpringAuthentication.getCurrentUser().getEmail())
-            .displayName(body.getDisplayName())
-            .description(body.getDescription())
-            .criteria(criteria)
-            .build();
-    conceptSetService.createConceptSet(conceptSetToCreate);
-    return ResponseEntity.ok(
-        toApiObject(conceptSetService.getConceptSet(studyId, newConceptSetId)));
+            : FromApiConversionService.fromApiObject(body.getCriteria());
+    ConceptSet createdConceptSet =
+        conceptSetService.createConceptSet(
+            studyId,
+            ConceptSet.builder()
+                .displayName(body.getDisplayName())
+                .description(body.getDescription())
+                .underlay(body.getUnderlayName())
+                .entity(body.getEntity())
+                .criteria(List.of(singleCriteria)),
+            SpringAuthentication.getCurrentUser().getEmail());
+    return ResponseEntity.ok(ConceptSetsV2ApiController.toApiObject(createdConceptSet));
   }
 
   @Override
@@ -111,22 +76,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     ResourceIdCollection authorizedConceptSetIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), CONCEPT_SET, offset, limit);
-    List<ConceptSet> authorizedConceptSets;
-    if (authorizedConceptSetIds.isAllResourceIds()) {
-      authorizedConceptSets = conceptSetService.getAllConceptSets(studyId, offset, limit);
-    } else {
-      authorizedConceptSets =
-          conceptSetService.getConceptSets(
-              studyId,
-              authorizedConceptSetIds.getResourceIds().stream()
-                  .map(ResourceId::getId)
-                  .collect(Collectors.toList()),
-              offset,
-              limit);
-    }
-
     ApiConceptSetListV2 apiConceptSets = new ApiConceptSetListV2();
-    authorizedConceptSets.stream()
+    conceptSetService.listConceptSets(authorizedConceptSetIds, studyId, offset, limit).stream()
         .forEach(conceptSet -> apiConceptSets.add(toApiObject(conceptSet)));
     return ResponseEntity.ok(apiConceptSets);
   }
@@ -136,44 +87,27 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
       String studyId, String conceptSetId, ApiConceptSetUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), UPDATE, CONCEPT_SET, new ResourceId(conceptSetId));
-
-    // Make sure entity name is valid.
-    if (body.getEntity() != null) {
-      ConceptSet conceptSet = conceptSetService.getConceptSet(studyId, conceptSetId);
-      underlaysService.getEntity(conceptSet.getUnderlayName(), body.getEntity());
-    }
-
-    // Generate random 10-character alphanumeric string for the new criteria ID.
-    String newCriteriaId = RandomStringUtils.randomAlphanumeric(10);
-
-    Criteria criteria =
+    Criteria singleCriteria =
         body.getCriteria() == null
             ? null
-            : Criteria.builder()
-                .conceptSetId(conceptSetId)
-                .criteriaId(newCriteriaId)
-                .userFacingCriteriaId(body.getCriteria().getId())
-                .displayName(body.getCriteria().getDisplayName())
-                .pluginName(body.getCriteria().getPluginName())
-                .selectionData(body.getCriteria().getSelectionData())
-                .uiConfig(body.getCriteria().getUiConfig())
-                .build();
+            : FromApiConversionService.fromApiObject(body.getCriteria());
     ConceptSet updatedConceptSet =
         conceptSetService.updateConceptSet(
             studyId,
             conceptSetId,
-            body.getEntity(),
+            SpringAuthentication.getCurrentUser().getEmail(),
             body.getDisplayName(),
             body.getDescription(),
-            criteria);
+            body.getEntity(),
+            List.of(singleCriteria));
     return ResponseEntity.ok(toApiObject(updatedConceptSet));
   }
 
   private static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
     return new ApiConceptSetV2()
-        .id(conceptSet.getConceptSetId())
-        .underlayName(conceptSet.getUnderlayName())
-        .entity(conceptSet.getEntityName())
+        .id(conceptSet.getId())
+        .underlayName(conceptSet.getUnderlay())
+        .entity(conceptSet.getEntity())
         .displayName(conceptSet.getDisplayName())
         .description(conceptSet.getDescription())
         .created(conceptSet.getCreated())
@@ -182,6 +116,6 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
         .criteria(
             conceptSet.getCriteria() == null
                 ? null
-                : ToApiConversionUtils.toApiObject(conceptSet.getCriteria()));
+                : ToApiConversionUtils.toApiObject(conceptSet.getCriteria().get(0)));
   }
 }

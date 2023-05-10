@@ -2,10 +2,13 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.CriteriaGroup;
-import java.util.HashSet;
+import bio.terra.tanagra.service.artifact.CohortRevision;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,65 +17,93 @@ import org.springframework.stereotype.Component;
 public class CohortService {
   private final CohortDao cohortDao;
   private final FeatureConfiguration featureConfiguration;
+  private final UnderlaysService underlaysService;
+  private final StudyService studyService;
 
   @Autowired
-  public CohortService(CohortDao cohortDao, FeatureConfiguration featureConfiguration) {
+  public CohortService(
+      CohortDao cohortDao,
+      FeatureConfiguration featureConfiguration,
+      UnderlaysService underlaysService,
+      StudyService studyService) {
     this.cohortDao = cohortDao;
     this.featureConfiguration = featureConfiguration;
+    this.underlaysService = underlaysService;
+    this.studyService = studyService;
   }
 
-  /** Create a new cohort, the first revision in a new revision group. */
-  public void createCohort(Cohort cohort) {
+  /** Create a cohort and its first revision without any criteria. */
+  public Cohort createCohort(String studyId, Cohort.Builder cohortBuilder, String userEmail) {
+    return createCohort(studyId, cohortBuilder, userEmail, Collections.emptyList());
+  }
+
+  /** Create a cohort and its first revision. */
+  public Cohort createCohort(
+      String studyId,
+      Cohort.Builder cohortBuilder,
+      String userEmail,
+      List<CohortRevision.CriteriaGroupSection> sections) {
     featureConfiguration.artifactStorageEnabledCheck();
-    cohortDao.createCohortFirstVersion(cohort);
+
+    // Make sure underlay name and study id are valid.
+    underlaysService.getUnderlay(cohortBuilder.getUnderlay());
+    studyService.getStudy(studyId);
+
+    // Create the first revision.
+    CohortRevision firstRevision =
+        CohortRevision.builder()
+            .sections(sections)
+            .setIsMostRecent(true)
+            .setIsEditable(true)
+            .createdBy(userEmail)
+            .lastModifiedBy(userEmail)
+            .build();
+    cohortBuilder.addRevision(firstRevision);
+
+    cohortDao.createCohort(
+        studyId, cohortBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
+    return cohortDao.getCohort(cohortBuilder.getId());
   }
 
-  /** Delete an existing cohort by revision group ID, including all frozen versions. */
-  public void deleteCohort(String studyId, String cohortRevisionGroupId) {
+  /** Delete a cohort and all its revisions. */
+  public void deleteCohort(String studyId, String cohortId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    cohortDao.deleteCohortAllVersions(studyId, cohortRevisionGroupId);
+    cohortDao.deleteCohort(cohortId);
   }
 
-  /** Retrieves a list of all most recent cohorts for a study. */
-  public List<Cohort> getAllCohorts(String studyId, int offset, int limit) {
+  /** List cohorts with their most recent revisions. */
+  public List<Cohort> listCohorts(
+      ResourceIdCollection authorizedCohortIds, String studyId, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getAllCohortsLatestVersion(studyId, offset, limit);
+    if (authorizedCohortIds.isAllResourceIds()) {
+      return cohortDao.getAllCohorts(studyId, offset, limit);
+    } else {
+      return cohortDao.getCohortsMatchingList(
+          authorizedCohortIds.getResourceIds().stream()
+              .map(ResourceId::getId)
+              .collect(Collectors.toSet()),
+          offset,
+          limit);
+    }
   }
 
-  /** Retrieves a list of most recent cohorts by ID. */
-  public List<Cohort> getCohorts(
-      String studyId, List<String> cohortRevisionGroupIds, int offset, int limit) {
+  /** Retrieve a cohort with its most recent revision. */
+  public Cohort getCohort(String studyId, String cohortId) {
     featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getCohortsMatchingListLatestVersion(
-        studyId, new HashSet<>(cohortRevisionGroupIds), offset, limit);
+    return cohortDao.getCohort(cohortId);
   }
 
-  /** Retrieves a most recent cohort by ID. */
-  public Cohort getCohort(String studyId, String cohortRevisionGroupId) {
-    featureConfiguration.artifactStorageEnabledCheck();
-    return cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId);
-  }
-
-  /**
-   * Update an existing cohort's latest version. Currently, can change the cohort's display name,
-   * description, or criteria groups.
-   *
-   * @param studyId study ID
-   * @param cohortRevisionGroupId cohort revision group ID
-   * @param displayName name to change - may be null
-   * @param description description to change - may be null
-   * @param criteriaGroups set of criteria groups to change - may be null
-   */
+  /** Update a cohort's most recent revision. */
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
   public Cohort updateCohort(
       String studyId,
-      String cohortRevisionGroupId,
+      String cohortId,
+      String userEmail,
       @Nullable String displayName,
       @Nullable String description,
-      @Nullable List<CriteriaGroup> criteriaGroups) {
+      @Nullable List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
     featureConfiguration.artifactStorageEnabledCheck();
-    cohortDao.updateCohortLatestVersion(
-        studyId, cohortRevisionGroupId, displayName, description, criteriaGroups);
-    return cohortDao.getCohortLatestVersion(studyId, cohortRevisionGroupId);
+    cohortDao.updateCohort(cohortId, userEmail, displayName, description, criteriaGroupSections);
+    return cohortDao.getCohort(cohortId);
   }
 }

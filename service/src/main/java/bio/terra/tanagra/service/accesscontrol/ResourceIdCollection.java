@@ -34,4 +34,8 @@ public final class ResourceIdCollection {
         ? Collections.emptySet()
         : Collections.unmodifiableCollection(resourceIds);
   }
+
+  public boolean isEmpty() {
+    return resourceIds.isEmpty();
+  }
 }

@@ -4,21 +4,20 @@ import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
-import bio.terra.tanagra.service.instances.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.service.instances.filter.BooleanNotFilter;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyAncestorFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyMemberFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyParentFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyRootFilter;
-import bio.terra.tanagra.service.instances.filter.RelationshipFilter;
-import bio.terra.tanagra.service.instances.filter.TextFilter;
+import bio.terra.tanagra.service.artifact.AnnotationKey;
+import bio.terra.tanagra.service.artifact.Cohort;
+import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.instances.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.instances.ReviewQueryRequest;
+import bio.terra.tanagra.service.instances.filter.*;
+import bio.terra.tanagra.service.utils.ValidationUtils;
 import bio.terra.tanagra.underlay.*;
 import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,11 +28,26 @@ import org.springframework.stereotype.Component;
 public final class FromApiConversionService {
   private final UnderlaysService underlaysService;
   private final QuerysService querysService;
+  private final CohortService cohortService;
+
+  private final AnnotationService annotationService;
 
   @Autowired
-  public FromApiConversionService(UnderlaysService underlaysService, QuerysService querysService) {
+  public FromApiConversionService(
+      UnderlaysService underlaysService,
+      QuerysService querysService,
+      CohortService cohortService,
+      AnnotationService annotationService) {
     this.underlaysService = underlaysService;
     this.querysService = querysService;
+    this.cohortService = cohortService;
+    this.annotationService = annotationService;
+  }
+
+  public EntityFilter fromApiObject(ApiFilterV2 apiFilter, String studyId, String cohortId) {
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
+    return fromApiObject(apiFilter, underlay.getPrimaryEntity(), underlay.getName());
   }
 
   public EntityFilter fromApiObject(ApiFilterV2 apiFilter, Entity entity, String underlayName) {
@@ -139,6 +153,70 @@ public final class FromApiConversionService {
     }
   }
 
+  public ReviewQueryRequest fromApiObject(
+      ApiReviewQueryV2 apiObj, String studyId, String cohortId) {
+    ValidationUtils.validateApiFilter(apiObj.getEntityFilter());
+
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Entity entity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
+    List<Attribute> attributes = new ArrayList<>();
+    if (apiObj.getIncludeAttributes() != null) {
+      attributes =
+          apiObj.getIncludeAttributes().stream()
+              .map(attrName -> querysService.getAttribute(entity, attrName))
+              .collect(Collectors.toList());
+    }
+
+    EntityFilter entityFilter =
+        (apiObj.getEntityFilter() != null)
+            ? fromApiObject(apiObj.getEntityFilter(), entity, cohort.getUnderlay())
+            : null;
+    AnnotationFilter annotationFilter;
+    if (apiObj.getAnnotationFilter() != null) {
+      AnnotationKey annotation =
+          annotationService.getAnnotationKey(
+              studyId, cohortId, apiObj.getAnnotationFilter().getAnnotation());
+      BinaryFilterVariable.BinaryOperator operator =
+          BinaryFilterVariable.BinaryOperator.valueOf(
+              apiObj.getAnnotationFilter().getOperator().name());
+      annotationFilter =
+          new AnnotationFilter(
+              annotation, operator, fromApiObject(apiObj.getAnnotationFilter().getValue()));
+    } else {
+      annotationFilter = null;
+    }
+
+    List<ReviewQueryOrderBy> orderBys = new ArrayList<>();
+    if (apiObj.getOrderBys() != null) {
+      apiObj.getOrderBys().stream()
+          .forEach(
+              orderBy -> {
+                OrderByDirection direction =
+                    orderBy.getDirection() == null
+                        ? OrderByDirection.ASCENDING
+                        : OrderByDirection.valueOf(orderBy.getDirection().name());
+                String attrName = orderBy.getAttribute();
+                if (attrName != null) {
+                  orderBys.add(
+                      new ReviewQueryOrderBy(
+                          querysService.getAttribute(entity, attrName), direction));
+                } else {
+                  orderBys.add(
+                      new ReviewQueryOrderBy(
+                          annotationService.getAnnotationKey(
+                              studyId, cohortId, orderBy.getAnnotation()),
+                          direction));
+                }
+              });
+    }
+    return ReviewQueryRequest.builder()
+        .attributes(attributes)
+        .entityFilter(entityFilter)
+        .annotationFilter(annotationFilter)
+        .orderBys(orderBys)
+        .build();
+  }
+
   public static Literal fromApiObject(ApiLiteralV2 apiLiteral) {
     switch (apiLiteral.getDataType()) {
       case INT64:
@@ -168,5 +246,16 @@ public final class FromApiConversionService {
       default:
         throw new SystemException("Unknown API text match type: " + apiMatchType.name());
     }
+  }
+
+  public static Criteria fromApiObject(ApiCriteriaV2 apiObj) {
+    return Criteria.builder()
+        .id(apiObj.getId())
+        .displayName(apiObj.getDisplayName())
+        .pluginName(apiObj.getPluginName())
+        .uiConfig(apiObj.getUiConfig())
+        .selectionData(apiObj.getSelectionData())
+        .tags(apiObj.getTags())
+        .build();
   }
 }

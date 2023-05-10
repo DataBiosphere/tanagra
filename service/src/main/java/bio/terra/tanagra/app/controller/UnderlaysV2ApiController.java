@@ -13,7 +13,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -31,30 +30,18 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiUnderlayListV2> listUnderlaysV2() {
+  public ResponseEntity<ApiUnderlayListV2> listUnderlays() {
     ResourceIdCollection authorizedUnderlayNames =
         accessControlService.listResourceIds(SpringAuthentication.getCurrentUser(), UNDERLAY);
-    List<Underlay> authorizedUnderlays;
-    if (authorizedUnderlayNames.isAllResourceIds()) {
-      authorizedUnderlays = underlaysService.getUnderlays();
-    } else {
-      authorizedUnderlays =
-          underlaysService.getUnderlays(
-              authorizedUnderlayNames.getResourceIds().stream()
-                  .map(ResourceId::getId)
-                  .collect(Collectors.toList()));
-    }
-
-    return ResponseEntity.ok(
-        new ApiUnderlayListV2()
-            .underlays(
-                authorizedUnderlays.stream()
-                    .map(u -> toApiObject(u))
-                    .collect(Collectors.toList())));
+    List<Underlay> authorizedUnderlays = underlaysService.listUnderlays(authorizedUnderlayNames);
+    ApiUnderlayListV2 apiUnderlays = new ApiUnderlayListV2();
+    authorizedUnderlays.stream()
+        .forEach(underlay -> apiUnderlays.addUnderlaysItem(toApiObject(underlay)));
+    return ResponseEntity.ok(apiUnderlays);
   }
 
   @Override
-  public ResponseEntity<ApiUnderlayV2> getUnderlayV2(String underlayName) {
+  public ResponseEntity<ApiUnderlayV2> getUnderlay(String underlayName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
     return ResponseEntity.ok(toApiObject(underlaysService.getUnderlay(underlayName)));

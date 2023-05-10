@@ -1,131 +1,122 @@
 package bio.terra.tanagra.service.artifact;
 
-import bio.terra.tanagra.exception.SystemException;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class ConceptSet {
-  private final String studyId;
-  private final String conceptSetId;
-  private final String underlayName;
-  private final String entityName;
+  private final String id;
+  private final String underlay;
+  private final String entity;
+  private final List<Criteria> criteria;
+  private final @Nullable String displayName;
+  private final @Nullable String description;
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
-  private final @Nullable String displayName;
-  private final @Nullable String description;
-  private final Criteria criteria;
+  private final String lastModifiedBy;
 
   private ConceptSet(Builder builder) {
-    this.studyId = builder.studyId;
-    this.conceptSetId = builder.conceptSetId;
-    this.underlayName = builder.underlayName;
-    this.entityName = builder.entityName;
+    this.id = builder.id;
+    this.underlay = builder.underlay;
+    this.entity = builder.entity;
+    this.criteria = builder.criteria;
+    this.displayName = builder.displayName;
+    this.description = builder.description;
     this.created = builder.created;
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
-    this.displayName = builder.displayName;
-    this.description = builder.description;
-    this.criteria = builder.criteria;
+    this.lastModifiedBy = builder.lastModifiedBy;
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  public Builder toBuilder() {
-    return builder()
-        .studyId(studyId)
-        .conceptSetId(conceptSetId)
-        .underlayName(underlayName)
-        .entityName(entityName)
-        .created(created)
-        .createdBy(createdBy)
-        .lastModified(lastModified)
-        .displayName(displayName)
-        .description(description)
-        .criteria(criteria);
+  public String getId() {
+    return id;
   }
 
-  /** Globally unique identifier of the study this concept set belongs to. */
-  public String getStudyId() {
-    return studyId;
+  public String getUnderlay() {
+    return underlay;
   }
 
-  /** Unique (per study) identifier of this concept set. */
-  public String getConceptSetId() {
-    return conceptSetId;
+  public String getEntity() {
+    return entity;
   }
 
-  /** Globally unique name of the underlay this concept set is pinned to. */
-  public String getUnderlayName() {
-    return underlayName;
+  public List<Criteria> getCriteria() {
+    return criteria;
   }
 
-  /** Name of the entity this concept set is pinned to. */
-  public String getEntityName() {
-    return entityName;
-  }
-
-  /** Timestamp of when this concept set was created. */
   public OffsetDateTime getCreated() {
     return created;
   }
 
-  /** Email of user who created this concept set. */
   public String getCreatedBy() {
     return createdBy;
   }
 
-  /** Timestamp of when this concept set was last modified. */
   public OffsetDateTime getLastModified() {
     return lastModified;
   }
 
-  /** Optional display name for the concept set. */
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
+
+  @Nullable
   public String getDisplayName() {
     return displayName;
   }
 
-  /** Optional description for the concept set. */
+  @Nullable
   public String getDescription() {
     return description;
   }
 
-  /** Criteria that defines the entity filter. */
-  public Criteria getCriteria() {
-    return criteria;
-  }
-
   public static class Builder {
-    private String studyId;
-    private String conceptSetId;
-    private String underlayName;
-    private String entityName;
+    private String id;
+    private String underlay;
+    private String entity;
+    private List<Criteria> criteria = new ArrayList<>();
+    private String displayName;
+    private String description;
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
-    private @Nullable String displayName;
-    private @Nullable String description;
-    private Criteria criteria;
+    private String lastModifiedBy;
 
-    public Builder studyId(String studyId) {
-      this.studyId = studyId;
+    public Builder id(String id) {
+      this.id = id;
       return this;
     }
 
-    public Builder conceptSetId(String conceptSetId) {
-      this.conceptSetId = conceptSetId;
+    public Builder underlay(String underlay) {
+      this.underlay = underlay;
       return this;
     }
 
-    public Builder underlayName(String underlayName) {
-      this.underlayName = underlayName;
+    public Builder entity(String entity) {
+      this.entity = entity;
       return this;
     }
 
-    public Builder entityName(String entityName) {
-      this.entityName = entityName;
+    public Builder criteria(List<Criteria> criteria) {
+      this.criteria = criteria;
+      return this;
+    }
+
+    public Builder displayName(String displayName) {
+      this.displayName = displayName;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
       return this;
     }
 
@@ -144,30 +135,34 @@ public class ConceptSet {
       return this;
     }
 
-    public Builder displayName(String displayName) {
-      this.displayName = displayName;
+    public Builder lastModifiedBy(String lastModifiedBy) {
+      this.lastModifiedBy = lastModifiedBy;
       return this;
-    }
-
-    public Builder description(String description) {
-      this.description = description;
-      return this;
-    }
-
-    public Builder criteria(Criteria criteria) {
-      this.criteria = criteria;
-      return this;
-    }
-
-    public String getConceptSetId() {
-      return conceptSetId;
     }
 
     public ConceptSet build() {
-      if (conceptSetId == null) {
-        throw new SystemException("Concept set requires id");
+      if (id == null) {
+        id = RandomStringUtils.randomAlphanumeric(10);
       }
+      criteria = new ArrayList<>(criteria);
+      criteria.sort(Comparator.comparing(Criteria::getId));
       return new ConceptSet(this);
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public String getUnderlay() {
+      return underlay;
+    }
+
+    public String getEntity() {
+      return entity;
+    }
+
+    public void addCriteria(Criteria newCriteria) {
+      criteria.add(newCriteria);
     }
   }
 }

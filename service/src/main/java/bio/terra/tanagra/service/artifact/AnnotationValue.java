@@ -1,85 +1,145 @@
 package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.query.Literal;
+import java.util.Objects;
 
 public class AnnotationValue {
-  private final String reviewId;
-  private final String annotationId;
-  private final String annotationValueId;
-  private final String entityInstanceId;
   private final Literal literal;
+  private final int cohortRevisionVersion;
+  private final String annotationKeyId;
+  private final String instanceId;
+  private final boolean isMostRecent;
+  private final boolean isPartOfSelectedReview;
 
-  private AnnotationValue(Builder builder) {
-    this.reviewId = builder.reviewId;
-    this.annotationId = builder.annotationId;
-    this.annotationValueId = builder.annotationValueId;
-    this.entityInstanceId = builder.entityInstanceId;
-    this.literal = builder.literal;
+  private AnnotationValue(
+      Literal literal,
+      int cohortRevisionVersion,
+      String annotationKeyId,
+      String instanceId,
+      boolean isMostRecent,
+      boolean isPartOfSelectedReview) {
+    this.literal = literal;
+    this.cohortRevisionVersion = cohortRevisionVersion;
+    this.annotationKeyId = annotationKeyId;
+    this.instanceId = instanceId;
+    this.isMostRecent = isMostRecent;
+    this.isPartOfSelectedReview = isPartOfSelectedReview;
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Unique (per cohort) identifier of the review this annotation value belongs to. */
-  public String getReviewId() {
-    return reviewId;
-  }
-
-  /** Unique (per cohort) identifier of the annotation this value is for. */
-  public String getAnnotationId() {
-    return annotationId;
-  }
-
-  /** Unique (per review) identifier of this annotation value. */
-  public String getAnnotationValueId() {
-    return annotationValueId;
-  }
-
-  /** ID of the entity instance that this annotation references. */
-  public String getEntityInstanceId() {
-    return entityInstanceId;
-  }
-
-  /** Literal value of the annotation. */
   public Literal getLiteral() {
     return literal;
   }
 
+  public int getCohortRevisionVersion() {
+    return cohortRevisionVersion;
+  }
+
+  public String getAnnotationKeyId() {
+    return annotationKeyId;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public boolean isMostRecent() {
+    return isMostRecent;
+  }
+
+  public boolean isPartOfSelectedReview() {
+    return isPartOfSelectedReview;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AnnotationValue that = (AnnotationValue) o;
+    return cohortRevisionVersion == that.cohortRevisionVersion
+        && isMostRecent == that.isMostRecent
+        && isPartOfSelectedReview == that.isPartOfSelectedReview
+        && literal.equals(that.literal)
+        && annotationKeyId.equals(that.annotationKeyId)
+        && instanceId.equals(that.instanceId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        literal,
+        cohortRevisionVersion,
+        annotationKeyId,
+        instanceId,
+        isMostRecent,
+        isPartOfSelectedReview);
+  }
+
   public static class Builder {
-    private String reviewId;
-    private String annotationId;
-    private String annotationValueId;
-    private String entityInstanceId;
     private Literal literal;
-
-    public Builder reviewId(String reviewId) {
-      this.reviewId = reviewId;
-      return this;
-    }
-
-    public Builder annotationId(String annotationId) {
-      this.annotationId = annotationId;
-      return this;
-    }
-
-    public Builder annotationValueId(String annotationValueId) {
-      this.annotationValueId = annotationValueId;
-      return this;
-    }
-
-    public Builder entityInstanceId(String entityInstanceId) {
-      this.entityInstanceId = entityInstanceId;
-      return this;
-    }
+    private int cohortRevisionVersion;
+    private String annotationKeyId;
+    private String instanceId;
+    private boolean isMostRecent;
+    private boolean isPartOfSelectedReview;
 
     public Builder literal(Literal literal) {
       this.literal = literal;
       return this;
     }
 
+    public Builder cohortRevisionVersion(int cohortRevisionVersion) {
+      this.cohortRevisionVersion = cohortRevisionVersion;
+      return this;
+    }
+
+    public Builder annotationKeyId(String annotationKeyId) {
+      this.annotationKeyId = annotationKeyId;
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      this.instanceId = instanceId;
+      return this;
+    }
+
+    public Builder isMostRecent(boolean isMostRecent) {
+      this.isMostRecent = isMostRecent;
+      return this;
+    }
+
+    public Builder isPartOfSelectedReview(boolean isPartOfSelectedReview) {
+      this.isPartOfSelectedReview = isPartOfSelectedReview;
+      return this;
+    }
+
     public AnnotationValue build() {
-      return new AnnotationValue(this);
+      return new AnnotationValue(
+          literal,
+          cohortRevisionVersion,
+          annotationKeyId,
+          instanceId,
+          isMostRecent,
+          isPartOfSelectedReview);
+    }
+
+    public int getCohortRevisionVersion() {
+      return cohortRevisionVersion;
+    }
+
+    public String getAnnotationKeyId() {
+      return annotationKeyId;
+    }
+
+    public String getInstanceId() {
+      return instanceId;
     }
   }
 }

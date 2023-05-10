@@ -80,4 +80,15 @@ public interface CellValue {
   OptionalDouble getDouble();
 
   Optional<Literal> getLiteral();
+
+  /**
+   * Checks that the {@link #dataType()} is what's expected, or else throws a {@link
+   * SystemException}.
+   */
+  default void assertDataTypeIs(SQLDataType expected) {
+    if (!dataType().equals(expected)) {
+      throw new SystemException(
+          String.format("SQLDataType is %s, not the expected %s", dataType(), expected));
+    }
+  }
 }

@@ -1,21 +1,20 @@
-package bio.terra.tanagra.query.bigquery;
+package bio.terra.tanagra.query.inmemory;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
-import com.google.cloud.bigquery.FieldValue;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
 
-/** A {@link CellValue} for BigQuery's {@link FieldValue}. */
-class BigQueryCellValue implements CellValue {
-  private final FieldValue fieldValue;
+/** A {@link CellValue} for an {@link Object}. */
+class InMemoryCellValue implements CellValue {
+  private final Object value;
   private final ColumnSchema columnSchema;
 
-  BigQueryCellValue(FieldValue fieldValue, ColumnSchema columnSchema) {
-    this.fieldValue = fieldValue;
+  InMemoryCellValue(Object value, ColumnSchema columnSchema) {
+    this.value = value;
     this.columnSchema = columnSchema;
   }
 
@@ -29,9 +28,7 @@ class BigQueryCellValue implements CellValue {
   public OptionalLong getLong() {
     assertDataTypeIs(SQLDataType.INT64);
     try {
-      return fieldValue.isNull()
-          ? OptionalLong.empty()
-          : OptionalLong.of(fieldValue.getLongValue());
+      return value == null ? OptionalLong.empty() : OptionalLong.of((Long) value);
     } catch (NumberFormatException nfEx) {
       throw new SystemException("Unable to format as number", nfEx);
     }
@@ -40,16 +37,14 @@ class BigQueryCellValue implements CellValue {
   @Override
   public Optional<String> getString() {
     assertDataTypeIs(SQLDataType.STRING);
-    return fieldValue.isNull() ? Optional.empty() : Optional.of(fieldValue.getStringValue());
+    return value == null ? Optional.empty() : Optional.of((String) value);
   }
 
   @Override
   @SuppressWarnings("PMD.PreserveStackTrace")
   public OptionalDouble getDouble() {
     try {
-      return fieldValue.isNull()
-          ? OptionalDouble.empty()
-          : OptionalDouble.of(fieldValue.getDoubleValue());
+      return value == null ? OptionalDouble.empty() : OptionalDouble.of((Double) value);
     } catch (NumberFormatException nfEx) {
       throw new SystemException("Unable to format as number", nfEx);
     }
@@ -57,22 +52,22 @@ class BigQueryCellValue implements CellValue {
 
   @Override
   public Optional<Literal> getLiteral() {
-    if (fieldValue.isNull()) {
+    if (value == null) {
       return Optional.empty();
     }
 
     Literal.DataType dataType = dataType().toUnderlayDataType();
     switch (dataType) {
       case INT64:
-        return Optional.of(new Literal(fieldValue.getLongValue()));
+        return Optional.of(new Literal((Long) value));
       case STRING:
-        return Optional.of(new Literal(fieldValue.isNull() ? null : fieldValue.getStringValue()));
+        return Optional.of(new Literal((String) value));
       case BOOLEAN:
-        return Optional.of(new Literal(fieldValue.getBooleanValue()));
+        return Optional.of(new Literal((Boolean) value));
       case DATE:
-        return Optional.of(Literal.forDate(fieldValue.getStringValue()));
+        return Optional.of(Literal.forDate(value.toString()));
       case DOUBLE:
-        return Optional.of(new Literal(fieldValue.getDoubleValue()));
+        return Optional.of(new Literal((Double) value));
       default:
         throw new SystemException("Unknown data type: " + dataType);
     }
