@@ -8,10 +8,9 @@ import {
   StudiesApiContext,
 } from "apiContext";
 import {
-  defaultGroup,
+  defaultSection,
   generateCohortFilter,
   getCriteriaPlugin,
-  getCriteriaTitle,
 } from "cohort";
 import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
@@ -25,6 +24,7 @@ import {
   findByID,
   findEntity,
   Grouping,
+  ITEM_COUNT_ATTRIBUTE,
   Occurrence,
   ROLLUP_COUNT_ATTRIBUTE,
   SortDirection,
@@ -828,7 +828,9 @@ export class BackendSource implements Source {
         cohortId: cohort.id,
         cohortUpdateInfoV2: {
           displayName: cohort.name,
-          criteriaGroupSections: toAPICriteriaGroupSections(cohort.groups),
+          criteriaGroupSections: toAPICriteriaGroupSections(
+            cohort.groupSections
+          ),
         },
       })
     );
@@ -1239,8 +1241,12 @@ function processEntitiesResponse(
       }
 
       instance.relationshipFields?.forEach((fields) => {
-        if (fields.hierarchy === hierarchy && isValid(fields.count)) {
-          data[ROLLUP_COUNT_ATTRIBUTE] = fields.count;
+        if (isValid(fields.count)) {
+          if (fields.hierarchy === hierarchy) {
+            data[ROLLUP_COUNT_ATTRIBUTE] = fields.count;
+          } else if (!fields.hierarchy) {
+            data[ITEM_COUNT_ATTRIBUTE] = fields.count;
+          }
         }
       });
 
@@ -1325,6 +1331,11 @@ export function generateFilter(
         relationshipFilter: {
           entity: entity.entity,
           subfilter: subfilter,
+          groupByCountAttribute: filter.groupByCount?.attribute,
+          groupByCountOperator: filter.groupByCount
+            ? toAPIBinaryOperator(filter.groupByCount.operator)
+            : undefined,
+          groupByCountValue: filter.groupByCount?.value,
         },
       },
     };
@@ -1396,7 +1407,7 @@ export function generateFilter(
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  operator: tanagra.BinaryOperatorV2.LessThan,
+                  operator: tanagra.BinaryOperatorV2.LessThanOrEqual,
                   value: literalFromDataValue(max),
                 },
               },
@@ -1406,7 +1417,7 @@ export function generateFilter(
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  operator: tanagra.BinaryOperatorV2.GreaterThan,
+                  operator: tanagra.BinaryOperatorV2.GreaterThanOrEqual,
                   value: literalFromDataValue(min),
                 },
               },
@@ -1519,6 +1530,10 @@ function makeOrderBy(
       relatedEntity: underlay.primaryEntity,
       hierarchy: classification.hierarchy,
     };
+  } else if (sortAttribute === ITEM_COUNT_ATTRIBUTE) {
+    orderBy.relationshipField = {
+      relatedEntity: underlay.primaryEntity,
+    };
   } else {
     orderBy.attribute = sortAttribute;
   }
@@ -1531,7 +1546,7 @@ function normalizeRequestedAttributes(
   requiredAttribute?: string
 ) {
   const a = attributes
-    .filter((a) => a !== ROLLUP_COUNT_ATTRIBUTE)
+    .filter((a) => a !== ROLLUP_COUNT_ATTRIBUTE && a !== ITEM_COUNT_ATTRIBUTE)
     .map((a) => {
       const i = a.indexOf(VALUE_SUFFIX);
       if (i != -1) {
@@ -1552,15 +1567,15 @@ function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
     id: cohort.id,
     name: cohort.displayName,
     underlayName: cohort.underlayName,
-    groups: fromAPICriteriaGroupSections(cohort.criteriaGroupSections),
+    groupSections: fromAPICriteriaGroupSections(cohort.criteriaGroupSections),
   };
 }
 
 function fromAPICriteriaGroupSections(
   sections?: tanagra.CriteriaGroupSectionV3[]
-): tanagra.Group[] {
+): tanagra.GroupSection[] {
   if (!sections?.length) {
-    return [defaultGroup()];
+    return [defaultSection()];
   }
 
   return sections.map((section) => ({
@@ -1569,13 +1584,15 @@ function fromAPICriteriaGroupSections(
     filter: {
       kind:
         section.operator === tanagra.CriteriaGroupSectionV3OperatorEnum.And
-          ? tanagra.GroupFilterKindEnum.All
-          : tanagra.GroupFilterKindEnum.Any,
+          ? tanagra.GroupSectionFilterKindEnum.All
+          : tanagra.GroupSectionFilterKindEnum.Any,
       excluded: section.excluded,
     },
-    criteria: section.criteriaGroups.map((group) =>
-      fromAPICriteria(group.criteria[0])
-    ),
+    groups: section.criteriaGroups.map((group) => ({
+      id: group.id,
+      entity: group.entity,
+      criteria: group.criteria.map((criteria) => fromAPICriteria(criteria)),
+    })),
   }));
 }
 
@@ -1599,25 +1616,22 @@ function fromAPIConceptSet(
 }
 
 function toAPICriteriaGroupSections(
-  groups: tanagra.Group[]
+  groupSections: tanagra.GroupSection[]
 ): tanagra.CriteriaGroupSectionV3[] {
-  return groups.map((group) => ({
-    id: group.id,
-    displayName: group.name ?? "",
+  return groupSections.map((section) => ({
+    id: section.id,
+    displayName: section.name ?? "",
     operator:
-      group.filter.kind === tanagra.GroupFilterKindEnum.All
+      section.filter.kind === tanagra.GroupSectionFilterKindEnum.All
         ? tanagra.CriteriaGroupSectionV3OperatorEnum.And
         : tanagra.CriteriaGroupSectionV3OperatorEnum.Or,
-    excluded: group.filter.excluded,
-    criteriaGroups: group.criteria.map((criteria) => {
-      const plugin = getCriteriaPlugin(criteria);
-      return {
-        id: criteria.id,
-        displayName: getCriteriaTitle(criteria, plugin),
-        entity: plugin.filterOccurrenceId(),
-        criteria: [toAPICriteria(criteria)],
-      };
-    }),
+    excluded: section.filter.excluded,
+    criteriaGroups: section.groups.map((group) => ({
+      id: group.id,
+      displayName: "",
+      entity: group.entity,
+      criteria: group.criteria.map((criteria) => toAPICriteria(criteria)),
+    })),
   }));
 }
 
@@ -1704,6 +1718,21 @@ function fromAPIAnnotation(annotation: tanagra.AnnotationV2): Annotation {
     annotationType: fromAPIAnnotationType(annotation.dataType),
     enumVals: annotation.enumVals,
   };
+}
+
+function toAPIBinaryOperator(
+  operator: tanagra.ComparisonOperator
+): tanagra.BinaryOperatorV2 {
+  switch (operator) {
+    case tanagra.ComparisonOperator.Equal:
+      return tanagra.BinaryOperatorV2.Equals;
+    case tanagra.ComparisonOperator.GreaterThanEqual:
+      return tanagra.BinaryOperatorV2.GreaterThanOrEqual;
+    case tanagra.ComparisonOperator.LessThanEqual:
+      return tanagra.BinaryOperatorV2.LessThanOrEqual;
+  }
+
+  throw new Error(`Unhandled comparison operator: ${operator}`);
 }
 
 function parseAPIError<T>(p: Promise<T>) {

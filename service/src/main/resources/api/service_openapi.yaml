@@ -34,9 +34,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemVersionV2'
+                $ref: "#/components/schemas/SystemVersionV2"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/profile":
     get:
@@ -51,7 +51,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserProfileV2"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays":
     get:
@@ -66,7 +66,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UnderlayListV2"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays/{underlayName}":
     parameters:
@@ -83,9 +83,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/UnderlayV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays/{underlayName}/entities":
     parameters:
@@ -102,9 +102,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/EntityListV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays/{underlayName}/entities/{entityName}":
     parameters:
@@ -122,9 +122,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/EntityV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays/{underlayName}/entities/{entityName}/instances":
     parameters:
@@ -139,7 +139,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QueryV2'
+              $ref: "#/components/schemas/QueryV2"
       responses:
         200:
           description: OK
@@ -148,9 +148,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/InstanceListV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays/{underlayName}/entities/{entityName}/counts":
     parameters:
@@ -165,7 +165,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CountQueryV2'
+              $ref: "#/components/schemas/CountQueryV2"
       responses:
         200:
           description: OK
@@ -174,14 +174,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/InstanceCountListV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays/{underlayName}/entities/{entityName}/export":
     parameters:
-    - $ref: "#/components/parameters/UnderlayNameV2"
-    - $ref: "#/components/parameters/EntityNameV2"
+      - $ref: "#/components/parameters/UnderlayNameV2"
+      - $ref: "#/components/parameters/EntityNameV2"
     post:
       summary: Export entity instances
       description: Exports to a file in bucket specified in application.yaml
@@ -192,7 +192,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QueryV2'
+              $ref: "#/components/schemas/QueryV2"
       responses:
         200:
           description: OK
@@ -201,9 +201,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ExportFile"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/underlays/{underlayName}/entities/{entityName}/hints":
     parameters:
@@ -218,7 +218,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HintQueryV2'
+              $ref: "#/components/schemas/HintQueryV2"
       responses:
         200:
           description: OK
@@ -227,9 +227,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/DisplayHintListV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies":
     get:
@@ -270,7 +270,7 @@ paths:
 
   "/v2/studies/{studyId}":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
     get:
       summary: Get an existing study
       operationId: getStudy
@@ -281,11 +281,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudyV2'
+                $ref: "#/components/schemas/StudyV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     patch:
       summary: Update an existing study
       operationId: updateStudy
@@ -295,18 +295,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudyUpdateInfoV2'
+              $ref: "#/components/schemas/StudyUpdateInfoV2"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudyV2'
+                $ref: "#/components/schemas/StudyV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     delete:
       summary: Delete a study
       operationId: deleteStudy
@@ -315,13 +315,13 @@ paths:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/properties":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
     post:
       summary: |
         Update the properties in a study. Only properties with keys in request 
@@ -333,14 +333,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PropertiesV2'
+              $ref: "#/components/schemas/PropertiesV2"
       responses:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     patch:
       summary: |
         Delete properties in a study. Only properties with keys in
@@ -353,18 +353,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PropertyKeysV2'
+              $ref: "#/components/schemas/PropertyKeysV2"
       responses:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/cohorts":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
     get:
       parameters:
         - $ref: "#/components/parameters/OffsetV2"
@@ -403,8 +403,8 @@ paths:
 
   "/v2/studies/{studyId}/cohorts/{cohortId}":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
     get:
       summary: Get an existing cohort
       operationId: getCohort
@@ -415,11 +415,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CohortV2'
+                $ref: "#/components/schemas/CohortV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     patch:
       summary: Update an existing cohort
       operationId: updateCohort
@@ -429,18 +429,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CohortUpdateInfoV2'
+              $ref: "#/components/schemas/CohortUpdateInfoV2"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CohortV2'
+                $ref: "#/components/schemas/CohortV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     delete:
       summary: Delete a cohort
       operationId: deleteCohort
@@ -449,14 +449,14 @@ paths:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
     get:
       parameters:
         - $ref: "#/components/parameters/OffsetV2"
@@ -495,9 +495,9 @@ paths:
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
-      - $ref: '#/components/parameters/ReviewIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
+      - $ref: "#/components/parameters/ReviewIdV2"
     get:
       summary: Get an existing review
       operationId: getReview
@@ -508,11 +508,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReviewV2'
+                $ref: "#/components/schemas/ReviewV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     patch:
       summary: Update an existing review
       operationId: updateReview
@@ -522,18 +522,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReviewUpdateInfoV2'
+              $ref: "#/components/schemas/ReviewUpdateInfoV2"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReviewV2'
+                $ref: "#/components/schemas/ReviewV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     delete:
       summary: Delete a review
       operationId: deleteReview
@@ -542,15 +542,15 @@ paths:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/instances":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
-      - $ref: '#/components/parameters/ReviewIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
+      - $ref: "#/components/parameters/ReviewIdV2"
     post:
       summary: List primary entity instances in a review and any associated annotation values
       operationId: listReviewInstancesAndAnnotations
@@ -560,7 +560,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReviewQueryV2'
+              $ref: "#/components/schemas/ReviewQueryV2"
       responses:
         200:
           description: OK
@@ -573,9 +573,9 @@ paths:
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews/{reviewId}/counts":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
-      - $ref: '#/components/parameters/ReviewIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
+      - $ref: "#/components/parameters/ReviewIdV2"
     post:
       summary: Count primary entity instances in a review
       operationId: countReviewInstances
@@ -585,7 +585,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReviewCountQueryV2'
+              $ref: "#/components/schemas/ReviewCountQueryV2"
       responses:
         200:
           description: OK
@@ -598,8 +598,8 @@ paths:
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
     get:
       parameters:
         - $ref: "#/components/parameters/OffsetV2"
@@ -638,9 +638,9 @@ paths:
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
-      - $ref: '#/components/parameters/AnnotationIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
+      - $ref: "#/components/parameters/AnnotationIdV2"
     get:
       summary: Get an existing annotation key
       operationId: getAnnotationKey
@@ -651,11 +651,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnnotationV2'
+                $ref: "#/components/schemas/AnnotationV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     patch:
       summary: Update an existing annotation key
       operationId: updateAnnotationKey
@@ -665,18 +665,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnnotationUpdateInfoV2'
+              $ref: "#/components/schemas/AnnotationUpdateInfoV2"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnnotationV2'
+                $ref: "#/components/schemas/AnnotationV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     delete:
       summary: Delete an annotation key
       operationId: deleteAnnotationKey
@@ -685,17 +685,17 @@ paths:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations/{annotationId}/reviews/{reviewId}/values/{instanceId}":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
-      - $ref: '#/components/parameters/AnnotationIdV2'
-      - $ref: '#/components/parameters/ReviewIdV2'
-      - $ref: '#/components/parameters/PrimaryEntityInstanceIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
+      - $ref: "#/components/parameters/AnnotationIdV2"
+      - $ref: "#/components/parameters/ReviewIdV2"
+      - $ref: "#/components/parameters/PrimaryEntityInstanceIdV2"
     post:
       summary: Create or update an annotation value
       operationId: updateAnnotationValue
@@ -705,14 +705,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LiteralV2'
+              $ref: "#/components/schemas/LiteralV2"
       responses:
         200:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     delete:
       summary: Delete an annotation value
       operationId: deleteAnnotationValues
@@ -721,14 +721,14 @@ paths:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotationValues/export":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/CohortIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/CohortIdV2"
     post:
       summary: Export annotation values
       description: |
@@ -751,7 +751,7 @@ paths:
 
   "/v2/studies/{studyId}/conceptSets":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
     get:
       parameters:
         - $ref: "#/components/parameters/OffsetV2"
@@ -790,8 +790,8 @@ paths:
 
   "/v2/studies/{studyId}/conceptSets/{conceptSetId}":
     parameters:
-      - $ref: '#/components/parameters/StudyIdV2'
-      - $ref: '#/components/parameters/ConceptSetIdV2'
+      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/ConceptSetIdV2"
     get:
       summary: Get an existing concept set
       operationId: getConceptSet
@@ -802,11 +802,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConceptSetV2'
+                $ref: "#/components/schemas/ConceptSetV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     patch:
       summary: Update an existing concept set
       operationId: updateConceptSet
@@ -816,18 +816,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConceptSetUpdateInfoV2'
+              $ref: "#/components/schemas/ConceptSetUpdateInfoV2"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConceptSetV2'
+                $ref: "#/components/schemas/ConceptSetV2"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
     delete:
       summary: Delete a concept set
       operationId: deleteConceptSet
@@ -836,9 +836,9 @@ paths:
         204:
           description: OK
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
   /v2/vumc-admin-service-test:
     get:
@@ -851,11 +851,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VumcAdminServiceTest'
+                $ref: "#/components/schemas/VumcAdminServiceTest"
         401:
           description: Unauthorized
         500:
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
 
 components:
   parameters:
@@ -949,14 +949,14 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorReportV2'
+            $ref: "#/components/schemas/ErrorReportV2"
 
     ServerError:
       description: Server error
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorReportV2'
+            $ref: "#/components/schemas/ErrorReportV2"
 
   schemas:
     UserData:
@@ -994,20 +994,20 @@ components:
         underlayName:
           type: string
           description: The underlay this cohort is based on.
-        groups:
+        groupSections:
           type: array
-          description: The criteria groups that make up this cohort.
+          description: The group sections that make up this cohort.
           items:
-            $ref: "#/components/schemas/Group"
+            $ref: "#/components/schemas/GroupSection"
       required:
         - id
         - name
         - underlayName
-        - groups
+        - groupSections
 
-    Group:
+    GroupSection:
       type: object
-      description: A group of criteria.
+      description: A group section of criteria (UI block).
       properties:
         id:
           type: string
@@ -1016,20 +1016,64 @@ components:
           type: string
           description: The name of this group if customized.
         filter:
-          $ref: "#/components/schemas/GroupFilter"
-        criteria:
+          $ref: "#/components/schemas/GroupSectionFilter"
+        groups:
           type: array
-          description: The criteria that make of this group.
+          description: The groups that make of this section.
           items:
-            $ref: "#/components/schemas/Criteria"
+            $ref: "#/components/schemas/Group"
       required:
         - id
         - kind
         - filter
         - underlayName
+        - groups
+
+    Group:
+      type: object
+      description: A group of criteria (criteria + mods).
+      properties:
+        id:
+          type: string
+          description: The unique id of this group.
+        entity:
+          description: Entity referenced by the criteria
+          type: string
+        criteria:
+          type: array
+          description: The criteria that make of this group.
+          items:
+            $ref: "#/components/schemas/Criteria"
+        groupByCount:
+          $ref: "#/components/schemas/GroupByCount"
+      required:
+        - id
+        - entity
         - criteria
 
-    GroupFilter:
+    ComparisonOperator:
+      type: string
+      enum: ["EQUAL", "LESS_THAN_EQUAL", "GREATER_THAN_EQUAL", "BETWEEN"]
+
+    GroupByCount:
+      type: object
+      description: A modifier to count rows grouped by date
+      properties:
+        attribute:
+          description: Attribute to group by
+          type: string
+        operator:
+          description: Operator to use for the comparison
+          $ref: "#/components/schemas/ComparisonOperator"
+        value:
+          description: Value to compare against
+          type: integer
+      required:
+        - attribute
+        - operator
+        - value
+
+    GroupSectionFilter:
       type: object
       description: |
         A filter for a list of criteria that indicates how to combine the states
@@ -1388,7 +1432,8 @@ components:
       properties:
         filterType:
           type: string
-          enum: ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC"]
+          enum:
+            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC"]
         filterUnion:
           type: object
           properties:
@@ -1699,7 +1744,7 @@ components:
     # I've moved it out into a separate top level type as a workaround.
     PropertyKeyValueV2:
       type: object
-      required: [ key, value ]
+      required: [key, value]
       properties:
         key:
           description: |

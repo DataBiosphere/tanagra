@@ -14,6 +14,11 @@ export type GridLayoutProps = {
 
   colAlign?: "stretch" | "left" | "center" | "right";
   rowAlign?: "stretch" | "top" | "middle" | "bottom" | "baseline";
+
+  width?: string | number;
+  height?: string | number;
+
+  spacing?: string | number;
 };
 
 function parseDesc(
@@ -82,8 +87,9 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
   return (
     <Box
       sx={{
-        width: "100%",
-        height: "100%",
+        width: spacing(theme, props.width ?? "100%"),
+        height: spacing(theme, props.height ?? "100%"),
+        gridGap: spacing(theme, props.spacing ?? 0),
         display: "grid",
         gridTemplateRows: rowTmpl,
         gridTemplateColumns: colTmpl,
@@ -105,4 +111,8 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
       ))}
     </Box>
   );
+}
+
+function spacing(theme: Theme, value?: string | number) {
+  return typeof value === "number" ? theme.spacing(value) : value;
 }

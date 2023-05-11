@@ -18,34 +18,23 @@ export function generateId(): string {
 export function generateCohortFilter(cohort: tanagra.Cohort): Filter | null {
   return makeArrayFilter(
     {},
-    cohort.groups.map((group) => generateFilter(group)).filter(isValid)
+    cohort.groupSections
+      .map((section) => generateSectionFilter(section))
+      .filter(isValid)
   );
 }
 
-function generateFilter(group: tanagra.Group): Filter | null {
+function generateSectionFilter(section: tanagra.GroupSection): Filter | null {
   const filter = makeArrayFilter(
-    group.filter.kind === tanagra.GroupFilterKindEnum.Any ? { min: 1 } : {},
-    group.criteria
-      .map((criteria) => {
-        const plugin = getCriteriaPlugin(criteria);
-        const filter = plugin.generateFilter();
-        if (!filter) {
-          return null;
-        }
-        if (!plugin.filterOccurrenceId()) {
-          return filter;
-        }
-
-        return {
-          type: FilterType.Relationship,
-          entityId: plugin.filterOccurrenceId(),
-          subfilter: filter,
-        };
-      })
+    section.filter.kind === tanagra.GroupSectionFilterKindEnum.Any
+      ? { min: 1 }
+      : {},
+    section.groups
+      .map((group) => generateGroupSectionFilter(group))
       .filter(isValid)
   );
 
-  if (!filter || !group.filter.excluded) {
+  if (!filter || !section.filter.excluded) {
     return filter;
   }
   return {
@@ -55,20 +44,66 @@ function generateFilter(group: tanagra.Group): Filter | null {
   };
 }
 
-export function groupName(group: tanagra.Group, index: number) {
-  return group.name || "Group " + String(index + 1);
+function generateGroupSectionFilter(group: tanagra.Group): Filter | null {
+  const plugins = group.criteria.map((c) => getCriteriaPlugin(c));
+  const filter = makeArrayFilter(
+    {},
+    plugins.map((p) => p.generateFilter()).filter(isValid)
+  );
+
+  if (!filter || !group.entity) {
+    return filter;
+  }
+
+  const groupByCountFilters = plugins
+    .map((p) => p.groupByCountFilter?.())
+    .filter(isValid);
+  if (groupByCountFilters.length > 1) {
+    throw new Error(
+      `Criteria groups may not have multiple group by count filters: ${JSON.stringify(
+        groupByCountFilters
+      )}`
+    );
+  }
+
+  return {
+    type: FilterType.Relationship,
+    entityId: group.entity,
+    subfilter: filter,
+    groupByCount:
+      groupByCountFilters.length > 0 ? groupByCountFilters[0] : undefined,
+  };
 }
 
-export function defaultGroup(criteria?: tanagra.Criteria): tanagra.Group {
+export function sectionName(section: tanagra.GroupSection, index: number) {
+  return section.name || "Group " + String(index + 1);
+}
+
+export function defaultSection(
+  criteria?: tanagra.Criteria
+): tanagra.GroupSection {
   return {
     id: generateId(),
     filter: {
-      kind: tanagra.GroupFilterKindEnum.Any,
+      kind: tanagra.GroupSectionFilterKindEnum.Any,
       excluded: false,
     },
-    criteria: criteria ? [criteria] : [],
+    groups: !!criteria ? [defaultGroup(criteria)] : [],
   };
 }
+
+export function defaultGroup(criteria: tanagra.Criteria): tanagra.Group {
+  return {
+    id: generateId(),
+    entity: getCriteriaPlugin(criteria).filterOccurrenceId(),
+    criteria: [criteria],
+  };
+}
+
+export const defaultFilter: tanagra.GroupSectionFilter = {
+  kind: tanagra.GroupSectionFilterKindEnum.Any,
+  excluded: false,
+};
 
 // Having typed data here allows the registry to treat all data generically
 // while plugins can use an actual type internally.
@@ -79,9 +114,10 @@ export interface CriteriaPlugin<DataType> {
     doneURL: string,
     setBackURL: (url?: string) => void
   ) => JSX.Element;
-  renderInline: (criteriaId: string) => JSX.Element;
+  renderInline: (groupId: string) => JSX.Element;
   displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
+  groupByCountFilter?: () => tanagra.GroupByCount | null;
   filterOccurrenceId: () => string;
   outputOccurrenceIds?: () => string[];
 }
@@ -174,12 +210,14 @@ export function createCriteria(
 }
 
 export function getCriteriaPlugin(
-  criteria: tanagra.Criteria
+  criteria: tanagra.Criteria,
+  entity?: string
 ): CriteriaPlugin<object> {
   return new (getCriteriaEntry(criteria.type).constructor)(
     criteria.id,
     criteria.config as CriteriaConfig,
-    criteria.data
+    criteria.data,
+    entity
   );
 }
 
@@ -195,7 +233,8 @@ interface CriteriaPluginConstructor {
   new (
     id: string,
     config: CriteriaConfig,
-    data: object
+    data: object,
+    entity?: string
   ): CriteriaPlugin<object>;
 }
 

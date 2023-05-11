@@ -22,6 +22,7 @@ export type Underlay = {
 export type UIConfiguration = {
   dataConfig: Configuration;
   criteriaConfigs: CriteriaConfig[];
+  modifierConfigs: CriteriaConfig[];
   demographicChartConfigs: DemographicChartConfig;
   prepackagedConceptSets: PrepackagedConceptSet[];
   criteriaSearchConfig: CriteriaSearchConfig;
@@ -87,6 +88,7 @@ export interface CriteriaConfig {
   title: string;
   conceptSet?: boolean;
   category?: string;
+  modifiers?: string[];
 
   // Plugin specific config.
   plugin: unknown;

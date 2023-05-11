@@ -51,10 +51,10 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderInline(criteriaId: string) {
+  renderInline(groupId: string) {
     return (
       <TextSearchInline
-        criteriaId={criteriaId}
+        groupId={groupId}
         data={this.data}
         config={this.config}
       />
@@ -112,14 +112,14 @@ class _ implements CriteriaPlugin<Data> {
 }
 
 type TextSearchInlineProps = {
-  criteriaId: string;
+  groupId: string;
   config: Config;
   data: Data;
 };
 
 function TextSearchInline(props: TextSearchInlineProps) {
   const source = useSource();
-  const updateCriteria = useUpdateCriteria(props.criteriaId);
+  const updateCriteria = useUpdateCriteria(props.groupId);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onUpdateQuery = (query: string) => {

@@ -1,14 +1,14 @@
 import CriteriaHolder from "criteriaHolder";
-import { useGroupAndCriteria } from "hooks";
+import { useGroupSectionAndGroup } from "hooks";
 import { getCriteriaPlugin, getCriteriaTitle } from "./cohort";
 
 export default function Edit() {
-  const { criteria } = useGroupAndCriteria();
-  const plugin = getCriteriaPlugin(criteria);
+  const { group } = useGroupSectionAndGroup();
+  const plugin = getCriteriaPlugin(group.criteria[0]);
 
   return (
     <CriteriaHolder
-      title={getCriteriaTitle(criteria, plugin)}
+      title={getCriteriaTitle(group.criteria[0], plugin)}
       plugin={plugin}
       cohort
     />

@@ -1,6 +1,4 @@
 import { combineReducers, createAction } from "@reduxjs/toolkit";
-import cohortsReducer from "cohortsSlice";
-import conceptSetsReducer from "conceptSetsSlice";
 import { AnyAction, Reducer } from "redux";
 import undoable from "redux-undo";
 import * as tanagra from "tanagra-api";
@@ -14,9 +12,7 @@ const undoableConfigs = {
 };
 
 const slicesReducer = combineReducers({
-  cohorts: cohortsReducer,
   underlays: underlaysReducer,
-  conceptSets: conceptSetsReducer,
   url: urlSlice,
 });
 
@@ -30,8 +26,6 @@ export const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
       ...state,
       present: {
         ...state.present,
-        cohorts: action.payload.cohorts,
-        conceptSets: action.payload.conceptSets,
       },
     };
   } else if (setUnderlays.match(action)) {
