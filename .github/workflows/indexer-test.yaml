@@ -48,5 +48,5 @@ jobs:
         # The check task includes the build, test and static analysis tasks.
         run: ./gradlew indexer:check --scan
         env:
-          GITHUB_TOKEN: ${{ secrets.GPT_TOKEN_MARIKOMEDLOCK }}
+          GITHUB_TOKEN: ${{ secrets.GPR_TOKEN_MARIKOMEDLOCK }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
