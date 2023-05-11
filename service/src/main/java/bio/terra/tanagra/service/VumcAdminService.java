@@ -6,6 +6,11 @@ import bio.terra.tanagra.app.configuration.VumcAdminConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.auth.AppDefaultUtils;
 import bio.terra.tanagra.service.auth.UserId;
+import javax.ws.rs.client.Client;
+import org.apache.http.HttpStatus;
+import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.vumc.vda.tanagra.admin.api.AuthorizationApi;
 import org.vumc.vda.tanagra.admin.api.TestApi;
 import org.vumc.vda.tanagra.admin.api.UnauthenticatedApi;
@@ -17,11 +22,6 @@ import org.vumc.vda.tanagra.admin.model.ResourceList;
 import org.vumc.vda.tanagra.admin.model.ResourceType;
 import org.vumc.vda.tanagra.admin.model.ResourceTypeList;
 import org.vumc.vda.tanagra.admin.model.SystemVersion;
-import javax.ws.rs.client.Client;
-import org.apache.http.HttpStatus;
-import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class VumcAdminService {

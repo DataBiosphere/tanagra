@@ -1,9 +1,6 @@
 package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.Main;
-import org.vumc.vda.tanagra.admin.client.ApiException;
-import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
-import org.vumc.vda.tanagra.admin.model.SystemVersion;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.vumc.vda.tanagra.admin.client.ApiException;
+import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
+import org.vumc.vda.tanagra.admin.model.SystemVersion;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
