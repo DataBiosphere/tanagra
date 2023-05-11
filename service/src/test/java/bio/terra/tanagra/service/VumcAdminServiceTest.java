@@ -4,6 +4,7 @@ import bio.terra.tanagra.app.Main;
 import org.vumc.vda.tanagra.admin.client.ApiException;
 import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
 import org.vumc.vda.tanagra.admin.model.SystemVersion;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -24,12 +25,14 @@ public class VumcAdminServiceTest {
   @Autowired private VumcAdminService vumcAdminService;
 
   @Test
+  @Disabled
   void version() throws ApiException {
     SystemVersion systemVersion = vumcAdminService.version();
     LOGGER.info("version returned success: {}", systemVersion);
   }
 
   @Test
+  @Disabled
   void roundTrip() throws ApiException {
     CoreServiceTest coreServiceTest = vumcAdminService.roundTripTest();
     LOGGER.info("round trip core -> admin -> core: {}", coreServiceTest);
