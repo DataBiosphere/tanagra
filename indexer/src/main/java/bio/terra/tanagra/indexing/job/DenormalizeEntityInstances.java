@@ -56,7 +56,7 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
           attribute
               .getMapping(Underlay.MappingType.SOURCE)
               .getValue()
-              .buildVariable(primaryInputTable, inputTables, attribute.getName());
+              .buildVariableForIndexing(primaryInputTable, inputTables, attribute.getName());
       insertFields.put(insertColumnName, selectField);
 
       if (Attribute.Type.KEY_AND_DISPLAY.equals(attribute.getType())) {
@@ -67,7 +67,7 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
             attribute
                 .getMapping(Underlay.MappingType.SOURCE)
                 .getDisplay()
-                .buildVariable(
+                .buildVariableForIndexing(
                     primaryInputTable,
                     inputTables,
                     attribute.getMapping(Underlay.MappingType.INDEX).getDisplayMappingAlias());

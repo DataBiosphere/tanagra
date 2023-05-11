@@ -68,6 +68,35 @@ public final class AttributeMapping {
     }
   }
 
+  public static AttributeMapping generatedForIndex(
+      AttributeMapping sourceMapping, TablePointer indexTablePointer, Attribute attribute) {
+    // Generate a default attribute mapping: a column with the same name as the attribute.
+    FieldPointer.Builder valueBuilder =
+        new FieldPointer.Builder().tablePointer(indexTablePointer).columnName(attribute.getName());
+    if (sourceMapping.getValue().isRuntimeCalculated()) {
+      valueBuilder
+          .runtimeCalculated(true)
+          .sqlFunctionWrapper(sourceMapping.getValue().getSqlFunctionWrapper());
+    }
+    FieldPointer value = valueBuilder.build();
+
+    switch (attribute.getType()) {
+      case SIMPLE:
+        return new AttributeMapping(value);
+      case KEY_AND_DISPLAY:
+        // Generate a default attribute display mapping: a column with the same name as the
+        // attribute with a prefix.
+        FieldPointer display =
+            new FieldPointer.Builder()
+                .tablePointer(indexTablePointer)
+                .columnName(DEFAULT_DISPLAY_MAPPING_PREFIX + attribute.getName())
+                .build();
+        return new AttributeMapping(value, display);
+      default:
+        throw new InvalidConfigException("Attribute type is not defined");
+    }
+  }
+
   /**
    * @param tableVariables If this is a KEY_AND_DISPLAY attribute, the foreign table will appended
    *     to tableVariables. So tableVariables must be mutable: "Lists.newArrayList(...)", not "new
@@ -99,6 +128,43 @@ public final class AttributeMapping {
 
     ColumnSchema displayColSchema =
         new ColumnSchema(getDisplayMappingAlias(), CellValue.SQLDataType.STRING);
+    return List.of(valueColSchema, displayColSchema);
+  }
+
+  public List<ColumnSchema> buildColumnSchemasForIndexing(AttributeMapping sourceMapping) {
+    ColumnSchema valueColSchema;
+    if (!value.isRuntimeCalculated()) {
+      valueColSchema = buildValueColumnSchema();
+    } else {
+      DataPointer dataPointer = sourceMapping.getValue().getTablePointer().getDataPointer();
+      Literal.DataType storedDataType =
+          dataPointer.lookupDatatype(
+              sourceMapping
+                  .getValue()
+                  .toBuilder()
+                  .runtimeCalculated(false)
+                  .sqlFunctionWrapper(null)
+                  .build());
+      valueColSchema =
+          new ColumnSchema(
+              attribute.getName(), CellValue.SQLDataType.fromUnderlayDataType(storedDataType));
+    }
+    if (!hasDisplay()) {
+      return List.of(valueColSchema);
+    }
+
+    ColumnSchema displayColSchema;
+    if (!display.isRuntimeCalculated()) {
+      displayColSchema = new ColumnSchema(getDisplayMappingAlias(), CellValue.SQLDataType.STRING);
+    } else {
+      DataPointer dataPointer = display.getTablePointer().getDataPointer();
+      Literal.DataType storedDataType =
+          dataPointer.lookupDatatype(
+              display.toBuilder().runtimeCalculated(false).sqlFunctionWrapper(null).build());
+      displayColSchema =
+          new ColumnSchema(
+              getDisplayMappingAlias(), CellValue.SQLDataType.fromUnderlayDataType(storedDataType));
+    }
     return List.of(valueColSchema, displayColSchema);
   }
 

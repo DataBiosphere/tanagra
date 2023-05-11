@@ -20,6 +20,8 @@ public class UFFieldPointer {
   private final String
       sqlFunctionWrapper; // can include ${fieldSql} for wrappers that are not just ___(field)
 
+  private final boolean runtimeCalculated;
+
   public UFFieldPointer(FieldPointer fieldPointer) {
     this.column = fieldPointer.getColumnName();
     if (fieldPointer.isForeignKey()) {
@@ -32,6 +34,7 @@ public class UFFieldPointer {
       this.foreignColumn = null;
     }
     this.sqlFunctionWrapper = fieldPointer.getSqlFunctionWrapper();
+    this.runtimeCalculated = fieldPointer.isRuntimeCalculated();
   }
 
   protected UFFieldPointer(Builder builder) {
@@ -40,6 +43,7 @@ public class UFFieldPointer {
     this.foreignKey = builder.foreignKey;
     this.foreignColumn = builder.foreignColumn;
     this.sqlFunctionWrapper = builder.sqlFunctionWrapper;
+    this.runtimeCalculated = builder.runtimeCalculated;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -49,6 +53,7 @@ public class UFFieldPointer {
     private String foreignKey;
     private String foreignColumn;
     private String sqlFunctionWrapper;
+    private boolean runtimeCalculated;
 
     public Builder column(String column) {
       this.column = column;
@@ -72,6 +77,11 @@ public class UFFieldPointer {
 
     public Builder sqlFunctionWrapper(String sqlFunctionWrapper) {
       this.sqlFunctionWrapper = sqlFunctionWrapper;
+      return this;
+    }
+
+    public Builder runtimeCalculated(boolean runtimeCalculated) {
+      this.runtimeCalculated = runtimeCalculated;
       return this;
     }
 
@@ -99,5 +109,9 @@ public class UFFieldPointer {
 
   public String getSqlFunctionWrapper() {
     return sqlFunctionWrapper;
+  }
+
+  public boolean isRuntimeCalculated() {
+    return runtimeCalculated;
   }
 }

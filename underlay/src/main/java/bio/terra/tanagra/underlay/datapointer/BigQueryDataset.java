@@ -125,13 +125,13 @@ public final class BigQueryDataset extends DataPointer {
             : fieldPointer.getColumnName();
 
     Schema tableSchema;
-    if (tablePointer.isRawSql()) {
+    if (tablePointer.isRawSql() || fieldPointer.hasSqlFunctionWrapper()) {
       // If the table is a raw SQL string, then we can't fetch a table schema directly.
       // Instead, fetch a single row result and inspect the data types of that.
       TableVariable tableVar = TableVariable.forPrimary(tablePointer);
       List<TableVariable> tableVars = List.of(tableVar);
-      FieldVariable fieldVarStar =
-          FieldPointer.allFields(tablePointer).buildVariable(tableVar, tableVars);
+      FieldVariable fieldVarStar = fieldPointer.buildVariable(tableVar, tableVars, columnName);
+      //          FieldPointer.allFields(tablePointer).buildVariable(tableVar, tableVars);
       Query queryOneRow =
           new Query.Builder().select(List.of(fieldVarStar)).tables(tableVars).limit(1).build();
       tableSchema = getBigQueryService().getQuerySchemaWithCaching(queryOneRow.renderSQL());

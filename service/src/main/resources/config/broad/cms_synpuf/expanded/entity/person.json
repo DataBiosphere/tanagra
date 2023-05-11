@@ -87,6 +87,15 @@
     "dataType" : "INT64"
   }, {
     "type" : "SIMPLE",
+    "name" : "age",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 40.0,
+      "maxVal" : 114.0
+    }
+  }, {
+    "type" : "SIMPLE",
     "name" : "year_of_birth",
     "dataType" : "INT64",
     "displayHint" : {
@@ -103,45 +112,60 @@
     "attributeMappings" : {
       "gender" : {
         "value" : {
-          "column" : "gender_concept_id"
+          "column" : "gender_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "gender_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "race" : {
         "value" : {
-          "column" : "race_concept_id"
+          "column" : "race_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "race_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "ethnicity" : {
         "value" : {
-          "column" : "ethnicity_concept_id"
+          "column" : "ethnicity_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "ethnicity_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "year_of_birth",
+          "sqlFunctionWrapper" : "DATE_DIFF(CURRENT_DATE, DATE(${fieldSql}, 1, 1), YEAR)",
+          "runtimeCalculated" : true
         }
       },
       "year_of_birth" : {
         "value" : {
-          "column" : "year_of_birth"
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -155,36 +179,51 @@
     "attributeMappings" : {
       "gender" : {
         "value" : {
-          "column" : "gender"
+          "column" : "gender",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_gender"
+          "column" : "t_display_gender",
+          "runtimeCalculated" : false
         }
       },
       "race" : {
         "value" : {
-          "column" : "race"
+          "column" : "race",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_race"
+          "column" : "t_display_race",
+          "runtimeCalculated" : false
         }
       },
       "ethnicity" : {
         "value" : {
-          "column" : "ethnicity"
+          "column" : "ethnicity",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_ethnicity"
+          "column" : "t_display_ethnicity",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "age",
+          "sqlFunctionWrapper" : "DATE_DIFF(CURRENT_DATE, DATE(${fieldSql}, 1, 1), YEAR)",
+          "runtimeCalculated" : true
         }
       },
       "year_of_birth" : {
         "value" : {
-          "column" : "year_of_birth"
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
         }
       }
     },
