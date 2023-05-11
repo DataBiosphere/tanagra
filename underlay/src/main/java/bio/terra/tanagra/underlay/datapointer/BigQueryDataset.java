@@ -131,7 +131,6 @@ public final class BigQueryDataset extends DataPointer {
       TableVariable tableVar = TableVariable.forPrimary(tablePointer);
       List<TableVariable> tableVars = List.of(tableVar);
       FieldVariable fieldVarStar = fieldPointer.buildVariable(tableVar, tableVars, columnName);
-      //          FieldPointer.allFields(tablePointer).buildVariable(tableVar, tableVars);
       Query queryOneRow =
           new Query.Builder().select(List.of(fieldVarStar)).tables(tableVars).limit(1).build();
       tableSchema = getBigQueryService().getQuerySchemaWithCaching(queryOneRow.renderSQL());
