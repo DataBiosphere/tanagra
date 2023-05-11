@@ -1,5 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import TuneIcon from "@mui/icons-material/Tune";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -16,32 +17,36 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
-  deleteCohortCriteria,
+  deleteCohortCriteriaModifier,
   deleteCohortGroup,
-  insertCohortGroup,
-  updateCohortGroup,
+  deleteCohortGroupSection,
+  insertCohortCriteriaModifier,
+  insertCohortGroupSection,
+  updateCohortGroupSection,
   useCohortContext,
 } from "cohortContext";
-import { defaultFilter } from "cohortsSlice";
 import CohortToolbar from "cohortToolbar";
 import Empty from "components/empty";
 import Loading from "components/loading";
+import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { DemographicCharts } from "demographicCharts";
-import { useCohort } from "hooks";
+import { useCohort, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { cohortURL, criteriaURL, exitURL, useBaseParams } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import {
+  createCriteria,
+  defaultFilter,
   generateCohortFilter,
   getCriteriaPlugin,
   getCriteriaTitle,
-  groupName,
+  sectionName,
 } from "./cohort";
 
 export function Overview() {
@@ -89,20 +94,21 @@ function GroupList() {
         To be included in the cohort, participants…
       </Typography>
       <List sx={{ p: 0 }}>
-        {cohort.groups.map((g, index) => (
+        {cohort.groupSections.map((s, index) => (
           <>
             {index !== 0 ? <GroupDivider /> : null}
             <ListItem disableGutters>
-              <ParticipantsGroup group={g} groupIndex={index} />
+              <ParticipantsGroupSection groupSection={s} sectionIndex={index} />
             </ListItem>
           </>
         ))}
-        {cohort.groups.length > 1 || cohort.groups[0].criteria.length > 0 ? (
+        {cohort.groupSections.length > 1 ||
+        cohort.groupSections[0].groups.length > 0 ? (
           <>
             <GroupDivider />
             <ListItem disableGutters key="" sx={{ p: 0 }}>
               <Button
-                onClick={() => insertCohortGroup(context)}
+                onClick={() => insertCohortGroupSection(context)}
                 variant="contained"
               >
                 Add group
@@ -115,21 +121,21 @@ function GroupList() {
   );
 }
 
-function ParticipantsGroup(props: {
-  group: tanagra.Group;
-  groupIndex: number;
+function ParticipantsGroupSection(props: {
+  groupSection: tanagra.GroupSection;
+  sectionIndex: number;
 }) {
   const source = useSource();
   const cohort = useCohort();
   const context = useCohortContext();
   const navigate = useNavigate();
 
-  const fetchGroupCount = useCallback(async () => {
+  const fetchSectionCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
       id: cohort.id,
       name: cohort.name,
       underlayName: cohort.underlayName,
-      groups: [props.group],
+      groupSections: [props.groupSection],
     };
 
     const filter = generateCohortFilter(cohortForFilter);
@@ -138,19 +144,19 @@ function ParticipantsGroup(props: {
     }
 
     return (await source.filterCount(filter))[0].count;
-  }, [cohort.id, cohort.name, cohort.underlayName, props.group]);
+  }, [cohort.underlayName, props.sectionIndex, props.groupSection]);
 
-  const groupCountState = useSWRImmutable(
+  const sectionCountState = useSWRImmutable(
     {
       component: "Overview",
       cohortId: cohort.id,
       cohortName: cohort.name,
       underlayName: cohort.underlayName,
-      group: props.group,
+      groupSections: props.groupSection,
     },
-    fetchGroupCount
+    fetchSectionCount
   );
-  const name = groupName(props.group, props.groupIndex);
+  const name = sectionName(props.groupSection, props.sectionIndex);
 
   const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
     title: "Edit Group Name",
@@ -158,7 +164,7 @@ function ParticipantsGroup(props: {
     textLabel: "Group name",
     buttonLabel: "Rename group",
     onConfirm: (name: string) => {
-      updateCohortGroup(context, props.group.id, name);
+      updateCohortGroupSection(context, props.groupSection.id, name);
     },
   });
 
@@ -174,12 +180,17 @@ function ParticipantsGroup(props: {
           <Stack direction="row" alignItems="baseline">
             <FormControl>
               <Select
-                value={props.group.filter.excluded ? 1 : 0}
+                value={props.groupSection.filter.excluded ? 1 : 0}
                 onChange={(event: SelectChangeEvent<number>) => {
-                  updateCohortGroup(context, props.group.id, undefined, {
-                    ...props.group.filter,
-                    excluded: event.target.value === 1,
-                  });
+                  updateCohortGroupSection(
+                    context,
+                    props.groupSection.id,
+                    undefined,
+                    {
+                      ...props.groupSection.filter,
+                      excluded: event.target.value === 1,
+                    }
+                  );
                 }}
               >
                 <MenuItem value={0}>Must</MenuItem>
@@ -189,16 +200,26 @@ function ParticipantsGroup(props: {
             <Typography variant="body1">&nbsp;meet&nbsp;</Typography>
             <FormControl>
               <Select
-                value={props.group.filter.kind}
+                value={props.groupSection.filter.kind}
                 onChange={(event: SelectChangeEvent<string>) => {
-                  updateCohortGroup(context, props.group.id, undefined, {
-                    ...props.group.filter,
-                    kind: event.target.value as tanagra.GroupFilterKindEnum,
-                  });
+                  updateCohortGroupSection(
+                    context,
+                    props.groupSection.id,
+                    undefined,
+                    {
+                      ...props.groupSection.filter,
+                      kind: event.target
+                        .value as tanagra.GroupSectionFilterKindEnum,
+                    }
+                  );
                 }}
               >
-                <MenuItem value={tanagra.GroupFilterKindEnum.Any}>any</MenuItem>
-                <MenuItem value={tanagra.GroupFilterKindEnum.All}>all</MenuItem>
+                <MenuItem value={tanagra.GroupSectionFilterKindEnum.Any}>
+                  any
+                </MenuItem>
+                <MenuItem value={tanagra.GroupSectionFilterKindEnum.All}>
+                  all
+                </MenuItem>
               </Select>
             </FormControl>
             <Typography variant="body1">
@@ -215,7 +236,7 @@ function ParticipantsGroup(props: {
             {renameGroupDialog}
             <IconButton
               onClick={() => {
-                deleteCohortGroup(context, props.group.id);
+                deleteCohortGroupSection(context, props.groupSection.id);
               }}
             >
               <DeleteIcon />
@@ -223,7 +244,7 @@ function ParticipantsGroup(props: {
           </Stack>
         </Stack>
         <Stack sx={{ p: 1 }}>
-          {props.group.criteria.length === 0 ? (
+          {props.groupSection.groups.length === 0 ? (
             <Empty
               maxWidth="90%"
               minHeight="60px"
@@ -231,12 +252,12 @@ function ParticipantsGroup(props: {
               subtitle="You can add a criteria by clicking on 'Add criteria'"
             />
           ) : (
-            props.group.criteria.map((criteria) => (
+            props.groupSection.groups.map((group) => (
               <>
-                <Box key={criteria.id}>
-                  <ParticipantCriteria
-                    group={props.group}
-                    criteria={criteria}
+                <Box key={group.id}>
+                  <ParticipantsGroup
+                    groupSection={props.groupSection}
+                    group={group}
                   />
                 </Box>
                 <Divider sx={{ my: 1 }} />
@@ -246,7 +267,9 @@ function ParticipantsGroup(props: {
           <Stack direction="row">
             <Button
               onClick={() =>
-                navigate(`../${cohortURL(cohort.id, props.group.id)}/add`)
+                navigate(
+                  `../${cohortURL(cohort.id, props.groupSection.id)}/add`
+                )
               }
               variant="contained"
             >
@@ -261,8 +284,8 @@ function ParticipantsGroup(props: {
           sx={{ p: 1, backgroundColor: (theme) => theme.palette.divider }}
         >
           <Typography variant="subtitle1">Group count:&nbsp;</Typography>
-          <Loading status={groupCountState} size="small">
-            {groupCountState.data?.toLocaleString()}
+          <Loading status={sectionCountState} size="small">
+            {sectionCountState.data?.toLocaleString()}
           </Loading>
         </Stack>
       </Stack>
@@ -270,24 +293,25 @@ function ParticipantsGroup(props: {
   );
 }
 
-function ParticipantCriteria(props: {
+function ParticipantsGroup(props: {
+  groupSection: tanagra.GroupSection;
   group: tanagra.Group;
-  criteria: tanagra.Criteria;
 }) {
   const source = useSource();
   const cohort = useCohort();
   const context = useCohortContext();
+  const uiConfig = useUnderlay().uiConfiguration;
 
-  const fetchCriteriaCount = useCallback(async () => {
+  const fetchGroupCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
       id: cohort.id,
       name: cohort.name,
       underlayName: cohort.underlayName,
-      groups: [
+      groupSections: [
         {
-          id: props.group.id,
+          id: props.groupSection.id,
           filter: defaultFilter,
-          criteria: [props.criteria],
+          groups: [props.group],
         },
       ],
     };
@@ -298,33 +322,76 @@ function ParticipantCriteria(props: {
     }
 
     return (await source.filterCount(filter))[0].count;
-  }, [cohort.id, cohort.name, cohort.underlayName, props.criteria]);
+  }, [cohort.underlayName, props.group]);
 
-  const criteriaCountState = useSWRImmutable(
+  const groupCountState = useSWRImmutable(
     {
       component: "Overview",
       cohortId: cohort.id,
       cohortName: cohort.name,
       underlayName: cohort.underlayName,
-      criteria: props.criteria,
+      criteria: props.group,
     },
-    fetchCriteriaCount
+    fetchGroupCount
   );
 
-  const plugin = getCriteriaPlugin(props.criteria);
-  const title = getCriteriaTitle(props.criteria, plugin);
+  const plugin = getCriteriaPlugin(props.group.criteria[0]);
+  const title = getCriteriaTitle(props.group.criteria[0], plugin);
+
+  const modifierCriteria = useMemo(
+    () => props.group.criteria.slice(1),
+    [props.group.criteria]
+  );
+
+  const modifierPlugins = useMemo(
+    () => modifierCriteria.map((c) => getCriteriaPlugin(c, props.group.entity)),
+    [modifierCriteria, props.group.entity]
+  );
+
+  const hasModifiers = props.group.criteria[0].config.modifiers?.length;
+  const [menu, showMenu] = useMenu({
+    children: props.group.criteria[0].config.modifiers?.map((m: string) => {
+      const config = uiConfig.modifierConfigs?.find((c) => c.id === m);
+      if (!config) {
+        return null;
+      }
+
+      const sel = !!modifierCriteria.find((c) => c.config.id === m);
+
+      return (
+        <MenuItem
+          key={m}
+          selected={sel}
+          disabled={sel}
+          onClick={() => {
+            insertCohortCriteriaModifier(
+              context,
+              props.groupSection.id,
+              props.group.id,
+              createCriteria(source, config)
+            );
+          }}
+        >
+          {config.title}
+        </MenuItem>
+      );
+    }),
+  });
 
   return (
-    <Stack key={props.criteria.id}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Stack direction="row" alignItems="flex-start">
+    <Stack key={props.group.id}>
+      <GridLayout
+        cols={modifierPlugins.length > 0 ? "1fr 1fr" : "auto 1fr"}
+        height="auto"
+      >
+        <GridLayout cols>
           {!!plugin.renderEdit ? (
             <Link
               variant="h4"
               color="inherit"
               underline="hover"
               component={RouterLink}
-              to={criteriaURL(props.criteria.id)}
+              to={criteriaURL(props.group.id)}
             >
               {title}
             </Link>
@@ -333,19 +400,67 @@ function ParticipantCriteria(props: {
           )}
           <IconButton
             onClick={() => {
-              deleteCohortCriteria(context, props.group.id, props.criteria.id);
+              deleteCohortGroup(context, props.groupSection.id, props.group.id);
             }}
           >
             <DeleteIcon fontSize="small" sx={{ mt: "-3px" }} />
           </IconButton>
-        </Stack>
-        <Loading status={criteriaCountState} size="small">
-          <Typography variant="body2" sx={{ ml: 1 }}>
-            {criteriaCountState.data?.toLocaleString()}
-          </Typography>
-        </Loading>
-      </Stack>
-      {plugin.renderInline(props.criteria.id)}
+        </GridLayout>
+        <GridLayout cols fillCol={1} rowAlign="middle">
+          {hasModifiers ? (
+            <Button
+              startIcon={<TuneIcon fontSize="small" />}
+              onClick={showMenu}
+              sx={{ mt: "-3px" }}
+            >
+              Modifiers
+            </Button>
+          ) : (
+            <Box />
+          )}
+          {menu}
+          <GridBox />
+          <Loading status={groupCountState} size="small">
+            <Typography variant="body2" sx={{ ml: 1 }}>
+              {groupCountState.data?.toLocaleString()}
+            </Typography>
+          </Loading>
+        </GridLayout>
+      </GridLayout>
+      <GridLayout
+        cols={modifierPlugins.length > 0 ? "1fr 1fr" : "1fr"}
+        height="auto"
+      >
+        {plugin.renderInline(props.group.id)}
+        {modifierPlugins.length > 0 ? (
+          <GridLayout rows height="auto" spacing={2}>
+            {modifierPlugins.map((p, i) => (
+              <GridLayout key={p.id} height="auto">
+                <GridLayout cols height="auto">
+                  <Typography variant="h4">
+                    {modifierCriteria[i].config.title}
+                  </Typography>
+                  <IconButton
+                    onClick={() =>
+                      deleteCohortCriteriaModifier(
+                        context,
+                        props.groupSection.id,
+                        props.group.id,
+                        p.id
+                      )
+                    }
+                  >
+                    <DeleteIcon fontSize="small" sx={{ mt: "-3px" }} />
+                  </IconButton>
+                </GridLayout>
+                <GridBox key={p.id} sx={{ height: "auto" }}>
+                  {p.renderInline(props.group.id)}
+                </GridBox>
+              </GridLayout>
+            ))}
+          </GridLayout>
+        ) : null}
+      </GridLayout>
     </Stack>
   );
 }

@@ -54,17 +54,24 @@ class _ implements CriteriaPlugin<Data> {
   public data: Data;
   private config: Config;
 
-  constructor(public id: string, config: CriteriaConfig, data: unknown) {
+  constructor(
+    public id: string,
+    config: CriteriaConfig,
+    data: unknown,
+    private entity?: string
+  ) {
     this.config = config as Config;
     this.data = data as Data;
   }
 
-  renderInline(criteriaId: string) {
+  renderInline(groupId: string) {
     return (
       <AttributeInline
-        criteriaId={criteriaId}
+        groupId={groupId}
+        criteriaId={this.id}
         data={this.data}
         config={this.config}
+        entity={this.entity}
       />
     );
   }
@@ -117,13 +124,14 @@ type SliderProps = {
   maxBound: number;
   range: DataRange;
   data: Data;
+  groupId?: string;
   criteriaId?: string;
   index: number;
   multiRange?: boolean;
 };
 
 function AttributeSlider(props: SliderProps) {
-  const updateCriteria = useUpdateCriteria(props.criteriaId);
+  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
   const { minBound, maxBound, range, data, index } = props;
 
   const initialMin = Math.max(range.min, minBound);
@@ -242,17 +250,19 @@ function AttributeSlider(props: SliderProps) {
 }
 
 type AttributeInlineProps = {
+  groupId: string;
   criteriaId: string;
   config: Config;
   data: Data;
+  entity?: string;
 };
 
 function AttributeInline(props: AttributeInlineProps) {
   const source = useSource();
-  const updateCriteria = useUpdateCriteria(props.criteriaId);
+  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
 
   const fetchHintData = useCallback(() => {
-    return source.getHintData("", props.config.attribute);
+    return source.getHintData(props.entity ?? "", props.config.attribute);
   }, [props.config.attribute]);
   const hintDataState = useSWRImmutable(
     { component: "Attribute", attribute: props.config.attribute },
@@ -296,6 +306,7 @@ function AttributeInline(props: AttributeInlineProps) {
           maxBound={hintDataState.data.integerHint.max}
           range={emptyRange}
           data={props.data}
+          groupId={props.groupId}
           criteriaId={props.criteriaId}
         />
       );
@@ -311,6 +322,7 @@ function AttributeInline(props: AttributeInlineProps) {
             maxBound={hintDataState.data.integerHint.max}
             range={range}
             data={props.data}
+            groupId={props.groupId}
             criteriaId={props.criteriaId}
           />
         )

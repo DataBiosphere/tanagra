@@ -89,7 +89,9 @@ export function Datasets() {
     buttonLabel: "Create",
     onConfirm: async (name: string) => {
       const cohort = await source.createCohort(underlay.name, studyId, name);
-      navigate(absoluteCohortURL(params, cohort.id, cohort.groups[0].id));
+      navigate(
+        absoluteCohortURL(params, cohort.id, cohort.groupSections[0].id)
+      );
     },
   });
 
@@ -212,7 +214,7 @@ export function Datasets() {
                     to={absoluteCohortURL(
                       params,
                       cohort.id,
-                      cohort.groups[0].id
+                      cohort.groupSections[0].id
                     )}
                   >
                     {cohort.name}

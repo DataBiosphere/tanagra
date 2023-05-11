@@ -4,6 +4,7 @@
 import "criteria/attribute";
 import "criteria/classification";
 import "criteria/textSearch";
+import "criteria/unhintedValue";
 
 // Storage plugin
 import "storage/local";

@@ -54,33 +54,34 @@ export function useCohort() {
   return useOptionalCohort(true) as NonNullable<tanagra.Cohort>;
 }
 
-export function useCohortAndGroup() {
+export function useCohortAndGroupSection() {
   const cohort = useCohort();
 
-  const { groupId } = useParams<{ groupId: string }>();
-  const groupIndex = Math.max(
+  const { groupSectionId } = useParams<{ groupSectionId: string }>();
+  const sectionIndex = Math.max(
     0,
-    cohort.groups.findIndex((g) => g.id === groupId)
+    cohort.groupSections.findIndex((s) => s.id === groupSectionId)
   );
-  return { cohort, groupIndex, group: cohort.groups[groupIndex] };
+  return { cohort, sectionIndex, section: cohort.groupSections[sectionIndex] };
 }
 
-function useOptionalGroupAndCriteria(throwOnUnknown: boolean) {
+function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
   const cohort = useOptionalCohort(throwOnUnknown);
 
-  const { groupId, criteriaId } = useParams<{
+  const { groupSectionId, groupId } = useParams<{
+    groupSectionId: string;
     groupId: string;
-    criteriaId: string;
   }>();
-  const group =
-    cohort?.groups.find((g) => g.id === groupId) ?? cohort?.groups?.[0];
-  const criteria = group?.criteria.find((c) => c.id === criteriaId);
-  if (throwOnUnknown && (!group || !criteria)) {
+  const section =
+    cohort?.groupSections.find((s) => s.id === groupSectionId) ??
+    cohort?.groupSections?.[0];
+  const group = section?.groups.find((g) => g.id === groupId);
+  if (throwOnUnknown && (!section || !group)) {
     throw new PathError(
-      `Unknown group "${groupId}" or criteria "${criteriaId}".`
+      `Unknown section "${groupSectionId}" or group "${groupId}".`
     );
   }
-  return { group, criteria };
+  return { section, group };
 }
 
 function useOptionalNewCriteria(throwOnUnknown: boolean) {
@@ -109,11 +110,11 @@ export function useNewCriteria() {
   return useOptionalNewCriteria(true) as NonNullable<tanagra.Criteria>;
 }
 
-export function useGroupAndCriteria() {
-  const { group, criteria } = useOptionalGroupAndCriteria(true);
+export function useGroupSectionAndGroup() {
+  const { section, group } = useOptionalGroupSectionAndGroup(true);
   return {
+    section: section as NonNullable<tanagra.GroupSection>,
     group: group as NonNullable<tanagra.Group>,
-    criteria: criteria as NonNullable<tanagra.Criteria>,
   };
 }
 
@@ -129,32 +130,32 @@ export function useConceptSet() {
   return useOptionalConceptSet(true) as NonNullable<tanagra.ConceptSet>;
 }
 
-export function useUpdateCriteria(criteriaId?: string) {
+export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   const cohort = useOptionalCohort(false);
-  const { group, criteria } = useOptionalGroupAndCriteria(false);
+  const { section, group } = useOptionalGroupSectionAndGroup(false);
   const newCriteria = useOptionalNewCriteria(false);
   const conceptSet = useOptionalConceptSet(false);
   const cohortContext = useContext(CohortContext);
   const conceptSetContext = useContext(ConceptSetContext);
 
-  if (cohort && group) {
+  if (cohort && section) {
     if (!cohortContext) {
       throw new Error("Null cohort context when updating a cohort criteria.");
     }
 
     if (newCriteria) {
       return (data: object) => {
-        insertCohortCriteria(cohortContext, group.id, {
+        insertCohortCriteria(cohortContext, section.id, {
           ...newCriteria,
           data: data,
         });
       };
     }
 
-    const cId = criteriaId ?? criteria?.id;
-    if (cId) {
+    const gId = groupId ?? group?.id;
+    if (gId) {
       return (data: object) => {
-        updateCohortCriteria(cohortContext, group.id, cId, data);
+        updateCohortCriteria(cohortContext, section.id, gId, data, criteriaId);
       };
     }
   }

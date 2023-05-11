@@ -66,17 +66,19 @@ export async function fetchUserData(
       continue;
     }
 
-    for (const group of cohort.groups) {
-      for (const criteria of group.criteria) {
-        const config = underlay.uiConfiguration.criteriaConfigs.find(
-          (config) => config.id === criteria.config.id
-        );
-        if (!config) {
-          throw new Error(
-            `Underlay has no support for criteria "${criteria.config.id}".`
+    for (const section of cohort.groupSections) {
+      for (const group of section.groups) {
+        for (const criteria of group.criteria) {
+          const config = underlay.uiConfiguration.criteriaConfigs.find(
+            (config) => config.id === criteria.config.id
           );
+          if (!config) {
+            throw new Error(
+              `Underlay has no support for criteria "${criteria.config.id}".`
+            );
+          }
+          criteria.config = config;
         }
-        criteria.config = config;
       }
     }
   }

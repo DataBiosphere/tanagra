@@ -9,7 +9,6 @@ import "plugins";
 import { useCallback, useContext } from "react";
 import { RouterProvider } from "react-router-dom";
 import { createAppRouter } from "router";
-import { fetchUserData } from "storage/storage";
 import useSWRImmutable from "swr/immutable";
 import { setUnderlays } from "underlaysSlice";
 import theme from "./theme";
@@ -51,8 +50,6 @@ export default function App() {
           };
         })
       );
-
-      await fetchUserData(dispatch, underlays);
 
       dispatch(setUnderlays(underlays));
       return underlays;

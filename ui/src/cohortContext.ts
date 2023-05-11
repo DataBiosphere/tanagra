@@ -1,4 +1,4 @@
-import { defaultGroup } from "cohort";
+import { defaultGroup, defaultSection } from "cohort";
 import { useSource } from "data/source";
 import produce from "immer";
 import { createContext, useContext, useState } from "react";
@@ -107,101 +107,202 @@ export function useNewCohortContext() {
 
 export function insertCohortCriteria(
   context: CohortContextData,
+  sectionId: string,
+  criteria: tanagra.Criteria
+) {
+  context.updatePresent((present) => {
+    const section = present.groupSections.find(
+      (section) => section.id === sectionId
+    );
+    if (!section) {
+      throw new Error(
+        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+          present
+        )}.`
+      );
+    }
+    section.groups.push(defaultGroup(criteria));
+  });
+}
+
+export function insertCohortCriteriaModifier(
+  context: CohortContextData,
+  sectionId: string,
   groupId: string,
   criteria: tanagra.Criteria
 ) {
   context.updatePresent((present) => {
-    const group = present.groups.find((group) => group.id === groupId);
-    if (!group) {
-      throw new Error(`Group ${groupId} does not exist in cohort ${present}.`);
+    const section = present.groupSections.find(
+      (section) => section.id === sectionId
+    );
+    if (!section) {
+      throw new Error(
+        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+          present
+        )}.`
+      );
     }
+
+    const group = section.groups.find((g) => g.id === groupId);
+    if (!group) {
+      throw new Error(
+        `Group ${groupId} does not exist on group section ${JSON.stringify(
+          section
+        )}.`
+      );
+    }
+
     group.criteria.push(criteria);
+  });
+}
+
+export function deleteCohortCriteriaModifier(
+  context: CohortContextData,
+  sectionId: string,
+  groupId: string,
+  criteriaId: string
+) {
+  context.updatePresent((present) => {
+    const section = present.groupSections.find(
+      (section) => section.id === sectionId
+    );
+    if (!section) {
+      throw new Error(
+        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+          present
+        )}.`
+      );
+    }
+
+    const group = section.groups.find((g) => g.id === groupId);
+    if (!group) {
+      throw new Error(
+        `Group ${groupId} does not exist on group section ${JSON.stringify(
+          section
+        )}.`
+      );
+    }
+
+    group.criteria = group.criteria.filter((c) => c.id != criteriaId);
   });
 }
 
 export function updateCohortCriteria(
   context: CohortContextData,
+  sectionId: string,
   groupId: string,
-  criteriaId: string,
-  data: object
+  data: object,
+  criteriaId?: string
 ) {
   context.updatePresent((present) => {
-    const group = present.groups.find((group) => group.id === groupId);
-    if (!group) {
-      throw new Error(`Group ${groupId} does not exist in cohort ${present}.`);
-    }
-
-    const criteria = group.criteria.find((c) => c.id === criteriaId);
-    if (!criteria) {
+    const section = present.groupSections.find(
+      (section) => section.id === sectionId
+    );
+    if (!section) {
       throw new Error(
-        `Criteria ${criteriaId} does not exist on group ${group}.`
+        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+          present
+        )}.`
       );
     }
 
-    criteria.data = data;
-  });
-}
-
-export function deleteCohortCriteria(
-  context: CohortContextData,
-  groupId: string,
-  criteriaId: string
-) {
-  context.updatePresent((present) => {
-    const group = present.groups.find((group) => group.id === groupId);
+    const group = section.groups.find((g) => g.id === groupId);
     if (!group) {
-      throw new Error(`Group ${groupId} does not exist in cohort ${present}.`);
+      throw new Error(
+        `Group ${groupId} does not exist on group section ${JSON.stringify(
+          section
+        )}.`
+      );
     }
 
     const index = group.criteria.findIndex((c) => c.id === criteriaId);
-    if (index === -1) {
-      throw new Error(
-        `Criteria ${criteriaId} does not exist on group ${group}.`
-      );
-    }
-
-    group.criteria.splice(index, 1);
+    group.criteria[Math.max(0, index ?? 0)].data = data;
   });
 }
 
-export function insertCohortGroup(
+export function deleteCohortGroup(
+  context: CohortContextData,
+  sectionId: string,
+  groupId: string
+) {
+  context.updatePresent((present) => {
+    const section = present.groupSections.find(
+      (section) => section.id === sectionId
+    );
+    if (!section) {
+      throw new Error(
+        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+          present
+        )}.`
+      );
+    }
+
+    const index = section.groups.findIndex((g) => g.id === groupId);
+    if (index === -1) {
+      throw new Error(
+        `Group ${groupId} does not exist on group section ${JSON.stringify(
+          section
+        )}.`
+      );
+    }
+
+    section.groups.splice(index, 1);
+  });
+}
+
+export function insertCohortGroupSection(
   context: CohortContextData,
   criteria?: tanagra.Criteria
 ) {
   context.updatePresent((present) => {
-    present.groups.push(defaultGroup(criteria));
+    present.groupSections.push(defaultSection(criteria));
   });
 }
 
-export function deleteCohortGroup(context: CohortContextData, groupId: string) {
+export function deleteCohortGroupSection(
+  context: CohortContextData,
+  sectionId: string
+) {
   context.updatePresent((present) => {
-    if (present.groups.length === 1) {
-      present.groups = [defaultGroup()];
+    if (present.groupSections.length === 1) {
+      present.groupSections = [defaultSection()];
       return;
     }
 
-    const index = present.groups.findIndex((group) => group.id === groupId);
+    const index = present.groupSections.findIndex(
+      (section) => section.id === sectionId
+    );
     if (index === -1) {
-      throw new Error(`Group ${groupId} does not exist in cohort ${present}.`);
+      throw new Error(
+        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+          present
+        )}.`
+      );
     }
 
-    present.groups.splice(index, 1);
+    present.groupSections.splice(index, 1);
   });
 }
 
-export function updateCohortGroup(
+export function updateCohortGroupSection(
   context: CohortContextData,
-  groupId: string,
+  sectionId: string,
   name?: string,
-  filter?: tanagra.GroupFilter
+  filter?: tanagra.GroupSectionFilter
 ) {
   context.updatePresent((present) => {
-    const group = present.groups.find((group) => group.id === groupId);
-    if (!group) {
-      throw new Error(`Group ${groupId} does not exist in cohort ${present}.`);
+    const section = present.groupSections.find(
+      (section) => section.id === sectionId
+    );
+    if (!section) {
+      throw new Error(
+        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+          present
+        )}.`
+      );
     }
 
-    group.name = name ?? group.name;
-    group.filter = filter ?? group.filter;
+    section.name = name ?? section.name;
+    section.filter = filter ?? section.filter;
   });
 }

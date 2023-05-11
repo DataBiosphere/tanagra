@@ -4,6 +4,7 @@ export enum SortDirection {
 }
 
 export const ROLLUP_COUNT_ATTRIBUTE = "t_rollup_count";
+export const ITEM_COUNT_ATTRIBUTE = "t_item_count";
 export const VALUE_SUFFIX = "_t_value";
 
 export type SortOrder = {

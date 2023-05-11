@@ -18,7 +18,7 @@ import {
 import { createConceptSet, useConceptSetContext } from "conceptSetContext";
 import { MergedDataEntry, useSource } from "data/source";
 import { DataEntry, DataKey } from "data/types";
-import { useCohortAndGroup, useUnderlay } from "hooks";
+import { useCohortAndGroupSection, useUnderlay } from "hooks";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cohortURL, exitURL, newCriteriaURL, useBaseParams } from "router";
@@ -55,14 +55,14 @@ export function AddConceptSetCriteria() {
 export function AddCohortCriteria() {
   const navigate = useNavigate();
   const context = useCohortContext();
-  const { cohort, group } = useCohortAndGroup();
+  const { cohort, section } = useCohortAndGroupSection();
 
   const onInsertCriteria = useCallback(
     (criteria: tanagra.Criteria) => {
-      insertCohortCriteria(context, group.id, criteria);
-      navigate("../../" + cohortURL(cohort.id, group.id));
+      insertCohortCriteria(context, section.id, criteria);
+      navigate("../../" + cohortURL(cohort.id, section.id));
     },
-    [context, cohort.id, group.id]
+    [context, cohort.id, section.id]
   );
 
   return (
