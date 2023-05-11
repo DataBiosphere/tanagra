@@ -14,7 +14,7 @@ tanagra:
     password: dbpwd
 
   vumc-admin:
-    base-path: https://tanagra-dev.api.verily.com
+    base-path: https://tanagra-test.app.vumc.org
     oauth-client-id: 694046000181-baqla782scqfaaga26869orhhd8o7vjo.apps.googleusercontent.com
     use-adc: true
 
