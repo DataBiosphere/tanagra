@@ -70,6 +70,8 @@ dependencies {
     implementation group: "org.glassfish.jersey.core", name: "jersey-client", version: "2.32"
     // hk2 is required to use VUMC admin client, but not correctly exposed by the client
     implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.32'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '2.32'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.32'
 
     // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
