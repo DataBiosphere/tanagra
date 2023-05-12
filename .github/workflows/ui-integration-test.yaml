@@ -67,9 +67,9 @@ jobs:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
 
       - name: Create Maven settings file
-          uses: s4u/maven-settings-action@v2.8.0
-          with:
-            servers: '[{"id": "github", "username": "${env.GITHUB_ACTOR}", "password": "${env.GITHUB_TOKEN}"}]'
+        uses: s4u/maven-settings-action@v2.8.0
+        with:
+          servers: '[{"id": "github", "username": "${env.GITHUB_ACTOR}", "password": "${env.GITHUB_TOKEN}"}]'
 
       - name: Launch local server
         uses: ./.github/actions/start-local-server
