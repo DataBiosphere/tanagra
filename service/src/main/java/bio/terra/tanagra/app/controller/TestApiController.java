@@ -3,13 +3,13 @@ package bio.terra.tanagra.app.controller;
 import bio.terra.tanagra.generated.controller.TestApi;
 import bio.terra.tanagra.generated.model.ApiVumcAdminServiceTest;
 import bio.terra.tanagra.service.VumcAdminService;
-import bio.terra.tanagra.vumc.admin.model.CoreServiceTest;
-import bio.terra.tanagra.vumc.admin.model.SystemVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
+import org.vumc.vda.tanagra.admin.model.SystemVersion;
 
 @Controller
 public class TestApiController implements TestApi {

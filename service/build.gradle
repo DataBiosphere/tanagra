@@ -10,6 +10,8 @@ plugins {
     id "org.hidetake.swagger.generator" version "2.18.2"
     id "org.springframework.boot" version "2.5.1"
     id "org.barfuin.gradle.taskinfo" version "1.1.1"
+
+    id 'net.linguica.maven-settings' version '0.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -33,6 +35,10 @@ repositories {
     }
     maven {
         url "https://packages.confluent.io/maven/"
+    }
+    maven {
+        name "github"
+        url "https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries"
     }
 }
 
@@ -60,10 +66,12 @@ dependencies {
     annotationProcessor group: "org.springframework.boot", name: "spring-boot-configuration-processor"
 
     // VUMC Admin dependency
-    implementation group: "bio.terra", name: "tanagra-vumc-admin-client", version: "0.0.3-SNAPSHOT"
+    implementation group: "org.vumc.vda.tanagra", name: "admin-client", version: "0.0.8-SNAPSHOT"
     implementation group: "org.glassfish.jersey.core", name: "jersey-client", version: "2.32"
     // hk2 is required to use VUMC admin client, but not correctly exposed by the client
     implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.32'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '2.32'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.32'
 
     // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
@@ -86,7 +94,7 @@ dependencies {
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
     implementation group: "io.swagger.core.v3", name: "swagger-annotations"
     implementation group: "io.swagger", name: "swagger-annotations", version: "1.6.2"
-    implementation group: "org.webjars", name: "webjars-locator-core", version: "0.46"
+    implementation group: "org.webjars", name: "webjars-locator-core", version: "0.48"
     runtimeOnly group: "org.webjars.npm", name: "swagger-ui-dist", version: "3.36.2"
     swaggerCodegen group: "io.swagger.codegen.v3", name: "swagger-codegen-cli"
 
