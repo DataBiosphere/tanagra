@@ -9,10 +9,12 @@
           "table" : "concept_relationship"
         },
         "idPairsIdA" : {
-          "column" : "concept_id_1"
+          "column" : "concept_id_1",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "concept_id_2"
+          "column" : "concept_id_2",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -28,10 +30,12 @@
           "table" : "idpairs_brand_ingredient"
         },
         "idPairsIdA" : {
-          "column" : "id_brand"
+          "column" : "id_brand",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_ingredient"
+          "column" : "id_ingredient",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -39,13 +43,16 @@
               "table" : "brand"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_ingredient"
+              "column" : "t_count_ingredient",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_ingredient"
+              "column" : "t_displayhints_ingredient",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -55,13 +62,16 @@
               "table" : "ingredient"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_brand_standard"
+              "column" : "t_count_brand_standard",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_brand_standard"
+              "column" : "t_displayhints_brand_standard",
+              "runtimeCalculated" : false
             }
           },
           "NO_HIERARCHY" : {
@@ -69,13 +79,16 @@
               "table" : "ingredient"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_brand"
+              "column" : "t_count_brand",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_brand"
+              "column" : "t_displayhints_brand",
+              "runtimeCalculated" : false
             }
           }
         }

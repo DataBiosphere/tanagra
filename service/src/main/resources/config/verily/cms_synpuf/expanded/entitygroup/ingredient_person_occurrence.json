@@ -9,10 +9,12 @@
           "table" : "drug_exposure"
         },
         "idPairsIdA" : {
-          "column" : "drug_exposure_id"
+          "column" : "drug_exposure_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "drug_concept_id"
+          "column" : "drug_concept_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -22,10 +24,12 @@
           "table" : "drug_exposure"
         },
         "idPairsIdA" : {
-          "column" : "drug_concept_id"
+          "column" : "drug_concept_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -35,10 +39,12 @@
           "table" : "drug_exposure"
         },
         "idPairsIdA" : {
-          "column" : "drug_exposure_id"
+          "column" : "drug_exposure_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -54,10 +60,12 @@
           "table" : "idpairs_ingredient_occurrence_ingredient"
         },
         "idPairsIdA" : {
-          "column" : "id_ingredient_occurrence"
+          "column" : "id_ingredient_occurrence",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_ingredient"
+          "column" : "id_ingredient",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -65,13 +73,16 @@
               "table" : "ingredient_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_ingredient"
+              "column" : "t_count_ingredient",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_ingredient"
+              "column" : "t_displayhints_ingredient",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -81,13 +92,16 @@
               "table" : "ingredient"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_ingredient_occurrence_standard"
+              "column" : "t_count_ingredient_occurrence_standard",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_ingredient_occurrence_standard"
+              "column" : "t_displayhints_ingredient_occurrence_standard",
+              "runtimeCalculated" : false
             }
           },
           "NO_HIERARCHY" : {
@@ -95,13 +109,16 @@
               "table" : "ingredient"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_ingredient_occurrence"
+              "column" : "t_count_ingredient_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_ingredient_occurrence"
+              "column" : "t_displayhints_ingredient_occurrence",
+              "runtimeCalculated" : false
             }
           }
         }
@@ -111,10 +128,12 @@
           "table" : "idpairs_ingredient_person"
         },
         "idPairsIdA" : {
-          "column" : "id_ingredient"
+          "column" : "id_ingredient",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "standard" : {
@@ -122,13 +141,16 @@
               "table" : "ingredient"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person_standard"
+              "column" : "t_count_person_standard",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person_standard"
+              "column" : "t_displayhints_person_standard",
+              "runtimeCalculated" : false
             }
           },
           "NO_HIERARCHY" : {
@@ -136,13 +158,16 @@
               "table" : "ingredient"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -152,13 +177,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_ingredient"
+              "column" : "t_count_ingredient",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_ingredient"
+              "column" : "t_displayhints_ingredient",
+              "runtimeCalculated" : false
             }
           }
         }
@@ -168,10 +196,12 @@
           "table" : "idpairs_ingredient_occurrence_person"
         },
         "idPairsIdA" : {
-          "column" : "id_ingredient_occurrence"
+          "column" : "id_ingredient_occurrence",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -179,13 +209,16 @@
               "table" : "ingredient_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -195,13 +228,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_ingredient_occurrence"
+              "column" : "t_count_ingredient_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_ingredient_occurrence"
+              "column" : "t_displayhints_ingredient_occurrence",
+              "runtimeCalculated" : false
             }
           }
         }

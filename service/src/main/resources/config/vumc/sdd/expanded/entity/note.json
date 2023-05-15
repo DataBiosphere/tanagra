@@ -40,7 +40,8 @@
         },
         "count" : 1
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "name",
@@ -168,7 +169,8 @@
         },
         "count" : 1
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
@@ -272,11 +274,13 @@
         },
         "count" : 4
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -288,7 +292,8 @@
         "subfilters" : [ {
           "type" : "BINARY",
           "field" : {
-            "column" : "concept_id"
+            "column" : "concept_id",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -297,7 +302,8 @@
         }, {
           "type" : "BINARY",
           "field" : {
-            "column" : "vocabulary_id"
+            "column" : "vocabulary_id",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -306,7 +312,8 @@
         }, {
           "type" : "BINARY",
           "field" : {
-            "column" : "vocabulary_id"
+            "column" : "vocabulary_id",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -315,7 +322,8 @@
         }, {
           "type" : "BINARY",
           "field" : {
-            "column" : "vocabulary_id"
+            "column" : "vocabulary_id",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -327,22 +335,26 @@
     "attributeMappings" : {
       "vocabulary" : {
         "value" : {
-          "column" : "vocabulary_id"
+          "column" : "vocabulary_id",
+          "runtimeCalculated" : false
         }
       },
       "name" : {
         "value" : {
-          "column" : "concept_name"
+          "column" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "concept_code" : {
         "value" : {
-          "column" : "concept_code"
+          "column" : "concept_code",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "concept_id"
+          "column" : "concept_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -353,10 +365,12 @@
         },
         "fieldPointers" : {
           "id" : {
-            "column" : "id"
+            "column" : "id",
+            "runtimeCalculated" : false
           },
           "text" : {
-            "column" : "text"
+            "column" : "text",
+            "runtimeCalculated" : false
           }
         }
       }
@@ -371,28 +385,33 @@
     "attributeMappings" : {
       "vocabulary" : {
         "value" : {
-          "column" : "vocabulary"
+          "column" : "vocabulary",
+          "runtimeCalculated" : false
         }
       },
       "name" : {
         "value" : {
-          "column" : "name"
+          "column" : "name",
+          "runtimeCalculated" : false
         }
       },
       "concept_code" : {
         "value" : {
-          "column" : "concept_code"
+          "column" : "concept_code",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       }
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "text"
+        "column" : "text",
+        "runtimeCalculated" : false
       }
     },
     "hierarchyMappings" : { }

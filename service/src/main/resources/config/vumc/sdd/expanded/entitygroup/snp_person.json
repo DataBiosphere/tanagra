@@ -9,10 +9,12 @@
           "table" : "x_snp"
         },
         "idPairsIdA" : {
-          "column" : "snp"
+          "column" : "snp",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -28,10 +30,12 @@
           "table" : "idpairs_snp_person"
         },
         "idPairsIdA" : {
-          "column" : "id_snp"
+          "column" : "id_snp",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -39,13 +43,16 @@
               "table" : "snp"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -55,13 +62,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_snp"
+              "column" : "t_count_snp",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_snp"
+              "column" : "t_displayhints_snp",
+              "runtimeCalculated" : false
             }
           }
         }

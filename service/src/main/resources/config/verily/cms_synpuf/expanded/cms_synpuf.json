@@ -6,13 +6,19 @@
     "projectId" : "verily-tanagra-dev",
     "datasetId" : "cmssynpuf_index_011523",
     "queryProjectId" : "verily-tanagra-dev",
-    "dataflowServiceAccountEmail" : "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com"
+    "dataflowServiceAccountEmail" : "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com",
+    "dataflowRegion" : "us-central1",
+    "dataflowWorkerMachineType" : "n1-standard-4",
+    "dataflowUsePublicIps" : true
   }, {
     "type" : "BQ_DATASET",
     "name" : "omop_dataset",
     "projectId" : "bigquery-public-data",
     "datasetId" : "cms_synthetic_patient_data_omop",
-    "queryProjectId" : "verily-tanagra-dev"
+    "queryProjectId" : "verily-tanagra-dev",
+    "dataflowRegion" : "us-central1",
+    "dataflowWorkerMachineType" : "n1-standard-4",
+    "dataflowUsePublicIps" : true
   } ],
   "entities" : [ "ingredient_occurrence.json", "condition.json", "condition_occurrence.json", "ingredient.json", "device_occurrence.json", "observation.json", "person.json", "observation_occurrence.json", "procedure.json", "procedure_occurrence.json", "brand.json", "device.json" ],
   "entityGroups" : [ "device_person_occurrence.json", "condition_person_occurrence.json", "ingredient_person_occurrence.json", "observation_person_occurrence.json", "brand_ingredient.json", "procedure_person_occurrence.json" ],

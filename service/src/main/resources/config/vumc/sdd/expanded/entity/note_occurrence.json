@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "note",
@@ -132,11 +133,13 @@
         },
         "count" : 479294
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -145,11 +148,13 @@
       "type" : "RANGE",
       "minVal" : 0.0,
       "maxVal" : 9.388852E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "text",
@@ -163,15 +168,18 @@
         },
         "count" : 0
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "title",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -180,7 +188,8 @@
       "type" : "RANGE",
       "minVal" : 1.0,
       "maxVal" : 5227737.0
-    }
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -190,48 +199,57 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "note_date"
+          "column" : "note_date",
+          "runtimeCalculated" : false
         }
       },
       "note" : {
         "value" : {
-          "column" : "note_type_concept_id"
+          "column" : "note_type_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "note_type_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "note_id"
+          "column" : "note_id",
+          "runtimeCalculated" : false
         }
       },
       "text" : {
         "value" : {
-          "column" : "note_text"
+          "column" : "note_text",
+          "runtimeCalculated" : false
         }
       },
       "title" : {
         "value" : {
-          "column" : "note_title"
+          "column" : "note_title",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "note_source_value"
+          "column" : "note_source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -245,56 +263,67 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "date"
+          "column" : "date",
+          "runtimeCalculated" : false
         }
       },
       "note" : {
         "value" : {
-          "column" : "note"
+          "column" : "note",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_note"
+          "column" : "t_display_note",
+          "runtimeCalculated" : false
         }
       },
       "age_at_occurrence" : {
         "value" : {
-          "column" : "age_at_occurrence"
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       },
       "text" : {
         "value" : {
-          "column" : "text"
+          "column" : "text",
+          "runtimeCalculated" : false
         }
       },
       "title" : {
         "value" : {
-          "column" : "title"
+          "column" : "title",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value"
+          "column" : "source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       }
     },
     "hierarchyMappings" : { }
   },
   "sourceStartDateColumn" : {
-    "column" : "note_date"
+    "column" : "note_date",
+    "runtimeCalculated" : false
   }
 }
