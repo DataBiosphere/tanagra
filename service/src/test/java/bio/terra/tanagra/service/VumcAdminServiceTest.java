@@ -19,7 +19,8 @@ import org.vumc.vda.tanagra.admin.model.SystemVersion;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled("VUMC admin service OAuth client id is not checked into this repo. You can run this test locally by setting the vumc-admin properties in application-test.yaml.")
+@Disabled(
+    "VUMC admin service OAuth client id is not checked into this repo. You can run this test locally by setting the vumc-admin properties in application-test.yaml.")
 public class VumcAdminServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(VumcAdminServiceTest.class);
 
