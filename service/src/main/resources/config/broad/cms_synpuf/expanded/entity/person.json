@@ -24,7 +24,8 @@
         },
         "count" : 1033995
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "race",
@@ -56,7 +57,8 @@
         },
         "count" : 1926708
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ethnicity",
@@ -80,20 +82,13 @@
         },
         "count" : 2272403
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
-  }, {
-    "type" : "SIMPLE",
-    "name" : "age",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 40.0,
-      "maxVal" : 114.0
-    }
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "year_of_birth",
@@ -102,7 +97,8 @@
       "type" : "RANGE",
       "minVal" : 1909.0,
       "maxVal" : 1983.0
-    }
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -155,13 +151,6 @@
           "runtimeCalculated" : false
         }
       },
-      "age" : {
-        "value" : {
-          "column" : "year_of_birth",
-          "sqlFunctionWrapper" : "DATE_DIFF(CURRENT_DATE, DATE(${fieldSql}, 1, 1), YEAR)",
-          "runtimeCalculated" : true
-        }
-      },
       "year_of_birth" : {
         "value" : {
           "column" : "year_of_birth",
@@ -211,13 +200,6 @@
         "value" : {
           "column" : "id",
           "runtimeCalculated" : false
-        }
-      },
-      "age" : {
-        "value" : {
-          "column" : "age",
-          "sqlFunctionWrapper" : "DATE_DIFF(CURRENT_DATE, DATE(${fieldSql}, 1, 1), YEAR)",
-          "runtimeCalculated" : true
         }
       },
       "year_of_birth" : {
