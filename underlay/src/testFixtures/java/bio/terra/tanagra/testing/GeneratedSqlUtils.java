@@ -48,7 +48,7 @@ public final class GeneratedSqlUtils {
       Assertions.assertEquals(
           expectedSql,
           generatedSql,
-          "Generated SQL does not match the expected. To regenerate the golden files that contain the expected SQL, you can run `./gradlew cleanTest service:test --info -PgenerateSqlFiles=true`");
+          "Generated SQL does not match the expected. To regenerate the golden files that contain the expected SQL, you can run `./gradlew cleanTest test --info -PgenerateSqlFiles=true`");
     } else {
       LOG.info("writing generated sql to file because generateSqlFiles flag is set");
       writeSqlToFile(generatedSql, fileName);

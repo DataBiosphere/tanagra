@@ -218,7 +218,7 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     dataflowOptions.setRegion(outputBQDataset.getDataflowRegion());
     dataflowOptions.setServiceAccount(serviceAccountEmail);
     dataflowOptions.setJobName(getDataflowJobName());
-    dataflowOptions.setUsePublicIps(false);
+    dataflowOptions.setUsePublicIps(outputBQDataset.isDataflowUsePublicIps());
     dataflowOptions.setWorkerMachineType(outputBQDataset.getDataflowWorkerMachineType());
 
     if (outputBQDataset.getDataflowTempLocation() != null) {

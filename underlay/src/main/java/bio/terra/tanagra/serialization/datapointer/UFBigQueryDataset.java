@@ -21,6 +21,7 @@ public class UFBigQueryDataset extends UFDataPointer {
   private final String dataflowTempLocation;
   private final String dataflowRegion;
   private final String dataflowWorkerMachineType;
+  private final boolean dataflowUsePublicIps;
 
   public UFBigQueryDataset(BigQueryDataset dataPointer) {
     super(dataPointer);
@@ -31,6 +32,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     this.dataflowTempLocation = dataPointer.getDataflowTempLocation();
     this.dataflowRegion = dataPointer.getDataflowRegion();
     this.dataflowWorkerMachineType = dataPointer.getDataflowWorkerMachineType();
+    this.dataflowUsePublicIps = dataPointer.isDataflowUsePublicIps();
   }
 
   private UFBigQueryDataset(Builder builder) {
@@ -42,6 +44,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     this.dataflowTempLocation = builder.dataflowTempLocation;
     this.dataflowRegion = builder.dataflowRegion;
     this.dataflowWorkerMachineType = builder.dataflowWorkerMachineType;
+    this.dataflowUsePublicIps = builder.dataflowUsePublicIps;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -53,6 +56,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     private String dataflowTempLocation;
     private String dataflowRegion;
     private String dataflowWorkerMachineType;
+    private boolean dataflowUsePublicIps = true;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -86,6 +90,11 @@ public class UFBigQueryDataset extends UFDataPointer {
 
     public Builder dataflowWorkerMachineType(String dataflowWorkerMachineType) {
       this.dataflowWorkerMachineType = dataflowWorkerMachineType;
+      return this;
+    }
+
+    public Builder dataflowUsePublicIps(boolean dataflowUsePublicIps) {
+      this.dataflowUsePublicIps = dataflowUsePublicIps;
       return this;
     }
 
@@ -128,5 +137,9 @@ public class UFBigQueryDataset extends UFDataPointer {
 
   public String getDataflowWorkerMachineType() {
     return dataflowWorkerMachineType;
+  }
+
+  public boolean isDataflowUsePublicIps() {
+    return dataflowUsePublicIps;
   }
 }
