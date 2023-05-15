@@ -219,11 +219,7 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     dataflowOptions.setServiceAccount(serviceAccountEmail);
     dataflowOptions.setJobName(getDataflowJobName());
     dataflowOptions.setUsePublicIps(false);
-
-    // TODO: Try this knob for jobs that fail with OOM errors. If it fixes problems, consider making
-    // this configurable (per job? per underlay?).
-    dataflowOptions.setWorkerMachineType("n1-highmem-32");
-    dataflowOptions.setDiskSizeGb(500);
+    dataflowOptions.setWorkerMachineType(outputBQDataset.getDataflowWorkerMachineType());
 
     if (outputBQDataset.getDataflowTempLocation() != null) {
       dataflowOptions.setTempLocation(outputBQDataset.getDataflowTempLocation());

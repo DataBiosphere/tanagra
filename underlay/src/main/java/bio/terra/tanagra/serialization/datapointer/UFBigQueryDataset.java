@@ -20,6 +20,7 @@ public class UFBigQueryDataset extends UFDataPointer {
   private final String dataflowServiceAccountEmail;
   private final String dataflowTempLocation;
   private final String dataflowRegion;
+  private final String dataflowWorkerMachineType;
 
   public UFBigQueryDataset(BigQueryDataset dataPointer) {
     super(dataPointer);
@@ -29,6 +30,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     this.dataflowServiceAccountEmail = dataPointer.getDataflowServiceAccountEmail();
     this.dataflowTempLocation = dataPointer.getDataflowTempLocation();
     this.dataflowRegion = dataPointer.getDataflowRegion();
+    this.dataflowWorkerMachineType = dataPointer.getDataflowWorkerMachineType();
   }
 
   private UFBigQueryDataset(Builder builder) {
@@ -39,6 +41,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     this.dataflowServiceAccountEmail = builder.dataflowServiceAccountEmail;
     this.dataflowTempLocation = builder.dataflowTempLocation;
     this.dataflowRegion = builder.dataflowRegion;
+    this.dataflowWorkerMachineType = builder.dataflowWorkerMachineType;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -49,6 +52,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     private String dataflowServiceAccountEmail;
     private String dataflowTempLocation;
     private String dataflowRegion;
+    private String dataflowWorkerMachineType;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -77,6 +81,11 @@ public class UFBigQueryDataset extends UFDataPointer {
 
     public Builder dataflowRegion(String dataflowRegion) {
       this.dataflowRegion = dataflowRegion;
+      return this;
+    }
+
+    public Builder dataflowWorkerMachineType(String dataflowWorkerMachineType) {
+      this.dataflowWorkerMachineType = dataflowWorkerMachineType;
       return this;
     }
 
@@ -115,5 +124,9 @@ public class UFBigQueryDataset extends UFDataPointer {
 
   public String getDataflowRegion() {
     return dataflowRegion;
+  }
+
+  public String getDataflowWorkerMachineType() {
+    return dataflowWorkerMachineType;
   }
 }

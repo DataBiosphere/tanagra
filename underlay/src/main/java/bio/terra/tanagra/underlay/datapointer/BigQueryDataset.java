@@ -25,16 +25,19 @@ import org.apache.commons.text.StringSubstitutor;
 
 public final class BigQueryDataset extends DataPointer {
   private static final String DEFAULT_REGION = "us-central1";
+  private static final String DEFAULT_WORKER_MACHINE_TYPE = "n1-standard-4"; // "n1-highmem-8"
   private final String projectId;
   private final String datasetId;
   private final String queryProjectId;
   private final String dataflowServiceAccountEmail;
   private final String dataflowTempLocation;
   private final String dataflowRegion;
+  private final String dataflowWorkerMachineType;
 
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private BigQueryDataset(
       String name,
       String projectId,
@@ -42,7 +45,8 @@ public final class BigQueryDataset extends DataPointer {
       String queryProjectId,
       String dataflowServiceAccountEmail,
       String dataflowTempLocation,
-      String dataflowRegion) {
+      String dataflowRegion,
+      String dataflowWorkerMachineType) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
@@ -50,6 +54,7 @@ public final class BigQueryDataset extends DataPointer {
     this.dataflowServiceAccountEmail = dataflowServiceAccountEmail;
     this.dataflowTempLocation = dataflowTempLocation;
     this.dataflowRegion = dataflowRegion;
+    this.dataflowWorkerMachineType = dataflowWorkerMachineType;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -76,7 +81,8 @@ public final class BigQueryDataset extends DataPointer {
         queryProjectId,
         serialized.getDataflowServiceAccountEmail(),
         serialized.getDataflowTempLocation(),
-        serialized.getDataflowRegion());
+        serialized.getDataflowRegion(),
+        serialized.getDataflowWorkerMachineType());
   }
 
   @Override
@@ -220,5 +226,11 @@ public final class BigQueryDataset extends DataPointer {
 
   public String getDataflowRegion() {
     return dataflowRegion == null ? DEFAULT_REGION : dataflowRegion;
+  }
+
+  public String getDataflowWorkerMachineType() {
+    return dataflowWorkerMachineType == null
+        ? DEFAULT_WORKER_MACHINE_TYPE
+        : dataflowWorkerMachineType;
   }
 }
