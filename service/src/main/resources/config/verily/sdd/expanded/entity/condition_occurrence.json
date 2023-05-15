@@ -4,11 +4,13 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "end_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "condition",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -17,11 +19,13 @@
       "type" : "RANGE",
       "minVal" : 0.0,
       "maxVal" : 4.5890988E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "stop_reason",
@@ -35,7 +39,8 @@
         },
         "count" : 0
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -44,15 +49,18 @@
       "type" : "RANGE",
       "minVal" : 0.0,
       "maxVal" : 9.388852E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -61,11 +69,13 @@
       "type" : "RANGE",
       "minVal" : 1.0,
       "maxVal" : 5227737.0
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -75,53 +85,63 @@
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "condition_end_date"
+          "column" : "condition_end_date",
+          "runtimeCalculated" : false
         }
       },
       "condition" : {
         "value" : {
-          "column" : "condition_concept_id"
+          "column" : "condition_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "condition_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "condition_source_concept_id"
+          "column" : "condition_source_concept_id",
+          "runtimeCalculated" : false
         }
       },
       "stop_reason" : {
         "value" : {
-          "column" : "stop_reason"
+          "column" : "stop_reason",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "condition_occurrence_id"
+          "column" : "condition_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "condition_source_value"
+          "column" : "condition_source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       },
       "start_date" : {
         "value" : {
-          "column" : "condition_start_date"
+          "column" : "condition_start_date",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -135,61 +155,73 @@
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "end_date"
+          "column" : "end_date",
+          "runtimeCalculated" : false
         }
       },
       "condition" : {
         "value" : {
-          "column" : "condition"
+          "column" : "condition",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_condition"
+          "column" : "t_display_condition",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id"
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
         }
       },
       "age_at_occurrence" : {
         "value" : {
-          "column" : "age_at_occurrence"
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
         }
       },
       "stop_reason" : {
         "value" : {
-          "column" : "stop_reason"
+          "column" : "stop_reason",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value"
+          "column" : "source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       },
       "start_date" : {
         "value" : {
-          "column" : "start_date"
+          "column" : "start_date",
+          "runtimeCalculated" : false
         }
       }
     },
     "hierarchyMappings" : { }
   },
   "sourceStartDateColumn" : {
-    "column" : "condition_start_date"
+    "column" : "condition_start_date",
+    "runtimeCalculated" : false
   }
 }

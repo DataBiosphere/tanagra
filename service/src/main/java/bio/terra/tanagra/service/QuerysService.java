@@ -140,8 +140,7 @@ public class QuerysService {
                         entityOrderBy
                             .getAttribute()
                             .getMapping(entityQueryRequest.getMappingType())
-                            .getValue()
-                            .buildVariable(entityTableVar, tableVars);
+                            .buildValueFieldVariable(entityTableVar, tableVars);
                   } else {
                     RelationshipMapping relationshipMapping =
                         entityOrderBy

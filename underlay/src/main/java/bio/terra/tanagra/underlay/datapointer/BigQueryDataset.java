@@ -24,11 +24,13 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public final class BigQueryDataset extends DataPointer {
+  private static final String DEFAULT_REGION = "us-central1";
   private final String projectId;
   private final String datasetId;
   private final String queryProjectId;
   private final String dataflowServiceAccountEmail;
   private final String dataflowTempLocation;
+  private final String dataflowRegion;
 
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
@@ -39,13 +41,15 @@ public final class BigQueryDataset extends DataPointer {
       String datasetId,
       String queryProjectId,
       String dataflowServiceAccountEmail,
-      String dataflowTempLocation) {
+      String dataflowTempLocation,
+      String dataflowRegion) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
     this.queryProjectId = queryProjectId;
     this.dataflowServiceAccountEmail = dataflowServiceAccountEmail;
     this.dataflowTempLocation = dataflowTempLocation;
+    this.dataflowRegion = dataflowRegion;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -71,7 +75,8 @@ public final class BigQueryDataset extends DataPointer {
         serialized.getDatasetId(),
         queryProjectId,
         serialized.getDataflowServiceAccountEmail(),
-        serialized.getDataflowTempLocation());
+        serialized.getDataflowTempLocation(),
+        serialized.getDataflowRegion());
   }
 
   @Override
@@ -153,8 +158,11 @@ public final class BigQueryDataset extends DataPointer {
     } else if (LegacySQLTypeName.FLOAT.equals(fieldType)
         || LegacySQLTypeName.NUMERIC.equals(fieldType)) {
       return Literal.DataType.DOUBLE;
+    } else if (LegacySQLTypeName.TIMESTAMP.equals(fieldType)) {
+      return Literal.DataType.TIMESTAMP;
     } else {
-      throw new SystemException("BigQuery SQL data type not supported: " + fieldType);
+      throw new SystemException(
+          "BigQuery SQL data type not supported: " + fieldType + ", " + columnName);
     }
   }
 
@@ -170,6 +178,8 @@ public final class BigQueryDataset extends DataPointer {
         return LegacySQLTypeName.DATE;
       case FLOAT:
         return LegacySQLTypeName.FLOAT;
+      case TIMESTAMP:
+        return LegacySQLTypeName.TIMESTAMP;
       default:
         throw new SystemException("SQL data type not supported for BigQuery: " + sqlDataType);
     }
@@ -206,5 +216,9 @@ public final class BigQueryDataset extends DataPointer {
 
   public String getDataflowTempLocation() {
     return dataflowTempLocation;
+  }
+
+  public String getDataflowRegion() {
+    return dataflowRegion == null ? DEFAULT_REGION : dataflowRegion;
   }
 }

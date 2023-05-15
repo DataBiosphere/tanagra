@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -14,7 +15,8 @@
     "attributeMappings" : {
       "id" : {
         "value" : {
-          "column" : "snp"
+          "column" : "snp",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -31,13 +33,15 @@
     "attributeMappings" : {
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       }
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "text"
+        "column" : "text",
+        "runtimeCalculated" : false
       }
     },
     "hierarchyMappings" : { }

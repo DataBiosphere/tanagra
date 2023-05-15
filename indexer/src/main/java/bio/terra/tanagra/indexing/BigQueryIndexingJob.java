@@ -45,9 +45,6 @@ import org.joda.time.format.DateTimeFormatter;
 public abstract class BigQueryIndexingJob implements IndexingJob {
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormat.forPattern("MMddHHmm").withZone(DateTimeZone.UTC);
-
-  protected static final String DEFAULT_REGION = "us-central1";
-
   private final Entity entity;
 
   protected BigQueryIndexingJob(Entity entity) {
@@ -218,10 +215,15 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
         PipelineOptionsFactory.create().as(DataflowPipelineOptions.class);
     dataflowOptions.setRunner(DataflowRunner.class);
     dataflowOptions.setProject(outputBQDataset.getProjectId());
-    // TODO: Allow overriding the default region.
-    dataflowOptions.setRegion(DEFAULT_REGION);
+    dataflowOptions.setRegion(outputBQDataset.getDataflowRegion());
     dataflowOptions.setServiceAccount(serviceAccountEmail);
     dataflowOptions.setJobName(getDataflowJobName());
+    dataflowOptions.setUsePublicIps(false);
+
+    // TODO: Try this knob for jobs that fail with OOM errors. If it fixes problems, consider making
+    // this configurable (per job? per underlay?).
+    dataflowOptions.setWorkerMachineType("n1-highmem-32");
+    dataflowOptions.setDiskSizeGb(500);
 
     if (outputBQDataset.getDataflowTempLocation() != null) {
       dataflowOptions.setTempLocation(outputBQDataset.getDataflowTempLocation());

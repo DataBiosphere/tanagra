@@ -2,9 +2,12 @@ package bio.terra.tanagra.serialization;
 
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.DisplayHint;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * External representation of an entity attribute.
@@ -18,6 +21,7 @@ public class UFAttribute {
   private final String name;
   private final Literal.DataType dataType;
   private final UFDisplayHint displayHint;
+  private final List<DisplayHint.Type> displayHintTypes;
 
   public UFAttribute(Attribute attribute) {
     this.type = attribute.getType();
@@ -25,6 +29,7 @@ public class UFAttribute {
     this.dataType = attribute.getDataType();
     this.displayHint =
         attribute.getDisplayHint() == null ? null : attribute.getDisplayHint().serialize();
+    this.displayHintTypes = attribute.getDisplayHintTypes();
   }
 
   protected UFAttribute(Builder builder) {
@@ -32,6 +37,7 @@ public class UFAttribute {
     this.name = builder.name;
     this.dataType = builder.dataType;
     this.displayHint = builder.displayHint;
+    this.displayHintTypes = builder.displayHintTypes;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -40,6 +46,7 @@ public class UFAttribute {
     private String name;
     private Literal.DataType dataType;
     private UFDisplayHint displayHint;
+    private List<DisplayHint.Type> displayHintTypes = new ArrayList<>();
 
     public Builder type(Attribute.Type type) {
       this.type = type;
@@ -58,6 +65,11 @@ public class UFAttribute {
 
     public Builder displayHint(UFDisplayHint displayHint) {
       this.displayHint = displayHint;
+      return this;
+    }
+
+    public Builder displayHintTypes(List<DisplayHint.Type> displayHintTypes) {
+      this.displayHintTypes = displayHintTypes;
       return this;
     }
 
@@ -81,5 +93,9 @@ public class UFAttribute {
 
   public UFDisplayHint getDisplayHint() {
     return displayHint;
+  }
+
+  public List<DisplayHint.Type> getDisplayHintTypes() {
+    return displayHintTypes;
   }
 }

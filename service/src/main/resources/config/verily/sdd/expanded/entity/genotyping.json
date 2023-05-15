@@ -304,11 +304,13 @@
         },
         "count" : 1
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -318,12 +320,14 @@
     "attributeMappings" : {
       "name" : {
         "value" : {
-          "column" : "assay_name"
+          "column" : "assay_name",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "platform_id"
+          "column" : "platform_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -338,10 +342,12 @@
           },
           "fieldPointers" : {
             "parent" : {
-              "column" : "parent"
+              "column" : "parent",
+              "runtimeCalculated" : false
             },
             "child" : {
-              "column" : "child"
+              "column" : "child",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -351,7 +357,8 @@
           },
           "fieldPointers" : {
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -367,18 +374,21 @@
     "attributeMappings" : {
       "name" : {
         "value" : {
-          "column" : "name"
+          "column" : "name",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       }
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "text"
+        "column" : "text",
+        "runtimeCalculated" : false
       }
     },
     "hierarchyMappings" : {
@@ -389,10 +399,12 @@
           },
           "fieldPointers" : {
             "parent" : {
-              "column" : "parent"
+              "column" : "parent",
+              "runtimeCalculated" : false
             },
             "child" : {
-              "column" : "child"
+              "column" : "child",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -402,10 +414,12 @@
           },
           "fieldPointers" : {
             "ancestor" : {
-              "column" : "ancestor"
+              "column" : "ancestor",
+              "runtimeCalculated" : false
             },
             "descendant" : {
-              "column" : "descendant"
+              "column" : "descendant",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -415,13 +429,16 @@
           },
           "fieldPointers" : {
             "path" : {
-              "column" : "t_standard_path"
+              "column" : "t_standard_path",
+              "runtimeCalculated" : false
             },
             "num_children" : {
-              "column" : "t_standard_num_children"
+              "column" : "t_standard_num_children",
+              "runtimeCalculated" : false
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             }
           }
         },

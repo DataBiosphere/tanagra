@@ -3,6 +3,7 @@ package bio.terra.tanagra.query;
 import bio.terra.tanagra.exception.SystemException;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +30,21 @@ public class FieldVariable implements SQLExpression {
     return renderSQL(true, true);
   }
 
-  public String renderSqlForOrderBy() {
-    return renderSQL(false, false);
+  public String renderSqlForOrderOrGroupBy(boolean includedInSelect) {
+    LOGGER.info(
+        "renderSqlForOrderOrGroupBy: includedInSelect {}, alias {}", includedInSelect, alias);
+    if (includedInSelect) {
+      if (alias == null) {
+        String sql = renderSQL(false, true);
+        LOGGER.warn(
+            "ORDER or GROUP BY clause is also included in SELECT but has no alias: {}", sql);
+        return sql;
+      } else {
+        return alias;
+      }
+    } else {
+      return renderSQL(false, true);
+    }
   }
 
   public String renderSqlForWhere() {
@@ -97,5 +111,24 @@ public class FieldVariable implements SQLExpression {
 
   public FieldPointer getFieldPointer() {
     return fieldPointer;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FieldVariable that = (FieldVariable) o;
+    return fieldPointer.equals(that.fieldPointer)
+        && tableVariable.equals(that.tableVariable)
+        && Objects.equals(alias, that.alias);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(fieldPointer, tableVariable, alias);
   }
 }

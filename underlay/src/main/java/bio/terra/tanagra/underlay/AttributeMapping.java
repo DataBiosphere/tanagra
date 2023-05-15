@@ -104,8 +104,7 @@ public final class AttributeMapping {
    */
   public List<FieldVariable> buildFieldVariables(
       TableVariable primaryTable, List<TableVariable> tableVariables) {
-    FieldVariable valueVariable =
-        value.buildVariable(primaryTable, tableVariables, attribute.getName());
+    FieldVariable valueVariable = buildValueFieldVariable(primaryTable, tableVariables);
     if (!hasDisplay()) {
       return List.of(valueVariable);
     }
@@ -113,6 +112,11 @@ public final class AttributeMapping {
     FieldVariable displayVariable =
         display.buildVariable(primaryTable, tableVariables, getDisplayMappingAlias());
     return List.of(valueVariable, displayVariable);
+  }
+
+  public FieldVariable buildValueFieldVariable(
+      TableVariable primaryTable, List<TableVariable> tableVariables) {
+    return value.buildVariable(primaryTable, tableVariables, attribute.getName());
   }
 
   public ColumnSchema buildValueColumnSchema() {

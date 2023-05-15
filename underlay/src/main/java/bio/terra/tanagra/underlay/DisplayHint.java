@@ -5,7 +5,8 @@ import bio.terra.tanagra.serialization.UFDisplayHint;
 public abstract class DisplayHint {
   public enum Type {
     ENUM,
-    RANGE
+    RANGE,
+    NONE
   }
 
   public abstract Type getType();
