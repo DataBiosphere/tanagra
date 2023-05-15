@@ -269,7 +269,7 @@ public class Literal implements SQLExpression {
     }
 
     public Builder timestampVal(Timestamp timestampVal) {
-      this.timestampVal = new Timestamp(timestampVal.getTime());
+      this.timestampVal = timestampVal == null ? null : new Timestamp(timestampVal.getTime());
       return this;
     }
 

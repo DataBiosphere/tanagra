@@ -74,7 +74,7 @@ public class UFLiteral {
     }
 
     public Builder timestampVal(Timestamp timestampVal) {
-      this.timestampVal = new Timestamp(timestampVal.getTime());
+      this.timestampVal = timestampVal == null ? null : new Timestamp(timestampVal.getTime());
       return this;
     }
 
@@ -105,6 +105,6 @@ public class UFLiteral {
   }
 
   public Timestamp getTimestampVal() {
-    return new Timestamp(timestampVal.getTime());
+    return timestampVal == null ? null : new Timestamp(timestampVal.getTime());
   }
 }
