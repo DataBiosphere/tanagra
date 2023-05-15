@@ -40,8 +40,13 @@ jobs:
           echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
         env:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
+      - name: Create Maven settings file
+        uses: s4u/maven-settings-action@v2.8.0
+        with:
+          servers: '[{"id": "github", "username": "${env.GITHUB_ACTOR}", "password": "${env.GITHUB_TOKEN}"}]'
       - name: Gradle Build and Check
         # The check task includes the build, test and static analysis tasks.
         run: ./gradlew underlay:check --scan
         env:
+          GITHUB_TOKEN: ${{ secrets.GPR_TOKEN_MARIKOMEDLOCK }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
