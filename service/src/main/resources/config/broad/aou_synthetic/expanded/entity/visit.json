@@ -4,11 +4,13 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "name",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -20,7 +22,8 @@
         "subfilters" : [ {
           "type" : "BINARY",
           "field" : {
-            "column" : "domain_id"
+            "column" : "domain_id",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -29,7 +32,8 @@
         }, {
           "type" : "BINARY",
           "field" : {
-            "column" : "standard_concept"
+            "column" : "standard_concept",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -41,12 +45,14 @@
     "attributeMappings" : {
       "name" : {
         "value" : {
-          "column" : "concept_name"
+          "column" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "concept_id"
+          "column" : "concept_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -57,10 +63,12 @@
         },
         "fieldPointers" : {
           "id" : {
-            "column" : "id"
+            "column" : "id",
+            "runtimeCalculated" : false
           },
           "text" : {
-            "column" : "text"
+            "column" : "text",
+            "runtimeCalculated" : false
           }
         }
       }
@@ -75,18 +83,21 @@
     "attributeMappings" : {
       "name" : {
         "value" : {
-          "column" : "name"
+          "column" : "name",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       }
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "text"
+        "column" : "text",
+        "runtimeCalculated" : false
       }
     },
     "hierarchyMappings" : { }
