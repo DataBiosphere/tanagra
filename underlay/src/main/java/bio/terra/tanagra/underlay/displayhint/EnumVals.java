@@ -19,10 +19,7 @@ import bio.terra.tanagra.serialization.displayhint.UFEnumVals;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.ValueDisplay;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,6 +208,10 @@ public final class EnumVals extends DisplayHint {
         return null;
       }
     }
+
+    // Sort the enum values, so the expanded config has a consistent ordering.
+    enumVals.sort(Comparator.comparing(ev -> ev.getValueDisplay().getDisplay()));
+
     return new EnumVals(enumVals);
   }
 
