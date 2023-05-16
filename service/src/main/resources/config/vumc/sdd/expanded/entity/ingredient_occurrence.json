@@ -5,37 +5,12 @@
     "type" : "SIMPLE",
     "name" : "end_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ingredient",
     "dataType" : "INT64",
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "refills",
-    "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 0.0,
-      "maxVal" : 365.0
-    },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "source_criteria_id",
-    "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 501343.0,
-      "maxVal" : 4.63659E7
-    },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "age_at_occurrence",
-    "dataType" : "INT64",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "stop_reason",
@@ -268,19 +243,45 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "SIMPLE",
-    "name" : "visit_occurrence_id",
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "visit_type",
     "dataType" : "INT64",
     "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 0.0,
-      "maxVal" : 9.388852E7
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
+        },
+        "count" : 6103937
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
+        },
+        "count" : 185294420
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 286446
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
+        },
+        "count" : 42337392
+      } ]
     },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "id",
-    "dataType" : "INT64",
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
@@ -294,34 +295,64 @@
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
+    "name" : "refills",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 0.0,
+      "maxVal" : 365.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -2005.0,
+      "maxVal" : 89.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "drug_exposure"
+      "rawSql" : "SELECT   de.drug_exposure_id AS id, de.person_id, de.drug_concept_id,   de.drug_exposure_start_date AS start_date, de.drug_exposure_end_date AS end_date,   de.stop_reason, de.refills, de.days_supply,   de.drug_source_value AS source_value, de.drug_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(de.drug_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   de.visit_occurrence_id, vo.visit_concept_id  FROM `victr-tanagra-test.sd_static.drug_exposure` AS de  JOIN `victr-tanagra-test.sd_static.person` AS p ON p.person_id = de.person_id  LEFT JOIN `victr-tanagra-test.sd_static.visit_occurrence` AS vo ON vo.visit_occurrence_id = de.visit_occurrence_id "
     },
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "drug_exposure_end_date",
+          "column" : "end_date",
           "runtimeCalculated" : false
         }
       },
@@ -338,6 +369,31 @@
           "runtimeCalculated" : false
         }
       },
+      "stop_reason" : {
+        "value" : {
+          "column" : "stop_reason",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "visit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply",
+          "runtimeCalculated" : false
+        }
+      },
       "refills" : {
         "value" : {
           "column" : "refills",
@@ -346,13 +402,13 @@
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "drug_source_concept_id",
+          "column" : "source_criteria_id",
           "runtimeCalculated" : false
         }
       },
-      "stop_reason" : {
+      "age_at_occurrence" : {
         "value" : {
-          "column" : "stop_reason",
+          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },
@@ -364,19 +420,13 @@
       },
       "id" : {
         "value" : {
-          "column" : "drug_exposure_id",
-          "runtimeCalculated" : false
-        }
-      },
-      "days_supply" : {
-        "value" : {
-          "column" : "days_supply",
+          "column" : "id",
           "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "drug_source_value",
+          "column" : "source_value",
           "runtimeCalculated" : false
         }
       },
@@ -388,7 +438,7 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "drug_exposure_start_date",
+          "column" : "start_date",
           "runtimeCalculated" : false
         }
       }
@@ -417,6 +467,28 @@
           "runtimeCalculated" : false
         }
       },
+      "stop_reason" : {
+        "value" : {
+          "column" : "stop_reason",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_type",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_visit_type",
+          "runtimeCalculated" : false
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply",
+          "runtimeCalculated" : false
+        }
+      },
       "refills" : {
         "value" : {
           "column" : "refills",
@@ -435,12 +507,6 @@
           "runtimeCalculated" : false
         }
       },
-      "stop_reason" : {
-        "value" : {
-          "column" : "stop_reason",
-          "runtimeCalculated" : false
-        }
-      },
       "visit_occurrence_id" : {
         "value" : {
           "column" : "visit_occurrence_id",
@@ -450,12 +516,6 @@
       "id" : {
         "value" : {
           "column" : "id",
-          "runtimeCalculated" : false
-        }
-      },
-      "days_supply" : {
-        "value" : {
-          "column" : "days_supply",
           "runtimeCalculated" : false
         }
       },
@@ -479,9 +539,5 @@
       }
     },
     "hierarchyMappings" : { }
-  },
-  "sourceStartDateColumn" : {
-    "column" : "drug_exposure_start_date",
-    "runtimeCalculated" : false
   }
 }

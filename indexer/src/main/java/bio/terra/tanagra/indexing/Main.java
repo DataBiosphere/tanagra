@@ -45,8 +45,6 @@ public final class Main {
 
         indexer.scanSourceData();
 
-        indexer.maybeAddAgeAtOccurrenceAttribute();
-
         indexer.getUnderlay().serializeAndWriteToFile();
         break;
       case INDEX_ENTITY:

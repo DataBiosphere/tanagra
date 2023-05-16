@@ -14,4 +14,4 @@ FROM
     `victr-tanagra-test.sd_static.concept_relationship` cr,
     `victr-tanagra-test.sd_static.concept` c2
 WHERE
-        cr.concept_id_2 = c2.concept_id AND c2.concept_class_id = 'Ingredient'
+    cr.concept_id_2 = c2.concept_id AND c2.concept_class_id = 'Ingredient'

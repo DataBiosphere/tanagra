@@ -3,21 +3,23 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "person_id" },
+    { "type": "SIMPLE", "name": "person_id", "displayHintTypes": ["NONE"] },
     { "type": "KEY_AND_DISPLAY", "name": "observation" },
-    { "type": "SIMPLE", "name": "date" },
-    { "type": "SIMPLE", "name": "value_as_string" },
-    { "type": "KEY_AND_DISPLAY", "name": "value" },
-    { "type": "KEY_AND_DISPLAY", "name": "unit" },
-    { "type": "SIMPLE", "name": "visit_occurrence_id" },
-    { "type": "SIMPLE", "name": "source_value" },
-    { "type": "SIMPLE", "name": "source_criteria_id" } ],
+    { "type": "SIMPLE", "name": "date", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "value_as_string", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "value", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "unit", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_value", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_criteria_id", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit_type" }
+  ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "table": "observation" },
+    "tablePointer": { "rawSqlFile": "observation_occurrence_all.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "observation_id" } },
       "observation": {
         "value": { "column": "observation_concept_id" },
         "display": {
@@ -40,14 +42,17 @@
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
-      "source_value": { "value": { "column": "observation_source_value" } },
-      "source_criteria_id": { "value": { "column": "observation_source_concept_id" } }
+      "visit_type": {
+        "value": { "column": "visit_concept_id" },
+        "display": {
+          "column": "visit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
     }
   },
 
   "indexDataMapping": {
     "dataPointer": "index_dataset"
-  },
-
-  "sourceStartDateColumn": { "column" :  "observation_date" }
+  }
 }

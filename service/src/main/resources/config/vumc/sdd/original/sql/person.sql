@@ -21,7 +21,7 @@ FROM `victr-tanagra-test.sd_static.person` p
                 SELECT
                 *,
                 ROW_NUMBER() OVER(PARTITION BY person_id) AS rn
-                FROM `sd_static.x_biovu_sample_status`
+                FROM `victr-tanagra-test.sd_static.x_biovu_sample_status`
             )
             SELECT * FROM x_biovu_sample_status WHERE rn = 1
         ) x

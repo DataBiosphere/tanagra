@@ -5,38 +5,26 @@
     "type" : "SIMPLE",
     "name" : "date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "unit",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 0
-          },
-          "display" : "No matching concept"
-        },
-        "count" : 501848
-      } ]
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 8689.0,
-      "maxVal" : 2.02102001E9
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
     "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -977.0,
+      "maxVal" : 89.0
+    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
@@ -47,15 +35,51 @@
     "type" : "SIMPLE",
     "name" : "value_as_string",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
     "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "visit_type",
+    "dataType" : "INT64",
     "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 0.0,
-      "maxVal" : 9.3888519E7
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
+        },
+        "count" : 3576917
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
+        },
+        "count" : 8957833
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 803664
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
+        },
+        "count" : 57751171
+      } ]
     },
     "displayHintTypes" : [ ]
   }, {
@@ -67,27 +91,22 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "value",
     "dataType" : "INT64",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "observation"
+      "rawSql" : "SELECT   o.observation_id AS id, o.person_id, o.observation_concept_id,   o.observation_date, o.value_as_string, o.value_as_concept_id, o.unit_concept_id,   o.observation_source_value AS source_value, o.observation_source_concept_id AS source_criteria_id,   CAST(FLOOR(DATE_DIFF(o.observation_date, CAST(p.birth_datetime AS DATE), DAY) / 365.25) AS INT64) AS age_at_occurrence,   o.visit_occurrence_id, vo.visit_concept_id  FROM `victr-tanagra-test.sd_static.observation` AS o  JOIN `victr-tanagra-test.sd_static.person` AS p ON p.person_id = o.person_id  LEFT JOIN `victr-tanagra-test.sd_static.visit_occurrence` AS vo ON vo.visit_occurrence_id = o.visit_occurrence_id "
     },
     "attributeMappings" : {
       "date" : {
@@ -111,7 +130,13 @@
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "observation_source_concept_id",
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },
@@ -140,9 +165,22 @@
           "runtimeCalculated" : false
         }
       },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "visit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
       "id" : {
         "value" : {
-          "column" : "observation_id",
+          "column" : "id",
           "runtimeCalculated" : false
         }
       },
@@ -161,7 +199,7 @@
       },
       "source_value" : {
         "value" : {
-          "column" : "observation_source_value",
+          "column" : "source_value",
           "runtimeCalculated" : false
         }
       },
@@ -230,6 +268,16 @@
           "runtimeCalculated" : false
         }
       },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_type",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_visit_type",
+          "runtimeCalculated" : false
+        }
+      },
       "id" : {
         "value" : {
           "column" : "id",
@@ -260,9 +308,5 @@
       }
     },
     "hierarchyMappings" : { }
-  },
-  "sourceStartDateColumn" : {
-    "column" : "observation_date",
-    "runtimeCalculated" : false
   }
 }

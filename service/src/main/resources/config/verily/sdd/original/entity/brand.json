@@ -3,9 +3,9 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name" },
+    { "type": "SIMPLE", "name": "name", "displayHintTypes": ["NONE"] },
     { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
-    { "type": "SIMPLE", "name": "concept_code" } ],
+    { "type": "SIMPLE", "name": "concept_code", "displayHintTypes": ["NONE"] } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
