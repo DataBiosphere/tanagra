@@ -1128,8 +1128,11 @@ components:
       properties:
         email:
           type: string
+        subjectId:
+          type: string
       required:
         - email
+        - subjectId
 
     UnderlayV2:
       type: object
