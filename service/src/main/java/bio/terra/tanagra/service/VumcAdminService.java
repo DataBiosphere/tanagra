@@ -69,6 +69,7 @@ public class VumcAdminService {
   }
 
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
+  // uses email as the primary user identifier
   public boolean isAuthorized(
       String userId, ResourceAction resourceAction, ResourceType resourceType, String resourceId) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
@@ -83,6 +84,7 @@ public class VumcAdminService {
     }
   }
 
+  // uses email as the primary user identifier
   public ResourceList listAuthorizedResources(String userId, ResourceTypeList resourceTypeList) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {

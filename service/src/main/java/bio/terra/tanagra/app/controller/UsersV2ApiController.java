@@ -12,6 +12,7 @@ public class UsersV2ApiController implements UsersV2Api {
   @Override
   public ResponseEntity<ApiUserProfileV2> getMe() {
     UserId userId = SpringAuthentication.getCurrentUser();
-    return ResponseEntity.ok(new ApiUserProfileV2().email(userId.getEmail()));
+    return ResponseEntity.ok(
+        new ApiUserProfileV2().email(userId.getEmail()).subjectId(userId.getSubject()));
   }
 }
