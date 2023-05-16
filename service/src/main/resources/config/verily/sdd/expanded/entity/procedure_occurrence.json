@@ -10,11 +10,6 @@
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 704057.0,
-      "maxVal" : 4.6257758E7
-    },
     "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
@@ -30,11 +25,6 @@
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 0.0,
-      "maxVal" : 9.388852E7
-    },
     "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
@@ -96,11 +86,6 @@
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 5227737.0
-    },
     "displayHintTypes" : [ "NONE" ]
   } ],
   "sourceDataMapping" : {

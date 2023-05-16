@@ -5,17 +5,12 @@
     "type" : "SIMPLE",
     "name" : "end_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 915589.0,
-      "maxVal" : 4.5890598E7
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
@@ -81,27 +76,22 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "device",
     "dataType" : "INT64",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 5225162.0
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
