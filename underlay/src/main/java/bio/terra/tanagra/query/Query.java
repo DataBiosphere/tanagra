@@ -104,8 +104,10 @@ public class Query implements SQLExpression {
           orderBy.stream()
               .map(
                   obv ->
-                      obv.setIsIncludedInSelect(select.contains(obv.getFieldVariable()))
-                          .renderSQL())
+                      obv.isRandom()
+                          ? obv.renderSQL()
+                          : obv.setIsIncludedInSelect(select.contains(obv.getFieldVariable()))
+                              .renderSQL())
               .collect(Collectors.joining(", "));
 
       template = "${sql} ORDER BY ${orderBySQL}";

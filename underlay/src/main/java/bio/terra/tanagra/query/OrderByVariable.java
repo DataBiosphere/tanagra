@@ -45,4 +45,8 @@ public class OrderByVariable implements SQLExpression {
   public FieldVariable getFieldVariable() {
     return fieldVariable;
   }
+
+  public boolean isRandom() {
+    return isRandom;
+  }
 }
