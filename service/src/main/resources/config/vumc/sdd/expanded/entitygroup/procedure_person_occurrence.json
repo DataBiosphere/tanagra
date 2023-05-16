@@ -34,21 +34,6 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       },
-      "occurrenceRelatedEntity0" : {
-        "idPairsTable" : {
-          "table" : "procedure_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "procedure_occurrence_id",
-          "runtimeCalculated" : false
-        },
-        "idPairsIdB" : {
-          "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        },
-        "rollupInformationMapA" : { },
-        "rollupInformationMapB" : { }
-      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "procedure_occurrence"
@@ -206,57 +191,6 @@
           }
         }
       },
-      "occurrenceRelatedEntity0" : {
-        "idPairsTable" : {
-          "table" : "idpairs_procedure_occurrence_visit_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "id_procedure_occurrence",
-          "runtimeCalculated" : false
-        },
-        "idPairsIdB" : {
-          "column" : "id_visit_occurrence",
-          "runtimeCalculated" : false
-        },
-        "rollupInformationMapA" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "procedure_occurrence"
-            },
-            "id" : {
-              "column" : "id",
-              "runtimeCalculated" : false
-            },
-            "count" : {
-              "column" : "t_count_visit_occurrence",
-              "runtimeCalculated" : false
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence",
-              "runtimeCalculated" : false
-            }
-          }
-        },
-        "rollupInformationMapB" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "visit_occurrence"
-            },
-            "id" : {
-              "column" : "id",
-              "runtimeCalculated" : false
-            },
-            "count" : {
-              "column" : "t_count_procedure_occurrence",
-              "runtimeCalculated" : false
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_procedure_occurrence",
-              "runtimeCalculated" : false
-            }
-          }
-        }
-      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "idpairs_procedure_occurrence_person"
@@ -313,6 +247,5 @@
   },
   "criteriaEntity" : "procedure",
   "occurrenceEntity" : "procedure_occurrence",
-  "occurrenceRelatedEntities" : [ "visit_occurrence" ],
   "modifierAttributes" : [ ]
 }

@@ -1,7 +1,5 @@
 package bio.terra.tanagra.indexing.job;
 
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.AGE_AT_OCCURRENCE_ATTRIBUTE_NAME;
-
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.InsertFromSelect;
@@ -44,11 +42,6 @@ public class DenormalizeEntityInstances extends BigQueryIndexingJob {
     // Build a map of output column name -> selected FieldVariable.
     Map<String, FieldVariable> insertFields = new HashMap<>();
     for (Attribute attribute : getEntity().getAttributes()) {
-      // age_at_occurrence is handled by ComputeAgeAtOccurrence job
-      if (attribute.getName().equals(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME)) {
-        continue;
-      }
-
       // Attribute value.
       String insertColumnName =
           attribute.getMapping(Underlay.MappingType.INDEX).getValue().getColumnName();

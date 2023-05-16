@@ -1,13 +1,7 @@
 package bio.terra.tanagra.indexing;
 
-import static bio.terra.tanagra.underlay.EntityGroup.Type.GROUP_ITEMS;
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.AGE_AT_OCCURRENCE_ATTRIBUTE_NAME;
-
-import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
-import bio.terra.tanagra.indexing.job.ComputeAgeAtOccurrence;
 import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
 import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
 import bio.terra.tanagra.indexing.job.CreateEntityTable;
@@ -19,8 +13,6 @@ import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.Literal.DataType;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.google.common.annotations.VisibleForTesting;
@@ -73,60 +65,6 @@ public final class Indexer {
                   "Looking up attribute data types and generating UI hints for entity: "
                       + e.getName());
               e.scanSourceData();
-            });
-  }
-
-  /**
-   * For CRITERIA_OCCURRENCE entity group occurrence entities (eg condition_occurrence), if
-   * occurrence entity config has sourceStartDateColumn, add age_at_occurrernce attribute to
-   * occurrence entity.
-   */
-  public void maybeAddAgeAtOccurrenceAttribute() {
-    underlay
-        .getEntityGroups()
-        .values()
-        .forEach(
-            entityGroup -> {
-              switch (entityGroup.getType()) {
-                case GROUP_ITEMS:
-                  return;
-                case CRITERIA_OCCURRENCE:
-                  CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
-                  if (criteriaOccurrence.getOccurrenceEntity().getSourceStartDateColumn() == null) {
-                    return;
-                  }
-                  // TODO: Confirm sourceStartDateColumn is DATE, DATETIME or TIMESTAMP
-                  if (underlay.getPrimaryEntity().getSourceStartDateColumn() == null) {
-                    throw new InvalidConfigException(
-                        String.format(
-                            "Occurrence entity %s config has sourceStartDateColumn. Primary entity config must have sourceStartDateColumn. Please set sourceStartDateColumn in primary entity config.",
-                            criteriaOccurrence.getName()));
-                  }
-                  LOGGER.info("Adding age_at_occurrence attribute to {}", entityGroup.getName());
-                  Attribute attribute =
-                      new Attribute(
-                          AGE_AT_OCCURRENCE_ATTRIBUTE_NAME,
-                          Attribute.Type.SIMPLE,
-                          DataType.INT64,
-                          /*displayHint=*/ null,
-                          null);
-                  FieldPointer fieldPointer =
-                      new FieldPointer.Builder()
-                          .tablePointer(
-                              criteriaOccurrence
-                                  .getOccurrenceEntity()
-                                  .getMapping(Underlay.MappingType.INDEX)
-                                  .getTablePointer())
-                          .columnName(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME)
-                          .build();
-                  attribute.initialize(/*sourceMapping=*/ null, new AttributeMapping(fieldPointer));
-                  criteriaOccurrence
-                      .getOccurrenceEntity()
-                      .addAttribute(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME, attribute);
-                  return;
-                default:
-                  throw new SystemException("Unknown entity group type: " + entityGroup.getType());
-              }
             });
   }
 
@@ -198,14 +136,6 @@ public final class Indexer {
               jobSet.addJob(new BuildNumChildrenAndPaths(entity, hierarchy.getName()));
             });
 
-    if (entity.getAttribute(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME) != null) {
-      Relationship occurrencePrimaryRelationship =
-          ((CriteriaOccurrence)
-                  underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, entity))
-              .getOccurrencePrimaryRelationship();
-      jobSet.addJob(new ComputeAgeAtOccurrence(entity, occurrencePrimaryRelationship));
-    }
-
     return jobSet;
   }
 
@@ -230,11 +160,11 @@ public final class Indexer {
               criteriaOccurrence.getCriteriaEntity(),
               criteriaOccurrence.getCriteriaPrimaryRelationship(),
               null));
-      jobSet.addJob(
-          new ComputeRollupCounts(
-              criteriaOccurrence.getCriteriaEntity(),
-              criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-              null));
+      // jobSet.addJob(
+      //     new ComputeRollupCounts(
+      //         criteriaOccurrence.getCriteriaEntity(),
+      //         criteriaOccurrence.getOccurrenceCriteriaRelationship(),
+      //         null));
 
       // If the criteria entity has a hierarchy, then also compute the counts for each
       // hierarchy.

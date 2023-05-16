@@ -1,6 +1,7 @@
 package bio.terra.tanagra.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +62,11 @@ public final class JacksonMapper {
    */
   public static <T> T readFileIntoJavaObject(InputStream inputStream, Class<T> javaObjectClass)
       throws IOException {
-    return readFileIntoJavaObject(inputStream, javaObjectClass, Collections.emptyList());
+    return readFileIntoJavaObject(
+        inputStream,
+        javaObjectClass,
+        Collections.emptyList(),
+        List.of(Pair.of(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)));
   }
 
   /**
@@ -73,16 +79,19 @@ public final class JacksonMapper {
    * @return an instance of the Java object class
    * @throws IOException if the stream to read in does not exist or is not readable
    */
-  public static <T> T readFileIntoJavaObject(
-      InputStream inputStream, Class<T> javaObjectClass, List<MapperFeature> mapperFeatures)
+  private static <T> T readFileIntoJavaObject(
+      InputStream inputStream,
+      Class<T> javaObjectClass,
+      List<MapperFeature> mapperFeatures,
+      List<Pair<DeserializationFeature, Boolean>> deserializationFeatures)
       throws IOException {
-    // use Jackson to map the file contents to an instance of the specified class
+    // Use Jackson to map the file contents to an instance of the specified class.
     ObjectMapper objectMapper = getMapper(mapperFeatures);
 
-    // enable any Jackson features specified
-    for (MapperFeature mapperFeature : mapperFeatures) {
-      objectMapper.enable(mapperFeature);
-    }
+    // Enable any Jackson features specified.
+    mapperFeatures.stream().forEach(mf -> objectMapper.enable(mf));
+    deserializationFeatures.stream()
+        .forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
 
     try (inputStream) {
       return objectMapper.readValue(inputStream, javaObjectClass);

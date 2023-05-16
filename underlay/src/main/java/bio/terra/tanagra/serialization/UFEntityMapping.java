@@ -1,8 +1,5 @@
 package bio.terra.tanagra.serialization;
 
-import static bio.terra.tanagra.underlay.Underlay.MappingType.SOURCE;
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.AGE_AT_OCCURRENCE_ATTRIBUTE_NAME;
-
 import bio.terra.tanagra.underlay.EntityMapping;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -32,12 +29,6 @@ public class UFEntityMapping {
     entityMapping.getEntity().getAttributes().stream()
         .forEach(
             attribute -> {
-              // Tanagra automatically generates age_at_occurrence attribute for some entities.
-              // There is no source mapping.
-              if (entityMapping.getMappingType() == SOURCE
-                  && attribute.getName().equals(AGE_AT_OCCURRENCE_ATTRIBUTE_NAME)) {
-                return;
-              }
               attributeMappings.put(
                   attribute.getName(),
                   new UFAttributeMapping(attribute.getMapping(entityMapping.getMappingType())));

@@ -4,17 +4,22 @@
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
       "projectId": "victr-tanagra-test",
-      "datasetId": "sd_static" },
+      "datasetId": "sd_static"
+    },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "victr-tanagra-test",
       "datasetId": "sdstatic_index",
       "dataflowServiceAccountEmail": "tanagra-indexing-runner@victr-tanagra-test.iam.gserviceaccount.com",
-      "dataflowTempLocation": "gs://dataflow-indexing-victr-tanagra-test/temp/" } ],
+      "dataflowTempLocation": "gs://dataflow-indexing-victr-tanagra-test/temp/"
+    }
+  ],
   "entities": [
     "brand.json",
     "condition.json",
     "condition_occurrence.json",
+    "device.json",
+    "device_occurrence.json",
     "ingredient.json",
     "ingredient_occurrence.json",
     "genotyping.json",
@@ -34,6 +39,7 @@
   "entityGroups": [
     "brand_ingredient.json",
     "condition_person_occurrence.json",
+    "device_person_occurrence.json",
     "genotyping_person.json",
     "ingredient_person_occurrence.json",
     "measurement_person_occurrence.json",
