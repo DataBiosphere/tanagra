@@ -3,10 +3,7 @@ package bio.terra.tanagra.indexing.job;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.HierarchyField;
-import bio.terra.tanagra.underlay.TextSearchMapping;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.Schema;
@@ -30,9 +27,12 @@ public class CreateEntityTable extends BigQueryIndexingJob {
     List<Field> fields = new ArrayList<>();
     getEntity().getAttributes().stream()
         .forEach(
-            attribute ->
-                attribute.getMapping(Underlay.MappingType.INDEX).buildColumnSchemas().stream()
-                    .forEach(columnSchema -> fields.add(fromColumnSchema(columnSchema))));
+            attribute -> {
+              AttributeMapping indexMapping = attribute.getMapping(Underlay.MappingType.INDEX);
+              AttributeMapping sourceMapping = attribute.getMapping(Underlay.MappingType.SOURCE);
+              indexMapping.buildColumnSchemasForIndexing(sourceMapping).stream()
+                  .forEach(columnSchema -> fields.add(fromColumnSchema(columnSchema)));
+            });
 
     // Build field schemas for text mapping.
     if (getEntity().getTextSearch().isEnabled()) {

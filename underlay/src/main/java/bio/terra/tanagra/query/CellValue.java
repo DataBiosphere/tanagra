@@ -18,7 +18,8 @@ public interface CellValue {
     STRING,
     BOOLEAN,
     DATE,
-    FLOAT;
+    FLOAT,
+    TIMESTAMP;
 
     public static SQLDataType fromUnderlayDataType(Literal.DataType underlayDataType) {
       switch (underlayDataType) {
@@ -32,6 +33,8 @@ public interface CellValue {
           return DATE;
         case DOUBLE:
           return FLOAT;
+        case TIMESTAMP:
+          return TIMESTAMP;
         default:
           throw new SystemException("Unknown underlay data type: " + underlayDataType);
       }
@@ -49,6 +52,8 @@ public interface CellValue {
           return Literal.DataType.DATE;
         case FLOAT:
           return Literal.DataType.DOUBLE;
+        case TIMESTAMP:
+          return Literal.DataType.TIMESTAMP;
         default:
           throw new SystemException("Unknown SQL data type: " + this);
       }

@@ -15,6 +15,7 @@ public class FieldPointer {
   private final String foreignColumnName;
   private boolean joinCanBeEmpty;
   private final String sqlFunctionWrapper;
+  private final boolean runtimeCalculated;
 
   private FieldPointer(Builder builder) {
     this.tablePointer = builder.tablePointer;
@@ -24,6 +25,7 @@ public class FieldPointer {
     this.foreignColumnName = builder.foreignColumnName;
     this.joinCanBeEmpty = builder.joinCanBeEmpty;
     this.sqlFunctionWrapper = builder.sqlFunctionWrapper;
+    this.runtimeCalculated = builder.runtimeCalculated;
   }
 
   public static FieldPointer allFields(TablePointer tablePointer) {
@@ -44,6 +46,7 @@ public class FieldPointer {
           .tablePointer(tablePointer)
           .columnName(serialized.getColumn())
           .sqlFunctionWrapper(serialized.getSqlFunctionWrapper())
+          .runtimeCalculated(serialized.isRuntimeCalculated())
           .build();
     } else if (allForeignKeyFieldsDefined) {
       // assume the foreign table is part of the same data pointer as the original table
@@ -56,6 +59,7 @@ public class FieldPointer {
           .foreignKeyColumnName(serialized.getForeignKey())
           .foreignColumnName(serialized.getForeignColumn())
           .sqlFunctionWrapper(serialized.getSqlFunctionWrapper())
+          .runtimeCalculated(serialized.isRuntimeCalculated())
           .build();
     } else {
       throw new InvalidConfigException("Only some foreign key fields are defined");
@@ -69,6 +73,19 @@ public class FieldPointer {
 
   public FieldVariable buildVariable(
       TableVariable primaryTable, List<TableVariable> tableVariables, String alias) {
+    return buildVariable(primaryTable, tableVariables, alias, false);
+  }
+
+  public FieldVariable buildVariableForIndexing(
+      TableVariable primaryTable, List<TableVariable> tableVariables, String alias) {
+    return buildVariable(primaryTable, tableVariables, alias, true);
+  }
+
+  public FieldVariable buildVariable(
+      TableVariable primaryTable,
+      List<TableVariable> tableVariables,
+      String alias,
+      boolean forIndexing) {
     if (isForeignKey()) {
       FieldVariable primaryTableColumn =
           new FieldVariable(
@@ -87,12 +104,17 @@ public class FieldPointer {
           new Builder()
               .tablePointer(foreignTablePointer)
               .columnName(foreignColumnName)
-              .sqlFunctionWrapper(sqlFunctionWrapper)
+              .sqlFunctionWrapper(forIndexing && runtimeCalculated ? null : sqlFunctionWrapper)
               .build(),
           foreignTable,
           alias);
     } else {
-      return new FieldVariable(this, primaryTable, alias);
+      return forIndexing && runtimeCalculated
+          ? new FieldVariable(
+              this.toBuilder().runtimeCalculated(false).sqlFunctionWrapper(null).build(),
+              primaryTable,
+              alias)
+          : new FieldVariable(this, primaryTable, alias);
     }
   }
 
@@ -140,6 +162,10 @@ public class FieldPointer {
     return sqlFunctionWrapper;
   }
 
+  public boolean isRuntimeCalculated() {
+    return runtimeCalculated;
+  }
+
   public TablePointer getTablePointer() {
     return tablePointer;
   }
@@ -152,6 +178,7 @@ public class FieldPointer {
     private String foreignColumnName;
     private boolean joinCanBeEmpty;
     private String sqlFunctionWrapper;
+    private boolean runtimeCalculated;
 
     public Builder tablePointer(TablePointer tablePointer) {
       this.tablePointer = tablePointer;
@@ -185,6 +212,11 @@ public class FieldPointer {
 
     public Builder sqlFunctionWrapper(String sqlFunctionWrapper) {
       this.sqlFunctionWrapper = sqlFunctionWrapper;
+      return this;
+    }
+
+    public Builder runtimeCalculated(boolean runtimeCalculated) {
+      this.runtimeCalculated = runtimeCalculated;
       return this;
     }
 

@@ -5,6 +5,7 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.serialization.UFLiteral;
 import com.google.common.base.Strings;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -15,7 +16,8 @@ public class Literal implements SQLExpression {
     STRING,
     BOOLEAN,
     DATE,
-    DOUBLE
+    DOUBLE,
+    TIMESTAMP
   }
 
   private final Literal.DataType dataType;
@@ -24,6 +26,7 @@ public class Literal implements SQLExpression {
   private boolean booleanVal;
   private Date dateVal;
   private double doubleVal;
+  private Timestamp timestampVal;
 
   public Literal(String stringVal) {
     this.dataType = DataType.STRING;
@@ -50,8 +53,17 @@ public class Literal implements SQLExpression {
     this.doubleVal = doubleVal;
   }
 
+  private Literal(Timestamp timestampVal) {
+    this.dataType = DataType.TIMESTAMP;
+    this.timestampVal = timestampVal;
+  }
+
   public static Literal forDate(String dateVal) {
     return new Literal(Date.valueOf(dateVal));
+  }
+
+  public static Literal forTimestamp(Timestamp timestampVal) {
+    return new Literal(timestampVal);
   }
 
   private Literal(Builder builder) {
@@ -61,6 +73,7 @@ public class Literal implements SQLExpression {
     this.booleanVal = builder.booleanVal;
     this.dateVal = builder.dateVal;
     this.doubleVal = builder.doubleVal;
+    this.timestampVal = builder.timestampVal;
   }
 
   public static Literal fromSerialized(UFLiteral serialized) {
@@ -69,6 +82,7 @@ public class Literal implements SQLExpression {
     boolean booleanValDefined = serialized.getBooleanVal() != null;
     boolean dateValDefiend = serialized.getDateVal() != null;
     boolean doubleValDefined = serialized.getDoubleVal() != null;
+    boolean timestampValDefined = serialized.getTimestampVal() != null;
 
     long numDefined =
         Stream.of(
@@ -76,7 +90,8 @@ public class Literal implements SQLExpression {
                 int64ValDefined,
                 booleanValDefined,
                 dateValDefiend,
-                doubleValDefined)
+                doubleValDefined,
+                timestampValDefined)
             .filter(b -> b)
             .count();
     if (numDefined == 0) {
@@ -94,6 +109,8 @@ public class Literal implements SQLExpression {
       return new Literal(serialized.getBooleanVal());
     } else if (dateValDefiend) {
       return Literal.forDate(serialized.getDateVal());
+    } else if (timestampValDefined) {
+      return new Literal(serialized.getTimestampVal());
     } else {
       return new Literal(serialized.getDoubleVal());
     }
@@ -113,6 +130,8 @@ public class Literal implements SQLExpression {
         return "DATE('" + dateVal.toString() + "')";
       case DOUBLE:
         return "FLOAT('" + doubleVal + "')";
+      case TIMESTAMP:
+        return "TIMESTAMP('" + timestampVal.toString() + "')";
       default:
         throw new SystemException("Unknown Literal data type");
     }
@@ -131,6 +150,8 @@ public class Literal implements SQLExpression {
         return dateVal.toString();
       case DOUBLE:
         return String.valueOf(doubleVal);
+      case TIMESTAMP:
+        return timestampVal.toString();
       default:
         throw new SystemException("Unknown Literal data type");
     }
@@ -164,6 +185,10 @@ public class Literal implements SQLExpression {
     return dataType.equals(DataType.DOUBLE) ? doubleVal : null;
   }
 
+  public Timestamp getTimestampVal() {
+    return dataType.equals(DataType.TIMESTAMP) ? timestampVal : null;
+  }
+
   public DataType getDataType() {
     return dataType;
   }
@@ -183,6 +208,8 @@ public class Literal implements SQLExpression {
         return dateVal.compareTo(value.getDateVal());
       case DOUBLE:
         return Double.compare(doubleVal, value.getDoubleVal());
+      case TIMESTAMP:
+        return timestampVal.compareTo(value.getTimestampVal());
       default:
         throw new SystemException("Unknown Literal data type");
     }
@@ -198,7 +225,8 @@ public class Literal implements SQLExpression {
 
   @Override
   public int hashCode() {
-    return Objects.hash(dataType, stringVal, int64Val, booleanVal, dateVal, doubleVal);
+    return Objects.hash(
+        dataType, stringVal, int64Val, booleanVal, dateVal, doubleVal, timestampVal);
   }
 
   public static class Builder {
@@ -208,6 +236,7 @@ public class Literal implements SQLExpression {
     private boolean booleanVal;
     private Date dateVal;
     private double doubleVal;
+    private Timestamp timestampVal;
 
     public Builder dataType(Literal.DataType dataType) {
       this.dataType = dataType;
@@ -236,6 +265,11 @@ public class Literal implements SQLExpression {
 
     public Builder doubleVal(double doubleVal) {
       this.doubleVal = doubleVal;
+      return this;
+    }
+
+    public Builder timestampVal(Timestamp timestampVal) {
+      this.timestampVal = timestampVal == null ? null : new Timestamp(timestampVal.getTime());
       return this;
     }
 

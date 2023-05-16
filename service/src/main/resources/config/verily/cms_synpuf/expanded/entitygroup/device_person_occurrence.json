@@ -9,10 +9,12 @@
           "table" : "device_exposure"
         },
         "idPairsIdA" : {
-          "column" : "device_exposure_id"
+          "column" : "device_exposure_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "device_concept_id"
+          "column" : "device_concept_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -22,10 +24,12 @@
           "table" : "device_exposure"
         },
         "idPairsIdA" : {
-          "column" : "device_concept_id"
+          "column" : "device_concept_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -35,10 +39,12 @@
           "table" : "device_exposure"
         },
         "idPairsIdA" : {
-          "column" : "device_exposure_id"
+          "column" : "device_exposure_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -54,10 +60,12 @@
           "table" : "idpairs_device_occurrence_device"
         },
         "idPairsIdA" : {
-          "column" : "id_device_occurrence"
+          "column" : "id_device_occurrence",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_device"
+          "column" : "id_device",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -65,13 +73,16 @@
               "table" : "device_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_device"
+              "column" : "t_count_device",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_device"
+              "column" : "t_displayhints_device",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -81,13 +92,16 @@
               "table" : "device"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_device_occurrence"
+              "column" : "t_count_device_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_device_occurrence"
+              "column" : "t_displayhints_device_occurrence",
+              "runtimeCalculated" : false
             }
           }
         }
@@ -97,10 +111,12 @@
           "table" : "idpairs_device_person"
         },
         "idPairsIdA" : {
-          "column" : "id_device"
+          "column" : "id_device",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -108,13 +124,16 @@
               "table" : "device"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -124,13 +143,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_device"
+              "column" : "t_count_device",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_device"
+              "column" : "t_displayhints_device",
+              "runtimeCalculated" : false
             }
           }
         }
@@ -140,10 +162,12 @@
           "table" : "idpairs_device_occurrence_person"
         },
         "idPairsIdA" : {
-          "column" : "id_device_occurrence"
+          "column" : "id_device_occurrence",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -151,13 +175,16 @@
               "table" : "device_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -167,13 +194,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_device_occurrence"
+              "column" : "t_count_device_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_device_occurrence"
+              "column" : "t_displayhints_device_occurrence",
+              "runtimeCalculated" : false
             }
           }
         }

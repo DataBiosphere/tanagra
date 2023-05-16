@@ -5,6 +5,8 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
 import com.google.cloud.bigquery.FieldValue;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
@@ -73,6 +75,10 @@ class BigQueryCellValue implements CellValue {
         return Optional.of(Literal.forDate(fieldValue.getStringValue()));
       case DOUBLE:
         return Optional.of(new Literal(fieldValue.getDoubleValue()));
+      case TIMESTAMP:
+        return Optional.of(
+            Literal.forTimestamp(
+                Timestamp.from(Instant.ofEpochMilli(fieldValue.getTimestampValue()))));
       default:
         throw new SystemException("Unknown data type: " + dataType);
     }

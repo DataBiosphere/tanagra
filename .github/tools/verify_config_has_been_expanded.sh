@@ -28,6 +28,8 @@ then
   exit
 fi
 
+git diff --cached .
+
 echo "Modified files found:"
 echo "${modified_files}"
 echo "Please expand and add those files to your PR."

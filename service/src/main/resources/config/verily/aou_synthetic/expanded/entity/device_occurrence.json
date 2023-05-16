@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "end_date",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -13,7 +14,8 @@
       "type" : "RANGE",
       "minVal" : 0.0,
       "maxVal" : 4.6274116E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -22,19 +24,23 @@
       "type" : "RANGE",
       "minVal" : 2020475.0,
       "maxVal" : 1.5995732E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "device",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -43,11 +49,13 @@
       "type" : "RANGE",
       "minVal" : 2.0201235E7,
       "maxVal" : 2.0435757E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -57,48 +65,57 @@
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "device_exposure_end_date"
+          "column" : "device_exposure_end_date",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "device_source_concept_id"
+          "column" : "device_source_concept_id",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "device_exposure_id"
+          "column" : "device_exposure_id",
+          "runtimeCalculated" : false
         }
       },
       "device" : {
         "value" : {
-          "column" : "device_concept_id"
+          "column" : "device_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "device_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "device_source_value"
+          "column" : "device_source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       },
       "start_date" : {
         "value" : {
-          "column" : "device_exposure_start_date"
+          "column" : "device_exposure_start_date",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -112,45 +129,54 @@
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "end_date"
+          "column" : "end_date",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id"
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       },
       "device" : {
         "value" : {
-          "column" : "device"
+          "column" : "device",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_device"
+          "column" : "t_display_device",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value"
+          "column" : "source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       },
       "start_date" : {
         "value" : {
-          "column" : "start_date"
+          "column" : "start_date",
+          "runtimeCalculated" : false
         }
       }
     },

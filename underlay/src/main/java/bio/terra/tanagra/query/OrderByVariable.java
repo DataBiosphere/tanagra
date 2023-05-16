@@ -4,6 +4,7 @@ public class OrderByVariable implements SQLExpression {
   private final FieldVariable fieldVariable;
   private final OrderByDirection direction;
   private final boolean isRandom;
+  private boolean isIncludedInSelect;
 
   public OrderByVariable(FieldVariable fieldVariable) {
     this.fieldVariable = fieldVariable;
@@ -27,8 +28,25 @@ public class OrderByVariable implements SQLExpression {
     return new OrderByVariable();
   }
 
+  public OrderByVariable setIsIncludedInSelect(boolean isIncludedInSelect) {
+    this.isIncludedInSelect = isIncludedInSelect;
+    return this;
+  }
+
   @Override
   public String renderSQL() {
-    return isRandom ? "RAND()" : fieldVariable.renderSqlForOrderBy() + " " + direction.renderSQL();
+    return isRandom
+        ? "RAND()"
+        : fieldVariable.renderSqlForOrderOrGroupBy(isIncludedInSelect)
+            + " "
+            + direction.renderSQL();
+  }
+
+  public FieldVariable getFieldVariable() {
+    return fieldVariable;
+  }
+
+  public boolean isRandom() {
+    return isRandom;
   }
 }

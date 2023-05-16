@@ -16,21 +16,22 @@
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "C"
-          },
-          "display" : "Unknown"
-        },
-        "count" : 2990
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "S"
           },
           "display" : "Standard"
         },
         "count" : 61581
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
+        },
+        "count" : 2990
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "vocabulary",
@@ -86,19 +87,23 @@
         },
         "count" : 74959
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "name",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -107,7 +112,8 @@
       "filter" : {
         "type" : "BINARY",
         "field" : {
-          "column" : "domain_id"
+          "column" : "domain_id",
+          "runtimeCalculated" : false
         },
         "operator" : "EQUALS",
         "value" : {
@@ -118,37 +124,44 @@
     "attributeMappings" : {
       "standard_concept" : {
         "value" : {
-          "column" : "standard_concept"
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "standard_concept",
-          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)"
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)",
+          "runtimeCalculated" : false
         }
       },
       "vocabulary" : {
         "value" : {
-          "column" : "vocabulary_id"
+          "column" : "vocabulary_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "vocabulary_id",
           "foreignTable" : "vocabulary",
           "foreignKey" : "vocabulary_id",
-          "foreignColumn" : "vocabulary_name"
+          "foreignColumn" : "vocabulary_name",
+          "runtimeCalculated" : false
         }
       },
       "name" : {
         "value" : {
-          "column" : "concept_name"
+          "column" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "concept_code" : {
         "value" : {
-          "column" : "concept_code"
+          "column" : "concept_code",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "concept_id"
+          "column" : "concept_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -163,10 +176,12 @@
           },
           "fieldPointers" : {
             "parent" : {
-              "column" : "parent"
+              "column" : "parent",
+              "runtimeCalculated" : false
             },
             "child" : {
-              "column" : "child"
+              "column" : "child",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -176,7 +191,8 @@
             "filter" : {
               "type" : "BINARY",
               "field" : {
-                "column" : "concept_id"
+                "column" : "concept_id",
+                "runtimeCalculated" : false
               },
               "operator" : "EQUALS",
               "value" : {
@@ -186,7 +202,8 @@
           },
           "fieldPointers" : {
             "id" : {
-              "column" : "concept_id"
+              "column" : "concept_id",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -202,39 +219,47 @@
     "attributeMappings" : {
       "standard_concept" : {
         "value" : {
-          "column" : "standard_concept"
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_standard_concept"
+          "column" : "t_display_standard_concept",
+          "runtimeCalculated" : false
         }
       },
       "vocabulary" : {
         "value" : {
-          "column" : "vocabulary"
+          "column" : "vocabulary",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_vocabulary"
+          "column" : "t_display_vocabulary",
+          "runtimeCalculated" : false
         }
       },
       "name" : {
         "value" : {
-          "column" : "name"
+          "column" : "name",
+          "runtimeCalculated" : false
         }
       },
       "concept_code" : {
         "value" : {
-          "column" : "concept_code"
+          "column" : "concept_code",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       }
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "text"
+        "column" : "text",
+        "runtimeCalculated" : false
       }
     },
     "hierarchyMappings" : {
@@ -245,10 +270,12 @@
           },
           "fieldPointers" : {
             "parent" : {
-              "column" : "parent"
+              "column" : "parent",
+              "runtimeCalculated" : false
             },
             "child" : {
-              "column" : "child"
+              "column" : "child",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -258,10 +285,12 @@
           },
           "fieldPointers" : {
             "ancestor" : {
-              "column" : "ancestor"
+              "column" : "ancestor",
+              "runtimeCalculated" : false
             },
             "descendant" : {
-              "column" : "descendant"
+              "column" : "descendant",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -271,13 +300,16 @@
           },
           "fieldPointers" : {
             "path" : {
-              "column" : "t_standard_path"
+              "column" : "t_standard_path",
+              "runtimeCalculated" : false
             },
             "num_children" : {
-              "column" : "t_standard_num_children"
+              "column" : "t_standard_num_children",
+              "runtimeCalculated" : false
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             }
           }
         },

@@ -32,7 +32,8 @@
         },
         "count" : 5119
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "race",
@@ -112,7 +113,8 @@
         },
         "count" : 120725
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ethnicity",
@@ -160,11 +162,13 @@
         },
         "count" : 2465
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "sex_at_birth",
@@ -204,7 +208,8 @@
         },
         "count" : 2968
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "year_of_birth",
@@ -213,7 +218,8 @@
       "type" : "RANGE",
       "minVal" : 1930.0,
       "maxVal" : 2001.0
-    }
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -223,56 +229,66 @@
     "attributeMappings" : {
       "gender" : {
         "value" : {
-          "column" : "gender_concept_id"
+          "column" : "gender_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "gender_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "race" : {
         "value" : {
-          "column" : "race_concept_id"
+          "column" : "race_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "race_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "ethnicity" : {
         "value" : {
-          "column" : "ethnicity_concept_id"
+          "column" : "ethnicity_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "ethnicity_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       },
       "sex_at_birth" : {
         "value" : {
-          "column" : "sex_at_birth_concept_id"
+          "column" : "sex_at_birth_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "sex_at_birth_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "year_of_birth" : {
         "value" : {
-          "column" : "year_of_birth"
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -286,44 +302,54 @@
     "attributeMappings" : {
       "gender" : {
         "value" : {
-          "column" : "gender"
+          "column" : "gender",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_gender"
+          "column" : "t_display_gender",
+          "runtimeCalculated" : false
         }
       },
       "race" : {
         "value" : {
-          "column" : "race"
+          "column" : "race",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_race"
+          "column" : "t_display_race",
+          "runtimeCalculated" : false
         }
       },
       "ethnicity" : {
         "value" : {
-          "column" : "ethnicity"
+          "column" : "ethnicity",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_ethnicity"
+          "column" : "t_display_ethnicity",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       },
       "sex_at_birth" : {
         "value" : {
-          "column" : "sex_at_birth"
+          "column" : "sex_at_birth",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_sex_at_birth"
+          "column" : "t_display_sex_at_birth",
+          "runtimeCalculated" : false
         }
       },
       "year_of_birth" : {
         "value" : {
-          "column" : "year_of_birth"
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
         }
       }
     },

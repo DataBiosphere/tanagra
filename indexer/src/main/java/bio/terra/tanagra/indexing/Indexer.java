@@ -108,7 +108,8 @@ public final class Indexer {
                           AGE_AT_OCCURRENCE_ATTRIBUTE_NAME,
                           Attribute.Type.SIMPLE,
                           DataType.INT64,
-                          /*displayHint=*/ null);
+                          /*displayHint=*/ null,
+                          null);
                   FieldPointer fieldPointer =
                       new FieldPointer.Builder()
                           .tablePointer(
@@ -246,11 +247,14 @@ public final class Indexer {
                           criteriaOccurrence.getCriteriaEntity(),
                           criteriaOccurrence.getCriteriaPrimaryRelationship(),
                           hierarchy));
-                  jobSet.addJob(
-                      new ComputeRollupCounts(
-                          criteriaOccurrence.getCriteriaEntity(),
-                          criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-                          hierarchy));
+                  // TODO: Compute rollups for the occurrence-criteria relationship also. These
+                  // workflows frequently fail in Dataflow, so they're commented out below. Either
+                  // debug these or replace them with BigQuery-based jobs.
+                  // jobSet.addJob(
+                  //     new ComputeRollupCounts(
+                  //         criteriaOccurrence.getCriteriaEntity(),
+                  //         criteriaOccurrence.getOccurrenceCriteriaRelationship(),
+                  //         hierarchy));
                 });
       }
 

@@ -45,9 +45,6 @@ import org.joda.time.format.DateTimeFormatter;
 public abstract class BigQueryIndexingJob implements IndexingJob {
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormat.forPattern("MMddHHmm").withZone(DateTimeZone.UTC);
-
-  protected static final String DEFAULT_REGION = "us-central1";
-
   private final Entity entity;
 
   protected BigQueryIndexingJob(Entity entity) {
@@ -218,10 +215,11 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
         PipelineOptionsFactory.create().as(DataflowPipelineOptions.class);
     dataflowOptions.setRunner(DataflowRunner.class);
     dataflowOptions.setProject(outputBQDataset.getProjectId());
-    // TODO: Allow overriding the default region.
-    dataflowOptions.setRegion(DEFAULT_REGION);
+    dataflowOptions.setRegion(outputBQDataset.getDataflowRegion());
     dataflowOptions.setServiceAccount(serviceAccountEmail);
     dataflowOptions.setJobName(getDataflowJobName());
+    dataflowOptions.setUsePublicIps(outputBQDataset.isDataflowUsePublicIps());
+    dataflowOptions.setWorkerMachineType(outputBQDataset.getDataflowWorkerMachineType());
 
     if (outputBQDataset.getDataflowTempLocation() != null) {
       dataflowOptions.setTempLocation(outputBQDataset.getDataflowTempLocation());

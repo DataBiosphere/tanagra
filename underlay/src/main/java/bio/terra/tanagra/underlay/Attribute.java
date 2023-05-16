@@ -4,6 +4,9 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.serialization.UFAttribute;
 import com.google.common.base.Strings;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class Attribute {
 
@@ -17,14 +20,22 @@ public final class Attribute {
   private final Type type;
   private Literal.DataType dataType;
   private DisplayHint displayHint;
+  private final List<DisplayHint.Type> displayHintTypes;
   private AttributeMapping sourceMapping;
   private AttributeMapping indexMapping;
 
-  public Attribute(String name, Type type, Literal.DataType dataType, DisplayHint displayHint) {
+  public Attribute(
+      String name,
+      Type type,
+      Literal.DataType dataType,
+      DisplayHint displayHint,
+      List<DisplayHint.Type> displayHintTypes) {
     this.name = name;
     this.type = type;
     this.dataType = dataType;
     this.displayHint = displayHint;
+    this.displayHintTypes =
+        displayHintTypes == null ? new ArrayList<>() : new ArrayList<>(displayHintTypes);
   }
 
   public void initialize(AttributeMapping sourceMapping, AttributeMapping indexMapping) {
@@ -46,7 +57,11 @@ public final class Attribute {
             ? null
             : serialized.getDisplayHint().deserializeToInternal();
     return new Attribute(
-        serialized.getName(), serialized.getType(), serialized.getDataType(), displayHint);
+        serialized.getName(),
+        serialized.getType(),
+        serialized.getDataType(),
+        displayHint,
+        serialized.getDisplayHintTypes());
   }
 
   public String getName() {
@@ -71,6 +86,14 @@ public final class Attribute {
 
   public void setDisplayHint(DisplayHint displayHint) {
     this.displayHint = displayHint;
+  }
+
+  public List<DisplayHint.Type> getDisplayHintTypes() {
+    return Collections.unmodifiableList(displayHintTypes);
+  }
+
+  public boolean skipCalculateDisplayHint() {
+    return List.of(DisplayHint.Type.NONE).equals(displayHintTypes);
   }
 
   public AttributeMapping getMapping(Underlay.MappingType mappingType) {
