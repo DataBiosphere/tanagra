@@ -105,11 +105,17 @@ public final class Main {
         JobRunner entityJobRunnerAll =
             indexer.runJobsForAllEntities(jobExecAll, isDryRunAll, runTypeAll);
         JobRunner entityGroupJobRunnerAll =
-            indexer.runJobsForAllEntityGroups(jobExecAll, isDryRunAll, runTypeAll);
+            indexer.getUnderlay().getEntityGroups().isEmpty()
+                ? null
+                : indexer.runJobsForAllEntityGroups(jobExecAll, isDryRunAll, runTypeAll);
         entityJobRunnerAll.printJobResultSummary();
-        entityGroupJobRunnerAll.printJobResultSummary();
+        if (entityGroupJobRunnerAll != null) {
+          entityGroupJobRunnerAll.printJobResultSummary();
+        }
         entityJobRunnerAll.throwIfAnyFailures();
-        entityGroupJobRunnerAll.throwIfAnyFailures();
+        if (entityGroupJobRunnerAll != null) {
+          entityGroupJobRunnerAll.throwIfAnyFailures();
+        }
         break;
       default:
         throw new SystemException("Unknown command: " + cmd);

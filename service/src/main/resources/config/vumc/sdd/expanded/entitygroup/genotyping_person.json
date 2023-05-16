@@ -9,10 +9,12 @@
           "rawSql" : "/*  platform_id column has type NUMERIC. This causes index column to be FLOAT.  Currently indexing doesn't handle floats properly, so change column to INTEGER. */ SELECT genotype_result_id AS genotype_result_id, person_id, CAST(platform_id as INT64) as platform_id FROM `victr-tanagra-test.sd_static.genotype_result` "
         },
         "idPairsIdA" : {
-          "column" : "platform_id"
+          "column" : "platform_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -28,10 +30,12 @@
           "table" : "idpairs_genotyping_person"
         },
         "idPairsIdA" : {
-          "column" : "id_genotyping"
+          "column" : "id_genotyping",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "standard" : {
@@ -39,13 +43,16 @@
               "table" : "genotyping"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person_standard"
+              "column" : "t_count_person_standard",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person_standard"
+              "column" : "t_displayhints_person_standard",
+              "runtimeCalculated" : false
             }
           },
           "NO_HIERARCHY" : {
@@ -53,13 +60,16 @@
               "table" : "genotyping"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -69,13 +79,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_genotyping"
+              "column" : "t_count_genotyping",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_genotyping"
+              "column" : "t_displayhints_genotyping",
+              "runtimeCalculated" : false
             }
           }
         }

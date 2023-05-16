@@ -81,7 +81,9 @@ public class Query implements SQLExpression {
     if (groupBy != null && !groupBy.isEmpty()) {
       // render each GROUP BY FieldVariable and join them into a single string
       String groupBySQL =
-          groupBy.stream().map(fv -> fv.renderSqlForOrderBy()).collect(Collectors.joining(", "));
+          groupBy.stream()
+              .map(fv -> fv.renderSqlForOrderOrGroupBy(select.contains(fv)))
+              .collect(Collectors.joining(", "));
 
       template = "${sql} GROUP BY ${groupBySQL}";
       params =
@@ -99,7 +101,14 @@ public class Query implements SQLExpression {
     if (orderBy != null && !orderBy.isEmpty()) {
       // render each ORDER BY FieldVariable and join them into a single string
       String orderBySQL =
-          orderBy.stream().map(obv -> obv.renderSQL()).collect(Collectors.joining(", "));
+          orderBy.stream()
+              .map(
+                  obv ->
+                      obv.isRandom()
+                          ? obv.renderSQL()
+                          : obv.setIsIncludedInSelect(select.contains(obv.getFieldVariable()))
+                              .renderSQL())
+              .collect(Collectors.joining(", "));
 
       template = "${sql} ORDER BY ${orderBySQL}";
       params =

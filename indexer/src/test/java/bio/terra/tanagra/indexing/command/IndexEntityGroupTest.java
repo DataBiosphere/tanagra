@@ -50,6 +50,6 @@ public class IndexEntityGroupTest {
     // copy relationship id pairs (x4 relationships)
     // compute rollup counts (x2 relationships)
     // compute rollup counts with hierarchy (x2 relationships)
-    assertEquals(8, jobs.iterator().next().size());
+    assertEquals(7, jobs.iterator().next().size());
   }
 }

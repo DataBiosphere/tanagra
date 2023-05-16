@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "unit",
@@ -260,7 +261,8 @@
         },
         "count" : 129781
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -269,15 +271,18 @@
       "type" : "RANGE",
       "minVal" : -2.0,
       "maxVal" : 2.000023487E9
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "observation",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "value_as_string",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -286,19 +291,23 @@
       "type" : "RANGE",
       "minVal" : 2020475.0,
       "maxVal" : 1.5996262E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "value",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -307,7 +316,8 @@
       "type" : "RANGE",
       "minVal" : 2.0201234E7,
       "maxVal" : 2.0435758E7
-    }
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -317,70 +327,83 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "observation_date"
+          "column" : "observation_date",
+          "runtimeCalculated" : false
         }
       },
       "unit" : {
         "value" : {
-          "column" : "unit_concept_id"
+          "column" : "unit_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "unit_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "observation_source_concept_id"
+          "column" : "observation_source_concept_id",
+          "runtimeCalculated" : false
         }
       },
       "observation" : {
         "value" : {
-          "column" : "observation_concept_id"
+          "column" : "observation_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "observation_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "value_as_string" : {
         "value" : {
-          "column" : "value_as_string"
+          "column" : "value_as_string",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "observation_id"
+          "column" : "observation_id",
+          "runtimeCalculated" : false
         }
       },
       "value" : {
         "value" : {
-          "column" : "value_as_concept_id"
+          "column" : "value_as_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "value_as_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "observation_source_value"
+          "column" : "observation_source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -394,61 +417,74 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "date"
+          "column" : "date",
+          "runtimeCalculated" : false
         }
       },
       "unit" : {
         "value" : {
-          "column" : "unit"
+          "column" : "unit",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_unit"
+          "column" : "t_display_unit",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id"
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
         }
       },
       "observation" : {
         "value" : {
-          "column" : "observation"
+          "column" : "observation",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_observation"
+          "column" : "t_display_observation",
+          "runtimeCalculated" : false
         }
       },
       "value_as_string" : {
         "value" : {
-          "column" : "value_as_string"
+          "column" : "value_as_string",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       },
       "value" : {
         "value" : {
-          "column" : "value"
+          "column" : "value",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_value"
+          "column" : "t_display_value",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value"
+          "column" : "source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       }
     },

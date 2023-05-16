@@ -4,6 +4,7 @@ import bio.terra.tanagra.query.Literal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.sql.Timestamp;
 
 /**
  * External representation of a literal value.
@@ -18,6 +19,7 @@ public class UFLiteral {
   private final Boolean booleanVal;
   private final String dateVal;
   private final Double doubleVal;
+  private final Timestamp timestampVal;
 
   public UFLiteral(Literal literal) {
     this.stringVal = literal.getStringVal();
@@ -25,6 +27,7 @@ public class UFLiteral {
     this.booleanVal = literal.getBooleanVal();
     this.dateVal = literal.getDateValAsString();
     this.doubleVal = literal.getDoubleVal();
+    this.timestampVal = literal.getTimestampVal();
   }
 
   private UFLiteral(Builder builder) {
@@ -33,6 +36,7 @@ public class UFLiteral {
     this.booleanVal = builder.booleanVal;
     this.dateVal = builder.dateVal;
     this.doubleVal = builder.doubleVal;
+    this.timestampVal = builder.timestampVal;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -42,6 +46,7 @@ public class UFLiteral {
     private Boolean booleanVal;
     private String dateVal;
     private Double doubleVal;
+    private Timestamp timestampVal;
 
     public Builder stringVal(String stringVal) {
       this.stringVal = stringVal;
@@ -65,6 +70,11 @@ public class UFLiteral {
 
     public Builder doubleVal(Double doubleVal) {
       this.doubleVal = doubleVal;
+      return this;
+    }
+
+    public Builder timestampVal(Timestamp timestampVal) {
+      this.timestampVal = timestampVal == null ? null : new Timestamp(timestampVal.getTime());
       return this;
     }
 
@@ -92,5 +102,9 @@ public class UFLiteral {
 
   public Double getDoubleVal() {
     return doubleVal;
+  }
+
+  public Timestamp getTimestampVal() {
+    return timestampVal == null ? null : new Timestamp(timestampVal.getTime());
   }
 }

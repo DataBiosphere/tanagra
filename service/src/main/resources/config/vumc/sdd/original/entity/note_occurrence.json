@@ -3,13 +3,13 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "person_id" },
+    { "type": "SIMPLE", "name": "person_id", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "date" },
     { "type": "KEY_AND_DISPLAY", "name": "note" },
-    { "type": "SIMPLE", "name": "title" },
-    { "type": "SIMPLE", "name": "text" },
-    { "type": "SIMPLE", "name": "visit_occurrence_id" },
-    { "type": "SIMPLE", "name": "source_value" } ],
+    { "type": "SIMPLE", "name": "title", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "text", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_value", "displayHintTypes": ["NONE"] } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",

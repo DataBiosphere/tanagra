@@ -9,10 +9,12 @@
           "table" : "note"
         },
         "idPairsIdA" : {
-          "column" : "note_id"
+          "column" : "note_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "note_type_concept_id"
+          "column" : "note_type_concept_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -22,10 +24,12 @@
           "table" : "note"
         },
         "idPairsIdA" : {
-          "column" : "note_type_concept_id"
+          "column" : "note_type_concept_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -35,10 +39,12 @@
           "table" : "note"
         },
         "idPairsIdA" : {
-          "column" : "note_id"
+          "column" : "note_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -48,10 +54,12 @@
           "table" : "note"
         },
         "idPairsIdA" : {
-          "column" : "note_id"
+          "column" : "note_id",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
@@ -67,10 +75,12 @@
           "table" : "idpairs_note_occurrence_note"
         },
         "idPairsIdA" : {
-          "column" : "id_note_occurrence"
+          "column" : "id_note_occurrence",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_note"
+          "column" : "id_note",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -78,13 +88,16 @@
               "table" : "note_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_note"
+              "column" : "t_count_note",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_note"
+              "column" : "t_displayhints_note",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -94,13 +107,16 @@
               "table" : "note"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_note_occurrence"
+              "column" : "t_count_note_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_note_occurrence"
+              "column" : "t_displayhints_note_occurrence",
+              "runtimeCalculated" : false
             }
           }
         }
@@ -110,10 +126,12 @@
           "table" : "idpairs_note_person"
         },
         "idPairsIdA" : {
-          "column" : "id_note"
+          "column" : "id_note",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -121,13 +139,16 @@
               "table" : "note"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -137,13 +158,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_note"
+              "column" : "t_count_note",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_note"
+              "column" : "t_displayhints_note",
+              "runtimeCalculated" : false
             }
           }
         }
@@ -153,10 +177,12 @@
           "table" : "idpairs_note_occurrence_visit_occurrence"
         },
         "idPairsIdA" : {
-          "column" : "id_note_occurrence"
+          "column" : "id_note_occurrence",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_visit_occurrence"
+          "column" : "id_visit_occurrence",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -164,13 +190,16 @@
               "table" : "note_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_visit_occurrence"
+              "column" : "t_count_visit_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence"
+              "column" : "t_displayhints_visit_occurrence",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -180,13 +209,16 @@
               "table" : "visit_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_note_occurrence"
+              "column" : "t_count_note_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_note_occurrence"
+              "column" : "t_displayhints_note_occurrence",
+              "runtimeCalculated" : false
             }
           }
         }
@@ -196,10 +228,12 @@
           "table" : "idpairs_note_occurrence_person"
         },
         "idPairsIdA" : {
-          "column" : "id_note_occurrence"
+          "column" : "id_note_occurrence",
+          "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_person"
+          "column" : "id_person",
+          "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
@@ -207,13 +241,16 @@
               "table" : "note_occurrence"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_person"
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_person"
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
             }
           }
         },
@@ -223,13 +260,16 @@
               "table" : "person"
             },
             "id" : {
-              "column" : "id"
+              "column" : "id",
+              "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_note_occurrence"
+              "column" : "t_count_note_occurrence",
+              "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_note_occurrence"
+              "column" : "t_displayhints_note_occurrence",
+              "runtimeCalculated" : false
             }
           }
         }

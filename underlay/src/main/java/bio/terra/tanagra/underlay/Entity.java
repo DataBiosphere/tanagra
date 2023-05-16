@@ -161,7 +161,8 @@ public final class Entity {
                   serialized.getIndexDataMapping().getAttributeMappings().get(attribute.getName()),
                   indexMapping.getTablePointer(),
                   attribute)
-              : AttributeMapping.fromSerialized(null, indexMapping.getTablePointer(), attribute);
+              : AttributeMapping.generatedForIndex(
+                  sourceAttributeMapping, indexMapping.getTablePointer(), attribute);
       attribute.initialize(sourceAttributeMapping, indexAttributeMapping);
     }
     serialized.getSourceDataMapping().getAttributeMappings().keySet().stream()

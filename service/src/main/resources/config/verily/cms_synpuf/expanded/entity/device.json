@@ -16,7 +16,8 @@
         },
         "count" : 18134
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "vocabulary",
@@ -40,19 +41,23 @@
         },
         "count" : 15306
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "name",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -64,7 +69,8 @@
         "subfilters" : [ {
           "type" : "BINARY",
           "field" : {
-            "column" : "domain_id"
+            "column" : "domain_id",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -73,7 +79,8 @@
         }, {
           "type" : "BINARY",
           "field" : {
-            "column" : "standard_concept"
+            "column" : "standard_concept",
+            "runtimeCalculated" : false
           },
           "operator" : "EQUALS",
           "value" : {
@@ -85,37 +92,44 @@
     "attributeMappings" : {
       "standard_concept" : {
         "value" : {
-          "column" : "standard_concept"
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "standard_concept",
-          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)"
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)",
+          "runtimeCalculated" : false
         }
       },
       "vocabulary" : {
         "value" : {
-          "column" : "vocabulary_id"
+          "column" : "vocabulary_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "vocabulary_id",
           "foreignTable" : "vocabulary",
           "foreignKey" : "vocabulary_id",
-          "foreignColumn" : "vocabulary_name"
+          "foreignColumn" : "vocabulary_name",
+          "runtimeCalculated" : false
         }
       },
       "name" : {
         "value" : {
-          "column" : "concept_name"
+          "column" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "concept_code" : {
         "value" : {
-          "column" : "concept_code"
+          "column" : "concept_code",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "concept_id"
+          "column" : "concept_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -132,39 +146,47 @@
     "attributeMappings" : {
       "standard_concept" : {
         "value" : {
-          "column" : "standard_concept"
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_standard_concept"
+          "column" : "t_display_standard_concept",
+          "runtimeCalculated" : false
         }
       },
       "vocabulary" : {
         "value" : {
-          "column" : "vocabulary"
+          "column" : "vocabulary",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_vocabulary"
+          "column" : "t_display_vocabulary",
+          "runtimeCalculated" : false
         }
       },
       "name" : {
         "value" : {
-          "column" : "name"
+          "column" : "name",
+          "runtimeCalculated" : false
         }
       },
       "concept_code" : {
         "value" : {
-          "column" : "concept_code"
+          "column" : "concept_code",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       }
     },
     "textSearchMapping" : {
       "searchString" : {
-        "column" : "text"
+        "column" : "text",
+        "runtimeCalculated" : false
       }
     },
     "hierarchyMappings" : { }

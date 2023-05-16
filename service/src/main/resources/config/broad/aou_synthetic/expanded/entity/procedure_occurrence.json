@@ -4,7 +4,8 @@
   "attributes" : [ {
     "type" : "SIMPLE",
     "name" : "date",
-    "dataType" : "DATE"
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
@@ -13,7 +14,8 @@
       "type" : "RANGE",
       "minVal" : 0.0,
       "maxVal" : 2.000023474E9
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
@@ -22,19 +24,23 @@
       "type" : "RANGE",
       "minVal" : 2020476.0,
       "maxVal" : 1.5996259E7
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "procedure",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
-    "dataType" : "STRING"
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -43,7 +49,8 @@
       "type" : "RANGE",
       "minVal" : 2.0201235E7,
       "maxVal" : 2.0435757E7
-    }
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -53,43 +60,51 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "procedure_date"
+          "column" : "procedure_date",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "procedure_source_concept_id"
+          "column" : "procedure_source_concept_id",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "procedure_occurrence_id"
+          "column" : "procedure_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "procedure" : {
         "value" : {
-          "column" : "procedure_concept_id"
+          "column" : "procedure_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "procedure_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "procedure_source_value"
+          "column" : "procedure_source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -103,40 +118,48 @@
     "attributeMappings" : {
       "date" : {
         "value" : {
-          "column" : "date"
+          "column" : "date",
+          "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id"
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
         }
       },
       "visit_occurrence_id" : {
         "value" : {
-          "column" : "visit_occurrence_id"
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
         }
       },
       "procedure" : {
         "value" : {
-          "column" : "procedure"
+          "column" : "procedure",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_procedure"
+          "column" : "t_display_procedure",
+          "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value"
+          "column" : "source_value",
+          "runtimeCalculated" : false
         }
       },
       "person_id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
         }
       }
     },

@@ -24,28 +24,40 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public final class BigQueryDataset extends DataPointer {
+  private static final String DEFAULT_REGION = "us-central1";
+  private static final String DEFAULT_WORKER_MACHINE_TYPE = "n1-standard-4"; // "n1-highmem-8"
   private final String projectId;
   private final String datasetId;
   private final String queryProjectId;
   private final String dataflowServiceAccountEmail;
   private final String dataflowTempLocation;
+  private final String dataflowRegion;
+  private final String dataflowWorkerMachineType;
+  private final boolean dataflowUsePublicIps;
 
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private BigQueryDataset(
       String name,
       String projectId,
       String datasetId,
       String queryProjectId,
       String dataflowServiceAccountEmail,
-      String dataflowTempLocation) {
+      String dataflowTempLocation,
+      String dataflowRegion,
+      String dataflowWorkerMachineType,
+      boolean dataflowUsePublicIps) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
     this.queryProjectId = queryProjectId;
     this.dataflowServiceAccountEmail = dataflowServiceAccountEmail;
     this.dataflowTempLocation = dataflowTempLocation;
+    this.dataflowRegion = dataflowRegion;
+    this.dataflowWorkerMachineType = dataflowWorkerMachineType;
+    this.dataflowUsePublicIps = dataflowUsePublicIps;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -71,7 +83,10 @@ public final class BigQueryDataset extends DataPointer {
         serialized.getDatasetId(),
         queryProjectId,
         serialized.getDataflowServiceAccountEmail(),
-        serialized.getDataflowTempLocation());
+        serialized.getDataflowTempLocation(),
+        serialized.getDataflowRegion(),
+        serialized.getDataflowWorkerMachineType(),
+        serialized.isDataflowUsePublicIps());
   }
 
   @Override
@@ -125,13 +140,12 @@ public final class BigQueryDataset extends DataPointer {
             : fieldPointer.getColumnName();
 
     Schema tableSchema;
-    if (tablePointer.isRawSql()) {
+    if (tablePointer.isRawSql() || fieldPointer.hasSqlFunctionWrapper()) {
       // If the table is a raw SQL string, then we can't fetch a table schema directly.
       // Instead, fetch a single row result and inspect the data types of that.
       TableVariable tableVar = TableVariable.forPrimary(tablePointer);
       List<TableVariable> tableVars = List.of(tableVar);
-      FieldVariable fieldVarStar =
-          FieldPointer.allFields(tablePointer).buildVariable(tableVar, tableVars);
+      FieldVariable fieldVarStar = fieldPointer.buildVariable(tableVar, tableVars, columnName);
       Query queryOneRow =
           new Query.Builder().select(List.of(fieldVarStar)).tables(tableVars).limit(1).build();
       tableSchema = getBigQueryService().getQuerySchemaWithCaching(queryOneRow.renderSQL());
@@ -154,8 +168,11 @@ public final class BigQueryDataset extends DataPointer {
     } else if (LegacySQLTypeName.FLOAT.equals(fieldType)
         || LegacySQLTypeName.NUMERIC.equals(fieldType)) {
       return Literal.DataType.DOUBLE;
+    } else if (LegacySQLTypeName.TIMESTAMP.equals(fieldType)) {
+      return Literal.DataType.TIMESTAMP;
     } else {
-      throw new SystemException("BigQuery SQL data type not supported: " + fieldType);
+      throw new SystemException(
+          "BigQuery SQL data type not supported: " + fieldType + ", " + columnName);
     }
   }
 
@@ -171,6 +188,8 @@ public final class BigQueryDataset extends DataPointer {
         return LegacySQLTypeName.DATE;
       case FLOAT:
         return LegacySQLTypeName.FLOAT;
+      case TIMESTAMP:
+        return LegacySQLTypeName.TIMESTAMP;
       default:
         throw new SystemException("SQL data type not supported for BigQuery: " + sqlDataType);
     }
@@ -207,5 +226,19 @@ public final class BigQueryDataset extends DataPointer {
 
   public String getDataflowTempLocation() {
     return dataflowTempLocation;
+  }
+
+  public String getDataflowRegion() {
+    return dataflowRegion == null ? DEFAULT_REGION : dataflowRegion;
+  }
+
+  public String getDataflowWorkerMachineType() {
+    return dataflowWorkerMachineType == null
+        ? DEFAULT_WORKER_MACHINE_TYPE
+        : dataflowWorkerMachineType;
+  }
+
+  public boolean isDataflowUsePublicIps() {
+    return dataflowUsePublicIps;
   }
 }

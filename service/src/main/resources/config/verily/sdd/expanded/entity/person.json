@@ -32,7 +32,8 @@
         },
         "count" : 4177
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "race",
@@ -80,7 +81,8 @@
         },
         "count" : 2116669
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ethnicity",
@@ -112,11 +114,13 @@
         },
         "count" : 2375593
       } ]
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_has_plasma",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_dna_yield",
@@ -125,23 +129,38 @@
       "type" : "RANGE",
       "minVal" : -99999.0,
       "maxVal" : 500.0
-    }
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_is_compromised",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
-    "dataType" : "INT64"
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -971.0,
+      "maxVal" : 224.0
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "has_biovu_sample",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "biovu_sample_is_nonshippable",
-    "dataType" : "BOOLEAN"
+    "dataType" : "BOOLEAN",
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "year_of_birth",
@@ -150,7 +169,8 @@
       "type" : "RANGE",
       "minVal" : 1799.0,
       "maxVal" : 2993.0
-    }
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
@@ -160,70 +180,90 @@
     "attributeMappings" : {
       "gender" : {
         "value" : {
-          "column" : "gender_concept_id"
+          "column" : "gender_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "gender_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "race" : {
         "value" : {
-          "column" : "race_concept_id"
+          "column" : "race_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "race_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "ethnicity" : {
         "value" : {
-          "column" : "ethnicity_concept_id"
+          "column" : "ethnicity_concept_id",
+          "runtimeCalculated" : false
         },
         "display" : {
           "column" : "ethnicity_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name"
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_has_plasma" : {
         "value" : {
-          "column" : "biovu_sample_has_plasma"
+          "column" : "biovu_sample_has_plasma",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_dna_yield" : {
         "value" : {
-          "column" : "biovu_sample_dna_yield"
+          "column" : "biovu_sample_dna_yield",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_is_compromised" : {
         "value" : {
-          "column" : "biovu_sample_is_compromised"
+          "column" : "biovu_sample_is_compromised",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "person_id"
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "birth_datetime",
+          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
+          "runtimeCalculated" : true
         }
       },
       "has_biovu_sample" : {
         "value" : {
-          "column" : "has_biovu_sample"
+          "column" : "has_biovu_sample",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_is_nonshippable" : {
         "value" : {
-          "column" : "biovu_sample_is_nonshippable"
+          "column" : "biovu_sample_is_nonshippable",
+          "runtimeCalculated" : false
         }
       },
       "year_of_birth" : {
         "value" : {
-          "column" : "year_of_birth"
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
         }
       }
     },
@@ -237,67 +277,88 @@
     "attributeMappings" : {
       "gender" : {
         "value" : {
-          "column" : "gender"
+          "column" : "gender",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_gender"
+          "column" : "t_display_gender",
+          "runtimeCalculated" : false
         }
       },
       "race" : {
         "value" : {
-          "column" : "race"
+          "column" : "race",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_race"
+          "column" : "t_display_race",
+          "runtimeCalculated" : false
         }
       },
       "ethnicity" : {
         "value" : {
-          "column" : "ethnicity"
+          "column" : "ethnicity",
+          "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_ethnicity"
+          "column" : "t_display_ethnicity",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_has_plasma" : {
         "value" : {
-          "column" : "biovu_sample_has_plasma"
+          "column" : "biovu_sample_has_plasma",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_dna_yield" : {
         "value" : {
-          "column" : "biovu_sample_dna_yield"
+          "column" : "biovu_sample_dna_yield",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_is_compromised" : {
         "value" : {
-          "column" : "biovu_sample_is_compromised"
+          "column" : "biovu_sample_is_compromised",
+          "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id"
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "age",
+          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
+          "runtimeCalculated" : true
         }
       },
       "has_biovu_sample" : {
         "value" : {
-          "column" : "has_biovu_sample"
+          "column" : "has_biovu_sample",
+          "runtimeCalculated" : false
         }
       },
       "biovu_sample_is_nonshippable" : {
         "value" : {
-          "column" : "biovu_sample_is_nonshippable"
+          "column" : "biovu_sample_is_nonshippable",
+          "runtimeCalculated" : false
         }
       },
       "year_of_birth" : {
         "value" : {
-          "column" : "year_of_birth"
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
         }
       }
     },
     "hierarchyMappings" : { }
   },
   "sourceStartDateColumn" : {
-    "column" : "birth_datetime"
+    "column" : "birth_datetime",
+    "runtimeCalculated" : false
   }
 }
