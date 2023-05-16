@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
 /**
  * External representation of an entity.
@@ -20,7 +19,6 @@ public class UFEntity {
   private final List<UFAttribute> attributes;
   private final UFEntityMapping sourceDataMapping;
   private final UFEntityMapping indexDataMapping;
-  private final @Nullable UFFieldPointer sourceStartDateColumn;
 
   public UFEntity(Entity entity) {
     this.name = entity.getName();
@@ -31,10 +29,6 @@ public class UFEntity {
             .collect(Collectors.toList());
     this.sourceDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.SOURCE));
     this.indexDataMapping = new UFEntityMapping(entity.getMapping(Underlay.MappingType.INDEX));
-    this.sourceStartDateColumn =
-        entity.getSourceStartDateColumn() != null
-            ? new UFFieldPointer(entity.getSourceStartDateColumn())
-            : null;
   }
 
   private UFEntity(Builder builder) {
@@ -43,7 +37,6 @@ public class UFEntity {
     this.attributes = builder.attributes;
     this.sourceDataMapping = builder.sourceDataMapping;
     this.indexDataMapping = builder.indexDataMapping;
-    this.sourceStartDateColumn = builder.sourceStartDateColumn;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -53,7 +46,6 @@ public class UFEntity {
     private List<UFAttribute> attributes;
     private UFEntityMapping sourceDataMapping;
     private UFEntityMapping indexDataMapping;
-    private UFFieldPointer sourceStartDateColumn;
 
     public Builder name(String name) {
       this.name = name;
@@ -77,11 +69,6 @@ public class UFEntity {
 
     public Builder indexDataMapping(UFEntityMapping indexDataMapping) {
       this.indexDataMapping = indexDataMapping;
-      return this;
-    }
-
-    public Builder sourceStartDateColumn(UFFieldPointer sourceStartDateColumn) {
-      this.sourceStartDateColumn = sourceStartDateColumn;
       return this;
     }
 
@@ -109,9 +96,5 @@ public class UFEntity {
 
   public UFEntityMapping getIndexDataMapping() {
     return indexDataMapping;
-  }
-
-  public UFFieldPointer getSourceStartDateColumn() {
-    return sourceStartDateColumn;
   }
 }

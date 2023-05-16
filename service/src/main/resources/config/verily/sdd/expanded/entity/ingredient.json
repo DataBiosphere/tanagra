@@ -63,12 +63,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -302,6 +302,5 @@
         "maxHierarchyDepth" : 15
       }
     }
-  },
-  "sourceStartDateColumn" : null
+  }
 }

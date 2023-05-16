@@ -1,28 +1,28 @@
 {
-  "name" : "procedure_occurrence",
+  "name" : "device_occurrence",
   "idAttribute" : "id",
   "attributes" : [ {
     "type" : "SIMPLE",
-    "name" : "date",
+    "name" : "end_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 704057.0,
-      "maxVal" : 4.6257758E7
+      "minVal" : 915589.0,
+      "maxVal" : 4.5890598E7
     },
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "age_at_occurrence",
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -96.0,
+      "minVal" : -4.0,
       "maxVal" : 89.0
     },
     "displayHintTypes" : [ ]
@@ -30,11 +30,6 @@
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 0.0,
-      "maxVal" : 9.388852E7
-    },
     "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
@@ -49,7 +44,7 @@
           },
           "display" : "Emergency Room Visit"
         },
-        "count" : 6819652
+        "count" : 99792
       }, {
         "enumVal" : {
           "value" : {
@@ -57,7 +52,7 @@
           },
           "display" : "Inpatient Visit"
         },
-        "count" : 30613368
+        "count" : 928353
       }, {
         "enumVal" : {
           "value" : {
@@ -65,7 +60,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 813264
+        "count" : 830
       }, {
         "enumVal" : {
           "value" : {
@@ -73,7 +68,7 @@
           },
           "display" : "Outpatient Visit"
         },
-        "count" : 82908869
+        "count" : 1931949
       } ]
     },
     "displayHintTypes" : [ ]
@@ -84,14 +79,14 @@
     "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
-    "name" : "procedure",
+    "name" : "device",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
@@ -99,19 +94,24 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 5227737.0
+      "maxVal" : 5225162.0
     },
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "start_date",
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   po.procedure_occurrence_id AS id, po.person_id, po.procedure_concept_id, po.procedure_date,   po.procedure_source_value AS source_value, po.procedure_source_concept_id AS source_criteria_id,   CAST(FLOOR(DATE_DIFF(po.procedure_date, CAST(p.birth_datetime AS DATE), DAY) / 365.25) AS INT64) AS age_at_occurrence,   po.visit_occurrence_id, vo.visit_concept_id  FROM `victr-tanagra-test.sd_static.procedure_occurrence` AS po  JOIN `victr-tanagra-test.sd_static.person` AS p ON p.person_id = po.person_id  LEFT JOIN `victr-tanagra-test.sd_static.visit_occurrence` AS vo ON vo.visit_occurrence_id = po.visit_occurrence_id "
+      "rawSql" : "SELECT   de.device_exposure_id AS id, de.person_id, de.device_concept_id,   de.device_exposure_start_date AS start_date, de.device_exposure_end_date AS end_date,   de.device_source_value AS source_value, de.device_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(de.device_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   de.visit_occurrence_id, vo.visit_concept_id  FROM `victr-tanagra-test.sd_static.device_exposure` AS de  JOIN `victr-tanagra-test.sd_static.person` AS p ON p.person_id = de.person_id  LEFT JOIN `victr-tanagra-test.sd_static.visit_occurrence` AS vo ON vo.visit_occurrence_id = de.visit_occurrence_id "
     },
     "attributeMappings" : {
-      "date" : {
+      "end_date" : {
         "value" : {
-          "column" : "procedure_date",
+          "column" : "end_date",
           "runtimeCalculated" : false
         }
       },
@@ -152,13 +152,13 @@
           "runtimeCalculated" : false
         }
       },
-      "procedure" : {
+      "device" : {
         "value" : {
-          "column" : "procedure_concept_id",
+          "column" : "device_concept_id",
           "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "procedure_concept_id",
+          "column" : "device_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
           "foreignColumn" : "concept_name",
@@ -176,6 +176,12 @@
           "column" : "person_id",
           "runtimeCalculated" : false
         }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date",
+          "runtimeCalculated" : false
+        }
       }
     },
     "hierarchyMappings" : { }
@@ -183,12 +189,12 @@
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
     "tablePointer" : {
-      "table" : "procedure_occurrence"
+      "table" : "device_occurrence"
     },
     "attributeMappings" : {
-      "date" : {
+      "end_date" : {
         "value" : {
-          "column" : "date",
+          "column" : "end_date",
           "runtimeCalculated" : false
         }
       },
@@ -226,13 +232,13 @@
           "runtimeCalculated" : false
         }
       },
-      "procedure" : {
+      "device" : {
         "value" : {
-          "column" : "procedure",
+          "column" : "device",
           "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_procedure",
+          "column" : "t_display_device",
           "runtimeCalculated" : false
         }
       },
@@ -245,6 +251,12 @@
       "person_id" : {
         "value" : {
           "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date",
           "runtimeCalculated" : false
         }
       }

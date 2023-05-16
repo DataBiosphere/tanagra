@@ -20,17 +20,12 @@ import java.util.stream.Collectors;
 public class UFCriteriaOccurrence extends UFEntityGroup {
   private final String criteriaEntity;
   private final String occurrenceEntity;
-  private final List<String> occurrenceRelatedEntities;
   private final List<String> modifierAttributes;
 
   public UFCriteriaOccurrence(CriteriaOccurrence criteriaOccurrence) {
     super(criteriaOccurrence);
     this.criteriaEntity = criteriaOccurrence.getCriteriaEntity().getName();
     this.occurrenceEntity = criteriaOccurrence.getOccurrenceEntity().getName();
-    this.occurrenceRelatedEntities =
-        criteriaOccurrence.getOccurrenceRelatedEntities().stream()
-            .map(Entity::getName)
-            .collect(Collectors.toList());
     this.modifierAttributes =
         criteriaOccurrence.getModifierAttributes().stream()
             .map(Attribute::getName)
@@ -41,7 +36,6 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
     super(builder);
     this.criteriaEntity = builder.criteriaEntity;
     this.occurrenceEntity = builder.occurrenceEntity;
-    this.occurrenceRelatedEntities = builder.occurrenceRelatedEntities;
     this.modifierAttributes = builder.modifierAttributes;
   }
 
@@ -49,7 +43,6 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
   public static class Builder extends UFEntityGroup.Builder {
     private String criteriaEntity;
     private String occurrenceEntity;
-    private List<String> occurrenceRelatedEntities;
     private List<String> modifierAttributes;
 
     public Builder criteriaEntity(String criteriaEntity) {
@@ -59,11 +52,6 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
 
     public Builder occurrenceEntity(String occurrenceEntity) {
       this.occurrenceEntity = occurrenceEntity;
-      return this;
-    }
-
-    public Builder occurrenceRelatedEntities(List<String> occurrenceRelatedEntities) {
-      this.occurrenceRelatedEntities = occurrenceRelatedEntities;
       return this;
     }
 
@@ -93,10 +81,6 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
 
   public String getOccurrenceEntity() {
     return occurrenceEntity;
-  }
-
-  public List<String> getOccurrenceRelatedEntities() {
-    return occurrenceRelatedEntities;
   }
 
   public List<String> getModifierAttributes() {

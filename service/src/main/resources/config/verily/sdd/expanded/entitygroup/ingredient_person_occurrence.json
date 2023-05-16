@@ -34,21 +34,6 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       },
-      "occurrenceRelatedEntity0" : {
-        "idPairsTable" : {
-          "table" : "drug_exposure"
-        },
-        "idPairsIdA" : {
-          "column" : "drug_exposure_id",
-          "runtimeCalculated" : false
-        },
-        "idPairsIdB" : {
-          "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        },
-        "rollupInformationMapA" : { },
-        "rollupInformationMapB" : { }
-      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "drug_exposure"
@@ -206,57 +191,6 @@
           }
         }
       },
-      "occurrenceRelatedEntity0" : {
-        "idPairsTable" : {
-          "table" : "idpairs_ingredient_occurrence_visit_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "id_ingredient_occurrence",
-          "runtimeCalculated" : false
-        },
-        "idPairsIdB" : {
-          "column" : "id_visit_occurrence",
-          "runtimeCalculated" : false
-        },
-        "rollupInformationMapA" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "ingredient_occurrence"
-            },
-            "id" : {
-              "column" : "id",
-              "runtimeCalculated" : false
-            },
-            "count" : {
-              "column" : "t_count_visit_occurrence",
-              "runtimeCalculated" : false
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence",
-              "runtimeCalculated" : false
-            }
-          }
-        },
-        "rollupInformationMapB" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "visit_occurrence"
-            },
-            "id" : {
-              "column" : "id",
-              "runtimeCalculated" : false
-            },
-            "count" : {
-              "column" : "t_count_ingredient_occurrence",
-              "runtimeCalculated" : false
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_ingredient_occurrence",
-              "runtimeCalculated" : false
-            }
-          }
-        }
-      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "idpairs_ingredient_occurrence_person"
@@ -313,6 +247,5 @@
   },
   "criteriaEntity" : "ingredient",
   "occurrenceEntity" : "ingredient_occurrence",
-  "occurrenceRelatedEntities" : [ "visit_occurrence" ],
   "modifierAttributes" : [ ]
 }

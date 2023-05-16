@@ -1,19 +1,19 @@
 {
   "type" : "CRITERIA_OCCURRENCE",
-  "name" : "visit_person_occurrence",
+  "name" : "device_person_occurrence",
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "relationshipMappings" : {
       "occurrenceToCriteria" : {
         "idPairsTable" : {
-          "table" : "visit_occurrence"
+          "table" : "device_exposure"
         },
         "idPairsIdA" : {
-          "column" : "visit_occurrence_id",
+          "column" : "device_exposure_id",
           "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "visit_concept_id",
+          "column" : "device_concept_id",
           "runtimeCalculated" : false
         },
         "rollupInformationMapA" : { },
@@ -21,10 +21,10 @@
       },
       "criteriaToPrimary" : {
         "idPairsTable" : {
-          "table" : "visit_occurrence"
+          "table" : "device_exposure"
         },
         "idPairsIdA" : {
-          "column" : "visit_concept_id",
+          "column" : "device_concept_id",
           "runtimeCalculated" : false
         },
         "idPairsIdB" : {
@@ -36,10 +36,10 @@
       },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
-          "table" : "visit_occurrence"
+          "table" : "device_exposure"
         },
         "idPairsIdA" : {
-          "column" : "visit_occurrence_id",
+          "column" : "device_exposure_id",
           "runtimeCalculated" : false
         },
         "idPairsIdB" : {
@@ -57,31 +57,31 @@
     "relationshipMappings" : {
       "occurrenceToCriteria" : {
         "idPairsTable" : {
-          "table" : "idpairs_visit_occurrence_visit"
+          "table" : "idpairs_device_occurrence_device"
         },
         "idPairsIdA" : {
-          "column" : "id_visit_occurrence",
+          "column" : "id_device_occurrence",
           "runtimeCalculated" : false
         },
         "idPairsIdB" : {
-          "column" : "id_visit",
+          "column" : "id_device",
           "runtimeCalculated" : false
         },
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "visit_occurrence"
+              "table" : "device_occurrence"
             },
             "id" : {
               "column" : "id",
               "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_visit",
+              "column" : "t_count_device",
               "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_visit",
+              "column" : "t_displayhints_device",
               "runtimeCalculated" : false
             }
           }
@@ -89,18 +89,18 @@
         "rollupInformationMapB" : {
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "visit"
+              "table" : "device"
             },
             "id" : {
               "column" : "id",
               "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_visit_occurrence",
+              "column" : "t_count_device_occurrence",
               "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence",
+              "column" : "t_displayhints_device_occurrence",
               "runtimeCalculated" : false
             }
           }
@@ -108,10 +108,10 @@
       },
       "criteriaToPrimary" : {
         "idPairsTable" : {
-          "table" : "idpairs_visit_person"
+          "table" : "idpairs_device_person"
         },
         "idPairsIdA" : {
-          "column" : "id_visit",
+          "column" : "id_device",
           "runtimeCalculated" : false
         },
         "idPairsIdB" : {
@@ -121,7 +121,7 @@
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "visit"
+              "table" : "device"
             },
             "id" : {
               "column" : "id",
@@ -147,11 +147,11 @@
               "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_visit",
+              "column" : "t_count_device",
               "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_visit",
+              "column" : "t_displayhints_device",
               "runtimeCalculated" : false
             }
           }
@@ -159,10 +159,10 @@
       },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
-          "table" : "idpairs_visit_occurrence_person"
+          "table" : "idpairs_device_occurrence_person"
         },
         "idPairsIdA" : {
-          "column" : "id_visit_occurrence",
+          "column" : "id_device_occurrence",
           "runtimeCalculated" : false
         },
         "idPairsIdB" : {
@@ -172,7 +172,7 @@
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "visit_occurrence"
+              "table" : "device_occurrence"
             },
             "id" : {
               "column" : "id",
@@ -198,11 +198,11 @@
               "runtimeCalculated" : false
             },
             "count" : {
-              "column" : "t_count_visit_occurrence",
+              "column" : "t_count_device_occurrence",
               "runtimeCalculated" : false
             },
             "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence",
+              "column" : "t_displayhints_device_occurrence",
               "runtimeCalculated" : false
             }
           }
@@ -211,7 +211,7 @@
     },
     "auxiliaryDataMappings" : { }
   },
-  "criteriaEntity" : "visit",
-  "occurrenceEntity" : "visit_occurrence",
+  "criteriaEntity" : "device",
+  "occurrenceEntity" : "device_occurrence",
   "modifierAttributes" : [ ]
 }

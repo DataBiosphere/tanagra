@@ -1,6 +1,7 @@
 package bio.terra.tanagra.utils;
 
 import bio.terra.tanagra.exception.SystemException;
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryException;
@@ -37,6 +38,8 @@ public final class GoogleBigQuery {
   // default value for the maximum number of times to retry HTTP requests to BQ
   public static final int BQ_MAXIMUM_RETRIES = 5;
   private static final Duration MAX_QUERY_WAIT_TIME = Duration.ofSeconds(60);
+  private static final org.threeten.bp.Duration MAX_BQ_CLIENT_TIMEOUT =
+      org.threeten.bp.Duration.ofMinutes(3);
 
   private final BigQuery bigQuery;
   private final ConcurrentHashMap<String, Schema> tableSchemasCache;
@@ -47,6 +50,8 @@ public final class GoogleBigQuery {
         BigQueryOptions.newBuilder()
             .setCredentials(credentials)
             .setProjectId(projectId)
+            .setRetrySettings(
+                RetrySettings.newBuilder().setTotalTimeout(MAX_BQ_CLIENT_TIMEOUT).build())
             .build()
             .getService();
     this.tableSchemasCache = new ConcurrentHashMap<>();

@@ -128,6 +128,14 @@ public final class EnumVals extends DisplayHint {
    */
   public static EnumVals computeForField(
       Literal.DataType dataType, FieldPointer value, FieldPointer display) {
+    if (!display.isForeignKey() && !display.hasSqlFunctionWrapper()) {
+      throw new UnsupportedOperationException(
+          "Display fields that are not foreign key fields are not yet supported: "
+              + value.getColumnName()
+              + ", "
+              + display.getColumnName());
+    }
+
     Query possibleValuesQuery = queryPossibleEnumVals(value);
     DataPointer dataPointer = value.getTablePointer().getDataPointer();
     TablePointer possibleValsTable =
@@ -210,7 +218,7 @@ public final class EnumVals extends DisplayHint {
     }
 
     // Sort the enum values, so the expanded config has a consistent ordering.
-    enumVals.sort(Comparator.comparing(ev -> ev.getValueDisplay().getDisplay()));
+    enumVals.sort(Comparator.comparing(ev -> String.valueOf(ev.getValueDisplay().getDisplay())));
 
     return new EnumVals(enumVals);
   }
