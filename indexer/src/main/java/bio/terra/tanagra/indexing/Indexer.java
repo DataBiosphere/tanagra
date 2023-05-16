@@ -160,11 +160,11 @@ public final class Indexer {
               criteriaOccurrence.getCriteriaEntity(),
               criteriaOccurrence.getCriteriaPrimaryRelationship(),
               null));
-      jobSet.addJob(
-          new ComputeRollupCounts(
-              criteriaOccurrence.getCriteriaEntity(),
-              criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-              null));
+      // jobSet.addJob(
+      //     new ComputeRollupCounts(
+      //         criteriaOccurrence.getCriteriaEntity(),
+      //         criteriaOccurrence.getOccurrenceCriteriaRelationship(),
+      //         null));
 
       // If the criteria entity has a hierarchy, then also compute the counts for each
       // hierarchy.
