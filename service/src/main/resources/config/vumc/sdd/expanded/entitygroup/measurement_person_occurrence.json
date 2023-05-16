@@ -34,21 +34,6 @@
         "rollupInformationMapA" : { },
         "rollupInformationMapB" : { }
       },
-      "occurrenceRelatedEntity0" : {
-        "idPairsTable" : {
-          "table" : "measurement"
-        },
-        "idPairsIdA" : {
-          "column" : "measurement_id",
-          "runtimeCalculated" : false
-        },
-        "idPairsIdB" : {
-          "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        },
-        "rollupInformationMapA" : { },
-        "rollupInformationMapB" : { }
-      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "measurement"
@@ -206,57 +191,6 @@
           }
         }
       },
-      "occurrenceRelatedEntity0" : {
-        "idPairsTable" : {
-          "table" : "idpairs_measurement_occurrence_visit_occurrence"
-        },
-        "idPairsIdA" : {
-          "column" : "id_measurement_occurrence",
-          "runtimeCalculated" : false
-        },
-        "idPairsIdB" : {
-          "column" : "id_visit_occurrence",
-          "runtimeCalculated" : false
-        },
-        "rollupInformationMapA" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "measurement_occurrence"
-            },
-            "id" : {
-              "column" : "id",
-              "runtimeCalculated" : false
-            },
-            "count" : {
-              "column" : "t_count_visit_occurrence",
-              "runtimeCalculated" : false
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_visit_occurrence",
-              "runtimeCalculated" : false
-            }
-          }
-        },
-        "rollupInformationMapB" : {
-          "NO_HIERARCHY" : {
-            "table" : {
-              "table" : "visit_occurrence"
-            },
-            "id" : {
-              "column" : "id",
-              "runtimeCalculated" : false
-            },
-            "count" : {
-              "column" : "t_count_measurement_occurrence",
-              "runtimeCalculated" : false
-            },
-            "displayHints" : {
-              "column" : "t_displayhints_measurement_occurrence",
-              "runtimeCalculated" : false
-            }
-          }
-        }
-      },
       "occurrenceToPrimary" : {
         "idPairsTable" : {
           "table" : "idpairs_measurement_occurrence_person"
@@ -349,6 +283,5 @@
   },
   "criteriaEntity" : "measurement",
   "occurrenceEntity" : "measurement_occurrence",
-  "occurrenceRelatedEntities" : [ "visit_occurrence" ],
   "modifierAttributes" : [ "value_numeric", "value_enum" ]
 }

@@ -1,5 +1,5 @@
 {
-  "name" : "visit_occurrence",
+  "name" : "device_occurrence",
   "idAttribute" : "id",
   "attributes" : [ {
     "type" : "SIMPLE",
@@ -17,18 +17,18 @@
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -977.0,
+      "minVal" : -4.0,
       "maxVal" : 89.0
     },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
-    "name" : "id",
+    "name" : "visit_occurrence_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
-    "name" : "visit",
+    "name" : "visit_type",
     "dataType" : "INT64",
     "displayHint" : {
       "type" : "ENUM",
@@ -39,7 +39,7 @@
           },
           "display" : "Emergency Room Visit"
         },
-        "count" : 1690886
+        "count" : 99792
       }, {
         "enumVal" : {
           "value" : {
@@ -47,7 +47,7 @@
           },
           "display" : "Inpatient Visit"
         },
-        "count" : 3078021
+        "count" : 928353
       }, {
         "enumVal" : {
           "value" : {
@@ -55,7 +55,7 @@
           },
           "display" : "No matching concept"
         },
-        "count" : 1077644
+        "count" : 830
       }, {
         "enumVal" : {
           "value" : {
@@ -63,10 +63,20 @@
           },
           "display" : "Outpatient Visit"
         },
-        "count" : 57044408
+        "count" : 1931949
       } ]
     },
     "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "device",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
@@ -86,7 +96,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   vo.visit_occurrence_id AS id, vo.person_id, vo.visit_concept_id,   vo.visit_start_date AS start_date, vo.visit_end_date AS end_date,   vo.visit_source_value AS source_value, vo.visit_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(vo.visit_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence  FROM `victr-tanagra-test.sd_static.visit_occurrence` AS vo  JOIN `victr-tanagra-test.sd_static.person` AS p ON p.person_id = vo.person_id "
+      "rawSql" : "SELECT   de.device_exposure_id AS id, de.person_id, de.device_concept_id,   de.device_exposure_start_date AS start_date, de.device_exposure_end_date AS end_date,   de.device_source_value AS source_value, de.device_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(de.device_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   de.visit_occurrence_id, vo.visit_concept_id  FROM `victr-tanagra-test.sd_static.device_exposure` AS de  JOIN `victr-tanagra-test.sd_static.person` AS p ON p.person_id = de.person_id  LEFT JOIN `victr-tanagra-test.sd_static.visit_occurrence` AS vo ON vo.visit_occurrence_id = de.visit_occurrence_id "
     },
     "attributeMappings" : {
       "end_date" : {
@@ -107,19 +117,38 @@
           "runtimeCalculated" : false
         }
       },
-      "id" : {
+      "visit_occurrence_id" : {
         "value" : {
-          "column" : "id",
+          "column" : "visit_occurrence_id",
           "runtimeCalculated" : false
         }
       },
-      "visit" : {
+      "visit_type" : {
         "value" : {
           "column" : "visit_concept_id",
           "runtimeCalculated" : false
         },
         "display" : {
           "column" : "visit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "device" : {
+        "value" : {
+          "column" : "device_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "device_concept_id",
           "foreignTable" : "concept",
           "foreignKey" : "concept_id",
           "foreignColumn" : "concept_name",
@@ -150,7 +179,7 @@
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
     "tablePointer" : {
-      "table" : "visit_occurrence"
+      "table" : "device_occurrence"
     },
     "attributeMappings" : {
       "end_date" : {
@@ -171,19 +200,35 @@
           "runtimeCalculated" : false
         }
       },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_type",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_visit_type",
+          "runtimeCalculated" : false
+        }
+      },
       "id" : {
         "value" : {
           "column" : "id",
           "runtimeCalculated" : false
         }
       },
-      "visit" : {
+      "device" : {
         "value" : {
-          "column" : "visit",
+          "column" : "device",
           "runtimeCalculated" : false
         },
         "display" : {
-          "column" : "t_display_visit",
+          "column" : "t_display_device",
           "runtimeCalculated" : false
         }
       },

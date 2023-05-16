@@ -3,7 +3,7 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name" }
+    { "type": "SIMPLE", "name": "name", "displayHintTypes": ["NONE"] }
   ],
 
   "sourceDataMapping": {

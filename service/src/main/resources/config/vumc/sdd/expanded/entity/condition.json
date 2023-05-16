@@ -18,19 +18,19 @@
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "C"
-          },
-          "display" : "Unknown"
-        },
-        "count" : 384
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : ""
           },
           "display" : "Unknown"
         },
         "count" : 523932
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "C"
+          },
+          "display" : "Unknown"
+        },
+        "count" : 384
       } ]
     },
     "displayHintTypes" : [ ]
@@ -231,12 +231,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -457,6 +457,5 @@
         "maxHierarchyDepth" : 20
       }
     }
-  },
-  "sourceStartDateColumn" : null
+  }
 }

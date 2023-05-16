@@ -1,5 +1,5 @@
 {
-  "name" : "observation",
+  "name" : "device",
   "idAttribute" : "id",
   "attributes" : [ {
     "type" : "KEY_AND_DISPLAY",
@@ -14,7 +14,7 @@
           },
           "display" : "Standard"
         },
-        "count" : 162296
+        "count" : 245402
       } ]
     },
     "displayHintTypes" : [ ]
@@ -27,11 +27,19 @@
       "enumVals" : [ {
         "enumVal" : {
           "value" : {
-            "stringVal" : "APC"
+            "stringVal" : "AMT"
           },
-          "display" : "APC"
+          "display" : "AMT"
         },
-        "count" : 715
+        "count" : 2945
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "BDPM"
+          },
+          "display" : "BDPM"
+        },
+        "count" : 1106
       }, {
         "enumVal" : {
           "value" : {
@@ -39,15 +47,15 @@
           },
           "display" : "CPT4"
         },
-        "count" : 1083
+        "count" : 24
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "DRG"
+            "stringVal" : "GGR"
           },
-          "display" : "DRG"
+          "display" : "GGR"
         },
-        "count" : 752
+        "count" : 596
       }, {
         "enumVal" : {
           "value" : {
@@ -55,63 +63,39 @@
           },
           "display" : "HCPCS"
         },
-        "count" : 2667
+        "count" : 4634
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICDO3"
+            "stringVal" : "ICD10PCS"
           },
-          "display" : "ICDO3"
+          "display" : "ICD10PCS"
         },
-        "count" : 49
+        "count" : 3
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "LOINC"
+            "stringVal" : "JMDC"
           },
-          "display" : "LOINC"
+          "display" : "JMDC"
         },
-        "count" : 7087
+        "count" : 1313
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "MDC"
+            "stringVal" : "KDC"
           },
-          "display" : "MDC"
+          "display" : "KDC"
         },
-        "count" : 26
+        "count" : 112
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "NAACCR"
+            "stringVal" : "NDC"
           },
-          "display" : "NAACCR"
+          "display" : "NDC"
         },
-        "count" : 96
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "NUCC"
-          },
-          "display" : "NUCC"
-        },
-        "count" : 4
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "Nebraska Lexicon"
-          },
-          "display" : "Nebraska Lexicon"
-        },
-        "count" : 1004
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "OMOP Extension"
-          },
-          "display" : "OMOP Extension"
-        },
-        "count" : 107
+        "count" : 10963
       }, {
         "enumVal" : {
           "value" : {
@@ -119,15 +103,7 @@
           },
           "display" : "OPCS4"
         },
-        "count" : 56
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "PCORNet"
-          },
-          "display" : "PCORNet"
-        },
-        "count" : 2
+        "count" : 1
       }, {
         "enumVal" : {
           "value" : {
@@ -135,7 +111,7 @@
           },
           "display" : "SNOMED"
         },
-        "count" : 117406
+        "count" : 202567
       }, {
         "enumVal" : {
           "value" : {
@@ -143,23 +119,15 @@
           },
           "display" : "SNOMED Veterinary"
         },
-        "count" : 27401
+        "count" : 67
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "UB04 Pri Typ of Adm"
+            "stringVal" : "dm+d"
           },
-          "display" : "UB04 Pri Typ of Adm"
+          "display" : "dm+d"
         },
-        "count" : 6
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "UK Biobank"
-          },
-          "display" : "UK Biobank"
-        },
-        "count" : 3835
+        "count" : 21071
       } ]
     },
     "displayHintTypes" : [ ]
@@ -194,7 +162,7 @@
           },
           "operator" : "EQUALS",
           "value" : {
-            "stringVal" : "Observation"
+            "stringVal" : "Device"
           }
         }, {
           "type" : "BINARY",
@@ -205,26 +173,6 @@
           "operator" : "EQUALS",
           "value" : {
             "stringVal" : "S"
-          }
-        }, {
-          "type" : "BINARY",
-          "field" : {
-            "column" : "vocabulary_id",
-            "runtimeCalculated" : false
-          },
-          "operator" : "NOT_EQUALS",
-          "value" : {
-            "stringVal" : "PPI"
-          }
-        }, {
-          "type" : "BINARY",
-          "field" : {
-            "column" : "concept_class_id",
-            "runtimeCalculated" : false
-          },
-          "operator" : "NOT_EQUALS",
-          "value" : {
-            "stringVal" : "Survey"
           }
         } ]
       }
@@ -269,7 +217,7 @@
     "textSearchMapping" : {
       "searchStringTable" : {
         "tablePointer" : {
-          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Observation' AND c.standard_concept = 'S' AND c.vocabulary_id != 'PPI' AND c.concept_class_id != 'Survey'"
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_static.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_static.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_static.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Device' AND c.standard_concept = 'S'"
         },
         "fieldPointers" : {
           "id" : {
@@ -288,7 +236,7 @@
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
     "tablePointer" : {
-      "table" : "observation"
+      "table" : "device"
     },
     "attributeMappings" : {
       "standard_concept" : {
