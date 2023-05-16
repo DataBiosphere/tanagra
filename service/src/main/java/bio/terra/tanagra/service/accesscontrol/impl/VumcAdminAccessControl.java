@@ -29,7 +29,7 @@ public class VumcAdminAccessControl implements AccessControl {
   public boolean isAuthorized(
       UserId userId, Action action, ResourceType resourceType, @Nullable ResourceId resourceId) {
     return vumcAdminService.isAuthorized(
-        userId.getSubject(),
+        userId.getEmail(),
         ResourceAction.valueOf(action.toString()),
         org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(resourceType.toString()),
         resourceId == null ? null : resourceId.toString());
@@ -42,7 +42,7 @@ public class VumcAdminAccessControl implements AccessControl {
     resourceTypeList.add(
         org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(resourceType.toString()));
     ResourceList resourceList =
-        vumcAdminService.listAuthorizedResources(userId.getSubject(), resourceTypeList);
+        vumcAdminService.listAuthorizedResources(userId.getEmail(), resourceTypeList);
     return ResourceIdCollection.forCollection(
         resourceList.stream()
             .map(resource -> new ResourceId(resource.getId()))
