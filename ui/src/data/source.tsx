@@ -1097,6 +1097,12 @@ function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
         : null;
     case tanagra.DataTypeV2.Boolean:
       return value.valueUnion?.boolVal ?? null;
+    case tanagra.DataTypeV2.Double:
+      return value.valueUnion?.doubleVal ?? null;
+    case tanagra.DataTypeV2.Timestamp:
+      return value.valueUnion?.timestampVal
+        ? new Date(value.valueUnion.timestampVal)
+        : null;
   }
 
   throw new Error(`Unknown data type "${value?.dataType}".`);
