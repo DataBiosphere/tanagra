@@ -1,0 +1,29 @@
+{
+  "name": "brand",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "name", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
+    { "type": "SIMPLE", "name": "concept_code", "displayHintTypes": ["NONE"] } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": {
+      "rawSqlFile": "brand_all.sql"
+    },
+    "attributeMappings": {
+      "id": { "value": { "column": "concept_id" } },
+      "name": { "value": { "column": "concept_name" } },
+      "standard_concept": {
+        "value": { "column": "standard_concept" },
+        "display": {
+          "column": "standard_concept",
+          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "brand_textSearch.sql" } } }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
