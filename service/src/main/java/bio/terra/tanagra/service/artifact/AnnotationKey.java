@@ -15,7 +15,7 @@ public class AnnotationKey {
   private final Literal.DataType dataType;
   private final List<String> enumVals;
 
-  public AnnotationKey(
+  private AnnotationKey(
       String id,
       String displayName,
       String description,
@@ -88,7 +88,8 @@ public class AnnotationKey {
         }
         break;
       default:
-        throw new SystemException("Unknown data type: " + annotationValue.getDataType());
+        throw new SystemException(
+            "Unknown annotation value data type: " + annotationValue.getDataType());
     }
 
     if (!getEnumVals().isEmpty() && !getEnumVals().contains(annotationValue.getStringVal())) {
@@ -137,6 +138,9 @@ public class AnnotationKey {
       }
       if (displayName == null) {
         throw new BadRequestException("Annotation key requires a display name");
+      }
+      if (enumVals == null) {
+        enumVals = new ArrayList<>();
       }
       return new AnnotationKey(id, displayName, description, dataType, enumVals);
     }

@@ -189,6 +189,10 @@ public class Literal implements SQLExpression {
     return dataType.equals(DataType.TIMESTAMP) ? timestampVal : null;
   }
 
+  public String getTimestampValAsString() {
+    return dataType.equals(DataType.TIMESTAMP) ? timestampVal.toString() : null;
+  }
+
   public DataType getDataType() {
     return dataType;
   }

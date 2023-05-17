@@ -46,6 +46,12 @@ public final class ToApiConversionUtils {
       case DATE:
         return apiLiteral.valueUnion(
             new ApiLiteralV2ValueUnion().dateVal(literal.getDateValAsString()));
+      case TIMESTAMP:
+        return apiLiteral.valueUnion(
+            new ApiLiteralV2ValueUnion().timestampVal(literal.getTimestampValAsString()));
+      case DOUBLE:
+        return apiLiteral.valueUnion(
+            new ApiLiteralV2ValueUnion().doubleVal(literal.getDoubleVal()));
       default:
         throw new SystemException("Unknown literal data type: " + literal.getDataType());
     }

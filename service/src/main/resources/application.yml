@@ -32,6 +32,7 @@ tanagra:
     params: []
 
 logging.pattern.level: '%X{requestId} %5p'
+logging.level.bio.terra.tanagra: DEBUG
 
 server:
   compression:
