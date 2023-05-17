@@ -44,4 +44,5 @@ jobs:
       if: always()
       run: .github/tools/verify_config_has_been_expanded.sh
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
