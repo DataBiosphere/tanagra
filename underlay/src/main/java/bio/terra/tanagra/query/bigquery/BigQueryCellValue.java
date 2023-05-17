@@ -78,9 +78,9 @@ class BigQueryCellValue implements CellValue {
       case TIMESTAMP:
         return Optional.of(
             Literal.forTimestamp(
-                Timestamp.from(Instant.ofEpochMilli(fieldValue.getTimestampValue()))));
+                Timestamp.from(Instant.ofEpochMilli(fieldValue.getTimestampValue() / 1000))));
       default:
-        throw new SystemException("Unknown data type: " + dataType);
+        throw new SystemException("Unknown BigQuery data type: " + dataType);
     }
   }
 }

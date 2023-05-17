@@ -27,7 +27,7 @@ export TANAGRA_DB_PASSWORD=dbpwd
 
 if [[ ${useVerilyUnderlays} ]]; then
   echo "Using Verily underlays."
-  export TANAGRA_UNDERLAY_FILES=verily/aou_synthetic/expanded/aou_synthetic.json,verily/cms_synpuf/expanded/cms_synpuf.json,verily/sdd/expanded/sdd.json
+  export TANAGRA_UNDERLAY_FILES=verily/aou_synthetic/expanded/aou_synthetic.json,verily/cms_synpuf/expanded/cms_synpuf.json,verily/sdd/expanded/sdd.json,verily/sdd_refresh0323/expanded/sdd_refresh0323.json
 else
   echo "Using Broad underlays."
   export TANAGRA_UNDERLAY_FILES=broad/aou_synthetic/expanded/aou_synthetic.json,broad/cms_synpuf/expanded/cms_synpuf.json

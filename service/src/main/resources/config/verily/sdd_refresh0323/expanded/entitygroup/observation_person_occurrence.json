@@ -1,0 +1,217 @@
+{
+  "type" : "CRITERIA_OCCURRENCE",
+  "name" : "observation_person_occurrence",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "observation"
+        },
+        "idPairsIdA" : {
+          "column" : "observation_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "observation_concept_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "observation"
+        },
+        "idPairsIdA" : {
+          "column" : "observation_concept_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "observation"
+        },
+        "idPairsIdA" : {
+          "column" : "observation_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "idpairs_observation_occurrence_observation"
+        },
+        "idPairsIdA" : {
+          "column" : "id_observation_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_observation",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_observation",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_observation_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_observation_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_observation",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_observation",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_observation_occurrence_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_observation_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "observation_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_observation_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_observation_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "observation",
+  "occurrenceEntity" : "observation_occurrence",
+  "modifierAttributes" : [ ]
+}

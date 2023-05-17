@@ -1237,10 +1237,16 @@ components:
             dateVal:
               type: string
               description: Format YYYY-MM-DD
+            timestampVal:
+              type: string
+              description: Format YYYY-MM-DD hh:mm:ss
+            doubleVal:
+              type: number
+              format: double
 
     DataTypeV2:
       type: string
-      enum: ["INT64", "STRING", "BOOLEAN", "DATE"]
+      enum: ["INT64", "STRING", "BOOLEAN", "DATE", "TIMESTAMP", "DOUBLE"]
 
     QueryV2:
       type: object

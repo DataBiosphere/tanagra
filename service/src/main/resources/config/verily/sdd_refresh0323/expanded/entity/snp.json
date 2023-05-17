@@ -1,0 +1,49 @@
+{
+  "name" : "snp",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT DISTINCT snp_id FROM `victr-tanagra-test.sd_20230328.x_snp` ORDER BY snp_id "
+    },
+    "attributeMappings" : {
+      "id" : {
+        "value" : {
+          "column" : "snp_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "attributes" : [ "id" ]
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "snp"
+    },
+    "attributeMappings" : {
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text",
+        "runtimeCalculated" : false
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
