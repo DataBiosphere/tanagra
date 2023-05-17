@@ -2217,7 +2217,7 @@ components:
 
     BinaryOperatorV2:
       type: string
-      enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
+      enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN", "LESS_THAN_OR_EQUAL", "GREATER_THAN_OR_EQUAL"]
 
   securitySchemes:
     authorization:
