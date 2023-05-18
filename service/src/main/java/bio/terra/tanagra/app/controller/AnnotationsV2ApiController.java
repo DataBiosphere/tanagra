@@ -44,7 +44,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiAnnotationV2> createAnnotationKey(
       String studyId, String cohortId, ApiAnnotationCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), CREATE, ANNOTATION, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        CREATE,
+        ANNOTATION,
+        ResourceId.forCohort(studyId, cohortId));
     AnnotationKey createdAnnotationKey =
         annotationService.createAnnotationKey(
             studyId,
@@ -61,7 +64,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<Void> deleteAnnotationKey(
       String studyId, String cohortId, String annotationKeyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), DELETE, ANNOTATION, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        DELETE,
+        ANNOTATION,
+        ResourceId.forAnnotationKey(studyId, cohortId, annotationKeyId));
     annotationService.deleteAnnotationKey(studyId, cohortId, annotationKeyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -70,7 +76,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiAnnotationV2> getAnnotationKey(
       String studyId, String cohortId, String annotationKeyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, ANNOTATION, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        READ,
+        ANNOTATION,
+        ResourceId.forAnnotationKey(studyId, cohortId, annotationKeyId));
     return ResponseEntity.ok(
         toApiObject(annotationService.getAnnotationKey(studyId, cohortId, annotationKeyId)));
   }
@@ -92,7 +101,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<ApiAnnotationV2> updateAnnotationKey(
       String studyId, String cohortId, String annotationKeyId, ApiAnnotationUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, ANNOTATION, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        UPDATE,
+        ANNOTATION,
+        ResourceId.forAnnotationKey(studyId, cohortId, annotationKeyId));
     AnnotationKey updatedAnnotationKey =
         annotationService.updateAnnotationKey(
             studyId, cohortId, annotationKeyId, body.getDisplayName(), body.getDescription());
@@ -108,7 +120,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String instanceId,
       ApiLiteralV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
+        SpringAuthentication.getCurrentUser(),
+        UPDATE,
+        COHORT_REVIEW,
+        ResourceId.forReview(studyId, cohortId, reviewId));
     // The API currently restricts the caller to a single annotation value per review instance per
     // annotation key, but the backend can handle a list.
     annotationService.updateAnnotationValues(
@@ -125,7 +140,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   public ResponseEntity<Void> deleteAnnotationValues(
       String studyId, String cohortId, String annotationKeyId, String reviewId, String instanceId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, COHORT_REVIEW, new ResourceId(reviewId));
+        SpringAuthentication.getCurrentUser(),
+        UPDATE,
+        COHORT_REVIEW,
+        ResourceId.forReview(studyId, cohortId, reviewId));
     annotationService.deleteAnnotationValues(
         studyId, cohortId, annotationKeyId, reviewId, instanceId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -134,7 +152,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   @Override
   public ResponseEntity<ApiExportFile> exportAnnotationValues(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, COHORT_REVIEW, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        READ,
+        COHORT,
+        ResourceId.forCohort(studyId, cohortId));
     String gcsSignedUrl = reviewService.exportAnnotationValuesToGcs(studyId, cohortId);
     return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
   }

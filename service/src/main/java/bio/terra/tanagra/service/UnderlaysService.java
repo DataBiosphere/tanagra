@@ -53,7 +53,7 @@ public class UnderlaysService {
       }
       List<String> authorizedNames =
           authorizedIds.getResourceIds().stream()
-              .map(ResourceId::getId)
+              .map(ResourceId::getUnderlay)
               .collect(Collectors.toList());
       return underlaysMap.values().stream()
           .filter(underlay -> authorizedNames.contains(underlay.getName()))

@@ -43,7 +43,10 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
   @Override
   public ResponseEntity<ApiUnderlayV2> getUnderlay(String underlayName) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
+        SpringAuthentication.getCurrentUser(),
+        READ,
+        UNDERLAY,
+        ResourceId.forUnderlay(underlayName));
     return ResponseEntity.ok(toApiObject(underlaysService.getUnderlay(underlayName)));
   }
 

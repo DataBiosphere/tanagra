@@ -96,7 +96,9 @@ public class StudyServiceTest {
     // List selected.
     List<Study> selectedStudies =
         studyService.listStudies(
-            ResourceIdCollection.forCollection(List.of(new ResourceId(study2.getId()))), 0, 10);
+            ResourceIdCollection.forCollection(List.of(ResourceId.forStudy(study2.getId()))),
+            0,
+            10);
     assertEquals(1, selectedStudies.size());
     assertEquals(study2.getId(), selectedStudies.get(0).getId());
   }
@@ -110,7 +112,7 @@ public class StudyServiceTest {
     // List selected.
     List<Study> selectedStudies =
         studyService.listStudies(
-            ResourceIdCollection.forCollection(List.of(new ResourceId("123"))), 0, 10);
+            ResourceIdCollection.forCollection(List.of(ResourceId.forStudy("123"))), 0, 10);
     assertTrue(selectedStudies.isEmpty());
 
     // Get invalid.

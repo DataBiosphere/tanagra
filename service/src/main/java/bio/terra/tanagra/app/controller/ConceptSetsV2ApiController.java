@@ -37,7 +37,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> createConceptSet(
       String studyId, ApiConceptSetCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), CREATE, CONCEPT_SET, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), CREATE, CONCEPT_SET, ResourceId.forStudy(studyId));
     Criteria singleCriteria =
         body.getCriteria() == null
             ? null
@@ -58,7 +58,10 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   @Override
   public ResponseEntity<Void> deleteConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), DELETE, CONCEPT_SET, new ResourceId(conceptSetId));
+        SpringAuthentication.getCurrentUser(),
+        DELETE,
+        CONCEPT_SET,
+        ResourceId.forConceptSet(studyId, conceptSetId));
     conceptSetService.deleteConceptSet(studyId, conceptSetId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -66,7 +69,10 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   @Override
   public ResponseEntity<ApiConceptSetV2> getConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, CONCEPT_SET, new ResourceId(conceptSetId));
+        SpringAuthentication.getCurrentUser(),
+        READ,
+        CONCEPT_SET,
+        ResourceId.forConceptSet(studyId, conceptSetId));
     return ResponseEntity.ok(toApiObject(conceptSetService.getConceptSet(studyId, conceptSetId)));
   }
 
@@ -86,7 +92,10 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> updateConceptSet(
       String studyId, String conceptSetId, ApiConceptSetUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, CONCEPT_SET, new ResourceId(conceptSetId));
+        SpringAuthentication.getCurrentUser(),
+        UPDATE,
+        CONCEPT_SET,
+        ResourceId.forConceptSet(studyId, conceptSetId));
     Criteria singleCriteria =
         body.getCriteria() == null
             ? null

@@ -80,7 +80,7 @@ public class CohortService {
     } else {
       return cohortDao.getCohortsMatchingList(
           authorizedCohortIds.getResourceIds().stream()
-              .map(ResourceId::getId)
+              .map(ResourceId::getCohort)
               .collect(Collectors.toSet()),
           offset,
           limit);

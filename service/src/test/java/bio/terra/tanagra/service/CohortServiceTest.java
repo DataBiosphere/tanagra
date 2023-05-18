@@ -164,7 +164,8 @@ public class CohortServiceTest {
     // List selected cohort in study2.
     List<Cohort> selectedCohorts =
         cohortService.listCohorts(
-            ResourceIdCollection.forCollection(List.of(new ResourceId(cohort3.getId()))),
+            ResourceIdCollection.forCollection(
+                List.of(ResourceId.forCohort(study2.getId(), cohort3.getId()))),
             study2.getId(),
             0,
             10);
@@ -181,7 +182,8 @@ public class CohortServiceTest {
     // List selected.
     List<Cohort> selectedCohorts =
         cohortService.listCohorts(
-            ResourceIdCollection.forCollection(List.of(new ResourceId("123"))),
+            ResourceIdCollection.forCollection(
+                List.of(ResourceId.forCohort(study1.getId(), "123"))),
             study1.getId(),
             0,
             10);

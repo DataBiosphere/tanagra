@@ -203,7 +203,8 @@ public class ReviewServiceTest {
     // List selected review for cohort2.
     List<Review> selectedReviews =
         reviewService.listReviews(
-            ResourceIdCollection.forCollection(List.of(new ResourceId(review3.getId()))),
+            ResourceIdCollection.forCollection(
+                List.of(ResourceId.forReview(study1.getId(), cohort2.getId(), review3.getId()))),
             study1.getId(),
             cohort2.getId(),
             0,
@@ -222,7 +223,8 @@ public class ReviewServiceTest {
     // List selected.
     List<Review> selectedReviews =
         reviewService.listReviews(
-            ResourceIdCollection.forCollection(List.of(new ResourceId("123"))),
+            ResourceIdCollection.forCollection(
+                List.of(ResourceId.forReview(study1.getId(), cohort1.getId(), "123"))),
             study1.getId(),
             cohort1.getId(),
             0,

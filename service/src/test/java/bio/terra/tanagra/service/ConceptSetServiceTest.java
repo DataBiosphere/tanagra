@@ -184,7 +184,8 @@ public class ConceptSetServiceTest {
     // List selected concept set in study2.
     List<ConceptSet> selectedConceptSets =
         conceptSetService.listConceptSets(
-            ResourceIdCollection.forCollection(List.of(new ResourceId(conceptSet3.getId()))),
+            ResourceIdCollection.forCollection(
+                List.of(ResourceId.forConceptSet(study2.getId(), conceptSet3.getId()))),
             study2.getId(),
             0,
             10);
@@ -202,7 +203,8 @@ public class ConceptSetServiceTest {
     // List selected.
     List<ConceptSet> selectedConceptSets =
         conceptSetService.listConceptSets(
-            ResourceIdCollection.forCollection(List.of(new ResourceId("123"))),
+            ResourceIdCollection.forCollection(
+                List.of(ResourceId.forConceptSet(study1.getId(), "123"))),
             study1.getId(),
             0,
             10);

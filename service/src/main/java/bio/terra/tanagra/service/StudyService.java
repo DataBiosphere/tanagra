@@ -49,7 +49,7 @@ public class StudyService {
       }
       return studyDao.getStudiesMatchingList(
           authorizedIds.getResourceIds().stream()
-              .map(ResourceId::getId)
+              .map(ResourceId::getStudy)
               .collect(Collectors.toSet()),
           offset,
           limit);

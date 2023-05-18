@@ -25,6 +25,10 @@ public final class ResourceIdCollection {
     return new ResourceIdCollection(true, null);
   }
 
+  public static ResourceIdCollection empty() {
+    return new ResourceIdCollection(false, null);
+  }
+
   public boolean isAllResourceIds() {
     return isAllResourceIds;
   }
@@ -36,6 +40,6 @@ public final class ResourceIdCollection {
   }
 
   public boolean isEmpty() {
-    return resourceIds.isEmpty();
+    return !isAllResourceIds && (resourceIds == null || resourceIds.isEmpty());
   }
 }

@@ -74,7 +74,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
         SpringAuthentication.getCurrentUser(),
         QUERY_INSTANCES,
         UNDERLAY,
-        new ResourceId(underlayName));
+        ResourceId.forUnderlay(underlayName));
 
     ValidationUtils.validateApiFilter(body.getFilter());
 
@@ -213,7 +213,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
         SpringAuthentication.getCurrentUser(),
         QUERY_COUNTS,
         UNDERLAY,
-        new ResourceId(underlayName));
+        ResourceId.forUnderlay(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
     ValidationUtils.validateApiFilter(body.getFilter());
@@ -258,7 +258,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
         SpringAuthentication.getCurrentUser(),
         QUERY_INSTANCES,
         UNDERLAY,
-        new ResourceId(underlayName));
+        ResourceId.forUnderlay(underlayName));
 
     ValidationUtils.validateApiFilter(body.getFilter());
 

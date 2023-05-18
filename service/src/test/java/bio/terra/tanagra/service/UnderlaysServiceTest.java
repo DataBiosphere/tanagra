@@ -35,7 +35,7 @@ public class UnderlaysServiceTest {
 
     List<Underlay> oneUnderlay =
         underlaysService.listUnderlays(
-            ResourceIdCollection.forCollection(List.of(new ResourceId(underlayName))));
+            ResourceIdCollection.forCollection(List.of(ResourceId.forUnderlay(underlayName))));
     assertEquals(1, oneUnderlay.size());
     assertEquals(underlayName, oneUnderlay.get(0).getName());
 

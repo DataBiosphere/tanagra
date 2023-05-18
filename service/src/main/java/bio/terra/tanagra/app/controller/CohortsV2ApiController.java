@@ -41,7 +41,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortV2> createCohort(String studyId, ApiCohortCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), CREATE, COHORT, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), CREATE, COHORT, ResourceId.forStudy(studyId));
     Cohort createdCohort =
         cohortService.createCohort(
             studyId,
@@ -56,7 +56,10 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<Void> deleteCohort(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), DELETE, COHORT, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        DELETE,
+        COHORT,
+        ResourceId.forCohort(studyId, cohortId));
     cohortService.deleteCohort(studyId, cohortId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -64,7 +67,10 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortV2> getCohort(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, COHORT, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        READ,
+        COHORT,
+        ResourceId.forCohort(studyId, cohortId));
     return ResponseEntity.ok(
         ToApiConversionUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
   }
@@ -85,7 +91,10 @@ public class CohortsV2ApiController implements CohortsV2Api {
   public ResponseEntity<ApiCohortV2> updateCohort(
       String studyId, String cohortId, ApiCohortUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, COHORT, new ResourceId(cohortId));
+        SpringAuthentication.getCurrentUser(),
+        UPDATE,
+        COHORT,
+        ResourceId.forCohort(studyId, cohortId));
     List<CohortRevision.CriteriaGroupSection> sections =
         body.getCriteriaGroupSections().stream()
             .map(CohortsV2ApiController::fromApiObject)

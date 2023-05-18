@@ -27,7 +27,7 @@ public class OpenAccessControl implements AccessControl {
 
   @Override
   public ResourceIdCollection listResourceIds(
-      UserId userId, ResourceType type, int offset, int limit) {
+      UserId userId, ResourceType type, ResourceId parentResourceId, int offset, int limit) {
     // Everyone can list everything.
     return ResourceIdCollection.allResourceIds();
   }

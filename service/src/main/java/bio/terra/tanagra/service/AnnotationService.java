@@ -50,7 +50,7 @@ public class AnnotationService {
       return annotationDao.getAnnotationKeysMatchingList(
           cohortId,
           authorizedAnnotationKeyIds.getResourceIds().stream()
-              .map(ResourceId::getId)
+              .map(ResourceId::getAnnotationKey)
               .collect(Collectors.toSet()),
           offset,
           limit);
