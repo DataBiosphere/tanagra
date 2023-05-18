@@ -1,0 +1,5 @@
+SELECT crit_noid.snp_id, ROW_NUMBER() OVER (ORDER BY crit_noid.snp_id) AS row_num
+FROM (
+SELECT DISTINCT snp_id
+FROM `victr-tanagra-test.sd_20230328.x_snp`
+) AS crit_noid

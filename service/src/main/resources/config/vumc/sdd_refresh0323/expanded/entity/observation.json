@@ -1,0 +1,337 @@
+{
+  "name" : "observation",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 162296
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "vocabulary",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "APC"
+          },
+          "display" : "APC"
+        },
+        "count" : 715
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "CPT4"
+        },
+        "count" : 1083
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "DRG"
+          },
+          "display" : "DRG"
+        },
+        "count" : 752
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "HCPCS"
+        },
+        "count" : 2667
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICDO3"
+          },
+          "display" : "ICDO3"
+        },
+        "count" : 49
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "LOINC"
+          },
+          "display" : "LOINC"
+        },
+        "count" : 7087
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "MDC"
+          },
+          "display" : "MDC"
+        },
+        "count" : 26
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NAACCR"
+          },
+          "display" : "NAACCR"
+        },
+        "count" : 96
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NUCC"
+          },
+          "display" : "NUCC"
+        },
+        "count" : 4
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "Nebraska Lexicon"
+          },
+          "display" : "Nebraska Lexicon"
+        },
+        "count" : 1004
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OMOP Extension"
+          },
+          "display" : "OMOP Extension"
+        },
+        "count" : 107
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "OPCS4"
+          },
+          "display" : "OPCS4"
+        },
+        "count" : 56
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "PCORNet"
+          },
+          "display" : "PCORNet"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "SNOMED"
+        },
+        "count" : 117406
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED Veterinary"
+          },
+          "display" : "SNOMED Veterinary"
+        },
+        "count" : 27401
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "UB04 Pri Typ of Adm"
+          },
+          "display" : "UB04 Pri Typ of Adm"
+        },
+        "count" : 6
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "UK Biobank"
+          },
+          "display" : "UK Biobank"
+        },
+        "count" : 3835
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "BOOLEAN_AND_OR",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Observation"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "standard_concept",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "S"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "vocabulary_id",
+            "runtimeCalculated" : false
+          },
+          "operator" : "NOT_EQUALS",
+          "value" : {
+            "stringVal" : "PPI"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "concept_class_id",
+            "runtimeCalculated" : false
+          },
+          "operator" : "NOT_EQUALS",
+          "value" : {
+            "stringVal" : "Survey"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)",
+          "runtimeCalculated" : false
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `victr-tanagra-test.sd_20230328.concept` c ) AS textsearch  JOIN `victr-tanagra-test.sd_20230328.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Observation' AND c.standard_concept = 'S' AND c.vocabulary_id != 'PPI' AND c.concept_class_id != 'Survey'"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "observation"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_standard_concept",
+          "runtimeCalculated" : false
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary",
+          "runtimeCalculated" : false
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name",
+          "runtimeCalculated" : false
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text",
+        "runtimeCalculated" : false
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

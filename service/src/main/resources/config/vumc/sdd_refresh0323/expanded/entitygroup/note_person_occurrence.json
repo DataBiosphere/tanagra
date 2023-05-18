@@ -1,0 +1,217 @@
+{
+  "type" : "CRITERIA_OCCURRENCE",
+  "name" : "note_person_occurrence",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "note"
+        },
+        "idPairsIdA" : {
+          "column" : "note_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "note_type_concept_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "note"
+        },
+        "idPairsIdA" : {
+          "column" : "note_type_concept_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "note"
+        },
+        "idPairsIdA" : {
+          "column" : "note_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "idpairs_note_occurrence_note"
+        },
+        "idPairsIdA" : {
+          "column" : "id_note_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_note",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "note_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_note",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_note",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "note"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_note_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_note_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_note_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_note",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "note"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_note",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_note",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_note_occurrence_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_note_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "note_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_note_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_note_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "note",
+  "occurrenceEntity" : "note_occurrence",
+  "modifierAttributes" : [ ]
+}

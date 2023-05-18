@@ -1,0 +1,101 @@
+{
+  "type" : "GROUP_ITEMS",
+  "name" : "genotyping_person",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "groupToItems" : {
+        "idPairsTable" : {
+          "rawSql" : "/*  platform_id column has type NUMERIC. This causes index column to be FLOAT.  Currently indexing doesn't handle floats properly, so change column to INTEGER. */ SELECT genotype_result_id AS genotype_result_id, person_id, CAST(platform_id as INT64) as platform_id FROM `victr-tanagra-test.sd_20230328.x_genotype_result` "
+        },
+        "idPairsIdA" : {
+          "column" : "platform_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "groupToItems" : {
+        "idPairsTable" : {
+          "table" : "idpairs_genotyping_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_genotyping",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "standard" : {
+            "table" : {
+              "table" : "genotyping"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_person_standard",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person_standard",
+              "runtimeCalculated" : false
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "genotyping"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_genotyping",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_genotyping",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "groupEntity" : "genotyping",
+  "itemsEntity" : "person"
+}

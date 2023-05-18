@@ -1,0 +1,84 @@
+{
+  "type" : "GROUP_ITEMS",
+  "name" : "snp_person",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "groupToItems" : {
+        "idPairsTable" : {
+          "rawSql" : "SELECT crit.row_num, occ.snp_id, occ.person_id  FROM `victr-tanagra-test.sd_20230328.x_snp` AS occ  JOIN (   SELECT crit_noid.snp_id, ROW_NUMBER() OVER (ORDER BY crit_noid.snp_id) AS row_num   FROM (     SELECT DISTINCT snp_id     FROM `victr-tanagra-test.sd_20230328.x_snp`   ) AS crit_noid ) AS crit ON crit.snp_id = occ.snp_id "
+        },
+        "idPairsIdA" : {
+          "column" : "row_num",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "groupToItems" : {
+        "idPairsTable" : {
+          "table" : "idpairs_snp_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_snp",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "snp"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_snp",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_snp",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "groupEntity" : "snp",
+  "itemsEntity" : "person"
+}

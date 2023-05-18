@@ -1,0 +1,312 @@
+{
+  "name" : "measurement_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "date",
+    "dataType" : "TIMESTAMP",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "unit",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -1765.0,
+      "maxVal" : 89.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "visit_type",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
+        },
+        "count" : 42914672
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
+        },
+        "count" : 641606490
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 2817948
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
+        },
+        "count" : 302941126
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "value_numeric",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "value_enum",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "measurement",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT   mo.measurement_id AS id, mo.person_id, mo.measurement_concept_id, mo.measurement_date,   mo.value_as_number AS value_numeric, mo.value_as_concept_id, mo.unit_concept_id,   mo.measurement_source_value AS source_value, mo.measurement_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   mo.visit_occurrence_id, vo.visit_concept_id  FROM `victr-tanagra-test.sd_20230328.measurement` AS mo  JOIN `victr-tanagra-test.sd_20230328.person` AS p ON p.person_id = mo.person_id  LEFT JOIN `victr-tanagra-test.sd_20230328.visit_occurrence` AS vo ON vo.visit_occurrence_id = mo.visit_occurrence_id "
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "measurement_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "unit" : {
+        "value" : {
+          "column" : "unit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "unit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "visit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_numeric" : {
+        "value" : {
+          "column" : "value_numeric",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_enum" : {
+        "value" : {
+          "column" : "value_as_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "value_as_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "measurement" : {
+        "value" : {
+          "column" : "measurement_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "measurement_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "measurement_occurrence"
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "date",
+          "runtimeCalculated" : false
+        }
+      },
+      "unit" : {
+        "value" : {
+          "column" : "unit",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_unit",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_type",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_visit_type",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_numeric" : {
+        "value" : {
+          "column" : "value_numeric",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_enum" : {
+        "value" : {
+          "column" : "value_enum",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_value_enum",
+          "runtimeCalculated" : false
+        }
+      },
+      "measurement" : {
+        "value" : {
+          "column" : "measurement",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_measurement",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

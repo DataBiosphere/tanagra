@@ -1,0 +1,256 @@
+{
+  "name" : "device_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "end_date",
+    "dataType" : "TIMESTAMP",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -4.0,
+      "maxVal" : 89.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "visit_type",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
+        },
+        "count" : 116800
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
+        },
+        "count" : 935607
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 1719
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
+        },
+        "count" : 2120916
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "device",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "start_date",
+    "dataType" : "TIMESTAMP",
+    "displayHintTypes" : [ "NONE" ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT   de.device_exposure_id AS id, de.person_id, de.device_concept_id,   de.device_exposure_start_date AS start_date, de.device_exposure_end_date AS end_date,   de.device_source_value AS source_value, de.device_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(de.device_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   de.visit_occurrence_id, vo.visit_concept_id  FROM `victr-tanagra-test.sd_20230328.device_exposure` AS de  JOIN `victr-tanagra-test.sd_20230328.person` AS p ON p.person_id = de.person_id  LEFT JOIN `victr-tanagra-test.sd_20230328.visit_occurrence` AS vo ON vo.visit_occurrence_id = de.visit_occurrence_id "
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "end_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "visit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "device" : {
+        "value" : {
+          "column" : "device_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "device_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "device_occurrence"
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "end_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_type",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_visit_type",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "device" : {
+        "value" : {
+          "column" : "device",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_device",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
