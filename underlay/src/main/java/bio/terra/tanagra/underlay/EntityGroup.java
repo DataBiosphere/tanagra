@@ -4,14 +4,13 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFAuxiliaryDataMapping;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
+import bio.terra.tanagra.underlay.relationshipfield.Count;
+import bio.terra.tanagra.underlay.relationshipfield.DisplayHints;
 import bio.terra.tanagra.utils.FileIO;
 import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class EntityGroup {
   /** Enum for the types of entity groups supported by Tanagra. */
@@ -127,6 +126,22 @@ public abstract class EntityGroup {
 
       auxData.initialize(sourceMapping, indexMapping);
     }
+  }
+
+  protected static List<RelationshipField> buildRelationshipFieldList(Entity entity) {
+    List<RelationshipField> fields = new ArrayList<>();
+    fields.add(new Count(entity));
+    fields.add(new DisplayHints(entity));
+
+    if (entity.hasHierarchies()) {
+      entity.getHierarchies().stream()
+          .forEach(
+              hierarchy -> {
+                fields.add(new Count(entity, hierarchy));
+                fields.add(new DisplayHints(entity, hierarchy));
+              });
+    }
+    return fields;
   }
 
   public abstract Type getType();
