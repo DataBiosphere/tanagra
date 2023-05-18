@@ -403,7 +403,7 @@ function ParticipantsGroup(props: {
               deleteCohortGroup(context, props.groupSection.id, props.group.id);
             }}
           >
-            <DeleteIcon fontSize="small" sx={{ mt: "-3px" }} />
+            <DeleteIcon fontSize="small" sx={{ mt: "-1px" }} />
           </IconButton>
         </GridLayout>
         <GridLayout cols fillCol={1} rowAlign="middle">
@@ -411,7 +411,7 @@ function ParticipantsGroup(props: {
             <Button
               startIcon={<TuneIcon fontSize="small" />}
               onClick={showMenu}
-              sx={{ mt: "-3px" }}
+              sx={{ mt: "-1px" }}
             >
               Modifiers
             </Button>
@@ -450,7 +450,7 @@ function ParticipantsGroup(props: {
                       )
                     }
                   >
-                    <DeleteIcon fontSize="small" sx={{ mt: "-3px" }} />
+                    <DeleteIcon fontSize="small" sx={{ mt: "-1px" }} />
                   </IconButton>
                 </GridLayout>
                 <GridBox key={p.id} sx={{ height: "auto" }}>
