@@ -1,7 +1,5 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import SettingsIcon from "@mui/icons-material/Settings";
 import AppBar from "@mui/material/AppBar";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -62,13 +60,6 @@ export default function ActionBar(props: ActionBarProps) {
           {props.title}
         </Typography>
         {props.extraControls}
-        <Button
-          startIcon={<SettingsIcon />}
-          component={RouterLink}
-          to="/sdAdmin"
-        >
-          SD Admin
-        </Button>
         {underlay ? (
           <Typography variant="h4" sx={{ mx: 1 }}>
             Dataset: {underlay.name}
