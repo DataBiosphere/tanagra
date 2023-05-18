@@ -208,7 +208,6 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
                   unhighlightTag={Unhighlighted}
                   highlightTag={Highlighted}
                 />
-                <Typography>{o[config.text]}</Typography>
               </Box>
             </Paper>
           ))}
