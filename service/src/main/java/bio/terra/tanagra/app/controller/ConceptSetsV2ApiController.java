@@ -81,7 +81,11 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
       String studyId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedConceptSetIds =
         accessControlService.listResourceIds(
-            SpringAuthentication.getCurrentUser(), CONCEPT_SET, offset, limit);
+            SpringAuthentication.getCurrentUser(),
+            CONCEPT_SET,
+            ResourceId.forStudy(studyId),
+            offset,
+            limit);
     ApiConceptSetListV2 apiConceptSets = new ApiConceptSetListV2();
     conceptSetService.listConceptSets(authorizedConceptSetIds, studyId, offset, limit).stream()
         .forEach(conceptSet -> apiConceptSets.add(toApiObject(conceptSet)));

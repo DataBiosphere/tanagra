@@ -89,7 +89,11 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedAnnotationKeyIds =
         accessControlService.listResourceIds(
-            SpringAuthentication.getCurrentUser(), ANNOTATION, offset, limit);
+            SpringAuthentication.getCurrentUser(),
+            ANNOTATION,
+            ResourceId.forCohort(studyId, cohortId),
+            offset,
+            limit);
     ApiAnnotationListV2 apiAnnotationKeys = new ApiAnnotationListV2();
     annotationService
         .listAnnotationKeys(authorizedAnnotationKeyIds, studyId, cohortId, offset, limit).stream()

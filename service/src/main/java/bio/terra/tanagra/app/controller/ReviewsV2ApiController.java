@@ -115,7 +115,11 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedReviewIds =
         accessControlService.listResourceIds(
-            SpringAuthentication.getCurrentUser(), COHORT_REVIEW, offset, limit);
+            SpringAuthentication.getCurrentUser(),
+            COHORT_REVIEW,
+            ResourceId.forCohort(studyId, cohortId),
+            offset,
+            limit);
     ApiReviewListV2 apiReviews = new ApiReviewListV2();
     reviewService.listReviews(authorizedReviewIds, studyId, cohortId, offset, limit).stream()
         .forEach(
