@@ -57,7 +57,7 @@ public class HintsV2ApiController implements HintsV2Api {
         SpringAuthentication.getCurrentUser(),
         QUERY_COUNTS,
         UNDERLAY,
-        new ResourceId(underlayName));
+        ResourceId.forUnderlay(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
     if (body == null || body.getRelatedEntity() == null) {

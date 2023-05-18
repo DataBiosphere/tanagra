@@ -151,7 +151,7 @@ public class ReviewService {
     } else {
       return reviewDao.getReviewsMatchingList(
           authorizedReviewIds.getResourceIds().stream()
-              .map(ResourceId::getId)
+              .map(ResourceId::getReview)
               .collect(Collectors.toSet()),
           offset,
           limit);

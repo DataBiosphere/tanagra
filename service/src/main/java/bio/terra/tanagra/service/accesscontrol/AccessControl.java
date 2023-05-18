@@ -19,5 +19,11 @@ public interface AccessControl {
   boolean isAuthorized(
       UserId userId, Action action, ResourceType resourceType, ResourceId resourceId);
 
-  ResourceIdCollection listResourceIds(UserId userId, ResourceType type, int offset, int limit);
+  default ResourceIdCollection listResourceIds(
+      UserId userId, ResourceType type, int offset, int limit) {
+    return listResourceIds(userId, type, null, offset, limit);
+  }
+
+  ResourceIdCollection listResourceIds(
+      UserId userId, ResourceType type, ResourceId parentResourceId, int offset, int limit);
 }

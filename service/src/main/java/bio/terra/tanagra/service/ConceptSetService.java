@@ -57,7 +57,7 @@ public class ConceptSetService {
     } else {
       return conceptSetDao.getConceptSetsMatchingList(
           authorizedConceptSetIds.getResourceIds().stream()
-              .map(ResourceId::getId)
+              .map(ResourceId::getConceptSet)
               .collect(Collectors.toSet()),
           offset,
           limit);

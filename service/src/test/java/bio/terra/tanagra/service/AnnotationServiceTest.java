@@ -238,7 +238,10 @@ public class AnnotationServiceTest {
     // List selected annotation key for cohort2.
     List<AnnotationKey> selectedAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceIdCollection.forCollection(List.of(new ResourceId(annotationKey3.getId()))),
+            ResourceIdCollection.forCollection(
+                List.of(
+                    ResourceId.forAnnotationKey(
+                        study1.getId(), cohort2.getId(), annotationKey3.getId()))),
             study1.getId(),
             cohort2.getId(),
             0,
@@ -257,7 +260,8 @@ public class AnnotationServiceTest {
     // List selected.
     List<AnnotationKey> selectedAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceIdCollection.forCollection(List.of(new ResourceId("123"))),
+            ResourceIdCollection.forCollection(
+                List.of(ResourceId.forAnnotationKey(study1.getId(), cohort1.getId(), "123"))),
             study1.getId(),
             cohort1.getId(),
             0,

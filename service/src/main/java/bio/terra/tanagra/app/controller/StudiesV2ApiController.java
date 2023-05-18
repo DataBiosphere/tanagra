@@ -57,7 +57,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), DELETE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), DELETE, STUDY, ResourceId.forStudy(studyId));
     studyService.deleteStudy(studyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -65,7 +65,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> getStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), READ, STUDY, ResourceId.forStudy(studyId));
     return ResponseEntity.ok(toApiObject(studyService.getStudy(studyId)));
   }
 
@@ -83,7 +83,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> updateStudy(String studyId, ApiStudyUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
     Study updatedStudy =
         studyService.updateStudy(
             studyId,
@@ -97,7 +97,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   public ResponseEntity<Void> updateStudyProperties(
       String studyId, List<ApiPropertyKeyValueV2> body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
     studyService.updateStudyProperties(
         studyId, SpringAuthentication.getCurrentUser().getEmail(), fromApiObject(body));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -106,7 +106,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudyProperties(String studyId, List<String> body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, new ResourceId(studyId));
+        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
     studyService.deleteStudyProperties(
         studyId, SpringAuthentication.getCurrentUser().getEmail(), body);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);

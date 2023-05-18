@@ -33,7 +33,10 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
   @Override
   public ResponseEntity<ApiEntityListV2> listEntities(String underlayName) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
+        SpringAuthentication.getCurrentUser(),
+        READ,
+        UNDERLAY,
+        ResourceId.forUnderlay(underlayName));
     ApiEntityListV2 apiEntities = new ApiEntityListV2();
     List<Entity> entities = underlaysService.listEntities(underlayName);
     entities.stream().forEach(entity -> apiEntities.addEntitiesItem(toApiObject(entity)));
@@ -43,7 +46,10 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
   @Override
   public ResponseEntity<ApiEntityV2> getEntity(String underlayName, String entityName) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, UNDERLAY, new ResourceId(underlayName));
+        SpringAuthentication.getCurrentUser(),
+        READ,
+        UNDERLAY,
+        ResourceId.forUnderlay(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     return ResponseEntity.ok(toApiObject(entity));
   }
