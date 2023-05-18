@@ -1,0 +1,42 @@
+{
+  "name": "note_occurrence",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "person_id", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "note" },
+    { "type": "SIMPLE", "name": "date", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "title", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "text", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_value", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit_type" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "note_occurrence_all.sql" },
+    "attributeMappings": {
+      "date": { "value": { "column": "note_date" } },
+      "note": {
+        "value": { "column": "note_type_concept_id" },
+        "display": {
+          "column": "note_type_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "visit_type": {
+        "value": { "column": "visit_concept_id" },
+        "display": {
+          "column": "visit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

@@ -8,14 +8,14 @@ import bio.terra.tanagra.utils.FileIO;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TextSearchMappingTest {
   private static Map<String, DataPointer> dataPointers;
 
-  @BeforeAll
-  static void readDataPointers() throws IOException {
+  @BeforeClass
+  public static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
     FileIO.setInputParentDir(Path.of("config"));
     Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
@@ -23,7 +23,7 @@ public class TextSearchMappingTest {
   }
 
   @Test
-  void condition() throws IOException {
+  public void condition() throws IOException {
     Entity condition = Entity.fromJSON("Condition.json", dataPointers);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         condition

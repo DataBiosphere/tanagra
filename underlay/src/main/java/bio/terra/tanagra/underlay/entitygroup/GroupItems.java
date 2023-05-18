@@ -8,7 +8,6 @@ import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
 import java.util.Map;
 
 public class GroupItems extends EntityGroup {
@@ -38,7 +37,10 @@ public class GroupItems extends EntityGroup {
         Map.of(
             GROUP_ITEMS_RELATIONSHIP_NAME,
             new Relationship(
-                GROUP_ITEMS_RELATIONSHIP_NAME, groupEntity, itemsEntity, Collections.emptyList()));
+                GROUP_ITEMS_RELATIONSHIP_NAME,
+                groupEntity,
+                itemsEntity,
+                buildRelationshipFieldList(groupEntity)));
 
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
@@ -86,6 +88,10 @@ public class GroupItems extends EntityGroup {
   @Override
   public Map<String, Entity> getEntityMap() {
     return ImmutableMap.of(GROUP_ENTITY_NAME, groupEntity, ITEMS_ENTITY_NAME, itemsEntity);
+  }
+
+  public Relationship getGroupItemsRelationship() {
+    return relationships.get(GROUP_ITEMS_RELATIONSHIP_NAME);
   }
 
   private static class Builder extends EntityGroup.Builder {

@@ -8,10 +8,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
-import bio.terra.tanagra.underlay.RelationshipField;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.relationshipfield.Count;
-import bio.terra.tanagra.underlay.relationshipfield.DisplayHints;
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,22 +130,6 @@ public class CriteriaOccurrence extends EntityGroup {
     EntityGroup.deserializeAuxiliaryDataMappings(serialized, criteriaOccurrence);
 
     return criteriaOccurrence;
-  }
-
-  private static List<RelationshipField> buildRelationshipFieldList(Entity entity) {
-    List<RelationshipField> fields = new ArrayList<>();
-    fields.add(new Count(entity));
-    fields.add(new DisplayHints(entity));
-
-    if (entity.hasHierarchies()) {
-      entity.getHierarchies().stream()
-          .forEach(
-              hierarchy -> {
-                fields.add(new Count(entity, hierarchy));
-                fields.add(new DisplayHints(entity, hierarchy));
-              });
-    }
-    return fields;
   }
 
   @Override

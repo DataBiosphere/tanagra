@@ -1,0 +1,149 @@
+{
+  "name" : "genotyping",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "/*  platform_id column has type NUMERIC. This causes index column to be FLOAT.  Currently indexing doesn't handle floats properly, so change column to INTEGER. */ SELECT CAST(platform_id as INT64) AS platform_id, assay_name as assay_name FROM `victr-tanagra-test.sd_20230328.platform` UNION ALL /*  Add some rows to get hierarchy to work. Parent ids are defined in  genotype_criteria, criteria_meta_seq column. criteria_meta_seq is not in the  same \"ID space\" as platform_id. Tanagra requres parent id to be in same \"ID  space\" as platform_id. So create artificial platform_ids for parents.  */ (SELECT 101 AS platform_id, 'GWAS Platforms' AS assay_name UNION ALL  SELECT 102, 'Non-GWAS and Targeted Genotyping Platforms' UNION ALL  SELECT 103, 'Sequencing Platforms') "
+    },
+    "attributeMappings" : {
+      "name" : {
+        "value" : {
+          "column" : "assay_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "platform_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "attributes" : [ "id", "name" ]
+    },
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "rawSql" : "SELECT /* Use parent ids defined in platform.sql */     parent_seq + 100 AS parent,     CAST(platform_id as INT64) AS child FROM `victr-tanagra-test.sd_20230328.genotype_criteria` g, `victr-tanagra-test.sd_20230328.platform` p WHERE g.name = p.assay_name "
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent",
+              "runtimeCalculated" : false
+            },
+            "child" : {
+              "column" : "child",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rootNodesFilter" : {
+          "tablePointer" : {
+            "rawSql" : "/* Match the platform ids in platform.sql */ SELECT 101 AS id UNION ALL SELECT 102 UNION ALL SELECT 103 "
+          },
+          "fieldPointers" : {
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "maxHierarchyDepth" : 1
+      }
+    }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "genotyping"
+    },
+    "attributeMappings" : {
+      "name" : {
+        "value" : {
+          "column" : "name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text",
+        "runtimeCalculated" : false
+      }
+    },
+    "hierarchyMappings" : {
+      "standard" : {
+        "childParent" : {
+          "tablePointer" : {
+            "table" : "genotyping_standard_childParent"
+          },
+          "fieldPointers" : {
+            "parent" : {
+              "column" : "parent",
+              "runtimeCalculated" : false
+            },
+            "child" : {
+              "column" : "child",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "ancestorDescendant" : {
+          "tablePointer" : {
+            "table" : "genotyping_standard_ancestorDescendant"
+          },
+          "fieldPointers" : {
+            "ancestor" : {
+              "column" : "ancestor",
+              "runtimeCalculated" : false
+            },
+            "descendant" : {
+              "column" : "descendant",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "pathNumChildren" : {
+          "tablePointer" : {
+            "table" : "genotyping"
+          },
+          "fieldPointers" : {
+            "path" : {
+              "column" : "t_standard_path",
+              "runtimeCalculated" : false
+            },
+            "num_children" : {
+              "column" : "t_standard_num_children",
+              "runtimeCalculated" : false
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "maxHierarchyDepth" : 1
+      }
+    }
+  }
+}

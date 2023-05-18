@@ -15,6 +15,7 @@ import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay.entitygroup.GroupItems;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.List;
@@ -194,7 +195,26 @@ public final class Indexer {
             new ComputeDisplayHints(
                 criteriaOccurrence, criteriaOccurrence.getModifierAttributes()));
       }
+    } else if (EntityGroup.Type.GROUP_ITEMS.equals(entityGroup.getType())) {
+      GroupItems groupItems = (GroupItems) entityGroup;
+      // Compute the criteria rollup counts for the group-items relationship.
+      jobSet.addJob(
+          new ComputeRollupCounts(
+              groupItems.getGroupEntity(), groupItems.getGroupItemsRelationship(), null));
+
+      // If the group entity has a hierarchy, then also compute the counts for each hierarchy.
+      if (groupItems.getGroupEntity().hasHierarchies()) {
+        groupItems.getGroupEntity().getHierarchies().stream()
+            .forEach(
+                hierarchy ->
+                    jobSet.addJob(
+                        new ComputeRollupCounts(
+                            groupItems.getGroupEntity(),
+                            groupItems.getGroupItemsRelationship(),
+                            hierarchy)));
+      }
     }
+
     return jobSet;
   }
 
