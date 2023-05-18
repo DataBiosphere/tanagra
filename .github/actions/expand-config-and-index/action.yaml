@@ -37,6 +37,7 @@ runs:
         echo "Running:  $cmd"
         eval ${cmd}
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GOOGLE_APPLICATION_CREDENTIALS: ../${{ inputs.google-application-credentials-relative-path }}
       shell: bash
     - name: Post EXPAND_CONFIG failure to Slack
@@ -72,6 +73,7 @@ runs:
         echo "Running:  $cmd"
         eval ${cmd}
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GOOGLE_APPLICATION_CREDENTIALS: ../${{ inputs.google-application-credentials-relative-path }}
       shell: bash
     - name: Post INDEX_ALL failure to Slack

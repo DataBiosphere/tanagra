@@ -114,6 +114,7 @@ jobs:
           ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
           ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
           ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the OpenAPI interface
         if: steps.skiptest.outputs.is-bump == 'no'

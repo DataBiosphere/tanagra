@@ -5,8 +5,8 @@ name: Nightly tests
 
 on:
   workflow_dispatch:
-  schedule:
-  - cron: '0 7 * * *' # 7AM UTC = 2AM EST
+#  schedule:
+#  - cron: '0 7 * * *' # 7AM UTC = 2AM EST
 
 jobs:
   test:
