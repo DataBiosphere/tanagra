@@ -44,12 +44,15 @@ dependencies {
     implementation "org.apache.beam:beam-sdks-java-io-google-cloud-platform:${beam}"
     implementation "org.apache.beam:beam-sdks-java-io-jdbc:${beam}"
     implementation "org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:${beam}"
+    implementation "org.apache.beam:beam-sdks-java-extensions-join-library:${beam}"
     testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${beam}"
     implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${beam}"
     implementation "org.apache.beam:beam-runners-direct-java:${beam}"
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
+    // Apache Beam depends on JUnit 4.13.1, so this sub-project can't use JUnit 5 like the other sub-projects.
+    // https://github.com/apache/beam/blob/dd2f67bb8ec49e542635035743a754421cce3a75/buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy#L595
+    testImplementation "junit:junit:4.13.1" // 'org.junit.jupiter:junit-jupiter-api:5.0.3'
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.8.2" // 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
 
     // Static analysis
     compileOnly "com.google.code.findbugs:annotations:3.0.1u2"

@@ -5,11 +5,11 @@ import bio.terra.tanagra.utils.FileIO;
 import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class SerDesUnderlayTest {
   @Test
-  void omop() throws IOException {
+  public void omop() throws IOException {
     FileIO.setToReadResourceFiles();
     FileIO.setInputParentDir(Path.of("config"));
     FileIO.setOutputParentDir(Path.of("test_output"));

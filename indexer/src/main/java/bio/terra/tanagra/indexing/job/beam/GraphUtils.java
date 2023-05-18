@@ -72,13 +72,14 @@ public final class GraphUtils {
     while (true) {
       PCollection<KV<T, T>> nExactPaths =
           concatenate(
-                  exactPaths.get(n / 2).apply(Distinct.create()),
-                  exactPaths.get(n / 2).apply(Distinct.create()),
+                  exactPaths.get(n / 2).apply("nExactPaths1_" + n, Distinct.create()),
+                  exactPaths.get(n / 2).apply("nExactPaths2_" + n, Distinct.create()),
                   "exactPaths N" + n)
-              .apply(Distinct.create());
+              .apply("nExactPathsConcatenate_" + n, Distinct.create());
       exactPaths.put(n, nExactPaths);
 
-      PCollection<KV<T, T>> nMinus1AllPaths = allPaths.get(n - 1).apply(Distinct.create());
+      PCollection<KV<T, T>> nMinus1AllPaths =
+          allPaths.get(n - 1).apply("nMinus1AllPaths_" + n, Distinct.create());
 
       PCollection<KV<T, T>> newAllPaths =
           PCollectionList.of(nMinus1AllPaths)

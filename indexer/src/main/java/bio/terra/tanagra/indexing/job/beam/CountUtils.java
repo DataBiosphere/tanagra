@@ -1,14 +1,8 @@
 package bio.terra.tanagra.indexing.job.beam;
 
-import java.util.Iterator;
+import org.apache.beam.sdk.extensions.joinlibrary.Join;
 import org.apache.beam.sdk.transforms.*;
-import org.apache.beam.sdk.transforms.join.CoGbkResult;
-import org.apache.beam.sdk.transforms.join.CoGroupByKey;
-import org.apache.beam.sdk.transforms.join.KeyedPCollectionTuple;
-import org.apache.beam.sdk.values.KV;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.TupleTag;
-import org.apache.beam.sdk.values.TypeDescriptors;
+import org.apache.beam.sdk.values.*;
 
 public final class CountUtils {
   private CountUtils() {}
@@ -27,76 +21,51 @@ public final class CountUtils {
    */
   public static PCollection<KV<Long, Long>> countDistinct(
       PCollection<Long> primaryNodes, PCollection<KV<Long, Long>> occurrences) {
-    // remove duplicate occurrences
-    // do this because there could be duplicate occurrences (i.e. 2 occurrences of diabetes for
-    // personA) in the original data. or, for concepts that include a hierarchy, there would be
+    // Remove duplicate occurrences.
+    // Do this because there could be duplicate occurrences (i.e. 2 occurrences of diabetes for
+    // personA) in the original data. Or, for concepts that include a hierarchy, there would be
     // duplicates if e.g. a parent condition had two children, each with an occurrence for the same
-    // person. this distinct step is so we only count occurrences of a condition for each person
+    // person. This distinct step is so we only count occurrences of a condition for each person
     // once.
     PCollection<KV<Long, Long>> distinctOccurrences =
         occurrences.apply("remove duplicate occurrences before counting", Distinct.create());
 
-    // count the number of occurrences per primary node
-    // note that this will not include any zeros -- only primary nodes that have >=1 auxiliary node
-    // will show up here
+    // Count the number of occurrences per primary node.
+    // Note that this will not include any zeros -- only primary nodes that have >=1 auxiliary node
+    // will show up here.
     PCollection<KV<Long, Long>> countKVs =
         distinctOccurrences.apply(
             "count the number of distinct occurrences per primary node", Count.perKey());
 
-    // build a collection of KV<node,[placeholder 0L]>. this is just a collection of the primary
+    // Build a collection of KV<node,[placeholder 0L]>. This is just a collection of the primary
     // nodes, but here we expand it to a map where each primary node is mapped to 0L, just so we can
-    // do an outer join with the countKVs above. the 0L is just a placeholder value in the map, the
-    // actual count will be set in the join result
-    PCollection<KV<Long, Long>> primaryNodeInitialKVs =
+    // do an outer join with the countKVs above. The 0L is just a placeholder value in the map, the
+    // actual count will be set in the join result.
+    PCollection<KV<Long, Long>> nodeToPlaceholderKVs =
         primaryNodes.apply(
             "build initial (node,[placeholder 0L]) KV pairs",
             MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.longs()))
                 .via(node -> KV.of(node, 0L)));
 
-    // JOIN countKVs (node, count>0) x primaryNodeInitialKVs (node, 0)
-    // ON nonZeroCount (node) = allZeroCount (node)
-    // RESULT = tuples of (node, count>0, count=0)
-    // for each RESULT tuple:
-    //   - if there is a count>0, then output (node, count>0)
-    //   - otherwise, output (node, count=0)
+    // JOIN: primaryNodeInitialKVs (node, placeholder zero) LEFT OUTER JOIN countKVs (node, non-zero
+    // count)
+    //       ON node=node, use 0L where there is no matching node in the right-hand side countKVs
+    // RESULT: nodeToPlaceholderAndCounts (node=node, (placeholder zero, non-zero count or zero if
+    // no non-zero count exists))
+    PCollection<KV<Long, KV<Long, Long>>> nodeToPlaceholderAndCounts =
+        Join.leftOuterJoin(
+            "left outer join nodes with non-zero counts", nodeToPlaceholderKVs, countKVs, 0L);
 
-    // define the CoGroupByKey tags
-    final TupleTag<Long> countTag = new TupleTag<>();
-    final TupleTag<Long> primaryNodeInitialTag = new TupleTag<>();
-
-    // do a CoGroupByKey join of the countKVs x primaryNodeInitialKVs collections
-    PCollection<KV<Long, CoGbkResult>> nodeNonZeroCountJoin =
-        KeyedPCollectionTuple.of(countTag, countKVs)
-            .and(primaryNodeInitialTag, primaryNodeInitialKVs)
-            .apply("join countKVs x primaryNodeInitialKVs collections", CoGroupByKey.create());
-
-    // run a ParDo for each row of the join result
-    return nodeNonZeroCountJoin.apply(
-        "run ParDo for each tuple of the countKVs x primaryNodeInitialKVs join result",
-        ParDo.of(
-            new DoFn<KV<Long, CoGbkResult>, KV<Long, Long>>() {
-              @ProcessElement
-              public void processElement(ProcessContext context) {
-                KV<Long, CoGbkResult> element = context.element();
-                Long node = element.getKey();
-                Iterator<Long> countTagIter = element.getValue().getAll(countTag).iterator();
-                Iterator<Long> primaryNodeInitialTagIter =
-                    element.getValue().getAll(primaryNodeInitialTag).iterator();
-
-                // if there is a primary node that exists in the occurrences collection,
-                // but not in the primary nodes collection, then skip processing it
-                if (!primaryNodeInitialTagIter.hasNext()) {
-                  return;
-                }
-
-                // output a count for each primary node, including counts of zero
-                if (countTagIter.hasNext()) {
-                  // there were occurrences for this primary node
-                  context.output(KV.of(node, countTagIter.next()));
-                } else {
-                  // there were no occurrences for this primary node, so output zero
-                  context.output(KV.of(node, 0L));
-                }
+    // Get rid of the placeholder zero. That was only needed because the leftOuterJoin function
+    // requires the same type on the right and left hand sides.
+    // RESULT: (node, non-zero count or zero if no non-zero count was found)
+    return nodeToPlaceholderAndCounts.apply(
+        MapElements.via(
+            new SimpleFunction<>() {
+              @Override
+              public KV<Long, Long> apply(KV<Long, KV<Long, Long>> placeholderAndCount) {
+                return KV.of(
+                    placeholderAndCount.getKey(), placeholderAndCount.getValue().getValue());
               }
             }));
   }
@@ -134,63 +103,29 @@ public final class CountUtils {
    */
   public static PCollection<KV<Long, Long>> repeatOccurrencesForHierarchy(
       PCollection<KV<Long, Long>> occurrences, PCollection<KV<Long, Long>> descendantAncestor) {
-    // remove duplicate occurrences
+    // Remove duplicate occurrences.
     PCollection<KV<Long, Long>> distinctOccurrences =
         occurrences.apply(
             "remove duplicate occurrences before repeating for hierarchy", Distinct.create());
 
-    // JOIN occurrences (node, what_to_count) x descendantAncestor (descendant_node, ancestor_node)
-    // ON occurrences (node) = descendantAncestor (descendant_node)
-    // RESULT = tuples of (node, list of what_to_count, list of ancestor_nodes)
-    // for each RESULT tuple:
-    //   - iterate through the ancestor_nodes and output (ancestor_node, what_to_count)
-    //   - output (node, what_to_count)
-    // e.g. node = condition, what_to_count = person
+    // JOIN: descendantAncestor (descendant, ancestor) INNER JOIN distinctOccurrences (node,
+    // what_to_count)
+    //       ON descendant=node
+    // RESULT: nodeToAncestorAndWhatToCount (descendant=node, (ancestor, what_to_count))
+    PCollection<KV<Long, KV<Long, Long>>> nodeToAncestorAndWhatToCount =
+        Join.innerJoin(
+            "inner join occurrences with ancestors", descendantAncestor, distinctOccurrences);
 
-    // define the CoGroupByKey tags
-    final TupleTag<Long> whatToCountTag = new TupleTag<>();
-    final TupleTag<Long> ancestorTag = new TupleTag<>();
+    // Get rid of the descendant node. That was only needed as the innerJoin field.
+    // RESULT: (ancestor, what_to_count)
+    PCollection<KV<Long, Long>> ancestorOccurrences =
+        nodeToAncestorAndWhatToCount.apply(Values.create());
 
-    // do a CoGroupByKey join of the occurrences and descendantAncestor collections
-    PCollection<KV<Long, CoGbkResult>> joinResultTuples =
-        KeyedPCollectionTuple.of(whatToCountTag, distinctOccurrences)
-            .and(ancestorTag, descendantAncestor)
-            .apply(
-                "join distinctOccurrences and descendantAncestor collections",
-                CoGroupByKey.create());
-
-    // run a ParDo for each join result tuple
-    return joinResultTuples.apply(
-        "run ParDo for each tuple of the distinctOccurrences x descendantAncestor join result",
-        ParDo.of(
-            new DoFn<KV<Long, CoGbkResult>, KV<Long, Long>>() {
-              @ProcessElement
-              public void processElement(ProcessContext context) {
-                KV<Long, CoGbkResult> element = context.element();
-                Long descendantNode = element.getKey();
-                Iterator<Long> whatToCountTagIter =
-                    element.getValue().getAll(whatToCountTag).iterator();
-
-                // iterate through each of the occurrences for this node
-                while (whatToCountTagIter.hasNext()) {
-                  Long whatToCount = whatToCountTagIter.next();
-
-                  // output a pair for the original occurrence (node, what_to_count)
-                  context.output(KV.of(descendantNode, whatToCount));
-
-                  // get a new iterator through the ancestor nodes each loop, so we start from the
-                  // beginning each time
-                  Iterator<Long> ancestorTagIter =
-                      element.getValue().getAll(ancestorTag).iterator();
-
-                  // output a pair for each ancestor (ancestor_node, what_to_count)
-                  while (ancestorTagIter.hasNext()) {
-                    Long ancestorNode = ancestorTagIter.next();
-
-                    context.output(KV.of(ancestorNode, whatToCount));
-                  }
-                }
-              }
-            }));
+    // The descendant-ancestor pairs don't include a self-reference row (i.e. descendant=ancestor).
+    // So to get the full set of occurrences, concatenate the original occurrences with the ancestor
+    // duplicates.
+    return PCollectionList.of(distinctOccurrences)
+        .and(ancestorOccurrences)
+        .apply(Flatten.pCollections());
   }
 }
