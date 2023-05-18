@@ -265,7 +265,7 @@
       "id": "tanagra-snp",
       "title": "SNP variant",
       "category": "Program data",
-      "columns": [{ "key": "id", "width": "100%", "title": "SNP variant" }],
+      "columns": [{ "key": "name", "width": "100%", "title": "SNP variant" }],
       "occurrence": "",
       "classification": "snp"
     }

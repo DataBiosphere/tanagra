@@ -8,7 +8,7 @@
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "rawSqlFile": "platform.sql" },
+    "tablePointer": { "rawSqlFile": "genotyping_all.sql" },
     "attributeMappings": {
       "id": { "value": { "column": "platform_id" } },
       "name": { "value": { "column": "assay_name" } }

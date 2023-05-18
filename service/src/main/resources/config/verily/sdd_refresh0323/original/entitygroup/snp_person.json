@@ -7,8 +7,8 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "groupToItems": {
-        "idPairsTable": { "table": "x_snp" },
-        "idPairsIdA": { "column": "snp_id" },
+        "idPairsTable": { "rawSqlFile": "snp_occurrence_all.sql" },
+        "idPairsIdA": { "column": "row_num" },
         "idPairsIdB":  { "column": "person_id" }
       }
     }

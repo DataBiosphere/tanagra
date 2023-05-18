@@ -2,13 +2,17 @@
   "name": "snp",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" } ],
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "name" }
+  ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "rawSqlFile": "x_snp.sql" },
+    "tablePointer": { "rawSqlFile": "snp_all.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "snp_id" } } },
+      "id": { "value": { "column": "row_num" } },
+      "name": { "value": { "column": "snp_id" } }
+    },
     "textSearchMapping" : { "attributes" : [ "id" ] }
   },
 

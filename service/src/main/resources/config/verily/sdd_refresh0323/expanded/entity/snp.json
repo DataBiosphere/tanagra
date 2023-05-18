@@ -3,19 +3,30 @@
   "idAttribute" : "id",
   "attributes" : [ {
     "type" : "SIMPLE",
-    "name" : "id",
+    "name" : "name",
     "dataType" : "STRING",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
     "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT DISTINCT snp_id FROM `victr-tanagra-test.sd_20230328.x_snp` ORDER BY snp_id "
+      "rawSql" : "SELECT crit_noid.snp_id, ROW_NUMBER() OVER (ORDER BY crit_noid.snp_id) AS row_num FROM ( SELECT DISTINCT snp_id FROM `victr-tanagra-test.sd_20230328.x_snp` ) AS crit_noid"
     },
     "attributeMappings" : {
-      "id" : {
+      "name" : {
         "value" : {
           "column" : "snp_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "row_num",
           "runtimeCalculated" : false
         }
       }
@@ -31,6 +42,12 @@
       "table" : "snp"
     },
     "attributeMappings" : {
+      "name" : {
+        "value" : {
+          "column" : "name",
+          "runtimeCalculated" : false
+        }
+      },
       "id" : {
         "value" : {
           "column" : "id",
