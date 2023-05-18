@@ -79,4 +79,9 @@ public class AccessControlService {
       UserId userId, ResourceType type, int offset, int limit) {
     return accessControlImpl.listResourceIds(userId, type, offset, limit);
   }
+
+  public ResourceIdCollection listResourceIds(
+      UserId userId, ResourceType type, ResourceId parentResourceId, int offset, int limit) {
+    return accessControlImpl.listResourceIds(userId, type, parentResourceId, offset, limit);
+  }
 }

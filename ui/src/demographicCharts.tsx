@@ -24,16 +24,16 @@ import { isValid } from "util/valid";
 import { generateCohortFilter } from "./cohort";
 
 const barColours = [
-  "#0a96aa",
-  "#e60049",
-  "#0bb4ff",
-  "#50e991",
-  "#e6d800",
-  "#9b19f5",
-  "#ffa300",
-  "#dc0ab4",
-  "#b3d4ff",
-  "#00bfa0",
+  "#4450C0",
+  "#F7963F",
+  "#4393C3",
+  "#FBCD50",
+  "#53978B",
+  "#D14545",
+  "#538B61",
+  "#D77CA8",
+  "#B6D07E",
+  "#91C3C7",
 ];
 
 type BarData = {
