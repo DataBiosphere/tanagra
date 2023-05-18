@@ -80,7 +80,11 @@ public class CohortsV2ApiController implements CohortsV2Api {
       String studyId, Integer offset, Integer limit) {
     ResourceIdCollection authorizedCohortIds =
         accessControlService.listResourceIds(
-            SpringAuthentication.getCurrentUser(), COHORT, offset, limit);
+            SpringAuthentication.getCurrentUser(),
+            COHORT,
+            ResourceId.forStudy(studyId),
+            offset,
+            limit);
     ApiCohortListV2 apiCohorts = new ApiCohortListV2();
     cohortService.listCohorts(authorizedCohortIds, studyId, offset, limit).stream()
         .forEach(cohort -> apiCohorts.add(ToApiConversionUtils.toApiObject(cohort)));
