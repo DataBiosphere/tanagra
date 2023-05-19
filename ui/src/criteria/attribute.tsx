@@ -1,33 +1,23 @@
-import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import Input from "@mui/material/Input";
-import Slider from "@mui/material/Slider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
 import { HintDataSelect } from "components/hintDataSelect";
 import Loading from "components/loading";
+import { DataRange, RangeSlider } from "components/rangeSlider";
 import { FilterType } from "data/filter";
 import { IntegerHint, useSource } from "data/source";
 import { DataValue } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
 
 type Selection = {
   value: DataValue;
   name: string;
-};
-
-type DataRange = {
-  id: string;
-  min: number;
-  max: number;
 };
 
 interface Config extends CriteriaConfig {
@@ -132,60 +122,27 @@ type SliderProps = {
 
 function AttributeSlider(props: SliderProps) {
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
-  const { minBound, maxBound, range, data, index } = props;
+  const { data } = props;
 
-  const initialMin = Math.max(range.min, minBound);
-  const initialMax = Math.min(range.max, maxBound);
-
-  // Two sets of values are needed due to the input box and slider is isolated.
-  const [minInputValue, setMinInputValue] = useState(String(initialMin));
-  const [maxInputValue, setMaxInputValue] = useState(String(initialMax));
-  const [minValue, setMinValue] = useState(initialMin);
-  const [maxValue, setMaxValue] = useState(initialMax);
-
-  const updateValue = (newMin: number, newMax: number) => {
-    setMinValue(newMin);
-    setMaxValue(newMax);
+  const onUpdate = (
+    range: DataRange,
+    index: number,
+    min: number,
+    max: number
+  ) => {
     updateCriteria(
       produce(data, (oldData) => {
         if (oldData.dataRanges.length === 0) {
           oldData.dataRanges.push(range);
         }
 
-        oldData.dataRanges[index].min = newMin;
-        oldData.dataRanges[index].max = newMax;
+        oldData.dataRanges[index].min = min;
+        oldData.dataRanges[index].max = max;
       })
     );
   };
 
-  const handleChange = (event: Event, newValue: number | number[]) => {
-    const [newMin, newMax] = newValue as number[];
-    setMinInputValue(String(newMin));
-    setMaxInputValue(String(newMax));
-    updateValue(newMin, newMax);
-  };
-
-  // Make sure empty input won't get changed.
-
-  const handleMinInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMinInputValue(event.target.value);
-    const newMin = event.target.value === "" ? 0 : Number(event.target.value);
-    updateValue(Math.min(maxValue, Math.max(minBound, newMin)), maxValue);
-  };
-  const handleMinInputBlur = () => {
-    setMinInputValue(String(minValue));
-  };
-
-  const handleMaxInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMaxInputValue(event.target.value);
-    const newMax = event.target.value === "" ? 0 : Number(event.target.value);
-    updateValue(minValue, Math.max(minValue, Math.min(maxBound, newMax)));
-  };
-  const handleMaxInputBlur = () => {
-    setMaxInputValue(String(maxValue));
-  };
-
-  const handleDeleteRange = () => {
+  const onDelete = (range: DataRange, index: number) => {
     updateCriteria(
       produce(data, (oldData) => {
         oldData.dataRanges.splice(index, 1);
@@ -194,58 +151,15 @@ function AttributeSlider(props: SliderProps) {
   };
 
   return (
-    <Box sx={{ width: "30%", minWidth: 400, mt: 0.5 }}>
-      <Grid container spacing={3} direction="row">
-        <Grid item>
-          <Input
-            value={minInputValue}
-            size="medium"
-            onChange={handleMinInputChange}
-            onBlur={handleMinInputBlur}
-            inputProps={{
-              min: minBound,
-              max: maxBound,
-              type: "number",
-              "aria-labelledby": "input-slider",
-            }}
-          />
-        </Grid>
-        <Grid item xs>
-          <Slider
-            value={[minValue, maxValue]}
-            onChange={handleChange}
-            valueLabelDisplay="auto"
-            getAriaValueText={(value) => value.toString()}
-            min={minBound}
-            max={maxBound}
-            disableSwap
-          />
-        </Grid>
-        <Grid item>
-          <Input
-            value={maxInputValue}
-            onChange={handleMaxInputChange}
-            onBlur={handleMaxInputBlur}
-            inputProps={{
-              min: minBound,
-              max: maxBound,
-              type: "number",
-              "aria-labelledby": "input-slider",
-            }}
-          />
-        </Grid>
-        {props.multiRange && (
-          <IconButton
-            color="primary"
-            aria-label="delete"
-            onClick={handleDeleteRange}
-            style={{ marginLeft: 25 }}
-          >
-            <DeleteIcon fontSize="medium" />
-          </IconButton>
-        )}
-      </Grid>
-    </Box>
+    <RangeSlider
+      minBound={props.minBound}
+      maxBound={props.maxBound}
+      range={props.range}
+      index={props.index}
+      multiRange={props.multiRange}
+      onUpdate={onUpdate}
+      onDelete={onDelete}
+    />
   );
 }
 
