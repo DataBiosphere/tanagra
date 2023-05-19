@@ -50,6 +50,8 @@ import {
 } from "./cohort";
 
 export function Overview() {
+  const cohort = useCohort();
+
   return (
     <GridLayout cols="auto 380px">
       <GridBox sx={{ p: 1 }}>
@@ -64,7 +66,7 @@ export function Overview() {
           borderWidth: "1px",
         }}
       >
-        <DemographicCharts />
+        <DemographicCharts cohort={cohort} />
       </GridBox>
     </GridLayout>
   );
