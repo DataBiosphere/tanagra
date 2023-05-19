@@ -167,7 +167,6 @@ public class StudyDao {
             "properties ->> :properties_key_" + ctr + " LIKE :properties_value_" + ctr);
         params.addValue("properties_key_" + ctr, entry.getKey());
         params.addValue("properties_value_" + ctr, "%" + entry.getValue() + "%");
-        LOGGER.info("key: {}, value: {}", entry.getKey(), "%" + entry.getValue() + "%");
         ctr++;
       }
     }
