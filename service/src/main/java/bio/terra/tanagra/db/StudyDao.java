@@ -6,11 +6,7 @@ import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.service.artifact.Study;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,10 +104,15 @@ public class StudyDao {
    * @return list of all studies
    */
   @ReadTransaction
-  public List<Study> getAllStudies(int offset, int limit) {
-    String sql = STUDY_SELECT_SQL + " ORDER BY display_name OFFSET :offset LIMIT :limit";
+  public List<Study> getAllStudies(int offset, int limit, @Nullable Study.Builder studyFilter) {
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("offset", offset).addValue("limit", limit);
+    String filterSql = renderSqlForStudyFilter(studyFilter, params);
+    String sql =
+        STUDY_SELECT_SQL
+            + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
+            + " ORDER BY display_name OFFSET :offset LIMIT :limit";
     LOGGER.debug("GET all studies: {}", sql);
-    var params = new MapSqlParameterSource().addValue("offset", offset).addValue("limit", limit);
     return jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER);
   }
 
@@ -124,16 +125,55 @@ public class StudyDao {
    * @return list of studies corresponding to input IDs.
    */
   @ReadTransaction
-  public List<Study> getStudiesMatchingList(Set<String> studyIdList, int offset, int limit) {
-    String sql =
-        STUDY_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
-    LOGGER.debug("GET matching studies: {}", sql);
-    var params =
+  public List<Study> getStudiesMatchingList(
+      Set<String> studyIdList, int offset, int limit, @Nullable Study.Builder studyFilter) {
+    MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("ids", studyIdList)
             .addValue("offset", offset)
             .addValue("limit", limit);
+    String filterSql = renderSqlForStudyFilter(studyFilter, params);
+    String sql =
+        STUDY_SELECT_SQL
+            + " WHERE id IN (:ids) "
+            + (filterSql.isEmpty() ? "" : "AND " + filterSql + " ")
+            + "ORDER BY display_name OFFSET :offset LIMIT :limit";
+    LOGGER.debug("GET matching studies: {}", sql);
     return jdbcTemplate.query(sql, params, STUDY_ROW_MAPPER);
+  }
+
+  /** Convert a study filter object into a SQL WHERE clause. */
+  private String renderSqlForStudyFilter(Study.Builder studyFilter, MapSqlParameterSource params) {
+    if (studyFilter == null) {
+      return "";
+    }
+
+    // Filter on the displayName and/or description.
+    List<String> whereConditions = new ArrayList<>();
+    if (studyFilter.getDisplayName() != null && !studyFilter.getDisplayName().isEmpty()) {
+      whereConditions.add("display_name LIKE :display_name_filter");
+      params.addValue("display_name_filter", "%" + studyFilter.getDisplayName() + "%");
+    }
+    if (studyFilter.getDescription() != null && !studyFilter.getDescription().isEmpty()) {
+      whereConditions.add("description LIKE :description_filter");
+      params.addValue("description_filter", "%" + studyFilter.getDescription() + "%");
+    }
+
+    // Filter on specific properties key-value pairs.
+    if (studyFilter.getProperties() != null && !studyFilter.getProperties().isEmpty()) {
+      int ctr = 0;
+      for (Map.Entry<String, String> entry : studyFilter.getProperties().entrySet()) {
+        whereConditions.add(
+            "properties ->> :properties_key_" + ctr + " LIKE :properties_value_" + ctr);
+        params.addValue("properties_key_" + ctr, entry.getKey());
+        params.addValue("properties_value_" + ctr, "%" + entry.getValue() + "%");
+        LOGGER.info("key: {}, value: {}", entry.getKey(), "%" + entry.getValue() + "%");
+        ctr++;
+      }
+    }
+
+    // Build a WHERE clause ready string.
+    return String.join(" AND ", whereConditions);
   }
 
   @ReadTransaction

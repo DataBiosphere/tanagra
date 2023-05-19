@@ -6,14 +6,10 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.StudiesV2Api;
-import bio.terra.tanagra.generated.model.ApiPropertiesV2;
-import bio.terra.tanagra.generated.model.ApiPropertyKeyValueV2;
-import bio.terra.tanagra.generated.model.ApiStudyCreateInfoV2;
-import bio.terra.tanagra.generated.model.ApiStudyListV2;
-import bio.terra.tanagra.generated.model.ApiStudyUpdateInfoV2;
-import bio.terra.tanagra.generated.model.ApiStudyV2;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.StudyService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -70,11 +66,21 @@ public class StudiesV2ApiController implements StudiesV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiStudyListV2> listStudies(Integer offset, Integer limit) {
+  public ResponseEntity<ApiStudyListV2> listStudies(
+      String studyFilterDisplayName,
+      String studyFilterDescription,
+      List<String> studyFilterProperties,
+      Integer offset,
+      Integer limit) {
     ResourceIdCollection authorizedStudyIds =
         accessControlService.listResourceIds(
             SpringAuthentication.getCurrentUser(), STUDY, offset, limit);
-    List<Study> authorizedStudies = studyService.listStudies(authorizedStudyIds, offset, limit);
+    List<Study> authorizedStudies =
+        studyService.listStudies(
+            authorizedStudyIds,
+            offset,
+            limit,
+            fromApiObject(studyFilterDisplayName, studyFilterDescription, studyFilterProperties));
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
     authorizedStudies.stream().forEach(study -> apiStudies.add(toApiObject(study)));
     return ResponseEntity.ok(apiStudies);
@@ -137,5 +143,29 @@ public class StudiesV2ApiController implements StudiesV2Api {
       }
     }
     return ImmutableMap.copyOf(propertyMap);
+  }
+
+  private static Study.Builder fromApiObject(
+      String displayName, String description, List<String> properties) {
+    // Convert the list of properties (key1, value1, key2, value2,...).
+    // The API uses a list parameter here because map query parameters aren't handled by the Java
+    // codegen.
+    Map<String, String> propertiesMap;
+    if (properties == null) {
+      propertiesMap = null;
+    } else {
+      propertiesMap = new HashMap<>();
+      for (int i = 0; i < properties.size(); i += 2) {
+        if (i == properties.size() - 1) {
+          throw new BadRequestException(
+              "Study filter properties map must have an even number of elements: key1, value1, key2, value2.");
+        }
+        propertiesMap.put(properties.get(i), properties.get(i + 1));
+      }
+    }
+    return Study.builder()
+        .displayName(displayName)
+        .description(description)
+        .properties(propertiesMap);
   }
 }

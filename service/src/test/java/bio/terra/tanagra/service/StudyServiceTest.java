@@ -82,11 +82,27 @@ public class StudyServiceTest {
   void listAllOrSelected() {
     // Create two studies.
     String createdByEmail = "abc@123.com";
-    Study study1 = studyService.createStudy(Study.builder().displayName("study 1"), createdByEmail);
+    Study study1 =
+        studyService.createStudy(
+            Study.builder()
+                .displayName("study 1")
+                .description("oneoneone")
+                .properties(Map.of("irb", "123")),
+            createdByEmail);
     assertNotNull(study1);
+    assertEquals(1, study1.getProperties().size());
+    assertEquals("123", study1.getProperties().get("irb"));
     LOGGER.info("Created study {} at {}", study1.getId(), study1.getCreated());
-    Study study2 = studyService.createStudy(Study.builder().displayName("study 2"), createdByEmail);
+    Study study2 =
+        studyService.createStudy(
+            Study.builder()
+                .displayName("study 2")
+                .description("twotwotwo")
+                .properties(Map.of("irb", "456")),
+            createdByEmail);
     assertNotNull(study2);
+    assertEquals(1, study2.getProperties().size());
+    assertEquals("456", study2.getProperties().get("irb"));
     LOGGER.info("Created study {} at {}", study2.getId(), study2.getCreated());
 
     // List all.
@@ -101,6 +117,24 @@ public class StudyServiceTest {
             10);
     assertEquals(1, selectedStudies.size());
     assertEquals(study2.getId(), selectedStudies.get(0).getId());
+
+    // List all with filter.
+    Study.Builder filter1 =
+        Study.builder().displayName("1").description("one").properties(Map.of("irb", "23"));
+    List<Study> allStudiesWithFilter =
+        studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 10, filter1);
+    assertEquals(1, allStudiesWithFilter.size());
+    assertEquals(study1.getId(), allStudiesWithFilter.get(0).getId());
+
+    // List selected with filter.
+    Study.Builder filter2 = Study.builder().properties(Map.of("irb", "45"));
+    List<Study> selectedStudiesWithFilter =
+        studyService.listStudies(
+            ResourceIdCollection.forCollection(List.of(ResourceId.forStudy(study1.getId()))),
+            0,
+            10,
+            filter2);
+    assertTrue(selectedStudiesWithFilter.isEmpty());
   }
 
   @Test
