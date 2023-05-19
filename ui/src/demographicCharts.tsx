@@ -128,14 +128,7 @@ export function DemographicCharts() {
     filterCountValue: FilterCountValue
   ) => {
     let propertyString = "";
-    // TODO(neelismail): Remove property key check once API supports age.
-    let value =
-      filterCountValue[property.key === "age" ? "year_of_birth" : property.key];
-
-    // TODO(neelismail): Remove age handling once the API supports them.
-    if (isValid(value) && property.key === "age" && typeof value === "number") {
-      value = new Date().getFullYear() - value;
-    }
+    const value = filterCountValue[property.key];
 
     if (isValid(value) && property.buckets) {
       property.buckets.forEach((range) => {

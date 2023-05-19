@@ -75,6 +75,7 @@ export type EnumHintOption = {
 };
 
 export type HintData = {
+  attribute: string;
   integerHint?: IntegerHint;
   enumHintOptions?: EnumHintOption[];
 };
@@ -169,8 +170,16 @@ export interface Source {
 
   getHintData(
     occurrenceID: string,
-    attributeID: string
+    attributeID: string,
+    relatedEntity?: string,
+    relatedID?: DataKey
   ): Promise<HintData | undefined>;
+
+  getAllHintData(
+    occurrenceID: string,
+    relatedEntity?: string,
+    relatedID?: DataKey
+  ): Promise<HintData[]>;
 
   filterCount(
     filter: Filter | null,
@@ -556,41 +565,55 @@ export class BackendSource implements Source {
 
   async getHintData(
     occurrenceID: string,
-    attributeID: string
+    attributeID: string,
+    relatedEntity?: string,
+    relatedID?: DataKey
   ): Promise<HintData | undefined> {
     const res = await parseAPIError(
       this.hintsApi.queryHints({
         entityName: findEntity(occurrenceID, this.config).entity,
         underlayName: this.underlay.name,
-        hintQueryV2: {},
+        hintQueryV2:
+          !!relatedEntity && !!relatedID
+            ? {
+                relatedEntity: {
+                  name: relatedEntity,
+                  id: literalFromDataValue(relatedID),
+                },
+              }
+            : {},
       })
     );
 
-    const displayHint = res.displayHints?.find(
+    const hint = res.displayHints?.find(
       (hint) => hint?.attribute?.name === attributeID
-    )?.displayHint;
+    );
 
-    return {
-      integerHint: displayHint?.numericRangeHint
-        ? {
-            min: displayHint?.numericRangeHint.min ?? 0,
-            max: displayHint?.numericRangeHint.max ?? 10000,
-          }
-        : undefined,
-      enumHintOptions: displayHint?.enumHint?.enumHintValues
-        ?.map((enumHintValue) => {
-          if (!enumHintValue.enumVal) {
-            return null;
-          }
+    return fromAPIDisplayHint(hint);
+  }
 
-          const value = dataValueFromLiteral(enumHintValue.enumVal.value);
-          return {
-            value,
-            name: enumHintValue.enumVal.display ?? String(value),
-          };
-        })
-        ?.filter(isValid),
-    };
+  async getAllHintData(
+    occurrenceID: string,
+    relatedEntity?: string,
+    relatedID?: DataKey
+  ): Promise<HintData[]> {
+    const res = await parseAPIError(
+      this.hintsApi.queryHints({
+        entityName: findEntity(occurrenceID, this.config).entity,
+        underlayName: this.underlay.name,
+        hintQueryV2:
+          !!relatedEntity && !!relatedID
+            ? {
+                relatedEntity: {
+                  name: relatedEntity,
+                  id: literalFromDataValue(relatedID),
+                },
+              }
+            : {},
+      })
+    );
+
+    return res.displayHints?.map((hint) => fromAPIDisplayHint(hint)) ?? [];
   }
 
   async filterCount(
@@ -1717,6 +1740,31 @@ function fromAPIAnnotation(annotation: tanagra.AnnotationV2): Annotation {
     displayName: annotation.displayName,
     annotationType: fromAPIAnnotationType(annotation.dataType),
     enumVals: annotation.enumVals,
+  };
+}
+
+function fromAPIDisplayHint(hint?: tanagra.DisplayHintV2): HintData {
+  return {
+    attribute: hint?.attribute?.name ?? "",
+    integerHint: hint?.displayHint?.numericRangeHint
+      ? {
+          min: hint?.displayHint?.numericRangeHint.min ?? 0,
+          max: hint?.displayHint?.numericRangeHint.max ?? 10000,
+        }
+      : undefined,
+    enumHintOptions: hint?.displayHint?.enumHint?.enumHintValues
+      ?.map((enumHintValue) => {
+        if (!enumHintValue.enumVal) {
+          return null;
+        }
+
+        const value = dataValueFromLiteral(enumHintValue.enumVal.value);
+        return {
+          value,
+          name: enumHintValue.enumVal.display ?? String(value),
+        };
+      })
+      ?.filter(isValid),
   };
 }
 
