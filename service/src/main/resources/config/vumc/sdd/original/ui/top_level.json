@@ -120,6 +120,25 @@
         "displayName": "Documents",
         "entity": "note_occurrence",
         "key": "id"
+      },
+      {
+        "id": "measurement_occurrence",
+        "displayName": "Measurement Occurrence",
+        "entity": "measurement_occurrence",
+        "key": "id",
+        "classifications": [
+          {
+            "id": "measurement",
+            "attribute": "measurement",
+            "entity": "measurement",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "t_item_count",
+              "direction": "DESC"
+            }
+          }
+        ]
       }
     ]
   },
@@ -144,7 +163,12 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "condition_occurrence",
-      "classification": "condition"
+      "classification": "condition",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
     },
     {
       "type": "classification",
@@ -166,7 +190,8 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "procedure_occurrence",
-      "classification": "procedure"
+      "classification": "procedure",
+      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
       "type": "classification",
@@ -183,7 +208,8 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "observation_occurrence",
-      "classification": "observation"
+      "classification": "observation",
+      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
       "type": "classification",
@@ -205,7 +231,12 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "ingredient_occurrence",
-      "classification": "ingredient"
+      "classification": "ingredient",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
     },
     {
       "type": "classification",
@@ -221,6 +252,29 @@
       ],
       "occurrence": "",
       "classification": "genotyping"
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-measurement",
+      "title": "Labs and measurements",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_item_count", "width": 120, "title": "Count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Condition" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "measurement_occurrence",
+      "classification": "measurement",
+      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
       "type": "attribute",
@@ -258,7 +312,12 @@
       "category": "Domains",
       "occurrenceId": "note_occurrence",
       "searchAttribute": "title",
-      "categoryAttribute": "note"
+      "categoryAttribute": "note",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
     },
     {
       "type": "classification",
@@ -268,6 +327,34 @@
       "columns": [{ "key": "id", "width": "100%", "title": "SNP variant" }],
       "occurrence": "",
       "classification": "snp"
+    }
+  ],
+  "modifierConfigs": [
+    {
+      "type": "unhinted-value",
+      "id": "start_date_group_by_count",
+      "title": "Occurrence count",
+      "attribute": "start_date",
+      "groupByCount": true
+    },
+    {
+      "type": "unhinted-value",
+      "id": "date_group_by_count",
+      "title": "Occurrence count",
+      "attribute": "date",
+      "groupByCount": true
+    },
+    {
+      "type": "attribute",
+      "id": "visit_type",
+      "title": "Visit type",
+      "attribute": "visit_type"
+    },
+    {
+      "type": "attribute",
+      "id": "age_at_occurrence",
+      "title": "Age at occurrence",
+      "attribute": "age_at_occurrence"
     }
   ],
   "demographicChartConfigs": {
@@ -410,6 +497,25 @@
             { "key": "ingredient", "width": "100%", "title": "Drug name" },
             { "key": "start_date", "width": 200, "title": "Start date" },
             { "key": "end_date", "width": 200, "title": "End date" }
+          ]
+        }
+      },
+      {
+        "type": "occurrenceTable",
+        "id": "measurements",
+        "title": "Labs and measurements",
+        "plugin": {
+          "occurrence": "measurement_occurrence",
+          "columns": [
+            {
+              "key": "measurement",
+              "width": "100%",
+              "title": "Lab/measurement name"
+            },
+            { "key": "date", "width": 200, "title": "Date" },
+            { "key": "value_enum", "width": 160, "title": "Categorical value" },
+            { "key": "value_numeric", "width": 160, "title": "Numeric value" },
+            { "key": "unit", "width": 160, "title": "Unit" }
           ]
         }
       },
