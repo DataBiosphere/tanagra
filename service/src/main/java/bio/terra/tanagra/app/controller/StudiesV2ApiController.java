@@ -67,9 +67,9 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   @Override
   public ResponseEntity<ApiStudyListV2> listStudies(
-      String studyFilterDisplayName,
-      String studyFilterDescription,
-      List<String> studyFilterProperties,
+      String displayName,
+      String description,
+      List<String> properties,
       Integer offset,
       Integer limit) {
     ResourceIdCollection authorizedStudyIds =
@@ -77,10 +77,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
             SpringAuthentication.getCurrentUser(), STUDY, offset, limit);
     List<Study> authorizedStudies =
         studyService.listStudies(
-            authorizedStudyIds,
-            offset,
-            limit,
-            fromApiObject(studyFilterDisplayName, studyFilterDescription, studyFilterProperties));
+            authorizedStudyIds, offset, limit, fromApiObject(displayName, description, properties));
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
     authorizedStudies.stream().forEach(study -> apiStudies.add(toApiObject(study)));
     return ResponseEntity.ok(apiStudies);
@@ -147,7 +144,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   private static Study.Builder fromApiObject(
       String displayName, String description, List<String> properties) {
-    // Convert the list of properties (key1, value1, key2, value2,...).
+    // Convert the list of properties (key1, value1, key2, value2,...) to a map.
     // The API uses a list parameter here because map query parameters aren't handled by the Java
     // codegen.
     Map<String, String> propertiesMap;
