@@ -54,8 +54,6 @@ public final class IapJwtUtils {
                 + ", "
                 + payload.get("email"));
       }
-      LOGGER.info("jwt: {}", jwt);
-      LOGGER.info("email: {}", (String) payload.get("email"));
       return UserId.fromToken(payload.getSubject(), (String) payload.get("email"), jwt);
     } catch (TokenVerifier.VerificationException tve) {
       LOGGER.info("JWT expected audience: {}", expectedAudience);
