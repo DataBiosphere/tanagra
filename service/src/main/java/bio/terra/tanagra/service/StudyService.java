@@ -38,9 +38,17 @@ public class StudyService {
   }
 
   public List<Study> listStudies(ResourceIdCollection authorizedIds, int offset, int limit) {
+    return listStudies(authorizedIds, offset, limit, null);
+  }
+
+  public List<Study> listStudies(
+      ResourceIdCollection authorizedIds,
+      int offset,
+      int limit,
+      @Nullable Study.Builder studyFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
     if (authorizedIds.isAllResourceIds()) {
-      return studyDao.getAllStudies(offset, limit);
+      return studyDao.getAllStudies(offset, limit, studyFilter);
     } else {
       // If the incoming list is empty, the caller does not have permission to see any
       // studies, so we return an empty list.
@@ -52,7 +60,8 @@ public class StudyService {
               .map(ResourceId::getStudy)
               .collect(Collectors.toSet()),
           offset,
-          limit);
+          limit,
+          studyFilter);
     }
   }
 

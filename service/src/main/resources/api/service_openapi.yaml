@@ -234,6 +234,9 @@ paths:
   "/v2/studies":
     get:
       parameters:
+        - $ref: "#/components/parameters/StudyFilterDisplayNameV2"
+        - $ref: "#/components/parameters/StudyFilterDescriptionV2"
+        - $ref: "#/components/parameters/StudyFilterPropertiesV2"
         - $ref: "#/components/parameters/OffsetV2"
         - $ref: "#/components/parameters/LimitV2"
       summary: List all studies a user can read
@@ -942,6 +945,32 @@ components:
         type: integer
         minimum: 1
         default: 15
+
+    StudyFilterDisplayNameV2:
+      name: displayName
+      in: query
+      description: Text search on the study display name
+      required: false
+      schema:
+        type: string
+
+    StudyFilterDescriptionV2:
+      name: description
+      in: query
+      description: Text search on the study description
+      required: false
+      schema:
+        type: string
+
+    StudyFilterPropertiesV2:
+      name: properties
+      in: query
+      description: Text search on the study metadata properties. The list must alternate key1, value1, key2, value2.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
 
   responses:
     NotFound:

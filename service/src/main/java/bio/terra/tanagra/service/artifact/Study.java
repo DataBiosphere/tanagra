@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.artifact;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -179,6 +180,18 @@ public class Study {
 
     public String getId() {
       return id;
+    }
+
+    public String getDisplayName() {
+      return displayName;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
+    public Map<String, String> getProperties() {
+      return properties == null ? null : Collections.unmodifiableMap(properties);
     }
   }
 }
