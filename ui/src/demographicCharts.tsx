@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { FilterCountValue, useSource } from "data/source";
-import { useCohort, useUnderlay } from "hooks";
+import { useUnderlay } from "hooks";
 import { useCallback } from "react";
 import {
   Bar,
@@ -19,6 +19,7 @@ import {
   YAxis,
 } from "recharts";
 import useSWRImmutable from "swr/immutable";
+import * as tanagra from "tanagra-api";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
 import { generateCohortFilter } from "./cohort";
@@ -118,8 +119,11 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
   );
 }
 
-export function DemographicCharts() {
-  const cohort = useCohort();
+export type DemographicChartsProps = {
+  cohort: tanagra.Cohort;
+};
+
+export function DemographicCharts({ cohort }: DemographicChartsProps) {
   const underlay = useUnderlay();
   const source = useSource();
 
@@ -128,14 +132,7 @@ export function DemographicCharts() {
     filterCountValue: FilterCountValue
   ) => {
     let propertyString = "";
-    // TODO(neelismail): Remove property key check once API supports age.
-    let value =
-      filterCountValue[property.key === "age" ? "year_of_birth" : property.key];
-
-    // TODO(neelismail): Remove age handling once the API supports them.
-    if (isValid(value) && property.key === "age" && typeof value === "number") {
-      value = new Date().getFullYear() - value;
-    }
+    const value = filterCountValue[property.key];
 
     if (isValid(value) && property.buckets) {
       property.buckets.forEach((range) => {
@@ -254,7 +251,7 @@ export function DemographicCharts() {
         <Grid item xs={1}>
           {demographicState.data?.totalCount ? (
             <Stack>
-              <Typography variant="h2">{`Total count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
+              <Typography variant="h3">{`Total count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
               {demographicState.data?.chartsData.map((chart, index) => {
                 return (
                   <StackedBarChart

@@ -18,7 +18,10 @@ import SelectablePaper from "components/selectablePaper";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
 import { CohortReview } from "data/types";
+import { DemographicCharts } from "demographicCharts";
 import produce from "immer";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import {
   absoluteCohortReviewListURL,
@@ -316,13 +319,13 @@ function ReviewStats(props: { review: CohortReview }) {
   const navigate = useNavigate();
 
   return (
-    <Stack>
+    <GridLayout rows width="auto">
       <Button variant="contained" onClick={() => navigate("review")}>
         Review
       </Button>
-      <Typography variant="body1">
-        TODO: Statistics for {props.review.displayName}!
-      </Typography>
-    </Stack>
+      <GridBox sx={{ p: 2 }}>
+        <DemographicCharts cohort={props.review.cohort} />
+      </GridBox>
+    </GridLayout>
   );
 }
