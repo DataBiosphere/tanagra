@@ -1,0 +1,58 @@
+{
+  "name": "measurement_occurrence",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "person_id", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "measurement", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "date", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "value_numeric", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "value_enum", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "unit", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_value", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_criteria_id", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit_type" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "measurement_occurrence_all.sql" },
+    "attributeMappings": {
+      "measurement": {
+        "value": { "column": "measurement_concept_id" },
+        "display": {
+          "column": "measurement_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "date": { "value": { "column": "measurement_date" } },
+      "value_enum": {
+        "value": { "column": "value_as_concept_id" },
+        "display": {
+          "column": "value_as_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "unit": {
+        "value": { "column": "unit_concept_id" },
+        "display": {
+          "column": "unit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "visit_type": {
+        "value": { "column": "visit_concept_id" },
+        "display": {
+          "column": "visit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

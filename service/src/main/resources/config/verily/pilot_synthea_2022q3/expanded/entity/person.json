@@ -1,0 +1,246 @@
+{
+  "name" : "person",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "gender",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8532
+          },
+          "display" : "FEMALE"
+        },
+        "count" : 538
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8507
+          },
+          "display" : "MALE"
+        },
+        "count" : 647
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "race",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8515
+          },
+          "display" : "Asian"
+        },
+        "count" : 78
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8516
+          },
+          "display" : "Black or African American"
+        },
+        "count" : 98
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 44
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8527
+          },
+          "display" : "White"
+        },
+        "count" : 965
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "ethnicity",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003563
+          },
+          "display" : "Hispanic or Latino"
+        },
+        "count" : 143
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003564
+          },
+          "display" : "Not Hispanic or Latino"
+        },
+        "count" : 1042
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1.0,
+      "maxVal" : 109.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "year_of_birth",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1913.0,
+      "maxVal" : 2022.0
+    },
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "person"
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "gender_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "race_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "ethnicity_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "birth_datetime",
+          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
+          "runtimeCalculated" : true
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "person"
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_gender",
+          "runtimeCalculated" : false
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_race",
+          "runtimeCalculated" : false
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_ethnicity",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "age",
+          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
+          "runtimeCalculated" : true
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
