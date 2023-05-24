@@ -1,7 +1,8 @@
 databaseChangeLog:
   - changeSet:
-      id: schema_reset
+      id: postgres_schema_reset
       author: marikomedlock
+      dbms: postgres
       changes:
         - createTable:
             tableName: study
