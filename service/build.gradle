@@ -86,6 +86,7 @@ dependencies {
     implementation group: "org.springframework.boot", name: "spring-boot-starter-web"
     implementation group: "org.springframework.boot", name: "spring-boot-starter-data-jdbc"
     implementation group: "org.springframework.security", name: "spring-security-core"
+    implementation 'org.mariadb.jdbc:mariadb-java-client'
 
     // OpenApi(Swagger) dependencies
     implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: jacksonYaml
