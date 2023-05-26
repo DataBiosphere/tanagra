@@ -22,6 +22,7 @@ import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.ReviewInstance;
+import bio.terra.tanagra.service.instances.ReviewQueryResult;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.service.utils.ValidationUtils;
@@ -149,23 +150,30 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiReviewInstanceListV2> listReviewInstancesAndAnnotations(
+  public ResponseEntity<ApiReviewInstanceListResultV2> listReviewInstancesAndAnnotations(
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         QUERY_INSTANCES,
         COHORT_REVIEW,
         ResourceId.forReview(studyId, cohortId, reviewId));
-    ApiReviewInstanceListV2 apiReviewInstances = new ApiReviewInstanceListV2();
-    reviewService
-        .listReviewInstances(
+    ReviewQueryResult reviewQueryResult =
+        reviewService.listReviewInstances(
             studyId,
             cohortId,
             reviewId,
-            fromApiConversionService.fromApiObject(body, studyId, cohortId))
-        .stream()
-        .forEach(reviewInstance -> apiReviewInstances.add(toApiObject(reviewInstance)));
-    return ResponseEntity.ok(apiReviewInstances);
+            fromApiConversionService.fromApiObject(body, studyId, cohortId));
+    return ResponseEntity.ok(
+        new ApiReviewInstanceListResultV2()
+            .instances(
+                reviewQueryResult.getReviewInstances().stream()
+                    .map(reviewInstance -> toApiObject(reviewInstance))
+                    .collect(Collectors.toList()))
+            .sql(reviewQueryResult.getSql())
+            .pageMarker(
+                reviewQueryResult.getPageMarker() == null
+                    ? null
+                    : reviewQueryResult.getPageMarker().serialize()));
   }
 
   @Override

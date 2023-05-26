@@ -71,7 +71,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/" + getSqlDirectoryName() + "/" + getEntity().getName() + "-noFilter.sql");
   }
 
@@ -99,7 +99,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/" + getSqlDirectoryName() + "/" + getEntity().getName() + "-textFilter.sql");
   }
 
@@ -117,7 +117,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -141,7 +141,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -166,7 +166,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -194,7 +194,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -255,7 +255,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -305,7 +305,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -336,7 +336,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"

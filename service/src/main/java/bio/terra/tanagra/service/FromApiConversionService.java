@@ -5,6 +5,7 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
@@ -111,8 +112,6 @@ public final class FromApiConversionService {
           groupByCountValue = apiRelationshipFilter.getGroupByCountValue();
         }
 
-        // TODO: Allow building queries against the source data mapping also.
-
         return new RelationshipFilter(
             entity,
             relationship,
@@ -214,6 +213,8 @@ public final class FromApiConversionService {
         .entityFilter(entityFilter)
         .annotationFilter(annotationFilter)
         .orderBys(orderBys)
+        .pageSize(apiObj.getPageSize())
+        .pageMarker(PageMarker.deserialize(apiObj.getPageMarker()))
         .build();
   }
 

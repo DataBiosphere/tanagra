@@ -130,8 +130,6 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UnderlayNameV2"
       - $ref: "#/components/parameters/EntityNameV2"
-      - $ref: "#/components/parameters/PageSize"
-      - $ref: "#/components/parameters/PageToken"
     post:
       summary: List entity instances
       operationId: listInstances
@@ -148,7 +146,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InstanceListV2"
+                $ref: "#/components/schemas/InstanceListResultV2"
         404:
           $ref: "#/components/responses/NotFound"
         500:
@@ -556,8 +554,6 @@ paths:
       - $ref: "#/components/parameters/StudyIdV2"
       - $ref: "#/components/parameters/CohortIdV2"
       - $ref: "#/components/parameters/ReviewIdV2"
-      - $ref: "#/components/parameters/PageSize"
-      - $ref: "#/components/parameters/PageToken"
     post:
       summary: List primary entity instances in a review and any associated annotation values
       operationId: listReviewInstancesAndAnnotations
@@ -574,7 +570,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReviewInstanceListV2"
+                $ref: "#/components/schemas/ReviewInstanceListResultV2"
         500:
           $ref: "#/components/responses/ServerError"
 
@@ -1384,6 +1380,10 @@ components:
                 $ref: "#/components/schemas/OrderByDirectionV2"
         limit:
           $ref: "#/components/schemas/LimitV2"
+        pageSize:
+          $ref: "#/components/schemas/PageSize"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
 
     CountQueryV2:
       type: object
@@ -1446,6 +1446,10 @@ components:
                 $ref: "#/components/schemas/OrderByDirectionV2"
         limit:
           $ref: "#/components/schemas/LimitV2"
+        pageSize:
+          $ref: "#/components/schemas/PageSize"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
 
     ReviewCountQueryV2:
       type: object
@@ -1620,7 +1624,7 @@ components:
               displayHints:
                 type: string
 
-    InstanceListV2:
+    InstanceListResultV2:
       type: object
       description: List of instances
       properties:
@@ -1630,6 +1634,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/InstanceV2"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
 
     InstanceCountV2:
       type: object
@@ -2260,10 +2266,18 @@ components:
             items:
               $ref: "#/components/schemas/AnnotationValueV2"
 
-    ReviewInstanceListV2:
-      type: array
-      items:
-        $ref: "#/components/schemas/ReviewInstanceV2"
+    ReviewInstanceListResultV2:
+      type: object
+      description: List of instances
+      properties:
+        sql:
+          type: string
+        instances:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReviewInstanceV2"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
 
     VumcAdminServiceTest:
       type: object
@@ -2285,6 +2299,12 @@ components:
           type: array
           items:
             type: string
+
+    PageSize:
+      type: integer
+
+    PageMarker:
+      type: string
 
     ExportFile:
       type: object

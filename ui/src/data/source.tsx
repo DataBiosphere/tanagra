@@ -1242,7 +1242,7 @@ function convertSortDirection(dir: SortDirection) {
 
 function processEntitiesResponse(
   primaryKey: string,
-  response: tanagra.InstanceListV2,
+  response: tanagra.InstanceListResultV2,
   hierarchy?: string,
   grouping?: string
 ): ClassificationNode[] {

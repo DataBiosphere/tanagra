@@ -1,9 +1,6 @@
 package bio.terra.tanagra.query.bigquery;
 
-import bio.terra.tanagra.query.QueryExecutor;
-import bio.terra.tanagra.query.QueryRequest;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.RowResult;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
@@ -26,15 +23,23 @@ public class BigQueryExecutor implements QueryExecutor {
   public QueryResult execute(QueryRequest queryRequest) {
     String sql = queryRequest.getSql();
     LOGGER.info("Running SQL against BigQuery: {}", sql);
-    TableResult tableResult = bigQuery.queryBigQuery(sql);
+    TableResult tableResult =
+        bigQuery.queryBigQuery(
+            sql,
+            queryRequest.getPageMarker() == null
+                ? null
+                : queryRequest.getPageMarker().getPageToken(),
+            queryRequest.getPageSize());
 
+    LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
     Iterable<RowResult> rowResults =
         Iterables.transform(
-            tableResult.getValues(),
+            tableResult.getValues() /* Single page of results. */,
             (FieldValueList fieldValueList) ->
                 new BigQueryRowResult(fieldValueList, queryRequest.getColumnHeaderSchema()));
-
-    return new QueryResult(rowResults, queryRequest.getColumnHeaderSchema());
+    PageMarker nextPageMarker =
+        tableResult.hasNextPage() ? PageMarker.forToken(tableResult.getNextPageToken()) : null;
+    return new QueryResult(rowResults, queryRequest.getColumnHeaderSchema(), nextPageMarker);
   }
 
   @Override

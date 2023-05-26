@@ -21,8 +21,11 @@ import com.google.cloud.bigquery.TableResult;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,6 +186,10 @@ public final class GoogleBigQuery {
     }
   }
 
+  public TableResult queryBigQuery(String query) {
+    return queryBigQuery(query, null, null);
+  }
+
   /**
    * Execute a query.
    *
@@ -190,14 +197,23 @@ public final class GoogleBigQuery {
    * @return the result of the BQ query
    * @throws InterruptedException from the bigQuery.query() method
    */
-  public TableResult queryBigQuery(String query) {
+  public TableResult queryBigQuery(
+      String query, @Nullable String pageToken, @Nullable Integer pageSize) {
     QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
     Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
-    // TODO add pagination. Right now we always only return the first page of results.
+
+    List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
+    queryResultsOptions.add(
+        BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
+    if (pageToken != null) {
+      queryResultsOptions.add(BigQuery.QueryResultsOption.pageToken(pageToken));
+    }
+    if (pageSize != null) {
+      queryResultsOptions.add(BigQuery.QueryResultsOption.pageSize(pageSize));
+    }
+
     return callWithRetries(
-        () ->
-            job.getQueryResults(
-                BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis())),
+        () -> job.getQueryResults(queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0])),
         "Error running BigQuery query: " + query);
   }
 

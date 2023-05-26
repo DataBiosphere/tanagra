@@ -21,6 +21,8 @@ public class Query implements SQLExpression {
   private final HavingFilterVariable having;
   private final Integer limit;
 
+  private final Integer offset;
+
   private Query(Builder builder) {
     this.select = builder.select;
     this.tables = builder.tables;
@@ -29,6 +31,7 @@ public class Query implements SQLExpression {
     this.groupBy = builder.groupBy;
     this.having = builder.having;
     this.limit = builder.limit;
+    this.offset = builder.offset;
   }
 
   @Override
@@ -129,6 +132,16 @@ public class Query implements SQLExpression {
       sql = StringSubstitutor.replace(template, params);
     }
 
+    if (offset != null) {
+      template = "${sql} OFFSET ${offset}";
+      params =
+          ImmutableMap.<String, String>builder()
+              .put("sql", sql)
+              .put("offset", String.valueOf(offset))
+              .build();
+      sql = StringSubstitutor.replace(template, params);
+    }
+
     return sql;
   }
 
@@ -154,6 +167,7 @@ public class Query implements SQLExpression {
     private List<FieldVariable> groupBy;
     private HavingFilterVariable having;
     private Integer limit;
+    private Integer offset;
 
     public Builder select(List<FieldVariable> select) {
       this.select = select;
@@ -187,6 +201,11 @@ public class Query implements SQLExpression {
 
     public Builder limit(Integer limit) {
       this.limit = limit;
+      return this;
+    }
+
+    public Builder offset(Integer offset) {
+      this.offset = offset;
       return this;
     }
 

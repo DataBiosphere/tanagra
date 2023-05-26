@@ -303,13 +303,15 @@ public class ReviewInstanceTest {
 
     // List instances for review2. Request only the gender attribute.
     List<ReviewInstance> reviewInstances2 =
-        reviewService.listReviewInstances(
-            study1.getId(),
-            cohort1.getId(),
-            review2.getId(),
-            ReviewQueryRequest.builder()
-                .attributes(List.of(primaryEntity.getAttribute("gender")))
-                .build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review2.getId(),
+                ReviewQueryRequest.builder()
+                    .attributes(List.of(primaryEntity.getAttribute("gender")))
+                    .build())
+            .getReviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L), idAttr, reviewInstances2);
 
@@ -335,8 +337,13 @@ public class ReviewInstanceTest {
 
     // List instances for review1.
     List<ReviewInstance> reviewInstances1 =
-        reviewService.listReviewInstances(
-            study1.getId(), cohort1.getId(), review1.getId(), ReviewQueryRequest.builder().build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review1.getId(),
+                ReviewQueryRequest.builder().build())
+            .getReviewInstances();
     checkEntityInstances(
         List.of(2_014_950L, 1_858_841L, 2_180_409L), primaryEntityIdAttribute, reviewInstances1);
     checkAnnotationValues(
@@ -421,8 +428,13 @@ public class ReviewInstanceTest {
 
     // List instances for review2.
     List<ReviewInstance> reviewInstances2 =
-        reviewService.listReviewInstances(
-            study1.getId(), cohort1.getId(), review2.getId(), ReviewQueryRequest.builder().build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review2.getId(),
+                ReviewQueryRequest.builder().build())
+            .getReviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L),
         primaryEntityIdAttribute,
@@ -530,8 +542,13 @@ public class ReviewInstanceTest {
 
     // List instances for review3.
     List<ReviewInstance> reviewInstances3 =
-        reviewService.listReviewInstances(
-            study1.getId(), cohort1.getId(), review3.getId(), ReviewQueryRequest.builder().build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review3.getId(),
+                ReviewQueryRequest.builder().build())
+            .getReviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 2_180_409L, 1_838_382L), primaryEntityIdAttribute, reviewInstances3);
     checkAnnotationValues(
@@ -608,8 +625,13 @@ public class ReviewInstanceTest {
 
     // List instances for review4.
     List<ReviewInstance> reviewInstances4 =
-        reviewService.listReviewInstances(
-            study1.getId(), cohort1.getId(), review4.getId(), ReviewQueryRequest.builder().build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder().build())
+            .getReviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 1_838_382L, 799_353L, 2_104_705L),
         primaryEntityIdAttribute,
@@ -680,16 +702,18 @@ public class ReviewInstanceTest {
 
     // Order by an entity attribute.
     List<ReviewInstance> reviewInstancesByAttr =
-        reviewService.listReviewInstances(
-            study1.getId(),
-            cohort1.getId(),
-            review4.getId(),
-            ReviewQueryRequest.builder()
-                .orderBys(
-                    List.of(
-                        new ReviewQueryOrderBy(
-                            primaryEntityIdAttribute, OrderByDirection.DESCENDING)))
-                .build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder()
+                    .orderBys(
+                        List.of(
+                            new ReviewQueryOrderBy(
+                                primaryEntityIdAttribute, OrderByDirection.DESCENDING)))
+                    .build())
+            .getReviewInstances();
     assertEquals(
         List.of(2_104_705L, 1_858_841L, 1_838_382L, 799_353L),
         reviewInstancesByAttr.stream()
@@ -700,14 +724,17 @@ public class ReviewInstanceTest {
 
     // Order by an annotation key.
     List<ReviewInstance> reviewInstancesByAnn =
-        reviewService.listReviewInstances(
-            study1.getId(),
-            cohort1.getId(),
-            review4.getId(),
-            ReviewQueryRequest.builder()
-                .orderBys(
-                    List.of(new ReviewQueryOrderBy(annotationKey2, OrderByDirection.DESCENDING)))
-                .build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder()
+                    .orderBys(
+                        List.of(
+                            new ReviewQueryOrderBy(annotationKey2, OrderByDirection.DESCENDING)))
+                    .build())
+            .getReviewInstances();
     assertEquals(
         List.of(2_104_705L, 1_838_382L, 1_858_841L, 799_353L),
         reviewInstancesByAnn.stream()
@@ -718,17 +745,19 @@ public class ReviewInstanceTest {
 
     // Order by both.
     List<ReviewInstance> reviewInstancesByBoth =
-        reviewService.listReviewInstances(
-            study1.getId(),
-            cohort1.getId(),
-            review4.getId(),
-            ReviewQueryRequest.builder()
-                .orderBys(
-                    List.of(
-                        new ReviewQueryOrderBy(annotationKey1, OrderByDirection.ASCENDING),
-                        new ReviewQueryOrderBy(
-                            primaryEntityIdAttribute, OrderByDirection.ASCENDING)))
-                .build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder()
+                    .orderBys(
+                        List.of(
+                            new ReviewQueryOrderBy(annotationKey1, OrderByDirection.ASCENDING),
+                            new ReviewQueryOrderBy(
+                                primaryEntityIdAttribute, OrderByDirection.ASCENDING)))
+                    .build())
+            .getReviewInstances();
     assertEquals(
         List.of(799_353L, 1_838_382L, 1_858_841L, 2_104_705L),
         reviewInstancesByBoth.stream()
@@ -744,17 +773,19 @@ public class ReviewInstanceTest {
 
     // Filter by an entity attribute.
     List<ReviewInstance> reviewInstancesByAttr =
-        reviewService.listReviewInstances(
-            study1.getId(),
-            cohort1.getId(),
-            review4.getId(),
-            ReviewQueryRequest.builder()
-                .entityFilter(
-                    new AttributeFilter(
-                        primaryEntity.getAttribute("gender"),
-                        BinaryFilterVariable.BinaryOperator.EQUALS,
-                        new Literal(8_532L)))
-                .build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder()
+                    .entityFilter(
+                        new AttributeFilter(
+                            primaryEntity.getAttribute("gender"),
+                            BinaryFilterVariable.BinaryOperator.EQUALS,
+                            new Literal(8_532L)))
+                    .build())
+            .getReviewInstances();
     assertEquals(
         List.of(1_858_841L),
         reviewInstancesByAttr.stream()
@@ -768,17 +799,19 @@ public class ReviewInstanceTest {
 
     // Filter by an annotation key.
     List<ReviewInstance> reviewInstancesByAnn =
-        reviewService.listReviewInstances(
-            study1.getId(),
-            cohort1.getId(),
-            review4.getId(),
-            ReviewQueryRequest.builder()
-                .annotationFilter(
-                    new AnnotationFilter(
-                        annotationKey2,
-                        BinaryFilterVariable.BinaryOperator.EQUALS,
-                        new Literal("str128")))
-                .build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder()
+                    .annotationFilter(
+                        new AnnotationFilter(
+                            annotationKey2,
+                            BinaryFilterVariable.BinaryOperator.EQUALS,
+                            new Literal("str128")))
+                    .build())
+            .getReviewInstances();
     assertEquals(
         List.of(2_104_705L),
         reviewInstancesByAnn.stream()
@@ -792,22 +825,24 @@ public class ReviewInstanceTest {
 
     // Filter by both.
     List<ReviewInstance> reviewInstancesByBoth =
-        reviewService.listReviewInstances(
-            study1.getId(),
-            cohort1.getId(),
-            review4.getId(),
-            ReviewQueryRequest.builder()
-                .entityFilter(
-                    new AttributeFilter(
-                        primaryEntity.getAttribute("gender"),
-                        BinaryFilterVariable.BinaryOperator.EQUALS,
-                        new Literal(8_507L)))
-                .annotationFilter(
-                    new AnnotationFilter(
-                        annotationKey1,
-                        BinaryFilterVariable.BinaryOperator.EQUALS,
-                        new Literal(115L)))
-                .build());
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder()
+                    .entityFilter(
+                        new AttributeFilter(
+                            primaryEntity.getAttribute("gender"),
+                            BinaryFilterVariable.BinaryOperator.EQUALS,
+                            new Literal(8_507L)))
+                    .annotationFilter(
+                        new AnnotationFilter(
+                            annotationKey1,
+                            BinaryFilterVariable.BinaryOperator.EQUALS,
+                            new Literal(115L)))
+                    .build())
+            .getReviewInstances();
     assertEquals(
         List.of(2_104_705L),
         reviewInstancesByBoth.stream()

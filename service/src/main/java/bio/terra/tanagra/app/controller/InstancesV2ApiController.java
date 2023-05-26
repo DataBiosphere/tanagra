@@ -7,26 +7,16 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
-import bio.terra.tanagra.generated.model.ApiCountQueryV2;
-import bio.terra.tanagra.generated.model.ApiExportFile;
-import bio.terra.tanagra.generated.model.ApiInstanceCountListV2;
-import bio.terra.tanagra.generated.model.ApiInstanceListV2;
-import bio.terra.tanagra.generated.model.ApiInstanceV2;
-import bio.terra.tanagra.generated.model.ApiInstanceV2HierarchyFields;
-import bio.terra.tanagra.generated.model.ApiInstanceV2RelationshipFields;
-import bio.terra.tanagra.generated.model.ApiQueryV2;
-import bio.terra.tanagra.generated.model.ApiValueDisplayV2;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.instances.EntityInstance;
-import bio.terra.tanagra.service.instances.EntityInstanceCount;
-import bio.terra.tanagra.service.instances.EntityQueryOrderBy;
-import bio.terra.tanagra.service.instances.EntityQueryRequest;
+import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.service.utils.ValidationUtils;
@@ -68,15 +58,13 @@ public class InstancesV2ApiController implements InstancesV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiInstanceListV2> queryInstances(
+  public ResponseEntity<ApiInstanceListResultV2> listInstances(
       String underlayName, String entityName, ApiQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         QUERY_INSTANCES,
         UNDERLAY,
         ResourceId.forUnderlay(underlayName));
-
-    ValidationUtils.validateApiFilter(body.getFilter());
 
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = selectAttributesFromRequest(body, entity);
@@ -86,11 +74,12 @@ public class InstancesV2ApiController implements InstancesV2Api {
     List<EntityQueryOrderBy> entityOrderBys = entityOrderBysFromRequest(body, entity, underlayName);
     EntityFilter entityFilter = null;
     if (body.getFilter() != null) {
+      ValidationUtils.validateApiFilter(body.getFilter());
       entityFilter = fromApiConversionService.fromApiObject(body.getFilter(), entity, underlayName);
     }
 
-    QueryRequest queryRequest =
-        querysService.buildInstancesQuery(
+    EntityQueryResult entityQueryResult =
+        querysService.listEntityInstances(
             new EntityQueryRequest.Builder()
                 .entity(entity)
                 .mappingType(Underlay.MappingType.INDEX)
@@ -100,24 +89,20 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 .filter(entityFilter)
                 .orderBys(entityOrderBys)
                 .limit(body.getLimit())
+                .pageSize(body.getPageSize())
+                .pageMarker(PageMarker.deserialize(body.getPageMarker()))
                 .build());
-    DataPointer indexDataPointer =
-        entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer();
-    List<EntityInstance> entityInstances =
-        querysService.runInstancesQuery(
-            indexDataPointer,
-            selectAttributes,
-            selectHierarchyFields,
-            selectRelationshipFields,
-            queryRequest);
-
     return ResponseEntity.ok(
-        new ApiInstanceListV2()
+        new ApiInstanceListResultV2()
             .instances(
-                entityInstances.stream()
+                entityQueryResult.getEntityInstances().stream()
                     .map(entityInstance -> toApiObject(entityInstance))
                     .collect(Collectors.toList()))
-            .sql(queryRequest.getSql()));
+            .sql(entityQueryResult.getSql())
+            .pageMarker(
+                entityQueryResult.getPageMarker() == null
+                    ? null
+                    : entityQueryResult.getPageMarker().serialize()));
   }
 
   private ApiInstanceV2 toApiObject(EntityInstance entityInstance) {
@@ -274,17 +259,17 @@ public class InstancesV2ApiController implements InstancesV2Api {
     }
 
     QueryRequest queryRequest =
-        querysService.buildInstancesQuery(
-            new EntityQueryRequest.Builder()
-                .entity(entity)
-                .mappingType(Underlay.MappingType.INDEX)
-                .selectAttributes(selectAttributes)
-                .selectHierarchyFields(selectHierarchyFields)
-                .selectRelationshipFields(selectRelationshipFields)
-                .filter(entityFilter)
-                .orderBys(entityOrderBys)
-                .limit(body.getLimit())
-                .build());
+        new EntityQueryRequest.Builder()
+            .entity(entity)
+            .mappingType(Underlay.MappingType.INDEX)
+            .selectAttributes(selectAttributes)
+            .selectHierarchyFields(selectHierarchyFields)
+            .selectRelationshipFields(selectRelationshipFields)
+            .filter(entityFilter)
+            .orderBys(entityOrderBys)
+            .limit(body.getLimit())
+            .build()
+            .buildInstancesQuery();
     DataPointer indexDataPointer =
         entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer();
     String gcsSignedUrl =

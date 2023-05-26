@@ -1,6 +1,7 @@
 package bio.terra.tanagra.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -119,5 +120,20 @@ public final class JacksonMapper {
 
     LOGGER.debug("Serializing object with Jackson to file: {}", path);
     objectWriter.writeValue(path.toFile(), javaObject);
+  }
+
+  public static <T> String serializeJavaObject(T javaObject) throws JsonProcessingException {
+    if (javaObject == null) {
+      return null;
+    }
+    return getMapper().writeValueAsString(javaObject);
+  }
+
+  public static <T> T deserializeJavaObject(String jsonStr, Class<T> javaObjectClass)
+      throws JsonProcessingException {
+    if (jsonStr == null || jsonStr.isEmpty()) {
+      return null;
+    }
+    return getMapper().readValue(jsonStr, javaObjectClass);
   }
 }

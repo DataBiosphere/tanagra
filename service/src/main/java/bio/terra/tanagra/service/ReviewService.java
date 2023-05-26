@@ -4,13 +4,7 @@ import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraExportConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.QueryRequest;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -178,120 +172,9 @@ public class ReviewService {
     return reviewDao.getReview(reviewId);
   }
 
-  /**
-   * Run a breakdown query on all the entity instances that are part of a review. Return the counts
-   * and the generated SQL string.
-   */
-  public Pair<String, List<EntityInstanceCount>> countReviewInstances(
-      String studyId, String cohortId, String reviewId, List<String> groupByAttributeNames) {
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity entity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
-    List<Attribute> groupByAttributes =
-        groupByAttributeNames.stream()
-            .map(attrName -> entity.getAttribute(attrName))
-            .collect(Collectors.toList());
-
-    EntityFilter entityFilter =
-        new AttributeFilter(
-            entity.getIdAttribute(),
-            FunctionFilterVariable.FunctionTemplate.IN,
-            reviewDao.getPrimaryEntityIds(reviewId));
-    QueryRequest queryRequest =
-        querysService.buildInstanceCountsQuery(
-            entity, Underlay.MappingType.INDEX, groupByAttributes, entityFilter);
-    return Pair.of(
-        queryRequest.getSql(),
-        querysService.runInstanceCountsQuery(
-            entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer(),
-            groupByAttributes,
-            queryRequest));
-  }
-
-  public List<ReviewInstance> listReviewInstances(
-      String studyId, String cohortId, String reviewId, ReviewQueryRequest reviewQueryRequest) {
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity primaryEntity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
-
-    // Make sure the entity ID attribute is included, so we can match the entity instances to their
-    // associated annotations.
-    Attribute idAttribute = primaryEntity.getIdAttribute();
-    if (!reviewQueryRequest.getAttributes().contains(idAttribute)) {
-      reviewQueryRequest.addAttribute(idAttribute);
-    }
-
-    // Add a filter on the entity: ID is included in the review.
-    EntityFilter entityFilter =
-        new AttributeFilter(
-            idAttribute,
-            FunctionFilterVariable.FunctionTemplate.IN,
-            reviewDao.getPrimaryEntityIds(reviewId));
-    if (reviewQueryRequest.getEntityFilter() != null) {
-      entityFilter =
-          new BooleanAndOrFilter(
-              BooleanAndOrFilterVariable.LogicalOperator.AND,
-              List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
-    }
-
-    // Build and run the query for entity instances against the index dataset.
-    QueryRequest queryRequest =
-        querysService.buildInstancesQuery(
-            new EntityQueryRequest.Builder()
-                .entity(primaryEntity)
-                .mappingType(Underlay.MappingType.INDEX)
-                .selectAttributes(reviewQueryRequest.getAttributes())
-                .selectHierarchyFields(Collections.EMPTY_LIST)
-                .selectRelationshipFields(Collections.EMPTY_LIST)
-                .filter(entityFilter)
-                .build());
-    DataPointer indexDataPointer =
-        primaryEntity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer();
-    List<EntityInstance> entityInstances =
-        querysService.runInstancesQuery(
-            indexDataPointer,
-            reviewQueryRequest.getAttributes(),
-            Collections.EMPTY_LIST,
-            Collections.EMPTY_LIST,
-            queryRequest);
-
-    // Get the annotation values.
-    List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId, reviewId);
-
-    // Merge entity instances and annotation values, filtering out any instances that don't match
-    // the annotation filter (if specified).
-    List<ReviewInstance> reviewInstances = new ArrayList<>();
-    entityInstances.stream()
-        .forEach(
-            ei -> {
-              Literal entityInstanceId = ei.getAttributeValues().get(idAttribute).getValue();
-
-              // TODO: Handle ID data types other than long.
-              String entityInstanceIdStr = entityInstanceId.getInt64Val().toString();
-
-              List<AnnotationValue> associatedAnnotationValues =
-                  annotationValues.stream()
-                      .filter(av -> av.getInstanceId().equals(entityInstanceIdStr))
-                      .collect(Collectors.toList());
-
-              if (!reviewQueryRequest.hasAnnotationFilter()
-                  || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
-                reviewInstances.add(
-                    new ReviewInstance(ei.getAttributeValues(), associatedAnnotationValues));
-              }
-            });
-
-    // Order by the attributes and annotation values, preserving the list order.
-    if (!reviewQueryRequest.getOrderBys().isEmpty()) {
-      Comparator<ReviewInstance> comparator = null;
-      for (ReviewQueryOrderBy reviewOrderBy : reviewQueryRequest.getOrderBys()) {
-        if (comparator == null) {
-          comparator = Comparator.comparing(Function.identity(), reviewOrderBy::compare);
-        } else {
-          comparator = comparator.thenComparing(Function.identity(), reviewOrderBy::compare);
-        }
-      }
-      reviewInstances.sort(comparator);
-    }
-    return reviewInstances;
+  @VisibleForTesting
+  public List<AnnotationValue> listAnnotationValues(String studyId, String cohortId) {
+    return listAnnotationValues(studyId, cohortId, null);
   }
 
   @VisibleForTesting
@@ -383,9 +266,128 @@ public class ReviewService {
     return filteredValues;
   }
 
-  @VisibleForTesting
-  public List<AnnotationValue> listAnnotationValues(String studyId, String cohortId) {
-    return listAnnotationValues(studyId, cohortId, null);
+  public ReviewQueryResult listReviewInstances(
+      String studyId, String cohortId, String reviewId, ReviewQueryRequest reviewQueryRequest) {
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Entity primaryEntity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
+
+    // Make sure the entity ID attribute is included, so we can match the entity instances to their
+    // associated annotations.
+    Attribute idAttribute = primaryEntity.getIdAttribute();
+    if (!reviewQueryRequest.getAttributes().contains(idAttribute)) {
+      reviewQueryRequest.addAttribute(idAttribute);
+    }
+
+    // Add a filter on the entity: ID is included in the review.
+    EntityFilter entityFilter =
+        new AttributeFilter(
+            idAttribute,
+            FunctionFilterVariable.FunctionTemplate.IN,
+            reviewDao.getPrimaryEntityIds(reviewId));
+    if (reviewQueryRequest.getEntityFilter() != null) {
+      entityFilter =
+          new BooleanAndOrFilter(
+              BooleanAndOrFilterVariable.LogicalOperator.AND,
+              List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
+    }
+
+    // Get all the entity instances.
+    EntityQueryResult entityQueryResult =
+        querysService.listEntityInstances(
+            new EntityQueryRequest.Builder()
+                .entity(primaryEntity)
+                .mappingType(Underlay.MappingType.INDEX)
+                .selectAttributes(reviewQueryRequest.getAttributes())
+                .selectHierarchyFields(List.of())
+                .selectRelationshipFields(List.of())
+                .filter(entityFilter)
+                .build());
+
+    // Get the annotation values.
+    List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId, reviewId);
+
+    // Merge entity instances and annotation values, filtering out any instances that don't match
+    // the annotation filter (if specified).
+    List<ReviewInstance> reviewInstances = new ArrayList<>();
+    entityQueryResult.getEntityInstances().stream()
+        .forEach(
+            ei -> {
+              Literal entityInstanceId = ei.getAttributeValues().get(idAttribute).getValue();
+
+              // TODO: Handle ID data types other than long.
+              String entityInstanceIdStr = entityInstanceId.getInt64Val().toString();
+
+              List<AnnotationValue> associatedAnnotationValues =
+                  annotationValues.stream()
+                      .filter(av -> av.getInstanceId().equals(entityInstanceIdStr))
+                      .collect(Collectors.toList());
+
+              if (!reviewQueryRequest.hasAnnotationFilter()
+                  || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
+                reviewInstances.add(
+                    new ReviewInstance(ei.getAttributeValues(), associatedAnnotationValues));
+              }
+            });
+
+    // Order by the attributes and annotation values, preserving the list order.
+    if (!reviewQueryRequest.getOrderBys().isEmpty()) {
+      Comparator<ReviewInstance> comparator = null;
+      for (ReviewQueryOrderBy reviewOrderBy : reviewQueryRequest.getOrderBys()) {
+        if (comparator == null) {
+          comparator = Comparator.comparing(Function.identity(), reviewOrderBy::compare);
+        } else {
+          comparator = comparator.thenComparing(Function.identity(), reviewOrderBy::compare);
+        }
+      }
+      reviewInstances.sort(comparator);
+    }
+
+    // Return only the page of results the user requested.
+    boolean hasOffset =
+        reviewQueryRequest.getPageMarker() != null
+            && reviewQueryRequest.getPageMarker().getOffset() != null;
+    int offset = hasOffset ? reviewQueryRequest.getPageMarker().getOffset() : 0;
+    boolean hasPageSize = reviewQueryRequest.getPageSize() != null;
+    int lastIndexPlusOne =
+        hasPageSize
+            ? Math.min(offset + reviewQueryRequest.getPageSize(), reviewInstances.size())
+            : reviewInstances.size();
+    PageMarker nextPageMarker =
+        lastIndexPlusOne >= reviewInstances.size() ? null : PageMarker.forOffset(lastIndexPlusOne);
+
+    return new ReviewQueryResult(
+        entityQueryResult.getSql(),
+        reviewInstances.subList(offset, lastIndexPlusOne),
+        nextPageMarker);
+  }
+
+  /**
+   * Run a breakdown query on all the entity instances that are part of a review. Return the counts
+   * and the generated SQL string.
+   */
+  public Pair<String, List<EntityInstanceCount>> countReviewInstances(
+      String studyId, String cohortId, String reviewId, List<String> groupByAttributeNames) {
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+    Entity entity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
+    List<Attribute> groupByAttributes =
+        groupByAttributeNames.stream()
+            .map(attrName -> entity.getAttribute(attrName))
+            .collect(Collectors.toList());
+
+    EntityFilter entityFilter =
+        new AttributeFilter(
+            entity.getIdAttribute(),
+            FunctionFilterVariable.FunctionTemplate.IN,
+            reviewDao.getPrimaryEntityIds(reviewId));
+    QueryRequest queryRequest =
+        querysService.buildInstanceCountsQuery(
+            entity, Underlay.MappingType.INDEX, groupByAttributes, entityFilter);
+    return Pair.of(
+        queryRequest.getSql(),
+        querysService.runInstanceCountsQuery(
+            entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer(),
+            groupByAttributes,
+            queryRequest));
   }
 
   public String exportAnnotationValuesToGcs(String studyId, String cohortId) {

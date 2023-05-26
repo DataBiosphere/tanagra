@@ -13,23 +13,12 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.configuration.TanagraExportConfiguration;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.FilterVariable;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.QueryRequest;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.RowResult;
-import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.instances.EntityInstance;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
+import bio.terra.tanagra.service.instances.EntityQueryResult;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AttributeMapping;
@@ -38,13 +27,8 @@ import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
-import bio.terra.tanagra.underlay.EntityMapping;
 import bio.terra.tanagra.underlay.Hierarchy;
-import bio.terra.tanagra.underlay.HierarchyField;
-import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Relationship;
-import bio.terra.tanagra.underlay.RelationshipField;
-import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import bio.terra.tanagra.underlay.displayhint.EnumVal;
@@ -81,120 +65,28 @@ public class QuerysService {
     this.tanagraExportConfiguration = tanagraExportConfiguration;
   }
 
-  public QueryRequest buildInstancesQuery(EntityQueryRequest entityQueryRequest) {
-    EntityMapping entityMapping =
-        entityQueryRequest.getEntity().getMapping(entityQueryRequest.getMappingType());
-    TableVariable entityTableVar = TableVariable.forPrimary(entityMapping.getTablePointer());
-    List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
+  public EntityQueryResult listEntityInstances(EntityQueryRequest entityQueryRequest) {
+    QueryRequest queryRequest = entityQueryRequest.buildInstancesQuery();
+    DataPointer indexDataPointer =
+        entityQueryRequest
+            .getEntity()
+            .getMapping(entityQueryRequest.getMappingType())
+            .getTablePointer()
+            .getDataPointer();
+    QueryResult queryResult = indexDataPointer.getQueryExecutor().execute(queryRequest);
 
-    // build the SELECT field variables and column schemas from attributes
-    List<FieldVariable> selectFieldVars = new ArrayList<>();
-    List<ColumnSchema> columnSchemas = new ArrayList<>();
-    entityQueryRequest.getSelectAttributes().stream()
-        .forEach(
-            attribute -> {
-              AttributeMapping attributeMapping =
-                  attribute.getMapping(entityQueryRequest.getMappingType());
-              selectFieldVars.addAll(
-                  attributeMapping.buildFieldVariables(entityTableVar, tableVars));
-              columnSchemas.addAll(attributeMapping.buildColumnSchemas());
-            });
-
-    // build the additional SELECT field variables and column schemas from hierarchy fields
-    entityQueryRequest.getSelectHierarchyFields().stream()
-        .forEach(
-            hierarchyField -> {
-              HierarchyMapping hierarchyMapping =
-                  entityQueryRequest
-                      .getEntity()
-                      .getHierarchy(hierarchyField.getHierarchy().getName())
-                      .getMapping(entityQueryRequest.getMappingType());
-              selectFieldVars.add(
-                  hierarchyField.buildFieldVariableFromEntityId(
-                      hierarchyMapping, entityTableVar, tableVars));
-              columnSchemas.add(hierarchyField.buildColumnSchema());
-            });
-
-    // build the additional SELECT field variables and column schemas from relationship fields
-    entityQueryRequest.getSelectRelationshipFields().stream()
-        .forEach(
-            relationshipField -> {
-              RelationshipMapping relationshipMapping =
-                  relationshipField
-                      .getRelationship()
-                      .getMapping(entityQueryRequest.getMappingType());
-              selectFieldVars.add(
-                  relationshipField.buildFieldVariableFromEntityId(
-                      relationshipMapping, entityTableVar, tableVars));
-              columnSchemas.add(relationshipField.buildColumnSchema());
-            });
-
-    // build the ORDER BY field variables from attributes and relationship fields
-    List<OrderByVariable> orderByVars =
-        entityQueryRequest.getOrderBys().stream()
-            .map(
-                entityOrderBy -> {
-                  FieldVariable fieldVar;
-                  if (entityOrderBy.isByAttribute()) {
-                    fieldVar =
-                        entityOrderBy
-                            .getAttribute()
-                            .getMapping(entityQueryRequest.getMappingType())
-                            .buildValueFieldVariable(entityTableVar, tableVars);
-                  } else {
-                    RelationshipMapping relationshipMapping =
-                        entityOrderBy
-                            .getRelationshipField()
-                            .getRelationship()
-                            .getMapping(entityQueryRequest.getMappingType());
-                    fieldVar =
-                        entityOrderBy
-                            .getRelationshipField()
-                            .buildFieldVariableFromEntityId(
-                                relationshipMapping, entityTableVar, tableVars);
-                  }
-                  return new OrderByVariable(fieldVar, entityOrderBy.getDirection());
-                })
-            .collect(Collectors.toList());
-
-    // build the WHERE filter variables from the entity filter
-    FilterVariable filterVar =
-        entityQueryRequest.getFilter() == null
-            ? null
-            : entityQueryRequest.getFilter().getFilterVariable(entityTableVar, tableVars);
-
-    Query query =
-        new Query.Builder()
-            .select(selectFieldVars)
-            .tables(tableVars)
-            .where(filterVar)
-            .orderBy(orderByVars)
-            .limit(entityQueryRequest.getLimit())
-            .build();
-    LOGGER.info("Generated query: {}", query.renderSQL());
-
-    return new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
-  }
-
-  public List<EntityInstance> runInstancesQuery(
-      DataPointer dataPointer,
-      List<Attribute> selectAttributes,
-      List<HierarchyField> selectHierarchyFields,
-      List<RelationshipField> selectRelationshipFields,
-      QueryRequest queryRequest) {
-    QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
-
-    List<EntityInstance> instances = new ArrayList<>();
+    List<EntityInstance> entityInstances = new ArrayList<>();
     Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
     while (rowResultsItr.hasNext()) {
-      instances.add(
+      entityInstances.add(
           EntityInstance.fromRowResult(
               rowResultsItr.next(),
-              selectAttributes,
-              selectHierarchyFields,
-              selectRelationshipFields));
+              entityQueryRequest.getSelectAttributes(),
+              entityQueryRequest.getSelectHierarchyFields(),
+              entityQueryRequest.getSelectRelationshipFields()));
     }
-    return instances;
+    return new EntityQueryResult(
+        queryRequest.getSql(), entityInstances, queryResult.getNextPageMarker());
   }
 
   /** @return GCS signed URL of GCS file containing dataset CSV */

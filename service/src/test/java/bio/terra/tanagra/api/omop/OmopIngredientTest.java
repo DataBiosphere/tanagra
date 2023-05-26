@@ -83,7 +83,7 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/" + getSqlDirectoryName() + "/ingredient-relationshipFilter.sql");
   }
 
