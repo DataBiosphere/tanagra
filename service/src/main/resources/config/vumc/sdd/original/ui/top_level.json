@@ -414,8 +414,8 @@
       "occurrence": "ingredient_occurrence",
       "filter": {
         "type": "CLASSIFICATION",
-        "occurrenceID": "ingredient_occurrence",
-        "classificationID": "ingredient",
+        "occurrenceId": "ingredient_occurrence",
+        "classificationId": "ingredient",
         "keys": [21604253]
       }
     }
