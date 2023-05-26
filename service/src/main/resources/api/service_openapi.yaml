@@ -130,9 +130,11 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UnderlayNameV2"
       - $ref: "#/components/parameters/EntityNameV2"
+      - $ref: "#/components/parameters/PageSize"
+      - $ref: "#/components/parameters/PageToken"
     post:
-      summary: Query entity instances
-      operationId: queryInstances
+      summary: List entity instances
+      operationId: listInstances
       tags: [InstancesV2]
       requestBody:
         required: true
@@ -554,6 +556,8 @@ paths:
       - $ref: "#/components/parameters/StudyIdV2"
       - $ref: "#/components/parameters/CohortIdV2"
       - $ref: "#/components/parameters/ReviewIdV2"
+      - $ref: "#/components/parameters/PageSize"
+      - $ref: "#/components/parameters/PageToken"
     post:
       summary: List primary entity instances in a review and any associated annotation values
       operationId: listReviewInstancesAndAnnotations
