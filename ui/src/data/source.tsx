@@ -370,7 +370,7 @@ export class BackendSource implements Source {
     );
 
     const promises = [
-      this.instancesApi.queryInstances(
+      this.instancesApi.listInstances(
         searchRequest(
           requestedAttributes,
           this.underlay,
@@ -386,7 +386,7 @@ export class BackendSource implements Source {
     if (options?.includeGroupings) {
       promises.push(
         ...(classification.groupings?.map((grouping) =>
-          this.instancesApi.queryInstances(
+          this.instancesApi.listInstances(
             searchRequest(
               requestedAttributes,
               this.underlay,
@@ -438,7 +438,7 @@ export class BackendSource implements Source {
 
     return parseAPIError(
       this.instancesApi
-        .queryInstances({
+        .listInstances({
           entityName: classification.entity,
           underlayName: this.underlay.name,
           queryV2: {
@@ -511,7 +511,7 @@ export class BackendSource implements Source {
     const entity = findEntity(occurrenceID, this.config);
 
     const res = await parseAPIError(
-      this.instancesApi.queryInstances({
+      this.instancesApi.listInstances({
         entityName: entity.entity,
         underlayName: this.underlay.name,
         queryV2: this.makeQuery(

@@ -138,7 +138,7 @@ class FakeEntitiesApi {
 }
 
 class FakeInstancesApi {
-  async queryInstances(): Promise<tanagra.InstanceListResultV2> {
+  async listInstances(): Promise<tanagra.InstanceListResultV2> {
     return {
       sql: "SELECT * FROM table WHERE xyz;",
       instances: [
