@@ -775,11 +775,16 @@ export class BackendSource implements Source {
           },
         })
         .then((res) => {
-              return res.instances==null ? [] : res.instances.map((i) =>
-                fromAPIReviewInstance(reviewId, this.config.primaryEntity.key, i)
+          return res.instances == null
+            ? []
+            : res.instances.map((i) =>
+                fromAPIReviewInstance(
+                  reviewId,
+                  this.config.primaryEntity.key,
+                  i
+                )
               );
-          }
-        )
+        })
     );
   }
 
