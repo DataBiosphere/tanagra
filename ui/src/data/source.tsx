@@ -774,10 +774,11 @@ export class BackendSource implements Source {
             includeAttributes,
           },
         })
-        .then((res) =>
-          res.map((i) =>
-            fromAPIReviewInstance(reviewId, this.config.primaryEntity.key, i)
-          )
+        .then((res) => {
+              return res.instances==null ? [] : res.instances.map((i) =>
+                fromAPIReviewInstance(reviewId, this.config.primaryEntity.key, i)
+              );
+          }
         )
     );
   }
