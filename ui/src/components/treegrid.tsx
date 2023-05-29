@@ -256,7 +256,7 @@ function renderChildren(
           {columnCustomization?.onClick ? (
             <Link
               component="button"
-              variant="body1"
+              variant="body2"
               color="inherit"
               underline="hover"
               title={title}
@@ -267,7 +267,7 @@ function renderChildren(
             </Link>
           ) : (
             columnCustomization?.content ?? (
-              <Typography variant="body1" title={title} sx={textSx}>
+              <Typography variant="body2" title={title} sx={textSx}>
                 {value}
               </Typography>
             )

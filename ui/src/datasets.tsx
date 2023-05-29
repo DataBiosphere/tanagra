@@ -124,7 +124,7 @@ export function Datasets() {
         />
         {editable ? (
           <Link
-            variant="body1"
+            variant="body2"
             color="inherit"
             underline="hover"
             component={RouterLink}
@@ -133,7 +133,7 @@ export function Datasets() {
             {conceptSet.name}
           </Link>
         ) : (
-          <Typography variant="body1">{conceptSet.name}</Typography>
+          <Typography variant="body2">{conceptSet.name}</Typography>
         )}
       </Stack>
     ));
@@ -173,10 +173,10 @@ export function Datasets() {
             alignItems="center"
           >
             <Stack>
-              <Typography variant="h4" sx={{ flexGrow: 1 }}>
+              <Typography variant="body1em" sx={{ flexGrow: 1 }}>
                 1. Select cohorts
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body2">
                 Which participants to include
               </Typography>
             </Stack>
@@ -207,7 +207,7 @@ export function Datasets() {
                     onChange={() => onToggle(updateSelectedCohorts, cohort.id)}
                   />
                   <Link
-                    variant="body1"
+                    variant="body2"
                     color="inherit"
                     underline="hover"
                     component={RouterLink}
@@ -230,10 +230,10 @@ export function Datasets() {
             alignItems="center"
           >
             <Stack>
-              <Typography variant="h4" sx={{ flexGrow: 1 }}>
+              <Typography variant="body1em" sx={{ flexGrow: 1 }}>
                 2. Select data features
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body2">
                 Which information to include about participants
               </Typography>
             </Stack>
@@ -251,14 +251,14 @@ export function Datasets() {
           >
             {underlay.uiConfiguration.prepackagedConceptSets && (
               <>
-                <Typography variant="h4">Prepackaged</Typography>
+                <Typography variant="body1">Prepackaged</Typography>
                 {listConceptSets(
                   false,
                   underlay.uiConfiguration.prepackagedConceptSets
                 )}
               </>
             )}
-            <Typography variant="h4">Workspace</Typography>
+            <Typography variant="body1">Workspace</Typography>
             {listConceptSets(
               true,
               (workspaceConceptSets.data ?? []).map((cs) => ({
@@ -275,10 +275,10 @@ export function Datasets() {
             justifyContent="space-between"
           >
             <Stack>
-              <Typography variant="h4" mr={1}>
+              <Typography variant="body1em" mr={1}>
                 3. Select values
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body2">
                 Which columns to include in exported tables
               </Typography>
             </Stack>
@@ -302,7 +302,7 @@ export function Datasets() {
                   })
                 }
               />
-              <Typography variant="subtitle1">
+              <Typography variant="body2">
                 {allAttributesChecked() ? "Deselect all" : "Select all"}
               </Typography>
             </Stack>
@@ -319,7 +319,7 @@ export function Datasets() {
             )}
             {conceptSetOccurrences.map((occurrence) => (
               <Fragment key={occurrence.id}>
-                <Typography variant="subtitle1">{occurrence.name}</Typography>
+                <Typography variant="body2em">{occurrence.name}</Typography>
                 {occurrence.attributes.map((attribute) => (
                   <Stack key={attribute} direction="row" alignItems="center">
                     <Checkbox
@@ -344,7 +344,7 @@ export function Datasets() {
                         })
                       }
                     />
-                    <Typography variant="body1">{attribute}</Typography>
+                    <Typography variant="body2">{attribute}</Typography>
                   </Stack>
                 ))}
               </Fragment>
@@ -590,7 +590,7 @@ function Preview(props: PreviewProps) {
                   <Empty
                     maxWidth="60%"
                     minHeight="200px"
-                    image="/empty.png"
+                    image="/empty.svg"
                     title="No data matched"
                     subtitle="No data in this table matched the specified cohorts and data features"
                   />
@@ -602,7 +602,7 @@ function Preview(props: PreviewProps) {
           <Empty
             maxWidth="60%"
             minHeight="200px"
-            image="/empty.png"
+            image="/empty.svg"
             title="No inputs selected"
             subtitle="You can preview the data by selecting at least one cohort and data feature"
           />

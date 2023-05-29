@@ -141,6 +141,10 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   renderInline(groupId: string) {
+    if (!this.config.valueConfigs) {
+      return null;
+    }
+
     return (
       <ClassificationInline
         groupId={groupId}
@@ -354,7 +358,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           {!classificationState.data?.root?.children?.length ? (
             <Empty
               minHeight="300px"
-              image="/empty.png"
+              image="/empty.svg"
               title="No matches found"
             />
           ) : (
@@ -607,7 +611,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
 
   return (
     <Loading status={hintDataState}>
-      <GridLayout rows height="auto">
+      <GridLayout cols spacing={2} height="auto">
         <FormControl>
           <Select
             value={props.data.valueData.attribute}
@@ -645,6 +649,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
             onUpdate={onUpdateRange}
           />
         ) : null}
+        <GridBox />
       </GridLayout>
     </Loading>
   );

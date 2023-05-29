@@ -1,12 +1,14 @@
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { FilterCountValue, useSource } from "data/source";
 import { useUnderlay } from "hooks";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
 import { useCallback } from "react";
 import {
   Bar,
@@ -54,6 +56,8 @@ type StackedBarChartProps = {
 };
 
 function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
+  const theme = useTheme();
+
   const barData = chart.bars.map((bar) => {
     return {
       name: bar.name,
@@ -62,24 +66,32 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
   });
   return (
     <>
-      <Typography variant="h4">{chart.title}</Typography>
+      <Typography variant="body1">{chart.title}</Typography>
       <ResponsiveContainer width="100%" height={30 + barData.length * 30}>
         <BarChart data={barData} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" />
+          <XAxis
+            type="number"
+            style={{
+              ...theme.typography.body2,
+            }}
+          />
           <YAxis
             dataKey="name"
             type="category"
-            width={120}
+            width={140}
             tickFormatter={tickFormatter}
             tickMargin={10}
+            style={{
+              ...theme.typography.body2,
+            }}
           />
           <Tooltip
             content={(props: TooltipProps<number, string>) => {
               return (
                 <Paper elevation={1} sx={{ p: 1 }}>
                   <Stack>
-                    <Typography variant="h4">{props.label}</Typography>
+                    <Typography variant="body2em">{props.label}</Typography>
                     {props.payload?.map((row) => (
                       <Stack key={row.name} direction="row" sx={{ mt: 1 }}>
                         <Box
@@ -90,7 +102,7 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
                             mr: 1,
                           }}
                         />
-                        <Typography variant="body1">
+                        <Typography variant="body2">
                           {row.name}: {row.value}
                         </Typography>
                       </Stack>
@@ -121,6 +133,7 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
 
 export type DemographicChartsProps = {
   cohort: tanagra.Cohort;
+  separateCharts?: boolean;
 };
 
 export function DemographicCharts({ cohort }: DemographicChartsProps) {
@@ -247,31 +260,49 @@ export function DemographicCharts({ cohort }: DemographicChartsProps) {
 
   return (
     <>
-      <Loading status={demographicState}>
-        <Grid item xs={1}>
-          {demographicState.data?.totalCount ? (
-            <Stack>
-              <Typography variant="h3">{`Total count: ${demographicState.data?.totalCount.toLocaleString()}`}</Typography>
-              {demographicState.data?.chartsData.map((chart, index) => {
-                return (
-                  <StackedBarChart
-                    key={index}
-                    chart={chart as ChartData}
-                    tickFormatter={tickFormatter}
-                  />
-                );
-              })}
-            </Stack>
-          ) : (
-            <Empty
-              minHeight="300px"
-              image="/empty.png"
-              title="No participants match the selected cohort"
-              subtitle="You can broaden the cohort by removing criteria or selecting different requirement types"
-            />
-          )}
-        </Grid>
-      </Loading>
+      <GridLayout rows>
+        <GridBox sx={{ py: 3 }}>
+          <GridLayout cols rowAlign="bottom">
+            <Typography variant="h6">Total count:&nbsp;</Typography>
+            <Loading size="small" status={demographicState}>
+              <Typography variant="h6">
+                {demographicState.data?.totalCount.toLocaleString()}
+              </Typography>
+            </Loading>
+          </GridLayout>
+        </GridBox>
+        <GridBox
+          sx={{
+            p: 2,
+            borderRadius: (theme) =>
+              `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px 0px`,
+            backgroundColor: (theme) => theme.palette.background.paper,
+          }}
+        >
+          <Loading status={demographicState}>
+            {demographicState.data?.totalCount ? (
+              <GridLayout rows>
+                {demographicState.data?.chartsData.map((chart, index) => {
+                  return (
+                    <StackedBarChart
+                      key={index}
+                      chart={chart as ChartData}
+                      tickFormatter={tickFormatter}
+                    />
+                  );
+                })}
+              </GridLayout>
+            ) : (
+              <Empty
+                minHeight="300px"
+                image="/empty.svg"
+                title="No participants match the selected cohort"
+                subtitle="You can broaden the cohort by removing criteria or selecting different requirement types"
+              />
+            )}
+          </Loading>
+        </GridBox>
+      </GridLayout>
     </>
   );
 }

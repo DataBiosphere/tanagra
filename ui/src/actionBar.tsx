@@ -49,7 +49,7 @@ export default function ActionBar(props: ActionBarProps) {
           <ArrowBackIcon />
         </IconButton>
         <Typography
-          variant="h1"
+          variant="h6"
           sx={{
             flexGrow: 1,
             textOverflow: "ellipsis",
@@ -61,7 +61,7 @@ export default function ActionBar(props: ActionBarProps) {
         </Typography>
         {props.extraControls}
         {underlay ? (
-          <Typography variant="h4" sx={{ mx: 1 }}>
+          <Typography variant="body1" sx={{ mx: 1 }}>
             Dataset: {underlay.name}
           </Typography>
         ) : null}

@@ -1596,6 +1596,7 @@ function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
     id: cohort.id,
     name: cohort.displayName,
     underlayName: cohort.underlayName,
+    lastModified: cohort.lastModified,
     groupSections: fromAPICriteriaGroupSections(cohort.criteriaGroupSections),
   };
 }

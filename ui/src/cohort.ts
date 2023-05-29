@@ -7,6 +7,7 @@ import {
 import { MergedDataEntry, Source } from "data/source";
 import { DataEntry } from "data/types";
 import { generate } from "randomstring";
+import { ReactNode } from "react";
 import * as tanagra from "tanagra-api";
 import { isValid } from "util/valid";
 import { CriteriaConfig } from "./underlaysSlice";
@@ -114,7 +115,7 @@ export interface CriteriaPlugin<DataType> {
     doneURL: string,
     setBackURL: (url?: string) => void
   ) => JSX.Element;
-  renderInline: (groupId: string) => JSX.Element;
+  renderInline: (groupId: string) => ReactNode;
   displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
   groupByCountFilter?: () => tanagra.GroupByCount | null;

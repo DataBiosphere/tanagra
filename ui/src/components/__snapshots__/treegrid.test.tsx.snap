@@ -151,7 +151,7 @@ exports[`Table renders correctly 1`] = `
               </svg>
             </button>
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title="1-col1"
             >
               1-col1
@@ -171,7 +171,7 @@ exports[`Table renders correctly 1`] = `
             className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title="1-col2"
             >
               1-col2
@@ -191,7 +191,7 @@ exports[`Table renders correctly 1`] = `
             className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title=""
             >
               
@@ -249,7 +249,7 @@ exports[`Table renders correctly 1`] = `
               </svg>
             </button>
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title="2-col1"
             >
               2-col1
@@ -269,7 +269,7 @@ exports[`Table renders correctly 1`] = `
             className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title="2-col2"
             >
               2-col2
@@ -289,7 +289,7 @@ exports[`Table renders correctly 1`] = `
             className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title="2-col3"
             >
               2-col3
@@ -313,7 +313,7 @@ exports[`Table renders correctly 1`] = `
             className="MuiStack-root css-1sg8hwy-MuiStack-root"
           >
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title="3-col1"
             >
               3-col1
@@ -333,7 +333,7 @@ exports[`Table renders correctly 1`] = `
             className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title="3-col2"
             >
               3-col2
@@ -353,7 +353,7 @@ exports[`Table renders correctly 1`] = `
             className="MuiStack-root css-1d9cypr-MuiStack-root"
           >
             <p
-              className="MuiTypography-root MuiTypography-body1 css-rxttw8-MuiTypography-root"
+              className="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
               title=""
             >
               <svg

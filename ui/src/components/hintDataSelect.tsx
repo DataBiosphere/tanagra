@@ -58,7 +58,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
         value={props.selected?.map((s) => s.name)}
         input={<OutlinedInput />}
         renderValue={(selected) => (
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+          <Box sx={{ mt: 0.25, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
             {selected?.length ? (
               !props.maxChips || selected.length <= props.maxChips ? (
                 selected.map((s) => <Chip key={s} label={s} />)
