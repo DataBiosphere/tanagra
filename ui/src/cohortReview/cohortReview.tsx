@@ -219,11 +219,11 @@ export function CohortReview() {
           >
             <GridLayout rows>
               <GridLayout rows colAlign="center">
-                <Typography variant="h3">Participant</Typography>
-                <Typography variant="h3">
+                <Typography variant="body1em">Participant</Typography>
+                <Typography variant="body1em">
                   {instance?.data?.[primaryKey]}
                 </Typography>
-                <Typography variant="h4">
+                <Typography variant="body1">
                   {instanceIndex + 1}/{count}
                 </Typography>
                 <GridLayout cols>
@@ -256,7 +256,7 @@ export function CohortReview() {
               <GridLayout rows>
                 {uiConfig.attributes.map((attribute) => (
                   <GridLayout cols rowAlign="baseline" key={attribute.key}>
-                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                    <Typography variant="body2em" sx={{ fontWeight: 700 }}>
                       {attribute.title}:&nbsp;
                     </Typography>
                     <Typography variant="body2">
@@ -268,7 +268,7 @@ export function CohortReview() {
               <GridBox sx={{ m: 2 }} />
               <GridLayout rows={3}>
                 <GridLayout cols rowAlign="middle">
-                  <Typography variant="h3">Annotations</Typography>
+                  <Typography variant="body1em">Annotations</Typography>
                   <IconButton
                     onClick={() =>
                       updateSearchData((data) => {

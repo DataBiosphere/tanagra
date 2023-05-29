@@ -1023,6 +1023,10 @@ components:
         underlayName:
           type: string
           description: The underlay this cohort is based on.
+        lastModified:
+          description: Timestamp of when the cohort was last modified
+          type: string
+          format: date-time
         groupSections:
           type: array
           description: The group sections that make up this cohort.
@@ -1032,6 +1036,7 @@ components:
         - id
         - name
         - underlayName
+        - lastModified
         - groupSections
 
     GroupSection:
@@ -2315,7 +2320,15 @@ components:
 
     BinaryOperatorV2:
       type: string
-      enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN", "LESS_THAN_OR_EQUAL", "GREATER_THAN_OR_EQUAL"]
+      enum:
+        [
+          "EQUALS",
+          "NOT_EQUALS",
+          "LESS_THAN",
+          "GREATER_THAN",
+          "LESS_THAN_OR_EQUAL",
+          "GREATER_THAN_OR_EQUAL",
+        ]
 
   securitySchemes:
     authorization:

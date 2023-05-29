@@ -219,7 +219,7 @@ export function CohortReviewList() {
           }}
         >
           <Stack direction="row">
-            <Typography variant="h2" sx={{ mr: 1 }}>
+            <Typography variant="h6" sx={{ mr: 1 }}>
               Reviews
             </Typography>
             <IconButton onClick={showNewReviewDialog}>
@@ -243,17 +243,17 @@ export function CohortReviewList() {
                       sx={{ p: 1 }}
                     >
                       <Stack>
-                        <Typography variant="h4">
+                        <Typography variant="body1em">
                           {item.displayName()}
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="body1">
                           {item.created()?.toLocaleString()}
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="body1">
                           {`Participants: ${item.size()}`}
                         </Typography>
                       </Stack>
-                      <Typography variant="h4">
+                      <Typography variant="body1">
                         {!!item.pending ? (
                           <CircularProgress
                             sx={{ maxWidth: "1em", maxHeight: "1em" }}
@@ -283,7 +283,7 @@ export function CohortReviewList() {
           {!!selectedReview ? (
             <Stack>
               <Stack direction="row">
-                <Typography variant="h2" sx={{ mr: 1 }}>
+                <Typography variant="h6" sx={{ mr: 1 }}>
                   {selectedReview.displayName}
                 </Typography>
                 <IconButton onClick={showRenameReviewDialog}>
@@ -299,7 +299,7 @@ export function CohortReviewList() {
             <Empty
               maxWidth="60%"
               minHeight="300px"
-              image="/empty.png"
+              image="/empty.svg"
               title="No reviews created"
               subtitle="You can create a review by clicking on the '+' button"
             />

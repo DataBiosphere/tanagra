@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { Theme, useTheme } from "@mui/material/styles";
+import { SxProps, Theme, useTheme } from "@mui/material/styles";
 import { Children, PropsWithChildren } from "react";
 import { isValid } from "util/valid";
 
@@ -19,6 +19,8 @@ export type GridLayoutProps = {
   height?: string | number;
 
   spacing?: string | number;
+
+  sx?: SxProps<Theme>;
 };
 
 function parseDesc(
@@ -86,16 +88,19 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
 
   return (
     <Box
-      sx={{
-        width: spacing(theme, props.width ?? "100%"),
-        height: spacing(theme, props.height ?? "100%"),
-        gridGap: spacing(theme, props.spacing ?? 0),
-        display: "grid",
-        gridTemplateRows: rowTmpl,
-        gridTemplateColumns: colTmpl,
-        alignItems: translateDirection(ra),
-        justifyItems: translateDirection(ca),
-      }}
+      sx={[
+        {
+          width: spacing(theme, props.width ?? "100%"),
+          height: spacing(theme, props.height ?? "100%"),
+          gridGap: spacing(theme, props.spacing ?? 0),
+          display: "grid",
+          gridTemplateRows: rowTmpl,
+          gridTemplateColumns: colTmpl,
+          alignItems: translateDirection(ra),
+          justifyItems: translateDirection(ca),
+        },
+        ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+      ]}
     >
       {children.map((child, i) => (
         <Box

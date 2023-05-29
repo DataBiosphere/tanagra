@@ -10,6 +10,8 @@ type CohortState = {
   past: tanagra.Cohort[];
   present: tanagra.Cohort;
   future: tanagra.Cohort[];
+
+  saving: boolean;
 };
 
 type CohortContextData = {
@@ -52,6 +54,8 @@ export function useNewCohortContext() {
       past: state?.past ?? [],
       present: cohort,
       future: state?.future ?? [],
+
+      saving: false,
     }));
     return cohort;
   });
@@ -62,6 +66,13 @@ export function useNewCohortContext() {
     }
     setState(newState);
     await source.updateCohort(studyId, newState.present);
+
+    setState(
+      produce(newState, (state) => {
+        state.saving = false;
+      })
+    );
+
     status.mutate();
   };
 
@@ -73,7 +84,14 @@ export function useNewCohortContext() {
     context: {
       state: state,
       updateState: async (update: (state: CohortState) => void) => {
-        updateCohort(produce(state, update));
+        updateCohort(
+          produce(state, (state) => {
+            if (state) {
+              update(state);
+              state.saving = true;
+            }
+          })
+        );
       },
       updatePresent: async (update: (present: tanagra.Cohort) => void) => {
         if (!state) {
@@ -88,6 +106,7 @@ export function useNewCohortContext() {
         });
         const newState = produce(pushed, (state) => {
           update(state.present);
+          state.saving = true;
         });
 
         await updateCohort(newState);

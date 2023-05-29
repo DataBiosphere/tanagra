@@ -199,7 +199,7 @@ function AddCriteria(props: AddCriteriaProps) {
           query !== "" ? (
             <Empty
               minHeight="300px"
-              image="/empty.png"
+              image="/empty.svg"
               title="No matches found"
             />
           ) : (

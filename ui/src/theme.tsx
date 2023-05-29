@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material/styles";
+import { TypographyStyleOptions } from "@mui/material/styles/createTypography";
 
 declare module "@mui/material/styles" {
   interface Theme {
@@ -8,22 +9,38 @@ declare module "@mui/material/styles" {
   interface ThemeOptions {
     highlightColor?: string;
   }
+
+  interface TypographyVariants {
+    body1em: TypographyStyleOptions;
+    body2em: TypographyStyleOptions;
+  }
+  interface TypographyVariantsOptions {
+    body1em?: TypographyStyleOptions;
+    body2em?: TypographyStyleOptions;
+  }
+}
+
+declare module "@mui/material/Typography" {
+  interface TypographyPropsVariantOverrides {
+    body1em: true;
+    body2em: true;
+  }
 }
 
 export const theme = createTheme({
   highlightColor: "#FFD54F",
 
   shape: {
-    borderRadius: 8,
+    borderRadius: 16,
   },
   typography: {
-    fontFamily: "Inter, sans-serif",
+    fontFamily: "Roboto",
     fontSize: 12,
     h1: {
       fontFamily: "Roboto",
       textTransform: "none",
       fontWeight: 400,
-      fontSize: "2.5rem",
+      fontSize: "6.5rem",
       letterSpacing: "-0.01em",
       lineHeight: "125%",
     },
@@ -31,7 +48,7 @@ export const theme = createTheme({
       fontFamily: "Roboto",
       textTransform: "none",
       letterSpacing: "normal",
-      fontSize: "2rem",
+      fontSize: "4.5rem",
       lineHeight: "125%",
       fontWeight: 200,
     },
@@ -39,7 +56,7 @@ export const theme = createTheme({
       fontFamily: "Roboto",
       textTransform: "none",
       letterSpacing: "normal",
-      fontSize: "1.5rem",
+      fontSize: "3rem",
       lineHeight: "125%",
       fontWeight: 300,
     },
@@ -47,15 +64,31 @@ export const theme = createTheme({
       fontFamily: "Roboto",
       textTransform: "none",
       fontWeight: 400,
-      fontSize: "1.2rem",
+      fontSize: "2.25rem",
       lineHeight: "133%",
       letterSpacing: "0.0025em",
+    },
+    h5: {
+      fontFamily: "Roboto",
+      textTransform: "none",
+      fontSize: "1.75rem",
+      lineHeight: "128.6%",
+      fontWeight: 500,
+      letterSpacing: "normal",
+    },
+    h6: {
+      fontFamily: "Roboto",
+      textTransform: "none",
+      fontSize: "1.25rem",
+      lineHeight: "140%",
+      fontWeight: 600,
+      letterSpacing: "0.0015em",
     },
     subtitle1: {
       fontFamily: "Roboto",
       textTransform: "none",
       letterSpacing: "normal",
-      fontSize: "1.15rem",
+      fontSize: ".75rem",
       lineHeight: "128.6%",
       fontWeight: 500,
     },
@@ -67,10 +100,34 @@ export const theme = createTheme({
       fontSize: "1rem",
       letterSpacing: "0.0025em",
     },
+    body1em: {
+      fontFamily: "Roboto",
+      textTransform: "none",
+      lineHeight: "150%",
+      fontSize: "1rem",
+      letterSpacing: "0.0025em",
+      fontWeight: 600,
+    },
     body2: {
       fontFamily: "Roboto",
       textTransform: "none",
       fontWeight: 400,
+      fontSize: ".875rem",
+      lineHeight: "143%",
+      letterSpacing: "0.0025em",
+    },
+    body2em: {
+      fontFamily: "Roboto",
+      textTransform: "none",
+      fontSize: ".875rem",
+      lineHeight: "143%",
+      letterSpacing: "0.0025em",
+      fontWeight: 600,
+    },
+    button: {
+      fontFamily: "Roboto",
+      textTransform: "none",
+      fontWeight: 500,
       fontSize: ".875rem",
       lineHeight: "143%",
       letterSpacing: "0.0025em",
@@ -140,6 +197,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: "none",
+          borderRadius: "2.5rem",
         },
       },
     },
@@ -194,16 +252,31 @@ export const theme = createTheme({
       defaultProps: {
         margin: "dense",
       },
+      styleOverrides: {
+        root: {
+          borderRadius: "2.5rem",
+        },
+      },
     },
     MuiFilledInput: {
       defaultProps: {
         margin: "dense",
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: "2.5rem",
+        },
       },
     },
     MuiFormControl: {
       defaultProps: {
         margin: "dense",
         size: "small",
+      },
+      styleOverrides: {
+        root: {
+          margin: 0,
+        },
       },
     },
     MuiFormHelperText: {
@@ -221,6 +294,11 @@ export const theme = createTheme({
       defaultProps: {
         margin: "dense",
       },
+      styleOverrides: {
+        root: {
+          borderRadius: "2.5rem",
+        },
+      },
     },
     MuiInputLabel: {
       defaultProps: {
@@ -235,6 +313,11 @@ export const theme = createTheme({
     MuiOutlinedInput: {
       defaultProps: {
         margin: "dense",
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: "2.5rem",
+        },
       },
     },
     MuiTable: {

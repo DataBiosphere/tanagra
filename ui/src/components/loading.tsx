@@ -2,6 +2,7 @@ import ErrorIcon from "@mui/icons-material/Error";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import { Theme, useTheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export default function Loading(props: Props) {
+  const theme = useTheme();
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<number>();
 
@@ -56,12 +58,13 @@ export default function Loading(props: Props) {
 
   return (
     <Box sx={props.size !== "small" ? { px: 4, py: 2 } : {}}>
-      {showStatus(visible, isLoading, props.status, props.size)}
+      {showStatus(theme, visible, isLoading, props.status, props.size)}
     </Box>
   );
 }
 
 function showStatus(
+  theme: Theme,
   visible: boolean,
   isLoading?: boolean,
   status?: Status,
@@ -101,7 +104,7 @@ function showStatus(
   }
   return visible ? (
     <CircularProgress
-      size={size === "small" ? "1em" : undefined}
+      size={size === "small" ? theme.typography.body2.fontSize : undefined}
       sx={
         size !== "small"
           ? {

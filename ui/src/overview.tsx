@@ -1,5 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import LoopIcon from "@mui/icons-material/Loop";
 import TuneIcon from "@mui/icons-material/Tune";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -8,8 +9,6 @@ import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
@@ -53,14 +52,15 @@ export function Overview() {
   const cohort = useCohort();
 
   return (
-    <GridLayout cols="auto 380px">
-      <GridBox sx={{ p: 1 }}>
-        <GroupList />
-      </GridBox>
+    <GridLayout
+      rows="minmax(max-content, 100%)"
+      cols="auto 380px"
+      spacing={2}
+      sx={{ px: 5, overflowY: "auto" }}
+    >
+      <GroupList />
       <GridBox
         sx={{
-          p: 1,
-          backgroundColor: (theme) => theme.palette.background.paper,
           leftBorderStyle: "solid",
           borderColor: (theme) => theme.palette.divider,
           borderWidth: "1px",
@@ -86,40 +86,49 @@ function GroupList() {
   const params = useBaseParams();
 
   return (
-    <Box className="outline">
+    <GridBox sx={{ pb: 2 }}>
       <ActionBar
         title={cohort.name}
-        extraControls={<CohortToolbar />}
+        extraControls={<SaveStatus />}
         backURL={exitURL(params)}
       />
-      <Typography variant="h2">
-        To be included in the cohort, participants…
-      </Typography>
-      <List sx={{ p: 0 }}>
-        {cohort.groupSections.map((s, index) => (
-          <>
-            {index !== 0 ? <GroupDivider /> : null}
-            <ListItem disableGutters>
-              <ParticipantsGroupSection groupSection={s} sectionIndex={index} />
-            </ListItem>
-          </>
-        ))}
-        {cohort.groupSections.length > 1 ||
-        cohort.groupSections[0].groups.length > 0 ? (
-          <>
-            <GroupDivider />
-            <ListItem disableGutters key="" sx={{ p: 0 }}>
+      <GridLayout rows height="auto">
+        <GridBox sx={{ py: 3 }}>
+          <GridLayout cols fillCol={1} rowAlign="middle">
+            <Typography variant="h6">
+              To be included in the cohort, participants…
+            </Typography>
+            <GridBox />
+            <CohortToolbar />
+          </GridLayout>
+        </GridBox>
+        <GridLayout rows spacing={2} height="auto">
+          {cohort.groupSections.map((s, index) => (
+            <GridLayout key={s.id} rows spacing={2} height="auto">
+              {index !== 0 ? <GroupDivider /> : null}
+              <GridBox>
+                <ParticipantsGroupSection
+                  groupSection={s}
+                  sectionIndex={index}
+                />
+              </GridBox>
+            </GridLayout>
+          ))}
+          {cohort.groupSections.length > 1 ||
+          cohort.groupSections[0].groups.length > 0 ? (
+            <GridLayout rows spacing={2} height="auto">
+              <GroupDivider />
               <Button
                 onClick={() => insertCohortGroupSection(context)}
                 variant="contained"
               >
                 Add group
               </Button>
-            </ListItem>
-          </>
-        ) : null}
-      </List>
-    </Box>
+            </GridLayout>
+          ) : null}
+        </GridLayout>
+      </GridLayout>
+    </GridBox>
   );
 }
 
@@ -134,9 +143,7 @@ function ParticipantsGroupSection(props: {
 
   const fetchSectionCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
-      id: cohort.id,
-      name: cohort.name,
-      underlayName: cohort.underlayName,
+      ...cohort,
       groupSections: [props.groupSection],
     };
 
@@ -177,7 +184,7 @@ function ParticipantsGroupSection(props: {
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          sx={{ p: 1, backgroundColor: (theme) => theme.palette.divider }}
+          sx={{ p: 2, backgroundColor: (theme) => theme.palette.info.main }}
         >
           <Stack direction="row" alignItems="baseline">
             <FormControl>
@@ -199,7 +206,7 @@ function ParticipantsGroupSection(props: {
                 <MenuItem value={1}>Must not</MenuItem>
               </Select>
             </FormControl>
-            <Typography variant="body1">&nbsp;meet&nbsp;</Typography>
+            <Typography variant="body2">&nbsp;meet&nbsp;</Typography>
             <FormControl>
               <Select
                 value={props.groupSection.filter.kind}
@@ -224,12 +231,12 @@ function ParticipantsGroupSection(props: {
                 </MenuItem>
               </Select>
             </FormControl>
-            <Typography variant="body1">
+            <Typography variant="body2">
               &nbsp;of the following criteria:
             </Typography>
           </Stack>
           <Stack direction="row" alignItems="center">
-            <Typography variant="h3" sx={{ mr: 1 }}>
+            <Typography variant="body1em" sx={{ mr: 1 }}>
               {name}
             </Typography>
             <IconButton onClick={showRenameGroup}>
@@ -245,7 +252,7 @@ function ParticipantsGroupSection(props: {
             </IconButton>
           </Stack>
         </Stack>
-        <Stack sx={{ p: 1 }}>
+        <Stack sx={{ p: 2 }}>
           {props.groupSection.groups.length === 0 ? (
             <Empty
               maxWidth="90%"
@@ -255,15 +262,15 @@ function ParticipantsGroupSection(props: {
             />
           ) : (
             props.groupSection.groups.map((group) => (
-              <>
-                <Box key={group.id}>
+              <GridLayout key={group.id} rows height="auto">
+                <Box>
                   <ParticipantsGroup
                     groupSection={props.groupSection}
                     group={group}
                   />
                 </Box>
-                <Divider sx={{ my: 1 }} />
-              </>
+                <Divider sx={{ my: 2 }} />
+              </GridLayout>
             ))
           )}
           <Stack direction="row">
@@ -283,11 +290,13 @@ function ParticipantsGroupSection(props: {
           direction="row"
           justifyContent="right"
           alignItems="center"
-          sx={{ p: 1, backgroundColor: (theme) => theme.palette.divider }}
+          sx={{ p: 1, backgroundColor: (theme) => theme.palette.info.main }}
         >
-          <Typography variant="subtitle1">Group count:&nbsp;</Typography>
+          <Typography variant="body2">Group count:&nbsp;</Typography>
           <Loading status={sectionCountState} size="small">
-            {sectionCountState.data?.toLocaleString()}
+            <Typography variant="body2">
+              {sectionCountState.data?.toLocaleString()}
+            </Typography>
           </Loading>
         </Stack>
       </Stack>
@@ -306,9 +315,7 @@ function ParticipantsGroup(props: {
 
   const fetchGroupCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
-      id: cohort.id,
-      name: cohort.name,
-      underlayName: cohort.underlayName,
+      ...cohort,
       groupSections: [
         {
           id: props.groupSection.id,
@@ -380,16 +387,19 @@ function ParticipantsGroup(props: {
     }),
   });
 
+  const inline = plugin.renderInline(props.group.id);
+
   return (
-    <Stack key={props.group.id}>
+    <GridLayout key={props.group.id} rows height="auto">
       <GridLayout
         cols={modifierPlugins.length > 0 ? "1fr 1fr" : "auto 1fr"}
         height="auto"
+        rowAlign="middle"
       >
-        <GridLayout cols>
+        <GridLayout cols rowAlign="middle">
           {!!plugin.renderEdit ? (
             <Link
-              variant="h4"
+              variant="body2"
               color="inherit"
               underline="hover"
               component={RouterLink}
@@ -398,14 +408,14 @@ function ParticipantsGroup(props: {
               {title}
             </Link>
           ) : (
-            <Typography variant="h4">{title}</Typography>
+            <Typography variant="body1">{title}</Typography>
           )}
           <IconButton
             onClick={() => {
               deleteCohortGroup(context, props.groupSection.id, props.group.id);
             }}
           >
-            <DeleteIcon fontSize="small" sx={{ mt: "-1px" }} />
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </GridLayout>
         <GridLayout cols fillCol={1} rowAlign="middle">
@@ -413,7 +423,6 @@ function ParticipantsGroup(props: {
             <Button
               startIcon={<TuneIcon fontSize="small" />}
               onClick={showMenu}
-              sx={{ mt: "-1px" }}
             >
               Modifiers
             </Button>
@@ -433,36 +442,58 @@ function ParticipantsGroup(props: {
         cols={modifierPlugins.length > 0 ? "1fr 1fr" : "1fr"}
         height="auto"
       >
-        {plugin.renderInline(props.group.id)}
+        {inline ? <GridBox sx={{ pt: 2 }}>{inline}</GridBox> : null}
         {modifierPlugins.length > 0 ? (
-          <GridLayout rows height="auto" spacing={2}>
-            {modifierPlugins.map((p, i) => (
-              <GridLayout key={p.id} height="auto">
-                <GridLayout cols height="auto">
-                  <Typography variant="h4">
-                    {modifierCriteria[i].config.title}
-                  </Typography>
-                  <IconButton
-                    onClick={() =>
-                      deleteCohortCriteriaModifier(
-                        context,
-                        props.groupSection.id,
-                        props.group.id,
-                        p.id
-                      )
-                    }
-                  >
-                    <DeleteIcon fontSize="small" sx={{ mt: "-1px" }} />
-                  </IconButton>
+          <GridBox sx={{ pt: 2 }}>
+            <GridLayout rows height="auto" spacing={2}>
+              {modifierPlugins.map((p, i) => (
+                <GridLayout key={p.id} rows height="auto">
+                  <GridLayout cols height="auto" rowAlign="middle">
+                    <Typography variant="body2">
+                      {modifierCriteria[i].config.title}
+                    </Typography>
+                    <IconButton
+                      onClick={() =>
+                        deleteCohortCriteriaModifier(
+                          context,
+                          props.groupSection.id,
+                          props.group.id,
+                          p.id
+                        )
+                      }
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </GridLayout>
+                  <GridBox key={p.id} sx={{ height: "auto" }}>
+                    {p.renderInline(props.group.id)}
+                  </GridBox>
                 </GridLayout>
-                <GridBox key={p.id} sx={{ height: "auto" }}>
-                  {p.renderInline(props.group.id)}
-                </GridBox>
-              </GridLayout>
-            ))}
-          </GridLayout>
+              ))}
+            </GridLayout>
+          </GridBox>
         ) : null}
       </GridLayout>
-    </Stack>
+    </GridLayout>
+  );
+}
+
+function SaveStatus() {
+  const context = useCohortContext();
+  if (!context?.state) {
+    return null;
+  }
+
+  return (
+    <Typography variant="body2">
+      {context.state.saving ? (
+        <Stack direction="row" alignItems="center">
+          <LoopIcon fontSize="small" />
+          Saving
+        </Stack>
+      ) : (
+        <>Last saved: {context.state.present.lastModified.toLocaleString()}</>
+      )}
+    </Typography>
   );
 }

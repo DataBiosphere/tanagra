@@ -25,7 +25,7 @@ export default function Empty(props: EmptyProps) {
           <img src={props.image} style={{ marginBottom: "20px" }} />
         )}
         {props.title && (
-          <Typography variant="subtitle1">{props.title}</Typography>
+          <Typography variant="body1em">{props.title}</Typography>
         )}
         {props.subtitle && (
           <Typography variant="body1">{props.subtitle}</Typography>
