@@ -20,7 +20,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
-import bio.terra.tanagra.service.instances.EntityInstanceCount;
+import bio.terra.tanagra.service.instances.EntityCountResult;
 import bio.terra.tanagra.service.instances.ReviewInstance;
 import bio.terra.tanagra.service.instances.ReviewQueryResult;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -184,10 +183,10 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         QUERY_COUNTS,
         COHORT_REVIEW,
         ResourceId.forReview(studyId, cohortId, reviewId));
-    Pair<String, List<EntityInstanceCount>> countResult =
+    EntityCountResult countResult =
         reviewService.countReviewInstances(studyId, cohortId, reviewId, body.getAttributes());
-    ApiInstanceCountListV2 apiCounts = new ApiInstanceCountListV2().sql(countResult.getKey());
-    countResult.getValue().stream()
+    ApiInstanceCountListV2 apiCounts = new ApiInstanceCountListV2().sql(countResult.getSql());
+    countResult.getEntityCounts().stream()
         .forEach(count -> apiCounts.addInstanceCountsItem(ToApiConversionUtils.toApiObject(count)));
     return ResponseEntity.ok(apiCounts);
   }

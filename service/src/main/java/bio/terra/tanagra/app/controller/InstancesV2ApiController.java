@@ -207,7 +207,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
     if (body.getAttributes() != null) {
       attributes =
           body.getAttributes().stream()
-              .map(attrName -> querysService.getAttribute(entity, attrName))
+              .map(attrName -> underlaysService.getAttribute(entity, attrName))
               .collect(Collectors.toList());
     }
 
@@ -216,24 +216,23 @@ public class InstancesV2ApiController implements InstancesV2Api {
       entityFilter = fromApiConversionService.fromApiObject(body.getFilter(), entity, underlayName);
     }
 
-    QueryRequest queryRequest =
-        querysService.buildInstanceCountsQuery(
-            entity, Underlay.MappingType.INDEX, attributes, entityFilter);
-    List<EntityInstanceCount> entityInstanceCounts =
-        querysService.runInstanceCountsQuery(
-            entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer(),
-            attributes,
-            queryRequest);
-
+    EntityCountResult entityCountResult =
+        querysService.countEntityInstances(
+            new EntityCountRequest.Builder()
+                .entity(entity)
+                .mappingType(Underlay.MappingType.INDEX)
+                .attributes(attributes)
+                .filter(entityFilter)
+                .build());
     return ResponseEntity.ok(
         new ApiInstanceCountListV2()
             .instanceCounts(
-                entityInstanceCounts.stream()
+                entityCountResult.getEntityCounts().stream()
                     .map(
                         entityInstanceCount ->
                             ToApiConversionUtils.toApiObject(entityInstanceCount))
                     .collect(Collectors.toList()))
-            .sql(queryRequest.getSql()));
+            .sql(entityCountResult.getSql()));
   }
 
   @Override
@@ -283,7 +282,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
     if (body.getIncludeAttributes() != null) {
       selectAttributes =
           body.getIncludeAttributes().stream()
-              .map(attrName -> querysService.getAttribute(entity, attrName))
+              .map(attrName -> underlaysService.getAttribute(entity, attrName))
               .collect(Collectors.toList());
     }
     return selectAttributes;
@@ -357,7 +356,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 if (attrName != null) {
                   entityOrderBys.add(
                       new EntityQueryOrderBy(
-                          querysService.getAttribute(entity, attrName), direction));
+                          underlaysService.getAttribute(entity, attrName), direction));
                 } else {
                   Entity relatedEntity =
                       underlaysService.getEntity(

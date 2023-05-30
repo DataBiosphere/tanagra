@@ -5,15 +5,11 @@ import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.utils.FileIO;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -78,5 +74,37 @@ public class UnderlaysService {
       throw new NotFoundException("Entity not found: " + underlayName + ", " + entityName);
     }
     return underlay.getEntity(entityName);
+  }
+
+  public Attribute getAttribute(Entity entity, String attributeName) {
+    Attribute attribute = entity.getAttribute(attributeName);
+    if (attribute == null) {
+      throw new NotFoundException(
+          "Attribute not found: " + entity.getName() + ", " + attributeName);
+    }
+    return attribute;
+  }
+
+  public Hierarchy getHierarchy(Entity entity, String hierarchyName) {
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
+    if (hierarchy == null) {
+      throw new NotFoundException("Hierarchy not found: " + hierarchyName);
+    }
+    return hierarchy;
+  }
+
+  public Relationship getRelationship(
+      Collection<EntityGroup> entityGroups, Entity entity, Entity relatedEntity) {
+    for (EntityGroup entityGroup : entityGroups) {
+      Optional<Relationship> relationship = entityGroup.getRelationship(entity, relatedEntity);
+      if (relationship.isPresent()) {
+        return relationship.get();
+      }
+    }
+    throw new NotFoundException(
+        "Relationship not found for entities: "
+            + entity.getName()
+            + " -- "
+            + relatedEntity.getName());
   }
 }

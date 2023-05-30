@@ -365,7 +365,7 @@ public class ReviewService {
    * Run a breakdown query on all the entity instances that are part of a review. Return the counts
    * and the generated SQL string.
    */
-  public Pair<String, List<EntityInstanceCount>> countReviewInstances(
+  public EntityCountResult countReviewInstances(
       String studyId, String cohortId, String reviewId, List<String> groupByAttributeNames) {
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
     Entity entity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
@@ -379,15 +379,13 @@ public class ReviewService {
             entity.getIdAttribute(),
             FunctionFilterVariable.FunctionTemplate.IN,
             reviewDao.getPrimaryEntityIds(reviewId));
-    QueryRequest queryRequest =
-        querysService.buildInstanceCountsQuery(
-            entity, Underlay.MappingType.INDEX, groupByAttributes, entityFilter);
-    return Pair.of(
-        queryRequest.getSql(),
-        querysService.runInstanceCountsQuery(
-            entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer(),
-            groupByAttributes,
-            queryRequest));
+    return querysService.countEntityInstances(
+        new EntityCountRequest.Builder()
+            .entity(entity)
+            .mappingType(Underlay.MappingType.INDEX)
+            .attributes(groupByAttributes)
+            .filter(entityFilter)
+            .build());
   }
 
   public String exportAnnotationValuesToGcs(String studyId, String cohortId) {
