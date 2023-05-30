@@ -5,6 +5,7 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Component;
 @Component
 public final class FromApiConversionService {
   private final UnderlaysService underlaysService;
-  private final QuerysService querysService;
   private final CohortService cohortService;
 
   private final AnnotationService annotationService;
@@ -35,11 +35,9 @@ public final class FromApiConversionService {
   @Autowired
   public FromApiConversionService(
       UnderlaysService underlaysService,
-      QuerysService querysService,
       CohortService cohortService,
       AnnotationService annotationService) {
     this.underlaysService = underlaysService;
-    this.querysService = querysService;
     this.cohortService = cohortService;
     this.annotationService = annotationService;
   }
@@ -55,7 +53,7 @@ public final class FromApiConversionService {
       case ATTRIBUTE:
         ApiAttributeFilterV2 apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
         return new AttributeFilter(
-            querysService.getAttribute(entity, apiAttributeFilter.getAttribute()),
+            underlaysService.getAttribute(entity, apiAttributeFilter.getAttribute()),
             FromApiConversionService.fromApiObject(apiAttributeFilter.getOperator()),
             FromApiConversionService.fromApiObject(apiAttributeFilter.getValue()));
       case TEXT:
@@ -68,12 +66,13 @@ public final class FromApiConversionService {
                 .text(apiTextFilter.getText());
         if (apiTextFilter.getAttribute() != null) {
           textFilterBuilder.attribute(
-              querysService.getAttribute(entity, apiTextFilter.getAttribute()));
+              underlaysService.getAttribute(entity, apiTextFilter.getAttribute()));
         }
         return textFilterBuilder.build();
       case HIERARCHY:
         ApiHierarchyFilterV2 apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
-        Hierarchy hierarchy = querysService.getHierarchy(entity, apiHierarchyFilter.getHierarchy());
+        Hierarchy hierarchy =
+            underlaysService.getHierarchy(entity, apiHierarchyFilter.getHierarchy());
         switch (apiHierarchyFilter.getOperator()) {
           case IS_ROOT:
             return new HierarchyRootFilter(hierarchy);
@@ -97,7 +96,7 @@ public final class FromApiConversionService {
         Entity relatedEntity =
             underlaysService.getEntity(underlayName, apiRelationshipFilter.getEntity());
         Relationship relationship =
-            querysService.getRelationship(entityGroups, entity, relatedEntity);
+            underlaysService.getRelationship(entityGroups, entity, relatedEntity);
         EntityFilter subFilter =
             fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlayName);
 
@@ -110,8 +109,6 @@ public final class FromApiConversionService {
           groupByCountOperator = fromApiObject(apiRelationshipFilter.getGroupByCountOperator());
           groupByCountValue = apiRelationshipFilter.getGroupByCountValue();
         }
-
-        // TODO: Allow building queries against the source data mapping also.
 
         return new RelationshipFilter(
             entity,
@@ -163,7 +160,7 @@ public final class FromApiConversionService {
     if (apiObj.getIncludeAttributes() != null) {
       attributes =
           apiObj.getIncludeAttributes().stream()
-              .map(attrName -> querysService.getAttribute(entity, attrName))
+              .map(attrName -> underlaysService.getAttribute(entity, attrName))
               .collect(Collectors.toList());
     }
 
@@ -199,7 +196,7 @@ public final class FromApiConversionService {
                 if (attrName != null) {
                   orderBys.add(
                       new ReviewQueryOrderBy(
-                          querysService.getAttribute(entity, attrName), direction));
+                          underlaysService.getAttribute(entity, attrName), direction));
                 } else {
                   orderBys.add(
                       new ReviewQueryOrderBy(
@@ -214,6 +211,8 @@ public final class FromApiConversionService {
         .entityFilter(entityFilter)
         .annotationFilter(annotationFilter)
         .orderBys(orderBys)
+        .pageSize(apiObj.getPageSize())
+        .pageMarker(PageMarker.deserialize(apiObj.getPageMarker()))
         .build();
   }
 

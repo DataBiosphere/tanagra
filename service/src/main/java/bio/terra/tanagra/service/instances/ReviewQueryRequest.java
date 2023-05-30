@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.instances;
 
+import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Attribute;
@@ -12,12 +13,16 @@ public class ReviewQueryRequest {
   private final EntityFilter entityFilter;
   private final AnnotationFilter annotationFilter;
   private final List<ReviewQueryOrderBy> orderBys;
+  private final PageMarker pageMarker;
+  private final Integer pageSize;
 
   private ReviewQueryRequest(Builder builder) {
     this.attributes = builder.attributes;
     this.entityFilter = builder.entityFilter;
     this.annotationFilter = builder.annotationFilter;
     this.orderBys = builder.orderBys;
+    this.pageMarker = builder.pageMarker;
+    this.pageSize = builder.pageSize;
   }
 
   public static Builder builder() {
@@ -44,6 +49,14 @@ public class ReviewQueryRequest {
     return orderBys == null ? Collections.emptyList() : Collections.unmodifiableList(orderBys);
   }
 
+  public PageMarker getPageMarker() {
+    return pageMarker;
+  }
+
+  public Integer getPageSize() {
+    return pageSize;
+  }
+
   public void addAttribute(Attribute attribute) {
     attributes.add(attribute);
   }
@@ -53,6 +66,8 @@ public class ReviewQueryRequest {
     private EntityFilter entityFilter;
     private AnnotationFilter annotationFilter;
     private List<ReviewQueryOrderBy> orderBys;
+    private PageMarker pageMarker;
+    private Integer pageSize;
 
     public Builder attributes(List<Attribute> attributes) {
       this.attributes = attributes;
@@ -71,6 +86,16 @@ public class ReviewQueryRequest {
 
     public Builder orderBys(List<ReviewQueryOrderBy> orderBys) {
       this.orderBys = orderBys;
+      return this;
+    }
+
+    public Builder pageMarker(PageMarker pageMarker) {
+      this.pageMarker = pageMarker;
+      return this;
+    }
+
+    public Builder pageSize(Integer pageSize) {
+      this.pageSize = pageSize;
       return this;
     }
 

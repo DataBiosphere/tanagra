@@ -11,7 +11,7 @@ public abstract class FilterVariable implements SQLExpression {
 
   @Override
   public String renderSQL() {
-    ImmutableMap.Builder paramsBuilder = ImmutableMap.<String, String>builder();
+    ImmutableMap.Builder<String, String> paramsBuilder = ImmutableMap.<String, String>builder();
     List<FieldVariable> fieldVars = getFieldVariables();
     for (int ctr = 0; ctr < fieldVars.size(); ctr++) {
       paramsBuilder.put(

@@ -51,7 +51,7 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/" + getSqlDirectoryName() + "/measurement-hierarchyRootFilterLOINC.sql");
   }
 
@@ -84,7 +84,7 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
             .limit(DEFAULT_LIMIT)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        querysService.buildInstancesQuery(entityQueryRequest).getSql(),
+        entityQueryRequest.buildInstancesQuery().getSql(),
         "sql/" + getSqlDirectoryName() + "/measurement-hierarchyRootFilterSNOMED.sql");
   }
 

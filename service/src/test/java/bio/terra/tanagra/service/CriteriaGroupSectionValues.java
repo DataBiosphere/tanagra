@@ -47,4 +47,9 @@ public final class CriteriaGroupSectionValues {
           .operator(BooleanAndOrFilterVariable.LogicalOperator.AND)
           .setIsExcluded(true)
           .build();
+  public static final CohortRevision.CriteriaGroupSection CRITERIA_GROUP_SECTION_3 =
+      CohortRevision.CriteriaGroupSection.builder()
+          .displayName("section 3")
+          .criteriaGroups(List.of(CRITERIA_GROUP_1))
+          .build();
 }

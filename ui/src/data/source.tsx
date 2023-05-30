@@ -370,7 +370,7 @@ export class BackendSource implements Source {
     );
 
     const promises = [
-      this.instancesApi.queryInstances(
+      this.instancesApi.listInstances(
         searchRequest(
           requestedAttributes,
           this.underlay,
@@ -386,7 +386,7 @@ export class BackendSource implements Source {
     if (options?.includeGroupings) {
       promises.push(
         ...(classification.groupings?.map((grouping) =>
-          this.instancesApi.queryInstances(
+          this.instancesApi.listInstances(
             searchRequest(
               requestedAttributes,
               this.underlay,
@@ -438,7 +438,7 @@ export class BackendSource implements Source {
 
     return parseAPIError(
       this.instancesApi
-        .queryInstances({
+        .listInstances({
           entityName: classification.entity,
           underlayName: this.underlay.name,
           queryV2: {
@@ -511,7 +511,7 @@ export class BackendSource implements Source {
     const entity = findEntity(occurrenceID, this.config);
 
     const res = await parseAPIError(
-      this.instancesApi.queryInstances({
+      this.instancesApi.listInstances({
         entityName: entity.entity,
         underlayName: this.underlay.name,
         queryV2: this.makeQuery(
@@ -774,11 +774,17 @@ export class BackendSource implements Source {
             includeAttributes,
           },
         })
-        .then((res) =>
-          res.map((i) =>
-            fromAPIReviewInstance(reviewId, this.config.primaryEntity.key, i)
-          )
-        )
+        .then((res) => {
+          return res.instances == null
+            ? []
+            : res.instances.map((i) =>
+                fromAPIReviewInstance(
+                  reviewId,
+                  this.config.primaryEntity.key,
+                  i
+                )
+              );
+        })
     );
   }
 
@@ -1242,7 +1248,7 @@ function convertSortDirection(dir: SortDirection) {
 
 function processEntitiesResponse(
   primaryKey: string,
-  response: tanagra.InstanceListV2,
+  response: tanagra.InstanceListResultV2,
   hierarchy?: string,
   grouping?: string
 ): ClassificationNode[] {
