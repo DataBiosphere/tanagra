@@ -17,7 +17,7 @@ Cypress.Commands.add("createCohortFromSearch", (name, search, domain) => {
   cy.get("button:Contains(Create)").click();
   cy.get("button:Contains(Add criteria)").first().click();
   if (domain) {
-    cy.get(`button:Contains(${domain})`).click();
+    cy.get(`[data-testid='${domain}']`).click();
   }
   cy.get("input").type(search);
   cy.get(`button:Contains(${search})`, { timeout: 20000 }).first().click();

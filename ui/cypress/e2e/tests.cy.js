@@ -10,12 +10,12 @@ describe("Basic tests", () => {
     cy.get("input[name=text]").type(cohortName);
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add criteria)").first().click();
-    cy.get("button:Contains(Condition)").click();
+    cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("[data-testid='AccountTreeIcon']").first().click();
     cy.get("button:Contains(Clinical finding)").click();
 
     cy.get("button:Contains(Add criteria)").first().click();
-    cy.get("button:Contains(Race)").click();
+    cy.get("[data-testid='tanagra-race']").click();
     cy.get(".MuiSelect-select:Contains(None selected)", {
       timeout: 20000,
     }).click();
@@ -23,11 +23,11 @@ describe("Basic tests", () => {
     cy.get(".MuiBackdrop-root").click();
 
     cy.get("button:Contains(Add criteria)").first().click();
-    cy.get("button:Contains(Year of birth)").click();
+    cy.get("[data-testid='tanagra-year_of_birth']").click();
     cy.get(".MuiInput-input").first().type("{selectall}1940");
 
     cy.get("button:Contains(Add criteria)").last().click();
-    cy.get("button:Contains(Observation)").click();
+    cy.get("[data-testid='tanagra-observations']").click();
     cy.get("button:Contains(Marital status)", { timeout: 20000 }).click();
 
     cy.get("button:Contains(Add criteria)").last().click();
@@ -37,7 +37,7 @@ describe("Basic tests", () => {
     cy.get("a[aria-label=back]").click();
 
     cy.get("button[id=insert-concept-set]").click();
-    cy.get("button:Contains(Condition)").click();
+    cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("[data-testid='AccountTreeIcon']").first().click();
     cy.get("button:Contains(Clinical finding)").click();
 

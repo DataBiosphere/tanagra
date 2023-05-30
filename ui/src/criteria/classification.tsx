@@ -344,15 +344,23 @@ function ClassificationEdit(props: ClassificationEditProps) {
     >
       <GridLayout rows>
         {!searchData?.hierarchy && (
-          <Search
-            placeholder="Search by code or description"
-            onSearch={(query: string) => {
-              updateSearchData((data: SearchData) => {
-                data.query = query;
-              });
+          <GridBox
+            sx={{
+              px: 5,
+              py: 3,
+              height: "auto",
             }}
-            initialValue={searchData?.query}
-          />
+          >
+            <Search
+              placeholder="Search by code or description"
+              onSearch={(query: string) => {
+                updateSearchData((data: SearchData) => {
+                  data.query = query;
+                });
+              }}
+              initialValue={searchData?.query}
+            />
+          </GridBox>
         )}
         <Loading status={classificationState}>
           {!classificationState.data?.root?.children?.length ? (
