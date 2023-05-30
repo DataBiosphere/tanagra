@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service;
 
+import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -84,6 +85,9 @@ public class StudyService {
       @Nullable String displayName,
       @Nullable String description) {
     featureConfiguration.artifactStorageEnabledCheck();
+    if (displayName == null && description == null) {
+      throw new MissingRequiredFieldException("Study name or description must be not null.");
+    }
     studyDao.updateStudy(id, lastModifiedBy, displayName, description);
     return studyDao.getStudy(id);
   }

@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: avoid_postgres_specific_features
+      author: marikomedlock
+      changes:
+        - createTable:
+            tableName: study_property
+            columns:
+              - column:
+                  name: study_id
+                  type: text
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_sp_s
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete its properties
+              - column:
+                  name: key
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: text
+                  constraints:
+                    nullable: true
+        - addUniqueConstraint:
+            constraintName: u_s_p
+            tableName: study_property
+            columnNames: study_id, key
+
+        - sql:
+            # Migrate the properties of existing studies from the JSON column to this table.
+            sql: |
+              INSERT INTO study_property (study_id, key, value) 
+                SELECT id, key, properties->>key as value
+                FROM (SELECT id, jsonb_object_keys(properties) as key, properties FROM study) AS study_property_keys;
