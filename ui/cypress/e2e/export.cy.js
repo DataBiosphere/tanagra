@@ -5,13 +5,13 @@ function generateCohort() {
 describe("Basic tests", () => {
   it("Export", () => {
     const cohort1 = "export1";
-    cy.createCohortFromSearch(cohort1, "Red color", "Condition");
+    cy.createCohortFromSearch(cohort1, "Red color", "tanagra-conditions");
 
     const cohort2 = "export2";
     cy.createCohortFromSearch(cohort2, "Papule of skin");
 
     cy.get("button[id=insert-concept-set]").click();
-    cy.get("button:Contains(Condition)").click();
+    cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("input").type("Red color");
     cy.get("button:Contains(Red color)").click();
 
