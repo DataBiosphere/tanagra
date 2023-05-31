@@ -4,17 +4,17 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationKey;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
-import java.sql.Array;
+import bio.terra.tanagra.service.artifact.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -26,16 +26,20 @@ public class AnnotationDao {
 
   // SQL query and row mapper for reading an annotation key.
   private static final String ANNOTATION_KEY_SELECT_SQL =
-      "SELECT id, display_name, description, data_type, enum_vals FROM annotation_key";
-  private static final RowMapper<AnnotationKey> ANNOTATION_KEY_ROW_MAPPER =
+      "SELECT id, display_name, description, data_type FROM annotation_key";
+  private static final RowMapper<AnnotationKey.Builder> ANNOTATION_KEY_ROW_MAPPER =
       (rs, rowNum) ->
           AnnotationKey.builder()
               .id(rs.getString("id"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
-              .dataType(Literal.DataType.valueOf(rs.getString("data_type")))
-              .enumVals(List.of((String[]) rs.getArray("enum_vals").getArray()))
-              .build();
+              .dataType(Literal.DataType.valueOf(rs.getString("data_type")));
+
+  // SQL query and row mapper for reading an annotation key enum value.
+  private static final String ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL =
+      "SELECT annotation_key_id, enum FROM annotation_key_enum_value";
+  private static final RowMapper<Pair<String, String>> ANNOTATION_KEY_ENUM_VALUE_ROW_MAPPER =
+      (rs, rowNum) -> Pair.of(rs.getString("annotation_key_id"), rs.getString("enum"));
 
   // SQL query and row mapper for reading an annotation value.
   private static final String ANNOTATION_VALUE_SELECT_SQL =
@@ -69,27 +73,40 @@ public class AnnotationDao {
   @WriteTransaction
   public void createAnnotationKey(String cohortId, AnnotationKey annotationKey) {
     String sql =
-        "INSERT INTO annotation_key (cohort_id, id, display_name, description, data_type, enum_vals) "
-            + "VALUES (:cohort_id, :id, :display_name, :description, :data_type, :enum_vals)";
+        "INSERT INTO annotation_key (cohort_id, id, display_name, description, data_type) "
+            + "VALUES (:cohort_id, :id, :display_name, :description, :data_type)";
     LOGGER.debug("CREATE annotation key: {}", sql);
-    Array enumValsArr =
-        jdbcTemplate
-            .getJdbcOperations()
-            .execute(
-                (ConnectionCallback<Array>)
-                    con ->
-                        con.createArrayOf(
-                            "text", annotationKey.getEnumVals().toArray(new String[0])));
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("cohort_id", cohortId)
             .addValue("id", annotationKey.getId())
             .addValue("display_name", annotationKey.getDisplayName())
             .addValue("description", annotationKey.getDescription())
-            .addValue("data_type", annotationKey.getDataType().name())
-            .addValue("enum_vals", enumValsArr);
+            .addValue("data_type", annotationKey.getDataType().name());
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("CREATE annotation key rowsAffected = {}", rowsAffected);
+
+    if (!annotationKey.getEnumVals().isEmpty()) {
+      sql =
+          "INSERT INTO annotation_key_enum_value (cohort_id, annotation_key_id, enum) "
+              + "VALUES (:cohort_id, :annotation_key_id, :enum)";
+      LOGGER.debug("CREATE annotation key enum value: {}", sql);
+      List<MapSqlParameterSource> enumParamSets =
+          annotationKey.getEnumVals().stream()
+              .map(
+                  ev ->
+                      new MapSqlParameterSource()
+                          .addValue("cohort_id", cohortId)
+                          .addValue("annotation_key_id", annotationKey.getId())
+                          .addValue("enum", ev))
+              .collect(Collectors.toList());
+      rowsAffected =
+          Arrays.stream(
+                  jdbcTemplate.batchUpdate(
+                      sql, enumParamSets.toArray(new MapSqlParameterSource[0])))
+              .sum();
+      LOGGER.debug("CREATE annotation key enum value rowsAffected = {}", rowsAffected);
+    }
   }
 
   @WriteTransaction
@@ -113,7 +130,9 @@ public class AnnotationDao {
             .addValue("cohort_id", cohortId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    return jdbcTemplate.query(sql, params, ANNOTATION_KEY_ROW_MAPPER);
+    List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
+    LOGGER.debug("GET ALL annotation keys numFound = {}", annotationKeys.size());
+    return annotationKeys;
   }
 
   @ReadTransaction
@@ -134,7 +153,9 @@ public class AnnotationDao {
             .addValue("ids", annotationKeyIdList)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    return jdbcTemplate.query(sql, params, ANNOTATION_KEY_ROW_MAPPER);
+    List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
+    LOGGER.debug("GET matching annotation keys numFound = {}", annotationKeys.size());
+    return annotationKeys;
   }
 
   @ReadTransaction
@@ -143,13 +164,54 @@ public class AnnotationDao {
     LOGGER.debug("GET annotation key: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("cohort_id", cohortId).addValue("id", annotationKeyId);
-    List<AnnotationKey> annotationKeys = jdbcTemplate.query(sql, params, ANNOTATION_KEY_ROW_MAPPER);
+    List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
     LOGGER.debug("GET annotation key numFound = {}", annotationKeys.size());
+
+    // Make sure there's only one annotation key returned for this id.
     if (annotationKeys.isEmpty()) {
-      throw new NotFoundException("Annotation key not found: " + cohortId + ", " + annotationKeys);
-    } else {
-      return annotationKeys.get(0);
+      throw new NotFoundException("Annotation key not found " + cohortId + ", " + annotationKeyId);
+    } else if (annotationKeys.size() > 1) {
+      throw new SystemException(
+          "Multiple annotation keys found " + cohortId + ", " + annotationKeyId);
     }
+    return annotationKeys.get(0);
+  }
+
+  private List<AnnotationKey> getAnnotationKeysHelper(
+      String annotationKeysSql, MapSqlParameterSource annotationKeysParams) {
+    // Fetch annotation keys.
+    List<AnnotationKey.Builder> annotationKeys =
+        jdbcTemplate.query(annotationKeysSql, annotationKeysParams, ANNOTATION_KEY_ROW_MAPPER);
+    if (annotationKeys.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // Fetch enum vals. (annotation key id -> enum)
+    String sql =
+        ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL + " WHERE annotation_key_id IN (:annotation_key_ids)";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue(
+                "annotation_key_ids",
+                annotationKeys.stream().map(ak -> ak.getId()).collect(Collectors.toSet()));
+    List<Pair<String, String>> enumVals =
+        jdbcTemplate.query(sql, params, ANNOTATION_KEY_ENUM_VALUE_ROW_MAPPER);
+
+    // Put enum vals into their respective annotation keys.
+    Map<String, AnnotationKey.Builder> annotationKeysMap =
+        annotationKeys.stream()
+            .collect(Collectors.toMap(AnnotationKey.Builder::getId, Function.identity()));
+    enumVals.stream()
+        .forEach(
+            pair -> {
+              String annotationKeyId = pair.getKey();
+              String enumVal = pair.getValue();
+              annotationKeysMap.get(annotationKeyId).addEnumVal(enumVal);
+            });
+
+    return annotationKeysMap.values().stream()
+        .map(AnnotationKey.Builder::build)
+        .collect(Collectors.toList());
   }
 
   @WriteTransaction

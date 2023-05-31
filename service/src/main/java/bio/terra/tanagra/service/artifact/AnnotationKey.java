@@ -132,6 +132,13 @@ public class AnnotationKey {
       return this;
     }
 
+    public void addEnumVal(String enumVal) {
+      if (enumVals == null) {
+        enumVals = new ArrayList<>();
+      }
+      enumVals.add(enumVal);
+    }
+
     public AnnotationKey build() {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);

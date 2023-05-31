@@ -3,6 +3,7 @@ databaseChangeLog:
       id: avoid_postgres_specific_features
       author: marikomedlock
       # TODO: Remove the jsonb and 2 text[] columns in a follow-on changeset, once we're sure this migration was successful.
+      # study.properties, criteria.tags, annotation_key.enumVals
       changes:
         - createTable:
             tableName: study_property
@@ -83,7 +84,6 @@ databaseChangeLog:
                   type: text
                   constraints:
                     nullable: false
-        # No migration SQL because the criteria.tags text[] column is not yet being used by the UI.
         - addUniqueConstraint:
             constraintName: u_ct
             tableName: criteria_tag
@@ -95,5 +95,45 @@ databaseChangeLog:
             referencedColumnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
             referencedTableName: criteria
         - dropNotNullConstraint:
-            columnName:  tags
             tableName:  criteria
+            columnName:  tags
+        # No migration SQL because the criteria.tags text[] column is not yet being used by the UI.
+
+        - createTable:
+            tableName: annotation_key_enum_value
+            columns:
+              - column:
+                  name: enum
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: annotation_key_id
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_id
+                  type: text
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_akev
+            tableName: annotation_key_enum_value
+            columnNames: enum, annotation_key_id, cohort_id
+        - addForeignKeyConstraint:
+            constraintName: fk_akev_ak
+            baseColumnNames: annotation_key_id, cohort_id
+            baseTableName: annotation_key_enum_value
+            referencedColumnNames: id, cohort_id
+            referencedTableName: annotation_key
+            onDelete: CASCADE
+            validate: true
+        - dropNotNullConstraint:
+            tableName:  annotation_key
+            columnName:  enum_vals
+        - sql:
+            # Migrate the enum values of existing annotation keys from the text[] column to this table.
+            sql: |
+              INSERT INTO annotation_key_enum_value (cohort_id, annotation_key_id, enum) 
+                SELECT cohort_id, id AS annotation_key_id, unnest(enum_vals) AS enum FROM annotation_key;
