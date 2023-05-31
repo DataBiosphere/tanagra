@@ -843,6 +843,50 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/underlays/{underlayName}/exportImplementations":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayNameV2"
+    get:
+      summary: List the export implementations available to an underlay
+      operationId: listExportImplementations
+      tags: [Export]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportImplementationList"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/export":
+    parameters:
+      - $ref: "#/components/parameters/StudyIdV2"
+    post:
+      summary: Export entity instances and review annotations.
+      operationId: exportInstancesAndAnnotations
+      tags: [Export]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportResult"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   /v2/vumc-admin-service-test:
     get:
       tags: [Test]
@@ -2292,6 +2336,74 @@ components:
           type: string
         round-trip:
           type: string
+
+    ExportRequest:
+      type: object
+      properties:
+        exportImplementation:
+          description: The name of the export implementation to use (e.g. list of files, zip file)
+          type: string
+        exportParams:
+          description: Optional parameters to pass to the export implementation
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+        cohorts:
+          description: List of cohort ids
+          type: array
+          items:
+            type: string
+        includeAnnotations:
+          description: Includes the annotation data in the export request when true
+          type: boolean
+        instanceQuerys:
+          # TODO: Replace this with a list of concept set ids once we can build the entity filters on the backend.
+          type: array
+          items:
+            type: object
+            properties:
+              entity:
+                type: string
+                nullable: false
+              query:
+                $ref: "#/components/schemas/QueryV2"
+
+    ExportResult:
+      type: object
+      properties:
+        exportOutput:
+          description: Key-value map of the export implementation outputs (e.g. signedUrl=gs://... )
+          type: object
+          additionalProperties:
+            type: string
+
+    ExportImplementation:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+        description:
+          type: string
+          nullable: true
+        inputs:
+          description: Map of input parameter names to descriptions
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+        outputs:
+          description: Map of output names to descriptions
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+
+    ExportImplementationList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ExportImplementation"
 
     ErrorReportV2:
       type: object
