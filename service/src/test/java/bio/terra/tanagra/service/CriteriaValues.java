@@ -2,7 +2,7 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.service.artifact.Criteria;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class CriteriaValues {
@@ -18,7 +18,7 @@ public final class CriteriaValues {
               .pluginName("demographic")
               .selectionData("{gender:'F'}")
               .uiConfig("{entity:'person', attribute:'gender'}")
-              .tags(List.of("tag1", "tag2", "tag3"))
+              .tags(Map.of("0", "tag1", "1", "tag2", "2", "tag3"))
               .build());
 
   public static final Pair<String, Criteria> ETHNICITY_EQ_JAPANESE =
@@ -29,7 +29,7 @@ public final class CriteriaValues {
               .pluginName("demographic")
               .selectionData("{ethnicity:'jpn'}")
               .uiConfig("{entity:'person', attribute:'ethnicity'}")
-              .tags(List.of("tag1"))
+              .tags(Map.of("1", "tag1"))
               .build());
 
   public static final Pair<String, Criteria> CONDITION_EQ_DIABETES =
@@ -40,7 +40,7 @@ public final class CriteriaValues {
               .pluginName("condition")
               .selectionData("{condition:445645}")
               .uiConfig("{entity:'condition', attribute:'id'}")
-              .tags(Collections.emptyList())
+              .tags(Collections.emptyMap())
               .build());
 
   public static final Pair<String, Criteria> PROCEDURE_EQ_AMPUTATION =
@@ -51,6 +51,6 @@ public final class CriteriaValues {
               .pluginName("procedure")
               .selectionData("{procedure:234523}")
               .uiConfig("{entity:'procedure', attribute:'id'}")
-              .tags(List.of("tag4", "tag5"))
+              .tags(Map.of("0", "tag4", "2", "tag5"))
               .build());
 }

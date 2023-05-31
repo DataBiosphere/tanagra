@@ -109,7 +109,8 @@ public final class ToApiConversionUtils {
         .displayName(criteria.getDisplayName())
         .pluginName(criteria.getPluginName())
         .selectionData(criteria.getSelectionData())
-        .uiConfig(criteria.getUiConfig());
+        .uiConfig(criteria.getUiConfig())
+        .tags(criteria.getTags());
   }
 
   public static ApiInstanceCountV2 toApiObject(EntityInstanceCount entityInstanceCount) {

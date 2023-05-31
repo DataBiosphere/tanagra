@@ -7,7 +7,6 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
@@ -43,7 +42,7 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
-      "SELECT concept_set_id, id, display_name, plugin_name, selection_data, ui_config, tags FROM criteria";
+      "SELECT concept_set_id, id, display_name, plugin_name, selection_data, ui_config FROM criteria";
   private static final RowMapper<Pair<String, Criteria.Builder>> CRITERIA_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -53,9 +52,16 @@ public class ConceptSetDao {
                   .displayName(rs.getString("display_name"))
                   .pluginName(rs.getString("plugin_name"))
                   .selectionData(rs.getString("selection_data"))
-                  .uiConfig(rs.getString("ui_config"))
-                  .tags(Arrays.asList((String[]) rs.getArray("tags").getArray())));
+                  .uiConfig(rs.getString("ui_config")));
 
+  // SQL query and row mapper for reading a criteria tag.
+  private static final String CRITERIA_TAG_SELECT_SQL =
+      "SELECT criteria_id, concept_set_id, key, value FROM criteria_tag";
+  private static final RowMapper<Pair<List<String>, Pair<String, String>>> CRITERIA_TAG_ROW_MAPPER =
+      (rs, rowNum) ->
+          Pair.of(
+              List.of(rs.getString("criteria_id"), rs.getString("concept_set_id")),
+              Pair.of(rs.getString("key"), rs.getString("value")));
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -158,7 +164,6 @@ public class ConceptSetDao {
     // Update the concept set: display name, description, entity, last modified, last modified by.
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("id", id)
             .addValue("last_modified", Timestamp.from(Instant.now()))
             .addValue("last_modified_by", lastModifiedBy);
     if (displayName != null) {
@@ -172,6 +177,7 @@ public class ConceptSetDao {
     }
     String sql =
         String.format("UPDATE concept_set SET %s WHERE id = :id", DbUtils.setColumnsClause(params));
+    params.addValue("id", id);
     LOGGER.debug("UPDATE concept set: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE concept set rowsAffected = {}", rowsAffected);
@@ -201,6 +207,27 @@ public class ConceptSetDao {
     List<Pair<String, Criteria.Builder>> criterias =
         jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER);
 
+    // Fetch criteria tags. (criteria id, concept set id -> tag)
+    sql = CRITERIA_TAG_SELECT_SQL + " WHERE concept_set_id IN (:concept_set_ids)";
+    List<Pair<List<String>, Pair<String, String>>> tags =
+        jdbcTemplate.query(sql, params, CRITERIA_TAG_ROW_MAPPER);
+
+    // Put the tags into their respective criteria.
+    Map<List<String>, Criteria.Builder> criteriasMap =
+        criterias.stream()
+            .collect(
+                Collectors.toMap(
+                    pair -> List.of(pair.getValue().getId(), pair.getKey()),
+                    pair -> pair.getValue()));
+    tags.stream()
+        .forEach(
+            pair -> {
+              List<String> criteraAndConceptSetId = pair.getKey();
+              String tagKey = pair.getValue().getKey();
+              String tagValue = pair.getValue().getValue();
+              criteriasMap.get(criteraAndConceptSetId).addTag(tagKey, tagValue);
+            });
+
     // Put criteria into their respective concept sets.
     Map<String, ConceptSet.Builder> conceptSetsMap =
         conceptSets.stream()
@@ -227,10 +254,16 @@ public class ConceptSetDao {
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("DELETE criteria rowsAffected = {}", rowsAffected);
 
+    // Delete any existing criteria tags.
+    sql = "DELETE FROM criteria_tag WHERE concept_set_id = :concept_set_id";
+    LOGGER.debug("DELETE criteria tag: {}", sql);
+    rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("DELETE criteria tag rowsAffected = {}", rowsAffected);
+
     // Write the criteria.
     sql =
-        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, selection_data, ui_config, tags, list_index) "
-            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :tags, :list_index)";
+        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, selection_data, ui_config, list_index) "
+            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
     List<MapSqlParameterSource> criteriaParamSets =
         criteria.stream()
@@ -243,7 +276,6 @@ public class ConceptSetDao {
                         .addValue("plugin_name", c.getPluginName())
                         .addValue("selection_data", c.getSelectionData())
                         .addValue("ui_config", c.getUiConfig())
-                        .addValue("tags", c.getTags().toArray(new String[0]), Types.ARRAY)
                         .addValue("list_index", 0))
             .collect(Collectors.toList());
     rowsAffected =
@@ -252,5 +284,29 @@ public class ConceptSetDao {
                     sql, criteriaParamSets.toArray(new MapSqlParameterSource[0])))
             .sum();
     LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
+
+    // Write the criteria tags.
+    sql =
+        "INSERT INTO criteria_tag (concept_set_id, criteria_id, key, value) VALUES (:concept_set_id, :criteria_id, :key, :value)";
+    LOGGER.debug("CREATE criteria tag: {}", sql);
+    List<MapSqlParameterSource> tagParamSets = new ArrayList<>();
+    criteria.stream()
+        .forEach(
+            c ->
+                tagParamSets.addAll(
+                    c.getTags().entrySet().stream()
+                        .map(
+                            tag ->
+                                new MapSqlParameterSource()
+                                    .addValue("concept_set_id", conceptSetId)
+                                    .addValue("criteria_id", c.getId())
+                                    .addValue("key", tag.getKey())
+                                    .addValue("value", tag.getValue()))
+                        .collect(Collectors.toList())));
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE criteria tag rowsAffected = {}", rowsAffected);
   }
 }

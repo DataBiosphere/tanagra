@@ -147,6 +147,13 @@ public class Study {
       return this;
     }
 
+    public void addProperty(String key, String value) {
+      if (properties == null) {
+        properties = new HashMap<>();
+      }
+      properties.put(key, value);
+    }
+
     public Builder created(OffsetDateTime created) {
       this.created = created;
       return this;
