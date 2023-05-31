@@ -10,9 +10,9 @@ describe("Basic tests", () => {
     cy.get("input[name=text]").type(cohortName);
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add criteria)").first().click();
-    cy.get("[data-testid='tanagra-conditions']").click();
-    cy.get("input").type("Lid retraction");
-    cy.get("button:Contains(Lid retraction)", { timeout: 20000 })
+    cy.get("[data-testid='tanagra-procedures']").click();
+    cy.get("input").type("Retrograde pyelogram");
+    cy.get("button:Contains(Retrograde pyelogram)", { timeout: 20000 })
       .first()
       .click();
 
@@ -25,12 +25,12 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Review)").click();
 
-    cy.contains("Condition name", { timeout: 20000 });
-    cy.contains("Lid retraction");
+    cy.get("button:Contains(Procedures)", { timeout: 20000 }).click();
+    cy.contains("Retrograde pyelogram");
     cy.contains("1/5");
 
-    cy.get("button:Contains(Procedure)").click();
-    cy.contains("Procedure name");
+    cy.get("button:Contains(Conditions)").click();
+    cy.contains("Condition name");
 
     cy.get("[data-testid='KeyboardArrowRightIcon']").click();
     cy.get("button:Contains(Condition)", { timeout: 20000 }).click();

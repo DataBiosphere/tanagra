@@ -4,6 +4,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { AnnotationType } from "data/source";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
 import { Select, TextField } from "mui-rff";
 import { useState } from "react";
 import { Form } from "react-final-form";
@@ -12,6 +14,11 @@ type Preset = {
   label: string;
   annotationType: AnnotationType;
   enumVals?: string[];
+};
+
+type FormData = {
+  preset: number;
+  displayName: string;
 };
 
 const presets: Preset[] = [
@@ -41,6 +48,11 @@ export function useNewAnnotationDialog(
   const [open, setOpen] = useState(false);
   const show = () => setOpen(true);
 
+  const initialValues: FormData = {
+    preset: 0,
+    displayName: "",
+  };
+
   return [
     // eslint-disable-next-line react/jsx-key
     <Dialog
@@ -56,34 +68,45 @@ export function useNewAnnotationDialog(
         Create New Annotation
       </DialogTitle>
       <Form
-        initialValues={{ preset: 0 }}
-        onSubmit={({ displayName, preset }) => {
+        initialValues={initialValues}
+        validate={({ displayName }: FormData) => {
+          if (!displayName) {
+            return { displayName: "Display name may not be blank." };
+          }
+        }}
+        onSubmit={({ displayName, preset }: FormData) => {
           setOpen(false);
 
           const p = presets[preset];
           props.onCreate(displayName, p.annotationType, p.enumVals);
         }}
-        render={({ handleSubmit }) => (
-          <form onSubmit={handleSubmit}>
+        render={({ handleSubmit, invalid }) => (
+          <form noValidate onSubmit={handleSubmit}>
             <DialogContent>
-              <Select
-                fullWidth
-                required
-                name="preset"
-                label="Preset"
-                data={presets.map((p, i) => ({ label: p.label, value: i }))}
-              />
-              <TextField
-                autoFocus
-                fullWidth
-                required
-                name="displayName"
-                label="Display name"
-              />
+              <GridLayout rows>
+                <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
+                  <Select
+                    fullWidth
+                    required
+                    name="preset"
+                    label="Preset"
+                    data={presets.map((p, i) => ({ label: p.label, value: i }))}
+                  />
+                </GridBox>
+                <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
+                  <TextField
+                    autoFocus
+                    fullWidth
+                    required
+                    name="displayName"
+                    label="Display name"
+                  />
+                </GridBox>
+              </GridLayout>
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" variant="contained">
+              <Button type="submit" variant="contained" disabled={invalid}>
                 Create
               </Button>
             </DialogActions>
