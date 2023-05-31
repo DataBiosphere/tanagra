@@ -1,20 +1,4 @@
 databaseChangeLog:
-  - property:
-      dbms: postgresql
-      name: _id.type
-      value: text
-  - property:
-      dbms: mariadb,mysql
-      name: _id.type
-      value: varchar(50)
-  - property:
-      dbms: postgresql
-      name: _text.type
-      value: text
-  - property:
-      dbms: mariadb,mysql
-      name: _text.type
-      value: varchar(255)
   - changeSet:
       id: avoid_postgres_specific_features
       author: marikomedlock, chenchalsubraveti
@@ -26,7 +10,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: study_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     references: study(id)
                     foreignKeyName: fk_sp_s
@@ -35,12 +19,12 @@ databaseChangeLog:
                   remarks: Deleting a study will cascade to delete its properties
               - column:
                   name: key
-                  type: ${_text.type}
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: value
-                  type: ${_text.type}
+                  type: ${text.type}
                   constraints:
                     nullable: true
         - addUniqueConstraint:
@@ -59,22 +43,22 @@ databaseChangeLog:
             columns:
               - column:
                   name: criteria_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: criteria_group_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     nullable: true
               - column:
                   name: criteria_group_section_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     nullable: true
               - column:
                   name: cohort_revision_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     references: cohort_revision(id)
                     foreignKeyName: ck_crit_cr
@@ -83,7 +67,7 @@ databaseChangeLog:
                   remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
               - column:
                   name: concept_set_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     references: concept_set(id)
                     foreignKeyName: fk_crit_cs
@@ -92,12 +76,12 @@ databaseChangeLog:
                   remarks: Deleting a concept set will cascade to delete the criteria contained in it
               - column:
                   name: key
-                  type: ${_text.type}
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: value
-                  type: ${_text.type}
+                  type: ${text.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -120,17 +104,17 @@ databaseChangeLog:
             columns:
               - column:
                   name: enum
-                  type: ${_text.type}
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: annotation_key_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: cohort_id
-                  type: ${_id.type}
+                  type: ${id.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:

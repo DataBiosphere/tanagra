@@ -17,6 +17,14 @@ databaseChangeLog:
       value: varchar(255)
   - property:
       dbms: postgresql
+      name: long.text.type
+      value: text
+  - property:
+      dbms: mariadb,mysql
+      name: long.text.type
+      value: longtext
+  - property:
+      dbms: postgresql
       name: text.array.type
       value: text[]
   - property:
@@ -481,12 +489,12 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: selection_data
-                  type: ${text.type}
+                  type: ${long.text.type}
                   constraints:
                     nullable: false
               - column:
                   name: ui_config
-                  type: ${text.type}
+                  type: ${long.text.type}
                   constraints:
                     nullable: false
               - column:
