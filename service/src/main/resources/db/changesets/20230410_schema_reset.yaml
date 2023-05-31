@@ -33,7 +33,7 @@ databaseChangeLog:
       value: longtext
   - changeSet:
       id: schema_reset
-      author: marikomedlock
+      author: marikomedlock, chenchalsubraveti
       changes:
         - createTable:
             tableName: study

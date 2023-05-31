@@ -17,8 +17,7 @@ databaseChangeLog:
       value: varchar(255)
   - changeSet:
       id: avoid_postgres_specific_features
-      author: marikomedlock
-      dbms: postgres
+      author: marikomedlock, chenchalsubraveti
       # TODO: Remove the jsonb and 2 text[] columns in a follow-on changeset, once we're sure this migration was successful.
       # study.properties, criteria.tags, annotation_key.enumVals
       changes:
