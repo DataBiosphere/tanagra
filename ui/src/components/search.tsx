@@ -16,6 +16,8 @@ export type SearchProps = {
   initialValue?: string;
   searchKey?: string;
   delayMs?: number;
+
+  showSearchButton?: boolean;
 };
 
 export function Search(props: SearchProps) {
@@ -49,11 +51,11 @@ export function Search(props: SearchProps) {
   };
 
   return (
-    <Box m={1}>
+    <Box>
       <Form
         initialValues={{ query: props.initialValue }}
         onSubmit={({ query }) => onSearch(query)}
-        render={({ handleSubmit, form }) => (
+        render={({ handleSubmit, form, values }) => (
           <form onSubmit={handleSubmit}>
             <Stack direction="row" justifyContent="center" alignItems="center">
               <TextField
@@ -62,8 +64,16 @@ export function Search(props: SearchProps) {
                 name="query"
                 placeholder={props.placeholder}
                 autoComplete="off"
+                sx={{
+                  backgroundColor: (theme) => theme.palette.info.main,
+                }}
                 InputProps={{
-                  endAdornment: (
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: values.query?.length ? (
                     <InputAdornment position="end">
                       <IconButton
                         onClick={() => {
@@ -76,15 +86,17 @@ export function Search(props: SearchProps) {
                         <ClearIcon />
                       </IconButton>
                     </InputAdornment>
-                  ),
+                  ) : undefined,
                 }}
               />
               <OnChange name="query">
                 {(query: string) => onChange(query)}
               </OnChange>
-              <IconButton type="submit">
-                <SearchIcon />
-              </IconButton>
+              {props.showSearchButton ? (
+                <IconButton type="submit">
+                  <SearchIcon />
+                </IconButton>
+              ) : null}
             </Stack>
           </form>
         )}

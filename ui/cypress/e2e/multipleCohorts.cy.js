@@ -1,13 +1,13 @@
 describe("Basic tests", () => {
   it("Multiple cohorts", () => {
     const cohortName1 = "multiple cohorts 1";
-    cy.createCohortFromSearch(cohortName1, "Red color", "Condition");
+    cy.createCohortFromSearch(cohortName1, "Red color", "tanagra-conditions");
 
     const cohortName2 = "multiple cohorts 2";
     cy.createCohortFromSearch(
       cohortName2,
       "Asymptomatic bacteriuria in pregnancy - delivered",
-      "Condition"
+      "tanagra-conditions"
     );
 
     const id1 = "20320899";

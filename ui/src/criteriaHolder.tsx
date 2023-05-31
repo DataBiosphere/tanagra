@@ -1,6 +1,5 @@
 import ActionBar from "actionBar";
 import { CriteriaPlugin } from "cohort";
-import CohortToolbar from "cohortToolbar";
 import { useState } from "react";
 
 export type CriteriaHolderProps = {
@@ -19,7 +18,6 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
       <ActionBar
         title={props.title}
         backURL={backURL ?? props.defaultBackURL}
-        extraControls={props.cohort ? <CohortToolbar /> : undefined}
       />
       {props.plugin.renderEdit?.(props.doneURL ?? "..", setBackURL)}
     </>
