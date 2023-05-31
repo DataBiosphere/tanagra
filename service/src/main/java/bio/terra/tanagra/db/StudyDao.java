@@ -215,7 +215,7 @@ public class StudyDao {
   public boolean updateStudy(
       String id, String lastModifiedBy, @Nullable String name, @Nullable String description) {
     MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("id", id).addValue("last_modified_by", lastModifiedBy);
+        new MapSqlParameterSource().addValue("last_modified_by", lastModifiedBy);
     if (name != null) {
       params.addValue("display_name", name);
     }
@@ -227,6 +227,7 @@ public class StudyDao {
         String.format(
             "UPDATE study SET %s, last_modified = current_timestamp WHERE id = :id",
             DbUtils.setColumnsClause(params));
+    params.addValue("id", id);
     LOGGER.debug("UPDATE study: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE study rowsAffected = {}", rowsAffected);
@@ -293,7 +294,7 @@ public class StudyDao {
         .forEach(
             pair -> {
               String studyId = pair.getKey();
-              Map.Entry<String, String> property = pair.getValue();
+              Pair<String, String> property = pair.getValue();
               studiesMap.get(studyId).addProperty(property.getKey(), property.getValue());
             });
 
