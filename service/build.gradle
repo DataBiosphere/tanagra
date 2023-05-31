@@ -79,6 +79,26 @@ dependencies {
     implementation group: "com.google.guava", name: "guava"
     implementation 'com.google.apis:google-api-services-oauth2:v2-rev20200213-1.32.1'
 
+    // Dependencies required by specific application DB deployment configurations.
+    if (project.hasProperty('APP_DB')) {
+        String appDB = project.property('APP_DB')
+        switch (appDB) {
+            case 'MARIA':
+                // TODO: Specify version.
+                implementation group: "org.mariadb.jdbc", name: "mariadb-java-client"
+                break;
+            case 'CLOUDSQL_POSTGRES':
+                // TODO: Add CloudSQL PostGres client library here, once the SDD deployment is working. e.g.
+                // implementation group: "com.google.cloud.sql", name: "postgres-socket-factory", version: "..."
+                break;
+            case 'LOCALHOST_POSTGRES':
+                // This is the default, no additional dependencies needed.
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown APP_DB property value: " + appDB);
+        }
+    }
+
     // Dependencies whose versions are controlled by Spring
     implementation group: "javax.validation", name: "validation-api"
     implementation group: "org.apache.commons", name: "commons-dbcp2"
@@ -113,7 +133,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
-
 
     // Static analysis
     compileOnly "com.google.code.findbugs:annotations:3.0.1u2"

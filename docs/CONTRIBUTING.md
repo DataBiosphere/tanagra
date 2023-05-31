@@ -4,9 +4,11 @@ The project is shared across the All Of Us and Terra partnerships.
 
 * [Development](#development)
    * [Broad Credentials](#broad-credentials)
-   * [Local Postgres](#local-postgres)
+   * [Local Application DB](#local-application-db)
+     * [PostGres](#postgres)
    * [Build And Run Tests](#build-and-run-tests)
    * [Local Server](#local-server)
+   * [Deployment-Specific Dependencies](#deployment-specific-dependencies)
    * [Adding dependencies](#adding-dependencies)
    * [Generate SQL Golden Files](#generate-sql-golden-files)
 * [Deployment](#deployment)
@@ -36,8 +38,9 @@ Use the key file to set the `gcloud` application default credentials.
 export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/rendered/tanagra_sa.json
 ```
 
-### Local Postgres
-Tests and a local server use a local Postgres database.
+### Local Application DB
+#### PostGres
+Tests and a local server use a local Postgres database by default.
 
 To start a postgres container configured with the necessary databases:
 ```
@@ -77,15 +80,26 @@ See [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.htm
 
 You can also run the local server with authentication disabled. This is useful when testing the UI, which does not 
 have a login flow yet. (We rely on IAP to handle the Google OAuth flow in our dev deployments.)
-
 ```
 ./service/local-dev/run_server.sh -a
 ```
 
 You can also run against the Verily underlays instead of the Broad ones if using Verily credentials.
-
 ```
 ./service/local-dev/run_server.sh -v
+```
+
+### Deployment-Specific Dependencies
+Some deployments may require dependencies to connect to their application DB that we don't want to enable by default.
+These optional, deployment-specific dependencies are controlled by the Gradle `APP_DB` project property. The available
+options are listed below and in the `build.gradle` file.
+
+You can enable these for building and running tests, or starting a local server.
+```
+./gradlew -PAPP_DB=MARIA clean build
+./gradlew -PAPP_DB=CLOUDSQL_POSTGRES clean build
+
+./service/local-dev/run_server.sh -a MARIA
 ```
 
 ### Adding dependencies

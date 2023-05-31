@@ -19,6 +19,7 @@ while getopts ":av" arg; do
       ;;
   esac
 done
+applicationDB=$2
 
 export TANAGRA_DATABASE_NAME=tanagra_db
 export TANAGRA_DB_INITIALIZE_ON_START=false
@@ -48,6 +49,11 @@ else
   echo "Enabling auth checks."
   export TANAGRA_AUTH_DISABLE_CHECKS=false
   export TANAGRA_AUTH_BEARER_TOKEN=true
+fi
+
+if [[ ${applicationDB} ]]; then
+  echo "Setting the application DB Gradle project property. $applicationDB"
+  export ORG_GRADLE_PROJECT_APP_DB=$applicationDB
 fi
 
 echo
