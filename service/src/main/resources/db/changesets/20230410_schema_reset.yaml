@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: schema_reset
       author: marikomedlock
-      dbms: postgres
+      dbms: postgresql
       changes:
         - createTable:
             tableName: study
