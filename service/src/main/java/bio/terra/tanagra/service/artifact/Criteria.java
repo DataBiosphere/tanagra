@@ -1,8 +1,6 @@
 package bio.terra.tanagra.service.artifact;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class Criteria {
@@ -11,7 +9,7 @@ public class Criteria {
   private final String pluginName;
   private final String selectionData;
   private final String uiConfig;
-  private final List<String> tags;
+  private final Map<String, String> tags;
 
   private Criteria(
       String id,
@@ -19,7 +17,7 @@ public class Criteria {
       String pluginName,
       String selectionData,
       String uiConfig,
-      List<String> tags) {
+      Map<String, String> tags) {
     this.id = id;
     this.displayName = displayName;
     this.pluginName = pluginName;
@@ -52,7 +50,7 @@ public class Criteria {
     return uiConfig;
   }
 
-  public List<String> getTags() {
+  public Map<String, String> getTags() {
     return tags;
   }
 
@@ -62,7 +60,7 @@ public class Criteria {
     private String pluginName;
     private String selectionData;
     private String uiConfig;
-    private List<String> tags = new ArrayList<>();
+    private Map<String, String> tags = new HashMap<>();
 
     public Builder id(String id) {
       this.id = id;
@@ -89,7 +87,7 @@ public class Criteria {
       return this;
     }
 
-    public Builder tags(List<String> tags) {
+    public Builder tags(Map<String, String> tags) {
       this.tags = tags;
       return this;
     }
@@ -105,8 +103,11 @@ public class Criteria {
       return id;
     }
 
-    public void addTag(String tag) {
-      tags.add(tag);
+    public void addTag(String key, String value) {
+      if (tags == null) {
+        tags = new HashMap<>();
+      }
+      tags.put(key, value);
     }
   }
 

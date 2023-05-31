@@ -11,7 +11,6 @@ import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
 import bio.terra.tanagra.service.artifact.Criteria;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
@@ -101,7 +100,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
-      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, tags FROM criteria";
+      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config FROM criteria";
   private static final RowMapper<Pair<List<String>, Criteria.Builder>> CRITERIA_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -114,9 +113,20 @@ public class CohortDao {
                   .displayName(rs.getString("display_name"))
                   .pluginName(rs.getString("plugin_name"))
                   .selectionData(rs.getString("selection_data"))
-                  .uiConfig(rs.getString("ui_config"))
-                  .tags(Arrays.asList((String[]) rs.getArray("tags").getArray())));
+                  .uiConfig(rs.getString("ui_config")));
 
+  // SQL query and row mapper for reading a criteria tag.
+  private static final String CRITERIA_TAG_SELECT_SQL =
+      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, key, value FROM criteria_tag";
+  private static final RowMapper<Pair<List<String>, Pair<String, String>>> CRITERIA_TAG_ROW_MAPPER =
+      (rs, rowNum) ->
+          Pair.of(
+              List.of(
+                  rs.getString("criteria_id"),
+                  rs.getString("criteria_group_id"),
+                  rs.getString("criteria_group_section_id"),
+                  rs.getString("cohort_revision_id")),
+              Pair.of(rs.getString("key"), rs.getString("value")));
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -424,6 +434,55 @@ public class CohortDao {
       criterias = jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER);
     }
 
+    // Fetch criteria tags. (criteria -> tag)
+    List<Pair<List<String>, Pair<String, String>>> tags;
+    if (criterias.isEmpty()) {
+      tags = Collections.emptyList();
+    } else {
+      sql =
+          CRITERIA_TAG_SELECT_SQL
+              + " WHERE criteria_id IN (:criteria_ids) AND criteria_group_id IN (:criteria_group_ids) AND criteria_group_section_id IN (:criteria_group_section_ids) AND cohort_revision_id IN (:cohort_revision_ids)";
+      params =
+          new MapSqlParameterSource()
+              .addValue(
+                  "criteria_ids",
+                  criterias.stream().map(c -> c.getValue().getId()).collect(Collectors.toSet()))
+              .addValue(
+                  "criteria_group_ids",
+                  criteriaGroups.stream()
+                      .map(cg -> cg.getValue().getId())
+                      .collect(Collectors.toSet()))
+              .addValue(
+                  "criteria_group_section_ids",
+                  criteriaGroupSections.stream()
+                      .map(cgs -> cgs.getValue().getId())
+                      .collect(Collectors.toSet()))
+              .addValue(
+                  "cohort_revision_ids",
+                  cohortRevisions.stream()
+                      .map(cr -> cr.getValue().getId())
+                      .collect(Collectors.toSet()));
+      tags = jdbcTemplate.query(sql, params, CRITERIA_TAG_ROW_MAPPER);
+    }
+
+    // Put criteria tags in their respective criterias.
+    Map<List<String>, Criteria.Builder> criteriasMap =
+        criterias.stream()
+            .collect(
+                Collectors.toMap(
+                    c -> {
+                      List<String> uniqueId = new ArrayList<>();
+                      uniqueId.add(c.getValue().getId());
+                      uniqueId.addAll(c.getKey());
+                      return uniqueId;
+                    },
+                    c -> c.getValue()));
+    for (Pair<List<String>, Pair<String, String>> pair : tags) {
+      List<String> criteriaId = pair.getKey();
+      Pair<String, String> tag = pair.getValue();
+      criteriasMap.get(criteriaId).addTag(tag.getKey(), tag.getValue());
+    }
+
     // Put criteria into their respective criteria groups.
     Map<List<String>, CohortRevision.CriteriaGroup.Builder> criteriaGroupsMap =
         criteriaGroups.stream()
@@ -471,9 +530,10 @@ public class CohortDao {
     }
   }
 
+  @SuppressWarnings("checkstyle:NestedForDepth")
   private void updateCriteriaHelper(
       String cohortRevisionId, List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
-    // Delete any existing criteria group sections, criteria groups, and criteria.
+    // Delete any existing criteria group sections, criteria groups, criteria, and tags.
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("cohort_revision_id", cohortRevisionId);
     String sql =
@@ -492,10 +552,16 @@ public class CohortDao {
     rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("DELETE criteria rowsAffected = {}", rowsAffected);
 
-    // Write the criteria group sections, criteria groups, and criteria.
+    sql = "DELETE FROM criteria_tag WHERE cohort_revision_id = :cohort_revision_id";
+    LOGGER.debug("DELETE criteria_tag: {}", sql);
+    rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("DELETE criteria_tag rowsAffected = {}", rowsAffected);
+
+    // Write the criteria group sections, criteria groups, criteria, and tags.
     List<MapSqlParameterSource> sectionParamSets = new ArrayList<>();
     List<MapSqlParameterSource> groupParamSets = new ArrayList<>();
     List<MapSqlParameterSource> criteriaParamSets = new ArrayList<>();
+    List<MapSqlParameterSource> tagParamSets = new ArrayList<>();
 
     for (int cgsListIndex = 0; cgsListIndex < criteriaGroupSections.size(); cgsListIndex++) {
       CohortRevision.CriteriaGroupSection cgs = criteriaGroupSections.get(cgsListIndex);
@@ -537,8 +603,18 @@ public class CohortDao {
                   .addValue("plugin_name", c.getPluginName())
                   .addValue("selection_data", c.getSelectionData())
                   .addValue("ui_config", c.getUiConfig())
-                  .addValue("tags", c.getTags().toArray(new String[0]), Types.ARRAY)
                   .addValue("list_index", cListIndex));
+
+          for (Map.Entry<String, String> t : c.getTags().entrySet()) {
+            tagParamSets.add(
+                new MapSqlParameterSource()
+                    .addValue("cohort_revision_id", cohortRevisionId)
+                    .addValue("criteria_group_section_id", cgs.getId())
+                    .addValue("criteria_group_id", cg.getId())
+                    .addValue("criteria_id", c.getId())
+                    .addValue("key", t.getKey())
+                    .addValue("value", t.getValue()));
+          }
         }
       }
     }
@@ -565,8 +641,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, tags, list_index) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :tags, :list_index)";
+        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, list_index) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -574,5 +650,15 @@ public class CohortDao {
                     sql, criteriaParamSets.toArray(new MapSqlParameterSource[0])))
             .sum();
     LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
+
+    sql =
+        "INSERT INTO criteria_tag (cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, key, value) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :criteria_id, :key, :value)";
+    LOGGER.debug("CREATE criteria_tag: {}", sql);
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE criteria_tag rowsAffected = {}", rowsAffected);
   }
 }

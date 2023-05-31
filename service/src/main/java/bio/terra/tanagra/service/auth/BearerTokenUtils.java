@@ -12,6 +12,7 @@ import java.io.IOException;
 public final class BearerTokenUtils {
   private BearerTokenUtils() {}
 
+  @SuppressWarnings("deprecation")
   public static UserId getUserIdFromToken(BearerToken bearerToken)
       throws InterruptedException, IOException {
     GoogleCredential credential = new GoogleCredential().setAccessToken(bearerToken.getToken());

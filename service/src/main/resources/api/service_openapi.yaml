@@ -2074,10 +2074,11 @@ components:
           type: string # JSON formatted
           description: Serialized plugin-specific UI configuration for the criteria
         tags:
-          type: array
-          description: Unstructured tags for the criteria
-          items:
+          description: Unstructured key-value tags for the criteria
+          type: object
+          additionalProperties:
             type: string
+            nullable: true
       required:
         - id
         - displayName
