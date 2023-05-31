@@ -274,7 +274,7 @@ class FakeConceptSetsAPI {
           pluginName: "test_plugin",
           selectionData: "test_data",
           uiConfig: "test_config",
-          tags: [],
+          tags: {},
         },
       },
     ];

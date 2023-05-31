@@ -1669,7 +1669,7 @@ function toAPICriteria(criteria: tanagra.Criteria): tanagra.CriteriaV2 {
   return {
     id: criteria.id,
     displayName: "",
-    tags: [],
+    tags: {},
     pluginName: criteria.type,
     selectionData: JSON.stringify(criteria.data),
     uiConfig: JSON.stringify(criteria.config),
