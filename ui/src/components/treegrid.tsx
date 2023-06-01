@@ -6,11 +6,12 @@ import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import { useTheme } from "@mui/material/styles";
+import { Theme, useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { GridBox } from "layout/gridBox";
 import { ReactNode, useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
+import { spacing } from "util/spacing";
 
 export type TreeGridId = string | number;
 export type TreeGridValue =
@@ -60,6 +61,8 @@ export type TreeGridProps = {
   loadChildren?: (id: TreeGridId) => Promise<void>;
   minWidth?: boolean;
   wrapBodyText?: boolean;
+  rowHeight?: number | string;
+  padding?: number | string;
 };
 
 export function TreeGrid(props: TreeGridProps) {
@@ -130,10 +133,9 @@ export function TreeGrid(props: TreeGridProps) {
   }, [props.defaultExpanded]);
 
   const paperColor = theme.palette.background.paper;
-  const dividerColor = theme.palette.divider;
 
   return (
-    <GridBox sx={{ overflowY: "auto", px: 1 }}>
+    <GridBox sx={{ overflowY: "auto", px: spacing(theme, props.padding ?? 5) }}>
       <table
         style={{
           tableLayout: "fixed",
@@ -155,8 +157,9 @@ export function TreeGrid(props: TreeGridProps) {
                     width: col.width,
                     minWidth: col.width,
                   }),
+                  height: spacing(theme, props.rowHeight ?? 6),
                   backgroundColor: paperColor,
-                  boxShadow: `inset 0 -1px 0 ${dividerColor}`,
+                  boxShadow: `inset 0 -2px 0 ${theme.palette.divider}`,
                   zIndex: 1,
                 }}
               >
@@ -183,6 +186,7 @@ export function TreeGrid(props: TreeGridProps) {
         </thead>
         <tbody>
           {renderChildren(
+            theme,
             props,
             state,
             (id: TreeGridId) =>
@@ -198,6 +202,7 @@ export function TreeGrid(props: TreeGridProps) {
 }
 
 function renderChildren(
+  theme: Theme,
   props: TreeGridProps,
   state: TreeGridState,
   toggleExpanded: (id: TreeGridId) => void,
@@ -311,6 +316,8 @@ function renderChildren(
                   width: col.width,
                   minWidth: col.width,
                 }),
+                height: spacing(theme, props.rowHeight ?? 6),
+                boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
               }}
             >
               <Stack
@@ -340,6 +347,7 @@ function renderChildren(
 
     results.push(
       ...renderChildren(
+        theme,
         props,
         state,
         toggleExpanded,

@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
 import { Children, PropsWithChildren } from "react";
+import { spacing } from "util/spacing";
 import { isValid } from "util/valid";
 
 type axisDesc = undefined | number | string | ((theme: Theme) => string) | true;
@@ -116,8 +117,4 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
       ))}
     </Box>
   );
-}
-
-function spacing(theme: Theme, value?: string | number) {
-  return typeof value === "number" ? theme.spacing(value) : value;
 }

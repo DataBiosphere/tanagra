@@ -585,6 +585,8 @@ function Preview(props: PreviewProps) {
                       }))}
                     minWidth
                     wrapBodyText
+                    rowHeight="auto"
+                    padding={0}
                   />
                 ) : (
                   <Empty

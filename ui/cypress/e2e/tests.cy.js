@@ -12,7 +12,7 @@ describe("Basic tests", () => {
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("[data-testid='AccountTreeIcon']").first().click();
-    cy.get("button:Contains(Clinical finding)").click();
+    cy.get("[data-testid='Clinical finding']").click();
 
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("[data-testid='tanagra-race']").click();
@@ -28,18 +28,18 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Add criteria)").last().click();
     cy.get("[data-testid='tanagra-observations']").click();
-    cy.get("button:Contains(Marital status)", { timeout: 20000 }).click();
+    cy.get("[data-testid='Marital status']", { timeout: 20000 }).click();
 
     cy.get("button:Contains(Add criteria)").last().click();
     cy.get("input").type("clinical");
-    cy.get("button:Contains(Imaging)", { timeout: 20000 }).first().click();
+    cy.get("[data-testid='Imaging']", { timeout: 20000 }).first().click();
 
     cy.get("a[aria-label=back]").click();
 
     cy.get("button[id=insert-concept-set]").click();
     cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("[data-testid='AccountTreeIcon']").first().click();
-    cy.get("button:Contains(Clinical finding)").click();
+    cy.get("[data-testid='Clinical finding']").click();
 
     cy.get(`button[name='${cohortName}']`).click();
     cy.get("button[name='Condition: Clinical finding']").click();
