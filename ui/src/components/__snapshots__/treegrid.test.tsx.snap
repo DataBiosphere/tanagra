@@ -2,7 +2,7 @@
 
 exports[`Table renders correctly 1`] = `
 <div
-  className="css-o1f3wd"
+  className="css-1qqflhf"
 >
   <table
     style={
@@ -20,7 +20,8 @@ exports[`Table renders correctly 1`] = `
           style={
             Object {
               "backgroundColor": "#fff",
-              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "boxShadow": "inset 0 -2px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": "100%",
               "minWidth": "100%",
               "position": "sticky",
@@ -45,7 +46,8 @@ exports[`Table renders correctly 1`] = `
           style={
             Object {
               "backgroundColor": "#fff",
-              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "boxShadow": "inset 0 -2px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 150,
               "minWidth": 150,
               "position": "sticky",
@@ -70,7 +72,8 @@ exports[`Table renders correctly 1`] = `
           style={
             Object {
               "backgroundColor": "#fff",
-              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "boxShadow": "inset 0 -2px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 50,
               "minWidth": 50,
               "position": "sticky",
@@ -110,6 +113,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": "100%",
               "minWidth": "100%",
               "width": "100%",
@@ -161,6 +166,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 150,
               "minWidth": 150,
               "width": 150,
@@ -181,6 +188,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 50,
               "minWidth": 50,
               "width": 50,
@@ -209,6 +218,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": "100%",
               "minWidth": "100%",
               "width": "100%",
@@ -259,6 +270,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 150,
               "minWidth": 150,
               "width": 150,
@@ -279,6 +292,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 50,
               "minWidth": 50,
               "width": 50,
@@ -303,6 +318,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": "100%",
               "minWidth": "100%",
               "width": "100%",
@@ -323,6 +340,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 150,
               "minWidth": 150,
               "width": 150,
@@ -343,6 +362,8 @@ exports[`Table renders correctly 1`] = `
         <td
           style={
             Object {
+              "boxShadow": "inset 0 -1px 0 rgba(0, 0, 0, 0.12)",
+              "height": "48px",
               "maxWidth": 50,
               "minWidth": 50,
               "width": 50,

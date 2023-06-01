@@ -20,6 +20,6 @@ Cypress.Commands.add("createCohortFromSearch", (name, search, domain) => {
     cy.get(`[data-testid='${domain}']`).click();
   }
   cy.get("input").type(search);
-  cy.get(`button:Contains(${search})`, { timeout: 20000 }).first().click();
+  cy.get(`[data-testid='${search}']`, { timeout: 20000 }).first().click();
   cy.get("a[aria-label=back]").click();
 });

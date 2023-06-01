@@ -1,10 +1,9 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
-import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import Stack from "@mui/material/Stack";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
@@ -28,7 +27,7 @@ import {
   useSource,
 } from "data/source";
 import { DataEntry, DataKey, DataValue } from "data/types";
-import { useUpdateCriteria } from "hooks";
+import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -230,6 +229,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
     props.config.classification
   );
   const updateCriteria = useUpdateCriteria();
+  const isNewCriteria = useIsNewCriteria();
 
   const [searchData, updateSearchData] = useSearchData<SearchData>();
 
@@ -322,14 +322,18 @@ function ClassificationEdit(props: ClassificationEditProps) {
     [classificationState]
   );
 
-  const hierarchyColumns = props.config.hierarchyColumns ?? [];
+  const hierarchyColumns: TreeGridColumn[] = useMemo(
+    () => [
+      ...(props.config.hierarchyColumns ?? []),
+      { key: "t_add_button", width: 60 },
+    ],
+    [props.config.hierarchyColumns]
+  );
 
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
       ...props.config.columns,
-      ...(!!classification.hierarchy
-        ? [{ key: "view_hierarchy", width: 70, title: "Hierarchy" }]
-        : []),
+      { key: "view_hierarchy", width: classification.hierarchy ? 180 : 60 },
     ],
     [props.config.columns]
   );
@@ -396,31 +400,66 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   name: !!name ? String(name) : "",
                 };
 
-                const viewHierarchyContent =
-                  !searchData?.hierarchy && classification.hierarchy
-                    ? [
-                        {
-                          column: props.config.columns.length,
-                          content: (
-                            <Stack alignItems="center">
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  updateSearchData((data: SearchData) => {
-                                    if (rowData.view_hierarchy) {
-                                      data.hierarchy =
-                                        rowData.view_hierarchy as DataKey[];
-                                    }
-                                  });
-                                }}
-                              >
-                                <AccountTreeIcon fontSize="inherit" />
-                              </IconButton>
-                            </Stack>
-                          ),
-                        },
-                      ]
-                    : [];
+                const hierarchyButton = (
+                  <Button
+                    startIcon={<AccountTreeIcon />}
+                    onClick={() => {
+                      updateSearchData((data: SearchData) => {
+                        if (rowData.view_hierarchy) {
+                          data.hierarchy = rowData.view_hierarchy as DataKey[];
+                        }
+                      });
+                    }}
+                  >
+                    View in hierarchy
+                  </Button>
+                );
+
+                const addButton = (
+                  <Button
+                    data-testid={name}
+                    onClick={() => {
+                      updateCriteria(
+                        produce(props.data, (data) => {
+                          data.selected = [newItem];
+                          data.valueData = DEFAULT_VALUE_DATA;
+                        })
+                      );
+                      navigate(props.doneURL);
+                    }}
+                    variant="outlined"
+                    sx={{ minWidth: "auto" }}
+                  >
+                    {isNewCriteria ? "Add" : "Update"}
+                  </Button>
+                );
+
+                const listContent = !searchData?.hierarchy
+                  ? [
+                      {
+                        column: props.config.columns.length,
+                        content: (
+                          <GridLayout cols colAlign="center">
+                            {classification.hierarchy ? hierarchyButton : null}
+                            {addButton}
+                          </GridLayout>
+                        ),
+                      },
+                    ]
+                  : [];
+
+                const hierarchyContent = searchData?.hierarchy
+                  ? [
+                      {
+                        column: hierarchyColumns.length - 1,
+                        content: (
+                          <GridLayout cols colAlign="center">
+                            {addButton}
+                          </GridLayout>
+                        ),
+                      },
+                    ]
+                  : [];
 
                 if (props.config.multiSelect) {
                   const index = props.data.selected.findIndex(
@@ -450,25 +489,12 @@ function ClassificationEdit(props: ClassificationEditProps) {
                         />
                       ),
                     },
-                    ...viewHierarchyContent,
+                    ...listContent,
+                    ...hierarchyContent,
                   ];
                 }
 
-                return [
-                  {
-                    column: nameColumnIndex,
-                    onClick: () => {
-                      updateCriteria(
-                        produce(props.data, (data) => {
-                          data.selected = [newItem];
-                          data.valueData = DEFAULT_VALUE_DATA;
-                        })
-                      );
-                      navigate(props.doneURL);
-                    },
-                  },
-                  ...viewHierarchyContent,
-                ];
+                return [...listContent, ...hierarchyContent];
               }}
               loadChildren={(id: TreeGridId) => {
                 const data = classificationState.data;

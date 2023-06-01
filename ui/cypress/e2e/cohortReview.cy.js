@@ -12,9 +12,7 @@ describe("Basic tests", () => {
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("[data-testid='tanagra-procedures']").click();
     cy.get("input").type("Retrograde pyelogram");
-    cy.get("button:Contains(Retrograde pyelogram)", { timeout: 20000 })
-      .first()
-      .click();
+    cy.get("[data-testid='Retrograde pyelogram']", { timeout: 20000 }).click();
 
     cy.contains("Review").click();
 

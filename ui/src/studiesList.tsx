@@ -60,7 +60,7 @@ export function StudiesList() {
                   <Paper sx={{ p: 1 }}>
                     <Stack direction="row">
                       <Stack>
-                        <Typography variant="h4">
+                        <Typography variant="body1em">
                           {study.displayName}
                         </Typography>
                         <Typography variant="body2">

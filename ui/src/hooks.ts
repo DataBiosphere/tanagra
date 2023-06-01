@@ -110,6 +110,10 @@ export function useNewCriteria() {
   return useOptionalNewCriteria(true) as NonNullable<tanagra.Criteria>;
 }
 
+export function useIsNewCriteria() {
+  return !!useOptionalNewCriteria(false);
+}
+
 export function useGroupSectionAndGroup() {
   const { section, group } = useOptionalGroupSectionAndGroup(true);
   return {
