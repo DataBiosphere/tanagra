@@ -4,14 +4,16 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import Switch from "@mui/material/Switch";
+import Step from "@mui/material/Step";
+import StepConnector from "@mui/material/StepConnector";
+import StepLabel from "@mui/material/StepLabel";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -28,6 +30,8 @@ import { findEntity } from "data/configuration";
 import { Filter, makeArrayFilter } from "data/filter";
 import { useSource } from "data/source";
 import { useStudyId, useUnderlay } from "hooks";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
 import React, {
   Fragment,
   ReactNode,
@@ -46,6 +50,7 @@ import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
+import { isValid } from "util/valid";
 
 export function Datasets() {
   const source = useSource();
@@ -113,45 +118,48 @@ export function Datasets() {
     editable: boolean,
     conceptSets: { id: string; name: string }[]
   ) => {
-    return conceptSets.map((conceptSet) => (
-      <Stack key={conceptSet.name} direction="row" alignItems="center">
+    // TODO(tjennison): Only show demographics until we have better prepackaged
+    // concept sets.
+    const cs = conceptSets;
+    if (!editable) {
+      cs.splice(1, Infinity);
+    }
+
+    return cs.map((conceptSet, i) => (
+      <GridLayout
+        key={conceptSet.id}
+        cols
+        fillCol={2}
+        rowAlign="middle"
+        height="auto"
+        sx={{
+          boxShadow:
+            i !== 0 || editable
+              ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+              : undefined,
+        }}
+      >
         <Checkbox
-          size="small"
-          fontSize="inherit"
           name={conceptSet.name}
           checked={selectedConceptSets.has(conceptSet.id)}
           onChange={() => onToggle(updateSelectedConceptSets, conceptSet.id)}
         />
+        <Typography variant="body2">{conceptSet.name}</Typography>
+        <GridBox />
         {editable ? (
-          <Link
-            variant="body2"
-            color="inherit"
-            underline="hover"
-            component={RouterLink}
-            to={absoluteConceptSetURL(params, conceptSet.id)}
+          <Button
+            data-testid={conceptSet.name}
+            variant="outlined"
+            onClick={() =>
+              navigate(absoluteConceptSetURL(params, conceptSet.id))
+            }
+            sx={{ minWidth: "auto" }}
           >
-            {conceptSet.name}
-          </Link>
-        ) : (
-          <Typography variant="body2">{conceptSet.name}</Typography>
-        )}
-      </Stack>
+            Edit
+          </Button>
+        ) : null}
+      </GridLayout>
     ));
-  };
-
-  const allAttributesChecked = () => {
-    if (conceptSetOccurrences.length === 0) {
-      return false;
-    }
-
-    for (const occurrence of conceptSetOccurrences) {
-      for (const attribute of occurrence.attributes) {
-        if (excludedAttributes.get(occurrence.id)?.has(attribute)) {
-          return false;
-        }
-      }
-    }
-    return true;
   };
 
   const cohorts = useMemo(
@@ -163,204 +171,304 @@ export function Datasets() {
   );
 
   return (
-    <>
+    <GridBox sx={{ overflowY: "auto" }}>
       <ActionBar title="Datasets" backURL={"/underlays/" + underlay.name} />
-      <Grid container columns={3} spacing={1} sx={{ px: 4, py: 1 }}>
-        <Grid item xs={1}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Stack>
-              <Typography variant="body1em" sx={{ flexGrow: 1 }}>
-                1. Select cohorts
-              </Typography>
-              <Typography variant="body2">
-                Which participants to include
-              </Typography>
-            </Stack>
-            <IconButton id="insert-cohort" onClick={showNewCohort}>
-              <AddIcon />
-            </IconButton>
-            {dialog}
-          </Stack>
-          <Paper
-            sx={{ p: 1, overflowY: "auto", display: "block", height: "300px" }}
-          >
-            {cohorts.length === 0 && (
-              <Empty
-                maxWidth="80%"
-                title="No cohorts yet"
-                subtitle="You can create a cohort by clicking on the '+' above"
-              />
-            )}
-            {cohorts
-              .filter((cohort) => cohort.underlayName === underlay.name)
-              .map((cohort) => (
-                <Stack key={cohort.id} direction="row" alignItems="center">
-                  <Checkbox
-                    size="small"
-                    fontSize="inherit"
-                    name={cohort.name}
-                    checked={selectedCohorts.has(cohort.id)}
-                    onChange={() => onToggle(updateSelectedCohorts, cohort.id)}
-                  />
-                  <Link
-                    variant="body2"
-                    color="inherit"
-                    underline="hover"
-                    component={RouterLink}
-                    to={absoluteCohortURL(
-                      params,
-                      cohort.id,
-                      cohort.groupSections[0].id
-                    )}
-                  >
-                    {cohort.name}
-                  </Link>
-                </Stack>
-              ))}
-          </Paper>
-        </Grid>
-        <Grid item xs={1}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Stack>
-              <Typography variant="body1em" sx={{ flexGrow: 1 }}>
-                2. Select data features
-              </Typography>
-              <Typography variant="body2">
-                Which information to include about participants
-              </Typography>
-            </Stack>
-            <IconButton
-              id="insert-concept-set"
-              onClick={() => {
-                navigate(absoluteNewConceptSetURL(params));
+      <GridLayout height="auto" sx={{ py: 1, px: 5 }}>
+        <GridLayout cols="1fr 2fr" spacing={2}>
+          <GridLayout rows="auto 320px">
+            <GridLayout cols={3} fillCol={1} rowAlign="middle">
+              <GridBox sx={{ py: 2 }}>
+                <Typography variant="body1em">Cohorts</Typography>
+              </GridBox>
+              <GridBox />
+              <Button
+                startIcon={<AddIcon />}
+                variant="contained"
+                onClick={showNewCohort}
+              >
+                New cohort
+              </Button>
+              {dialog}
+            </GridLayout>
+            <Paper
+              sx={{
+                py: 2,
+                overflowY: "auto",
+                display: "block",
+                width: "100%",
+                height: "100%",
               }}
             >
-              <AddIcon />
-            </IconButton>
-          </Stack>
-          <Paper
-            sx={{ p: 1, overflowY: "auto", display: "block", height: "300px" }}
-          >
-            {underlay.uiConfiguration.prepackagedConceptSets && (
-              <>
-                <Typography variant="body1">Prepackaged</Typography>
-                {listConceptSets(
-                  false,
-                  underlay.uiConfiguration.prepackagedConceptSets
-                )}
-              </>
-            )}
-            <Typography variant="body1">Workspace</Typography>
-            {listConceptSets(
-              true,
-              (workspaceConceptSets.data ?? []).map((cs) => ({
-                id: cs.id,
-                name: getCriteriaTitle(cs.criteria),
-              }))
-            )}
-          </Paper>
-        </Grid>
-        <Grid item xs={1}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack>
-              <Typography variant="body1em" mr={1}>
-                3. Select values
-              </Typography>
-              <Typography variant="body2">
-                Which columns to include in exported tables
-              </Typography>
-            </Stack>
-            <Stack direction="row" alignItems="center">
-              <Checkbox
-                size="small"
-                fontSize="inherit"
-                name="select-all-values"
-                checked={allAttributesChecked()}
-                onChange={() =>
-                  updateExcludedAttributes((selection) => {
-                    selection.clear();
-                    if (allAttributesChecked()) {
-                      conceptSetOccurrences.forEach((occurrence) => {
-                        selection.set(
-                          occurrence.id,
-                          new Set<string>(occurrence.attributes)
-                        );
-                      });
+              <GridBox sx={{ px: 1, overflowY: "auto" }}>
+                {cohorts.length === 0 ? (
+                  <Empty
+                    maxWidth="80%"
+                    title="Cohorts are groups of people with common traits"
+                    subtitle={
+                      <>
+                        <Link
+                          variant="link"
+                          underline="hover"
+                          onClick={showNewCohort}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          Create a new cohort
+                        </Link>{" "}
+                        to define criteria
+                      </>
                     }
-                  })
-                }
-              />
-              <Typography variant="body2">
-                {allAttributesChecked() ? "Deselect all" : "Select all"}
-              </Typography>
-            </Stack>
-          </Stack>
-          <Paper
-            sx={{ p: 1, overflowY: "auto", display: "block", height: "300px" }}
-          >
-            {conceptSetOccurrences.length === 0 && (
-              <Empty
-                maxWidth="80%"
-                title="No inputs selected"
-                subtitle="You can view the available values by selecting at least one cohort and data feature"
-              />
-            )}
-            {conceptSetOccurrences.map((occurrence) => (
-              <Fragment key={occurrence.id}>
-                <Typography variant="body2em">{occurrence.name}</Typography>
-                {occurrence.attributes.map((attribute) => (
-                  <Stack key={attribute} direction="row" alignItems="center">
-                    <Checkbox
-                      size="small"
-                      fontSize="inherit"
-                      name={occurrence.id + "-" + attribute}
-                      checked={
-                        !excludedAttributes.get(occurrence.id)?.has(attribute)
-                      }
-                      onChange={() =>
-                        updateExcludedAttributes((selection) => {
-                          if (!selection?.get(occurrence.id)) {
-                            selection?.set(occurrence.id, new Set<string>());
+                  />
+                ) : (
+                  cohorts
+                    .filter((cohort) => cohort.underlayName === underlay.name)
+                    .map((cohort, i) => (
+                      <GridLayout
+                        key={cohort.id}
+                        cols
+                        fillCol={2}
+                        rowAlign="middle"
+                        height="auto"
+                        sx={{
+                          boxShadow:
+                            i !== 0
+                              ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+                              : undefined,
+                        }}
+                      >
+                        <Checkbox
+                          name={cohort.name}
+                          checked={selectedCohorts.has(cohort.id)}
+                          onChange={() =>
+                            onToggle(updateSelectedCohorts, cohort.id)
                           }
+                        />
+                        <Typography variant="body2">{cohort.name}</Typography>
+                        <GridBox />
+                        <Button
+                          data-testid={cohort.name}
+                          variant="outlined"
+                          onClick={() =>
+                            navigate(
+                              absoluteCohortURL(
+                                params,
+                                cohort.id,
+                                cohort.groupSections[0].id
+                              )
+                            )
+                          }
+                          sx={{ minWidth: "auto" }}
+                        >
+                          Edit
+                        </Button>
+                      </GridLayout>
+                    ))
+                )}
+              </GridBox>
+            </Paper>
+          </GridLayout>
+          <GridLayout rows="auto 320px">
+            <GridLayout cols={3} fillCol={1} rowAlign="middle">
+              <GridBox sx={{ py: 2 }}>
+                <Typography variant="body1em" sx={{ py: 2 }}>
+                  Data features
+                </Typography>
+              </GridBox>
+              <GridBox />
+              <Button
+                startIcon={<AddIcon />}
+                variant="contained"
+                onClick={() => {
+                  navigate(absoluteNewConceptSetURL(params));
+                }}
+              >
+                New data feature
+              </Button>
+            </GridLayout>
+            <Paper
+              sx={{
+                p: 2,
+                display: "block",
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              <GridLayout cols="1fr 1fr" spacing={2}>
+                <GridLayout rows spacing={2}>
+                  <GridLayout cols>
+                    <Step
+                      index={0}
+                      active={conceptSetOccurrences.length === 0}
+                      completed={conceptSetOccurrences.length > 0}
+                    >
+                      <StepLabel>Select data features</StepLabel>
+                    </Step>
+                    <StepConnector />
+                  </GridLayout>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      py: 2,
+                      display: "block",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    <GridBox sx={{ px: 1, overflowY: "auto" }}>
+                      {workspaceConceptSets.data?.length === 0 ? (
+                        <GridLayout rows="1fr 70% 1fr">
+                          {underlay.uiConfiguration.prepackagedConceptSets ? (
+                            <GridLayout rows height="auto">
+                              {listConceptSets(
+                                false,
+                                underlay.uiConfiguration.prepackagedConceptSets
+                              )}
+                            </GridLayout>
+                          ) : (
+                            <GridBox />
+                          )}
+                          <GridBox
+                            sx={{
+                              boxShadow: (theme) =>
+                                `0 -1px 0 ${theme.palette.divider}`,
+                            }}
+                          >
+                            <Empty
+                              maxWidth="80%"
+                              title="Data features are categories of data to export"
+                              subtitle={
+                                <>
+                                  <Link
+                                    variant="link"
+                                    underline="hover"
+                                    component={RouterLink}
+                                    to={absoluteNewConceptSetURL(params)}
+                                  >
+                                    Create a new data feature
+                                  </Link>{" "}
+                                  to define more criteria
+                                </>
+                              }
+                            />
+                          </GridBox>
+                          <GridBox />
+                        </GridLayout>
+                      ) : (
+                        <>
+                          {underlay.uiConfiguration.prepackagedConceptSets && (
+                            <>
+                              {listConceptSets(
+                                false,
+                                underlay.uiConfiguration.prepackagedConceptSets
+                              )}
+                            </>
+                          )}
+                          {workspaceConceptSets.data?.length &&
+                            listConceptSets(
+                              true,
+                              (workspaceConceptSets.data ?? []).map((cs) => ({
+                                id: cs.id,
+                                name: getCriteriaTitle(cs.criteria),
+                              }))
+                            )}
+                        </>
+                      )}
+                    </GridBox>
+                  </Paper>
+                </GridLayout>
+                <GridLayout rows spacing={2}>
+                  <Step index={1} active={conceptSetOccurrences.length > 0}>
+                    <StepLabel>Select feature values</StepLabel>
+                  </Step>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      py: 2,
+                      display: "block",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    <GridBox sx={{ px: 1, overflowY: "auto" }}>
+                      {conceptSetOccurrences.length === 0 && (
+                        <Empty
+                          maxWidth="80%"
+                          title="No data features selected"
+                          subtitle="Select at least one data feature to pick values"
+                        />
+                      )}
+                      {conceptSetOccurrences.map((occurrence) => (
+                        <Fragment key={occurrence.id}>
+                          <GridBox
+                            sx={{
+                              position: "sticky",
+                              top: 0,
+                              zIndex: 1,
+                              backgroundColor: (theme) =>
+                                theme.palette.background.paper,
+                              boxShadow: (theme) =>
+                                `inset 0 -1px 0 ${theme.palette.divider}`,
+                              height: "auto",
+                            }}
+                          >
+                            <Typography variant="body2em">
+                              {occurrence.name}
+                            </Typography>
+                          </GridBox>
+                          {occurrence.attributes.map((attribute) => (
+                            <Stack
+                              key={attribute}
+                              direction="row"
+                              alignItems="center"
+                            >
+                              <Checkbox
+                                name={occurrence.id + "-" + attribute}
+                                checked={
+                                  !excludedAttributes
+                                    .get(occurrence.id)
+                                    ?.has(attribute)
+                                }
+                                onChange={() =>
+                                  updateExcludedAttributes((selection) => {
+                                    if (!selection?.get(occurrence.id)) {
+                                      selection?.set(
+                                        occurrence.id,
+                                        new Set<string>()
+                                      );
+                                    }
 
-                          const attributes = selection?.get(occurrence.id);
-                          if (attributes?.has(attribute)) {
-                            attributes?.delete(attribute);
-                          } else {
-                            attributes?.add(attribute);
-                          }
-                        })
-                      }
-                    />
-                    <Typography variant="body2">{attribute}</Typography>
-                  </Stack>
-                ))}
-              </Fragment>
-            ))}
-          </Paper>
-        </Grid>
-        <Grid item xs={3}>
-          <Preview
-            selectedCohorts={selectedCohorts}
-            selectedConceptSets={selectedConceptSets}
-            conceptSetOccurrences={conceptSetOccurrences}
-            excludedAttributes={excludedAttributes}
-          />
-        </Grid>
-      </Grid>
-    </>
+                                    const attributes = selection?.get(
+                                      occurrence.id
+                                    );
+                                    if (attributes?.has(attribute)) {
+                                      attributes?.delete(attribute);
+                                    } else {
+                                      attributes?.add(attribute);
+                                    }
+                                  })
+                                }
+                              />
+                              <Typography variant="body2">
+                                {attribute}
+                              </Typography>
+                            </Stack>
+                          ))}
+                        </Fragment>
+                      ))}
+                    </GridBox>
+                  </Paper>
+                </GridLayout>
+              </GridLayout>
+            </Paper>
+          </GridLayout>
+        </GridLayout>
+        <Preview
+          selectedCohorts={selectedCohorts}
+          selectedConceptSets={selectedConceptSets}
+          conceptSetOccurrences={conceptSetOccurrences}
+          excludedAttributes={excludedAttributes}
+        />
+      </GridLayout>
+    </GridBox>
   );
 }
 
@@ -467,7 +575,7 @@ function Preview(props: PreviewProps) {
   );
 
   const [tab, setTab] = useState(0);
-  const [queriesMode, setQueriesMode] = useState(false);
+  const [queriesMode, setQueriesMode] = useState<boolean | null>(false);
 
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
     {
@@ -480,7 +588,7 @@ function Preview(props: PreviewProps) {
       return Promise.all(
         conceptSetParams.map(async (params) => {
           if (!cohortsFilter) {
-            throw new Error("All selected cohorts are empty.");
+            throw new Error("No selected cohort contain any criteria.");
           }
 
           const res = await source.listData(
@@ -519,16 +627,25 @@ function Preview(props: PreviewProps) {
     setTab(newValue);
   };
 
-  const onQueriesModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQueriesMode(event.target.checked);
+  const onQueriesModeChange = (
+    event: React.MouseEvent<HTMLElement>,
+    value: boolean | null
+  ) => {
+    if (isValid(value)) {
+      setQueriesMode(value);
+    }
   };
 
   const empty =
     props.selectedCohorts.size === 0 || props.selectedConceptSets.size === 0;
 
   return (
-    <Stack>
-      <Stack alignItems="flex-end" justifyContent="center" sx={{ pb: 1 }}>
+    <GridLayout rows height="auto">
+      <GridLayout cols fillCol={1} rowAlign="middle">
+        <GridBox sx={{ py: 2 }}>
+          <Typography variant="body1em">Dataset preview</Typography>
+        </GridBox>
+        <GridBox />
         <Button
           variant="contained"
           disabled={empty}
@@ -539,7 +656,7 @@ function Preview(props: PreviewProps) {
           Export
         </Button>
         {exportDialog}
-      </Stack>
+      </GridLayout>
       <Paper sx={{ p: 1 }}>
         {!empty ? (
           <Loading status={tabDataState}>
@@ -553,9 +670,14 @@ function Preview(props: PreviewProps) {
                   <Tab key={data.name} label={data.name} />
                 ))}
               </Tabs>
-              <Typography variant="button">Data</Typography>
-              <Switch onChange={onQueriesModeChange} name="queries-mode" />
-              <Typography variant="button">Queries</Typography>
+              <ToggleButtonGroup
+                value={queriesMode}
+                exclusive
+                onChange={onQueriesModeChange}
+              >
+                <ToggleButton value={false}>Data</ToggleButton>
+                <ToggleButton value={true}>Queries</ToggleButton>
+              </ToggleButtonGroup>
             </Stack>
             {queriesMode ? (
               <Typography sx={{ fontFamily: "monospace" }}>
@@ -605,12 +727,11 @@ function Preview(props: PreviewProps) {
             maxWidth="60%"
             minHeight="200px"
             image="/empty.svg"
-            title="No inputs selected"
-            subtitle="You can preview the data by selecting at least one cohort and data feature"
+            subtitle="Select at least one cohort & data feature to preview your dataset"
           />
         )}
       </Paper>
-    </Stack>
+    </GridLayout>
   );
 }
 
@@ -711,7 +832,7 @@ function ExportDialog(
         <Loading status={exportState} showProgressOnMutate>
           <Stack>
             {exportState.data?.map((ed) => (
-              <Link href={ed.url} variant="h4" key={ed.name}>
+              <Link href={ed.url} variant="body1" key={ed.name}>
                 {ed.name}
               </Link>
             ))}

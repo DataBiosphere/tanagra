@@ -6,7 +6,7 @@ describe("Basic tests", () => {
   it("Cohort review", () => {
     const cohortName = generateCohort();
 
-    cy.get("button[id=insert-cohort]").click();
+    cy.get("button:Contains(New cohort)").click();
     cy.get("input[name=text]").type(cohortName);
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add criteria)").first().click();
