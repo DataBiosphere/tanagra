@@ -12,7 +12,9 @@
     <property global="true" dbms="mariadb,mysql" name="long.text.type" value="longtext"/>
     <property global="true" dbms="mariadb,mysql" name="text.array.type" value="longtext"/>
     <property global="true" dbms="mariadb,mysql" name="jsonb.type" value="longtext"/>
+
     <!-- define changesets -->
     <include file="changesets/20230410_schema_reset.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20230530_avoid_postgres_specific_features.yaml" relativeToChangelogFile="true"/>
+    <include file="changesets/20230602_mysql_and_postgres_compatible_schema.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -1,8 +1,9 @@
 databaseChangeLog:
   - changeSet:
-      id: schema_reset
+      id: mysql_and_postgres_compatible_schema
       author: marikomedlock, chenchalsubraveti
-      dbms: postgresql
+      # TODO: Add postgresql to this list, once we can wipe the DB and redeploy using the shared schema.
+      dbms: mariadb,mysql
       changes:
         - createTable:
             tableName: study
@@ -22,11 +23,6 @@ databaseChangeLog:
               - column:
                   name: description
                   type: ${text.type}
-                  constraints:
-                    nullable: true
-              - column:
-                  name: properties
-                  type: ${jsonb.type}
                   constraints:
                     nullable: true
               - column:
@@ -51,6 +47,33 @@ databaseChangeLog:
                   type: ${text.type}
                   constraints:
                     nullable: false
+
+        - createTable:
+            tableName: study_property
+            columns:
+              - column:
+                  name: study_id
+                  type: ${id.type}
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_sp_s
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete its properties
+              - column:
+                  name: key
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: ${text.type}
+                  constraints:
+                    nullable: true
+        - addUniqueConstraint:
+            constraintName: pk_sp
+            tableName: study_property
+            columnNames: study_id, key
 
         - createTable:
             tableName: concept_set
@@ -459,11 +482,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: tags
-                  type: ${text.array.type}
-                  constraints:
-                    nullable: false
-              - column:
                   name: list_index
                   type: int
                   constraints:
@@ -472,6 +490,63 @@ databaseChangeLog:
             constraintName: pk_crit
             tableName: criteria
             columnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
+
+        - createTable:
+            tableName: criteria_tag
+            columns:
+              - column:
+                  name: criteria_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criteria_group_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: criteria_group_section_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cohort_revision_id
+                  type: ${id.type}
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: ck_crit_cr
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
+              - column:
+                  name: concept_set_id
+                  type: ${id.type}
+                  constraints:
+                    references: concept_set(id)
+                    foreignKeyName: fk_crit_cs
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a concept set will cascade to delete the criteria contained in it
+              - column:
+                  name: key
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_ct
+            tableName: criteria_tag
+            columnNames: criteria_id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id, key
+        - addForeignKeyConstraint:
+            constraintName: fk_ct_c
+            baseColumnNames: criteria_id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
+            baseTableName: criteria_tag
+            referencedColumnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
+            referencedTableName: criteria
 
         - createTable:
             tableName: annotation_key
@@ -505,15 +580,41 @@ databaseChangeLog:
                   type: ${text.type}
                   constraints:
                     nullable: false
-              - column:
-                  name: enum_vals
-                  type: ${text.array.type}
-                  constraints:
-                    nullable: false
         - addUniqueConstraint:
             constraintName: pk_ak
             tableName: annotation_key
             columnNames: id, cohort_id
+
+        - createTable:
+            tableName: annotation_key_enum_value
+            columns:
+              - column:
+                  name: enum
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: annotation_key_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_akev
+            tableName: annotation_key_enum_value
+            columnNames: enum, annotation_key_id, cohort_id
+        - addForeignKeyConstraint:
+            constraintName: fk_akev_ak
+            baseColumnNames: annotation_key_id, cohort_id
+            baseTableName: annotation_key_enum_value
+            referencedColumnNames: id, cohort_id
+            referencedTableName: annotation_key
+            onDelete: CASCADE
+            validate: true
 
         - createTable:
             tableName: annotation_value
