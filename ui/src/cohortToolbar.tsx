@@ -1,21 +1,11 @@
 import RedoIcon from "@mui/icons-material/Redo";
 import UndoIcon from "@mui/icons-material/Undo";
 import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
-import {
-  useCohort,
-  useRedoAction,
-  useUndoAction,
-  useUndoRedoUrls,
-} from "hooks";
+import { useRedoAction, useUndoAction, useUndoRedoUrls } from "hooks";
 import { Link as RouterLink } from "react-router-dom";
-import { absoluteCohortReviewListURL, useBaseParams } from "router";
 
 export default function CohortToolbar() {
-  const cohort = useCohort();
-  const params = useBaseParams();
-
   const [undoUrlPath, redoUrlPath] = useUndoRedoUrls();
   const undo = useUndoAction();
   const redo = useRedoAction();
@@ -39,14 +29,6 @@ export default function CohortToolbar() {
         to={redoUrlPath}
       >
         Redo
-      </Button>
-      <Divider orientation="vertical" flexItem />
-      <Button
-        variant="outlined"
-        component={RouterLink}
-        to={absoluteCohortReviewListURL(params, cohort.id)}
-      >
-        Review cohort
       </Button>
     </Stack>
   );

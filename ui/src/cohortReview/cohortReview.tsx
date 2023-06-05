@@ -196,7 +196,7 @@ export function CohortReview() {
     useParticipantsListDialog({ count });
 
   return (
-    <GridBox>
+    <GridLayout rows>
       <ActionBar
         title={
           reviewState?.data?.displayName
@@ -370,7 +370,7 @@ export function CohortReview() {
         {newAnnotationDialog}
         {participantsListDialog}
       </Loading>
-    </GridBox>
+    </GridLayout>
   );
 }
 

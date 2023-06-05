@@ -198,7 +198,8 @@ function AddCriteria(props: AddCriteriaProps) {
   );
 
   return (
-    <GridBox
+    <GridLayout
+      rows
       sx={{
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
@@ -348,7 +349,7 @@ function AddCriteria(props: AddCriteriaProps) {
           )}
         </Loading>
       </GridLayout>
-    </GridBox>
+    </GridLayout>
   );
 }
 

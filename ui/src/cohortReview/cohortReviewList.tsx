@@ -197,7 +197,7 @@ export function CohortReviewList() {
   });
 
   return (
-    <>
+    <GridLayout rows>
       <ActionBar
         title={`Reviews of ${cohort.name}`}
         backURL={absoluteCohortURL(params, cohort.id)}
@@ -218,60 +218,69 @@ export function CohortReviewList() {
             p: 1,
           }}
         >
-          <Stack direction="row">
-            <Typography variant="h6" sx={{ mr: 1 }}>
-              Reviews
-            </Typography>
-            <IconButton onClick={showNewReviewDialog}>
-              <AddIcon />
-            </IconButton>
-          </Stack>
-          {!!reviewsState.data?.length ? (
-            <List sx={{ p: 0 }}>
-              {reviewsState.data?.map((item) => (
-                <ListItemButton
-                  sx={{ p: 0, mt: 1 }}
-                  component={RouterLink}
-                  key={item.id()}
-                  to={absoluteCohortReviewListURL(params, cohort.id, item.id())}
-                  disabled={!!item.pending}
-                >
-                  <SelectablePaper selected={item.id() === selectedReview?.id}>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      sx={{ p: 1 }}
+          <GridLayout rows>
+            <GridLayout cols height="auto">
+              <Typography variant="h6" sx={{ mr: 1 }}>
+                Reviews
+              </Typography>
+              <IconButton onClick={showNewReviewDialog}>
+                <AddIcon />
+              </IconButton>
+              <GridBox />
+            </GridLayout>
+            {!!reviewsState.data?.length ? (
+              <List sx={{ p: 0 }}>
+                {reviewsState.data?.map((item) => (
+                  <ListItemButton
+                    sx={{ p: 0, mt: 1 }}
+                    component={RouterLink}
+                    key={item.id()}
+                    to={absoluteCohortReviewListURL(
+                      params,
+                      cohort.id,
+                      item.id()
+                    )}
+                    disabled={!!item.pending}
+                  >
+                    <SelectablePaper
+                      selected={item.id() === selectedReview?.id}
                     >
-                      <Stack>
-                        <Typography variant="body1em">
-                          {item.displayName()}
-                        </Typography>
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        sx={{ p: 1 }}
+                      >
+                        <Stack>
+                          <Typography variant="body1em">
+                            {item.displayName()}
+                          </Typography>
+                          <Typography variant="body1">
+                            {item.created()?.toLocaleString()}
+                          </Typography>
+                          <Typography variant="body1">
+                            {`Participants: ${item.size()}`}
+                          </Typography>
+                        </Stack>
                         <Typography variant="body1">
-                          {item.created()?.toLocaleString()}
-                        </Typography>
-                        <Typography variant="body1">
-                          {`Participants: ${item.size()}`}
+                          {!!item.pending ? (
+                            <CircularProgress
+                              sx={{ maxWidth: "1em", maxHeight: "1em" }}
+                            />
+                          ) : null}
                         </Typography>
                       </Stack>
-                      <Typography variant="body1">
-                        {!!item.pending ? (
-                          <CircularProgress
-                            sx={{ maxWidth: "1em", maxHeight: "1em" }}
-                          />
-                        ) : null}
-                      </Typography>
-                    </Stack>
-                  </SelectablePaper>
-                </ListItemButton>
-              ))}
-            </List>
-          ) : (
-            <Empty
-              maxWidth="90%"
-              minHeight="200px"
-              title="No reviews created"
-            />
-          )}
+                    </SelectablePaper>
+                  </ListItemButton>
+                ))}
+              </List>
+            ) : (
+              <Empty
+                maxWidth="90%"
+                minHeight="200px"
+                title="No reviews created"
+              />
+            )}
+          </GridLayout>
         </Box>
         <Box
           sx={{
@@ -308,10 +317,10 @@ export function CohortReviewList() {
         <Box sx={{ gridArea: "1/1/-1/-1" }}>
           {reviewsState.isLoading ? <LoadingOverlay /> : undefined}
         </Box>
+        {newReviewDialog}
+        {renameReviewDialog}
       </Box>
-      {newReviewDialog}
-      {renameReviewDialog}
-    </>
+    </GridLayout>
   );
 }
 
