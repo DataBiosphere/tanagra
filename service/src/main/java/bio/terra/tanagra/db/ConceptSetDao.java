@@ -56,12 +56,12 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading a criteria tag.
   private static final String CRITERIA_TAG_SELECT_SQL =
-      "SELECT criteria_id, concept_set_id, key, value FROM criteria_tag";
+      "SELECT criteria_id, concept_set_id, criteria_key, criteria_value FROM criteria_tag";
   private static final RowMapper<Pair<List<String>, Pair<String, String>>> CRITERIA_TAG_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
               List.of(rs.getString("criteria_id"), rs.getString("concept_set_id")),
-              Pair.of(rs.getString("key"), rs.getString("value")));
+              Pair.of(rs.getString("criteria_key"), rs.getString("criteria_value")));
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -73,7 +73,7 @@ public class ConceptSetDao {
   public List<ConceptSet> getAllConceptSets(String studyId, int offset, int limit) {
     String sql =
         CONCEPT_SET_SELECT_SQL
-            + " WHERE study_id = :study_id ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " WHERE study_id = :study_id ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET ALL concept sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -89,7 +89,7 @@ public class ConceptSetDao {
   public List<ConceptSet> getConceptSetsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
         CONCEPT_SET_SELECT_SQL
-            + " WHERE id IN (:ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " WHERE id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET MATCHING concept sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -287,7 +287,7 @@ public class ConceptSetDao {
 
     // Write the criteria tags.
     sql =
-        "INSERT INTO criteria_tag (concept_set_id, criteria_id, key, value) VALUES (:concept_set_id, :criteria_id, :key, :value)";
+        "INSERT INTO criteria_tag (concept_set_id, criteria_id, criteria_key, criteria_value) VALUES (:concept_set_id, :criteria_id, :key, :value)";
     LOGGER.debug("CREATE criteria tag: {}", sql);
     List<MapSqlParameterSource> tagParamSets = new ArrayList<>();
     criteria.stream()

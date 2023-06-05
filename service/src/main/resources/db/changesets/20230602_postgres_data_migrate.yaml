@@ -9,7 +9,7 @@ databaseChangeLog:
         - sql:
             # Migrate the properties of existing studies from the JSON column to this table.
             sql: |
-              INSERT INTO study_property (study_id, key, value) 
+              INSERT INTO study_property (study_id, property_key, property_value) 
                 SELECT id, key, properties->>key as value
                 FROM (SELECT id, jsonb_object_keys(properties) as key, properties FROM study) AS study_property_keys;
 
