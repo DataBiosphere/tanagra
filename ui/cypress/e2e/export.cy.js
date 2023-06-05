@@ -10,7 +10,7 @@ describe("Basic tests", () => {
     const cohort2 = "export2";
     cy.createCohortFromSearch(cohort2, "Papule of skin");
 
-    cy.get("button[id=insert-concept-set]").click();
+    cy.get("button:Contains(New data feature)").click();
     cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("input").type("Red color");
     cy.get("[data-testid='Red color']").click();

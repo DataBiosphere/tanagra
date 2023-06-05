@@ -12,7 +12,7 @@ beforeEach(() => {
 });
 
 Cypress.Commands.add("createCohortFromSearch", (name, search, domain) => {
-  cy.get("button[id=insert-cohort]").click();
+  cy.get("button:Contains(New cohort)").click();
   cy.get("input[name=text]").type(name);
   cy.get("button:Contains(Create)").click();
   cy.get("button:Contains(Add criteria)").first().click();

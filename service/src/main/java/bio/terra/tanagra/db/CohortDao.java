@@ -117,7 +117,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria tag.
   private static final String CRITERIA_TAG_SELECT_SQL =
-      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, key, value FROM criteria_tag";
+      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, criteria_key, criteria_value FROM criteria_tag";
   private static final RowMapper<Pair<List<String>, Pair<String, String>>> CRITERIA_TAG_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -126,7 +126,7 @@ public class CohortDao {
                   rs.getString("criteria_group_id"),
                   rs.getString("criteria_group_section_id"),
                   rs.getString("cohort_revision_id")),
-              Pair.of(rs.getString("key"), rs.getString("value")));
+              Pair.of(rs.getString("criteria_key"), rs.getString("criteria_value")));
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -138,7 +138,7 @@ public class CohortDao {
   public List<Cohort> getAllCohorts(String studyId, int offset, int limit) {
     String sql =
         COHORT_SELECT_SQL
-            + " WHERE study_id = :study_id ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " WHERE study_id = :study_id ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET ALL cohorts: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -153,7 +153,7 @@ public class CohortDao {
   @ReadTransaction
   public List<Cohort> getCohortsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
-        COHORT_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
+        COHORT_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET MATCHING cohorts: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -652,7 +652,7 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria_tag (cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, key, value) "
+        "INSERT INTO criteria_tag (cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, criteria_key, criteria_value) "
             + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :criteria_id, :key, :value)";
     LOGGER.debug("CREATE criteria_tag: {}", sql);
     rowsAffected =

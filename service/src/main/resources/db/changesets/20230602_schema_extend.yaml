@@ -16,19 +16,19 @@ databaseChangeLog:
                     deleteCascade: true
                   remarks: Deleting a study will cascade to delete its properties
               - column:
-                  name: key
+                  name: property_key
                   type: ${id.type}
                   constraints:
                     nullable: false
               - column:
-                  name: value
+                  name: property_value
                   type: ${text.type}
                   constraints:
                     nullable: true
         - addUniqueConstraint:
             constraintName: pk_sp_2
             tableName: study_property
-            columnNames: study_id, key
+            columnNames: study_id, property_key
 
         - createTable:
             tableName: criteria_tag
@@ -67,19 +67,19 @@ databaseChangeLog:
                     deleteCascade: true
                   remarks: Deleting a concept set will cascade to delete the criteria contained in it
               - column:
-                  name: key
+                  name: criteria_key
                   type: ${id.type}
                   constraints:
                     nullable: false
               - column:
-                  name: value
+                  name: criteria_value
                   type: ${text.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
             constraintName: pk_ct_2
             tableName: criteria_tag
-            columnNames: criteria_id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id, key
+            columnNames: criteria_id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id, criteria_key
         - addForeignKeyConstraint:
             constraintName: fk_ct_c_2
             baseColumnNames: criteria_id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
