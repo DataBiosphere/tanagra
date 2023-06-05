@@ -1,5 +1,6 @@
 import ActionBar from "actionBar";
 import { CriteriaPlugin } from "cohort";
+import GridLayout from "layout/gridLayout";
 import { useState } from "react";
 
 export type CriteriaHolderProps = {
@@ -14,12 +15,12 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
   const [backURL, setBackURL] = useState<string | undefined>();
 
   return (
-    <>
+    <GridLayout rows>
       <ActionBar
         title={props.title}
         backURL={backURL ?? props.defaultBackURL}
       />
       {props.plugin.renderEdit?.(props.doneURL ?? "..", setBackURL)}
-    </>
+    </GridLayout>
   );
 }

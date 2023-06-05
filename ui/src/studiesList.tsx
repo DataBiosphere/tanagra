@@ -12,6 +12,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/source";
+import GridLayout from "layout/gridLayout";
 import { Link as RouterLink } from "react-router-dom";
 import useSWR from "swr";
 
@@ -44,7 +45,7 @@ export function StudiesList() {
   });
 
   return (
-    <>
+    <GridLayout rows>
       <ActionBar title={"Studies"} />
       <Loading status={studiesState}>
         <Box sx={{ p: 1 }}>
@@ -94,6 +95,6 @@ export function StudiesList() {
           {newStudyDialog}
         </Box>
       </Loading>
-    </>
+    </GridLayout>
   );
 }
