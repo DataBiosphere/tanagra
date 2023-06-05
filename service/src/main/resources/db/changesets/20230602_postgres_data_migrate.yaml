@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: postgres_data_migrate
+      author: marikomedlock, chenchalsubraveti
+      dbms: postgresql
+      # TODO: Remove the jsonb and 2 text[] columns in a follow-on changeset, once we're sure this migration was successful.
+      # study.properties, criteria.tags, annotation_key.enumVals
+      changes:
+        - sql:
+            # Migrate the properties of existing studies from the JSON column to this table.
+            sql: |
+              INSERT INTO study_property (study_id, property_key, property_value) 
+                SELECT id, key, properties->>key as value
+                FROM (SELECT id, jsonb_object_keys(properties) as key, properties FROM study) AS study_property_keys;
+
+        # No migration SQL because the criteria.tags text[] column is not yet being used by the UI.
+
+        - sql:
+            # Migrate the enum values of existing annotation keys from the text[] column to this table.
+            sql: |
+              INSERT INTO annotation_key_enum_value (cohort_id, annotation_key_id, enum) 
+                SELECT cohort_id, id AS annotation_key_id, unnest(enum_vals) AS enum FROM annotation_key;

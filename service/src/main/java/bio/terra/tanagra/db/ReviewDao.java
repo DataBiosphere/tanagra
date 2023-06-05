@@ -85,7 +85,7 @@ public class ReviewDao {
   public List<Review> getAllReviews(String cohortId, int offset, int limit) {
     String sql =
         REVIEW_SELECT_SQL
-            + " WHERE cohort_id = :cohort_id ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " WHERE cohort_id = :cohort_id ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET ALL reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -100,7 +100,7 @@ public class ReviewDao {
   @ReadTransaction
   public List<Review> getReviewsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
-        REVIEW_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
+        REVIEW_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET MATCHING reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
