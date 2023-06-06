@@ -123,7 +123,7 @@ public class AnnotationDao {
   public List<AnnotationKey> getAllAnnotationKeys(String cohortId, int offset, int limit) {
     String sql =
         ANNOTATION_KEY_SELECT_SQL
-            + " WHERE cohort_id = :cohort_id ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " WHERE cohort_id = :cohort_id ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET all annotation keys: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -145,7 +145,7 @@ public class AnnotationDao {
     }
     String sql =
         ANNOTATION_KEY_SELECT_SQL
-            + " WHERE cohort_id = :cohort_id AND id IN (:ids) ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " WHERE cohort_id = :cohort_id AND id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET matching annotation keys: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
