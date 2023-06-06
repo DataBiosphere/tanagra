@@ -16,5 +16,6 @@
     <include file="changesets/20230530_avoid_postgres_specific_features.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20230606_postgres_rename_columns_and_constraints.yaml" relativeToChangelogFile="true"/>
     <!-- define changesets common-schema properties are used but dbms: tag set to mariadb,mysql-->
-
+    <include file="changesets/20230606_schema_common_reset.yaml" relativeToChangelogFile="true"/>
+    <include file="changesets/20230606_schema_common_extend.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
