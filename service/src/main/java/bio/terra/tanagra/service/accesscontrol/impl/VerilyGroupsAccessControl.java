@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class VerilyGroupsAccessControl implements AccessControl {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerilyGroupsAccessControl.class);
 
-  private static final String ALL_ACCESS = "ALL";
+  private static final String ALL_ACCESS = "ALL_ACCESS";
 
   private String basePath;
   private String oauthClientId;
