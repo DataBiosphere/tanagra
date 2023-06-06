@@ -47,6 +47,18 @@ check into this main Tanagra GH repo, then we could allow access control impleme
 gets added to the classpath at runtime. We'd need to update the `access-control.model` application property to take a 
 classname instead of using the `AccessControl.Model` enum, and then we can load that class using reflection at runtime. 
 
+## Set config with env vars
+Tanagra's core service uses the Spring application framework, which allows overriding application properties with
+environment variables. Note this is a Spring feature, not specific to Tanagra. It's helpful at deploy-time for setting  
+properties with information you don't want checked into this GH repo.
+
+e.g. For access control implementations that call another service and use the `base-path` and `oauth-client-id` properties:
+```
+export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://path.to.other.service
+export TANAGRA_ACCESS_CONTROL_OAUTH_CLIENT_ID=12345.apps.googleusercontent.com    <--- Example value only.
+```
+
+
 ## Access control implementations
 So far, there are 3 access control implementations in the `bio.terra.tanagra.service.accesscontrol.impl` package.
 
