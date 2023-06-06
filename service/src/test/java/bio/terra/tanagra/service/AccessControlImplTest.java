@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.service.accesscontrol.Action;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
+import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.auth.UserId;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.vumc.vda.tanagra.admin.client.ApiException;
+import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
+import org.vumc.vda.tanagra.admin.model.SystemVersion;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
@@ -23,6 +29,35 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class AccessControlImplTest {
   @Autowired private AccessControlConfiguration accessControlConfiguration;
+  @Autowired private UnderlaysService underlaysService;
+
+  @Disabled(
+      "VUMC admin service base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
+  @Test
+  void vumcAdmin() throws ApiException {
+    VumcAdminAccessControl impl = new VumcAdminAccessControl();
+    impl.initialize(
+        accessControlConfiguration.getParams(),
+        accessControlConfiguration.getBasePath(),
+        accessControlConfiguration.getOauthClientId());
+
+    SystemVersion systemVersion = impl.apiVersion();
+    assertNotNull(systemVersion);
+    CoreServiceTest coreServiceTest = impl.apiRoundTripTest();
+    assertNotNull(coreServiceTest);
+
+    // Access control is only on studies, no other resource types.
+    ResourceId firstUnderlay =
+        ResourceId.forUnderlay(
+            underlaysService.listUnderlays(ResourceIdCollection.allResourceIds()).get(0).getName());
+    assertTrue(
+        impl.isAuthorized(
+            UserId.forDisabledAuthentication(), Action.READ, ResourceType.UNDERLAY, firstUnderlay));
+    assertFalse(
+        impl.listResourceIds(UserId.forDisabledAuthentication(), ResourceType.UNDERLAY, 0, 10)
+            .getResourceIds()
+            .isEmpty());
+  }
 
   @Disabled(
       "VerilyGroup base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
@@ -37,6 +72,9 @@ public class AccessControlImplTest {
     // Access control is only on underlays, no other resource types.
     assertTrue(
         impl.isAuthorized(
-            UserId.forDisabledAuthentication(), Action.CREATE, ResourceType.COHORT, null));
+            UserId.forDisabledAuthentication(), Action.CREATE, ResourceType.STUDY, null));
+    assertTrue(
+        impl.listResourceIds(UserId.forDisabledAuthentication(), ResourceType.STUDY, 0, 10)
+            .isAllResourceIds());
   }
 }

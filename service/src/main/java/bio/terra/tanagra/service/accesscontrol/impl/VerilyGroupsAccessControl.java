@@ -41,6 +41,11 @@ public class VerilyGroupsAccessControl implements AccessControl {
   private final Map<String, VerilyGroup> underlayToGroup = new HashMap<>();
 
   @Override
+  public String getDescription() {
+    return "Check VerilyGroup membership for underlay access";
+  }
+
+  @Override
   public void initialize(List<String> params, String basePath, String oauthClientId) {
     // Store the basePath and oauthClientId first, so we can use it when looking up group IDs.
     if (basePath == null || oauthClientId == null) {
@@ -74,11 +79,6 @@ public class VerilyGroupsAccessControl implements AccessControl {
     } catch (SystemException | InvalidCredentialsException ex) {
       LOGGER.error("Error initializing VerilyGroups access control implementation", ex);
     }
-  }
-
-  @Override
-  public String getDescription() {
-    return "Check VerilyGroup membership for underlay access";
   }
 
   @Override

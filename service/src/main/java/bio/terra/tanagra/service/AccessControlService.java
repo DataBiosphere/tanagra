@@ -24,15 +24,14 @@ public class AccessControlService {
   private final AccessControl accessControlImpl;
 
   @Autowired
-  public AccessControlService(
-      AccessControlConfiguration accessControlConfiguration, VumcAdminService vumcAdminService) {
+  public AccessControlService(AccessControlConfiguration accessControlConfiguration) {
     AccessControl accessControlImplInstance;
     switch (accessControlConfiguration.getModel()) {
       case OPEN_ACCESS:
         accessControlImplInstance = new OpenAccessControl();
         break;
       case VUMC_ADMIN:
-        accessControlImplInstance = new VumcAdminAccessControl(vumcAdminService);
+        accessControlImplInstance = new VumcAdminAccessControl();
         break;
       case VERILY_GROUP:
         accessControlImplInstance = new VerilyGroupsAccessControl();

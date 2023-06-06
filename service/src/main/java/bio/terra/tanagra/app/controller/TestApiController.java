@@ -2,10 +2,9 @@ package bio.terra.tanagra.app.controller;
 
 import bio.terra.tanagra.generated.controller.TestApi;
 import bio.terra.tanagra.generated.model.ApiVumcAdminServiceTest;
-import bio.terra.tanagra.service.VumcAdminService;
+import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
@@ -15,18 +14,11 @@ import org.vumc.vda.tanagra.admin.model.SystemVersion;
 public class TestApiController implements TestApi {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestApiController.class);
 
-  private final VumcAdminService vumcAdminService;
-
-  @Autowired
-  public TestApiController(VumcAdminService vumcAdminService) {
-    this.vumcAdminService = vumcAdminService;
-  }
-
   @Override
   public ResponseEntity<ApiVumcAdminServiceTest> vumcAdminServiceTest() {
     String version;
     try {
-      SystemVersion adminVersion = vumcAdminService.version();
+      SystemVersion adminVersion = new VumcAdminAccessControl().apiVersion();
       version =
           String.format(
               "gitTag: %s, gitHash: %s, github: %s, build: %s",
@@ -41,7 +33,7 @@ public class TestApiController implements TestApi {
 
     String roundTrip;
     try {
-      CoreServiceTest coreServiceTest = vumcAdminService.roundTripTest();
+      CoreServiceTest coreServiceTest = new VumcAdminAccessControl().apiRoundTripTest();
       roundTrip =
           String.format(
               "[version] %s, [authenticated-user] %s",
