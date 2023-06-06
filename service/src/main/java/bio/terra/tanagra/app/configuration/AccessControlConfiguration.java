@@ -18,6 +18,8 @@ public class AccessControlConfiguration {
 
   private AccessControl.Model model;
   private List<String> params;
+  private String basePath;
+  private String oauthClientId;
 
   /** Default this property to the OPEN_ACCESS model. */
   public AccessControl.Model getModel() {
@@ -28,6 +30,14 @@ public class AccessControlConfiguration {
     return Collections.unmodifiableList(params);
   }
 
+  public String getBasePath() {
+    return basePath;
+  }
+
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
+
   public void setModel(AccessControl.Model model) {
     this.model = model;
   }
@@ -36,10 +46,20 @@ public class AccessControlConfiguration {
     this.params = params;
   }
 
+  public void setBasePath(String basePath) {
+    this.basePath = basePath;
+  }
+
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+  }
+
   /** Write the access control flags into the log. Add an entry here for each new flag. */
   public void logConfig() {
     LOGGER.info("Access control: model: {}", getModel());
     LOGGER.info(
         "Access control: params: {}", getParams().stream().collect(Collectors.joining(",")));
+    LOGGER.info("Access control: base-path: {}", getBasePath());
+    LOGGER.info("Access control: oauth-client-id: {}", getOauthClientId());
   }
 }

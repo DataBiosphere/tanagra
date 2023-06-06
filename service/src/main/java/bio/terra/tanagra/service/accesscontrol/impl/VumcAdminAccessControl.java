@@ -2,30 +2,54 @@ package bio.terra.tanagra.service.accesscontrol.impl;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.*;
 
-import bio.terra.tanagra.service.VumcAdminService;
+import bio.terra.common.logging.RequestIdFilter;
+import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.AccessControl;
 import bio.terra.tanagra.service.accesscontrol.Action;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
+import bio.terra.tanagra.service.auth.AppDefaultUtils;
 import bio.terra.tanagra.service.auth.UserId;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.vumc.vda.tanagra.admin.model.ResourceAction;
-import org.vumc.vda.tanagra.admin.model.ResourceList;
-import org.vumc.vda.tanagra.admin.model.ResourceTypeList;
+import javax.ws.rs.client.Client;
+import org.apache.http.HttpStatus;
+import org.slf4j.MDC;
+import org.vumc.vda.tanagra.admin.api.AuthorizationApi;
+import org.vumc.vda.tanagra.admin.api.TestApi;
+import org.vumc.vda.tanagra.admin.api.UnauthenticatedApi;
+import org.vumc.vda.tanagra.admin.client.ApiClient;
+import org.vumc.vda.tanagra.admin.client.ApiException;
+import org.vumc.vda.tanagra.admin.model.*;
 
 public class VumcAdminAccessControl implements AccessControl {
-  private final VumcAdminService vumcAdminService;
+  private static final String USE_ADC = "USE_ADC";
 
-  public VumcAdminAccessControl(VumcAdminService vumcAdminService) {
-    this.vumcAdminService = vumcAdminService;
-  }
+  private String basePath;
+  private String oauthClientId;
+  private boolean useAdc;
+  private Client commonHttpClient;
 
   @Override
   public String getDescription() {
-    return "Forward the access control checks to the VUMC admin service";
+    return "Check VUMC admin service for study access";
+  }
+
+  @Override
+  public void initialize(List<String> params, String basePath, String oauthClientId) {
+    if (basePath == null || oauthClientId == null) {
+      throw new IllegalArgumentException(
+          "Base URL and OAuth client id are required for VUMC admin service API calls");
+    }
+    this.basePath = basePath;
+    this.oauthClientId = oauthClientId;
+
+    // Default is to use application default credentials.
+    this.useAdc = params.isEmpty() || USE_ADC.equalsIgnoreCase(params.get(0));
+    this.commonHttpClient = new ApiClient().getHttpClient();
   }
 
   @Override
@@ -34,7 +58,7 @@ public class VumcAdminAccessControl implements AccessControl {
     if (resourceType == ResourceType.UNDERLAY) {
       // For underlays, check authorization with the underlay id.
       String underlayId = resourceId == null ? null : resourceId.getUnderlay();
-      return vumcAdminService.isAuthorized(
+      return apiIsAuthorized(
           userId.getEmail(),
           ResourceAction.valueOf(action.toString()),
           org.vumc.vda.tanagra.admin.model.ResourceType.UNDERLAY,
@@ -42,7 +66,7 @@ public class VumcAdminAccessControl implements AccessControl {
     } else if (resourceType == ResourceType.STUDY) {
       // For studies, check authorization with the study id.
       String studyId = resourceId == null ? null : resourceId.getStudy();
-      return vumcAdminService.isAuthorized(
+      return apiIsAuthorized(
           userId.getEmail(),
           ResourceAction.valueOf(action.toString()),
           org.vumc.vda.tanagra.admin.model.ResourceType.STUDY,
@@ -54,7 +78,7 @@ public class VumcAdminAccessControl implements AccessControl {
       String studyId = resourceId == null ? null : resourceId.getStudy();
       Action actionOnStudy =
           List.of(READ, QUERY_INSTANCES, QUERY_COUNTS).contains(action) ? READ : UPDATE;
-      return vumcAdminService.isAuthorized(
+      return apiIsAuthorized(
           userId.getEmail(),
           ResourceAction.valueOf(actionOnStudy.toString()),
           org.vumc.vda.tanagra.admin.model.ResourceType.STUDY,
@@ -73,8 +97,7 @@ public class VumcAdminAccessControl implements AccessControl {
     if (resourceType == ResourceType.UNDERLAY) {
       // For underlays, list authorized underlay ids.
       resourceTypeList.add(org.vumc.vda.tanagra.admin.model.ResourceType.UNDERLAY);
-      ResourceList resourceList =
-          vumcAdminService.listAuthorizedResources(userId.getEmail(), resourceTypeList);
+      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), resourceTypeList);
       return ResourceIdCollection.forCollection(
           resourceList.stream()
               .map(resource -> ResourceId.forUnderlay(resource.getId()))
@@ -82,8 +105,7 @@ public class VumcAdminAccessControl implements AccessControl {
     } else if (resourceType == ResourceType.STUDY) {
       // For studies, list authorized study ids.
       resourceTypeList.add(org.vumc.vda.tanagra.admin.model.ResourceType.STUDY);
-      ResourceList resourceList =
-          vumcAdminService.listAuthorizedResources(userId.getEmail(), resourceTypeList);
+      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), resourceTypeList);
       return ResourceIdCollection.forCollection(
           resourceList.stream()
               .map(resource -> ResourceId.forStudy(resource.getId()))
@@ -99,5 +121,64 @@ public class VumcAdminAccessControl implements AccessControl {
         return ResourceIdCollection.empty();
       }
     }
+  }
+
+  @SuppressWarnings("PMD.UseObjectForClearerAPI")
+  private boolean apiIsAuthorized(
+      String userEmail,
+      ResourceAction resourceAction,
+      org.vumc.vda.tanagra.admin.model.ResourceType resourceType,
+      String resourceId) {
+    AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
+    try {
+      authorizationApi.isAuthorized(userEmail, resourceAction, resourceType, resourceId);
+      return true;
+    } catch (ApiException apiEx) {
+      if (apiEx.getCode() == HttpStatus.SC_UNAUTHORIZED) {
+        return false;
+      }
+      throw new SystemException("Error calling VUMC admin service isAuthorized endpoint", apiEx);
+    }
+  }
+
+  private ResourceList apiListAuthorizedResources(
+      String userEmail, ResourceTypeList resourceTypeList) {
+    AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
+    try {
+      return authorizationApi.listAuthorizedResources(userEmail, resourceTypeList);
+    } catch (ApiException apiEx) {
+      throw new SystemException(
+          "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);
+    }
+  }
+
+  public SystemVersion apiVersion() throws ApiException {
+    // Use an authenticated client here, even though the version endpoint is part of the
+    // UnauthenticatedApi in case all endpoints are behind IAP.
+    return new UnauthenticatedApi(getApiClientAuthenticated()).serviceVersion();
+  }
+
+  public CoreServiceTest apiRoundTripTest() throws ApiException {
+    TestApi testApi = new TestApi(getApiClientAuthenticated());
+    return testApi.coreServiceTest();
+  }
+
+  /**
+   * Return an ApiClient with a token from the currently authenticated user or the application
+   * default credentials, depending on the configuration flag.
+   */
+  private ApiClient getApiClientAuthenticated() {
+    UserId userId =
+        useAdc
+            ? AppDefaultUtils.getUserIdFromAdc(oauthClientId)
+            : SpringAuthentication.getCurrentUser();
+    ApiClient client =
+        new ApiClient()
+            .setBasePath(basePath)
+            .setHttpClient(commonHttpClient)
+            .addDefaultHeader(
+                RequestIdFilter.REQUEST_ID_HEADER, MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY));
+    client.setAccessToken(userId.getToken());
+    return client;
   }
 }
