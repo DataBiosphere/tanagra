@@ -6,7 +6,7 @@ describe("Basic tests", () => {
   it("Basic walkthrough", () => {
     const cohortName = generateCohort();
 
-    cy.get("button[id=insert-cohort]").click();
+    cy.get("button:Contains(New cohort)").click();
     cy.get("input[name=text]").type(cohortName);
     cy.get("button:Contains(Create)").click();
     cy.get("button:Contains(Add criteria)").first().click();
@@ -36,7 +36,7 @@ describe("Basic tests", () => {
 
     cy.get("a[aria-label=back]").click();
 
-    cy.get("button[id=insert-concept-set]").click();
+    cy.get("button:Contains(New data feature)").click();
     cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("[data-testid='AccountTreeIcon']").first().click();
     cy.get("[data-testid='Clinical finding']").click();
@@ -46,13 +46,13 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains('condition_occurrence')", { timeout: 40000 });
 
-    cy.get("input[name='queries-mode']").click();
+    cy.get("button:Contains(Queries)").click();
     cy.contains("SELECT");
 
     // Test persistence.
     cy.reload();
 
-    cy.get(`a:Contains(${cohortName})`).click();
+    cy.get(`[data-testid='${cohortName}']`).click();
     cy.get("a:Contains('Condition: Clinical finding')").last().click();
     cy.contains("Clinical finding");
   });

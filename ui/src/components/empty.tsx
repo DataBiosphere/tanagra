@@ -4,7 +4,7 @@ import React from "react";
 
 type EmptyProps = {
   title?: string;
-  subtitle?: string;
+  subtitle?: string | JSX.Element;
   image?: string;
   maxWidth?: string | number;
   minHeight?: string | number;
