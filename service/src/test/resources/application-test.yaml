@@ -20,8 +20,10 @@ tanagra:
     use-adc: true
 
   access-control:
-    model: OPEN_ACCESS # VUMC_ADMIN
+    model: OPEN_ACCESS # VUMC_ADMIN, VERILY_GROUP
     params: []
+    base-path:
+    oauth-client-id:
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG

@@ -15,18 +15,14 @@ public final class AppDefaultUtils {
 
   public static UserId getUserIdFromAdc(String targetAudience) {
     IdToken idToken =
-        getIdTokenFromAdc(
-            getApplicationDefaultCredentials(),
-            ImmutableList.of("openid", "email", "profile"),
-            targetAudience);
+        getIdTokenFromAdc(ImmutableList.of("openid", "email", "profile"), targetAudience);
     return IapJwtUtils.verifyJwt(
         idToken.getTokenValue(), targetAudience, "https://accounts.google.com");
   }
 
   /** Get an ID token from the application default credentials. */
-  public static IdToken getIdTokenFromAdc(
-      GoogleCredentials applicationDefaultCredentials, List<String> scopes, String targetAudience) {
-    GoogleCredentials scopedCredentials = applicationDefaultCredentials.createScoped(scopes);
+  public static IdToken getIdTokenFromAdc(List<String> scopes, String targetAudience) {
+    GoogleCredentials scopedCredentials = getApplicationDefaultCredentials().createScoped(scopes);
     if (!(scopedCredentials instanceof IdTokenProvider)) {
       throw new InvalidCredentialsException(
           "Passed credential is not an IdTokenProvider, please ensure only scoped ADC are passed.");
