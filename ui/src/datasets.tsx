@@ -1,4 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
+import InfoIcon from "@mui/icons-material/Info";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -14,6 +15,7 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -39,7 +41,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   absoluteCohortURL,
   absoluteConceptSetURL,
@@ -171,304 +173,275 @@ export function Datasets() {
   );
 
   return (
-    <GridBox sx={{ overflowY: "auto" }}>
-      <ActionBar title="Datasets" backURL={"/underlays/" + underlay.name} />
-      <GridLayout height="auto" sx={{ py: 1, px: 5 }}>
-        <GridLayout cols="1fr 2fr" spacing={2}>
-          <GridLayout rows="auto 320px">
-            <GridLayout cols={3} fillCol={1} rowAlign="middle">
-              <GridBox sx={{ py: 2 }}>
-                <Typography variant="body1em">Cohorts</Typography>
-              </GridBox>
-              <GridBox />
-              <Button
-                startIcon={<AddIcon />}
-                variant="contained"
-                onClick={showNewCohort}
-              >
-                New cohort
-              </Button>
-              {dialog}
-            </GridLayout>
-            <Paper
-              sx={{
-                py: 2,
-                overflowY: "auto",
-                display: "block",
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <GridBox sx={{ px: 1, overflowY: "auto" }}>
-                {cohorts.length === 0 ? (
-                  <Empty
-                    maxWidth="80%"
-                    title="Cohorts are groups of people with common traits"
-                    subtitle={
-                      <>
-                        <Link
-                          variant="link"
-                          underline="hover"
-                          onClick={showNewCohort}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          Create a new cohort
-                        </Link>{" "}
-                        to define criteria
-                      </>
-                    }
-                  />
-                ) : (
-                  cohorts
-                    .filter((cohort) => cohort.underlayName === underlay.name)
-                    .map((cohort, i) => (
-                      <GridLayout
-                        key={cohort.id}
-                        cols
-                        fillCol={2}
-                        rowAlign="middle"
-                        height="auto"
-                        sx={{
-                          boxShadow:
-                            i !== 0
-                              ? (theme) => `0 -1px 0 ${theme.palette.divider}`
-                              : undefined,
-                        }}
-                      >
-                        <Checkbox
-                          name={cohort.name}
-                          checked={selectedCohorts.has(cohort.id)}
-                          onChange={() =>
-                            onToggle(updateSelectedCohorts, cohort.id)
-                          }
-                        />
-                        <Typography variant="body2">{cohort.name}</Typography>
-                        <GridBox />
-                        <Button
-                          data-testid={cohort.name}
-                          variant="outlined"
-                          onClick={() =>
-                            navigate(
-                              absoluteCohortURL(
-                                params,
-                                cohort.id,
-                                cohort.groupSections[0].id
-                              )
-                            )
-                          }
-                          sx={{ minWidth: "auto" }}
-                        >
-                          Edit
-                        </Button>
-                      </GridLayout>
-                    ))
-                )}
-              </GridBox>
-            </Paper>
-          </GridLayout>
-          <GridLayout rows="auto 320px">
-            <GridLayout cols={3} fillCol={1} rowAlign="middle">
-              <GridBox sx={{ py: 2 }}>
-                <Typography variant="body1em" sx={{ py: 2 }}>
-                  Data features
-                </Typography>
-              </GridBox>
-              <GridBox />
-              <Button
-                startIcon={<AddIcon />}
-                variant="contained"
-                onClick={() => {
-                  navigate(absoluteNewConceptSetURL(params));
+    <GridLayout rows>
+      <ActionBar
+        title="Datasets"
+        subtitle={`Data source: ${underlay.name}`}
+        backURL={"/underlays/" + underlay.name}
+      />
+      <GridBox sx={{ overflowY: "auto" }}>
+        <GridLayout height="auto" sx={{ py: 1, px: 5 }}>
+          <GridLayout cols="1fr 2fr" spacing={2}>
+            <GridLayout rows="auto 320px">
+              <GridLayout cols fillCol={2} spacing={1} rowAlign="middle">
+                <GridBox sx={{ py: 2 }}>
+                  <Typography variant="body1em">Cohorts</Typography>
+                </GridBox>
+                <Tooltip title="Cohorts are groups of people with common traits">
+                  <InfoIcon sx={{ display: "flex" }} />
+                </Tooltip>
+                <GridBox />
+                <Button
+                  startIcon={<AddIcon />}
+                  variant="contained"
+                  onClick={showNewCohort}
+                >
+                  New cohort
+                </Button>
+                {dialog}
+              </GridLayout>
+              <Paper
+                sx={{
+                  py: 2,
+                  overflowY: "auto",
+                  display: "block",
+                  width: "100%",
+                  height: "100%",
                 }}
               >
-                New data feature
-              </Button>
-            </GridLayout>
-            <Paper
-              sx={{
-                p: 2,
-                display: "block",
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <GridLayout cols="1fr 1fr" spacing={2}>
-                <GridLayout rows spacing={2}>
-                  <GridLayout cols>
-                    <Step
-                      index={0}
-                      active={conceptSetOccurrences.length === 0}
-                      completed={conceptSetOccurrences.length > 0}
-                    >
-                      <StepLabel>Select data features</StepLabel>
-                    </Step>
-                    <StepConnector />
-                  </GridLayout>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      py: 2,
-                      display: "block",
-                      width: "100%",
-                      height: "100%",
-                    }}
-                  >
-                    <GridBox sx={{ px: 1, overflowY: "auto" }}>
-                      {workspaceConceptSets.data?.length === 0 ? (
-                        <GridLayout rows="1fr 70% 1fr">
-                          {underlay.uiConfiguration.prepackagedConceptSets ? (
-                            <GridLayout rows height="auto">
-                              {listConceptSets(
-                                false,
-                                underlay.uiConfiguration.prepackagedConceptSets
-                              )}
-                            </GridLayout>
-                          ) : (
-                            <GridBox />
-                          )}
-                          <GridBox
-                            sx={{
-                              boxShadow: (theme) =>
-                                `0 -1px 0 ${theme.palette.divider}`,
-                            }}
-                          >
-                            <Empty
-                              maxWidth="80%"
-                              title="Data features are categories of data to export"
-                              subtitle={
-                                <>
-                                  <Link
-                                    variant="link"
-                                    underline="hover"
-                                    component={RouterLink}
-                                    to={absoluteNewConceptSetURL(params)}
-                                  >
-                                    Create a new data feature
-                                  </Link>{" "}
-                                  to define more criteria
-                                </>
-                              }
-                            />
-                          </GridBox>
-                          <GridBox />
-                        </GridLayout>
-                      ) : (
+                <GridBox sx={{ px: 1, overflowY: "auto" }}>
+                  {cohorts.length === 0 ? (
+                    <Empty
+                      maxWidth="80%"
+                      title="Cohorts are groups of people with common traits"
+                      subtitle={
                         <>
-                          {underlay.uiConfiguration.prepackagedConceptSets && (
-                            <>
-                              {listConceptSets(
-                                false,
-                                underlay.uiConfiguration.prepackagedConceptSets
-                              )}
-                            </>
-                          )}
-                          {workspaceConceptSets.data?.length &&
-                            listConceptSets(
+                          <Link
+                            variant="link"
+                            underline="hover"
+                            onClick={showNewCohort}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            Create a new cohort
+                          </Link>{" "}
+                          to define criteria
+                        </>
+                      }
+                    />
+                  ) : (
+                    cohorts
+                      .filter((cohort) => cohort.underlayName === underlay.name)
+                      .map((cohort, i) => (
+                        <GridLayout
+                          key={cohort.id}
+                          cols
+                          fillCol={2}
+                          rowAlign="middle"
+                          height="auto"
+                          sx={{
+                            boxShadow:
+                              i !== 0
+                                ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+                                : undefined,
+                          }}
+                        >
+                          <Checkbox
+                            name={cohort.name}
+                            checked={selectedCohorts.has(cohort.id)}
+                            onChange={() =>
+                              onToggle(updateSelectedCohorts, cohort.id)
+                            }
+                          />
+                          <Typography variant="body2">{cohort.name}</Typography>
+                          <GridBox />
+                          <Button
+                            data-testid={cohort.name}
+                            variant="outlined"
+                            onClick={() =>
+                              navigate(
+                                absoluteCohortURL(
+                                  params,
+                                  cohort.id,
+                                  cohort.groupSections[0].id
+                                )
+                              )
+                            }
+                            sx={{ minWidth: "auto" }}
+                          >
+                            Edit
+                          </Button>
+                        </GridLayout>
+                      ))
+                  )}
+                </GridBox>
+              </Paper>
+            </GridLayout>
+            <GridLayout rows="auto 320px">
+              <GridLayout cols fillCol={2} spacing={1} rowAlign="middle">
+                <GridBox sx={{ py: 2 }}>
+                  <Typography variant="body1em" sx={{ py: 2 }}>
+                    Data features
+                  </Typography>
+                </GridBox>
+                <Tooltip title="Data features are categories of data to export">
+                  <InfoIcon sx={{ display: "flex" }} />
+                </Tooltip>
+                <GridBox />
+                <Button
+                  startIcon={<AddIcon />}
+                  variant="contained"
+                  onClick={() => {
+                    navigate(absoluteNewConceptSetURL(params));
+                  }}
+                >
+                  New data feature
+                </Button>
+              </GridLayout>
+              <Paper
+                sx={{
+                  p: 2,
+                  display: "block",
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                <GridLayout cols="1fr 1fr" spacing={2}>
+                  <GridLayout rows spacing={2}>
+                    <GridLayout cols>
+                      <Step
+                        index={0}
+                        active={conceptSetOccurrences.length === 0}
+                        completed={conceptSetOccurrences.length > 0}
+                      >
+                        <StepLabel>Select data features</StepLabel>
+                      </Step>
+                      <StepConnector />
+                    </GridLayout>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        py: 2,
+                        display: "block",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    >
+                      <GridBox sx={{ px: 1, overflowY: "auto" }}>
+                        {underlay.uiConfiguration.prepackagedConceptSets ? (
+                          <>
+                            {listConceptSets(
+                              false,
+                              underlay.uiConfiguration.prepackagedConceptSets
+                            )}
+                          </>
+                        ) : null}
+                        {workspaceConceptSets.data?.length
+                          ? listConceptSets(
                               true,
                               (workspaceConceptSets.data ?? []).map((cs) => ({
                                 id: cs.id,
                                 name: getCriteriaTitle(cs.criteria),
                               }))
-                            )}
-                        </>
-                      )}
-                    </GridBox>
-                  </Paper>
-                </GridLayout>
-                <GridLayout rows spacing={2}>
-                  <Step index={1} active={conceptSetOccurrences.length > 0}>
-                    <StepLabel>Select feature values</StepLabel>
-                  </Step>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      py: 2,
-                      display: "block",
-                      width: "100%",
-                      height: "100%",
-                    }}
-                  >
-                    <GridBox sx={{ px: 1, overflowY: "auto" }}>
-                      {conceptSetOccurrences.length === 0 && (
-                        <Empty
-                          maxWidth="80%"
-                          title="No data features selected"
-                          subtitle="Select at least one data feature to pick values"
-                        />
-                      )}
-                      {conceptSetOccurrences.map((occurrence) => (
-                        <Fragment key={occurrence.id}>
-                          <GridBox
-                            sx={{
-                              position: "sticky",
-                              top: 0,
-                              zIndex: 1,
-                              backgroundColor: (theme) =>
-                                theme.palette.background.paper,
-                              boxShadow: (theme) =>
-                                `inset 0 -1px 0 ${theme.palette.divider}`,
-                              height: "auto",
-                            }}
-                          >
-                            <Typography variant="body2em">
-                              {occurrence.name}
-                            </Typography>
-                          </GridBox>
-                          {occurrence.attributes.map((attribute) => (
-                            <Stack
-                              key={attribute}
-                              direction="row"
-                              alignItems="center"
+                            )
+                          : null}
+                      </GridBox>
+                    </Paper>
+                  </GridLayout>
+                  <GridLayout rows spacing={2}>
+                    <Step index={1} active={conceptSetOccurrences.length > 0}>
+                      <StepLabel>Select feature values</StepLabel>
+                    </Step>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        py: 2,
+                        display: "block",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    >
+                      <GridBox sx={{ px: 1, overflowY: "auto" }}>
+                        {conceptSetOccurrences.length === 0 && (
+                          <Empty
+                            maxWidth="80%"
+                            title="No data features selected"
+                            subtitle="Select at least one data feature to pick values"
+                          />
+                        )}
+                        {conceptSetOccurrences.map((occurrence) => (
+                          <Fragment key={occurrence.id}>
+                            <GridBox
+                              sx={{
+                                position: "sticky",
+                                top: 0,
+                                zIndex: 1,
+                                backgroundColor: (theme) =>
+                                  theme.palette.background.paper,
+                                boxShadow: (theme) =>
+                                  `inset 0 -1px 0 ${theme.palette.divider}`,
+                                height: "auto",
+                              }}
                             >
-                              <Checkbox
-                                name={occurrence.id + "-" + attribute}
-                                checked={
-                                  !excludedAttributes
-                                    .get(occurrence.id)
-                                    ?.has(attribute)
-                                }
-                                onChange={() =>
-                                  updateExcludedAttributes((selection) => {
-                                    if (!selection?.get(occurrence.id)) {
-                                      selection?.set(
-                                        occurrence.id,
-                                        new Set<string>()
-                                      );
-                                    }
-
-                                    const attributes = selection?.get(
-                                      occurrence.id
-                                    );
-                                    if (attributes?.has(attribute)) {
-                                      attributes?.delete(attribute);
-                                    } else {
-                                      attributes?.add(attribute);
-                                    }
-                                  })
-                                }
-                              />
-                              <Typography variant="body2">
-                                {attribute}
+                              <Typography variant="body2em">
+                                {occurrence.name}
                               </Typography>
-                            </Stack>
-                          ))}
-                        </Fragment>
-                      ))}
-                    </GridBox>
-                  </Paper>
+                            </GridBox>
+                            {occurrence.attributes.map((attribute) => (
+                              <Stack
+                                key={attribute}
+                                direction="row"
+                                alignItems="center"
+                              >
+                                <Checkbox
+                                  name={occurrence.id + "-" + attribute}
+                                  checked={
+                                    !excludedAttributes
+                                      .get(occurrence.id)
+                                      ?.has(attribute)
+                                  }
+                                  onChange={() =>
+                                    updateExcludedAttributes((selection) => {
+                                      if (!selection?.get(occurrence.id)) {
+                                        selection?.set(
+                                          occurrence.id,
+                                          new Set<string>()
+                                        );
+                                      }
+
+                                      const attributes = selection?.get(
+                                        occurrence.id
+                                      );
+                                      if (attributes?.has(attribute)) {
+                                        attributes?.delete(attribute);
+                                      } else {
+                                        attributes?.add(attribute);
+                                      }
+                                    })
+                                  }
+                                />
+                                <Typography variant="body2">
+                                  {attribute}
+                                </Typography>
+                              </Stack>
+                            ))}
+                          </Fragment>
+                        ))}
+                      </GridBox>
+                    </Paper>
+                  </GridLayout>
                 </GridLayout>
-              </GridLayout>
-            </Paper>
+              </Paper>
+            </GridLayout>
           </GridLayout>
+          <Preview
+            selectedCohorts={selectedCohorts}
+            selectedConceptSets={selectedConceptSets}
+            conceptSetOccurrences={conceptSetOccurrences}
+            excludedAttributes={excludedAttributes}
+          />
         </GridLayout>
-        <Preview
-          selectedCohorts={selectedCohorts}
-          selectedConceptSets={selectedConceptSets}
-          conceptSetOccurrences={conceptSetOccurrences}
-          excludedAttributes={excludedAttributes}
-        />
-      </GridLayout>
-    </GridBox>
+      </GridBox>
+    </GridLayout>
   );
 }
 

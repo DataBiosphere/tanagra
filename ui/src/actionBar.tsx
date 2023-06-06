@@ -1,71 +1,70 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import AppBar from "@mui/material/AppBar";
 import IconButton from "@mui/material/IconButton";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { useAppSelector } from "hooks";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
+import { Link as RouterLink } from "react-router-dom";
 
 type ActionBarProps = {
   title: string;
+  subtitle?: string | JSX.Element;
+  height?: number | string;
   backURL?: string | null; // null hides the back button.
   extraControls?: JSX.Element;
 };
 
 export default function ActionBar(props: ActionBarProps) {
-  const { underlayName } = useParams<{ underlayName: string }>();
-  const underlay = useAppSelector((state) =>
-    state.present.underlays.find((underlay) => underlay.name === underlayName)
-  );
-
   return (
-    <AppBar
-      position="fixed"
+    <GridLayout
+      rows
       sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        px: 4,
+        py: 2,
+        backgroundColor: (theme) => theme.palette.background.paper,
         borderBottomColor: (theme) => theme.palette.divider,
         borderBottomStyle: "solid",
         borderBottomWidth: "1px",
       }}
     >
-      <Toolbar disableGutters>
+      <GridLayout
+        cols={4}
+        rows={props.subtitle ? 2 : undefined}
+        fillCol={2}
+        rowAlign="middle"
+        height="auto"
+      >
         <IconButton
-          color="primary"
           aria-label="back"
           component={RouterLink}
           to={props.backURL ?? ".."}
           sx={{
-            mx: 1,
+            mr: 2,
             visibility: props.backURL === null ? "hidden" : "visible",
-            "&.MuiIconButton-root": {
-              backgroundColor: (theme) => theme.palette.primary.main,
-              color: (theme) => theme.palette.primary.contrastText,
-            },
-            "&.MuiIconButton-root:hover": {
-              backgroundColor: (theme) => theme.palette.primary.dark,
-            },
           }}
         >
           <ArrowBackIcon />
         </IconButton>
-        <Typography
-          variant="h6"
-          sx={{
-            flexGrow: 1,
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-          }}
-        >
-          {props.title}
-        </Typography>
-        {props.extraControls}
-        {underlay ? (
-          <Typography variant="body1" sx={{ mx: 1 }}>
-            Dataset: {underlay.name}
+        <GridLayout rows height="auto">
+          <Typography
+            variant="h6"
+            sx={{
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+            }}
+          >
+            {props.title}
           </Typography>
+        </GridLayout>
+        <GridBox />
+        {props.extraControls ?? <GridBox />}
+
+        {props.subtitle ? <GridBox /> : null}
+        {props.subtitle ? (
+          <Typography variant="body2">{props.subtitle}</Typography>
         ) : null}
-      </Toolbar>
-    </AppBar>
+        {props.subtitle ? <GridBox /> : null}
+      </GridLayout>
+    </GridLayout>
   );
 }
