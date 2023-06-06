@@ -1,7 +1,8 @@
 databaseChangeLog:
   - changeSet:
       id: avoid_postgres_specific_features
-      author: marikomedlock, chenchalsubraveti
+      author: marikomedlock
+      dbms: postgresql
       # TODO: Remove the jsonb and 2 text[] columns in a follow-on changeset, once we're sure this migration was successful.
       # study.properties, criteria.tags, annotation_key.enumVals
       changes:
@@ -10,7 +11,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: study_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     references: study(id)
                     foreignKeyName: fk_sp_s
@@ -19,12 +20,12 @@ databaseChangeLog:
                   remarks: Deleting a study will cascade to delete its properties
               - column:
                   name: key
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: false
               - column:
                   name: value
-                  type: ${text.type}
+                  type: text
                   constraints:
                     nullable: true
         - addUniqueConstraint:
@@ -43,22 +44,22 @@ databaseChangeLog:
             columns:
               - column:
                   name: criteria_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: false
               - column:
                   name: criteria_group_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: true
               - column:
                   name: criteria_group_section_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: true
               - column:
                   name: cohort_revision_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     references: cohort_revision(id)
                     foreignKeyName: ck_crit_cr
@@ -67,7 +68,7 @@ databaseChangeLog:
                   remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
               - column:
                   name: concept_set_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     references: concept_set(id)
                     foreignKeyName: fk_crit_cs
@@ -76,12 +77,12 @@ databaseChangeLog:
                   remarks: Deleting a concept set will cascade to delete the criteria contained in it
               - column:
                   name: key
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: false
               - column:
                   name: value
-                  type: ${text.type}
+                  type: text
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -104,17 +105,17 @@ databaseChangeLog:
             columns:
               - column:
                   name: enum
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: false
               - column:
                   name: annotation_key_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: false
               - column:
                   name: cohort_id
-                  type: ${id.type}
+                  type: text
                   constraints:
                     nullable: false
         - addUniqueConstraint:
