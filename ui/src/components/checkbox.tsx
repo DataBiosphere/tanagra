@@ -31,7 +31,10 @@ export default function Checkbox({
       {checked ? (
         <CheckBoxIcon fontSize={fontSize} color="primary" />
       ) : (
-        <CheckBoxOutlineBlankIcon fontSize={fontSize} />
+        <CheckBoxOutlineBlankIcon
+          fontSize={fontSize}
+          sx={{ fill: "inherit" }}
+        />
       )}
     </IconButton>
   );

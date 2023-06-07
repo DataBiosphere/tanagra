@@ -7,10 +7,11 @@ import java.util.List;
 public interface AccessControl {
   enum Model {
     OPEN_ACCESS,
-    VUMC_ADMIN
+    VUMC_ADMIN,
+    VERILY_GROUP
   }
 
-  default void initialize(List<String> params) {
+  default void initialize(List<String> params, String baseUrl, String oauthClientId) {
     // Do nothing with parameters.
   }
 

@@ -10,5 +10,6 @@ More information about this codebase can be found in the links below.
 
 * [Entity Model](./docs/ENTITY_MODEL.md)
 * [Indexing](./docs/INDEXING.md)
+* [Access Control](./docs/ACCESS_CONTROL.md)
 * [VUMC Admin Service](./docs/VUMC_ADMIN_SERVICE.md)
 * [Contribute Code](./docs/CONTRIBUTING.md)

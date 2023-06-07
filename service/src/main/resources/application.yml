@@ -18,18 +18,15 @@ tanagra:
     username:
     password:
 
-  vumc-admin:
-    base-path: https://tanagra-dev.api.verily.com
-    oauth-client-id: 694046000181-baqla782scqfaaga26869orhhd8o7vjo.apps.googleusercontent.com
-    use-adc: true
-
   export:
     gcs-bucket-project-id: broad-tanagra-dev
     gcs-bucket-name: broad-tanagra-dev-bq-export
 
   access-control:
-    model: OPEN_ACCESS # VUMC_ADMIN
+    model: OPEN_ACCESS # VUMC_ADMIN, VERILY_GROUP
     params: []
+    base-path:
+    oauth-client-id:
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG

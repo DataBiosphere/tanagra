@@ -13,10 +13,12 @@ declare module "@mui/material/styles" {
   interface TypographyVariants {
     body1em: TypographyStyleOptions;
     body2em: TypographyStyleOptions;
+    link: TypographyStyleOptions;
   }
   interface TypographyVariantsOptions {
     body1em?: TypographyStyleOptions;
     body2em?: TypographyStyleOptions;
+    link?: TypographyStyleOptions;
   }
 }
 
@@ -24,6 +26,7 @@ declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
     body1em: true;
     body2em: true;
+    link: true;
   }
 }
 
@@ -140,6 +143,16 @@ export const theme = createTheme({
       letterSpacing: "0.03em",
       textTransform: "uppercase",
     },
+    link: {
+      fontFamily: "Roboto",
+      textTransform: "none",
+      color: "#4450c0",
+      fontWeight: 400,
+      lineHeight: "150%",
+      fontSize: "1rem",
+      textDecoration: "underline",
+      letterSpacing: "0.0025em",
+    },
   },
   palette: {
     mode: "light",
@@ -198,6 +211,25 @@ export const theme = createTheme({
         root: {
           textTransform: "none",
           borderRadius: "2.5rem",
+        },
+      },
+    },
+    MuiToggleButtonGroup: {
+      defaultProps: {
+        size: "small",
+        color: "primary",
+      },
+    },
+    MuiToggleButton: {
+      defaultProps: {
+        size: "small",
+        color: "primary",
+      },
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          borderRadius: "2.5rem",
+          padding: "4px 10px 4px 10px",
         },
       },
     },
@@ -323,6 +355,20 @@ export const theme = createTheme({
     MuiTable: {
       defaultProps: {
         size: "small",
+      },
+    },
+    MuiStep: {
+      styleOverrides: {
+        root: {
+          padding: "0px",
+        },
+      },
+    },
+    MuiStepConnector: {
+      styleOverrides: {
+        root: {
+          padding: "8px",
+        },
       },
     },
   },

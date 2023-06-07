@@ -36,7 +36,13 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { cohortURL, criteriaURL, exitURL, useBaseParams } from "router";
+import {
+  absoluteCohortReviewListURL,
+  cohortURL,
+  criteriaURL,
+  exitURL,
+  useBaseParams,
+} from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import {
@@ -50,24 +56,42 @@ import {
 
 export function Overview() {
   const cohort = useCohort();
+  const params = useBaseParams();
 
   return (
-    <GridLayout
-      rows="minmax(max-content, 100%)"
-      cols="auto 380px"
-      spacing={2}
-      sx={{ px: 5, overflowY: "auto" }}
-    >
-      <GroupList />
-      <GridBox
-        sx={{
-          leftBorderStyle: "solid",
-          borderColor: (theme) => theme.palette.divider,
-          borderWidth: "1px",
-        }}
+    <GridLayout rows>
+      <ActionBar
+        height={8}
+        title={cohort.name}
+        subtitle={<SaveStatus />}
+        extraControls={
+          <Button
+            variant="outlined"
+            component={RouterLink}
+            to={absoluteCohortReviewListURL(params, cohort.id)}
+          >
+            Review cohort
+          </Button>
+        }
+        backURL={exitURL(params)}
+      />
+      <GridLayout
+        rows="minmax(max-content, 100%)"
+        cols="auto 380px"
+        spacing={2}
+        sx={{ px: 5, overflowY: "auto" }}
       >
-        <DemographicCharts cohort={cohort} />
-      </GridBox>
+        <GroupList />
+        <GridBox
+          sx={{
+            leftBorderStyle: "solid",
+            borderColor: (theme) => theme.palette.divider,
+            borderWidth: "1px",
+          }}
+        >
+          <DemographicCharts cohort={cohort} />
+        </GridBox>
+      </GridLayout>
     </GridLayout>
   );
 }
@@ -83,15 +107,9 @@ function GroupDivider() {
 function GroupList() {
   const context = useCohortContext();
   const cohort = useCohort();
-  const params = useBaseParams();
 
   return (
     <GridBox sx={{ pb: 2 }}>
-      <ActionBar
-        title={cohort.name}
-        extraControls={<SaveStatus />}
-        backURL={exitURL(params)}
-      />
       <GridLayout rows height="auto">
         <GridBox sx={{ py: 3 }}>
           <GridLayout cols fillCol={1} rowAlign="middle">

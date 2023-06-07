@@ -1,8 +1,7 @@
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
+import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { insertCohortCriteria, useCohortContext } from "cohortContext";
@@ -14,6 +13,7 @@ import {
   TreeGridData,
   TreeGridId,
   TreeGridItem,
+  TreeGridRowData,
 } from "components/treegrid";
 import { createConceptSet, useConceptSetContext } from "conceptSetContext";
 import { MergedDataEntry, useSource } from "data/source";
@@ -80,6 +80,7 @@ type AddCriteriaProps = {
 };
 
 function AddCriteria(props: AddCriteriaProps) {
+  const theme = useTheme();
   const underlay = useUnderlay();
   const source = useSource();
   const navigate = useNavigate();
@@ -123,6 +124,10 @@ function AddCriteria(props: AddCriteriaProps) {
         title: "Criteria type",
       },
       ...searchConfig.columns,
+      {
+        key: "t_add_button",
+        width: 80,
+      },
     ],
     [underlay]
   );
@@ -193,17 +198,17 @@ function AddCriteria(props: AddCriteriaProps) {
   );
 
   return (
-    <GridBox
+    <GridLayout
+      rows
       sx={{
         backgroundColor: (theme) => theme.palette.background.paper,
-        overflowY: "auto",
-        px: 5,
-        py: 3,
       }}
     >
       <ActionBar title={props.title} backURL={props.backURL} />
-      <GridLayout rows spacing={3}>
-        <Search placeholder="Search by code or description" />
+      <GridLayout rows>
+        <GridBox sx={{ px: 5, py: 3 }}>
+          <Search placeholder="Search by code or description" />
+        </GridBox>
         <Loading status={searchState}>
           {!searchState.data?.root?.children?.length ? (
             query !== "" ? (
@@ -213,75 +218,104 @@ function AddCriteria(props: AddCriteriaProps) {
                 title="No matches found"
               />
             ) : (
-              <GridLayout rows height="auto">
-                {categories.map((category) => (
-                  <GridLayout key={category[0].category} rows height="auto">
-                    <GridBox
-                      key={category[0].category}
-                      sx={{
-                        p: 1.5,
-                        backgroundColor: (theme) => theme.palette.info.main,
-                        borderBottomStyle: "solid",
-                        borderColor: (theme) => theme.palette.divider,
-                        borderWidth: "2px",
-                        height: "auto",
+              <GridBox sx={{ px: 5, overflowY: "auto" }}>
+                <table
+                  style={{
+                    tableLayout: "fixed",
+                    width: "100%",
+                    textAlign: "left",
+                    borderCollapse: "collapse",
+                  }}
+                >
+                  <colgroup>
+                    <col
+                      style={{
+                        width: "100%",
+                        minWidth: "100%",
+                        maxWidth: "100%",
+                        verticalAlign: "center",
                       }}
-                    >
-                      <Typography key="" variant="overline">
-                        {category[0].category ?? "Uncategorized"}
-                      </Typography>
-                    </GridBox>
-                    {category.map((config) => (
-                      <GridLayout
-                        key={config.id}
-                        cols
-                        fillCol={1}
-                        rowAlign="middle"
-                        sx={{
-                          p: 1.5,
-                          borderBottomStyle: "solid",
-                          borderColor: (theme) => theme.palette.divider,
-                          borderWidth: "1px",
-                          height: "auto",
-                        }}
-                      >
-                        <Typography variant="body2">{config.title}</Typography>
-                        <GridBox />
-                        <GridLayout
-                          colAlign="center"
-                          width="100px"
-                          height="auto"
+                    />
+                    <col
+                      style={{
+                        width: "80px",
+                        minWidth: "80px",
+                        maxWidth: "80px",
+                        verticalAlign: "center",
+                      }}
+                    />
+                  </colgroup>
+                  <tbody>
+                    {categories.map((category) => [
+                      <tr key={category[0].category}>
+                        <th
+                          colSpan={2}
+                          style={{
+                            position: "sticky",
+                            top: 0,
+                            backgroundColor: theme.palette.info.main,
+                            boxShadow: `inset 0 -2px 0 ${theme.palette.divider}`,
+                            zIndex: 1,
+                            height: theme.spacing(6),
+                          }}
                         >
-                          {criteriaConfigMap.get(config.id)?.showMore ? (
-                            <IconButton
-                              key={config.id}
-                              data-testid={config.id}
-                              onClick={() => onClick(config)}
-                            >
-                              <NavigateNextIcon />
-                            </IconButton>
-                          ) : (
-                            <Button
-                              key={config.id}
-                              data-testid={config.id}
-                              onClick={() => onClick(config)}
-                              variant="outlined"
-                            >
-                              Add
-                            </Button>
-                          )}
-                        </GridLayout>
-                      </GridLayout>
-                    ))}
-                  </GridLayout>
-                ))}
-              </GridLayout>
+                          <Typography key="" variant="overline">
+                            {category[0].category}
+                          </Typography>
+                        </th>
+                      </tr>,
+                      ...category.map((config) => (
+                        <tr key={config.id}>
+                          <td
+                            style={{
+                              boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
+                              height: theme.spacing(6),
+                            }}
+                          >
+                            <Typography key="" variant="body2">
+                              {config.title}
+                            </Typography>
+                          </td>
+                          <td
+                            style={{
+                              boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
+                            }}
+                          >
+                            <GridLayout colAlign="center">
+                              {criteriaConfigMap.get(config.id)?.showMore ? (
+                                <Button
+                                  key={config.id}
+                                  data-testid={config.id}
+                                  onClick={() => onClick(config)}
+                                  variant="outlined"
+                                >
+                                  Explore
+                                </Button>
+                              ) : (
+                                <Button
+                                  key={config.id}
+                                  data-testid={config.id}
+                                  onClick={() => onClick(config)}
+                                  variant="outlined"
+                                  sx={{ minWidth: "auto" }}
+                                >
+                                  Add
+                                </Button>
+                              )}
+                            </GridLayout>
+                          </td>
+                        </tr>
+                      )),
+                    ])}
+                  </tbody>
+                </table>
+              </GridBox>
             )
           ) : (
             <TreeGrid
               columns={columns}
               data={searchState.data ?? {}}
-              rowCustomization={(id: TreeGridId) => {
+              rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
                 if (!searchState.data) {
                   return undefined;
                 }
@@ -296,8 +330,18 @@ function AddCriteria(props: AddCriteriaProps) {
 
                 return [
                   {
-                    column: 1,
-                    onClick: () => onClick(config, item.entry.data),
+                    column: columns.length - 1,
+                    content: (
+                      <GridLayout colAlign="center">
+                        <Button
+                          data-testid={rowData[searchConfig.columns[0].key]}
+                          onClick={() => onClick(config, item.entry.data)}
+                          variant="outlined"
+                        >
+                          Add
+                        </Button>
+                      </GridLayout>
+                    ),
                   },
                 ];
               }}
@@ -305,7 +349,7 @@ function AddCriteria(props: AddCriteriaProps) {
           )}
         </Loading>
       </GridLayout>
-    </GridBox>
+    </GridLayout>
   );
 }
 
