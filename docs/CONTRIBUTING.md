@@ -110,10 +110,19 @@ Before a PR can merge, it needs to pass the static analysis checks and tests. To
 ```
 
 ### Local Server
+* Start a local server on `localhost:8080` with Postgres
 ```
+./service/local-dev/run_postgres.sh start
 ./service/local-dev/run_server.sh
 ```
-starts a local server on `localhost:8080`.
+Note: When running for Postgres, first stop mariadb container if running.
+
+* Start a local server on `localhost:8080` with MariaDb
+```
+./service/local-dev/run_mariadb.sh start
+./service/local-dev/run_server.sh -m
+```
+Note: When running for Mariadb, first stop postgres container if running.
 
 See [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) for the Swagger API page.
 
