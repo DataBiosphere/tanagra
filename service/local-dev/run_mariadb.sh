@@ -10,7 +10,8 @@ start() {
     echo "starting up container...$CONTAINER"
     BASEDIR=$(dirname "$0")
     root_pass="dbpwd"
-    docker create --name $CONTAINER --rm -e MARIADB_ROOT_PASSWORD=$root_pass -p "$MARIADB_PORT:$MARIADB_PORT" mariadb:$MARIADB_VERSION
+    docker create --name $CONTAINER --rm \
+           -e MARIADB_ROOT_PASSWORD=$root_pass -p "5432:3306" mariadb:$MARIADB_VERSION
     docker cp $BASEDIR/local-mariadb-init.sql $CONTAINER:/docker-entrypoint-initdb.d/docker_mariadb_init.sql
     docker start $CONTAINER
 
@@ -41,7 +42,6 @@ stop() {
 
 CONTAINER=mariadb10_4
 COMMAND=$1
-MARIADB_PORT=3306
 
 if [ ${#@} == 0 ]; then
     echo "Usage: $0 stop|start"

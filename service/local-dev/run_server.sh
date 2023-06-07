@@ -30,7 +30,7 @@ export TANAGRA_DB_PASSWORD=dbpwd
 
 if [[ ${useMariaDB} ]]; then
   echo "Using MariaDB for application DB."
-  export TANAGRA_DB_URI=jdbc:mariadb://127.0.0.1:3306/${TANAGRA_DATABASE_NAME}
+  export TANAGRA_DB_URI=jdbc:mariadb://127.0.0.1:5432/${TANAGRA_DATABASE_NAME}
 else
   echo "Using PostGres for application DB."
   export TANAGRA_DB_URI=jdbc:postgresql://127.0.0.1:5432/${TANAGRA_DATABASE_NAME}
