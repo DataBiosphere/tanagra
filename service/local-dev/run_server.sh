@@ -5,13 +5,16 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":av" arg; do
+while getopts ":avm" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
       ;;
     v) # Use Verily underlays.
       useVerilyUnderlays=1
+      ;;
+    m) # Use MariaDB.
+      useMariaDB=1
       ;;
     h | *) # Display help.
       usage
@@ -24,6 +27,14 @@ export TANAGRA_DATABASE_NAME=tanagra_db
 export TANAGRA_DB_INITIALIZE_ON_START=false
 export TANAGRA_DB_USERNAME=dbuser
 export TANAGRA_DB_PASSWORD=dbpwd
+
+if [[ ${useMariaDB} ]]; then
+  echo "Using MariaDB for application DB."
+  export TANAGRA_DB_URI=jdbc:mariadb://127.0.0.1:3306/${TANAGRA_DATABASE_NAME}
+else
+  echo "Using PostGres for application DB."
+  export TANAGRA_DB_URI=jdbc:postgresql://127.0.0.1:5432/${TANAGRA_DATABASE_NAME}
+fi
 
 if [[ ${useVerilyUnderlays} ]]; then
   echo "Using Verily underlays."
