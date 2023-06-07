@@ -61,12 +61,12 @@ export function Overview() {
   return (
     <GridLayout rows>
       <ActionBar
-        height={8}
         title={cohort.name}
         subtitle={<SaveStatus />}
         extraControls={
           <Button
             variant="outlined"
+            size="large"
             component={RouterLink}
             to={absoluteCohortReviewListURL(params, cohort.id)}
           >
