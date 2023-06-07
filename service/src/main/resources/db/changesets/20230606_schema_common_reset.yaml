@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: schema_reset
       author: marikomedlock, chenchalsubraveti
-      dbms: mariadb.mysql
+      dbms: mariadb,mysql
       changes:
         - createTable:
             tableName: study
