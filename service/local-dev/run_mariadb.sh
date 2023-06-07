@@ -40,7 +40,7 @@ stop() {
     exit 0
 }
 
-CONTAINER=mariadb10_4
+CONTAINER=tanagra
 COMMAND=$1
 
 if [ ${#@} == 0 ]; then
