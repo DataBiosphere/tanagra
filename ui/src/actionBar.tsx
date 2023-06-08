@@ -9,7 +9,8 @@ type ActionBarProps = {
   title: string;
   subtitle?: string | JSX.Element;
   backURL?: string | null; // null hides the back button.
-  extraControls?: JSX.Element;
+  titleControls?: JSX.Element;
+  rightControls?: JSX.Element;
 };
 
 export default function ActionBar(props: ActionBarProps) {
@@ -45,16 +46,19 @@ export default function ActionBar(props: ActionBarProps) {
           <ArrowBackIcon />
         </IconButton>
         <GridLayout rows height="auto">
-          <Typography
-            variant="h6"
-            sx={{
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-            }}
-          >
-            {props.title}
-          </Typography>
+          <GridLayout cols spacing={1} rowAlign="middle" height="auto">
+            <Typography
+              variant="h6"
+              sx={{
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+              }}
+            >
+              {props.title}
+            </Typography>
+            {props.titleControls}
+          </GridLayout>
         </GridLayout>
 
         {props.subtitle ? <GridBox /> : null}
@@ -62,7 +66,7 @@ export default function ActionBar(props: ActionBarProps) {
           <Typography variant="body2">{props.subtitle}</Typography>
         ) : null}
       </GridLayout>
-      {props.extraControls ?? <GridBox />}
+      {props.rightControls ?? <GridBox />}
     </GridLayout>
   );
 }

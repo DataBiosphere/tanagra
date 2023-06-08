@@ -222,6 +222,8 @@ export interface Source {
     includeAttributes: string[]
   ): Promise<ReviewInstance[]>;
 
+  getStudy(studyId: string): Promise<Study>;
+
   listStudies(): Promise<Study[]>;
 
   createStudy(displayName: string): Promise<Study>;
@@ -780,6 +782,12 @@ export class BackendSource implements Source {
                 )
               );
         })
+    );
+  }
+
+  public getStudy(studyId: string): Promise<Study> {
+    return parseAPIError(
+      this.studiesApi.getStudy({ studyId }).then((study) => processStudy(study))
     );
   }
 

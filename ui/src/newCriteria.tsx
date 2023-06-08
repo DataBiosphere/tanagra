@@ -1,13 +1,16 @@
 import CriteriaHolder from "criteriaHolder";
-import { useNewCriteria } from "hooks";
-import { getCriteriaPlugin } from "./cohort";
+import { useCohortAndGroupSection, useNewCriteria } from "hooks";
+import { getCriteriaPlugin, sectionName } from "./cohort";
 
 export default function NewCriteria() {
   const criteria = useNewCriteria();
+  const { section, sectionIndex } = useCohortAndGroupSection();
+
+  const name = sectionName(section, sectionIndex);
 
   return (
     <CriteriaHolder
-      title={`New "${criteria.config.title}" criteria`}
+      title={`Adding "${criteria.config.title}" criteria to ${name}`}
       plugin={getCriteriaPlugin(criteria)}
       doneURL={"../.."}
       cohort

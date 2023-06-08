@@ -325,3 +325,9 @@ export function updateCohortGroupSection(
     section.filter = filter ?? section.filter;
   });
 }
+
+export function updateCohort(context: CohortContextData, name: string) {
+  context.updatePresent((present) => {
+    present.name = name;
+  });
+}
