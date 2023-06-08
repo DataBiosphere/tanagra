@@ -146,7 +146,9 @@ export function Datasets() {
           checked={selectedConceptSets.has(conceptSet.id)}
           onChange={() => onToggle(updateSelectedConceptSets, conceptSet.id)}
         />
-        <Typography variant="body2">{conceptSet.name}</Typography>
+        <Typography variant="body2" sx={{ my: 0.5 }}>
+          {conceptSet.name}
+        </Typography>
         <GridBox />
         {editable ? (
           <Button
@@ -198,7 +200,6 @@ export function Datasets() {
                 >
                   New cohort
                 </Button>
-                {dialog}
               </GridLayout>
               <Paper
                 sx={{
@@ -252,7 +253,9 @@ export function Datasets() {
                               onToggle(updateSelectedCohorts, cohort.id)
                             }
                           />
-                          <Typography variant="body2">{cohort.name}</Typography>
+                          <Typography variant="body2" sx={{ my: 0.5 }}>
+                            {cohort.name}
+                          </Typography>
                           <GridBox />
                           <Button
                             data-testid={cohort.name}
@@ -440,6 +443,7 @@ export function Datasets() {
             excludedAttributes={excludedAttributes}
           />
         </GridLayout>
+        {dialog}
       </GridBox>
     </GridLayout>
   );

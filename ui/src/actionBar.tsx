@@ -8,7 +8,6 @@ import { Link as RouterLink } from "react-router-dom";
 type ActionBarProps = {
   title: string;
   subtitle?: string | JSX.Element;
-  height?: number | string;
   backURL?: string | null; // null hides the back button.
   extraControls?: JSX.Element;
 };
@@ -16,7 +15,9 @@ type ActionBarProps = {
 export default function ActionBar(props: ActionBarProps) {
   return (
     <GridLayout
-      rows
+      cols
+      fillCol={0}
+      rowAlign="middle"
       sx={{
         px: 4,
         py: 2,
@@ -27,9 +28,8 @@ export default function ActionBar(props: ActionBarProps) {
       }}
     >
       <GridLayout
-        cols={4}
+        cols={2}
         rows={props.subtitle ? 2 : undefined}
-        fillCol={2}
         rowAlign="middle"
         height="auto"
       >
@@ -56,15 +56,13 @@ export default function ActionBar(props: ActionBarProps) {
             {props.title}
           </Typography>
         </GridLayout>
-        <GridBox />
-        {props.extraControls ?? <GridBox />}
 
         {props.subtitle ? <GridBox /> : null}
         {props.subtitle ? (
           <Typography variant="body2">{props.subtitle}</Typography>
         ) : null}
-        {props.subtitle ? <GridBox /> : null}
       </GridLayout>
+      {props.extraControls ?? <GridBox />}
     </GridLayout>
   );
 }

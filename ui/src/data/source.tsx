@@ -509,18 +509,13 @@ export class BackendSource implements Source {
     limit?: number
   ): Promise<ListDataResponse> {
     const entity = findEntity(occurrenceID, this.config);
+    const ra = normalizeRequestedAttributes(requestedAttributes, entity.key);
 
     const res = await parseAPIError(
       this.instancesApi.listInstances({
         entityName: entity.entity,
         underlayName: this.underlay.name,
-        queryV2: this.makeQuery(
-          requestedAttributes,
-          occurrenceID,
-          cohort,
-          conceptSet,
-          limit
-        ),
+        queryV2: this.makeQuery(ra, occurrenceID, cohort, conceptSet, limit),
       })
     );
 
