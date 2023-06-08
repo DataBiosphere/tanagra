@@ -1,13 +1,26 @@
 package bio.terra.tanagra.service.export;
 
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
+import bio.terra.tanagra.service.export.impl.GcsTransferServiceFile;
+import bio.terra.tanagra.service.export.impl.ListOfSignedUrls;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public interface DataExport {
   enum Model {
-    LIST_OF_SIGNED_URLS,
-    GCS_TRANSFER_SERVICE_FILE
+    LIST_OF_SIGNED_URLS(() -> new ListOfSignedUrls()),
+    GCS_TRANSFER_SERVICE_FILE(() -> new GcsTransferServiceFile());
+
+    private Supplier<DataExport> createNewInstanceFn;
+
+    Model(Supplier<DataExport> createNewInstanceFn) {
+      this.createNewInstanceFn = createNewInstanceFn;
+    }
+
+    public DataExport createNewInstance() {
+      return createNewInstanceFn.get();
+    }
   }
 
   default void initialize(CommonInfrastructure commonInfrastructure, List<String> params) {
