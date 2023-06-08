@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Start up a postgres container with initial user/database setup.
+# Start up a mariadb container with initial user/database setup.
 MARIADB_VERSION=10.4
 
 start() {
     echo "attempting to remove old $CONTAINER container..."
     docker rm -f $CONTAINER
 
-    # start up postgres
+    # start up mariadb
     echo "starting up container...$CONTAINER"
     BASEDIR=$(dirname "$0")
     root_pass="dbpwd"
