@@ -25,7 +25,8 @@ tanagra:
     models:
       -
         model: LIST_OF_SIGNED_URLS
-        params:
+      -
+        model: GCS_TRANSFER_SERVICE_FILE
 
   access-control:
     model: OPEN_ACCESS # VUMC_ADMIN, VERILY_GROUP

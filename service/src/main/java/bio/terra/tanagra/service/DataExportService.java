@@ -8,6 +8,7 @@ import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExport.Model;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
+import bio.terra.tanagra.service.export.impl.GcsTransferServiceFile;
 import bio.terra.tanagra.service.export.impl.ListOfSignedUrls;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
@@ -35,9 +36,12 @@ public class DataExportService {
     this.exportInfraConfiguration = exportConfiguration.getCommonInfra();
     for (ExportModelConfiguration exportModelConfig : exportConfiguration.getModels()) {
       DataExport dataExportImplInstance;
-      switch (exportModelConfig.getModel()) { // NOPMD
+      switch (exportModelConfig.getModel()) {
         case LIST_OF_SIGNED_URLS:
           dataExportImplInstance = new ListOfSignedUrls();
+          break;
+        case GCS_TRANSFER_SERVICE_FILE:
+          dataExportImplInstance = new GcsTransferServiceFile();
           break;
         default:
           throw new SystemException("Unknown data export model: " + exportModelConfig.getModel());

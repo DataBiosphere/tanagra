@@ -26,7 +26,8 @@ tanagra:
     models:
       -
         model: LIST_OF_SIGNED_URLS
-        params:
+      -
+        model: GCS_TRANSFER_SERVICE_FILE
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG

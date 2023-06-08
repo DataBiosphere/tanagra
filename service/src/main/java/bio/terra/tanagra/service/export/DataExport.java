@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface DataExport {
   enum Model {
-    LIST_OF_SIGNED_URLS
+    LIST_OF_SIGNED_URLS,
+    GCS_TRANSFER_SERVICE_FILE
   }
 
   default void initialize(CommonInfrastructure commonInfrastructure, List<String> params) {

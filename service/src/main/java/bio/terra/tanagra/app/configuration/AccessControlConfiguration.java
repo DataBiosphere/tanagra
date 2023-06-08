@@ -27,7 +27,7 @@ public class AccessControlConfiguration {
   }
 
   public List<String> getParams() {
-    return Collections.unmodifiableList(params);
+    return params == null ? Collections.emptyList() : Collections.unmodifiableList(params);
   }
 
   public String getBasePath() {

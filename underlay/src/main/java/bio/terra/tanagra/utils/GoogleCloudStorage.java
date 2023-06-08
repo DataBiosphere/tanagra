@@ -56,6 +56,13 @@ public final class GoogleCloudStorage {
     return Optional.ofNullable(bucket);
   }
 
+  public Optional<Blob> getBlob(String fullGcsPath) {
+    Blob blob =
+        callWithRetries(
+            () -> storage.get(BlobId.fromGsUtilUri(fullGcsPath)), "Error looking up blob");
+    return Optional.ofNullable(blob);
+  }
+
   public BlobId writeFile(String bucketName, String fileName, String fileContents) {
     BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(bucketName, fileName)).build();
     Blob blob =
