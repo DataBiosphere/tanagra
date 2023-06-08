@@ -227,9 +227,11 @@ public class StudyDao {
 
     String sql =
         String.format(
-            "UPDATE study SET %s, last_modified = current_timestamp WHERE id = :id",
+            "UPDATE study SET %s, last_modified = :last_modified WHERE id = :id",
             DbUtils.setColumnsClause(params));
     params.addValue("id", id);
+    params.addValue("last_modified", DbUtils.sqlTimestampUTC());
+
     LOGGER.debug("UPDATE study: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE study rowsAffected = {}", rowsAffected);

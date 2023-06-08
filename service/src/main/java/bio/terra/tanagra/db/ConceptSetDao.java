@@ -6,8 +6,6 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -164,7 +162,7 @@ public class ConceptSetDao {
     // Update the concept set: display name, description, entity, last modified, last modified by.
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("last_modified", Timestamp.from(Instant.now()))
+            .addValue("last_modified", DbUtils.sqlTimestampUTC())
             .addValue("last_modified_by", lastModifiedBy);
     if (displayName != null) {
       params.addValue("display_name", displayName);

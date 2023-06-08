@@ -6,11 +6,15 @@
     <property global="true" dbms="postgresql" name="long.text.type" value="text"/>
     <property global="true" dbms="postgresql" name="text.array.type" value="text[]"/>
     <property global="true" dbms="postgresql" name="jsonb.type" value="jsonb"/>
+    <property global="true" dbms="postgresql" name="date.timezone" value="timestamptz"/>
+
     <property global="true" dbms="mariadb,mysql" name="id.type" value="varchar(50)"/>
     <property global="true" dbms="mariadb,mysql" name="text.type" value="varchar(255)"/>
     <property global="true" dbms="mariadb,mysql" name="long.text.type" value="longtext"/>
     <property global="true" dbms="mariadb,mysql" name="text.array.type" value="longtext"/>
     <property global="true" dbms="mariadb,mysql" name="jsonb.type" value="longtext"/>
+    <property global="true" dbms="mariadb,mysql" name="date.timezone" value="timestamp"/>
+
     <!-- define changesets postgres-only properties not used-->
     <include file="changesets/20230410_schema_reset.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20230530_avoid_postgres_specific_features.yaml" relativeToChangelogFile="true"/>

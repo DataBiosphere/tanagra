@@ -31,7 +31,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -42,7 +42,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -93,7 +93,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -104,7 +104,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -150,7 +150,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -161,7 +161,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -207,7 +207,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -218,10 +218,11 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
+                  #valueComputed: ${datetime.function}
               - column:
                   name: last_modified_by
                   type: ${text.type}
@@ -301,7 +302,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -312,7 +313,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -321,7 +322,6 @@ databaseChangeLog:
                   type: ${text.type}
                   constraints:
                     nullable: false
-
         - createTable:
             tableName: criteria_group_section
             columns:
@@ -582,3 +582,4 @@ databaseChangeLog:
             referencedTableName: review
             onDelete: CASCADE
             validate: true
+

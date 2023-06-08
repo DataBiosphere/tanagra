@@ -10,8 +10,6 @@ import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
 import bio.terra.tanagra.service.artifact.Criteria;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -231,7 +229,7 @@ public class CohortDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("id", id)
-            .addValue("last_modified", Timestamp.from(Instant.now()))
+            .addValue("last_modified", DbUtils.sqlTimestampUTC())
             .addValue("last_modified_by", lastModifiedBy);
     if (displayName != null) {
       params.addValue("display_name", displayName);
@@ -260,7 +258,7 @@ public class CohortDao {
       LOGGER.debug("UPDATE cohort_revision: {}", sql);
       params =
           new MapSqlParameterSource()
-              .addValue("last_modified", Timestamp.from(Instant.now()))
+              .addValue("last_modified", DbUtils.sqlTimestampUTC())
               .addValue("last_modified_by", lastModifiedBy)
               .addValue("id", cohortRevisionId);
       rowsAffected = jdbcTemplate.update(sql, params);

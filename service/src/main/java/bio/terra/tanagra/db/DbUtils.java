@@ -2,8 +2,9 @@ package bio.terra.tanagra.db;
 
 import bio.terra.common.exception.MissingRequiredFieldException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,6 +45,11 @@ public final class DbUtils {
   }
 
   public static OffsetDateTime timestampToOffsetDateTime(Timestamp timestamp) {
-    return OffsetDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("UTC"));
+    return OffsetDateTime.ofInstant(timestamp.toInstant(), ZoneOffset.UTC);
+  }
+
+  public static Timestamp sqlTimestampUTC() {
+    return Timestamp.valueOf(
+        OffsetDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).toLocalDateTime());
   }
 }

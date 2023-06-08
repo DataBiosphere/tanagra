@@ -10,8 +10,6 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.service.artifact.CohortRevision;
 import bio.terra.tanagra.service.artifact.Review;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -191,7 +189,7 @@ public class ReviewDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("id", id)
-            .addValue("last_modified", Timestamp.from(Instant.now()))
+            .addValue("last_modified", DbUtils.sqlTimestampUTC())
             .addValue("last_modified_by", lastModifiedBy);
     if (displayName != null) {
       params.addValue("display_name", displayName);
