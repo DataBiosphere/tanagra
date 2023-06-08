@@ -19,6 +19,15 @@ tanagra:
     base-path:
     oauth-client-id:
 
+  export:
+    common-infra:
+      gcs-bucket-project-id: broad-tanagra-dev
+      gcs-bucket-names: broad-tanagra-dev-bq-export
+    models:
+      -
+        model: LIST_OF_SIGNED_URLS
+        params:
+
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG
 

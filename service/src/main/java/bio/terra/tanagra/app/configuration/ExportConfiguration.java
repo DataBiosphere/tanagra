@@ -76,8 +76,6 @@ public class ExportConfiguration {
   public static class ExportModelConfiguration {
     private DataExport.Model model;
     private List<String> params;
-    private String basePath;
-    private String oauthClientId;
 
     public DataExport.Model getModel() {
       return model;
@@ -87,28 +85,12 @@ public class ExportConfiguration {
       return Collections.unmodifiableList(params);
     }
 
-    public String getBasePath() {
-      return basePath;
-    }
-
-    public String getOauthClientId() {
-      return oauthClientId;
-    }
-
     public void setModel(DataExport.Model model) {
       this.model = model;
     }
 
     public void setParams(List<String> params) {
       this.params = params;
-    }
-
-    public void setBasePath(String basePath) {
-      this.basePath = basePath;
-    }
-
-    public void setOauthClientId(String oauthClientId) {
-      this.oauthClientId = oauthClientId;
     }
   }
 }

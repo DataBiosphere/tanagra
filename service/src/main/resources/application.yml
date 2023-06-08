@@ -19,8 +19,13 @@ tanagra:
     password:
 
   export:
-    gcs-bucket-project-id: broad-tanagra-dev
-    gcs-bucket-name: broad-tanagra-dev-bq-export
+    common-infra:
+      gcs-bucket-project-id: broad-tanagra-dev
+      gcs-bucket-names: broad-tanagra-dev-bq-export
+    models:
+      -
+        model: LIST_OF_SIGNED_URLS
+        params:
 
   access-control:
     model: OPEN_ACCESS # VUMC_ADMIN, VERILY_GROUP
