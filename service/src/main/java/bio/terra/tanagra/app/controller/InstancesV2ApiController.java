@@ -10,18 +10,16 @@ import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.PageMarker;
-import bio.terra.tanagra.query.QueryRequest;
-import bio.terra.tanagra.service.AccessControlService;
-import bio.terra.tanagra.service.FromApiConversionService;
-import bio.terra.tanagra.service.QuerysService;
-import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.export.DataExport;
+import bio.terra.tanagra.service.export.ExportRequest;
+import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.service.utils.ValidationUtils;
 import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Hierarchy;
 import bio.terra.tanagra.underlay.HierarchyField;
@@ -44,17 +42,20 @@ public class InstancesV2ApiController implements InstancesV2Api {
   private final QuerysService querysService;
   private final FromApiConversionService fromApiConversionService;
   private final AccessControlService accessControlService;
+  private final DataExportService dataExportService;
 
   @Autowired
   public InstancesV2ApiController(
       UnderlaysService underlaysService,
       QuerysService querysService,
       FromApiConversionService fromApiConversionService,
-      AccessControlService accessControlService) {
+      AccessControlService accessControlService,
+      DataExportService dataExportService) {
     this.underlaysService = underlaysService;
     this.querysService = querysService;
     this.fromApiConversionService = fromApiConversionService;
     this.accessControlService = accessControlService;
+    this.dataExportService = dataExportService;
   }
 
   @Override
@@ -245,7 +246,6 @@ public class InstancesV2ApiController implements InstancesV2Api {
         ResourceId.forUnderlay(underlayName));
 
     ValidationUtils.validateApiFilter(body.getFilter());
-
     Entity entity = underlaysService.getEntity(underlayName, entityName);
     List<Attribute> selectAttributes = selectAttributesFromRequest(body, entity);
     List<HierarchyField> selectHierarchyFields = selectHierarchyFieldsFromRequest(body, entity);
@@ -257,23 +257,23 @@ public class InstancesV2ApiController implements InstancesV2Api {
       entityFilter = fromApiConversionService.fromApiObject(body.getFilter(), entity, underlayName);
     }
 
-    QueryRequest queryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(entity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(selectAttributes)
-            .selectHierarchyFields(selectHierarchyFields)
-            .selectRelationshipFields(selectRelationshipFields)
-            .filter(entityFilter)
-            .orderBys(entityOrderBys)
-            .limit(body.getLimit())
-            .build()
-            .buildInstancesQuery();
-    DataPointer indexDataPointer =
-        entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer();
-    String gcsSignedUrl =
-        querysService.runInstancesQueryAndExportResultsToGcs(indexDataPointer, queryRequest);
-
+    ExportResult exportResult =
+        dataExportService.run(
+            ExportRequest.builder()
+                .model(DataExport.Model.LIST_OF_SIGNED_URLS)
+                .includeAnnotations(false),
+            List.of(
+                new EntityQueryRequest.Builder()
+                    .entity(entity)
+                    .mappingType(Underlay.MappingType.INDEX)
+                    .selectAttributes(selectAttributes)
+                    .selectHierarchyFields(selectHierarchyFields)
+                    .selectRelationshipFields(selectRelationshipFields)
+                    .filter(entityFilter)
+                    .orderBys(entityOrderBys)
+                    .limit(body.getLimit())
+                    .build()));
+    String gcsSignedUrl = exportResult.getOutputs().get("entity:" + entityName);
     return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
   }
 

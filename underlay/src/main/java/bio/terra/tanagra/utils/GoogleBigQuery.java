@@ -99,11 +99,14 @@ public final class GoogleBigQuery {
     return table.get().getDefinition().getSchema();
   }
 
-  public Optional<Dataset> getDataset(String projectId, String datasetId) {
+  public Optional<Dataset> getDataset(
+      String projectId, String datasetId, BigQuery.DatasetOption... datasetOptions) {
     try {
       DatasetId datasetPointer = DatasetId.of(projectId, datasetId);
       Dataset dataset =
-          callWithRetries(() -> bigQuery.getDataset(datasetPointer), "Error looking up dataset");
+          callWithRetries(
+              () -> bigQuery.getDataset(datasetPointer, datasetOptions),
+              "Error looking up dataset");
       return Optional.ofNullable(dataset);
     } catch (Exception ex) {
       return Optional.empty();

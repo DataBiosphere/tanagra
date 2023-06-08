@@ -1,10 +1,19 @@
 package bio.terra.tanagra.query.bigquery;
 
+import static com.google.cloud.storage.Storage.BucketField.LOCATION;
+
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.utils.GoogleBigQuery;
+import bio.terra.tanagra.utils.GoogleCloudStorage;
+import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
 import com.google.common.collect.Iterables;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +24,13 @@ public class BigQueryExecutor implements QueryExecutor {
   /** The BigQuery client to use for executing queries. */
   private final GoogleBigQuery bigQuery;
 
-  public BigQueryExecutor(GoogleBigQuery bigQuery) {
+  private final String projectId;
+  private final String datasetId;
+
+  public BigQueryExecutor(GoogleBigQuery bigQuery, String projectId, String datasetId) {
     this.bigQuery = bigQuery;
+    this.projectId = projectId;
+    this.datasetId = datasetId;
   }
 
   @Override
@@ -43,25 +57,68 @@ public class BigQueryExecutor implements QueryExecutor {
   }
 
   @Override
-  public String executeAndExportResultsToGcs(QueryRequest queryRequest, String gcsBucketName) {
-    // TODO: Add study and dataset names.
-    String fileName =
-        "tanagra_export_dataset_"
-            + System.currentTimeMillis()
-            // GCS file name must be in wildcard format.
-            // https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_option_list:~:text=The%20uri%20option%20must%20be%20a%20single%2Dwildcard%20URI
-            + "_*.csv";
+  public String executeAndExportResultsToGcs(
+      QueryRequest queryRequest,
+      String fileName,
+      String gcsProjectId,
+      List<String> gcsBucketNames) {
+    String bucketName = findCompatibleBucket(gcsProjectId, gcsBucketNames);
 
+    // Validate the filename.
+    // GCS file name must be in wildcard format.
+    // https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_option_list:~:text=The%20uri%20option%20must%20be%20a%20single%2Dwildcard%20URI
+    String validatedFilename;
+    if (fileName == null || !fileName.contains("*")) {
+      validatedFilename = "tanagra_" + System.currentTimeMillis() + "_*.csv";
+      LOGGER.warn(
+          "No (or invalid) filename specified for GCS export ({}), using default: {}",
+          fileName,
+          validatedFilename);
+    } else {
+      validatedFilename = fileName;
+    }
+
+    // Prefix the SQL query with the export to GCS directive.
     String sql =
         String.format(
             "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS %n%s",
-            gcsBucketName, fileName, queryRequest.getSql());
+            bucketName, validatedFilename, queryRequest.getSql());
     LOGGER.info("Running SQL against BigQuery: {}", sql);
     bigQuery.queryBigQuery(sql);
 
     // Multiple files will be created only if export is very large (> 1GB). For now, just assume
     // only "000000000000" was created.
     // TODO: Detect and handle case where mulitple files are created.
-    return fileName.replace("*", "000000000000");
+    return String.format("gs://%s/%s", bucketName, validatedFilename.replace("*", "000000000000"));
+  }
+
+  private String findCompatibleBucket(String gcsProjectId, List<String> gcsBucketNames) {
+    // Lookup the BQ dataset location.
+    String datasetLocation =
+        bigQuery
+            .getDataset(
+                projectId, datasetId, BigQuery.DatasetOption.fields(BigQuery.DatasetField.LOCATION))
+            .get()
+            .getLocation();
+
+    // Lookup the GCS bucket location. Return the first bucket with a location matches the dataset
+    // location.
+    GoogleCloudStorage storageService =
+        GoogleCloudStorage.forApplicationDefaultCredentials(gcsProjectId);
+    for (String bucketName : gcsBucketNames) {
+      Optional<Bucket> bucket =
+          storageService.getBucket(bucketName, Storage.BucketGetOption.fields(LOCATION));
+      if (bucket.isEmpty()) {
+        LOGGER.warn("Bucket not found: {}", bucketName);
+        continue;
+      }
+      String bucketLocation = bucket.get().getLocation();
+      if (bucketLocation.equals(datasetLocation)) {
+        return bucketName;
+      }
+    }
+    throw new SystemException(
+        "No compatible GCS bucket found for export from BQ dataset in location: "
+            + datasetLocation);
   }
 }
