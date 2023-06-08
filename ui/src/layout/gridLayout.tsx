@@ -1,6 +1,11 @@
 import Box from "@mui/material/Box";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
-import { Children, PropsWithChildren } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  PropsWithChildren,
+} from "react";
 import { spacing } from "util/spacing";
 import { isValid } from "util/valid";
 
@@ -103,18 +108,31 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
         ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
       ]}
     >
-      {children.map((child, i) => (
-        <Box
-          key={i}
-          sx={{
-            gridArea: `${Math.floor(i / colCount) + 1}/${(i % colCount) + 1}`,
-            minWidth: 0,
-            minHeight: 0,
-          }}
-        >
-          {child}
-        </Box>
-      ))}
+      {children.map((child, i) => {
+        const gridArea = `${Math.floor(i / colCount) + 1}/${
+          (i % colCount) + 1
+        }`;
+
+        // Elements nested inside other components can't always be baseline
+        // aligned correctly so in that case embed them directly, which requires
+        // adding the gridArea style to them.
+        if (ra === "baseline" && isValidElement(child)) {
+          return cloneElement(child, { sx: { gridArea } });
+        }
+
+        return (
+          <Box
+            key={i}
+            sx={{
+              gridArea,
+              minWidth: 0,
+              minHeight: 0,
+            }}
+          >
+            {child}
+          </Box>
+        );
+      })}
     </Box>
   );
 }

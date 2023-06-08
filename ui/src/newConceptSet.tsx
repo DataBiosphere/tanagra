@@ -9,7 +9,7 @@ export default function NewCriteria() {
 
   return (
     <CriteriaHolder
-      title={`New "${criteria.config.title}" data feature`}
+      title={`Adding "${criteria.config.title}" data feature`}
       plugin={getCriteriaPlugin(criteria)}
       doneURL={exitURL(params)}
     />

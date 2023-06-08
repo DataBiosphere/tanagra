@@ -10,7 +10,10 @@ export default function Edit() {
 
   return (
     <CriteriaHolder
-      title={getCriteriaTitle(conceptSet.criteria, plugin)}
+      title={`Editing data feature "${getCriteriaTitle(
+        conceptSet.criteria,
+        plugin
+      )}"`}
       plugin={plugin}
       defaultBackURL={exitURL(params)}
       doneURL={exitURL(params)}

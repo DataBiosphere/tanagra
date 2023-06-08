@@ -26,7 +26,6 @@ import {
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { findEntity } from "data/configuration";
 import { Filter, makeArrayFilter } from "data/filter";
@@ -48,6 +47,7 @@ import {
   absoluteNewConceptSetURL,
   useBaseParams,
 } from "router";
+import { StudyName } from "studyName";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
@@ -90,17 +90,14 @@ export function Datasets() {
     workspaceConceptSets.data
   );
 
-  const [dialog, showNewCohort] = useTextInputDialog({
-    title: "New cohort",
-    textLabel: "Cohort name",
-    buttonLabel: "Create",
-    onConfirm: async (name: string) => {
-      const cohort = await source.createCohort(underlay.name, studyId, name);
-      navigate(
-        absoluteCohortURL(params, cohort.id, cohort.groupSections[0].id)
-      );
-    },
-  });
+  const newCohort = async () => {
+    const cohort = await source.createCohort(
+      underlay.name,
+      studyId,
+      `Untitled cohort ${new Date().toLocaleString()}`
+    );
+    navigate(absoluteCohortURL(params, cohort.id, cohort.groupSections[0].id));
+  };
 
   const onToggle = <T,>(
     update: (fn: (draft: Set<T>) => Set<T>) => void,
@@ -177,8 +174,16 @@ export function Datasets() {
   return (
     <GridLayout rows>
       <ActionBar
-        title="Datasets"
-        subtitle={`Data source: ${underlay.name}`}
+        title="Creating dataset"
+        subtitle={
+          <GridLayout cols spacing={1} rowAlign="baseline">
+            <StudyName />
+            <Typography variant="body1">•</Typography>
+            <Typography variant="body1">
+              Data source: {underlay.name}
+            </Typography>
+          </GridLayout>
+        }
         backURL={"/underlays/" + underlay.name}
       />
       <GridBox sx={{ overflowY: "auto" }}>
@@ -196,7 +201,7 @@ export function Datasets() {
                 <Button
                   startIcon={<AddIcon />}
                   variant="contained"
-                  onClick={showNewCohort}
+                  onClick={() => newCohort()}
                 >
                   New cohort
                 </Button>
@@ -220,7 +225,7 @@ export function Datasets() {
                           <Link
                             variant="link"
                             underline="hover"
-                            onClick={showNewCohort}
+                            onClick={() => newCohort()}
                             sx={{ cursor: "pointer" }}
                           >
                             Create a new cohort
@@ -443,7 +448,6 @@ export function Datasets() {
             excludedAttributes={excludedAttributes}
           />
         </GridLayout>
-        {dialog}
       </GridBox>
     </GridLayout>
   );

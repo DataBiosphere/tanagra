@@ -77,7 +77,7 @@ function showStatus(
     if (size === "small") {
       return (
         <Tooltip title={errorMessage} arrow={true}>
-          <ErrorIcon />
+          <ErrorIcon sx={{ display: "block" }} />
         </Tooltip>
       );
     }
