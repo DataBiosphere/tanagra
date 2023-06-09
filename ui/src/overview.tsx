@@ -8,7 +8,6 @@ import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
@@ -107,9 +106,10 @@ export function Overview() {
         <GroupList />
         <GridBox
           sx={{
-            leftBorderStyle: "solid",
-            borderColor: (theme) => theme.palette.divider,
-            borderWidth: "1px",
+            alignSelf: "start",
+            position: "sticky",
+            top: 0,
+            height: "auto",
           }}
         >
           <DemographicCharts cohort={cohort} />
@@ -358,6 +358,7 @@ function ParticipantsGroup(props: {
 }) {
   const source = useSource();
   const cohort = useCohort();
+  const navigate = useNavigate();
   const context = useCohortContext();
   const uiConfig = useUnderlay().uiConfiguration;
 
@@ -439,89 +440,106 @@ function ParticipantsGroup(props: {
 
   return (
     <GridLayout key={props.group.id} rows height="auto">
-      <GridLayout
-        cols={modifierPlugins.length > 0 ? "1fr 1fr" : "auto 1fr"}
-        height="auto"
-        rowAlign="middle"
-      >
-        <GridLayout cols rowAlign="middle">
-          {!!plugin.renderEdit ? (
-            <Link
-              variant="body2"
-              color="inherit"
-              underline="hover"
-              component={RouterLink}
-              to={criteriaURL(props.group.id)}
-            >
-              {title}
-            </Link>
-          ) : (
-            <Typography variant="body1">{title}</Typography>
-          )}
+      <GridLayout cols fillCol={4} height="auto" rowAlign="middle">
+        <Typography variant="body1" sx={{ pr: 1 }}>
+          {title}
+        </Typography>
+        {!!plugin.renderEdit ? (
           <IconButton
-            onClick={() => {
-              deleteCohortGroup(context, props.groupSection.id, props.group.id);
-            }}
+            data-testid={title}
+            onClick={() => navigate(criteriaURL(props.group.id))}
           >
-            <DeleteIcon fontSize="small" />
+            <EditIcon fontSize="small" />
           </IconButton>
-        </GridLayout>
-        <GridLayout cols fillCol={1} rowAlign="middle">
-          {hasModifiers ? (
-            <Button
-              startIcon={<TuneIcon fontSize="small" />}
-              onClick={showMenu}
-            >
-              Modifiers
-            </Button>
-          ) : (
-            <Box />
-          )}
-          {menu}
+        ) : (
           <GridBox />
-          <Loading status={groupCountState} size="small">
-            <Typography variant="body2" color="text.muted" sx={{ ml: 1 }}>
-              {groupCountState.data?.toLocaleString()}
-            </Typography>
-          </Loading>
-        </GridLayout>
+        )}
+        <IconButton
+          onClick={() => {
+            deleteCohortGroup(context, props.groupSection.id, props.group.id);
+          }}
+        >
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+        {hasModifiers ? (
+          <Button startIcon={<TuneIcon fontSize="small" />} onClick={showMenu}>
+            Modifiers
+          </Button>
+        ) : (
+          <GridBox />
+        )}
+        <GridBox />
+        <Loading status={groupCountState} size="small">
+          <Typography variant="body2" color="text.muted" sx={{ ml: 1 }}>
+            {groupCountState.data?.toLocaleString()}
+          </Typography>
+        </Loading>
       </GridLayout>
-      <GridLayout
-        cols={modifierPlugins.length > 0 ? "1fr 1fr" : "1fr"}
-        height="auto"
-      >
-        {inline ? <GridBox sx={{ pt: 2 }}>{inline}</GridBox> : null}
-        {modifierPlugins.length > 0 ? (
-          <GridBox sx={{ pt: 2 }}>
-            <GridLayout rows height="auto" spacing={2}>
-              {modifierPlugins.map((p, i) => (
-                <GridLayout key={p.id} rows height="auto">
-                  <GridLayout cols height="auto" rowAlign="middle">
-                    <Typography variant="body2">
-                      {modifierCriteria[i].config.title}
-                    </Typography>
-                    <IconButton
-                      onClick={() =>
-                        deleteCohortCriteriaModifier(
-                          context,
-                          props.groupSection.id,
-                          props.group.id,
-                          p.id
-                        )
-                      }
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </GridLayout>
-                  <GridBox key={p.id} sx={{ height: "auto" }}>
-                    {p.renderInline(props.group.id)}
-                  </GridBox>
+      {inline ? <GridBox sx={{ pt: 2 }}>{inline}</GridBox> : null}
+      {modifierPlugins.length > 0 ? (
+        <GridLayout rows height="auto" sx={{ p: 1 }}>
+          {modifierPlugins.map((p, i) => (
+            <GridLayout key={p.id} rows height="auto">
+              <GridBox
+                sx={{
+                  boxShadow: (theme) =>
+                    `inset 1px 0 0 ${theme.palette.divider}`,
+                  height: (theme) => theme.spacing(1),
+                }}
+              />
+              <GridLayout cols="16px 1fr" spacing={1} height="auto">
+                <GridLayout rows="1fr 1fr">
+                  <GridBox
+                    sx={{
+                      boxShadow: (theme) =>
+                        `inset 1px -1px 0 ${theme.palette.divider}`,
+                    }}
+                  />
+                  <GridBox
+                    sx={{
+                      boxShadow: (theme) =>
+                        i !== modifierPlugins.length - 1
+                          ? `inset 1px 0 0 ${theme.palette.divider}`
+                          : undefined,
+                    }}
+                  />
                 </GridLayout>
-              ))}
+                <GridLayout cols height="auto" rowAlign="middle">
+                  <Typography variant="body2">
+                    {modifierCriteria[i].config.title}
+                  </Typography>
+                  <IconButton
+                    onClick={() =>
+                      deleteCohortCriteriaModifier(
+                        context,
+                        props.groupSection.id,
+                        props.group.id,
+                        p.id
+                      )
+                    }
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </GridLayout>
+              </GridLayout>
+              <GridLayout key={p.id} cols="24px 1fr" height="auto">
+                <GridBox
+                  sx={{
+                    boxShadow: (theme) =>
+                      i !== modifierPlugins.length - 1
+                        ? `inset 1px 0 0 ${theme.palette.divider}`
+                        : undefined,
+                  }}
+                />
+                <GridBox key={p.id} sx={{ height: "auto" }}>
+                  {p.renderInline(props.group.id)}
+                </GridBox>
+              </GridLayout>
             </GridLayout>
-          </GridBox>
-        ) : null}
-      </GridLayout>
+          ))}
+        </GridLayout>
+      ) : null}
+      {menu}
     </GridLayout>
   );
 }

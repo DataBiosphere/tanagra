@@ -72,16 +72,18 @@ function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
     groupSectionId: string;
     groupId: string;
   }>();
-  const section =
-    cohort?.groupSections.find((s) => s.id === groupSectionId) ??
-    cohort?.groupSections?.[0];
+  const sectionIndex = Math.max(
+    0,
+    cohort?.groupSections?.findIndex((s) => s.id === groupSectionId) ?? -1
+  );
+  const section = cohort?.groupSections?.[sectionIndex];
   const group = section?.groups.find((g) => g.id === groupId);
   if (throwOnUnknown && (!section || !group)) {
     throw new PathError(
       `Unknown section "${groupSectionId}" or group "${groupId}".`
     );
   }
-  return { section, group };
+  return { section, sectionIndex, group };
 }
 
 function useOptionalNewCriteria(throwOnUnknown: boolean) {
@@ -115,9 +117,11 @@ export function useIsNewCriteria() {
 }
 
 export function useGroupSectionAndGroup() {
-  const { section, group } = useOptionalGroupSectionAndGroup(true);
+  const { section, sectionIndex, group } =
+    useOptionalGroupSectionAndGroup(true);
   return {
     section: section as NonNullable<tanagra.GroupSection>,
+    sectionIndex,
     group: group as NonNullable<tanagra.Group>,
   };
 }
