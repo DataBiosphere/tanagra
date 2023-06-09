@@ -27,7 +27,12 @@ import { cohortURL, exitURL, newCriteriaURL, useBaseParams } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import { CriteriaConfig } from "underlaysSlice";
-import { createCriteria, getCriteriaPlugin, searchCriteria } from "./cohort";
+import {
+  createCriteria,
+  getCriteriaPlugin,
+  searchCriteria,
+  sectionName,
+} from "./cohort";
 
 export function AddConceptSetCriteria() {
   const navigate = useNavigate();
@@ -47,7 +52,7 @@ export function AddConceptSetCriteria() {
   return (
     <AddCriteria
       conceptSet
-      title="New data feature"
+      title="Adding data feature"
       backURL={backURL}
       onInsertCriteria={onInsertCriteria}
     />
@@ -57,7 +62,7 @@ export function AddConceptSetCriteria() {
 export function AddCohortCriteria() {
   const navigate = useNavigate();
   const context = useCohortContext();
-  const { cohort, section } = useCohortAndGroupSection();
+  const { cohort, section, sectionIndex } = useCohortAndGroupSection();
 
   const onInsertCriteria = useCallback(
     (criteria: tanagra.Criteria) => {
@@ -67,8 +72,13 @@ export function AddCohortCriteria() {
     [context, cohort.id, section.id]
   );
 
+  const name = sectionName(section, sectionIndex);
+
   return (
-    <AddCriteria title="Add criteria" onInsertCriteria={onInsertCriteria} />
+    <AddCriteria
+      title={`Adding criteria to ${name}`}
+      onInsertCriteria={onInsertCriteria}
+    />
   );
 }
 

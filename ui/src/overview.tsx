@@ -12,7 +12,6 @@ import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -21,6 +20,7 @@ import {
   deleteCohortGroupSection,
   insertCohortCriteriaModifier,
   insertCohortGroupSection,
+  updateCohort,
   updateCohortGroupSection,
   useCohortContext,
 } from "cohortContext";
@@ -43,6 +43,7 @@ import {
   exitURL,
   useBaseParams,
 } from "router";
+import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import {
@@ -55,15 +56,37 @@ import {
 } from "./cohort";
 
 export function Overview() {
+  const context = useCohortContext();
   const cohort = useCohort();
   const params = useBaseParams();
+
+  const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog({
+    title: "Editing cohort name",
+    initialText: cohort.name,
+    textLabel: "Cohort name",
+    buttonLabel: "Update",
+    onConfirm: (name: string) => {
+      updateCohort(context, name);
+    },
+  });
 
   return (
     <GridLayout rows>
       <ActionBar
         title={cohort.name}
-        subtitle={<SaveStatus />}
-        extraControls={
+        subtitle={
+          <GridLayout cols spacing={1} rowAlign="middle">
+            <StudyName />
+            <Typography variant="body1">•</Typography>
+            <SaveStatus />
+          </GridLayout>
+        }
+        titleControls={
+          <IconButton onClick={() => showRenameTitleDialog()}>
+            <EditIcon />
+          </IconButton>
+        }
+        rightControls={
           <Button
             variant="outlined"
             size="large"
@@ -90,6 +113,7 @@ export function Overview() {
           }}
         >
           <DemographicCharts cohort={cohort} />
+          {renameTitleDialog}
         </GridBox>
       </GridLayout>
     </GridLayout>
@@ -186,10 +210,10 @@ function ParticipantsGroupSection(props: {
   const name = sectionName(props.groupSection, props.sectionIndex);
 
   const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
-    title: "Edit Group Name",
+    title: "Editing group name",
     initialText: name,
     textLabel: "Group name",
-    buttonLabel: "Rename group",
+    buttonLabel: "Update",
     onConfirm: (name: string) => {
       updateCohortGroupSection(context, props.groupSection.id, name);
     },
@@ -197,14 +221,31 @@ function ParticipantsGroupSection(props: {
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <Stack>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
+      <GridLayout rows height="auto">
+        <GridLayout
+          rows
+          spacing={1}
+          height="auto"
           sx={{ p: 2, backgroundColor: (theme) => theme.palette.info.main }}
         >
-          <Stack direction="row" alignItems="baseline">
+          <GridLayout cols fillCol={2} rowAlign="middle">
+            <Typography variant="body1em" sx={{ mr: 1 }}>
+              {name}
+            </Typography>
+            <IconButton onClick={showRenameGroup}>
+              <EditIcon />
+            </IconButton>
+            <GridBox />
+            <IconButton
+              onClick={() => {
+                deleteCohortGroupSection(context, props.groupSection.id);
+              }}
+              sx={{ mr: -1 }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </GridLayout>
+          <GridLayout cols fillCol={4} rowAlign="baseline">
             <FormControl>
               <Select
                 value={props.groupSection.filter.excluded ? 1 : 0}
@@ -219,12 +260,18 @@ function ParticipantsGroupSection(props: {
                     }
                   );
                 }}
+                sx={{
+                  color: (theme) => theme.palette.primary.main,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: (theme) => theme.palette.primary.main,
+                  },
+                }}
               >
                 <MenuItem value={0}>Must</MenuItem>
                 <MenuItem value={1}>Must not</MenuItem>
               </Select>
             </FormControl>
-            <Typography variant="body2">&nbsp;meet&nbsp;</Typography>
+            <Typography variant="body1">&nbsp;meet&nbsp;</Typography>
             <FormControl>
               <Select
                 value={props.groupSection.filter.kind}
@@ -240,6 +287,12 @@ function ParticipantsGroupSection(props: {
                     }
                   );
                 }}
+                sx={{
+                  color: (theme) => theme.palette.primary.main,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: (theme) => theme.palette.primary.main,
+                  },
+                }}
               >
                 <MenuItem value={tanagra.GroupSectionFilterKindEnum.Any}>
                   any
@@ -249,28 +302,21 @@ function ParticipantsGroupSection(props: {
                 </MenuItem>
               </Select>
             </FormControl>
-            <Typography variant="body2">
-              &nbsp;of the following criteria:
+            <Typography variant="body1">
+              &nbsp;of the following criteria
             </Typography>
-          </Stack>
-          <Stack direction="row" alignItems="center">
-            <Typography variant="body1em" sx={{ mr: 1 }}>
-              {name}
+            <GridBox />
+            <Typography variant="body1" color="text.muted">
+              Group count:&nbsp;
             </Typography>
-            <IconButton onClick={showRenameGroup}>
-              <EditIcon />
-            </IconButton>
-            {renameGroupDialog}
-            <IconButton
-              onClick={() => {
-                deleteCohortGroupSection(context, props.groupSection.id);
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Stack>
-        </Stack>
-        <Stack sx={{ p: 2 }}>
+            <Loading status={sectionCountState} size="small">
+              <Typography variant="body1" color="text.muted">
+                {sectionCountState.data?.toLocaleString()}
+              </Typography>
+            </Loading>
+          </GridLayout>
+        </GridLayout>
+        <GridLayout rows height="auto" sx={{ p: 2 }}>
           {props.groupSection.groups.length === 0 ? (
             <Empty
               maxWidth="90%"
@@ -291,33 +337,17 @@ function ParticipantsGroupSection(props: {
               </GridLayout>
             ))
           )}
-          <Stack direction="row">
-            <Button
-              onClick={() =>
-                navigate(
-                  `../${cohortURL(cohort.id, props.groupSection.id)}/add`
-                )
-              }
-              variant="contained"
-            >
-              Add criteria
-            </Button>
-          </Stack>
-        </Stack>
-        <Stack
-          direction="row"
-          justifyContent="right"
-          alignItems="center"
-          sx={{ p: 1, backgroundColor: (theme) => theme.palette.info.main }}
-        >
-          <Typography variant="body2">Group count:&nbsp;</Typography>
-          <Loading status={sectionCountState} size="small">
-            <Typography variant="body2">
-              {sectionCountState.data?.toLocaleString()}
-            </Typography>
-          </Loading>
-        </Stack>
-      </Stack>
+          <Button
+            onClick={() =>
+              navigate(`../${cohortURL(cohort.id, props.groupSection.id)}/add`)
+            }
+            variant="contained"
+          >
+            Add criteria
+          </Button>
+        </GridLayout>
+      </GridLayout>
+      {renameGroupDialog}
     </Paper>
   );
 }
@@ -450,7 +480,7 @@ function ParticipantsGroup(props: {
           {menu}
           <GridBox />
           <Loading status={groupCountState} size="small">
-            <Typography variant="body2" sx={{ ml: 1 }}>
+            <Typography variant="body2" color="text.muted" sx={{ ml: 1 }}>
               {groupCountState.data?.toLocaleString()}
             </Typography>
           </Loading>
@@ -503,15 +533,15 @@ function SaveStatus() {
   }
 
   return (
-    <Typography variant="body2">
-      {context.state.saving ? (
-        <Stack direction="row" alignItems="center">
-          <LoopIcon fontSize="small" />
-          Saving
-        </Stack>
-      ) : (
-        <>Last saved: {context.state.present.lastModified.toLocaleString()}</>
-      )}
-    </Typography>
+    <GridLayout cols rowAlign="middle">
+      {!context.state.saving ? (
+        <LoopIcon fontSize="small" sx={{ display: "block" }} />
+      ) : null}
+      <Typography variant="body1">
+        {context.state.saving
+          ? "Saving..."
+          : `Last saved: ${context.state.present.lastModified.toLocaleString()}`}
+      </Typography>
+    </GridLayout>
   );
 }

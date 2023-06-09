@@ -20,6 +20,10 @@ declare module "@mui/material/styles" {
     body2em?: TypographyStyleOptions;
     link?: TypographyStyleOptions;
   }
+
+  interface TypeText {
+    muted: string;
+  }
 }
 
 declare module "@mui/material/Typography" {
@@ -170,6 +174,7 @@ export const theme = createTheme({
       primary: "#2e3539",
       secondary: "#171b1d",
       disabled: "#c7cbcc",
+      muted: "rgba(0, 0, 0, 0.6)",
     },
     error: {
       main: "#d14545",
