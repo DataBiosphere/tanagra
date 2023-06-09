@@ -8,7 +8,10 @@ export default function Edit() {
 
   return (
     <CriteriaHolder
-      title={getCriteriaTitle(group.criteria[0], plugin)}
+      title={`Editing criteria "${getCriteriaTitle(
+        group.criteria[0],
+        plugin
+      )}"`}
       plugin={plugin}
       cohort
     />

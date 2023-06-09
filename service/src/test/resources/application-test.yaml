@@ -9,7 +9,7 @@ tanagra:
   db:
     initialize-on-start: true
     upgrade-on-start: true
-    uri: jdbc:postgresql://127.0.0.1:5432/tanagra_db
+    uri: jdbc:${DBMS}://127.0.0.1:5432/tanagra_db
     username: dbuser
     password: dbpwd
 

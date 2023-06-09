@@ -7,8 +7,9 @@ describe("Basic tests", () => {
     const cohortName = generateCohort();
 
     cy.get("button:Contains(New cohort)").click();
-    cy.get("input[name=text]").type(cohortName);
-    cy.get("button:Contains(Create)").click();
+    cy.get("[data-testid='EditIcon']").first().click();
+    cy.get("input[name=text]").type("{selectall}" + cohortName);
+    cy.get("button:Contains(Update)").click();
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("[data-testid='AccountTreeIcon']").first().click();

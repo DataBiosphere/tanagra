@@ -8,13 +8,14 @@ beforeEach(() => {
   cy.get("input[name=text]").type(studyName);
   cy.get("button:Contains(Create)").click();
   cy.get(`.MuiListItemButton-root:Contains(${studyName})`).click();
-  cy.contains("Datasets");
+  cy.contains("Creating dataset");
 });
 
 Cypress.Commands.add("createCohortFromSearch", (name, search, domain) => {
   cy.get("button:Contains(New cohort)").click();
-  cy.get("input[name=text]").type(name);
-  cy.get("button:Contains(Create)").click();
+  cy.get("[data-testid='EditIcon']").first().click();
+  cy.get("input[name=text]").type("{selectall}" + name);
+  cy.get("button:Contains(Update)").click();
   cy.get("button:Contains(Add criteria)").first().click();
   if (domain) {
     cy.get(`[data-testid='${domain}']`).click();
