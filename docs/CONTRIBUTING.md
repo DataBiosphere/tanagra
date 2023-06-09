@@ -5,9 +5,8 @@ The project is shared across the All Of Us and Terra partnerships.
 * [Development](#development)
   * [Broad Credentials](#broad-credentials)
   * [Local Postgres](#local-postgres)
-    * [Build And Run Tests Postgres](#build-and-run-tests)
   * [Local MariaDB](#local-mariadb)
-    * [Build And Run Tests MariaDB](#build-and-run-tests)
+  * [Build And Run Tests](#build-and-run-tests)
   * [Local Server](#local-server)
   * [Adding dependencies](#adding-dependencies)
   * [Generate SQL Golden Files](#generate-sql-golden-files)
@@ -58,12 +57,6 @@ PGPASSWORD=dbpwd psql postgresql://127.0.0.1:5432/tanagra_db -U dbuser
 If you get not found errors running the above command, but the `run_postgres.sh` script calls complete successfully,
 check that you don't have PostGres running twice -- e.g. once in Docker and once in a local PostGres installation.
 
-#### Build And Run Tests Postgres
-To get started, build the code and run tests:Postgres
-```
-./gradlew clean build
-```
-
 ### Local MariaDB
 Tests and a local server use a local MariaDb database.
 
@@ -82,27 +75,39 @@ To connect to the database directly:
 docker exec -it tanagra mysql -u dbuser -pdbpwd
 ```
 
-#### Build And Run Tests MariaDB
-To get started change database connection strings for test harness
- * Update jdbc connection string in `./service/src/test/resources/application-test.yaml`
-   ```
-   db:
-     initialize-on-start: true
-     upgrade-on-start: true
-     uri: jdbc:mariadb://127.0.0.1:5432/tanagra_db
-   ```
- * Update jdbc connection string in `./service/src/test/resources/application-jdbc.yaml`
-   ```
-   tanagra:
-     jdbc:
-     dataSources:
-       - dataSourceId: test-data-source
-         url: jdbc:mariadb://127.0.0.1:5432/tanagra_db
-   ```
- * Build the code and run tests for MariaDB
-   ```
-   ./gradlew clean build
-   ```
+#### Build And Run Tests
+#### Mariadb: 
+ * Stop running postgres database, if present
+   * `./service/local-dev/run_postgres.sh stop`
+ * Set environmental variable `DBMS` to `mariadb` to update database connection strings for tests
+   * `export DBMS=mariadb`
+ * Start `mariadb` database in docker container
+   * `./service/local-dev/run_mariadb.sh start`
+ * Run complete test suites
+   * `./gradlew clean build`
+ * Run specific test cases for example `CohortServiceTest`
+   * `./gradlew clean service:test --tests bio.terra.tanagra.service.CohortServiceTest`
+ * Stop running mariadb database
+   * `./service/local-dev/run_mariadb.sh stop`
+ * Unset environmental variable `DBMS`
+   * `unset DBMS`
+
+#### Postgres:
+* Stop running mariadb database, if present
+    * `./service/local-dev/run_mariadb.sh stop`
+* Set environmental variable `DBMS` to `postgresql` to update database connection strings for tests
+    * `export DBMS=postgresql`
+* Start `postgres` database in docker container
+    * `./service/local-dev/run_postgres.sh start`
+* Run complete test suites
+    * `./gradlew clean build`
+* Run specific test cases for example `CohortServiceTest`
+    * `./gradlew clean service:test --tests bio.terra.tanagra.service.CohortServiceTest`
+* Stop running mariadb database
+    * `./service/local-dev/run_postgres.sh stop`
+* Unset environmental variable `DBMS`
+    * `unset DBMS`
+
 
 Before a PR can merge, it needs to pass the static analysis checks and tests. To run the checks and tests locally:
 ```
