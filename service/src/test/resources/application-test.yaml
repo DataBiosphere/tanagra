@@ -27,6 +27,8 @@ tanagra:
       -
         type: INDIVIDUAL_FILE_DOWNLOAD
       -
+        name: VWB_FILE_IMPORT_DEVEL
+        displayName: Import to VWB (devel)
         type: VWB_FILE_IMPORT
         redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
 

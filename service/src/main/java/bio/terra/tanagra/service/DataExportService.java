@@ -48,8 +48,8 @@ public class DataExportService {
         GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcsProjectId());
   }
 
-  /** Return a map of implementation name -> (display name, class instance). */
-  public Map<String, Pair<String, DataExport>> getImplementations(String underlay) {
+  /** Return a map of model name -> (display name, implementation class instance). */
+  public Map<String, Pair<String, DataExport>> getModels(String underlay) {
     // TODO: Allow configuring the list of implementations per underlay.
     return modelToImpl.keySet().stream()
         .collect(

@@ -4,9 +4,12 @@ import bio.terra.tanagra.exception.SystemException;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -96,6 +99,20 @@ public final class GoogleCloudStorage {
       throw new IllegalArgumentException("Invalid GCS bucket url: " + bucketUrl);
     }
     return urlPieces[2];
+  }
+
+  public static String readFileContentsFromUrl(String signedUrl) throws IOException {
+    StringBuffer fileContents = new StringBuffer();
+    try (BufferedReader in =
+        new BufferedReader(
+            new InputStreamReader(
+                new URL(signedUrl).openConnection().getInputStream(), Charset.forName("UTF-8")))) {
+      String inputLine;
+      while ((inputLine = in.readLine()) != null) {
+        fileContents.append(inputLine).append('\n');
+      }
+    }
+    return fileContents.toString();
   }
 
   /**

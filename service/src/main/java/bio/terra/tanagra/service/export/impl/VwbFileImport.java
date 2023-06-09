@@ -9,6 +9,9 @@ import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,10 +96,18 @@ public class VwbFileImport implements DataExport {
     // Generate the redirect URL to VWB.
     Map<String, String> urlParams =
         ImmutableMap.<String, String>builder()
-            .put("tsvFileUrl", tsvSignedUrl)
-            .put("redirectBackUrl", request.getRedirectBackUrl())
+            .put("tsvFileUrl", urlEncode(tsvSignedUrl))
+            .put("redirectBackUrl", urlEncode(request.getRedirectBackUrl()))
             .build();
     String expandedRedirectAwayUrl = StringSubstitutor.replace(redirectAwayUrl, urlParams);
     return ExportResult.forRedirectUrl(expandedRedirectAwayUrl, ExportResult.Status.COMPLETE);
+  }
+
+  private static String urlEncode(String param) {
+    try {
+      return URLEncoder.encode(param, StandardCharsets.UTF_8.toString());
+    } catch (UnsupportedEncodingException ueEx) {
+      throw new SystemException("Error encoding URL param: " + param, ueEx);
+    }
   }
 }

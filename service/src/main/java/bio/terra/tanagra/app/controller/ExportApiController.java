@@ -48,8 +48,7 @@ public class ExportApiController implements ExportApi {
         UNDERLAY,
         ResourceId.forUnderlay(underlayName));
     // Get a map of implementation name -> (display name, class instance).
-    Map<String, Pair<String, DataExport>> exportImpls =
-        dataExportService.getImplementations(underlayName);
+    Map<String, Pair<String, DataExport>> exportImpls = dataExportService.getModels(underlayName);
     ApiExportModelList apiExportImpls = new ApiExportModelList();
     exportImpls.entrySet().stream()
         .forEach(
