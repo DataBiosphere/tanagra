@@ -26,6 +26,8 @@ public final class GoogleCloudStorage {
   private static final org.threeten.bp.Duration MAX_GCS_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(5);
 
+  private static final long DEFAULT_SIGNED_URL_DURATION = 30;
+  private static final TimeUnit DEFAULT_SIGNED_URL_UNIT = TimeUnit.MINUTES;
   private final Storage storage;
 
   public GoogleCloudStorage(GoogleCredentials credentials, String projectId) {
@@ -70,6 +72,10 @@ public final class GoogleCloudStorage {
             () -> storage.create(blobInfo, fileContents.getBytes(StandardCharsets.UTF_8)),
             "Error creating blob");
     return blob.getBlobId();
+  }
+
+  public String createSignedUrl(String fullGcsPath) {
+    return createSignedUrl(fullGcsPath, DEFAULT_SIGNED_URL_DURATION, DEFAULT_SIGNED_URL_UNIT);
   }
 
   public String createSignedUrl(String fullGcsPath, long duration, TimeUnit durationUnit) {

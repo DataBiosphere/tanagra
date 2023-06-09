@@ -16,34 +16,37 @@ import org.springframework.context.annotation.Configuration;
 public class ExportConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportConfiguration.class);
 
-  private ExportInfraConfiguration commonInfra;
-  private List<ExportModelConfiguration> models;
+  private Shared shared;
+  private List<PerModel> models;
 
-  public ExportInfraConfiguration getCommonInfra() {
-    return commonInfra;
+  public Shared getShared() {
+    return shared;
   }
 
-  public void setCommonInfra(ExportInfraConfiguration commonInfra) {
-    this.commonInfra = commonInfra;
+  public void setShared(Shared shared) {
+    this.shared = shared;
   }
 
-  public List<ExportModelConfiguration> getModels() {
+  public List<PerModel> getModels() {
     return Collections.unmodifiableList(models);
   }
 
-  public void setModels(List<ExportModelConfiguration> models) {
+  public void setModels(List<PerModel> models) {
     this.models = models;
   }
 
   /** Write the data export flags into the log. Add an entry here for each new flag. */
   public void logConfig() {
-    LOGGER.info("Export common-infra gcs-project-id: {}", commonInfra.getGcsProjectId());
+    LOGGER.info("Export shared gcs-project-id: {}", shared.getGcsProjectId());
     LOGGER.info(
-        "Export common-infra gcs-bucket-names: {}",
-        commonInfra.getGcsBucketNames().stream().collect(Collectors.joining(",")));
+        "Export shared gcs-bucket-names: {}",
+        shared.getGcsBucketNames().stream().collect(Collectors.joining(",")));
     for (int i = 0; i < models.size(); i++) {
-      ExportModelConfiguration m = models.get(i);
-      LOGGER.info("Export models[{}] model: {}", i, m.getModel());
+      PerModel m = models.get(i);
+      LOGGER.info("Export models[{}] name: {}", i, m.getName());
+      LOGGER.info("Export models[{}] display-name: {}", i, m.getDisplayName());
+      LOGGER.info("Export models[{}] type: {}", i, m.getType());
+      LOGGER.info("Export models[{}] redirect-away-url: {}", i, m.getRedirectAwayUrl());
       LOGGER.info(
           "Export models[{}] params: {}",
           i,
@@ -51,7 +54,7 @@ public class ExportConfiguration {
     }
   }
 
-  public static class ExportInfraConfiguration {
+  public static class Shared {
     private String gcsProjectId;
 
     private List<String> gcsBucketNames;
@@ -73,20 +76,47 @@ public class ExportConfiguration {
     }
   }
 
-  public static class ExportModelConfiguration {
-    private DataExport.Model model;
+  public static class PerModel {
+    private String name;
+    private String displayName;
+    private DataExport.Type type;
+    private String redirectAwayUrl;
     private List<String> params;
 
-    public DataExport.Model getModel() {
-      return model;
+    public String getName() {
+      return name;
+    }
+
+    public String getDisplayName() {
+      return displayName;
+    }
+
+    public DataExport.Type getType() {
+      return type;
+    }
+
+    public String getRedirectAwayUrl() {
+      return redirectAwayUrl;
     }
 
     public List<String> getParams() {
       return params == null ? Collections.emptyList() : Collections.unmodifiableList(params);
     }
 
-    public void setModel(DataExport.Model model) {
-      this.model = model;
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public void setDisplayName(String displayName) {
+      this.displayName = displayName;
+    }
+
+    public void setType(DataExport.Type type) {
+      this.type = type;
+    }
+
+    public void setRedirectAwayUrl(String redirectAwayUrl) {
+      this.redirectAwayUrl = redirectAwayUrl;
     }
 
     public void setParams(List<String> params) {

@@ -20,14 +20,15 @@ tanagra:
     oauth-client-id:
 
   export:
-    common-infra:
+    shared:
       gcs-bucket-project-id: broad-tanagra-dev
       gcs-bucket-names: broad-tanagra-dev-bq-export
     models:
       -
-        model: LIST_OF_SIGNED_URLS
+        type: INDIVIDUAL_FILE_DOWNLOAD
       -
-        model: GCS_TRANSFER_SERVICE_FILE
+        type: VWB_FILE_IMPORT
+        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG

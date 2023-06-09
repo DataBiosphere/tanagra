@@ -1,53 +1,74 @@
 package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
-import bio.terra.tanagra.app.configuration.ExportConfiguration.ExportModelConfiguration;
+import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.service.export.DataExport;
-import bio.terra.tanagra.service.export.DataExport.Model;
+import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataExportService {
-  private final ExportConfiguration.ExportInfraConfiguration exportInfraConfiguration;
-  private final Map<Model, DataExport> dataExportModelToImpl = new HashMap<>();
-
+  private final ExportConfiguration.Shared shared;
+  private final Map<String, DataExport> modelToImpl = new HashMap<>();
+  private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
   private final ReviewService reviewService;
   private final GoogleCloudStorage storageService;
 
   @Autowired
   public DataExportService(ExportConfiguration exportConfiguration, ReviewService reviewService) {
-    this.exportInfraConfiguration = exportConfiguration.getCommonInfra();
-    for (ExportModelConfiguration exportModelConfig : exportConfiguration.getModels()) {
-      DataExport dataExportImplInstance = exportModelConfig.getModel().createNewInstance();
+    this.shared = exportConfiguration.getShared();
+    for (PerModel perModelConfig : exportConfiguration.getModels()) {
+      DataExport dataExportImplInstance = perModelConfig.getType().createNewInstance();
       dataExportImplInstance.initialize(
-          DataExport.CommonInfrastructure.fromApplicationConfig(exportInfraConfiguration),
-          exportModelConfig.getParams());
-      this.dataExportModelToImpl.put(exportModelConfig.getModel(), dataExportImplInstance);
+          DeploymentConfig.fromApplicationConfig(shared, perModelConfig));
+
+      // If no model name is defined, default it to the type name.
+      String modelName = perModelConfig.getName();
+      if (modelName == null || modelName.isEmpty()) {
+        modelName = perModelConfig.getType().name();
+      }
+      this.modelToImpl.put(modelName, dataExportImplInstance);
+      this.modelToConfig.put(modelName, perModelConfig);
     }
     this.reviewService = reviewService;
     this.storageService =
-        GoogleCloudStorage.forApplicationDefaultCredentials(
-            exportInfraConfiguration.getGcsProjectId());
+        GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcsProjectId());
+  }
+
+  /** Return a map of implementation name -> (display name, class instance). */
+  public Map<String, Pair<String, DataExport>> getImplementations(String underlay) {
+    // TODO: Allow configuring the list of implementations per underlay.
+    return modelToImpl.keySet().stream()
+        .collect(
+            Collectors.toMap(
+                Function.identity(),
+                implName -> {
+                  DataExport impl = modelToImpl.get(implName);
+                  String displayName = modelToConfig.get(implName).getDisplayName();
+                  if (displayName == null || displayName.isEmpty()) {
+                    displayName = impl.getDefaultDisplayName();
+                  }
+                  return Pair.of(displayName, impl);
+                }));
   }
 
   public ExportResult run(
       ExportRequest.Builder request, List<EntityQueryRequest> entityQueryRequests) {
     // Get the implementation class instance for the requested data export model.
-    DataExport impl = dataExportModelToImpl.get(request.getModel());
+    DataExport impl = modelToImpl.get(request.getModel());
 
     // Populate the function pointers for generating SQL query strings and writing GCS files.
     // Instead of executing these functions here and passing the outputs to the implementation
@@ -103,8 +124,8 @@ public class DataExportService {
                   return queryExecutor.executeAndExportResultsToGcs(
                       eqr.buildInstancesQuery(),
                       wildcardFilename,
-                      exportInfraConfiguration.getGcsProjectId(),
-                      exportInfraConfiguration.getGcsBucketNames());
+                      shared.getGcsProjectId(),
+                      shared.getGcsBucketNames());
                 }));
   }
 
@@ -118,7 +139,7 @@ public class DataExportService {
   private Map<String, String> writeAnnotationDataToGcs(
       String fileNameTemplate, String studyId, List<String> cohorts) {
     // Just pick the first GCS bucket name.
-    String bucketName = exportInfraConfiguration.getGcsBucketNames().get(0);
+    String bucketName = shared.getGcsBucketNames().get(0);
     return cohorts.stream()
         .collect(
             Collectors.toMap(

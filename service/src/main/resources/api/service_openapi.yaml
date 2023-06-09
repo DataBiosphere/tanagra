@@ -843,12 +843,12 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/underlays/{underlayName}/exportImplementations":
+  "/v2/underlays/{underlayName}/exportModels":
     parameters:
       - $ref: "#/components/parameters/UnderlayNameV2"
     get:
-      summary: List the export implementations available to an underlay
-      operationId: listExportImplementations
+      summary: List the available export models
+      operationId: listExportModels
       tags: [Export]
       responses:
         200:
@@ -856,17 +856,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExportImplementationList"
+                $ref: "#/components/schemas/ExportModelList"
         404:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/studies/{studyId}/export":
+  "/v2/underlays/{underlayName}/export":
     parameters:
-      - $ref: "#/components/parameters/StudyIdV2"
+      - $ref: "#/components/parameters/UnderlayNameV2"
     post:
-      summary: Export entity instances and review annotations.
+      summary: Export entity instances and review annotations
       operationId: exportInstancesAndAnnotations
       tags: [Export]
       requestBody:
@@ -2340,22 +2340,28 @@ components:
     ExportRequest:
       type: object
       properties:
-        exportImplementation:
-          description: The name of the export implementation to use (e.g. list of files, zip file)
+        exportModel:
+          description: Name of the export model to use
           type: string
-        exportParams:
-          description: Optional parameters to pass to the export implementation
+        inputs:
+          description: Key-value map of the export model inputs (e.g. filenamePrefix=test)
           type: object
           additionalProperties:
             type: string
             nullable: true
+        redirectBackUrl:
+          type: string
+          nullable: true
+        study:
+          type: string
+          nullable: false
         cohorts:
           description: List of cohort ids
           type: array
           items:
             type: string
         includeAnnotations:
-          description: Includes the annotation data in the export request when true
+          description: Include the annotation data when true
           type: boolean
         instanceQuerys:
           # TODO: Replace this with a list of concept set ids once we can build the entity filters on the backend.
@@ -2372,16 +2378,25 @@ components:
     ExportResult:
       type: object
       properties:
-        exportOutput:
-          description: Key-value map of the export implementation outputs (e.g. signedUrl=gs://... )
+        status:
+          type: string
+          enum: [ "RUNNING", "COMPLETE" ]
+        redirectAwayUrl:
+          type: string
+          nullable: true
+        outputs:
+          description: Key-value map of the export model outputs (e.g. signedUrl=gs://... )
           type: object
           additionalProperties:
             type: string
 
-    ExportImplementation:
+    ExportModel:
       type: object
       properties:
         name:
+          type: string
+          nullable: false
+        displayName:
           type: string
           nullable: false
         description:
@@ -2394,16 +2409,16 @@ components:
             type: string
             nullable: true
         outputs:
-          description: Map of output names to descriptions
+          description: Map of output parameters names to descriptions
           type: object
           additionalProperties:
             type: string
             nullable: true
 
-    ExportImplementationList:
+    ExportModelList:
       type: array
       items:
-        $ref: "#/components/schemas/ExportImplementation"
+        $ref: "#/components/schemas/ExportModel"
 
     ErrorReportV2:
       type: object

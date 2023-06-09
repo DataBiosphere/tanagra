@@ -1,20 +1,19 @@
 package bio.terra.tanagra.service.export;
 
-import bio.terra.tanagra.app.configuration.ExportConfiguration;
-import bio.terra.tanagra.service.export.impl.GcsTransferServiceFile;
-import bio.terra.tanagra.service.export.impl.ListOfSignedUrls;
+import bio.terra.tanagra.service.export.impl.IndividualFileDownload;
+import bio.terra.tanagra.service.export.impl.VwbFileImport;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public interface DataExport {
-  enum Model {
-    LIST_OF_SIGNED_URLS(() -> new ListOfSignedUrls()),
-    GCS_TRANSFER_SERVICE_FILE(() -> new GcsTransferServiceFile());
+  enum Type {
+    INDIVIDUAL_FILE_DOWNLOAD(() -> new IndividualFileDownload()),
+    VWB_FILE_IMPORT(() -> new VwbFileImport());
 
     private Supplier<DataExport> createNewInstanceFn;
 
-    Model(Supplier<DataExport> createNewInstanceFn) {
+    Type(Supplier<DataExport> createNewInstanceFn) {
       this.createNewInstanceFn = createNewInstanceFn;
     }
 
@@ -23,34 +22,25 @@ public interface DataExport {
     }
   }
 
-  default void initialize(CommonInfrastructure commonInfrastructure, List<String> params) {
+  default void initialize(DeploymentConfig deploymentConfig) {
     // Do nothing with parameters.
   }
 
+  Type getType();
+
+  String getDefaultDisplayName();
+
   String getDescription();
 
-  ExportResult run(ExportRequest request);
-
-  class CommonInfrastructure {
-    private final String gcpProjectId;
-    private final List<String> gcsBucketNames;
-
-    private CommonInfrastructure(String gcpProjectId, List<String> gcsBucketNames) {
-      this.gcpProjectId = gcpProjectId;
-      this.gcsBucketNames = gcsBucketNames;
-    }
-
-    public static CommonInfrastructure fromApplicationConfig(
-        ExportConfiguration.ExportInfraConfiguration appConfig) {
-      return new CommonInfrastructure(appConfig.getGcsProjectId(), appConfig.getGcsBucketNames());
-    }
-
-    public String getGcpProjectId() {
-      return gcpProjectId;
-    }
-
-    public List<String> getGcsBucketNames() {
-      return Collections.unmodifiableList(gcsBucketNames);
-    }
+  default Map<String, String> describeInputs() {
+    // There are no input parameters.
+    return Collections.emptyMap();
   }
+
+  default Map<String, String> describeOutputs() {
+    // There are no output parameters.
+    return Collections.emptyMap();
+  }
+
+  ExportResult run(ExportRequest request);
 }

@@ -164,7 +164,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
     ExportResult exportResult =
         dataExportService.run(
             ExportRequest.builder()
-                .model(DataExport.Model.LIST_OF_SIGNED_URLS)
+                .model(DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.name())
                 .includeAnnotations(true)
                 .study(studyId)
                 .cohorts(List.of(cohortId)),

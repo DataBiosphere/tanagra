@@ -5,8 +5,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ExportRequest {
-  private final DataExport.Model model;
-  private final Map<String, String> inputParams;
+  private final String model;
+  private final Map<String, String> inputs;
+  private final String redirectBackUrl;
   private final String study;
   private final List<String> cohorts;
   private final boolean includeAnnotations;
@@ -17,7 +18,8 @@ public class ExportRequest {
 
   private ExportRequest(Builder builder) {
     this.model = builder.model;
-    this.inputParams = builder.inputParams;
+    this.inputs = builder.inputs;
+    this.redirectBackUrl = builder.redirectBackUrl;
     this.study = builder.study;
     this.cohorts = builder.cohorts;
     this.includeAnnotations = builder.includeAnnotations;
@@ -30,12 +32,16 @@ public class ExportRequest {
     return new Builder();
   }
 
-  public DataExport.Model getModel() {
+  public String getModel() {
     return model;
   }
 
-  public Map<String, String> getInputParams() {
-    return Collections.unmodifiableMap(inputParams);
+  public Map<String, String> getInputs() {
+    return Collections.unmodifiableMap(inputs);
+  }
+
+  public String getRedirectBackUrl() {
+    return redirectBackUrl;
   }
 
   public String getStudy() {
@@ -67,8 +73,9 @@ public class ExportRequest {
   }
 
   public static class Builder {
-    private DataExport.Model model;
-    private Map<String, String> inputParams;
+    private String model;
+    private Map<String, String> inputs;
+    private String redirectBackUrl;
     private String study;
     private List<String> cohorts;
     private boolean includeAnnotations;
@@ -76,13 +83,18 @@ public class ExportRequest {
     private Function<String, Map<String, String>> writeEntityDataToGcsFn;
     private Function<String, Map<String, String>> writeAnnotationDataToGcsFn;
 
-    public Builder model(DataExport.Model model) {
+    public Builder model(String model) {
       this.model = model;
       return this;
     }
 
-    public Builder inputParams(Map<String, String> inputParams) {
-      this.inputParams = inputParams;
+    public Builder inputs(Map<String, String> inputs) {
+      this.inputs = inputs;
+      return this;
+    }
+
+    public Builder redirectBackUrl(String redirectBackUrl) {
+      this.redirectBackUrl = redirectBackUrl;
       return this;
     }
 
@@ -119,8 +131,8 @@ public class ExportRequest {
     }
 
     public ExportRequest build() {
-      if (inputParams == null) {
-        inputParams = new HashMap<>();
+      if (inputs == null) {
+        inputs = new HashMap<>();
       }
       if (cohorts == null) {
         cohorts = new ArrayList<>();
@@ -128,7 +140,7 @@ public class ExportRequest {
       return new ExportRequest(this);
     }
 
-    public DataExport.Model getModel() {
+    public String getModel() {
       return model;
     }
 
