@@ -26,7 +26,7 @@ public class StudyDao {
 
   // SQL query and row mapper for reading a study.
   private static final String STUDY_SELECT_SQL =
-      "SELECT id, display_name, description, properties, created, created_by, last_modified, last_modified_by FROM study";
+      "SELECT id, display_name, description, created, created_by, last_modified, last_modified_by FROM study";
   private static final RowMapper<Study.Builder> STUDY_ROW_MAPPER =
       (rs, rowNum) ->
           Study.builder()
@@ -40,10 +40,12 @@ public class StudyDao {
 
   // SQL query and row mapper for reading a property.
   private static final String PROPERTY_SELECT_SQL =
-      "SELECT study_id, key, value FROM study_property";
+      "SELECT study_id, property_key, property_value FROM study_property";
   private static final RowMapper<Pair<String, Pair<String, String>>> PROPERTY_ROW_MAPPER =
       (rs, rowNum) ->
-          Pair.of(rs.getString("study_id"), Pair.of(rs.getString("key"), rs.getString("value")));
+          Pair.of(
+              rs.getString("study_id"),
+              Pair.of(rs.getString("property_key"), rs.getString("property_value")));
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -116,7 +118,7 @@ public class StudyDao {
     String sql =
         STUDY_SELECT_SQL
             + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
-            + " ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + " ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET all studies: {}", sql);
     List<Study> studies = getStudiesHelper(sql, params);
     LOGGER.debug("GET all studies numFound = {}", studies.size());
@@ -144,7 +146,7 @@ public class StudyDao {
         STUDY_SELECT_SQL
             + " WHERE id IN (:ids) "
             + (filterSql.isEmpty() ? "" : "AND " + filterSql + " ")
-            + "ORDER BY display_name OFFSET :offset LIMIT :limit";
+            + "ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET matching studies: {}", sql);
     List<Study> studies = getStudiesHelper(sql, params);
     LOGGER.debug("GET matching studies numFound = {}", studies.size());
@@ -173,9 +175,9 @@ public class StudyDao {
       int ctr = 0;
       for (Map.Entry<String, String> entry : studyFilter.getProperties().entrySet()) {
         whereConditions.add(
-            "EXISTS (SELECT 1 FROM study_property WHERE study_id = id AND key = :key_"
+            "EXISTS (SELECT 1 FROM study_property WHERE study_id = id AND property_key = :key_"
                 + ctr
-                + " AND value LIKE :value_like_"
+                + " AND property_value LIKE :value_like_"
                 + ctr
                 + ")");
         params.addValue("key_" + ctr, entry.getKey());
@@ -225,9 +227,11 @@ public class StudyDao {
 
     String sql =
         String.format(
-            "UPDATE study SET %s, last_modified = current_timestamp WHERE id = :id",
+            "UPDATE study SET %s, last_modified = :last_modified WHERE id = :id",
             DbUtils.setColumnsClause(params));
     params.addValue("id", id);
+    params.addValue("last_modified", DbUtils.sqlTimestampUTC());
+
     LOGGER.debug("UPDATE study: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE study rowsAffected = {}", rowsAffected);
@@ -310,7 +314,8 @@ public class StudyDao {
     LOGGER.debug("DELETE study property rowsAffected = {}", rowsAffected);
 
     // Write the properties.
-    sql = "INSERT INTO study_property (study_id, key, value) VALUES (:study_id, :key, :value)";
+    sql =
+        "INSERT INTO study_property (study_id, property_key, property_value) VALUES (:study_id, :key, :value)";
     LOGGER.debug("CREATE study property: {}", sql);
     List<MapSqlParameterSource> propertyParamSets =
         properties.entrySet().stream()

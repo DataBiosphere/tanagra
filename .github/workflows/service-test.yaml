@@ -60,6 +60,7 @@ jobs:
         # The check task includes the build, test and static analysis tasks.
         run: ./gradlew service:check --scan
         env:
+          DBMS: postgresql
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Jib build
