@@ -11,11 +11,6 @@
     <property global="true" dbms="mariadb,mysql" name="long.text.type" value="longtext"/>
     <property global="true" dbms="mariadb,mysql" name="date.timezone" value="timestamp"/>
 
-    <!-- drop these properties when the corresponding columns are dropped -->
-    <!-- Currently we use the study.properties column is used in test cases, so they are required -->
-    <property global="true" dbms="postgresql" name="jsonb.type" value="jsonb"/>
-    <property global="true" dbms="mariadb,mysql" name="jsonb.type" value="longtext"/>
-
     <!-- define changesets postgres-only properties not used-->
     <include file="changesets/20230410_schema_reset.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20230530_avoid_postgres_specific_features.yaml" relativeToChangelogFile="true"/>

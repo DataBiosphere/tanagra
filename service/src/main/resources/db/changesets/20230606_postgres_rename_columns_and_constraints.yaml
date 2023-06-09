@@ -22,26 +22,6 @@ databaseChangeLog:
             columnNames: study_id, property_key
 
         # for criteria_tag table
-        -  dropForeignKeyConstraint:
-             baseTableName:  criteria_tag
-             constraintName:  ck_crit_cr
-        -  addForeignKeyConstraint:
-             baseColumnNames:  cohort_revision_id
-             baseTableName:  criteria_tag
-             constraintName:  ck_crit_cr_2
-             onDelete:  CASCADE
-             referencedColumnNames:  id
-             referencedTableName:  cohort_revision
-        -  dropForeignKeyConstraint:
-             baseTableName:  criteria_tag
-             constraintName:  fk_crit_cs
-        -  addForeignKeyConstraint:
-             baseColumnNames:  concept_set_id
-             baseTableName:  criteria_tag
-             constraintName:  fk_crit_cs_2
-             onDelete:  CASCADE
-             referencedColumnNames:  id
-             referencedTableName:  concept_set
         - dropUniqueConstraint:
             constraintName: pk_ct
             tableName: criteria_tag

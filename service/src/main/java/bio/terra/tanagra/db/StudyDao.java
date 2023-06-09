@@ -26,7 +26,7 @@ public class StudyDao {
 
   // SQL query and row mapper for reading a study.
   private static final String STUDY_SELECT_SQL =
-      "SELECT id, display_name, description, properties, created, created_by, last_modified, last_modified_by FROM study";
+      "SELECT id, display_name, description, created, created_by, last_modified, last_modified_by FROM study";
   private static final RowMapper<Study.Builder> STUDY_ROW_MAPPER =
       (rs, rowNum) ->
           Study.builder()
