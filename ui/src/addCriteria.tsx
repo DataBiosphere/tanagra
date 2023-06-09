@@ -76,7 +76,7 @@ export function AddCohortCriteria() {
 
   return (
     <AddCriteria
-      title={`Adding criteria to ${name}`}
+      title={`Adding criteria for group ${name}`}
       onInsertCriteria={onInsertCriteria}
     />
   );

@@ -5,6 +5,7 @@ import { createContext, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import * as tanagra from "tanagra-api";
+import { getCriteriaPlugin, getCriteriaTitle, sectionName } from "./cohort";
 
 type CohortState = {
   past: tanagra.Cohort[];
@@ -12,12 +13,18 @@ type CohortState = {
   future: tanagra.Cohort[];
 
   saving: boolean;
+  showSnackbar: (message: string) => void;
 };
 
 type CohortContextData = {
   state: CohortState | null;
   updateState: (update: (state: CohortState) => void) => void;
-  updatePresent: (update: (present: tanagra.Cohort) => void) => void;
+  updatePresent: (
+    update: (
+      present: tanagra.Cohort,
+      showSnackbar: (message: string) => void
+    ) => void
+  ) => void;
 };
 
 export const CohortContext = createContext<CohortContextData | null>(null);
@@ -30,7 +37,7 @@ export function useCohortContext() {
   return context;
 }
 
-export function useNewCohortContext() {
+export function useNewCohortContext(showSnackbar: (message: string) => void) {
   const source = useSource();
   const { studyId, cohortId } =
     useParams<{ studyId: string; cohortId: string }>();
@@ -56,6 +63,7 @@ export function useNewCohortContext() {
       future: state?.future ?? [],
 
       saving: false,
+      showSnackbar,
     }));
     return cohort;
   });
@@ -93,7 +101,12 @@ export function useNewCohortContext() {
           })
         );
       },
-      updatePresent: async (update: (present: tanagra.Cohort) => void) => {
+      updatePresent: async (
+        update: (
+          present: tanagra.Cohort,
+          showSnackbar: (message: string) => void
+        ) => void
+      ) => {
         if (!state) {
           throw new Error("Attempting to update null cohort.");
         }
@@ -105,7 +118,7 @@ export function useNewCohortContext() {
           state.future = [];
         });
         const newState = produce(pushed, (state) => {
-          update(state.present);
+          update(state.present, state.showSnackbar);
           state.saving = true;
         });
 
@@ -129,18 +142,26 @@ export function insertCohortCriteria(
   sectionId: string,
   criteria: tanagra.Criteria
 ) {
-  context.updatePresent((present) => {
-    const section = present.groupSections.find(
+  context.updatePresent((present, showSnackbar) => {
+    const sectionIndex = present.groupSections.findIndex(
       (section) => section.id === sectionId
     );
-    if (!section) {
+    if (sectionIndex < 0) {
       throw new Error(
         `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
           present
         )}.`
       );
     }
+
+    const section = present.groupSections[sectionIndex];
     section.groups.push(defaultGroup(criteria));
+
+    const plugin = getCriteriaPlugin(criteria);
+    const title = getCriteriaTitle(criteria, plugin);
+    const name = sectionName(section, sectionIndex);
+
+    showSnackbar(`"${title}" added to group ${name}`);
   });
 }
 
