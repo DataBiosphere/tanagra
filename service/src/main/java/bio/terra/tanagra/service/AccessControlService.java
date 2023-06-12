@@ -3,15 +3,11 @@ package bio.terra.tanagra.service;
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.UnauthorizedException;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.AccessControl;
 import bio.terra.tanagra.service.accesscontrol.Action;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.accesscontrol.impl.OpenAccessControl;
-import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
-import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,21 +21,8 @@ public class AccessControlService {
 
   @Autowired
   public AccessControlService(AccessControlConfiguration accessControlConfiguration) {
-    AccessControl accessControlImplInstance;
-    switch (accessControlConfiguration.getModel()) {
-      case OPEN_ACCESS:
-        accessControlImplInstance = new OpenAccessControl();
-        break;
-      case VUMC_ADMIN:
-        accessControlImplInstance = new VumcAdminAccessControl();
-        break;
-      case VERILY_GROUP:
-        accessControlImplInstance = new VerilyGroupsAccessControl();
-        break;
-      default:
-        throw new SystemException(
-            "Unknown access control model: " + accessControlConfiguration.getModel());
-    }
+    AccessControl accessControlImplInstance =
+        accessControlConfiguration.getModel().createNewInstance();
     accessControlImplInstance.initialize(
         accessControlConfiguration.getParams(),
         accessControlConfiguration.getBasePath(),

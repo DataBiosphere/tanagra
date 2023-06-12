@@ -8,9 +8,7 @@ import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER
 import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_MAX_COL;
 import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_MIN_COL;
 
-import bio.terra.tanagra.app.configuration.TanagraExportConfiguration;
 import bio.terra.tanagra.exception.InvalidQueryException;
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.instances.*;
@@ -25,7 +23,6 @@ import bio.terra.tanagra.underlay.displayhint.EnumVal;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
-import bio.terra.tanagra.utils.GcsUtils;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +33,6 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,13 +43,10 @@ public class QuerysService {
   private static final Logger LOGGER = LoggerFactory.getLogger(QuerysService.class);
 
   private final UnderlaysService underlaysService;
-  private final TanagraExportConfiguration tanagraExportConfiguration;
 
   @Autowired
-  public QuerysService(
-      UnderlaysService underlaysService, TanagraExportConfiguration tanagraExportConfiguration) {
+  public QuerysService(UnderlaysService underlaysService) {
     this.underlaysService = underlaysService;
-    this.tanagraExportConfiguration = tanagraExportConfiguration;
   }
 
   public EntityQueryResult listEntityInstances(EntityQueryRequest entityQueryRequest) {
@@ -78,22 +71,6 @@ public class QuerysService {
     }
     return new EntityQueryResult(
         queryRequest.getSql(), entityInstances, queryResult.getNextPageMarker());
-  }
-
-  /** @return GCS signed URL of GCS file containing dataset CSV */
-  public String runInstancesQueryAndExportResultsToGcs(
-      DataPointer dataPointer, QueryRequest queryRequest) {
-    String gcsBucketProjectId = tanagraExportConfiguration.getGcsBucketProjectId();
-    String gcsBucketName = tanagraExportConfiguration.getGcsBucketName();
-
-    if (StringUtils.isEmpty(gcsBucketProjectId) || StringUtils.isEmpty(gcsBucketName)) {
-      throw new SystemException(
-          "For export, gcsBucketProjectId and gcsBucketName properties must be set");
-    }
-
-    String fileName =
-        dataPointer.getQueryExecutor().executeAndExportResultsToGcs(queryRequest, gcsBucketName);
-    return GcsUtils.createSignedUrl(gcsBucketProjectId, gcsBucketName, fileName);
   }
 
   public EntityCountResult countEntityInstances(EntityCountRequest entityCountRequest) {

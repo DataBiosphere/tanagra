@@ -25,7 +25,6 @@ import bio.terra.tanagra.service.instances.ReviewInstance;
 import bio.terra.tanagra.service.instances.ReviewQueryResult;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
-import bio.terra.tanagra.service.utils.ValidationUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.ArrayList;
@@ -68,7 +67,6 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         ResourceId.forCohort(studyId, cohortId));
 
     // TODO: Remove the entity filter from here once we store it for the cohort.
-    ValidationUtils.validateApiFilter(body.getFilter());
     EntityFilter entityFilter =
         fromApiConversionService.fromApiObject(body.getFilter(), studyId, cohortId);
 

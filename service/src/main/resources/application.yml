@@ -18,15 +18,22 @@ tanagra:
     username:
     password:
 
-  export:
-    gcs-bucket-project-id: broad-tanagra-dev
-    gcs-bucket-name: broad-tanagra-dev-bq-export
-
   access-control:
     model: OPEN_ACCESS # VUMC_ADMIN, VERILY_GROUP
     params: []
     base-path:
     oauth-client-id:
+
+  export:
+    shared:
+      gcs-bucket-project-id: broad-tanagra-dev
+      gcs-bucket-names: broad-tanagra-dev-bq-export
+    models:
+      -
+        type: INDIVIDUAL_FILE_DOWNLOAD
+      -
+        type: VWB_FILE_IMPORT
+        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG

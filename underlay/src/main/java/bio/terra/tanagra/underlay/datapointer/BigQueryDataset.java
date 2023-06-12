@@ -76,7 +76,6 @@ public final class BigQueryDataset extends DataPointer {
       queryProjectId = serialized.getProjectId();
     }
 
-    // TODO: Check if the Dataflow temp location is a valid GCS path, if specified.
     return new BigQueryDataset(
         serialized.getName(),
         serialized.getProjectId(),
@@ -97,7 +96,7 @@ public final class BigQueryDataset extends DataPointer {
   @Override
   public QueryExecutor getQueryExecutor() {
     if (queryExecutor == null) {
-      queryExecutor = new BigQueryExecutor(getBigQueryService());
+      queryExecutor = new BigQueryExecutor(getBigQueryService(), projectId, datasetId);
     }
     return queryExecutor;
   }

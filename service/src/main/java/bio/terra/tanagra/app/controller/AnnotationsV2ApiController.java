@@ -10,13 +10,14 @@ import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.AnnotationsV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.AccessControlService;
-import bio.terra.tanagra.service.AnnotationService;
-import bio.terra.tanagra.service.FromApiConversionService;
-import bio.terra.tanagra.service.ReviewService;
+import bio.terra.tanagra.service.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationKey;
+import bio.terra.tanagra.service.export.DataExport;
+import bio.terra.tanagra.service.export.ExportRequest;
+import bio.terra.tanagra.service.export.ExportResult;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,17 +28,17 @@ import org.springframework.stereotype.Controller;
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class AnnotationsV2ApiController implements AnnotationsV2Api {
   private final AnnotationService annotationService;
-  private final ReviewService reviewService;
   private final AccessControlService accessControlService;
+  private final DataExportService dataExportService;
 
   @Autowired
   public AnnotationsV2ApiController(
       AnnotationService annotationService,
-      ReviewService reviewService,
-      AccessControlService accessControlService) {
+      AccessControlService accessControlService,
+      DataExportService dataExportService) {
     this.annotationService = annotationService;
-    this.reviewService = reviewService;
     this.accessControlService = accessControlService;
+    this.dataExportService = dataExportService;
   }
 
   @Override
@@ -160,7 +161,15 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
         READ,
         COHORT,
         ResourceId.forCohort(studyId, cohortId));
-    String gcsSignedUrl = reviewService.exportAnnotationValuesToGcs(studyId, cohortId);
+    ExportResult exportResult =
+        dataExportService.run(
+            ExportRequest.builder()
+                .model(DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.name())
+                .includeAnnotations(true)
+                .study(studyId)
+                .cohorts(List.of(cohortId)),
+            Collections.emptyList());
+    String gcsSignedUrl = exportResult.getOutputs().get("cohort:" + cohortId);
     return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
   }
 
