@@ -14,6 +14,7 @@ describe("Basic tests", () => {
     cy.get("[data-testid='tanagra-conditions']").click();
     cy.get("[data-testid='AccountTreeIcon']").first().click();
     cy.get("[data-testid='Clinical finding']").click();
+    cy.contains('"Condition: Clinical finding" added to group Group 1');
 
     cy.get("button:Contains(Add criteria)").first().click();
     cy.get("[data-testid='tanagra-race']").click();
@@ -54,7 +55,7 @@ describe("Basic tests", () => {
     cy.reload();
 
     cy.get(`[data-testid='${cohortName}']`).click();
-    cy.get("a:Contains('Condition: Clinical finding')").last().click();
+    cy.get("[data-testid='Condition: Clinical finding']").last().click();
     cy.contains("Clinical finding");
   });
 });

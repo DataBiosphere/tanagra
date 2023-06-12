@@ -271,12 +271,10 @@ export function DemographicCharts({ cohort }: DemographicChartsProps) {
             </Loading>
           </GridLayout>
         </GridBox>
-        <GridBox
+        <Paper
           sx={{
             p: 2,
-            borderRadius: (theme) =>
-              `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px 0px`,
-            backgroundColor: (theme) => theme.palette.background.paper,
+            minHeight: "400px",
           }}
         >
           <Loading status={demographicState}>
@@ -301,7 +299,7 @@ export function DemographicCharts({ cohort }: DemographicChartsProps) {
               />
             )}
           </Loading>
-        </GridBox>
+        </Paper>
       </GridLayout>
     </>
   );
