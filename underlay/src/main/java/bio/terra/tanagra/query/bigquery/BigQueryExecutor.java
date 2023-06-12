@@ -92,6 +92,7 @@ public class BigQueryExecutor implements QueryExecutor {
     return String.format("gs://%s/%s", bucketName, validatedFilename.replace("*", "000000000000"));
   }
 
+  @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
   private String findCompatibleBucket(String gcsProjectId, List<String> gcsBucketNames) {
     // Lookup the BQ dataset location.
     String datasetLocation =
@@ -101,7 +102,8 @@ public class BigQueryExecutor implements QueryExecutor {
             .get()
             .getLocation();
 
-    // Lookup the GCS bucket location. Return the first bucket with a compatible location for the dataset.
+    // Lookup the GCS bucket location. Return the first bucket with a compatible location for the
+    // dataset.
     // https://cloud.google.com/bigquery/docs/exporting-data#data-locations
     GoogleCloudStorage storageService =
         GoogleCloudStorage.forApplicationDefaultCredentials(gcsProjectId);
@@ -113,7 +115,10 @@ public class BigQueryExecutor implements QueryExecutor {
         continue;
       }
       String bucketLocation = bucket.get().getLocation();
-      if (datasetLocation.equals(bucketLocation) || datasetLocation.equalsIgnoreCase("US") || (datasetLocation.startsWith("us") && bucketLocation.equalsIgnoreCase("US")) || (datasetLocation.equalsIgnoreCase("EU") && bucketLocation.startsWith("europe"))) {
+      if (datasetLocation.equals(bucketLocation)
+          || "US".equalsIgnoreCase(datasetLocation)
+          || (datasetLocation.startsWith("us") && "US".equalsIgnoreCase(bucketLocation))
+          || ("EU".equalsIgnoreCase(datasetLocation) && bucketLocation.startsWith("europe"))) {
         return bucketName;
       }
     }

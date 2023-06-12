@@ -6,7 +6,6 @@ import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
-import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
 import java.io.UnsupportedEncodingException;
@@ -63,8 +62,7 @@ public class VwbFileImport implements DataExport {
     // Build a list of the TSV rows: signed url -> "signedUrl \t size \t checksum"
     List<String> tsvRows =
         unsignedUrls.stream()
-            .map(
-                unsignedUrl -> storageService.createSignedUrl(unsignedUrl))
+            .map(unsignedUrl -> storageService.createSignedUrl(unsignedUrl))
             .collect(Collectors.toList());
 
     // Sort the TSV rows lexicographically by signed URL.
