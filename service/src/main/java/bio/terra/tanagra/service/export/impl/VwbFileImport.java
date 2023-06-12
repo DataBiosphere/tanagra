@@ -59,7 +59,7 @@ public class VwbFileImport implements DataExport {
     unsignedUrls.addAll(entityToGcsUrl.values());
     unsignedUrls.addAll(cohortToGcsUrl.values());
 
-    // Build a list of the TSV rows: signed url -> "signedUrl \t size \t checksum"
+    // Build a list of the TSV rows: signed url
     List<String> tsvRows =
         unsignedUrls.stream()
             .map(unsignedUrl -> storageService.createSignedUrl(unsignedUrl))
