@@ -44,8 +44,8 @@ if [[ ${useVerilyUnderlays} ]]; then
 else
   echo "Using Broad underlays."
   export TANAGRA_UNDERLAY_FILES=broad/aou_synthetic/expanded/aou_synthetic.json,broad/cms_synpuf/expanded/cms_synpuf.json
-  export TANAGRA_EXPORT_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
-  export TANAGRA_EXPORT_GCS_BUCKET_NAME=broad-tanagra-dev-bq-export
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
 fi
 
 export TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED=true
