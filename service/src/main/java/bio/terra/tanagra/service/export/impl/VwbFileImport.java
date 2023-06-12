@@ -64,16 +64,7 @@ public class VwbFileImport implements DataExport {
     List<String> tsvRows =
         unsignedUrls.stream()
             .map(
-                unsignedUrl -> {
-                  String signedUrl = storageService.createSignedUrl(unsignedUrl);
-                  Blob blob =
-                      storageService
-                          .getBlob(unsignedUrl)
-                          .orElseThrow(() -> new SystemException("Blob not found"));
-                  long fileSizeBytes = blob.getSize();
-                  String base64MD5Checksum = blob.getMd5();
-                  return signedUrl + "\t" + fileSizeBytes + "\t" + base64MD5Checksum;
-                })
+                unsignedUrl -> storageService.createSignedUrl(unsignedUrl))
             .collect(Collectors.toList());
 
     // Sort the TSV rows lexicographically by signed URL.

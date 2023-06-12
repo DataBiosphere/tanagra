@@ -101,8 +101,8 @@ public class BigQueryExecutor implements QueryExecutor {
             .get()
             .getLocation();
 
-    // Lookup the GCS bucket location. Return the first bucket with a location matches the dataset
-    // location.
+    // Lookup the GCS bucket location. Return the first bucket with a compatible location for the dataset.
+    // https://cloud.google.com/bigquery/docs/exporting-data#data-locations
     GoogleCloudStorage storageService =
         GoogleCloudStorage.forApplicationDefaultCredentials(gcsProjectId);
     for (String bucketName : gcsBucketNames) {
@@ -113,7 +113,7 @@ public class BigQueryExecutor implements QueryExecutor {
         continue;
       }
       String bucketLocation = bucket.get().getLocation();
-      if (bucketLocation.equals(datasetLocation)) {
+      if (datasetLocation.equals(bucketLocation) || datasetLocation.equalsIgnoreCase("US") || (datasetLocation.startsWith("us") && bucketLocation.equalsIgnoreCase("US")) || (datasetLocation.equalsIgnoreCase("EU") && bucketLocation.startsWith("europe"))) {
         return bucketName;
       }
     }
