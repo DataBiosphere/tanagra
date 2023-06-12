@@ -2,8 +2,8 @@
 
 ## Varied access control models
 Access control models will vary across deployments of Tanagra (e.g. Verily, AoU, VUMC).
-We expect one common pattern will be to forward access control checks to another service (e.g. SAM, CWB, VUMC admin).
 For this reason, we want to make supporting a new access control model straightforward and configurable.
+We expect one common pattern will be to forward access control checks to another service (e.g. SAM, CWB, VUMC admin).
 
 Each service endpoint checks that the user is allowed to perform the operation before calling any internal business logic.
 This check is implemented as a function call to an implementation class of the `AccessControl` interface.
