@@ -4,6 +4,7 @@
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
       "projectId": "victr-tanagra-test",
+      "dataflowRegion" : "us-east1",
       "datasetId": "sd_20230328"
     },
     { "type": "BQ_DATASET",
