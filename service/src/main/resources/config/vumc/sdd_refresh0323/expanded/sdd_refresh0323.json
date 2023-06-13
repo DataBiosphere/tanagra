@@ -3,11 +3,11 @@
   "dataPointers" : [ {
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
-    "projectId" : "victr-tanagra-test",
-    "datasetId" : "sd20230328_index_051823",
-    "queryProjectId" : "victr-tanagra-test",
-    "dataflowServiceAccountEmail" : "tanagra-indexing-runner@victr-tanagra-test.iam.gserviceaccount.com",
-    "dataflowTempLocation" : "gs://dataflow-indexing-victr-tanagra-test/temp/",
+    "projectId" : "victr-tanagra-deploytest",
+    "datasetId" : "sd_20230328_indexes",
+    "queryProjectId" : "victr-tanagra-deploytest",
+    "dataflowServiceAccountEmail" : "victr-tanagra-deploytest@appspot.gserviceaccount.com",
+    "dataflowTempLocation" : "gs://dataflow-indexing-victr-tanagra-deploytest/temp/",
     "dataflowRegion" : "us-east1",
     "dataflowWorkerMachineType" : "n1-standard-4",
     "dataflowUsePublicIps" : false
@@ -17,7 +17,7 @@
     "projectId" : "victr-tanagra-test",
     "datasetId" : "sd_20230328",
     "queryProjectId" : "victr-tanagra-test",
-    "dataflowRegion" : "us-central1",
+    "dataflowRegion" : "us-east1",
     "dataflowWorkerMachineType" : "n1-standard-4",
     "dataflowUsePublicIps" : true
   } ],
