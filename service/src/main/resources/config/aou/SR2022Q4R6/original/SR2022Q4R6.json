@@ -1,5 +1,5 @@
 {
-  "name": "sr_2022q4_100",
+  "name": "sr_t_2022q4_100",
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
@@ -9,7 +9,7 @@
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "all-of-us-workbench-test",
-      "datasetId": "chenchals_tanagra_index",
+      "datasetId": "sr_t_2022q4_100",
       "dataflowServiceAccountEmail": "tanagra-indexing-runner@victr-tanagra-test.iam.gserviceaccount.com",
       "dataflowTempLocation":  "gs://all-of-us-workbench-private-cloudsql/DummySR/chenchals_tanagra_index",
       "dataflowRegion": "us-central1",
