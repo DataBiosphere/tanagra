@@ -3,12 +3,12 @@ import Input from "@mui/material/Input";
 import MenuItem from "@mui/material/MenuItem";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import { FilterType } from "data/filter";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import GridLayout from "layout/gridLayout";
 import React, { useState } from "react";
 import * as tanagra from "tanagra-api";
 import { CriteriaConfig } from "underlaysSlice";
@@ -184,7 +184,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
   };
 
   return (
-    <Stack>
+    <GridLayout rows height="auto">
       <FormControl>
         <Select
           value={props.data.operator}
@@ -198,7 +198,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
           ))}
         </Select>
       </FormControl>
-      <Stack direction="row">
+      <GridLayout cols height="auto">
         <Input
           value={minInputValue}
           size="medium"
@@ -209,7 +209,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
           }}
         />
         {props.data.operator === tanagra.ComparisonOperator.Between ? (
-          <Stack direction="row" alignItems="center">
+          <GridLayout cols rowAlign="middle" height="auto">
             <Typography variant="body1">&nbsp;and&nbsp;</Typography>
             <Input
               value={maxInputValue}
@@ -220,9 +220,9 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
                 type: "number",
               }}
             />
-          </Stack>
+          </GridLayout>
         ) : null}
-      </Stack>
-    </Stack>
+      </GridLayout>
+    </GridLayout>
   );
 }
