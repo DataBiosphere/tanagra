@@ -5,27 +5,6 @@
       "entity": "person",
       "key": "id",
       "classifications": [
-        {
-          "id": "snp",
-          "attribute": "id",
-          "entity": "snp",
-          "entityAttribute": "id",
-          "defaultSort": {
-            "attribute": "id",
-            "direction": "ASC"
-          }
-        },
-        {
-          "id": "genotyping",
-          "attribute": "id",
-          "entity": "genotyping",
-          "entityAttribute": "id",
-          "hierarchy": "standard",
-          "defaultSort": {
-            "attribute": "name",
-            "direction": "ASC"
-          }
-        }
       ]
     },
     "occurrences": [
@@ -114,12 +93,6 @@
             ]
           }
         ]
-      },
-      {
-        "id": "note_occurrence",
-        "displayName": "Documents",
-        "entity": "note_occurrence",
-        "key": "id"
       },
       {
         "id": "measurement_occurrence",
@@ -240,21 +213,6 @@
     },
     {
       "type": "classification",
-      "id": "tanagra-genotyping",
-      "title": "Genotyping platform",
-      "category": "Program data",
-      "columns": [
-        { "key": "name", "width": "100%", "title": "Genotyping platform" }
-      ],
-      "hierarchyColumns": [
-        { "key": "name", "width": "100%", "title": "Genotyping platform" },
-        { "key": "id", "width": 100, "title": "Id" }
-      ],
-      "occurrence": "",
-      "classification": "genotyping"
-    },
-    {
-      "type": "classification",
       "id": "tanagra-measurement",
       "title": "Labs and measurements",
       "conceptSet": true,
@@ -313,30 +271,6 @@
       "title": "Age",
       "category": "Program data",
       "attribute": "age"
-    },
-    {
-      "type": "search",
-      "id": "tanagra-documents",
-      "title": "Documents",
-      "conceptSet": true,
-      "category": "Domains",
-      "occurrenceId": "note_occurrence",
-      "searchAttribute": "title",
-      "categoryAttribute": "note",
-      "modifiers": [
-        "age_at_occurrence",
-        "visit_type",
-        "start_date_group_by_count"
-      ]
-    },
-    {
-      "type": "classification",
-      "id": "tanagra-snp",
-      "title": "SNP variant",
-      "category": "Program data",
-      "columns": [{ "key": "name", "width": "100%", "title": "SNP variant" }],
-      "occurrence": "",
-      "classification": "snp"
     }
   ],
   "modifierConfigs": [
@@ -527,22 +461,6 @@
             { "key": "value_numeric", "width": 160, "title": "Numeric value" },
             { "key": "unit", "width": 160, "title": "Unit" }
           ]
-        }
-      },
-      {
-        "type": "textSearch",
-        "id": "notes",
-        "title": "Documents",
-        "plugin": {
-          "occurrence": "note_occurrence",
-          "title": "title",
-          "subtitles": ["note", "date"],
-          "text": "text",
-          "categoryAttribute": "note",
-          "sortOrder": {
-            "attribute": "date",
-            "direction": "ASC"
-          }
         }
       }
     ]

@@ -1,0 +1,318 @@
+{
+  "name" : "person",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "gender",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45878463
+          },
+          "display" : "Female"
+        },
+        "count" : 142307
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45880669
+          },
+          "display" : "Male"
+        },
+        "count" : 87099
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000002
+          },
+          "display" : "Not man only, not woman only, prefer not to answer, or skipped"
+        },
+        "count" : 5119
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "race",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000001
+          },
+          "display" : "Another single population"
+        },
+        "count" : 5443
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8515
+          },
+          "display" : "Asian"
+        },
+        "count" : 7476
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8516
+          },
+          "display" : "Black or African American"
+        },
+        "count" : 46967
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 1177221
+          },
+          "display" : "I prefer not to answer"
+        },
+        "count" : 1614
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000008
+          },
+          "display" : "More than one population"
+        },
+        "count" : 10727
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 37524
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45882607
+          },
+          "display" : "None of these"
+        },
+        "count" : 2465
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 903096
+          },
+          "display" : "PMI: Skip"
+        },
+        "count" : 1584
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8527
+          },
+          "display" : "White"
+        },
+        "count" : 120725
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "ethnicity",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003563
+          },
+          "display" : "Hispanic or Latino"
+        },
+        "count" : 44673
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38003564
+          },
+          "display" : "Not Hispanic or Latino"
+        },
+        "count" : 184189
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 903079
+          },
+          "display" : "PMI: Prefer Not To Answer"
+        },
+        "count" : 1614
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 903096
+          },
+          "display" : "PMI: Skip"
+        },
+        "count" : 1584
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 1586148
+          },
+          "display" : "What Race Ethnicity: Race Ethnicity None Of These"
+        },
+        "count" : 2465
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 21.0,
+      "maxVal" : 93.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "year_of_birth",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 1930.0,
+      "maxVal" : 2001.0
+    },
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT     p.person_id, p.year_of_birth, p.birth_datetime, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id FROM `all-of-us-ehr-dev.SR2022Q4R6.person` p  "
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "gender_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "race_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "ethnicity_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "birth_datetime",
+          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
+          "runtimeCalculated" : true
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "person"
+    },
+    "attributeMappings" : {
+      "gender" : {
+        "value" : {
+          "column" : "gender",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_gender",
+          "runtimeCalculated" : false
+        }
+      },
+      "race" : {
+        "value" : {
+          "column" : "race",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_race",
+          "runtimeCalculated" : false
+        }
+      },
+      "ethnicity" : {
+        "value" : {
+          "column" : "ethnicity",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_ethnicity",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "age",
+          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
+          "runtimeCalculated" : true
+        }
+      },
+      "year_of_birth" : {
+        "value" : {
+          "column" : "year_of_birth",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
