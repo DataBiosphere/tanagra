@@ -267,6 +267,7 @@ function AddCriteria(props: AddCriteriaProps) {
                             boxShadow: `inset 0 -2px 0 ${theme.palette.divider}`,
                             zIndex: 1,
                             height: theme.spacing(6),
+                            paddingLeft: theme.spacing(2),
                           }}
                         >
                           <Typography key="" variant="overline">
@@ -280,6 +281,7 @@ function AddCriteria(props: AddCriteriaProps) {
                             style={{
                               boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
                               height: theme.spacing(6),
+                              paddingLeft: theme.spacing(2),
                             }}
                           >
                             <Typography key="" variant="body2">

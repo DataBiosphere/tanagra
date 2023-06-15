@@ -145,7 +145,11 @@ export function TreeGrid(props: TreeGridProps) {
         }}
       >
         <thead>
-          <tr>
+          <tr
+            style={{
+              height: spacing(theme, props.rowHeight ?? 6),
+            }}
+          >
             {props.columns.map((col, i) => (
               <th
                 key={i}
@@ -157,7 +161,6 @@ export function TreeGrid(props: TreeGridProps) {
                     width: col.width,
                     minWidth: col.width,
                   }),
-                  height: spacing(theme, props.rowHeight ?? 6),
                   backgroundColor: paperColor,
                   boxShadow: `inset 0 -2px 0 ${theme.palette.divider}`,
                   zIndex: 1,
@@ -289,6 +292,7 @@ function renderChildren(
         key={childKey}
         style={{
           ...(collapse ? { visibility: "collapse" } : undefined),
+          height: spacing(theme, props.rowHeight ?? 6),
         }}
       >
         {props.columns.map((col, i) => {
@@ -319,7 +323,6 @@ function renderChildren(
                   width: col.width,
                   minWidth: col.width,
                 }),
-                height: spacing(theme, props.rowHeight ?? 6),
                 boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
               }}
             >
