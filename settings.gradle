@@ -2,4 +2,4 @@ rootProject.name = 'tanagra'
 include('service', 'client', 'indexer', 'underlay')
 
 // This line needs to match the VERSION_LINE_MATCH regex in the bump-tag-publish GHA.
-gradle.ext.tanagraVersion = "0.0.128-SNAPSHOT"
+gradle.ext.tanagraVersion = "0.0.129-SNAPSHOT"
