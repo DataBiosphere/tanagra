@@ -16,7 +16,7 @@ jobs:
       mariadb:
         image: mariadb:10.4
         env:
-          MARIADB_ROOT_PASSWORD: rootpwd
+          MARIADB_ROOT_PASSWORD: dbpwd
         options: >-
           --health-cmd "mysqladmin ping"
           --health-interval 10s
@@ -32,7 +32,7 @@ jobs:
           java-version: 11
           distribution: 'temurin'
       - name: Initialize MariaDB
-        run: mysql -h 127.0.0.1 -u root -p rootpwd -f ./service/local-dev/local-mariadb-init.sql mariadb
+        run: mysql -h 127.0.0.1 --user dbuser --password dbpwd mariadb < ./service/local-dev/local-mariadb-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
