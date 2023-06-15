@@ -192,6 +192,7 @@ export function TreeGrid(props: TreeGridProps) {
             (id: TreeGridId) =>
               updateState((draft) => toggleExpanded(draft, id)),
             "root",
+            "root",
             0,
             false
           )}
@@ -207,6 +208,7 @@ function renderChildren(
   state: TreeGridState,
   toggleExpanded: (id: TreeGridId) => void,
   id: TreeGridId,
+  key: string,
   indent: number,
   collapse: boolean
 ): JSX.Element[] {
@@ -281,11 +283,12 @@ function renderChildren(
       );
     };
 
+    const childKey = `${key}~${childId}`;
     results.push(
       <tr
-        key={id + "-" + childId}
+        key={childKey}
         style={{
-          ...(collapse && { visibility: "collapse" }),
+          ...(collapse ? { visibility: "collapse" } : undefined),
         }}
       >
         {props.columns.map((col, i) => {
@@ -352,6 +355,7 @@ function renderChildren(
         state,
         toggleExpanded,
         childId,
+        childKey,
         indent + 1,
         collapse || childState?.status !== Status.Expanded
       )
