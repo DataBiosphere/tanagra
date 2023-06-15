@@ -34,7 +34,7 @@ jobs:
       - name: Initialize MariaDB
         env:
           MARIADB_ROOT_PASSWORD: mariadb
-        run: mysql -h 127.0.0.1 -U mariadb -f ./service/local-dev/local-mariadb-init.sql
+        run: mysql -h 127.0.0.1 -u root -p ${MARIADB_ROOT_PASSWORD} -f ./service/local-dev/local-mariadb-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
