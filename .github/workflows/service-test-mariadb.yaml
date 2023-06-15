@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Run Service Tests
+name: Run Service Tests (MariaDB)
 
 on:
   push:
@@ -13,17 +13,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      postgres:
-        image: postgres:13.1
+      mariadb:
+        image: mariadb:10.4
         env:
-          POSTGRES_PASSWORD: postgres
+          MARIADB_ROOT_PASSWORD: rootpwd
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "mysqladmin ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5432
+          - 5432:3306
     steps:
       - uses: actions/checkout@v3
       - name: Set up AdoptOpenJDK 11
@@ -31,10 +31,10 @@ jobs:
         with:
           java-version: 11
           distribution: 'temurin'
-      - name: Initialize Postgres DB
+      - name: Initialize Maria DB
         env:
-          PGPASSWORD: postgres
-        run: psql -h 127.0.0.1 -U postgres -f ./service/local-dev/local-postgres-init.sql
+          MARIADB_ROOT_PASSWORD: rootpwd
+        run: mysql --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD < ./service/local-dev/local-mariadb-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -60,7 +60,7 @@ jobs:
         # The check task includes the build, test and static analysis tasks.
         run: ./gradlew service:check --scan
         env:
-          DBMS: postgresql
+          DBMS: mariadb
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Jib build

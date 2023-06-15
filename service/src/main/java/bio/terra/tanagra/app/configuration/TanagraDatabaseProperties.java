@@ -34,5 +34,7 @@ public class TanagraDatabaseProperties extends BaseDatabaseProperties {
   public void logFlags() {
     LOGGER.info("Database flag: initialize-on-start: {}", isInitializeOnStart());
     LOGGER.info("Database flag: upgrade-on-start: {}", isUpgradeOnStart());
+    LOGGER.info("Database flag: uri: {}", getUri());
+    LOGGER.info("Database flag: username: {}", getUsername());
   }
 }
