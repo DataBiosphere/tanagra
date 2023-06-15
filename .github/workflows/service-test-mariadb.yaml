@@ -58,7 +58,7 @@ jobs:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Gradle Build and Check
         # The check task includes the build, test and static analysis tasks.
-        run: ./gradlew service:test --tests bio.terra.tanagra.service.CohortServiceTest # service:check --scan
+        run: ./gradlew service:check --scan
         env:
           DBMS: mariadb
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
