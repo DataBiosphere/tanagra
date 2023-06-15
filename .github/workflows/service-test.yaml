@@ -35,8 +35,8 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: rootpwd
         run: |
-          mysqladmin --host 127.0.0.1 --port 5432 --user root --password $MARIADB_ROOT_PASSWORD create tanagra_db
-          mysql --host 127.0.0.1 --port 5432 --user root --password $MARIADB_ROOT_PASSWORD tanagra_db < ./service/local-dev/local-mariadb-init.sql
+          mysqladmin --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD create tanagra_db
+          mysql --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD tanagra_db < ./service/local-dev/local-mariadb-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
