@@ -23,7 +23,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:3306
+          - 3306:3306
     steps:
       - uses: actions/checkout@v3
       - name: Set up AdoptOpenJDK 11
@@ -60,7 +60,8 @@ jobs:
         # The check task includes the build, test and static analysis tasks.
         run: ./gradlew service:check --scan
         env:
-          DBMS: mariadb
+#          DBMS: mariadb
+          TANAGRA_DB_URL: jdbc:mariadb://127.0.0.1:3306/tanagra_db
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Jib build
