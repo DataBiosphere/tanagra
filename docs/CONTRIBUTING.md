@@ -10,6 +10,7 @@ The project is shared across the All Of Us and Terra partnerships.
   * [Local Server](#local-server)
   * [Adding dependencies](#adding-dependencies)
   * [Generate SQL Golden Files](#generate-sql-golden-files)
+  * [Run tests without credentials](#run-tests-without-credentials)
 * [Deployment](#deployment)
 * [Tips](#tips)
 
@@ -168,6 +169,17 @@ To regenerate the golden files, run the tests with the `generateSqlFiles` Gradle
 ```
 ./gradlew cleanTest service:test --tests bio.terra.tanagra.* --info -PgenerateSqlFiles=true
 ```
+
+### Run tests without credentials
+Many tests do not require credentials to run. This is useful for developers that don't have access to the testing
+infrastructure. You can always run all tests, including those that require credentials, by opening a PR in this repo.
+
+To run all tests that do not require credentials
+```
+./gradlew noCloudAccessRequiredTests
+```
+
+When adding a new test that does not require credentials, tag it with `@Tag("requires-cloud-access")`.
 
 ## Deployment
 
