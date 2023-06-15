@@ -13,17 +13,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      postgres:
-        image: postgres:13.1
+      mariadb:
+        image: mariadb:10.4
         env:
-          POSTGRES_PASSWORD: postgres
+          MARIADB_ROOT_PASSWORD: rootpwd
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "mysqladmin ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5432
+          - 5432:3306
     steps:
       - uses: actions/checkout@v3
       - name: Set up AdoptOpenJDK 11
@@ -31,10 +31,12 @@ jobs:
         with:
           java-version: 11
           distribution: 'temurin'
-      - name: Initialize Postgres DB
+      - name: Initialize Maria DB
         env:
-          PGPASSWORD: postgres
-        run: psql -h 127.0.0.1 -U postgres -f ./service/local-dev/local-postgres-init.sql
+          MARIADB_ROOT_PASSWORD: rootpwd
+        run: |
+          mysqladmin -h 127.0.0.1 --user root --password $MARIADB_ROOT_PASSWORD create tanagra_db
+          mysql -h 127.0.0.1 --user root --password $MARIADB_ROOT_PASSWORD tanagra_db < ./service/local-dev/local-mariadb-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
