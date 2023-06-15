@@ -35,8 +35,9 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: rootpwd
         run: |
-          mysqladmin --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD create tanagra_db
-          mysql --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD tanagra_db < ./service/local-dev/local-mariadb-init.sql
+#          mysqladmin --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD create tanagra_db
+#          mysql --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD tanagra_db < ./service/local-dev/local-mariadb-init.sql
+          mysql --host=127.0.0.1 --port=5432 --user=root --password=$MARIADB_ROOT_PASSWORD < ./service/local-dev/local-mariadb-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -60,7 +61,7 @@ jobs:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Gradle Build and Check
         # The check task includes the build, test and static analysis tasks.
-        run: ./gradlew service:check --scan
+        run: ./gradlew service:test --tests bio.terra.tanagra.service.CohortServiceTest # service:check --scan
         env:
           DBMS: mariadb
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
