@@ -3,6 +3,7 @@ import {
   CohortsApiContext,
   ConceptSetsApiContext,
   EntityInstancesApiContext,
+  ExportApiContext,
   HintsApiContext,
   ReviewsApiContext,
   StudiesApiContext,
@@ -125,6 +126,27 @@ export type Annotation = {
   displayName: string;
   annotationType: AnnotationType;
   enumVals?: string[];
+};
+
+export type ExportModel = {
+  id: string;
+  displayName: string;
+  description: string;
+
+  inputs: { [key: string]: string };
+  outputs: { [key: string]: string };
+};
+
+export type ExportRequestEntity = {
+  requestedAttributes: string[];
+  occurrenceID: string;
+  cohort: Filter;
+  conceptSet: Filter | null;
+};
+
+export type ExportResult = {
+  redirectURL?: string | null;
+  outputs: { [key: string]: string };
 };
 
 export interface Source {
@@ -293,6 +315,17 @@ export interface Source {
     annotationId: string,
     entityKey: DataKey
   ): Promise<void>;
+
+  listExportModels(underlayName: string): Promise<ExportModel[]>;
+
+  export(
+    underlayName: string,
+    studyId: string,
+    modelId: string,
+    returnURL: string,
+    cohortIds: string[],
+    entities: ExportRequestEntity[]
+  ): Promise<ExportResult>;
 }
 
 // TODO(tjennison): Create the source once and put it into the context instead
@@ -312,6 +345,7 @@ export function useSource(): Source {
   const annotationsApi = useContext(
     AnnotationsApiContext
   ) as tanagra.AnnotationsV2Api;
+  const exportApi = useContext(ExportApiContext) as tanagra.ExportApi;
   return useMemo(
     () =>
       new BackendSource(
@@ -322,6 +356,7 @@ export function useSource(): Source {
         conceptSetsApi,
         reviewsApi,
         annotationsApi,
+        exportApi,
         underlay,
         underlay.uiConfiguration.dataConfig
       ),
@@ -338,6 +373,7 @@ export class BackendSource implements Source {
     private conceptSetsApi: tanagra.ConceptSetsV2Api,
     private reviewsApi: tanagra.ReviewsV2Api,
     private annotationsApi: tanagra.AnnotationsV2Api,
+    private exportApi: tanagra.ExportApi,
     private underlay: Underlay,
     public config: Configuration
   ) {}
@@ -1019,6 +1055,60 @@ export class BackendSource implements Source {
         annotationId,
         instanceId: String(entityKey),
       })
+    );
+  }
+
+  public async listExportModels(underlayName: string): Promise<ExportModel[]> {
+    return await parseAPIError(
+      this.exportApi
+        .listExportModels({
+          underlayName,
+        })
+        .then((res) =>
+          res.map((model) => ({
+            id: model.name ?? "",
+            displayName: model.displayName ?? "",
+            description: model.description ?? "",
+            inputs: model.inputs ?? {},
+            outputs: model.outputs ?? {},
+          }))
+        )
+    );
+  }
+
+  public async export(
+    underlayName: string,
+    studyId: string,
+    modelId: string,
+    returnURL: string,
+    cohortIds: string[],
+    entities: ExportRequestEntity[]
+  ): Promise<ExportResult> {
+    return await parseAPIError(
+      this.exportApi
+        .exportInstancesAndAnnotations({
+          underlayName,
+          exportRequest: {
+            study: studyId,
+            exportModel: modelId,
+            redirectBackUrl: returnURL,
+            includeAnnotations: true,
+            cohorts: cohortIds,
+            instanceQuerys: entities.map((e) => ({
+              entity: findEntity(e.occurrenceID, this.config).entity,
+              query: this.makeQuery(
+                e.requestedAttributes,
+                e.occurrenceID,
+                e.cohort,
+                e.conceptSet
+              ),
+            })),
+          },
+        })
+        .then((res) => ({
+          redirectURL: res.redirectAwayUrl,
+          outputs: res.outputs ?? {},
+        }))
     );
   }
 
