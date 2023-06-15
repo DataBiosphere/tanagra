@@ -31,7 +31,7 @@ import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
@@ -233,11 +233,13 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   const [searchData, updateSearchData] = useSearchData<SearchData>();
 
-  props.setBackURL(
-    searchData.hierarchy
-      ? `.?${searchParamsFromData({ query: searchData.query })}`
-      : undefined
-  );
+  useEffect(() => {
+    props.setBackURL(
+      searchData.hierarchy
+        ? `.?${searchParamsFromData({ query: searchData.query })}`
+        : undefined
+    );
+  }, [searchData]);
 
   const processEntities = useCallback(
     (
