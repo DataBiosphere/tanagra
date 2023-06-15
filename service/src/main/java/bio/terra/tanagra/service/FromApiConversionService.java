@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service;
 
-import avro.shaded.com.google.common.base.Preconditions;
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.*;
@@ -155,14 +155,15 @@ public final class FromApiConversionService {
     // If one RelationshipFilterV2 group_by field is set, all group_by fields must be set.
     if (filter != null && filter.getFilterType() == ApiFilterV2.FilterTypeEnum.RELATIONSHIP) {
       ApiRelationshipFilterV2 relationshipFilter = filter.getFilterUnion().getRelationshipFilter();
-      Preconditions.checkState(
-          (relationshipFilter.getGroupByCountAttribute() == null
-                  && relationshipFilter.getGroupByCountOperator() == null
-                  && relationshipFilter.getGroupByCountValue() == null)
-              || (relationshipFilter.getGroupByCountAttribute() != null
-                  && relationshipFilter.getGroupByCountOperator() != null
-                  && relationshipFilter.getGroupByCountValue() != null),
-          "If one RelationshipFilterV2 group_by field is set, all group_by fields must be set");
+      if (!((relationshipFilter.getGroupByCountAttribute() == null
+              && relationshipFilter.getGroupByCountOperator() == null
+              && relationshipFilter.getGroupByCountValue() == null)
+          || (relationshipFilter.getGroupByCountAttribute() != null
+              && relationshipFilter.getGroupByCountOperator() != null
+              && relationshipFilter.getGroupByCountValue() != null))) {
+        throw new InvalidConfigException(
+            "If one RelationshipFilterV2 group_by field is set, all group_by fields must be set");
+      }
     }
   }
 

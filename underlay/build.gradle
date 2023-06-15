@@ -1,9 +1,7 @@
 plugins {
     id "java"
-    id 'java-test-fixtures'
-
-    // See /buildSrc/build.gradle
-    id 'tanagra.java-conventions'
+    id "java-test-fixtures"
+    id "tanagra.java-conventions"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -22,37 +20,37 @@ repositories {
 }
 
 dependencies {
-    ext {
-        jackson = "2.12.3"
-        slf4j = "1.7.25"
-    }
-
     implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
     implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+    testFixturesImplementation group: "org.slf4j", name: "slf4j-api", version: "1.7.25"
 
-    // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
+    // GCP libraries. Versions are controlled by the BOM specified in buildSrc.
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
     implementation group: "com.google.cloud", name: "google-cloud-storage"
     implementation group: "com.google.guava", name: "guava"
 
     // Jackson serialization
-    implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.12.3"
+    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.12.3"
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
+    // JUnit
+    testImplementation group: "org.junit.jupiter", name: "junit-jupiter-api", version: "5.0.3"
+    testRuntimeOnly group: "org.junit.jupiter", name: "junit-jupiter-engine", version: "5.0.3"
+    testFixturesImplementation group: "org.junit.jupiter", name: "junit-jupiter-api", version: "5.0.3"
 
     // Static analysis
-    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
-    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
-
-    testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.3'
-    testFixturesImplementation 'org.apache.commons:commons-text:1.9'
-    testFixturesImplementation "org.slf4j:slf4j-api:${slf4j}"
+    compileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
+    testCompileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
 }
 
 test {
     useJUnitPlatform()
+}
+
+task noCloudAccessRequiredTests(type: Test) {
+    useJUnitPlatform {
+        excludeTags "requires-cloud-access"
+    }
 }
 
 // Apply Gradle Script Plugins for more modular gradle files.

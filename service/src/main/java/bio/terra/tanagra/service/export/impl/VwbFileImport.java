@@ -5,7 +5,6 @@ import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
 import java.io.UnsupportedEncodingException;
@@ -20,7 +19,6 @@ import org.apache.commons.text.StringSubstitutor;
 
 public class VwbFileImport implements DataExport {
   private static final String FILE_FORMAT_SPECIFIER = "TsvHttpData-1.0";
-  private GoogleCloudStorage storageService;
   private List<String> gcsBucketNames;
   private String redirectAwayUrl;
 
@@ -41,9 +39,6 @@ public class VwbFileImport implements DataExport {
 
   @Override
   public void initialize(DeploymentConfig deploymentConfig) {
-    storageService =
-        GoogleCloudStorage.forApplicationDefaultCredentials(
-            deploymentConfig.getShared().getGcpProjectId());
     gcsBucketNames = deploymentConfig.getShared().getGcsBucketNames();
     redirectAwayUrl = deploymentConfig.getRedirectAwayUrl();
   }
@@ -62,7 +57,7 @@ public class VwbFileImport implements DataExport {
     // Build a list of the TSV rows: signed url
     List<String> tsvRows =
         unsignedUrls.stream()
-            .map(unsignedUrl -> storageService.createSignedUrl(unsignedUrl))
+            .map(unsignedUrl -> request.getGoogleCloudStorage().createSignedUrl(unsignedUrl))
             .collect(Collectors.toList());
 
     // Sort the TSV rows lexicographically by signed URL.
@@ -74,13 +69,15 @@ public class VwbFileImport implements DataExport {
 
     // Write the TSV file to GCS. Just pick the first bucket name.
     BlobId blobId =
-        storageService.writeFile(
-            gcsBucketNames.get(0),
-            "tanagra_export_" + Instant.now() + ".tsv",
-            fileContents.toString());
+        request
+            .getGoogleCloudStorage()
+            .writeFile(
+                gcsBucketNames.get(0),
+                "tanagra_export_" + Instant.now() + ".tsv",
+                fileContents.toString());
 
     // Generate a signed URL for the TSV file.
-    String tsvSignedUrl = storageService.createSignedUrl(blobId.toGsUtilUri());
+    String tsvSignedUrl = request.getGoogleCloudStorage().createSignedUrl(blobId.toGsUtilUri());
 
     // Generate the redirect URL to VWB.
     Map<String, String> urlParams =

@@ -15,6 +15,7 @@ import bio.terra.tanagra.underlay.Entity;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 @ActiveProfiles("test")
+@Tag("requires-cloud-access")
 public class ReviewPaginationTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewPaginationTest.class);
   private static final String UNDERLAY_NAME = "cms_synpuf";

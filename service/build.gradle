@@ -1,17 +1,14 @@
 plugins {
     id "java"
-    id 'java-test-fixtures'
+    id "java-test-fixtures"
     id "maven-publish"
-
-    id 'tanagra.java-conventions'
-
-    id 'com.google.cloud.tools.jib' version '3.1.2'
+    id "tanagra.java-conventions"
+    id "com.google.cloud.tools.jib" version "3.1.2"
     id "io.spring.dependency-management" version "1.0.11.RELEASE"
     id "org.hidetake.swagger.generator" version "2.18.2"
     id "org.springframework.boot" version "2.5.1"
     id "org.barfuin.gradle.taskinfo" version "1.1.1"
-
-    id 'net.linguica.maven-settings' version '0.5'
+    id "net.linguica.maven-settings" version "0.5"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -60,77 +57,75 @@ dependencyManagement {
 }
 
 dependencies {
-    ext {
-        beam = "2.32.0"
-        jackson = "2.12.3"
-        jacksonYaml = "2.11.2"
-    }
     implementation project(":underlay")
     testImplementation(testFixtures(project(":underlay")))
 
     implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
     implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
-    annotationProcessor group: "org.springframework.boot", name: "spring-boot-configuration-processor"
+    implementation group: "org.mariadb.jdbc", name: "mariadb-java-client"
 
-    // VUMC Admin dependency
-    implementation group: "org.vumc.vda.tanagra", name: "admin-client", version: "0.0.8-SNAPSHOT"
-    implementation group: "org.glassfish.jersey.core", name: "jersey-client", version: "2.32"
-    // hk2 is required to use VUMC admin client, but not correctly exposed by the client
-    implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.32'
-    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '2.32'
-    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.32'
-
-    // GCP BOM version controlled libraries. GCP BOM specified in buildSrc/
+    // GCP libraries. Most versions are controlled by the BOM specified in buildSrc.
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
     implementation group: "com.google.cloud", name: "google-cloud-storage"
     implementation group: "com.google.guava", name: "guava"
-    implementation 'com.google.apis:google-api-services-oauth2:v2-rev20200213-1.32.1'
+    implementation group: "com.google.apis", name: "google-api-services-oauth2", version: "v2-rev20200213-1.32.1"
 
-    // Dependencies whose versions are controlled by Spring
-    implementation group: "javax.validation", name: "validation-api"
-    implementation group: "org.apache.commons", name: "commons-dbcp2"
-    implementation group: "org.apache.commons", name: "commons-pool2"
-    implementation group: "org.springframework.boot", name: "spring-boot-starter-web"
-    implementation group: "org.springframework.boot", name: "spring-boot-starter-data-jdbc"
-    implementation group: "org.springframework.security", name: "spring-security-core"
-    implementation group: "org.mariadb.jdbc", name: "mariadb-java-client"
-
-    // OpenApi(Swagger) dependencies
-    implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: jacksonYaml
-    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-jaxb-annotations", version: jacksonYaml
-    implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
+    // OpenApi/Swagger
+    implementation group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: "2.11.2"
+    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-jaxb-annotations", version: "2.11.2"
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.12.3"
+    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.12.3"
     implementation group: "io.swagger.core.v3", name: "swagger-annotations"
     implementation group: "io.swagger", name: "swagger-annotations", version: "1.6.2"
     implementation group: "org.webjars", name: "webjars-locator-core", version: "0.48"
     runtimeOnly group: "org.webjars.npm", name: "swagger-ui-dist", version: "3.36.2"
     swaggerCodegen group: "io.swagger.codegen.v3", name: "swagger-codegen-cli"
 
-    // Beam libraries
-    implementation "org.apache.beam:beam-sdks-java-core:${beam}"
-    implementation "org.apache.beam:beam-sdks-java-io-google-cloud-platform:${beam}"
-    implementation "org.apache.beam:beam-sdks-java-io-jdbc:${beam}"
-    implementation "org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:${beam}"
-    testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${beam}"
-    implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${beam}"
+    // Spring version controlled dependencies
+    annotationProcessor group: "org.springframework.boot", name: "spring-boot-configuration-processor"
+    implementation group: "javax.validation", name: "validation-api"
+    implementation group: "org.apache.commons", name: "commons-dbcp2"
+    implementation group: "org.apache.commons", name: "commons-pool2"
+    implementation group: "org.springframework.boot", name: "spring-boot-starter-web"
+    implementation group: "org.springframework.boot", name: "spring-boot-starter-data-jdbc"
+    implementation group: "org.springframework.security", name: "spring-security-core"
 
-    // Test dependencies
-    // Jupiter version is managed by the Spring Boot plugin
+    // Spring version controlled JUnit dependencies.
     testImplementation group: "org.junit.jupiter", name: "junit-jupiter"
     testImplementation group: "org.junit.jupiter", name: "junit-jupiter-api"
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    testImplementation group: "org.junit.platform", name: "junit-platform-runner"
+    testImplementation(group: "org.springframework.boot", name: "spring-boot-starter-test") {
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
 
-
     // Static analysis
-    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
-    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+    compileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
+    testCompileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
+
+    // [Access control]: VUMC admin service
+    // The Jersey libraries are required to use the VUMC admin service client library.
+    // Since the client library doesn't correctly expose these dependencies, we include them explicitly here.
+    implementation group: "org.vumc.vda.tanagra", name: "admin-client", version: "0.0.8-SNAPSHOT"
+    implementation group: "org.glassfish.jersey.core", name: "jersey-client", version: "2.32"
+    implementation group: "org.glassfish.jersey.inject", name: "jersey-hk2", version: "2.32"
+    implementation group: "org.glassfish.jersey.media", name: "jersey-media-multipart", version: "2.32"
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: "2.32"
+
+    // [Access control]: VerilyGroups
+    implementation group: "org.json", name: "json", version: "20230227"
 }
 
 test {
     useJUnitPlatform()
+}
 
+task noCloudAccessRequiredTests(type: Test) {
+    useJUnitPlatform {
+        excludeTags "requires-cloud-access"
+    }
+}
+
+tasks.withType(Test) {
     // These System properties are used for the generated SQL strings to compare against during tests.
     // See bio.terra.tanagra.aousynthetic.GeneratedSqlUtils for how they are used.
     systemProperty("GRADLE_PROJECT_DIR", projectDir)

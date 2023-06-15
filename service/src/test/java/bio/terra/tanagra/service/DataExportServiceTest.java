@@ -30,6 +30,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 @ActiveProfiles("test")
+@Tag("requires-cloud-access")
 public class DataExportServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportServiceTest.class);
   private static final String UNDERLAY_NAME = "cms_synpuf";

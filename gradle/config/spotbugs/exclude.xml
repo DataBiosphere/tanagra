@@ -6,13 +6,6 @@
     <Match>
         <Source name="~.*\.groovy"/>
     </Match>
-    <!-- Do not match on protobuf generated packages. Spotbugs only allows class name searches. -->
-    <Match>
-        <Package name="bio.terra.tanagra.proto.underlay*"/>
-    </Match>
-    <Match>
-        <Package name="bio.terra.tanagra.proto.utils.pagination*"/>
-    </Match>
 
     <!-- Disable check -->
     <Match>
