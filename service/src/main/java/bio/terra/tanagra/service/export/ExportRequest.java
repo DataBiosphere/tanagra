@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.export;
 
+import bio.terra.tanagra.utils.GoogleCloudStorage;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,6 +17,8 @@ public class ExportRequest {
   private final Function<String, Map<String, String>> writeEntityDataToGcsFn;
   private final Function<String, Map<String, String>> writeAnnotationDataToGcsFn;
 
+  private final Supplier<GoogleCloudStorage> getGoogleCloudStorageFn;
+
   private ExportRequest(Builder builder) {
     this.model = builder.model;
     this.inputs = builder.inputs;
@@ -26,6 +29,7 @@ public class ExportRequest {
     this.generateSqlQueriesFn = builder.generateSqlQueriesFn;
     this.writeEntityDataToGcsFn = builder.writeEntityDataToGcsFn;
     this.writeAnnotationDataToGcsFn = builder.writeAnnotationDataToGcsFn;
+    this.getGoogleCloudStorageFn = builder.getGoogleCloudStorageFn;
   }
 
   public static Builder builder() {
@@ -72,6 +76,10 @@ public class ExportRequest {
         : writeAnnotationDataToGcsFn.apply(fileNameTemplate);
   }
 
+  public GoogleCloudStorage getGoogleCloudStorage() {
+    return getGoogleCloudStorageFn.get();
+  }
+
   public static class Builder {
     private String model;
     private Map<String, String> inputs;
@@ -82,6 +90,8 @@ public class ExportRequest {
     private Supplier<Map<String, String>> generateSqlQueriesFn;
     private Function<String, Map<String, String>> writeEntityDataToGcsFn;
     private Function<String, Map<String, String>> writeAnnotationDataToGcsFn;
+
+    private Supplier<GoogleCloudStorage> getGoogleCloudStorageFn;
 
     public Builder model(String model) {
       this.model = model;
@@ -127,6 +137,11 @@ public class ExportRequest {
     public Builder writeAnnotationDataToGcsFn(
         Function<String, Map<String, String>> writeAnnotationDataToGcsFn) {
       this.writeAnnotationDataToGcsFn = writeAnnotationDataToGcsFn;
+      return this;
+    }
+
+    public Builder getGoogleCloudStorageFn(Supplier<GoogleCloudStorage> getGoogleCloudStorageFn) {
+      this.getGoogleCloudStorageFn = getGoogleCloudStorageFn;
       return this;
     }
 

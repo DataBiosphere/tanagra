@@ -25,7 +25,7 @@ public class DataExportService {
   private final Map<String, DataExport> modelToImpl = new HashMap<>();
   private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
   private final ReviewService reviewService;
-  private final GoogleCloudStorage storageService;
+  private GoogleCloudStorage storageService;
 
   @Autowired
   public DataExportService(ExportConfiguration exportConfiguration, ReviewService reviewService) {
@@ -44,8 +44,6 @@ public class DataExportService {
       this.modelToConfig.put(modelName, perModelConfig);
     }
     this.reviewService = reviewService;
-    this.storageService =
-        GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcsProjectId());
   }
 
   /** Return a map of model name -> (display name, implementation class instance). */
@@ -86,6 +84,7 @@ public class DataExportService {
           fileNameTemplate ->
               writeAnnotationDataToGcs(fileNameTemplate, request.getStudy(), request.getCohorts()));
     }
+    request.getGoogleCloudStorageFn(() -> getStorageService());
 
     return impl.run(request.build());
   }
@@ -148,7 +147,7 @@ public class DataExportService {
                   String fileName = getFileName(fileNameTemplate, "cohort", cohortId);
                   String fileContents =
                       reviewService.buildTsvStringForAnnotationValues(studyId, cohortId);
-                  BlobId blobId = storageService.writeFile(bucketName, fileName, fileContents);
+                  BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
                   return blobId.toGsUtilUri();
                 }));
   }
@@ -165,5 +164,13 @@ public class DataExportService {
     Map<String, String> params =
         ImmutableMap.<String, String>builder().put(substituteFor, substituteWith).build();
     return StringSubstitutor.replace(template, params);
+  }
+
+  private GoogleCloudStorage getStorageService() {
+    if (storageService == null) {
+      storageService =
+          GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcsProjectId());
+    }
+    return storageService;
   }
 }

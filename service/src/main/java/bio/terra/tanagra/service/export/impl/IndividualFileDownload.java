@@ -4,7 +4,6 @@ import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.utils.GoogleCloudStorage;
 import java.time.Instant;
 import java.util.*;
 
@@ -12,7 +11,6 @@ public class IndividualFileDownload implements DataExport {
 
   private static final String ENTITY_OUTPUT_KEY_PREFIX = "entity:";
   private static final String COHORT_OUTPUT_KEY_PREFIX = "cohort:";
-  private GoogleCloudStorage storageService;
 
   @Override
   public Type getType() {
@@ -38,9 +36,6 @@ public class IndividualFileDownload implements DataExport {
 
   @Override
   public void initialize(DeploymentConfig deploymentConfig) {
-    storageService =
-        GoogleCloudStorage.forApplicationDefaultCredentials(
-            deploymentConfig.getShared().getGcpProjectId());
     // Model-specific deployment config is currently ignored. Possible future uses: expiry time for
     // signed url, filename template, csv/tsv/etc. format
   }
@@ -58,13 +53,13 @@ public class IndividualFileDownload implements DataExport {
             entry ->
                 outputParams.put(
                     ENTITY_OUTPUT_KEY_PREFIX + entry.getKey(),
-                    storageService.createSignedUrl(entry.getValue())));
+                    request.getGoogleCloudStorage().createSignedUrl(entry.getValue())));
     cohortToGcsUrl.entrySet().stream()
         .forEach(
             entry ->
                 outputParams.put(
                     COHORT_OUTPUT_KEY_PREFIX + entry.getKey(),
-                    storageService.createSignedUrl(entry.getValue())));
+                    request.getGoogleCloudStorage().createSignedUrl(entry.getValue())));
     return ExportResult.forOutputParams(outputParams, ExportResult.Status.COMPLETE);
   }
 }

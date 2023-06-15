@@ -6,12 +6,14 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Iterables;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -21,16 +23,16 @@ import org.slf4j.LoggerFactory;
 public class BigQueryExecutor implements QueryExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BigQueryExecutor.class);
 
-  /** The BigQuery client to use for executing queries. */
-  private final GoogleBigQuery bigQuery;
-
   private final String projectId;
   private final String datasetId;
 
-  public BigQueryExecutor(GoogleBigQuery bigQuery, String projectId, String datasetId) {
-    this.bigQuery = bigQuery;
+  private final String queryProjectId;
+  private GoogleBigQuery bigQueryService;
+
+  public BigQueryExecutor(String projectId, String datasetId, String queryProjectId) {
     this.projectId = projectId;
     this.datasetId = datasetId;
+    this.queryProjectId = queryProjectId;
   }
 
   @Override
@@ -38,12 +40,13 @@ public class BigQueryExecutor implements QueryExecutor {
     String sql = queryRequest.getSql();
     LOGGER.info("Running SQL against BigQuery: {}", sql);
     TableResult tableResult =
-        bigQuery.queryBigQuery(
-            sql,
-            queryRequest.getPageMarker() == null
-                ? null
-                : queryRequest.getPageMarker().getPageToken(),
-            queryRequest.getPageSize());
+        getBigQueryService()
+            .queryBigQuery(
+                sql,
+                queryRequest.getPageMarker() == null
+                    ? null
+                    : queryRequest.getPageMarker().getPageToken(),
+                queryRequest.getPageSize());
 
     LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
     Iterable<RowResult> rowResults =
@@ -84,7 +87,7 @@ public class BigQueryExecutor implements QueryExecutor {
             "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS %n%s",
             bucketName, validatedFilename, queryRequest.getSql());
     LOGGER.info("Running SQL against BigQuery: {}", sql);
-    bigQuery.queryBigQuery(sql);
+    getBigQueryService().queryBigQuery(sql);
 
     // Multiple files will be created only if export is very large (> 1GB). For now, just assume
     // only "000000000000" was created.
@@ -96,7 +99,7 @@ public class BigQueryExecutor implements QueryExecutor {
   private String findCompatibleBucket(String gcsProjectId, List<String> gcsBucketNames) {
     // Lookup the BQ dataset location.
     String datasetLocation =
-        bigQuery
+        getBigQueryService()
             .getDataset(
                 projectId, datasetId, BigQuery.DatasetOption.fields(BigQuery.DatasetField.LOCATION))
             .get()
@@ -125,5 +128,18 @@ public class BigQueryExecutor implements QueryExecutor {
     throw new SystemException(
         "No compatible GCS bucket found for export from BQ dataset in location: "
             + datasetLocation);
+  }
+
+  public GoogleBigQuery getBigQueryService() {
+    if (bigQueryService == null) {
+      GoogleCredentials credentials;
+      try {
+        credentials = GoogleCredentials.getApplicationDefault();
+      } catch (IOException ioEx) {
+        throw new SystemException("Error loading application default credentials", ioEx);
+      }
+      bigQueryService = new GoogleBigQuery(credentials, queryProjectId);
+    }
+    return bigQueryService;
   }
 }

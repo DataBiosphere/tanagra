@@ -8,7 +8,7 @@
 //
 
 plugins {
-    id 'groovy-gradle-plugin'
+    id "groovy-gradle-plugin"
 }
 
 repositories {
@@ -17,6 +17,6 @@ repositories {
 
 dependencies {
     // Specify the version of each plugin used in buildSrc/src/*.gradle.
-    implementation 'com.diffplug.spotless:spotless-plugin-gradle:3.27.2'
-    implementation 'ru.vyarus:gradle-quality-plugin:4.5.0'
+    implementation group: "com.diffplug.spotless", name: "spotless-plugin-gradle", version: "3.27.2"
+    implementation group: "ru.vyarus", name: "gradle-quality-plugin", version: "4.5.0"
 }

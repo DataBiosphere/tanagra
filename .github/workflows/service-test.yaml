@@ -56,11 +56,18 @@ jobs:
           echo "$TEST_PROJECT_SA_KEY" > rendered/broad/tanagra_sa.json
         env:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
-      - name: Gradle Build and Check
+      - name: Gradle Build and Check (Application DB = PostGres)
         # The check task includes the build, test and static analysis tasks.
         run: ./gradlew service:check --scan
         env:
           DBMS: postgresql
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+      - name: Gradle Build and Check (Application DB = MariaDB)
+        # The check task includes the build, test and static analysis tasks.
+        run: ./gradlew service:check --scan
+        env:
+          DBMS: mariadb
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Jib build

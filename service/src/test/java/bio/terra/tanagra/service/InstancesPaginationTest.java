@@ -10,6 +10,7 @@ import bio.terra.tanagra.service.instances.EntityQueryResult;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 @ActiveProfiles("test")
+@Tag("requires-cloud-access")
 public class InstancesPaginationTest {
   private static final String UNDERLAY_NAME = "cms_synpuf";
   @Autowired private UnderlaysService underlaysService;

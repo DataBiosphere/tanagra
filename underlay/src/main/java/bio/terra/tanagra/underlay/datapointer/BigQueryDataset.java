@@ -96,7 +96,7 @@ public final class BigQueryDataset extends DataPointer {
   @Override
   public QueryExecutor getQueryExecutor() {
     if (queryExecutor == null) {
-      queryExecutor = new BigQueryExecutor(getBigQueryService(), projectId, datasetId);
+      queryExecutor = new BigQueryExecutor(projectId, datasetId, queryProjectId);
     }
     return queryExecutor;
   }
