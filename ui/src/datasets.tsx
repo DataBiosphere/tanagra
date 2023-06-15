@@ -1,12 +1,16 @@
 import AddIcon from "@mui/icons-material/Add";
 import InfoIcon from "@mui/icons-material/Info";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Link from "@mui/material/Link";
+import MenuItem from "@mui/material/MenuItem";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Step from "@mui/material/Step";
 import StepConnector from "@mui/material/StepConnector";
@@ -29,7 +33,7 @@ import Loading from "components/loading";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { findEntity } from "data/configuration";
 import { Filter, makeArrayFilter } from "data/filter";
-import { useSource } from "data/source";
+import { ExportModel, useSource } from "data/source";
 import { useStudyId, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -722,11 +726,6 @@ type PreviewTabData = {
   data: TreeGridData;
 };
 
-type ExportData = {
-  name: string;
-  url: string;
-};
-
 type ConceptSetParams = {
   id: string;
   name: string;
@@ -755,50 +754,113 @@ function ExportDialog(
   props: ExportDialogProps & { open: boolean; hide: () => void }
 ) {
   const source = useSource();
+  const underlay = useUnderlay();
   const studyId = useStudyId();
 
-  const exportState = useSWRImmutable<ExportData[]>(
+  const [selId, setSelId] = useState<string | undefined>(undefined);
+  const [exporting, setExporting] = useState(false);
+  const [instance, setInstance] = useState(0);
+  const [output, setOutput] = useState<ReactNode>(null);
+
+  const exportModelsState = useSWRImmutable<ExportModel[]>(
     {
-      type: "exportData",
-      cohorts: props.cohorts,
-      conceptSetParams: props.conceptSetParams,
-      open: props.open,
+      type: "exportModel",
+      underlayName: underlay.name,
     },
     async () => {
-      if (!props.open) {
-        return [];
-      }
-
-      const res = await Promise.all([
-        ...props.cohorts.map((cohort) =>
-          source.exportAnnotationValues(studyId, cohort.id)
-        ),
-        ...props.conceptSetParams.map((params) => {
-          if (!props.cohortsFilter) {
-            throw new Error("All selected cohorts are empty.");
-          }
-
-          return source.exportData(
-            params.attributes,
-            params.id,
-            props.cohortsFilter,
-            params.filter
-          );
-        }),
-      ]);
-
-      return res.map((url, i) => ({
-        name:
-          i < props.cohorts.length
-            ? `"${props.cohorts[i].name}" annotations`
-            : props.conceptSetParams[i - props.cohorts.length].name,
-        url,
-      }));
-    },
-    {
-      shouldRetryOnError: false,
+      return await source.listExportModels(underlay.name);
     }
   );
+
+  const onSelectModel = (event: SelectChangeEvent<string>) => {
+    const {
+      target: { value: sel },
+    } = event;
+    setSelId(sel);
+  };
+
+  const model =
+    exportModelsState.data?.find((m) => m.id === selId) ??
+    exportModelsState.data?.[0];
+
+  const onExport = async (startInstance: number) => {
+    if (!model) {
+      throw new Error("No export method selected.");
+    }
+
+    const cohortsFilter = props.cohortsFilter;
+    if (!cohortsFilter) {
+      throw new Error("All selected cohorts are empty.");
+    }
+
+    setExporting(true);
+    setOutput(null);
+
+    const result = await source.export(
+      underlay.name,
+      studyId,
+      model.id,
+      window.location.href,
+      props.cohorts.map((c) => c.id),
+      props.conceptSetParams.map((params) => ({
+        requestedAttributes: params.attributes,
+        occurrenceID: params.id,
+        cohort: cohortsFilter,
+        conceptSet: params.filter,
+      }))
+    );
+
+    if (instance === startInstance) {
+      if (result.redirectURL) {
+        setOutput(<CenteredContent progress text="Redirecting..." />);
+        setExporting(false);
+
+        window.location.href = result.redirectURL;
+      } else {
+        // TODO(tjennison): Use plugins to handle different types of output.
+        const annotations: { cohortId: string; url: string }[] = [];
+        const data: { occurrenceId: string; url: string }[] = [];
+
+        for (const key in result.outputs) {
+          const parts = key.split(":");
+          if (parts.length !== 2) {
+            throw new Error(`Invalid output key ${key}.`);
+          }
+
+          if (parts[0] === "cohort") {
+            annotations.push({ cohortId: parts[1], url: result.outputs[key] });
+          } else if (parts[0] === "entity") {
+            data.push({ occurrenceId: parts[1], url: result.outputs[key] });
+          } else {
+            throw new Error(`Unknown output type ${parts[0]}`);
+          }
+        }
+
+        setOutput(
+          <GridLayout rows spacing={1} height="auto">
+            <Typography variant="body1em">Data</Typography>
+            <GridLayout rows height="auto">
+              {data.map((d) => (
+                <Link href={d.url} variant="body1" key={d.occurrenceId}>
+                  {d.occurrenceId}
+                </Link>
+              ))}
+            </GridLayout>
+            <Typography variant="body1em">Annotations</Typography>
+            <GridLayout rows height="auto">
+              {annotations.map((a) => (
+                <Link href={a.url} variant="body1" key={a.cohortId}>
+                  {props.cohorts.find((c) => c.id === a.cohortId)?.name ??
+                    "Unknown"}
+                </Link>
+              ))}
+            </GridLayout>
+          </GridLayout>
+        );
+        setExporting(false);
+      }
+    }
+  };
 
   return (
     <Dialog
@@ -806,25 +868,84 @@ function ExportDialog(
       maxWidth="sm"
       aria-labelledby="export-dialog-title"
       open={props.open}
-      onClose={props.hide}
+      onClose={(event: object, reason: string) => {
+        if (reason !== "backdropClick") {
+          props.hide();
+        }
+      }}
     >
-      <DialogTitle id="export-dialog-title">Export</DialogTitle>
-      <DialogContent sx={{ minHeight: 400 }}>
-        <Loading status={exportState} showProgressOnMutate>
-          <Stack>
-            {exportState.data?.map((ed) => (
-              <Link href={ed.url} variant="body1" key={ed.name}>
-                {ed.name}
-              </Link>
-            ))}
-          </Stack>
+      <DialogTitle id="export-dialog-title">Export method</DialogTitle>
+      <DialogContent>
+        <Loading status={exportModelsState}>
+          <GridLayout rows spacing={2} height="auto" sx={{ pt: "2px" }}>
+            <Select
+              value={model?.id}
+              input={<OutlinedInput />}
+              disabled={exporting}
+              onChange={onSelectModel}
+            >
+              {exportModelsState.data?.map((m) => (
+                <MenuItem key={m.id} value={m.id}>
+                  {m.displayName}
+                </MenuItem>
+              ))}
+            </Select>
+            {model ? (
+              <GridLayout rows spacing={2}>
+                <Typography variant="body2em">Description</Typography>
+                <Typography variant="body2">{model.description}</Typography>
+                <GridLayout colAlign="right" height="auto">
+                  <Button
+                    variant="contained"
+                    disabled={exporting}
+                    onClick={() => {
+                      setInstance(instance + 1);
+                      onExport(instance);
+                    }}
+                  >
+                    Export
+                  </Button>
+                </GridLayout>
+                <GridBox sx={{ minHeight: 200 }}>
+                  {exporting ? (
+                    <CenteredContent progress text="Exporting..." />
+                  ) : (
+                    output ?? (
+                      <CenteredContent text="Choose an export method and click 'Export'" />
+                    )
+                  )}
+                </GridBox>
+              </GridLayout>
+            ) : null}
+          </GridLayout>
         </Loading>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={props.hide}>
-          Done
+        <Button
+          onClick={() => {
+            props.hide();
+            setExporting(false);
+          }}
+        >
+          Close
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+type CenteredContentProps = {
+  text: string;
+  progress?: boolean;
+};
+
+function CenteredContent(props: CenteredContentProps) {
+  return (
+    <GridLayout rowAlign="middle" colAlign="center" sx={{ minHeight: 200 }}>
+      <GridLayout rows spacing={2} colAlign="center" height="auto">
+        {props.progress ? <CircularProgress /> : null}
+        <Typography variant="body1">{props.text}</Typography>
+      </GridLayout>
+    </GridLayout>
   );
 }

@@ -22,8 +22,12 @@ describe("Basic tests", () => {
 
     cy.get("button:Contains(Export)").click();
 
-    cy.get(`a:Contains('"${cohort1}" annotations')`, { timeout: 20000 });
-    cy.get(`a:Contains('"${cohort2}" annotations')`);
+    cy.get(".MuiSelect-select:Contains(Import to VWB)").click();
+    cy.get("li:Contains(Download individual files)").click();
+    cy.get("button:Contains(Export)").last().click();
+
+    cy.get(`a:Contains(${cohort1})`, { timeout: 20000 });
+    cy.get(`a:Contains(${cohort2})`);
     cy.get("a:Contains(person)");
     cy.get("a:Contains(condition_occurrence)");
   });
