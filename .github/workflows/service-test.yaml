@@ -13,17 +13,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      mariadb:
-        image: mariadb:10.4
+      postgres:
+        image: postgres:13.1
         env:
-          MARIADB_ROOT_PASSWORD: dbpwd
+          POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd "mysqladmin ping"
+          --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 3306:3306
+          - 5432:5432
     steps:
       - uses: actions/checkout@v3
       - name: Set up AdoptOpenJDK 11
@@ -31,8 +31,10 @@ jobs:
         with:
           java-version: 11
           distribution: 'temurin'
-      - name: Initialize MariaDB
-        run: mysql -h 127.0.0.1 --user dbuser --password dbpwd mariadb < ./service/local-dev/local-mariadb-init.sql
+      - name: Initialize Postgres DB
+        env:
+          PGPASSWORD: postgres
+        run: psql -h 127.0.0.1 -U postgres -f ./service/local-dev/local-postgres-init.sql
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -58,8 +60,7 @@ jobs:
         # The check task includes the build, test and static analysis tasks.
         run: ./gradlew service:check --scan
         env:
-#          DBMS: mariadb
-          TANAGRA_DB_URL: jdbc:mariadb://127.0.0.1:3306/tanagra_db
+          DBMS: postgresql
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
       - name: Jib build
