@@ -3,8 +3,14 @@ name: Run UI Unit Tests
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
   pull_request:
     branches: ["**"]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
   workflow_dispatch:
 
 jobs:

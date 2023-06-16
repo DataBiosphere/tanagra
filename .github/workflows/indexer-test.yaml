@@ -6,8 +6,14 @@ name: Run Indexer Tests
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
   pull_request:
     branches: [ '**' ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
   workflow_dispatch:
 jobs:
   test:
