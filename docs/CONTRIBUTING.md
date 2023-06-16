@@ -4,6 +4,7 @@ The project is shared across the All Of Us and Terra partnerships.
 
 * [Development](#development)
   * [Broad Credentials](#broad-credentials)
+  * [GitHub Personal Access Token](#github-personal-access-token)
   * [Local Postgres](#local-postgres)
   * [Local MariaDB](#local-mariadb)
   * [Build And Run Tests](#build-and-run-tests)
@@ -36,6 +37,30 @@ If you have trouble logging into Vault, here are some troubleshooting links:
 Use the key file to set the `gcloud` application default credentials.
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/rendered/tanagra_sa.json
+```
+
+### GitHub Personal Access Token
+One of the dependencies for this project is pulled from GitHub Package Repository (GPR). Even though this particular 
+dependency is publicly available, [GPR requires](https://docs.github.com/en/packages/learn-github-packages/introduction-to-github-packages#authenticating-to-github-packages)
+a classic GitHub Personal Access Token (PAT) to pull it. This is GPR behavior, not specific to this repository. When
+[creating your classic PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic),
+you only need to give it `read:packages` scope.
+
+Then you can make the PAT available to your build via a Maven settings file: `$HOME/.m2/settings.xml`
+```
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <!-- Personal access token with `read:packages` scope -->
+      <password>YOUR_GITHUB_CLASSIC_PAT</password>
+    </server>
+  </servers>
+</settings>
 ```
 
 ### Local Postgres
@@ -76,8 +101,8 @@ To connect to the database directly:
 docker exec -it tanagra mysql -u dbuser -pdbpwd
 ```
 
-#### Build And Run Tests
-#### Mariadb: 
+### Build And Run Tests
+#### MariaDB/MySQL: 
  * Stop running postgres database, if present
    * `./service/local-dev/run_postgres.sh stop`
  * Set environmental variable `DBMS` to `mariadb` to update database connection strings for tests
@@ -108,7 +133,6 @@ docker exec -it tanagra mysql -u dbuser -pdbpwd
     * `./service/local-dev/run_postgres.sh stop`
 * Unset environmental variable `DBMS`
     * `unset DBMS`
-
 
 Before a PR can merge, it needs to pass the static analysis checks and tests. To run the checks and tests locally:
 ```
