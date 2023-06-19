@@ -93,19 +93,16 @@ public class VumcAdminAccessControl implements AccessControl {
       ResourceId parentResourceId,
       int offset,
       int limit) {
-    ResourceTypeList resourceTypeList = new ResourceTypeList();
     if (resourceType == ResourceType.UNDERLAY) {
       // For underlays, list authorized underlay ids.
-      resourceTypeList.add(org.vumc.vda.tanagra.admin.model.ResourceType.UNDERLAY);
-      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), resourceTypeList);
+      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.UNDERLAY);
       return ResourceIdCollection.forCollection(
           resourceList.stream()
               .map(resource -> ResourceId.forUnderlay(resource.getId()))
               .collect(Collectors.toList()));
     } else if (resourceType == ResourceType.STUDY) {
       // For studies, list authorized study ids.
-      resourceTypeList.add(org.vumc.vda.tanagra.admin.model.ResourceType.STUDY);
-      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), resourceTypeList);
+      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.STUDY);
       return ResourceIdCollection.forCollection(
           resourceList.stream()
               .map(resource -> ResourceId.forStudy(resource.getId()))
@@ -142,10 +139,10 @@ public class VumcAdminAccessControl implements AccessControl {
   }
 
   private ResourceList apiListAuthorizedResources(
-      String userEmail, ResourceTypeList resourceTypeList) {
+      String userEmail, org.vumc.vda.tanagra.admin.model.ResourceType resourceType) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      return authorizationApi.listAuthorizedResources(userEmail, resourceTypeList);
+      return authorizationApi.listAuthorizedResources(userEmail, resourceType);
     } catch (ApiException apiEx) {
       throw new SystemException(
           "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);
