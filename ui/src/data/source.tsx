@@ -73,6 +73,7 @@ export type IntegerHint = {
 export type EnumHintOption = {
   value: DataValue;
   name: string;
+  count: number;
 };
 
 export type HintData = {
@@ -1862,6 +1863,7 @@ function fromAPIDisplayHint(hint?: tanagra.DisplayHintV2): HintData {
         return {
           value,
           name: enumHintValue.enumVal.display ?? String(value),
+          count: enumHintValue.count ?? 0,
         };
       })
       ?.filter(isValid),
