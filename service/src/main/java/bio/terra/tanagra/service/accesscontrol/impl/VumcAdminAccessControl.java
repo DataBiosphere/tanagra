@@ -95,14 +95,18 @@ public class VumcAdminAccessControl implements AccessControl {
       int limit) {
     if (resourceType == ResourceType.UNDERLAY) {
       // For underlays, list authorized underlay ids.
-      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.UNDERLAY);
+      ResourceList resourceList =
+          apiListAuthorizedResources(
+              userId.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.UNDERLAY);
       return ResourceIdCollection.forCollection(
           resourceList.stream()
               .map(resource -> ResourceId.forUnderlay(resource.getId()))
               .collect(Collectors.toList()));
     } else if (resourceType == ResourceType.STUDY) {
       // For studies, list authorized study ids.
-      ResourceList resourceList = apiListAuthorizedResources(userId.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.STUDY);
+      ResourceList resourceList =
+          apiListAuthorizedResources(
+              userId.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.STUDY);
       return ResourceIdCollection.forCollection(
           resourceList.stream()
               .map(resource -> ResourceId.forStudy(resource.getId()))
