@@ -18,7 +18,6 @@ type FormData = {
   size: string;
 };
 
-// TODO(tjennison): Add validation.
 export function useNewReviewDialog(
   props: NewReviewDialogProps
 ): [JSX.Element, () => void] {

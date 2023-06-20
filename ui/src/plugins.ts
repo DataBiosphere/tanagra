@@ -13,4 +13,7 @@ import "storage/local";
 import "cohortReview/plugins/occurrenceTable";
 import "cohortReview/plugins/textSearch";
 
-// User plugins
+// Custom plugins
+import "plugins/vumc/biovu";
+
+// Deployment specific plugins
