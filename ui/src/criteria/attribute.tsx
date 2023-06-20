@@ -6,9 +6,10 @@ import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
 import { HintDataSelect } from "components/hintDataSelect";
 import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
+import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
 import { FilterType } from "data/filter";
-import { IntegerHint, useSource } from "data/source";
-import { DataValue } from "data/types";
+import { IntegerHint, Source, useSource } from "data/source";
+import { DataEntry, DataValue } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo } from "react";
@@ -33,12 +34,18 @@ interface Data {
   dataRanges: DataRange[];
 }
 
-@registerCriteriaPlugin("attribute", () => {
-  return {
-    selected: [],
-    dataRanges: [],
-  };
-})
+@registerCriteriaPlugin(
+  "attribute",
+  (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
+    return {
+      selected: dataEntry
+        ? [{ value: dataEntry.key, name: dataEntry.name }]
+        : [],
+      dataRanges: [],
+    };
+  },
+  search
+)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
@@ -286,5 +293,40 @@ function AttributeInline(props: AttributeInlineProps) {
         </Typography>
       )}
     </Loading>
+  );
+}
+
+async function search(
+  source: Source,
+  c: CriteriaConfig,
+  query: string
+): Promise<DataEntry[]> {
+  const config = c as Config;
+
+  const hintData = await source.getHintData("", config.attribute);
+  if (!hintData?.enumHintOptions) {
+    return [];
+  }
+
+  const re = new RegExp(query, "i");
+  const results: DataEntry[] = [];
+  hintData.enumHintOptions.forEach((hint) => {
+    const key = hint.value;
+    if (
+      (typeof key === "string" || typeof key === "number") &&
+      hint.name.search(re) >= 0
+    ) {
+      results.push({
+        key,
+        name: hint.name,
+        [ROLLUP_COUNT_ATTRIBUTE]: hint.count,
+      });
+    }
+  });
+
+  return results.sort(
+    (a, b) =>
+      (b[ROLLUP_COUNT_ATTRIBUTE] as number) -
+      (a[ROLLUP_COUNT_ATTRIBUTE] as number)
   );
 }
