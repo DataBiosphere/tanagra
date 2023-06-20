@@ -1,3 +1,4 @@
+import { formatNumber, parseNumber } from "@brightspace-ui/intl/lib/number.js";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -17,6 +18,8 @@ type FormData = {
   name: string;
   size: string;
 };
+
+const MAX = 10000;
 
 export function useNewReviewDialog(
   props: NewReviewDialogProps
@@ -48,13 +51,13 @@ export function useNewReviewDialog(
           if (!size) {
             ret.size = "Size may not be empty.";
           } else {
-            const s = parseInt(size, 10);
+            const s = Math.floor(parseNumber(size));
             if (Number.isNaN(s)) {
               ret.size = "Size must be a number.";
             } else if (s <= 0) {
-              ret.size = "Size may not be negative";
-            } else if (s > 10000) {
-              ret.size = "Size may not be greater than 10000.";
+              ret.size = "Size must be greater than 0.";
+            } else if (s > MAX) {
+              ret.size = `Size may not be greater than ${formatNumber(MAX)}.`;
             }
           }
 
@@ -64,7 +67,7 @@ export function useNewReviewDialog(
         }}
         onSubmit={({ name, size }: FormData) => {
           setOpen(false);
-          props.onCreate(name, parseInt(size, 10));
+          props.onCreate(name, Math.floor(parseNumber(size)));
         }}
         render={({ handleSubmit, invalid }) => (
           <form noValidate onSubmit={handleSubmit}>
@@ -83,7 +86,7 @@ export function useNewReviewDialog(
                   <TextField
                     fullWidth
                     name="size"
-                    label="Participant Count (max 10,000)"
+                    label={`Participant Count (max ${formatNumber(MAX)})`}
                     autoComplete="off"
                   />
                 </GridBox>
