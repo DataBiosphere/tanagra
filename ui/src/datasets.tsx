@@ -819,44 +819,58 @@ function ExportDialog(
 
         window.location.href = result.redirectURL;
       } else {
-        // TODO(tjennison): Use plugins to handle different types of output.
-        const annotations: { cohortId: string; url: string }[] = [];
-        const data: { occurrenceId: string; url: string }[] = [];
+        const artifactLists: {
+          section: string;
+          name: string;
+          url: string;
+        }[][] = [];
 
         for (const key in result.outputs) {
           const parts = key.split(":");
-          if (parts.length !== 2) {
+          if (parts.length > 2) {
             throw new Error(`Invalid output key ${key}.`);
           }
 
-          if (parts[0] === "cohort") {
-            annotations.push({ cohortId: parts[1], url: result.outputs[key] });
-          } else if (parts[0] === "entity") {
-            data.push({ occurrenceId: parts[1], url: result.outputs[key] });
+          const artifact = {
+            section: parts.length > 1 ? parts[0] : "",
+            name: parts.length > 1 ? parts[1] : parts[0],
+            url: result.outputs[key],
+          };
+          const list = artifactLists.find(
+            (list) => list[0].section === artifact.section
+          );
+          if (list) {
+            list.push(artifact);
           } else {
-            throw new Error(`Unknown output type ${parts[0]}`);
+            artifactLists.push([artifact]);
           }
         }
 
+        artifactLists.sort((a, b) => a[0].section.localeCompare(b[0].section));
+
+        // TODO(tjennison): Remove fallback for looking up cohort ids once the
+        // backend plugin returns them.
         setOutput(
           <GridLayout rows spacing={1} height="auto">
-            <Typography variant="body1em">Data</Typography>
-            <GridLayout rows height="auto">
-              {data.map((d) => (
-                <Link href={d.url} variant="body1" key={d.occurrenceId}>
-                  {d.occurrenceId}
-                </Link>
-              ))}
-            </GridLayout>
-            <Typography variant="body1em">Annotations</Typography>
-            <GridLayout rows height="auto">
-              {annotations.map((a) => (
-                <Link href={a.url} variant="body1" key={a.cohortId}>
-                  {props.cohorts.find((c) => c.id === a.cohortId)?.name ??
-                    "Unknown"}
-                </Link>
-              ))}
-            </GridLayout>
+            {artifactLists.map((list) => (
+              <GridLayout key={list[0].section} rows spacing={1} height="auto">
+                {list[0].section ? (
+                  <Typography variant="body1em">{list[0].section}</Typography>
+                ) : null}
+                <GridLayout rows height="auto">
+                  {list.map((artifact) => (
+                    <Link
+                      href={artifact.url}
+                      variant="body1"
+                      key={artifact.name}
+                    >
+                      {props.cohorts.find((c) => c.id === artifact.name)
+                        ?.name ?? artifact.name}
+                    </Link>
+                  ))}
+                </GridLayout>
+              </GridLayout>
+            ))}
           </GridLayout>
         );
         setExporting(false);
