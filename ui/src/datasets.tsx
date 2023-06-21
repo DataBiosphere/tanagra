@@ -665,9 +665,11 @@ function Preview(props: PreviewProps) {
               </ToggleButtonGroup>
             </Stack>
             {queriesMode ? (
-              <Typography sx={{ fontFamily: "monospace" }}>
-                {tabDataState.data?.[tab]?.sql}
-              </Typography>
+              <GridBox sx={{ overflowY: "auto" }}>
+                <Typography sx={{ whiteSpace: "pre", fontFamily: "monospace" }}>
+                  {tabDataState.data?.[tab]?.sql}
+                </Typography>
+              </GridBox>
             ) : tabDataState.data?.[tab]?.data ? (
               <div
                 style={{
