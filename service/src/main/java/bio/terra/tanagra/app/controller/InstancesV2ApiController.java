@@ -10,9 +10,6 @@ import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.export.DataExport;
-import bio.terra.tanagra.service.export.ExportRequest;
-import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
@@ -37,20 +34,17 @@ public class InstancesV2ApiController implements InstancesV2Api {
   private final QuerysService querysService;
   private final FromApiConversionService fromApiConversionService;
   private final AccessControlService accessControlService;
-  private final DataExportService dataExportService;
 
   @Autowired
   public InstancesV2ApiController(
       UnderlaysService underlaysService,
       QuerysService querysService,
       FromApiConversionService fromApiConversionService,
-      AccessControlService accessControlService,
-      DataExportService dataExportService) {
+      AccessControlService accessControlService) {
     this.underlaysService = underlaysService;
     this.querysService = querysService;
     this.fromApiConversionService = fromApiConversionService;
     this.accessControlService = accessControlService;
-    this.dataExportService = dataExportService;
   }
 
   @Override
@@ -201,48 +195,5 @@ public class InstancesV2ApiController implements InstancesV2Api {
                     .map(ToApiConversionUtils::toApiObject)
                     .collect(Collectors.toList()))
             .sql(entityCountResult.getSql()));
-  }
-
-  @Override
-  public ResponseEntity<ApiExportFile> exportInstances(
-      String underlayName, String entityName, ApiQueryV2 body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        QUERY_INSTANCES,
-        UNDERLAY,
-        ResourceId.forUnderlay(underlayName));
-
-    Entity entity = underlaysService.getEntity(underlayName, entityName);
-    List<Attribute> selectAttributes =
-        fromApiConversionService.selectAttributesFromRequest(body, entity);
-    List<HierarchyField> selectHierarchyFields =
-        fromApiConversionService.selectHierarchyFieldsFromRequest(body, entity);
-    List<RelationshipField> selectRelationshipFields =
-        fromApiConversionService.selectRelationshipFieldsFromRequest(body, entity, underlayName);
-    List<EntityQueryOrderBy> entityOrderBys =
-        fromApiConversionService.entityOrderBysFromRequest(body, entity, underlayName);
-    EntityFilter entityFilter = null;
-    if (body.getFilter() != null) {
-      entityFilter = fromApiConversionService.fromApiObject(body.getFilter(), entity, underlayName);
-    }
-
-    ExportResult exportResult =
-        dataExportService.run(
-            ExportRequest.builder()
-                .model(DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.name())
-                .includeAnnotations(false),
-            List.of(
-                new EntityQueryRequest.Builder()
-                    .entity(entity)
-                    .mappingType(Underlay.MappingType.INDEX)
-                    .selectAttributes(selectAttributes)
-                    .selectHierarchyFields(selectHierarchyFields)
-                    .selectRelationshipFields(selectRelationshipFields)
-                    .filter(entityFilter)
-                    .orderBys(entityOrderBys)
-                    .limit(body.getLimit())
-                    .build()));
-    String gcsSignedUrl = exportResult.getOutputs().get("entity:" + entityName);
-    return ResponseEntity.ok(new ApiExportFile().gcsSignedUrl(gcsSignedUrl));
   }
 }
