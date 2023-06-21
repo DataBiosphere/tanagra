@@ -27,6 +27,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
+import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,7 +74,7 @@ public class HintsV2ApiController implements HintsV2Api {
               });
       // Currently, these display hints are stored in the underlay config files, so no SQL query is
       // necessary to look them up.
-      return ResponseEntity.ok(toApiObject(entity, displayHints, null));
+      return ResponseEntity.ok(toApiObject(entity, displayHints, ""));
     } else {
       // Return display hints for entity instances that are related to an instance of another entity
       // (e.g. numeric range for measurement_occurrence.value_numeric, computed across
@@ -97,7 +98,7 @@ public class HintsV2ApiController implements HintsV2Api {
   private ApiDisplayHintListV2 toApiObject(
       Entity entity, Map<String, DisplayHint> displayHints, String sql) {
     return new ApiDisplayHintListV2()
-        .sql(sql)
+        .sql(SqlFormatter.format(sql))
         .displayHints(
             displayHints.entrySet().stream()
                 .map(

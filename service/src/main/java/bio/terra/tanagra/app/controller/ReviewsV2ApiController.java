@@ -27,6 +27,7 @@ import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -166,7 +167,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
                 reviewQueryResult.getReviewInstances().stream()
                     .map(reviewInstance -> toApiObject(reviewInstance))
                     .collect(Collectors.toList()))
-            .sql(reviewQueryResult.getSql())
+            .sql(SqlFormatter.format(reviewQueryResult.getSql()))
             .pageMarker(
                 reviewQueryResult.getPageMarker() == null
                     ? null
@@ -183,7 +184,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         ResourceId.forReview(studyId, cohortId, reviewId));
     EntityCountResult countResult =
         reviewService.countReviewInstances(studyId, cohortId, reviewId, body.getAttributes());
-    ApiInstanceCountListV2 apiCounts = new ApiInstanceCountListV2().sql(countResult.getSql());
+    ApiInstanceCountListV2 apiCounts =
+        new ApiInstanceCountListV2().sql(SqlFormatter.format(countResult.getSql()));
     countResult.getEntityCounts().stream()
         .forEach(count -> apiCounts.addInstanceCountsItem(ToApiConversionUtils.toApiObject(count)));
     return ResponseEntity.ok(apiCounts);
