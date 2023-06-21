@@ -46,6 +46,10 @@ public class AnnotationService {
     featureConfiguration.artifactStorageEnabledCheck();
     if (authorizedAnnotationKeyIds.isAllResourceIds()) {
       return annotationDao.getAllAnnotationKeys(cohortId, offset, limit);
+    } else if (authorizedAnnotationKeyIds.isEmpty()) {
+      // If the incoming list is empty, the caller does not have permission to see any
+      // annotation keys, so we return an empty list.
+      return Collections.emptyList();
     } else {
       return annotationDao.getAnnotationKeysMatchingList(
           cohortId,

@@ -77,6 +77,10 @@ public class CohortService {
     featureConfiguration.artifactStorageEnabledCheck();
     if (authorizedCohortIds.isAllResourceIds()) {
       return cohortDao.getAllCohorts(studyId, offset, limit);
+    } else if (authorizedCohortIds.isEmpty()) {
+      // If the incoming list is empty, the caller does not have permission to see any
+      // cohorts, so we return an empty list.
+      return Collections.emptyList();
     } else {
       return cohortDao.getCohortsMatchingList(
           authorizedCohortIds.getResourceIds().stream()
