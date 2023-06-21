@@ -22,6 +22,7 @@ import bio.terra.tanagra.underlay.HierarchyField;
 import bio.terra.tanagra.underlay.RelationshipField;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 entityQueryResult.getEntityInstances().stream()
                     .map(entityInstance -> toApiObject(entityInstance))
                     .collect(Collectors.toList()))
-            .sql(entityQueryResult.getSql())
+            .sql(SqlFormatter.format(entityQueryResult.getSql()))
             .pageMarker(
                 entityQueryResult.getPageMarker() == null
                     ? null
@@ -200,7 +201,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 entityCountResult.getEntityCounts().stream()
                     .map(ToApiConversionUtils::toApiObject)
                     .collect(Collectors.toList()))
-            .sql(entityCountResult.getSql()));
+            .sql(SqlFormatter.format(entityCountResult.getSql())));
   }
 
   @Override

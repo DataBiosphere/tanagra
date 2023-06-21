@@ -27,6 +27,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
+import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -97,7 +98,7 @@ public class HintsV2ApiController implements HintsV2Api {
   private ApiDisplayHintListV2 toApiObject(
       Entity entity, Map<String, DisplayHint> displayHints, String sql) {
     return new ApiDisplayHintListV2()
-        .sql(sql)
+        .sql(SqlFormatter.format(sql))
         .displayHints(
             displayHints.entrySet().stream()
                 .map(
