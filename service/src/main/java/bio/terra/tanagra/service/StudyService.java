@@ -50,12 +50,11 @@ public class StudyService {
     featureConfiguration.artifactStorageEnabledCheck();
     if (authorizedIds.isAllResourceIds()) {
       return studyDao.getAllStudies(offset, limit, studyFilter);
-    } else {
+    } else if (authorizedIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
       // studies, so we return an empty list.
-      if (authorizedIds.isEmpty()) {
-        return Collections.emptyList();
-      }
+      return Collections.emptyList();
+    } else {
       return studyDao.getStudiesMatchingList(
           authorizedIds.getResourceIds().stream()
               .map(ResourceId::getStudy)

@@ -135,6 +135,10 @@ public class ReviewService {
     featureConfiguration.artifactStorageEnabledCheck();
     if (authorizedReviewIds.isAllResourceIds()) {
       return reviewDao.getAllReviews(cohortId, offset, limit);
+    } else if (authorizedReviewIds.isEmpty()) {
+      // If the incoming list is empty, the caller does not have permission to see any
+      // reviews, so we return an empty list.
+      return Collections.emptyList();
     } else {
       return reviewDao.getReviewsMatchingList(
           authorizedReviewIds.getResourceIds().stream()
