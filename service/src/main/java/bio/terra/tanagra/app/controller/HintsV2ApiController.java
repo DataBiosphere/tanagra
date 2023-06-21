@@ -74,7 +74,7 @@ public class HintsV2ApiController implements HintsV2Api {
               });
       // Currently, these display hints are stored in the underlay config files, so no SQL query is
       // necessary to look them up.
-      return ResponseEntity.ok(toApiObject(entity, displayHints, null));
+      return ResponseEntity.ok(toApiObject(entity, displayHints, ""));
     } else {
       // Return display hints for entity instances that are related to an instance of another entity
       // (e.g. numeric range for measurement_occurrence.value_numeric, computed across
