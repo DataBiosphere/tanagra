@@ -190,10 +190,6 @@ function ParticipantsGroupSection(props: {
     };
 
     const filter = generateCohortFilter(cohortForFilter);
-    if (!filter) {
-      return 0;
-    }
-
     return (await source.filterCount(filter))[0].count;
   }, [cohort.underlayName, props.sectionIndex, props.groupSection]);
 
@@ -375,10 +371,6 @@ function ParticipantsGroup(props: {
     };
 
     const filter = generateCohortFilter(cohortForFilter);
-    if (!filter) {
-      return 0;
-    }
-
     return (await source.filterCount(filter))[0].count;
   }, [cohort.underlayName, props.group]);
 

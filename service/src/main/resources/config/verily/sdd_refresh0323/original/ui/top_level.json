@@ -337,6 +337,12 @@
       "columns": [{ "key": "name", "width": "100%", "title": "SNP variant" }],
       "occurrence": "",
       "classification": "snp"
+    },
+    {
+      "type": "biovu",
+      "id": "biovu",
+      "title": "BioVU Samples",
+      "category": "BioVU"
     }
   ],
   "modifierConfigs": [
