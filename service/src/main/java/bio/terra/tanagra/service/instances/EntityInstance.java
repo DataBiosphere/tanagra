@@ -54,7 +54,7 @@ public final class EntityInstance {
                         .getMapping(Underlay.MappingType.INDEX)
                         .getDisplayMappingAlias())
                 .getString()
-                .orElse("");
+                .orElse(null); // Preserve NULL display values.
         attributeValues.put(selectedAttribute, new ValueDisplay(valueOpt.get(), display));
       } else {
         throw new SystemException("Unknown attribute type: " + selectedAttribute.getType());
