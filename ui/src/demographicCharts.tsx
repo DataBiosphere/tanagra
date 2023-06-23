@@ -67,7 +67,7 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
   return (
     <>
       <Typography variant="body1">{chart.title}</Typography>
-      <ResponsiveContainer width="100%" height={30 + barData.length * 30}>
+      <ResponsiveContainer width="100%" height={40 + barData.length * 30}>
         <BarChart data={barData} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
