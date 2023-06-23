@@ -1,4 +1,3 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TreeGridColumn } from "components/treegrid";
 import { Configuration } from "data/configuration";
 import { Filter } from "data/filter";
@@ -93,19 +92,3 @@ export interface CriteriaConfig {
   // Plugin specific config.
   plugin: unknown;
 }
-
-const initialState: Underlay[] = [];
-
-const underlaysSlice = createSlice({
-  name: "underlays",
-  initialState,
-  reducers: {
-    setUnderlays: (state, action: PayloadAction<Underlay[]>) => {
-      return action.payload;
-    },
-  },
-});
-
-export const { setUnderlays } = underlaysSlice.actions;
-
-export default underlaysSlice.reducer;

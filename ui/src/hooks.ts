@@ -9,29 +9,16 @@ import {
   createConceptSet,
   updateConceptSet,
 } from "conceptSetContext";
-import { useSource } from "data/source";
+import { useSource } from "data/sourceContext";
 import { useContext, useMemo } from "react";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { RootState } from "rootReducer";
 import { absoluteCohortURL, useBaseParams } from "router";
-import { AppDispatch } from "store";
 import * as tanagra from "tanagra-api";
-
-export const useAppDispatch = () => useDispatch<AppDispatch>();
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export class PathError extends Error {}
 
 export function useUnderlay() {
-  const { underlayName } = useParams<{ underlayName: string }>();
-  const underlay = useAppSelector((state) =>
-    state.present.underlays.find((underlay) => underlay.name === underlayName)
-  );
-  if (!underlay) {
-    throw new PathError(`Unknown underlay "${underlayName}".`);
-  }
-  return underlay;
+  return useSource().underlay;
 }
 
 export function useStudyId() {

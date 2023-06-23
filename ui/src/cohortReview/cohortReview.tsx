@@ -30,12 +30,8 @@ import {
 } from "cohortReview/reviewHooks";
 import Loading from "components/loading";
 import { FilterType } from "data/filter";
-import {
-  Annotation,
-  AnnotationType,
-  ReviewInstance,
-  useSource,
-} from "data/source";
+import { Annotation, AnnotationType, ReviewInstance } from "data/source";
+import { useSource } from "data/sourceContext";
 import { DataEntry, DataValue } from "data/types";
 import { useUnderlay } from "hooks";
 import produce from "immer";

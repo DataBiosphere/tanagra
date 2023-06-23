@@ -10,7 +10,7 @@ import {
 import { HintDataSelect, Selection } from "components/hintDataSelect";
 import { Search } from "components/search";
 import { SortDirection, SortOrder } from "data/configuration";
-import { useSource } from "data/source";
+import { useSource } from "data/sourceContext";
 import { DataValue } from "data/types";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";

@@ -16,7 +16,8 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { createConceptSet, useConceptSetContext } from "conceptSetContext";
-import { MergedDataEntry, useSource } from "data/source";
+import { MergedDataEntry } from "data/source";
+import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
 import { useCohortAndGroupSection, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";

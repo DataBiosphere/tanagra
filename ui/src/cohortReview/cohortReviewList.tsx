@@ -16,7 +16,7 @@ import Empty from "components/empty";
 import LoadingOverlay from "components/loadingOverlay";
 import SelectablePaper from "components/selectablePaper";
 import { useTextInputDialog } from "components/textInputDialog";
-import { useSource } from "data/source";
+import { useSource } from "data/sourceContext";
 import { CohortReview } from "data/types";
 import { DemographicCharts } from "demographicCharts";
 import produce from "immer";
