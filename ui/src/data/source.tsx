@@ -1,21 +1,9 @@
 import {
-  AnnotationsApiContext,
-  CohortsApiContext,
-  ConceptSetsApiContext,
-  EntityInstancesApiContext,
-  ExportApiContext,
-  HintsApiContext,
-  ReviewsApiContext,
-  StudiesApiContext,
-} from "apiContext";
-import {
   defaultSection,
   generateCohortFilter,
   getCriteriaPlugin,
 } from "cohort";
-import { useUnderlay } from "hooks";
 import { getReasonPhrase } from "http-status-codes";
-import { useContext, useMemo } from "react";
 import * as tanagra from "tanagra-api";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
@@ -152,6 +140,7 @@ export type ExportResult = {
 
 export interface Source {
   config: Configuration;
+  underlay: Underlay;
 
   lookupOccurrence(occurrenceID: string): Occurrence;
   lookupClassification(
@@ -319,42 +308,6 @@ export interface Source {
   ): Promise<ExportResult>;
 }
 
-// TODO(tjennison): Create the source once and put it into the context instead
-// of recreating it. Move "fake" logic into a separate source instead of APIs.
-export function useSource(): Source {
-  const underlay = useUnderlay();
-  const instancesApi = useContext(
-    EntityInstancesApiContext
-  ) as tanagra.InstancesV2Api;
-  const hintsApi = useContext(HintsApiContext) as tanagra.HintsV2Api;
-  const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesV2Api;
-  const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsV2Api;
-  const conceptSetsApi = useContext(
-    ConceptSetsApiContext
-  ) as tanagra.ConceptSetsV2Api;
-  const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsV2Api;
-  const annotationsApi = useContext(
-    AnnotationsApiContext
-  ) as tanagra.AnnotationsV2Api;
-  const exportApi = useContext(ExportApiContext) as tanagra.ExportApi;
-  return useMemo(
-    () =>
-      new BackendSource(
-        instancesApi,
-        hintsApi,
-        studiesApi,
-        cohortsApi,
-        conceptSetsApi,
-        reviewsApi,
-        annotationsApi,
-        exportApi,
-        underlay,
-        underlay.uiConfiguration.dataConfig
-      ),
-    [underlay]
-  );
-}
-
 export class BackendSource implements Source {
   constructor(
     private instancesApi: tanagra.InstancesV2Api,
@@ -365,7 +318,7 @@ export class BackendSource implements Source {
     private reviewsApi: tanagra.ReviewsV2Api,
     private annotationsApi: tanagra.AnnotationsV2Api,
     private exportApi: tanagra.ExportApi,
-    private underlay: Underlay,
+    public underlay: Underlay,
     public config: Configuration
   ) {}
 

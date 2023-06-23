@@ -28,7 +28,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
-import { useSource } from "data/source";
+import { useSource } from "data/sourceContext";
 import { DemographicCharts } from "demographicCharts";
 import { useCohort, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";

@@ -5,6 +5,7 @@ import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
 import ConceptSetEdit from "conceptSetEdit";
 import ConceptSetRoot from "conceptSetRoot";
+import { SourceContextRoot } from "data/sourceContext";
 import Edit from "edit";
 import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
@@ -13,7 +14,6 @@ import {
   createHashRouter,
   generatePath,
   isRouteErrorResponse,
-  Outlet,
   useNavigate,
   useParams,
   useRouteError,
@@ -28,7 +28,7 @@ export function createAppRouter() {
   return createHashRouter([
     {
       path: prefix,
-      element: <Outlet />,
+      element: <SourceContextRoot />,
       children: [
         {
           element: <CohortRoot />,
@@ -131,12 +131,17 @@ function additionalRoutes() {
           element: <UnderlaySelect />,
         },
         {
-          path: "underlays/:underlayName",
-          element: <StudiesList />,
-        },
-        {
-          path: "underlays/:underlayName/studies/:studyId",
-          element: <Datasets />,
+          element: <SourceContextRoot />,
+          children: [
+            {
+              path: "underlays/:underlayName",
+              element: <StudiesList />,
+            },
+            {
+              path: "underlays/:underlayName/studies/:studyId",
+              element: <Datasets />,
+            },
+          ],
         },
       ],
     },

@@ -24,8 +24,8 @@ import {
   ClassificationNode,
   SearchClassificationResult,
   Source,
-  useSource,
 } from "data/source";
+import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey, DataValue } from "data/types";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";

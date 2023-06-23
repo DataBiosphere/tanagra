@@ -1,6 +1,6 @@
 import Typography from "@mui/material/Typography";
 import Loading from "components/loading";
-import { useSource } from "data/source";
+import { useSource } from "data/sourceContext";
 import { useStudyId } from "hooks";
 import useSWR from "swr";
 
