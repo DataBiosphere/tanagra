@@ -1,7 +1,7 @@
 import { defaultGroup, defaultSection } from "cohort";
 import { useSource } from "data/sourceContext";
 import produce from "immer";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import * as tanagra from "tanagra-api";
@@ -56,17 +56,25 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
     cohortId,
   };
   const status = useSWR(key, async () => {
-    const cohort = await source.getCohort(studyId, cohortId);
-    setState((state) => ({
-      past: state?.past ?? [],
-      present: cohort,
-      future: state?.future ?? [],
-
-      saving: false,
-      showSnackbar,
-    }));
-    return cohort;
+    return await source.getCohort(studyId, cohortId);
   });
+
+  useEffect(
+    () =>
+      setState(
+        status.data
+          ? {
+              past: state?.past ?? [],
+              present: status.data,
+              future: state?.future ?? [],
+
+              saving: false,
+              showSnackbar,
+            }
+          : null
+      ),
+    [status.data]
+  );
 
   const updateCohort = async (newState: CohortState | null) => {
     if (!newState) {

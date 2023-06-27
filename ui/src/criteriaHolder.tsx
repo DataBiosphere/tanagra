@@ -1,5 +1,6 @@
 import ActionBar from "actionBar";
 import { CriteriaPlugin } from "cohort";
+import Empty from "components/empty";
 import GridLayout from "layout/gridLayout";
 import { useState } from "react";
 
@@ -20,7 +21,16 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
         title={props.title}
         backURL={backURL ?? props.defaultBackURL}
       />
-      {props.plugin.renderEdit?.(props.doneURL ?? "..", setBackURL)}
+      {props.plugin.renderEdit ? (
+        props.plugin.renderEdit(props.doneURL ?? "..", setBackURL)
+      ) : (
+        <Empty
+          maxWidth="60%"
+          minHeight="400px"
+          image="/empty.svg"
+          subtitle="There are no editable properties for this criteria."
+        />
+      )}
     </GridLayout>
   );
 }
