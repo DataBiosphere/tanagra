@@ -1,7 +1,7 @@
 import { useSource } from "data/sourceContext";
 import { useUnderlay } from "hooks";
 import produce from "immer";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import * as tanagra from "tanagra-api";
@@ -28,6 +28,10 @@ export function useConceptSetContext() {
   return context;
 }
 
+const defaultState = {
+  conceptSet: null,
+};
+
 export function useNewConceptSetContext() {
   const underlay = useUnderlay();
   const source = useSource();
@@ -38,9 +42,7 @@ export function useNewConceptSetContext() {
     throw new Error("Cannot create concept set context without a study ID.");
   }
 
-  const [state, setState] = useState<ConceptSetContextState>({
-    conceptSet: null,
-  });
+  const [state, setState] = useState<ConceptSetContextState | null>(null);
 
   const key = {
     type: "conceptSet",
@@ -48,14 +50,14 @@ export function useNewConceptSetContext() {
     conceptSetId,
   };
   const status = useSWR(key, async () => {
-    const newState: ConceptSetContextState = { conceptSet: null };
+    const newState: ConceptSetContextState = { ...defaultState };
     if (conceptSetId) {
       newState.conceptSet = await source.getConceptSet(studyId, conceptSetId);
     }
-
-    setState(newState);
     return newState;
   });
+
+  useEffect(() => setState(status.data ? status.data : null), [status.data]);
 
   const { mutate } = useSWRConfig();
 
@@ -63,7 +65,7 @@ export function useNewConceptSetContext() {
     ...status,
     isLoading: status.isLoading || !state,
     context: {
-      state: state,
+      state: state ?? defaultState,
       updateState: async (update: (state: ConceptSetContextState) => void) => {
         const newState = produce(state, update);
         if (!newState?.conceptSet) {
