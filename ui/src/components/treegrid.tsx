@@ -291,7 +291,7 @@ function renderChildren(
       <tr
         key={childKey}
         style={{
-          ...(collapse ? { visibility: "collapse" } : undefined),
+          ...(collapse ? { display: "none" } : undefined),
           height: spacing(theme, props.rowHeight ?? 6),
         }}
       >

@@ -215,8 +215,8 @@ exports[`Table renders correctly 1`] = `
       <tr
         style={
           Object {
+            "display": "none",
             "height": "48px",
-            "visibility": "collapse",
           }
         }
       >
