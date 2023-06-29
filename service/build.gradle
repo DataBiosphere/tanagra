@@ -113,6 +113,9 @@ dependencies {
 
     // [Access control]: VerilyGroups
     implementation group: "org.json", name: "json", version: "20230227"
+
+    // CLoudsql connector
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.13'
 }
 
 test {

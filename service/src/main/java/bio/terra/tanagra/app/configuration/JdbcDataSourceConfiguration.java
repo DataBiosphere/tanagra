@@ -70,8 +70,10 @@ public class JdbcDataSourceConfiguration {
     Properties props = new Properties();
     props.setProperty("user", getUsername());
     props.setProperty("password", getPassword());
+    props.setProperty("socketFactory", "com.google.cloud.sql.mysql.SocketFactory");
+    props.setProperty("cloudSqlInstance", "all-of-us-workbench-test:us-central1:workbenchmaindb");
 
-    ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(getUrl(), props);
+    ConnectionFactory connectionFactory = new DriverManagerConnectionFactory("jdbc:mysql:///tanagra_db", props);
 
     PoolableConnectionFactory poolableConnectionFactory =
         new PoolableConnectionFactory(connectionFactory, null);
