@@ -45,7 +45,7 @@ public class AccessControlService {
   public boolean isAuthorized(UserId user, Permissions permissions, ResourceId resource) {
     if (user == null) {
       throw new BadRequestException("Invalid user");
-    } else if (!permissions.getType().equals(resource.getType())) {
+    } else if (resource != null && !permissions.getType().equals(resource.getType())) {
       throw new BadRequestException(
           "Permissions and resource types do not match: "
               + permissions.getType()
