@@ -9,11 +9,14 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.*;
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -228,7 +231,11 @@ public class AnnotationServiceTest {
     // List all annotation keys for cohort2.
     List<AnnotationKey> allAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceIdCollection.allResourceIds(), study1.getId(), cohort2.getId(), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.ANNOTATION_KEY),
+            study1.getId(),
+            cohort2.getId(),
+            0,
+            10);
     assertEquals(2, allAnnotationKeys.size());
     LOGGER.info(
         "Annotation keys found: {}, {}",
@@ -238,8 +245,9 @@ public class AnnotationServiceTest {
     // List selected annotation key for cohort2.
     List<AnnotationKey> selectedAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceIdCollection.forCollection(
-                List.of(
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.ANNOTATION_KEY),
+                Set.of(
                     ResourceId.forAnnotationKey(
                         study1.getId(), cohort2.getId(), annotationKey3.getId()))),
             study1.getId(),
@@ -254,14 +262,19 @@ public class AnnotationServiceTest {
     // List all.
     List<AnnotationKey> allAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceIdCollection.allResourceIds(), study1.getId(), cohort1.getId(), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.ANNOTATION_KEY),
+            study1.getId(),
+            cohort1.getId(),
+            0,
+            10);
     assertTrue(allAnnotationKeys.isEmpty());
 
     // List selected.
     List<AnnotationKey> selectedAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceIdCollection.forCollection(
-                List.of(ResourceId.forAnnotationKey(study1.getId(), cohort1.getId(), "123"))),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.ANNOTATION_KEY),
+                Set.of(ResourceId.forAnnotationKey(study1.getId(), cohort1.getId(), "123"))),
             study1.getId(),
             cohort1.getId(),
             0,

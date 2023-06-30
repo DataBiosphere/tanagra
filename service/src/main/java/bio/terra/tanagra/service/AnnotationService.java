@@ -3,8 +3,8 @@ package bio.terra.tanagra.service;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.AnnotationDao;
 import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationKey;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import java.util.*;
@@ -38,13 +38,13 @@ public class AnnotationService {
   }
 
   public List<AnnotationKey> listAnnotationKeys(
-      ResourceIdCollection authorizedAnnotationKeyIds,
+      ResourceCollection authorizedAnnotationKeyIds,
       String studyId,
       String cohortId,
       int offset,
       int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (authorizedAnnotationKeyIds.isAllResourceIds()) {
+    if (authorizedAnnotationKeyIds.isAllResources()) {
       return annotationDao.getAllAnnotationKeys(cohortId, offset, limit);
     } else if (authorizedAnnotationKeyIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
@@ -53,7 +53,7 @@ public class AnnotationService {
     } else {
       return annotationDao.getAnnotationKeysMatchingList(
           cohortId,
-          authorizedAnnotationKeyIds.getResourceIds().stream()
+          authorizedAnnotationKeyIds.getResources().stream()
               .map(ResourceId::getAnnotationKey)
               .collect(Collectors.toSet()),
           offset,

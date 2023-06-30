@@ -6,6 +6,7 @@ import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.auth.UserId;
 import java.util.List;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 /** Interface that all access control models must implement. */
 public interface AccessControl {
@@ -31,14 +32,28 @@ public interface AccessControl {
 
   String getDescription();
 
-  boolean isAuthorized(
-      UserId userId, Action action, ResourceType resourceType, ResourceId resourceId);
+  boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource);
 
-  default ResourceIdCollection listResourceIds(
-      UserId userId, ResourceType type, int offset, int limit) {
-    return listResourceIds(userId, type, null, offset, limit);
+  default ResourceCollection listAuthorizedResources(
+      UserId user, Permissions permissions, int offset, int limit) {
+    return listAllPermissions(user, permissions.getType(), null, offset, limit).filter(permissions);
   }
 
-  ResourceIdCollection listResourceIds(
-      UserId userId, ResourceType type, ResourceId parentResourceId, int offset, int limit);
+  default ResourceCollection listAuthorizedResources(
+      UserId user,
+      Permissions permissions,
+      @Nullable ResourceId parentResource,
+      int offset,
+      int limit) {
+    return listAllPermissions(user, permissions.getType(), parentResource, offset, limit)
+        .filter(permissions);
+  }
+
+  default Permissions getPermissions(UserId user, ResourceId resource) {
+    return listAllPermissions(user, resource.getType(), resource.getParent(), 0, Integer.MAX_VALUE)
+        .getPermissions(resource);
+  }
+
+  ResourceCollection listAllPermissions(
+      UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit);
 }

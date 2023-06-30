@@ -4,10 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
-import bio.terra.tanagra.service.accesscontrol.Action;
-import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.accesscontrol.ResourceType;
+import bio.terra.tanagra.service.accesscontrol.*;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.auth.UserId;
@@ -49,13 +46,22 @@ public class AccessControlImplTest {
     // Access control is only on studies, no other resource types.
     ResourceId firstUnderlay =
         ResourceId.forUnderlay(
-            underlaysService.listUnderlays(ResourceIdCollection.allResourceIds()).get(0).getName());
+            underlaysService
+                .listUnderlays(ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY))
+                .get(0)
+                .getName());
     assertTrue(
         impl.isAuthorized(
-            UserId.forDisabledAuthentication(), Action.READ, ResourceType.UNDERLAY, firstUnderlay));
+            UserId.forDisabledAuthentication(),
+            Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
+            firstUnderlay));
     assertFalse(
-        impl.listResourceIds(UserId.forDisabledAuthentication(), ResourceType.UNDERLAY, 0, 10)
-            .getResourceIds()
+        impl.listAuthorizedResources(
+                UserId.forDisabledAuthentication(),
+                Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
+                0,
+                10)
+            .getResources()
             .isEmpty());
   }
 
@@ -72,9 +78,15 @@ public class AccessControlImplTest {
     // Access control is only on underlays, no other resource types.
     assertTrue(
         impl.isAuthorized(
-            UserId.forDisabledAuthentication(), Action.CREATE, ResourceType.STUDY, null));
+            UserId.forDisabledAuthentication(),
+            Permissions.forActions(ResourceType.STUDY, Action.CREATE),
+            null));
     assertTrue(
-        impl.listResourceIds(UserId.forDisabledAuthentication(), ResourceType.STUDY, 0, 10)
-            .isAllResourceIds());
+        impl.listAuthorizedResources(
+                UserId.forDisabledAuthentication(),
+                Permissions.forActions(ResourceType.STUDY, Action.READ),
+                0,
+                10)
+            .isAllResources());
   }
 }

@@ -2,8 +2,8 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ConceptSetDao;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
 import java.util.Collections;
@@ -51,9 +51,9 @@ public class ConceptSetService {
   }
 
   public List<ConceptSet> listConceptSets(
-      ResourceIdCollection authorizedConceptSetIds, String studyId, int offset, int limit) {
+      ResourceCollection authorizedConceptSetIds, String studyId, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (authorizedConceptSetIds.isAllResourceIds()) {
+    if (authorizedConceptSetIds.isAllResources()) {
       return conceptSetDao.getAllConceptSets(studyId, offset, limit);
     } else if (authorizedConceptSetIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
@@ -61,7 +61,7 @@ public class ConceptSetService {
       return Collections.emptyList();
     } else {
       return conceptSetDao.getConceptSetsMatchingList(
-          authorizedConceptSetIds.getResourceIds().stream()
+          authorizedConceptSetIds.getResources().stream()
               .map(ResourceId::getConceptSet)
               .collect(Collectors.toSet()),
           offset,

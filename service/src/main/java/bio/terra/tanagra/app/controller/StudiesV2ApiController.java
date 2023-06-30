@@ -12,8 +12,9 @@ import bio.terra.tanagra.generated.controller.StudiesV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.StudyService;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Study;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
@@ -38,7 +39,8 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   @Override
   public ResponseEntity<ApiStudyV2> createStudy(ApiStudyCreateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(SpringAuthentication.getCurrentUser(), CREATE, STUDY);
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(), Permissions.forActions(STUDY, CREATE));
     Study.Builder studyToCreate =
         Study.builder()
             .displayName(body.getDisplayName())
@@ -53,7 +55,9 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), DELETE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, DELETE),
+        ResourceId.forStudy(studyId));
     studyService.deleteStudy(studyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -61,7 +65,9 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> getStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, READ),
+        ResourceId.forStudy(studyId));
     return ResponseEntity.ok(toApiObject(studyService.getStudy(studyId)));
   }
 
@@ -72,9 +78,12 @@ public class StudiesV2ApiController implements StudiesV2Api {
       List<String> properties,
       Integer offset,
       Integer limit) {
-    ResourceIdCollection authorizedStudyIds =
-        accessControlService.listResourceIds(
-            SpringAuthentication.getCurrentUser(), STUDY, offset, limit);
+    ResourceCollection authorizedStudyIds =
+        accessControlService.listAuthorizedResources(
+            SpringAuthentication.getCurrentUser(),
+            Permissions.forActions(STUDY, READ),
+            offset,
+            limit);
     List<Study> authorizedStudies =
         studyService.listStudies(
             authorizedStudyIds, offset, limit, fromApiObject(displayName, description, properties));
@@ -86,7 +95,9 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> updateStudy(String studyId, ApiStudyUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, UPDATE),
+        ResourceId.forStudy(studyId));
     Study updatedStudy =
         studyService.updateStudy(
             studyId,
@@ -100,7 +111,9 @@ public class StudiesV2ApiController implements StudiesV2Api {
   public ResponseEntity<Void> updateStudyProperties(
       String studyId, List<ApiPropertyKeyValueV2> body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, UPDATE),
+        ResourceId.forStudy(studyId));
     studyService.updateStudyProperties(
         studyId, SpringAuthentication.getCurrentUser().getEmail(), fromApiObject(body));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -109,7 +122,9 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudyProperties(String studyId, List<String> body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, UPDATE),
+        ResourceId.forStudy(studyId));
     studyService.deleteStudyProperties(
         studyId, SpringAuthentication.getCurrentUser().getEmail(), body);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);

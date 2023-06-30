@@ -1,9 +1,6 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
-import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
-import static bio.terra.tanagra.service.accesscontrol.Action.READ;
-import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
+import static bio.terra.tanagra.service.accesscontrol.Action.*;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
@@ -11,8 +8,9 @@ import bio.terra.tanagra.generated.controller.AnnotationsV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.*;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationKey;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +36,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, ApiAnnotationCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        CREATE,
-        ANNOTATION,
+        Permissions.forActions(COHORT, CREATE_ANNOTATION_KEY),
         ResourceId.forCohort(studyId, cohortId));
     AnnotationKey createdAnnotationKey =
         annotationService.createAnnotationKey(
@@ -58,8 +55,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, String annotationKeyId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        DELETE,
-        ANNOTATION,
+        Permissions.forActions(ANNOTATION_KEY, DELETE),
         ResourceId.forAnnotationKey(studyId, cohortId, annotationKeyId));
     annotationService.deleteAnnotationKey(studyId, cohortId, annotationKeyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -70,8 +66,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, String annotationKeyId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        READ,
-        ANNOTATION,
+        Permissions.forActions(ANNOTATION_KEY, READ),
         ResourceId.forAnnotationKey(studyId, cohortId, annotationKeyId));
     return ResponseEntity.ok(
         toApiObject(annotationService.getAnnotationKey(studyId, cohortId, annotationKeyId)));
@@ -80,10 +75,10 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   @Override
   public ResponseEntity<ApiAnnotationListV2> listAnnotationKeys(
       String studyId, String cohortId, Integer offset, Integer limit) {
-    ResourceIdCollection authorizedAnnotationKeyIds =
-        accessControlService.listResourceIds(
+    ResourceCollection authorizedAnnotationKeyIds =
+        accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(),
-            ANNOTATION,
+            Permissions.forActions(ANNOTATION_KEY, READ),
             ResourceId.forCohort(studyId, cohortId),
             offset,
             limit);
@@ -99,8 +94,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, String annotationKeyId, ApiAnnotationUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        UPDATE,
-        ANNOTATION,
+        Permissions.forActions(ANNOTATION_KEY, UPDATE),
         ResourceId.forAnnotationKey(studyId, cohortId, annotationKeyId));
     AnnotationKey updatedAnnotationKey =
         annotationService.updateAnnotationKey(
@@ -118,8 +112,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       ApiLiteralV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        UPDATE,
-        COHORT_REVIEW,
+        Permissions.forActions(COHORT_REVIEW, UPDATE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     // The API currently restricts the caller to a single annotation value per review instance per
     // annotation key, but the backend can handle a list.
@@ -138,8 +131,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, String annotationKeyId, String reviewId, String instanceId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        UPDATE,
-        COHORT_REVIEW,
+        Permissions.forActions(COHORT_REVIEW, UPDATE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     annotationService.deleteAnnotationValues(
         studyId, cohortId, annotationKeyId, reviewId, instanceId);

@@ -11,6 +11,7 @@ import bio.terra.tanagra.generated.model.ApiExportModelList;
 import bio.terra.tanagra.generated.model.ApiExportRequest;
 import bio.terra.tanagra.generated.model.ApiExportResult;
 import bio.terra.tanagra.service.*;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.ExportRequest;
@@ -44,8 +45,7 @@ public class ExportApiController implements ExportApi {
   public ResponseEntity<ApiExportModelList> listExportModels(String underlayName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        READ,
-        UNDERLAY,
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     // Get a map of implementation name -> (display name, class instance).
     Map<String, Pair<String, DataExport>> exportImpls = dataExportService.getModels(underlayName);
@@ -63,15 +63,13 @@ public class ExportApiController implements ExportApi {
       String underlayName, ApiExportRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        QUERY_INSTANCES,
-        UNDERLAY,
+        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
         ResourceId.forUnderlay(underlayName));
     String studyId = body.getStudy();
     for (String cohortId : body.getCohorts()) {
       accessControlService.throwIfUnauthorized(
           SpringAuthentication.getCurrentUser(),
-          READ,
-          COHORT,
+          Permissions.forActions(COHORT, READ),
           ResourceId.forCohort(studyId, cohortId));
     }
     ExportRequest.Builder request =

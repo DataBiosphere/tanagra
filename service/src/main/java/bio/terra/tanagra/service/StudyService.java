@@ -3,8 +3,8 @@ package bio.terra.tanagra.service;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Study;
 import java.util.Collections;
 import java.util.List;
@@ -38,17 +38,17 @@ public class StudyService {
     studyDao.deleteStudy(id);
   }
 
-  public List<Study> listStudies(ResourceIdCollection authorizedIds, int offset, int limit) {
+  public List<Study> listStudies(ResourceCollection authorizedIds, int offset, int limit) {
     return listStudies(authorizedIds, offset, limit, null);
   }
 
   public List<Study> listStudies(
-      ResourceIdCollection authorizedIds,
+      ResourceCollection authorizedIds,
       int offset,
       int limit,
       @Nullable Study.Builder studyFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (authorizedIds.isAllResourceIds()) {
+    if (authorizedIds.isAllResources()) {
       return studyDao.getAllStudies(offset, limit, studyFilter);
     } else if (authorizedIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
@@ -56,7 +56,7 @@ public class StudyService {
       return Collections.emptyList();
     } else {
       return studyDao.getStudiesMatchingList(
-          authorizedIds.getResourceIds().stream()
+          authorizedIds.getResources().stream()
               .map(ResourceId::getStudy)
               .collect(Collectors.toSet()),
           offset,

@@ -5,8 +5,9 @@ import bio.terra.tanagra.db.ReviewDao;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.AnnotationKey;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.artifact.Cohort;
@@ -127,13 +128,13 @@ public class ReviewService {
 
   /** List reviews with their cohort revisions. */
   public List<Review> listReviews(
-      ResourceIdCollection authorizedReviewIds,
+      ResourceCollection authorizedReviewIds,
       String studyId,
       String cohortId,
       int offset,
       int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (authorizedReviewIds.isAllResourceIds()) {
+    if (authorizedReviewIds.isAllResources()) {
       return reviewDao.getAllReviews(cohortId, offset, limit);
     } else if (authorizedReviewIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
@@ -141,7 +142,7 @@ public class ReviewService {
       return Collections.emptyList();
     } else {
       return reviewDao.getReviewsMatchingList(
-          authorizedReviewIds.getResourceIds().stream()
+          authorizedReviewIds.getResources().stream()
               .map(ResourceId::getReview)
               .collect(Collectors.toSet()),
           offset,
@@ -402,7 +403,7 @@ public class ReviewService {
     List<AnnotationKey> annotationKeys =
         annotationService
             .listAnnotationKeys(
-                ResourceIdCollection.allResourceIds(),
+                ResourceCollection.allResourcesAllPermissions(ResourceType.ANNOTATION_KEY),
                 studyId,
                 cohortId,
                 /*offset=*/ 0,

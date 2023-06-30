@@ -4,11 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +33,15 @@ public class UnderlaysServiceTest {
 
     // List underlays.
     List<Underlay> allUnderlays =
-        underlaysService.listUnderlays(ResourceIdCollection.allResourceIds());
+        underlaysService.listUnderlays(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY));
     assertEquals(3, allUnderlays.size());
 
     List<Underlay> oneUnderlay =
         underlaysService.listUnderlays(
-            ResourceIdCollection.forCollection(List.of(ResourceId.forUnderlay(underlayName))));
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.UNDERLAY),
+                Set.of(ResourceId.forUnderlay(underlayName))));
     assertEquals(1, oneUnderlay.size());
     assertEquals(underlayName, oneUnderlay.get(0).getName());
 

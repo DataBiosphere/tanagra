@@ -5,11 +5,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Study;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -176,7 +179,10 @@ public class ConceptSetServiceTest {
     // List all cohorts in study2.
     List<ConceptSet> allConceptSets =
         conceptSetService.listConceptSets(
-            ResourceIdCollection.allResourceIds(), study2.getId(), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.CONCEPT_SET),
+            study2.getId(),
+            0,
+            10);
     assertEquals(2, allConceptSets.size());
     LOGGER.info(
         "concept sets found: {}, {}", allConceptSets.get(0).getId(), allConceptSets.get(1).getId());
@@ -184,8 +190,9 @@ public class ConceptSetServiceTest {
     // List selected concept set in study2.
     List<ConceptSet> selectedConceptSets =
         conceptSetService.listConceptSets(
-            ResourceIdCollection.forCollection(
-                List.of(ResourceId.forConceptSet(study2.getId(), conceptSet3.getId()))),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.CONCEPT_SET),
+                Set.of(ResourceId.forConceptSet(study2.getId(), conceptSet3.getId()))),
             study2.getId(),
             0,
             10);
@@ -197,14 +204,18 @@ public class ConceptSetServiceTest {
     // List all.
     List<ConceptSet> allConceptSets =
         conceptSetService.listConceptSets(
-            ResourceIdCollection.allResourceIds(), study1.getId(), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.CONCEPT_SET),
+            study1.getId(),
+            0,
+            10);
     assertTrue(allConceptSets.isEmpty());
 
     // List selected.
     List<ConceptSet> selectedConceptSets =
         conceptSetService.listConceptSets(
-            ResourceIdCollection.forCollection(
-                List.of(ResourceId.forConceptSet(study1.getId(), "123"))),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.CONCEPT_SET),
+                Set.of(ResourceId.forConceptSet(study1.getId(), "123"))),
             study1.getId(),
             0,
             10);
