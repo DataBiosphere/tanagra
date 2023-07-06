@@ -231,9 +231,8 @@ public class AnnotationServiceTest {
     // List all annotation keys for cohort2.
     List<AnnotationKey> allAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.ANNOTATION_KEY),
-            study1.getId(),
-            cohort2.getId(),
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.ANNOTATION_KEY, ResourceId.forCohort(study1.getId(), cohort2.getId())),
             0,
             10);
     assertEquals(2, allAnnotationKeys.size());
@@ -250,8 +249,6 @@ public class AnnotationServiceTest {
                 Set.of(
                     ResourceId.forAnnotationKey(
                         study1.getId(), cohort2.getId(), annotationKey3.getId()))),
-            study1.getId(),
-            cohort2.getId(),
             0,
             10);
     assertEquals(1, selectedAnnotationKeys.size());
@@ -262,9 +259,8 @@ public class AnnotationServiceTest {
     // List all.
     List<AnnotationKey> allAnnotationKeys =
         annotationService.listAnnotationKeys(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.ANNOTATION_KEY),
-            study1.getId(),
-            cohort1.getId(),
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.ANNOTATION_KEY, ResourceId.forCohort(study1.getId(), cohort1.getId())),
             0,
             10);
     assertTrue(allAnnotationKeys.isEmpty());
@@ -275,8 +271,6 @@ public class AnnotationServiceTest {
             ResourceCollection.resourcesSamePermissions(
                 Permissions.allActions(ResourceType.ANNOTATION_KEY),
                 Set.of(ResourceId.forAnnotationKey(study1.getId(), cohort1.getId(), "123"))),
-            study1.getId(),
-            cohort1.getId(),
             0,
             10);
     assertTrue(selectedAnnotationKeys.isEmpty());

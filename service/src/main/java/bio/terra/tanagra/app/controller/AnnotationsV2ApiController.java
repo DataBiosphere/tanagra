@@ -83,8 +83,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
             offset,
             limit);
     ApiAnnotationListV2 apiAnnotationKeys = new ApiAnnotationListV2();
-    annotationService
-        .listAnnotationKeys(authorizedAnnotationKeyIds, studyId, cohortId, offset, limit).stream()
+    annotationService.listAnnotationKeys(authorizedAnnotationKeyIds, offset, limit).stream()
         .forEach(annotationKey -> apiAnnotationKeys.add(toApiObject(annotationKey)));
     return ResponseEntity.ok(apiAnnotationKeys);
   }

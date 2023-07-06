@@ -161,8 +161,8 @@ public class CohortServiceTest {
     // List all cohorts in study2.
     List<Cohort> allCohorts =
         cohortService.listCohorts(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.COHORT),
-            study2.getId(),
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.COHORT, ResourceId.forStudy(study2.getId())),
             0,
             10);
     assertEquals(2, allCohorts.size());
@@ -174,7 +174,6 @@ public class CohortServiceTest {
             ResourceCollection.resourcesSamePermissions(
                 Permissions.allActions(ResourceType.COHORT),
                 Set.of(ResourceId.forCohort(study2.getId(), cohort3.getId()))),
-            study2.getId(),
             0,
             10);
     assertEquals(1, selectedCohorts.size());
@@ -185,8 +184,8 @@ public class CohortServiceTest {
     // List all.
     List<Cohort> allCohorts =
         cohortService.listCohorts(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.COHORT),
-            study1.getId(),
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.COHORT, ResourceId.forStudy(study1.getId())),
             0,
             10);
     assertTrue(allCohorts.isEmpty());
@@ -197,7 +196,6 @@ public class CohortServiceTest {
             ResourceCollection.resourcesSamePermissions(
                 Permissions.allActions(ResourceType.COHORT),
                 Set.of(ResourceId.forCohort(study1.getId(), "123"))),
-            study1.getId(),
             0,
             10);
     assertTrue(selectedCohorts.isEmpty());

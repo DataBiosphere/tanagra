@@ -46,6 +46,10 @@ public final class Permissions {
     return isAllActions || actions.equals(type.getActions());
   }
 
+  public boolean isEmpty() {
+    return !isAllActions && actions.isEmpty();
+  }
+
   public Set<Action> getActions() {
     return isAllActions() ? type.getActions() : Collections.unmodifiableSet(actions);
   }

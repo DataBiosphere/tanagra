@@ -72,9 +72,9 @@ public class CohortService {
   }
 
   /** List cohorts with their most recent revisions. */
-  public List<Cohort> listCohorts(
-      ResourceCollection authorizedCohortIds, String studyId, int offset, int limit) {
+  public List<Cohort> listCohorts(ResourceCollection authorizedCohortIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
+    String studyId = authorizedCohortIds.getParent().getStudy();
     if (authorizedCohortIds.isAllResources()) {
       return cohortDao.getAllCohorts(studyId, offset, limit);
     } else if (authorizedCohortIds.isEmpty()) {

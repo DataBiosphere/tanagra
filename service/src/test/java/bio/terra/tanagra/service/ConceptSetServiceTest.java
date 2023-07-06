@@ -179,8 +179,8 @@ public class ConceptSetServiceTest {
     // List all cohorts in study2.
     List<ConceptSet> allConceptSets =
         conceptSetService.listConceptSets(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.CONCEPT_SET),
-            study2.getId(),
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.CONCEPT_SET, ResourceId.forStudy(study2.getId())),
             0,
             10);
     assertEquals(2, allConceptSets.size());
@@ -193,7 +193,6 @@ public class ConceptSetServiceTest {
             ResourceCollection.resourcesSamePermissions(
                 Permissions.allActions(ResourceType.CONCEPT_SET),
                 Set.of(ResourceId.forConceptSet(study2.getId(), conceptSet3.getId()))),
-            study2.getId(),
             0,
             10);
     assertEquals(1, selectedConceptSets.size());
@@ -204,8 +203,8 @@ public class ConceptSetServiceTest {
     // List all.
     List<ConceptSet> allConceptSets =
         conceptSetService.listConceptSets(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.CONCEPT_SET),
-            study1.getId(),
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.CONCEPT_SET, ResourceId.forStudy(study1.getId())),
             0,
             10);
     assertTrue(allConceptSets.isEmpty());
@@ -216,7 +215,6 @@ public class ConceptSetServiceTest {
             ResourceCollection.resourcesSamePermissions(
                 Permissions.allActions(ResourceType.CONCEPT_SET),
                 Set.of(ResourceId.forConceptSet(study1.getId(), "123"))),
-            study1.getId(),
             0,
             10);
     assertTrue(selectedConceptSets.isEmpty());

@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.accesscontrol;
 import bio.terra.tanagra.exception.SystemException;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * Collection of resource ids and their associated permissions. This is defined as a separate
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 public final class ResourceCollection {
   private final ResourceType type;
   private final boolean isAllResources;
+  private final @Nullable ResourceId parentId;
   private final boolean isSharedPermissions;
   private final Permissions sharedPermissions;
   private final Set<ResourceId> ids;
@@ -20,42 +22,67 @@ public final class ResourceCollection {
   private ResourceCollection(
       ResourceType type,
       boolean isAllResources,
+      @Nullable ResourceId parentId,
       boolean isSharedPermissions,
       Permissions sharedPermissions,
       Set<ResourceId> ids,
       Map<ResourceId, Permissions> idPermissionsMap) {
     this.type = type;
     this.isAllResources = isAllResources;
+    this.parentId = parentId;
     this.isSharedPermissions = isSharedPermissions;
     this.sharedPermissions = sharedPermissions;
     this.ids = ids;
     this.idPermissionsMap = idPermissionsMap;
   }
 
-  public static ResourceCollection empty(ResourceType type) {
+  public static ResourceCollection empty(ResourceType type, @Nullable ResourceId parentId) {
+    validateParentForType(type, parentId);
     return new ResourceCollection(
-        type, false, true, Permissions.empty(type), Collections.emptySet(), null);
+        type, false, parentId, true, Permissions.empty(type), Collections.emptySet(), null);
   }
 
-  public static ResourceCollection allResourcesAllPermissions(ResourceType type) {
-    return allResourcesSamePermissions(Permissions.allActions(type));
+  public static ResourceCollection allResourcesAllPermissions(
+      ResourceType type, @Nullable ResourceId parentId) {
+    return allResourcesSamePermissions(Permissions.allActions(type), parentId);
   }
 
-  public static ResourceCollection allResourcesSamePermissions(Permissions permissions) {
-    return new ResourceCollection(permissions.getType(), true, true, permissions, null, null);
+  public static ResourceCollection allResourcesSamePermissions(
+      Permissions permissions, @Nullable ResourceId parentId) {
+    validateParentForType(permissions.getType(), parentId);
+    return new ResourceCollection(
+        permissions.getType(), true, parentId, true, permissions, null, null);
+  }
+
+  private static void validateParentForType(ResourceType type, @Nullable ResourceId parentId) {
+    if (type.hasParentResourceType()
+        && (parentId == null || !type.getParentResourceType().equals(parentId.getType()))) {
+      throw new SystemException(
+          "Parent resource required for a ResourceCollection of type " + type);
+    }
   }
 
   public static ResourceCollection resourcesSamePermissions(
       Permissions permissions, Set<ResourceId> resources) {
+    if (resources.isEmpty()) {
+      throw new SystemException("Resources set cannot be empty. Call empty() instead");
+    }
+    ResourceId firstResource = resources.iterator().next();
+    ResourceType type = firstResource.getType();
+    ResourceId parentId = firstResource.getParent();
+    if (!type.equals(permissions.getType())) {
+      throw new SystemException(
+          "Resource type mismatch building ResourceCollection with same permissions");
+    }
     resources.stream()
         .forEach(
             r -> {
-              if (!r.getType().equals(permissions.getType())) {
-                throw new SystemException(
-                    "Resource type mismatch building ResourceCollection with same permissions");
+              if (r.getType().hasParentResourceType() && !r.getParent().equals(parentId)) {
+                throw new SystemException("Resources must all share the same parent");
               }
             });
-    return new ResourceCollection(permissions.getType(), false, true, permissions, resources, null);
+    return new ResourceCollection(
+        permissions.getType(), false, parentId, true, permissions, resources, null);
   }
 
   public static ResourceCollection resourcesDifferentPermissions(
@@ -64,17 +91,19 @@ public final class ResourceCollection {
       throw new SystemException(
           "Resources to permissions map cannot be empty. Call empty() instead");
     }
-    ResourceType type = null;
+    ResourceId firstResource = idPermissionsMap.keySet().iterator().next();
+    ResourceType type = firstResource.getType();
+    ResourceId parentId = firstResource.getParent();
     for (Map.Entry<ResourceId, Permissions> entry : idPermissionsMap.entrySet()) {
-      if (type == null) {
-        type = entry.getKey().getType();
-      }
       if (!entry.getKey().getType().equals(type) || !entry.getValue().getType().equals(type)) {
         throw new SystemException(
             "Resource type mismatch building ResourceCollection with different permissions");
       }
+      if (type.hasParentResourceType() && !entry.getKey().getParent().equals(parentId)) {
+        throw new SystemException("Resource does not match parent resource");
+      }
     }
-    return new ResourceCollection(type, false, false, null, null, idPermissionsMap);
+    return new ResourceCollection(type, false, parentId, false, null, null, idPermissionsMap);
   }
 
   public boolean isEmpty() {
@@ -91,6 +120,10 @@ public final class ResourceCollection {
     return isAllResources;
   }
 
+  public ResourceId getParent() {
+    return parentId;
+  }
+
   public Set<ResourceId> getResources() {
     if (isAllResources) {
       throw new SystemException("Resource collection represents all resources");
@@ -102,19 +135,19 @@ public final class ResourceCollection {
   }
 
   public Permissions getPermissions(ResourceId resource) {
-    if (isAllResources) {
-      return sharedPermissions;
+    if (!contains(resource)) {
+      return Permissions.empty(resource.getType());
     } else if (isSharedPermissions) {
-      return ids.contains(resource) ? sharedPermissions : Permissions.empty(resource.getType());
+      return sharedPermissions;
     } else {
-      return idPermissionsMap.containsKey(resource)
-          ? idPermissionsMap.get(resource)
-          : Permissions.empty(resource.getType());
+      return idPermissionsMap.get(resource);
     }
   }
 
   public boolean contains(ResourceId resource) {
-    if (isAllResources) {
+    if (resource.getType().hasParentResourceType() && !parentId.equals(resource.getParent())) {
+      return false;
+    } else if (isAllResources) {
       return true;
     } else if (isSharedPermissions) {
       return ids.contains(resource);
@@ -127,7 +160,7 @@ public final class ResourceCollection {
     if (isSharedPermissions) {
       return sharedPermissions.contains(permissions)
           ? this
-          : ResourceCollection.empty(permissions.getType());
+          : ResourceCollection.empty(permissions.getType(), parentId);
     } else {
       Map<ResourceId, Permissions> filtered = new HashMap<>();
       idPermissionsMap.entrySet().stream()
@@ -137,7 +170,9 @@ public final class ResourceCollection {
                   filtered.put(entry.getKey(), permissions);
                 }
               });
-      return ResourceCollection.resourcesDifferentPermissions(filtered);
+      return filtered.isEmpty()
+          ? ResourceCollection.empty(permissions.getType(), parentId)
+          : ResourceCollection.resourcesDifferentPermissions(filtered);
     }
   }
 

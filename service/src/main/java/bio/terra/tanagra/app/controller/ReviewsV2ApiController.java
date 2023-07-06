@@ -110,7 +110,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
             offset,
             limit);
     ApiReviewListV2 apiReviews = new ApiReviewListV2();
-    reviewService.listReviews(authorizedReviewIds, studyId, cohortId, offset, limit).stream()
+    reviewService.listReviews(authorizedReviewIds, offset, limit).stream()
         .forEach(
             review ->
                 apiReviews.add(toApiObject(review, cohortService.getCohort(studyId, cohortId))));

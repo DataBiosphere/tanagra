@@ -37,7 +37,7 @@ public class StudyServiceTest {
   void deleteAll() {
     List<Study> allStudies =
         studyService.listStudies(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY), 0, 100);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 100);
     for (Study study : allStudies) {
       try {
         studyService.deleteStudy(study.getId());
@@ -112,7 +112,7 @@ public class StudyServiceTest {
     // List all.
     List<Study> allStudies =
         studyService.listStudies(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
     assertEquals(2, allStudies.size());
 
     // List selected.
@@ -131,7 +131,10 @@ public class StudyServiceTest {
         Study.builder().displayName("1").description("one").properties(Map.of("irb", "23"));
     List<Study> allStudiesWithFilter =
         studyService.listStudies(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY), 0, 10, filter1);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null),
+            0,
+            10,
+            filter1);
     assertEquals(1, allStudiesWithFilter.size());
     assertEquals(study1.getId(), allStudiesWithFilter.get(0).getId());
 
@@ -153,7 +156,7 @@ public class StudyServiceTest {
     // List all.
     List<Study> allStudies =
         studyService.listStudies(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
     assertTrue(allStudies.isEmpty());
 
     // List selected.

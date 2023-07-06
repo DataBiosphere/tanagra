@@ -34,7 +34,7 @@ public class UnderlaysServiceTest {
     // List underlays.
     List<Underlay> allUnderlays =
         underlaysService.listUnderlays(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY));
+            ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null));
     assertEquals(3, allUnderlays.size());
 
     List<Underlay> oneUnderlay =

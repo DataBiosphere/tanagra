@@ -127,13 +127,9 @@ public class ReviewService {
   }
 
   /** List reviews with their cohort revisions. */
-  public List<Review> listReviews(
-      ResourceCollection authorizedReviewIds,
-      String studyId,
-      String cohortId,
-      int offset,
-      int limit) {
+  public List<Review> listReviews(ResourceCollection authorizedReviewIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
+    String cohortId = authorizedReviewIds.getParent().getCohort();
     if (authorizedReviewIds.isAllResources()) {
       return reviewDao.getAllReviews(cohortId, offset, limit);
     } else if (authorizedReviewIds.isEmpty()) {
@@ -403,9 +399,8 @@ public class ReviewService {
     List<AnnotationKey> annotationKeys =
         annotationService
             .listAnnotationKeys(
-                ResourceCollection.allResourcesAllPermissions(ResourceType.ANNOTATION_KEY),
-                studyId,
-                cohortId,
+                ResourceCollection.allResourcesAllPermissions(
+                    ResourceType.ANNOTATION_KEY, ResourceId.forCohort(studyId, cohortId)),
                 /*offset=*/ 0,
                 /*limit=*/ Integer.MAX_VALUE)
             .stream()

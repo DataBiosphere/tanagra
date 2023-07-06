@@ -47,7 +47,8 @@ public class AccessControlImplTest {
     ResourceId firstUnderlay =
         ResourceId.forUnderlay(
             underlaysService
-                .listUnderlays(ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY))
+                .listUnderlays(
+                    ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null))
                 .get(0)
                 .getName());
     assertTrue(

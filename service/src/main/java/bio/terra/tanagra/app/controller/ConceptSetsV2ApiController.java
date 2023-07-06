@@ -85,7 +85,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             offset,
             limit);
     ApiConceptSetListV2 apiConceptSets = new ApiConceptSetListV2();
-    conceptSetService.listConceptSets(authorizedConceptSetIds, studyId, offset, limit).stream()
+    conceptSetService.listConceptSets(authorizedConceptSetIds, offset, limit).stream()
         .forEach(conceptSet -> apiConceptSets.add(toApiObject(conceptSet)));
     return ResponseEntity.ok(apiConceptSets);
   }

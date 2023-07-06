@@ -38,12 +38,9 @@ public class AnnotationService {
   }
 
   public List<AnnotationKey> listAnnotationKeys(
-      ResourceCollection authorizedAnnotationKeyIds,
-      String studyId,
-      String cohortId,
-      int offset,
-      int limit) {
+      ResourceCollection authorizedAnnotationKeyIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
+    String cohortId = authorizedAnnotationKeyIds.getParent().getCohort();
     if (authorizedAnnotationKeyIds.isAllResources()) {
       return annotationDao.getAllAnnotationKeys(cohortId, offset, limit);
     } else if (authorizedAnnotationKeyIds.isEmpty()) {

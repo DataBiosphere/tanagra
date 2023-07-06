@@ -4,6 +4,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.util.List;
+import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 
 public final class ResourceId {
@@ -15,6 +16,7 @@ public final class ResourceId {
   private final String conceptSet;
   private final String review;
   private final String annotationKey;
+  private final boolean isNull;
 
   private ResourceId(Builder builder) {
     this.type = builder.type;
@@ -24,6 +26,7 @@ public final class ResourceId {
     this.conceptSet = builder.conceptSet;
     this.review = builder.review;
     this.annotationKey = builder.annotationKey;
+    this.isNull = builder.isNull;
   }
 
   public static Builder builder() {
@@ -63,6 +66,10 @@ public final class ResourceId {
     return type;
   }
 
+  public boolean isNull() {
+    return isNull;
+  }
+
   public ResourceId getParent() {
     switch (type) {
       case COHORT:
@@ -77,6 +84,9 @@ public final class ResourceId {
   }
 
   public String getId() {
+    if (isNull) {
+      return "NULL_" + type;
+    }
     switch (type) {
       case UNDERLAY:
         return underlay;
@@ -141,6 +151,30 @@ public final class ResourceId {
     return annotationKey;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ResourceId that = (ResourceId) o;
+    return isNull == that.isNull
+        && type == that.type
+        && Objects.equals(underlay, that.underlay)
+        && Objects.equals(study, that.study)
+        && Objects.equals(cohort, that.cohort)
+        && Objects.equals(conceptSet, that.conceptSet)
+        && Objects.equals(review, that.review)
+        && Objects.equals(annotationKey, that.annotationKey);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, underlay, study, cohort, conceptSet, review, annotationKey, isNull);
+  }
+
   public static class Builder {
     private ResourceType type;
     private String underlay;
@@ -149,6 +183,7 @@ public final class ResourceId {
     private String conceptSet;
     private String review;
     private String annotationKey;
+    private boolean isNull;
 
     public Builder type(ResourceType type) {
       this.type = type;
@@ -182,6 +217,11 @@ public final class ResourceId {
 
     public Builder annotationKey(String annotationKey) {
       this.annotationKey = annotationKey;
+      return this;
+    }
+
+    public Builder isNull(boolean isNull) {
+      this.isNull = isNull;
       return this;
     }
 

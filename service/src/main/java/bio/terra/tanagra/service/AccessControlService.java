@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service;
 
-import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.UnauthorizedException;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.*;
 import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
@@ -44,9 +44,9 @@ public class AccessControlService {
 
   public boolean isAuthorized(UserId user, Permissions permissions, ResourceId resource) {
     if (user == null) {
-      throw new BadRequestException("Invalid user");
+      throw new SystemException("Invalid user");
     } else if (resource != null && !permissions.getType().equals(resource.getType())) {
-      throw new BadRequestException(
+      throw new SystemException(
           "Permissions and resource types do not match: "
               + permissions.getType()
               + ", "
@@ -85,6 +85,10 @@ public class AccessControlService {
 
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
+    if (type.hasParentResourceType() && parentResource == null) {
+      throw new SystemException(
+          "Parent resource must be specified when listing resources of type: " + type);
+    }
     return accessControlImpl.listAllPermissions(user, type, parentResource, offset, limit);
   }
 }

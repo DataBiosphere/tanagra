@@ -22,6 +22,6 @@ public class OpenAccessControl implements AccessControl {
   @Override
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    return ResourceCollection.allResourcesAllPermissions(type);
+    return ResourceCollection.allResourcesAllPermissions(type, parentResource);
   }
 }

@@ -51,8 +51,9 @@ public class ConceptSetService {
   }
 
   public List<ConceptSet> listConceptSets(
-      ResourceCollection authorizedConceptSetIds, String studyId, int offset, int limit) {
+      ResourceCollection authorizedConceptSetIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
+    String studyId = authorizedConceptSetIds.getParent().getStudy();
     if (authorizedConceptSetIds.isAllResources()) {
       return conceptSetDao.getAllConceptSets(studyId, offset, limit);
     } else if (authorizedConceptSetIds.isEmpty()) {

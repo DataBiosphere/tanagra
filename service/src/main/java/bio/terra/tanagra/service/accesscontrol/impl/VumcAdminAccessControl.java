@@ -86,19 +86,64 @@ public class VumcAdminAccessControl implements AccessControl {
   }
 
   private boolean isAuthorized(UserId user, Set<Action> actions, ResourceType type, String id) {
+    // Convert the resource type to its API equivalent.
+    org.vumc.vda.tanagra.admin.model.ResourceType apiType =
+        org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(type.name());
+
     // Convert the list of permitted actions to their API equivalents.
+    Set<ResourceAction> apiActions = new HashSet<>();
+    if (ResourceType.UNDERLAY.equals(type)) {
+      actions.stream().forEach(a -> apiActions.addAll(toUnderlayApiAction(a)));
+    } else if (ResourceType.STUDY.equals(type)) {
+      actions.stream().forEach(a -> apiActions.addAll(toStudyApiAction(a)));
+    } else {
+      throw new SystemException(
+          "VUMC admin service only stores permissions for underlays and studies");
+    }
 
     // Check authorization for each permission separately.
-    for (Action action : actions) {
-      if (!apiIsAuthorized(
-          user.getEmail(),
-          ResourceAction.valueOf(action.name()),
-          org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(type.name()),
-          id)) {
+    for (ResourceAction apiAction : apiActions) {
+      if (!apiIsAuthorized(user.getEmail(), apiAction, apiType, id)) {
         return false;
       }
     }
     return true;
+  }
+
+  private Set<ResourceAction> toUnderlayApiAction(Action action) {
+    if (!ResourceType.UNDERLAY.getActions().contains(action)) {
+      throw new SystemException("Invalid underlay action: " + action);
+    }
+    switch (action) {
+      case READ:
+      case QUERY_INSTANCES:
+      case QUERY_COUNTS:
+        return Set.of(ResourceAction.READ);
+      default:
+        LOGGER.debug("Unknown mapping for underlay action {}", action);
+        return Set.of();
+    }
+  }
+
+  private Set<ResourceAction> toStudyApiAction(Action action) {
+    if (!ResourceType.STUDY.getActions().contains(action)) {
+      throw new SystemException("Invalid study action: " + action);
+    }
+    switch (action) {
+      case READ:
+        return Set.of(ResourceAction.READ);
+      case CREATE:
+        return Set.of(ResourceAction.CREATE);
+      case DELETE:
+        return Set.of(ResourceAction.DELETE);
+      case UPDATE:
+      case CREATE_COHORT:
+      case CREATE_CONCEPT_SET:
+        return Set.of(ResourceAction.UPDATE);
+      default:
+        LOGGER.debug("Unknown mapping for underlay action {}", action);
+        return Set.of();
+    }
   }
 
   @Override
@@ -113,7 +158,7 @@ public class VumcAdminAccessControl implements AccessControl {
           resourceApiActionsMap.entrySet().stream()
               .collect(
                   Collectors.toMap(
-                      entry -> entry.getKey(),
+                      Map.Entry::getKey,
                       entry -> {
                         Set<Action> actions = new HashSet<>();
                         entry.getValue().stream()
@@ -126,8 +171,10 @@ public class VumcAdminAccessControl implements AccessControl {
                         return Permissions.forActions(type, actions);
                       }));
 
-      return ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap)
-          .slice(offset, limit);
+      return resourcePermissionsMap.isEmpty()
+          ? ResourceCollection.empty(type, parentResource)
+          : ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap)
+              .slice(offset, limit);
     } else {
       // Admin service does not store permissions for any other resource types.
       // All other resource types are descendants of a study (e.g. cohort), so list permissions for
@@ -135,9 +182,15 @@ public class VumcAdminAccessControl implements AccessControl {
       Map<ResourceId, Set<ResourceAction>> studyApiActionsMap =
           listAllPermissions(user, ResourceType.STUDY);
 
+      // User does not have access to the parent study.
+      ResourceId studyAncestorResource = ResourceId.forStudy(parentResource.getStudy());
+      if (!studyApiActionsMap.containsKey(studyAncestorResource)) {
+        return ResourceCollection.empty(type, parentResource);
+      }
+
       // For the parent study only, convert the list of permitted API actions to a permissions
       // object for the descendant resource type.
-      Set<ResourceAction> parentStudyApiActions = studyApiActionsMap.get(parentResource);
+      Set<ResourceAction> parentStudyApiActions = studyApiActionsMap.get(studyAncestorResource);
       Set<Action> descendantActions = new HashSet<>();
       parentStudyApiActions.stream()
           .forEach(
@@ -145,7 +198,7 @@ public class VumcAdminAccessControl implements AccessControl {
                   descendantActions.addAll(fromStudyApiActionForDescendant(apiAction, type)));
       Permissions descendantPermissions = Permissions.forActions(type, descendantActions);
 
-      return ResourceCollection.allResourcesSamePermissions(descendantPermissions)
+      return ResourceCollection.allResourcesSamePermissions(descendantPermissions, parentResource)
           .slice(offset, limit);
     }
   }
@@ -169,11 +222,17 @@ public class VumcAdminAccessControl implements AccessControl {
                 return;
               }
 
+              // Convert from the API resource id.
+              ResourceId resource;
+              if (apiResource.getId() == null) {
+                resource = ResourceId.builder().type(type).isNull(true).build();
+              } else if (ResourceType.UNDERLAY.equals(type)) {
+                resource = ResourceId.forUnderlay(apiResource.getId());
+              } else {
+                resource = ResourceId.forStudy(apiResource.getId());
+              }
+
               // Add to the list of permitted API actions for this resource id.
-              ResourceId resource =
-                  ResourceType.UNDERLAY.equals(type)
-                      ? ResourceId.forUnderlay(apiResource.getId())
-                      : ResourceId.forStudy(apiResource.getId());
               Set<ResourceAction> apiActions =
                   resourceApiActionsMap.containsKey(resource)
                       ? resourceApiActionsMap.get(resource)
@@ -226,10 +285,14 @@ public class VumcAdminAccessControl implements AccessControl {
       case ALL:
         return descendantType.getActions();
       case READ:
-        return Set.of(READ);
+        return ResourceType.COHORT_REVIEW.equals(descendantType)
+            ? Set.of(READ, QUERY_INSTANCES, QUERY_COUNTS)
+            : Set.of(READ);
       case UPDATE:
         Set<Action> allActionsExceptRead = new HashSet<>(descendantType.getActions());
         allActionsExceptRead.remove(READ);
+        allActionsExceptRead.remove(QUERY_INSTANCES);
+        allActionsExceptRead.remove(QUERY_COUNTS);
         return allActionsExceptRead;
       case CREATE:
       case DELETE:
@@ -243,7 +306,7 @@ public class VumcAdminAccessControl implements AccessControl {
   }
 
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  private boolean apiIsAuthorized(
+  protected boolean apiIsAuthorized(
       String userEmail,
       ResourceAction resourceAction,
       org.vumc.vda.tanagra.admin.model.ResourceType resourceType,
@@ -260,7 +323,7 @@ public class VumcAdminAccessControl implements AccessControl {
     }
   }
 
-  private ResourceList apiListAuthorizedResources(
+  protected ResourceList apiListAuthorizedResources(
       String userEmail, org.vumc.vda.tanagra.admin.model.ResourceType resourceType) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
