@@ -9,6 +9,7 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.*;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.service.instances.filter.EntityFilter;
@@ -20,10 +21,7 @@ import bio.terra.tanagra.underlay.RelationshipField;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import bio.terra.tanagra.utils.SqlFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,8 +51,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
       String underlayName, String entityName, ApiQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        QUERY_INSTANCES,
-        UNDERLAY,
+        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
         ResourceId.forUnderlay(underlayName));
     EntityQueryRequest entityQueryRequest =
         fromApiConversionService.fromApiObject(body, underlayName, entityName);
@@ -163,8 +160,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
       String underlayName, String entityName, ApiCountQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        QUERY_COUNTS,
-        UNDERLAY,
+        Permissions.forActions(UNDERLAY, QUERY_COUNTS),
         ResourceId.forUnderlay(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 

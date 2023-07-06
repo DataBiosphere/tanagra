@@ -1,17 +1,15 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
-import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
-import static bio.terra.tanagra.service.accesscontrol.Action.READ;
-import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
+import static bio.terra.tanagra.service.accesscontrol.Action.*;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.ConceptSetsV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.*;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
@@ -37,7 +35,9 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> createConceptSet(
       String studyId, ApiConceptSetCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), CREATE, CONCEPT_SET, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, CREATE_CONCEPT_SET),
+        ResourceId.forStudy(studyId));
     Criteria singleCriteria =
         body.getCriteria() == null
             ? null
@@ -59,9 +59,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<Void> deleteConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        DELETE,
-        CONCEPT_SET,
-        ResourceId.forConceptSet(studyId, conceptSetId));
+        Permissions.forActions(CONCEPT_SET, DELETE),
+        ResourceId.forCohort(studyId, conceptSetId));
     conceptSetService.deleteConceptSet(studyId, conceptSetId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -70,24 +69,23 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   public ResponseEntity<ApiConceptSetV2> getConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        READ,
-        CONCEPT_SET,
-        ResourceId.forConceptSet(studyId, conceptSetId));
+        Permissions.forActions(CONCEPT_SET, READ),
+        ResourceId.forCohort(studyId, conceptSetId));
     return ResponseEntity.ok(toApiObject(conceptSetService.getConceptSet(studyId, conceptSetId)));
   }
 
   @Override
   public ResponseEntity<ApiConceptSetListV2> listConceptSets(
       String studyId, Integer offset, Integer limit) {
-    ResourceIdCollection authorizedConceptSetIds =
-        accessControlService.listResourceIds(
+    ResourceCollection authorizedConceptSetIds =
+        accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(),
-            CONCEPT_SET,
+            Permissions.forActions(CONCEPT_SET, READ),
             ResourceId.forStudy(studyId),
             offset,
             limit);
     ApiConceptSetListV2 apiConceptSets = new ApiConceptSetListV2();
-    conceptSetService.listConceptSets(authorizedConceptSetIds, studyId, offset, limit).stream()
+    conceptSetService.listConceptSets(authorizedConceptSetIds, offset, limit).stream()
         .forEach(conceptSet -> apiConceptSets.add(toApiObject(conceptSet)));
     return ResponseEntity.ok(apiConceptSets);
   }
@@ -97,9 +95,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
       String studyId, String conceptSetId, ApiConceptSetUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        UPDATE,
-        CONCEPT_SET,
-        ResourceId.forConceptSet(studyId, conceptSetId));
+        Permissions.forActions(CONCEPT_SET, UPDATE),
+        ResourceId.forCohort(studyId, conceptSetId));
     Criteria singleCriteria =
         body.getCriteria() == null
             ? null

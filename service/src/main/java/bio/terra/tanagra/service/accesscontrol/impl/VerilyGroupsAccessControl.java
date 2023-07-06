@@ -1,11 +1,7 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.accesscontrol.AccessControl;
-import bio.terra.tanagra.service.accesscontrol.Action;
-import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.accesscontrol.ResourceType;
+import bio.terra.tanagra.service.accesscontrol.*;
 import bio.terra.tanagra.service.auth.AppDefaultUtils;
 import bio.terra.tanagra.service.auth.InvalidCredentialsException;
 import bio.terra.tanagra.service.auth.UserId;
@@ -32,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class VerilyGroupsAccessControl implements AccessControl {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerilyGroupsAccessControl.class);
 
-  private static final String ALL_ACCESS = "ALL_ACCESS";
+  public static final String ALL_ACCESS = "ALL_ACCESS";
 
   private String basePath;
   private String oauthClientId;
@@ -63,7 +59,7 @@ public class VerilyGroupsAccessControl implements AccessControl {
     try {
       // Lookup the group ID for each group name. The ID is required to list the members.
       Map<String, VerilyGroup> nameToGroup =
-          apiListGroups(basePath, oauthClientId).stream()
+          apiListGroups().stream()
               .collect(Collectors.toMap(VerilyGroup::getName, Function.identity()));
 
       // Build a map of underlay name to VerilyGroup object.
@@ -82,12 +78,11 @@ public class VerilyGroupsAccessControl implements AccessControl {
   }
 
   @Override
-  public boolean isAuthorized(
-      UserId userId, Action action, ResourceType resourceType, @Nullable ResourceId resourceId) {
-    if (ResourceType.UNDERLAY.equals(resourceType)) {
+  public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
+    if (ResourceType.UNDERLAY.equals(permissions.getType())) {
       // Check membership in ALL_ACCESS and/or underlay-specific group.
-      return hasAllUnderlayAccess(userId.getEmail())
-          || hasSpecificUnderlayAccess(resourceId.getUnderlay(), userId.getEmail());
+      return hasAllUnderlayAccess(user.getEmail())
+          || hasSpecificUnderlayAccess(resource.getUnderlay(), user.getEmail());
     } else {
       // For resources other than underlays, all actions are allowed to everyone.
       return true;
@@ -95,27 +90,37 @@ public class VerilyGroupsAccessControl implements AccessControl {
   }
 
   @Override
-  public ResourceIdCollection listResourceIds(
-      UserId userId, ResourceType type, ResourceId parentResourceId, int offset, int limit) {
+  public Permissions getPermissions(UserId user, ResourceId resource) {
+    // There are no partial permissions, users either have all or none.
+    return isAuthorized(user, Permissions.allActions(resource.getType()), resource)
+        ? Permissions.allActions(resource.getType())
+        : Permissions.empty(resource.getType());
+  }
+
+  @Override
+  public ResourceCollection listAllPermissions(
+      UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
     if (ResourceType.UNDERLAY.equals(type)) {
-      if (hasAllUnderlayAccess(userId.getEmail())) {
+      if (hasAllUnderlayAccess(user.getEmail())) {
         // If user is a member in ALL_ACCESS group, then return all underlays.
-        return ResourceIdCollection.allResourceIds();
+        return ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null);
       } else {
         // Otherwise, check membership in each of the underlay-specific groups.
-        List<ResourceId> allowedUnderlays = new ArrayList<>();
+        Map<ResourceId, Permissions> underlayPermissionsMap = new HashMap<>();
         underlayToGroup.keySet().stream()
             .forEach(
-                underlay -> {
-                  if (hasSpecificUnderlayAccess(underlay, userId.getEmail())) {
-                    allowedUnderlays.add(ResourceId.forUnderlay(underlay));
-                  }
-                });
-        return ResourceIdCollection.forCollection(allowedUnderlays);
+                underlay ->
+                    underlayPermissionsMap.put(
+                        ResourceId.forUnderlay(underlay),
+                        hasSpecificUnderlayAccess(underlay, user.getEmail())
+                            ? Permissions.allActions(ResourceType.UNDERLAY)
+                            : Permissions.empty(ResourceType.UNDERLAY)));
+        return ResourceCollection.resourcesDifferentPermissions(underlayPermissionsMap)
+            .slice(offset, limit);
       }
     } else {
-      // For resources other than underlays, everyone can list everything.
-      return ResourceIdCollection.allResourceIds();
+      // For resources other than underlays, everyone has all permissions on everything.
+      return ResourceCollection.allResourcesAllPermissions(type, parentResource);
     }
   }
 
@@ -123,8 +128,7 @@ public class VerilyGroupsAccessControl implements AccessControl {
   private boolean hasSpecificUnderlayAccess(String underlay, String userEmail) {
     // Null group or unmapped underlay means the underlay is inaccessible.
     VerilyGroup group = underlayToGroup.get(underlay);
-    return group != null
-        && apiListMembers(basePath, oauthClientId, group.getId()).contains(userEmail);
+    return group != null && apiListMembers(group.getId()).contains(userEmail);
   }
 
   /** Return true if the user email is included in the ALL_ACCESS group membership list. */
@@ -132,17 +136,15 @@ public class VerilyGroupsAccessControl implements AccessControl {
     if (allAccessGroup == null) {
       return false;
     } else {
-      return apiListMembers(basePath, oauthClientId, allAccessGroup.getId()).contains(userEmail);
+      return apiListMembers(allAccessGroup.getId()).contains(userEmail);
     }
   }
 
   /**
    * Call the VerilyGroups API to list all the groups the application default credentials have
    * access to.
-   *
-   * @return Map of group email -> id.
    */
-  private static List<VerilyGroup> apiListGroups(String basePath, String oauthClientId) {
+  protected List<VerilyGroup> apiListGroups() {
     JSONObject response =
         makeGetRequestWithADC(basePath + "/v1/groups?group_type=MANAGED_GROUPS", oauthClientId);
 
@@ -169,8 +171,7 @@ public class VerilyGroupsAccessControl implements AccessControl {
    *
    * @return List of member emails.
    */
-  private static List<String> apiListMembers(
-      String basePath, String oauthClientId, String groupId) {
+  protected List<String> apiListMembers(String groupId) {
     JSONObject response =
         makeGetRequestWithADC(basePath + "/v1/groups/" + groupId + "/members", oauthClientId);
 
@@ -221,12 +222,12 @@ public class VerilyGroupsAccessControl implements AccessControl {
     }
   }
 
-  private static class VerilyGroup {
+  public static class VerilyGroup {
     private final String id;
     private final String name;
     private final String email;
 
-    VerilyGroup(String id, String name, String email) {
+    public VerilyGroup(String id, String name, String email) {
       this.id = id;
       this.name = name;
       this.email = email;

@@ -6,11 +6,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Study;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -157,16 +160,20 @@ public class CohortServiceTest {
 
     // List all cohorts in study2.
     List<Cohort> allCohorts =
-        cohortService.listCohorts(ResourceIdCollection.allResourceIds(), study2.getId(), 0, 10);
+        cohortService.listCohorts(
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.COHORT, ResourceId.forStudy(study2.getId())),
+            0,
+            10);
     assertEquals(2, allCohorts.size());
     LOGGER.info("cohorts found: {}, {}", allCohorts.get(0).getId(), allCohorts.get(1).getId());
 
     // List selected cohort in study2.
     List<Cohort> selectedCohorts =
         cohortService.listCohorts(
-            ResourceIdCollection.forCollection(
-                List.of(ResourceId.forCohort(study2.getId(), cohort3.getId()))),
-            study2.getId(),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.COHORT),
+                Set.of(ResourceId.forCohort(study2.getId(), cohort3.getId()))),
             0,
             10);
     assertEquals(1, selectedCohorts.size());
@@ -176,15 +183,19 @@ public class CohortServiceTest {
   void invalid() {
     // List all.
     List<Cohort> allCohorts =
-        cohortService.listCohorts(ResourceIdCollection.allResourceIds(), study1.getId(), 0, 10);
+        cohortService.listCohorts(
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.COHORT, ResourceId.forStudy(study1.getId())),
+            0,
+            10);
     assertTrue(allCohorts.isEmpty());
 
     // List selected.
     List<Cohort> selectedCohorts =
         cohortService.listCohorts(
-            ResourceIdCollection.forCollection(
-                List.of(ResourceId.forCohort(study1.getId(), "123"))),
-            study1.getId(),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.COHORT),
+                Set.of(ResourceId.forCohort(study1.getId(), "123"))),
             0,
             10);
     assertTrue(selectedCohorts.isEmpty());

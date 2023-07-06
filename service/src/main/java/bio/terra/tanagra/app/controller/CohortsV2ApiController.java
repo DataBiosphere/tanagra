@@ -1,10 +1,8 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
-import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
-import static bio.terra.tanagra.service.accesscontrol.Action.READ;
-import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
+import static bio.terra.tanagra.service.accesscontrol.Action.*;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.CohortsV2Api;
@@ -14,8 +12,9 @@ import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.CohortService;
 import bio.terra.tanagra.service.FromApiConversionService;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
@@ -41,7 +40,9 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortV2> createCohort(String studyId, ApiCohortCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), CREATE, COHORT, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, CREATE_COHORT),
+        ResourceId.forStudy(studyId));
     Cohort createdCohort =
         cohortService.createCohort(
             studyId,
@@ -57,8 +58,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   public ResponseEntity<Void> deleteCohort(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        DELETE,
-        COHORT,
+        Permissions.forActions(COHORT, DELETE),
         ResourceId.forCohort(studyId, cohortId));
     cohortService.deleteCohort(studyId, cohortId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -68,8 +68,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   public ResponseEntity<ApiCohortV2> getCohort(String studyId, String cohortId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        READ,
-        COHORT,
+        Permissions.forActions(COHORT, READ),
         ResourceId.forCohort(studyId, cohortId));
     return ResponseEntity.ok(
         ToApiConversionUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
@@ -78,15 +77,15 @@ public class CohortsV2ApiController implements CohortsV2Api {
   @Override
   public ResponseEntity<ApiCohortListV2> listCohorts(
       String studyId, Integer offset, Integer limit) {
-    ResourceIdCollection authorizedCohortIds =
-        accessControlService.listResourceIds(
+    ResourceCollection authorizedCohortIds =
+        accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(),
-            COHORT,
+            Permissions.forActions(COHORT, READ),
             ResourceId.forStudy(studyId),
             offset,
             limit);
     ApiCohortListV2 apiCohorts = new ApiCohortListV2();
-    cohortService.listCohorts(authorizedCohortIds, studyId, offset, limit).stream()
+    cohortService.listCohorts(authorizedCohortIds, offset, limit).stream()
         .forEach(cohort -> apiCohorts.add(ToApiConversionUtils.toApiObject(cohort)));
     return ResponseEntity.ok(apiCohorts);
   }
@@ -96,8 +95,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
       String studyId, String cohortId, ApiCohortUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        UPDATE,
-        COHORT,
+        Permissions.forActions(COHORT, UPDATE),
         ResourceId.forCohort(studyId, cohortId));
     List<CohortRevision.CriteriaGroupSection> sections =
         body.getCriteriaGroupSections().stream()
