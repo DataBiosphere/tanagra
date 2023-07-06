@@ -50,7 +50,7 @@ public final class ResourceId {
   }
 
   public static ResourceId forReview(String study, String cohort, String review) {
-    return builder().type(COHORT_REVIEW).study(study).cohort(cohort).review(review).build();
+    return builder().type(REVIEW).study(study).cohort(cohort).review(review).build();
   }
 
   public static ResourceId forAnnotationKey(String study, String cohort, String annotationKey) {
@@ -75,7 +75,7 @@ public final class ResourceId {
       case COHORT:
       case CONCEPT_SET:
         return forStudy(study);
-      case COHORT_REVIEW:
+      case REVIEW:
       case ANNOTATION_KEY:
         return forCohort(study, cohort);
       default:
@@ -96,7 +96,7 @@ public final class ResourceId {
         return buildCompositeId(List.of(study, cohort));
       case CONCEPT_SET:
         return buildCompositeId(List.of(study, conceptSet));
-      case COHORT_REVIEW:
+      case REVIEW:
         return buildCompositeId(List.of(study, cohort, review));
       case ANNOTATION_KEY:
         return buildCompositeId(List.of(study, cohort, annotationKey));
@@ -124,7 +124,7 @@ public final class ResourceId {
   }
 
   public String getCohort() {
-    if (!List.of(COHORT, COHORT_REVIEW, ANNOTATION_KEY).contains(type)) {
+    if (!List.of(COHORT, REVIEW, ANNOTATION_KEY).contains(type)) {
       throw new SystemException("Cohort id is not set for resource type: " + type);
     }
     return cohort;
@@ -138,7 +138,7 @@ public final class ResourceId {
   }
 
   public String getReview() {
-    if (type != COHORT_REVIEW) {
+    if (type != REVIEW) {
       throw new SystemException("Review id is not set for resource type: " + type);
     }
     return review;

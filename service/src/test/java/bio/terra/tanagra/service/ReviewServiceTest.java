@@ -200,7 +200,7 @@ public class ReviewServiceTest {
     List<Review> allReviews =
         reviewService.listReviews(
             ResourceCollection.allResourcesAllPermissions(
-                ResourceType.COHORT_REVIEW, ResourceId.forCohort(study1.getId(), cohort2.getId())),
+                ResourceType.REVIEW, ResourceId.forCohort(study1.getId(), cohort2.getId())),
             0,
             10);
     assertEquals(2, allReviews.size());
@@ -210,7 +210,7 @@ public class ReviewServiceTest {
     List<Review> selectedReviews =
         reviewService.listReviews(
             ResourceCollection.resourcesSamePermissions(
-                Permissions.allActions(ResourceType.COHORT_REVIEW),
+                Permissions.allActions(ResourceType.REVIEW),
                 Set.of(ResourceId.forReview(study1.getId(), cohort2.getId(), review3.getId()))),
             0,
             10);
@@ -223,7 +223,7 @@ public class ReviewServiceTest {
     List<Review> allReviews =
         reviewService.listReviews(
             ResourceCollection.allResourcesAllPermissions(
-                ResourceType.COHORT_REVIEW, ResourceId.forCohort(study1.getId(), cohort1.getId())),
+                ResourceType.REVIEW, ResourceId.forCohort(study1.getId(), cohort1.getId())),
             0,
             10);
     assertTrue(allReviews.isEmpty());
@@ -232,7 +232,7 @@ public class ReviewServiceTest {
     List<Review> selectedReviews =
         reviewService.listReviews(
             ResourceCollection.resourcesSamePermissions(
-                Permissions.allActions(ResourceType.COHORT_REVIEW),
+                Permissions.allActions(ResourceType.REVIEW),
                 Set.of(ResourceId.forReview(study1.getId(), cohort1.getId(), "123"))),
             0,
             10);

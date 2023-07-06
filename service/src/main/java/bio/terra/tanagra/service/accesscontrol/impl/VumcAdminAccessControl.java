@@ -285,7 +285,7 @@ public class VumcAdminAccessControl implements AccessControl {
       case ALL:
         return descendantType.getActions();
       case READ:
-        return ResourceType.COHORT_REVIEW.equals(descendantType)
+        return ResourceType.REVIEW.equals(descendantType)
             ? Set.of(READ, QUERY_INSTANCES, QUERY_COUNTS)
             : Set.of(READ);
       case UPDATE:

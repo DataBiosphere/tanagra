@@ -2,7 +2,7 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.*;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.ReviewsV2Api;
@@ -81,7 +81,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<Void> deleteReview(String studyId, String cohortId, String reviewId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT_REVIEW, DELETE),
+        Permissions.forActions(REVIEW, DELETE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     reviewService.deleteReview(studyId, cohortId, reviewId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -91,7 +91,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<ApiReviewV2> getReview(String studyId, String cohortId, String reviewId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT_REVIEW, READ),
+        Permissions.forActions(REVIEW, READ),
         ResourceId.forReview(studyId, cohortId, reviewId));
     return ResponseEntity.ok(
         toApiObject(
@@ -105,7 +105,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     ResourceCollection authorizedReviewIds =
         accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(),
-            Permissions.forActions(COHORT_REVIEW, READ),
+            Permissions.forActions(REVIEW, READ),
             ResourceId.forCohort(studyId, cohortId),
             offset,
             limit);
@@ -122,7 +122,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT_REVIEW, UPDATE),
+        Permissions.forActions(REVIEW, UPDATE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     Review updatedReview =
         reviewService.updateReview(
@@ -141,7 +141,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT_REVIEW, QUERY_INSTANCES),
+        Permissions.forActions(REVIEW, QUERY_INSTANCES),
         ResourceId.forReview(studyId, cohortId, reviewId));
     ReviewQueryResult reviewQueryResult =
         reviewService.listReviewInstances(
@@ -167,7 +167,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewCountQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT_REVIEW, QUERY_COUNTS),
+        Permissions.forActions(REVIEW, QUERY_COUNTS),
         ResourceId.forReview(studyId, cohortId, reviewId));
     EntityCountResult countResult =
         reviewService.countReviewInstances(studyId, cohortId, reviewId, body.getAttributes());

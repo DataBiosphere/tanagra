@@ -111,7 +111,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       ApiLiteralV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT_REVIEW, UPDATE),
+        Permissions.forActions(REVIEW, UPDATE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     // The API currently restricts the caller to a single annotation value per review instance per
     // annotation key, but the backend can handle a list.
@@ -130,7 +130,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String studyId, String cohortId, String annotationKeyId, String reviewId, String instanceId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT_REVIEW, UPDATE),
+        Permissions.forActions(REVIEW, UPDATE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     annotationService.deleteAnnotationValues(
         studyId, cohortId, annotationKeyId, reviewId, instanceId);

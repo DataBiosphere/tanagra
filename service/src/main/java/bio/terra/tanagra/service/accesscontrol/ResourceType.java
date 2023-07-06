@@ -23,7 +23,7 @@ public enum ResourceType {
           Action.CREATE_ANNOTATION_KEY),
       STUDY),
   CONCEPT_SET(Set.of(Action.READ, Action.UPDATE, Action.DELETE), STUDY),
-  COHORT_REVIEW(
+  REVIEW(
       Set.of(
           Action.READ, Action.UPDATE, Action.DELETE, Action.QUERY_INSTANCES, Action.QUERY_COUNTS),
       COHORT),
