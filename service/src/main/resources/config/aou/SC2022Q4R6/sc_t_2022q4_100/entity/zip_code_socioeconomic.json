@@ -1,0 +1,227 @@
+{
+  "name" : "zip_code_socioeconomic",
+  "idAttribute" : "person_id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "median_income",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "fraction_vacant_housing",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "acs",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2017.0,
+      "maxVal" : 2017.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "zip3_as_string",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "361**"
+          },
+          "display" : "361**"
+        },
+        "count" : 234525
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "fraction_no_health_ins",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "deprivation_index",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "observation_date",
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "fraction_poverty",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "fraction_assisted_income",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "fraction_high_school_edu",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT o.person_id,        o.observation_date,        zip.zip3_as_string,        zip.fraction_assisted_income,        zip.fraction_high_school_edu,        zip.median_income,        zip.fraction_no_health_ins,        zip.fraction_poverty,        zip.fraction_vacant_housing,        zip.deprivation_index,        zip.acs FROM `all-of-us-ehr-dev.SC2022Q4R6.observation` AS o JOIN `all-of-us-ehr-dev.SC2022Q4R6.zip3_ses_map` zip ON CAST(SUBSTR(o.value_as_string, 0, STRPOS(o.value_as_string, '*') - 1) as INT64) = zip.zip3 WHERE observation_source_concept_id = 1585250 AND o.value_as_string not like 'Res%' "
+    },
+    "attributeMappings" : {
+      "median_income" : {
+        "value" : {
+          "column" : "median_income",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_vacant_housing" : {
+        "value" : {
+          "column" : "fraction_vacant_housing",
+          "runtimeCalculated" : false
+        }
+      },
+      "acs" : {
+        "value" : {
+          "column" : "acs",
+          "runtimeCalculated" : false
+        }
+      },
+      "zip3_as_string" : {
+        "value" : {
+          "column" : "zip3_as_string",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_no_health_ins" : {
+        "value" : {
+          "column" : "fraction_no_health_ins",
+          "runtimeCalculated" : false
+        }
+      },
+      "deprivation_index" : {
+        "value" : {
+          "column" : "deprivation_index",
+          "runtimeCalculated" : false
+        }
+      },
+      "observation_date" : {
+        "value" : {
+          "column" : "observation_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_poverty" : {
+        "value" : {
+          "column" : "fraction_poverty",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_assisted_income" : {
+        "value" : {
+          "column" : "fraction_assisted_income",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_high_school_edu" : {
+        "value" : {
+          "column" : "fraction_high_school_edu",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "zip_code_socioeconomic"
+    },
+    "attributeMappings" : {
+      "median_income" : {
+        "value" : {
+          "column" : "median_income",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_vacant_housing" : {
+        "value" : {
+          "column" : "fraction_vacant_housing",
+          "runtimeCalculated" : false
+        }
+      },
+      "acs" : {
+        "value" : {
+          "column" : "acs",
+          "runtimeCalculated" : false
+        }
+      },
+      "zip3_as_string" : {
+        "value" : {
+          "column" : "zip3_as_string",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_no_health_ins" : {
+        "value" : {
+          "column" : "fraction_no_health_ins",
+          "runtimeCalculated" : false
+        }
+      },
+      "deprivation_index" : {
+        "value" : {
+          "column" : "deprivation_index",
+          "runtimeCalculated" : false
+        }
+      },
+      "observation_date" : {
+        "value" : {
+          "column" : "observation_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_poverty" : {
+        "value" : {
+          "column" : "fraction_poverty",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_assisted_income" : {
+        "value" : {
+          "column" : "fraction_assisted_income",
+          "runtimeCalculated" : false
+        }
+      },
+      "fraction_high_school_edu" : {
+        "value" : {
+          "column" : "fraction_high_school_edu",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

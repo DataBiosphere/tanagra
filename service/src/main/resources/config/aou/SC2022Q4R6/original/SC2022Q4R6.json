@@ -1,0 +1,49 @@
+{
+  "name": "sc_t_2022q4_100",
+  "dataPointers": [
+    { "type": "BQ_DATASET",
+      "name": "omop_dataset",
+      "projectId": "all-of-us-ehr-dev",
+      "datasetId": "SR2022Q4R6"
+    },
+    { "type": "BQ_DATASET",
+      "name": "index_dataset",
+      "projectId": "all-of-us-workbench-test",
+      "datasetId": "sc_t_2022q4_100",
+      "dataflowServiceAccountEmail": "tanagra-indexing-runner@all-of-us-workbench-test.iam.gserviceaccount.com",
+      "dataflowTempLocation":  "gs://all-of-us-workbench-private-cloudsql/DummySR/tanagra_index_temp",
+      "dataflowRegion": "us-central1",
+      "dataflowWorkerMachineType" : "n1-standard-4",
+      "dataflowUsePublicIps": false
+    }
+  ],
+  "entities": [
+    "brand.json",
+    "condition.json",
+    "condition_occurrence.json",
+    "device.json",
+    "device_occurrence.json",
+    "ingredient.json",
+    "ingredient_occurrence.json",
+    "measurement.json",
+    "measurement_occurrence.json",
+    "observation.json",
+    "observation_occurrence.json",
+    "person.json",
+    "procedure.json",
+    "procedure_occurrence.json",
+    "visit.json",
+    "visit_occurrence.json",
+    "zip_code_socioeconomic.json"],
+  "primaryEntity": "person",
+  "entityGroups": [
+    "brand_ingredient.json",
+    "condition_person_occurrence.json",
+    "device_person_occurrence.json",
+    "ingredient_person_occurrence.json",
+    "measurement_person_occurrence.json",
+    "observation_person_occurrence.json",
+    "procedure_person_occurrence.json",
+    "visit_person_occurrence.json"],
+  "uiConfigFile": "top_level.json"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "zip_code_socioeconomic",
+  "idAttribute": "person_id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "person_id" },
+    { "type": "SIMPLE", "name": "observation_date" },
+    { "type": "SIMPLE", "name": "zip3_as_string" },
+    { "type": "SIMPLE", "name": "fraction_assisted_income" },
+    { "type": "SIMPLE", "name": "fraction_high_school_edu" },
+    { "type": "SIMPLE", "name": "median_income" },
+    { "type": "SIMPLE", "name": "fraction_no_health_ins" },
+    { "type": "SIMPLE", "name": "fraction_poverty" },
+    { "type": "SIMPLE", "name": "fraction_vacant_housing" },
+    { "type": "SIMPLE", "name": "deprivation_index" },
+    { "type": "SIMPLE", "name": "acs" }
+
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "zip_code_socioeconomic.sql" },
+    "attributeMappings": {
+      "person_id": { "value": { "column": "person_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

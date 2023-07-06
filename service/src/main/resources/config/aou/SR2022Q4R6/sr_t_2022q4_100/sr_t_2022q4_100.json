@@ -1,12 +1,12 @@
 {
-  "name" : "sr_t_2022q4_101",
+  "name" : "sr_t_2022q4_100",
   "dataPointers" : [ {
     "type" : "BQ_DATASET",
     "name" : "index_dataset",
     "projectId" : "all-of-us-workbench-test",
-    "datasetId" : "sr_t_2022q4_101",
+    "datasetId" : "sr_t_2022q4_100",
     "queryProjectId" : "all-of-us-workbench-test",
-    "dataflowServiceAccountEmail" : "circle-deploy-account@all-of-us-workbench-test.iam.gserviceaccount.com",
+    "dataflowServiceAccountEmail" : "tanagra-indexing-runner@all-of-us-workbench-test.iam.gserviceaccount.com",
     "dataflowTempLocation" : "gs://all-of-us-workbench-private-cloudsql/DummySR/tanagra_index_temp",
     "dataflowRegion" : "us-central1",
     "dataflowWorkerMachineType" : "n1-standard-4",
