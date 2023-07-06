@@ -55,12 +55,16 @@ public class VumcAdminAccessControl implements AccessControl {
   @Override
   public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
     if (ResourceType.UNDERLAY.equals(permissions.getType())) {
-      // For underlays, check authorization with the underlay id.
-      return isAuthorized(
-          user,
-          permissions.getActions(),
-          ResourceType.UNDERLAY,
-          resource == null ? null : resource.getUnderlay());
+      // TODO: Remove the below line that always returns true and call the API.
+      // The VUMC admin service is not correctly listing underlays right now, so this is just a
+      // workaround to allow all underlays, until a fix is in.
+      return true;
+      //      // For underlays, check authorization with the underlay id.
+      //      return isAuthorized(
+      //          user,
+      //          permissions.getActions(),
+      //          ResourceType.UNDERLAY,
+      //          resource == null ? null : resource.getUnderlay());
     } else if (ResourceType.STUDY.equals(permissions.getType())) {
       // For studies, check authorization with the study id.
       return isAuthorized(
@@ -149,7 +153,13 @@ public class VumcAdminAccessControl implements AccessControl {
   @Override
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
+    if (ResourceType.UNDERLAY.equals(type)) {
+      // TODO: Remove this conditional block and treat underlays the same as studies.
+      // if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
+      // The VUMC admin service is not correctly listing underlays right now, so this is just a
+      // workaround to allow all underlays, until a fix is in.
+      return ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null);
+    } else if (ResourceType.STUDY.equals(type)) {
       // Admin service stores permissions for underlays and studies.
       Map<ResourceId, Set<ResourceAction>> resourceApiActionsMap = listAllPermissions(user, type);
 
