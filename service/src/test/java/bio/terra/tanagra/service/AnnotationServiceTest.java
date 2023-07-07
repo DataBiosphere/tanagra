@@ -731,7 +731,7 @@ public class AnnotationServiceTest {
     LOGGER.info("Created annotation value");
 
     // Generate a TSV string with the annotation values data.
-    String tsv = reviewService.buildTsvStringForAnnotationValues(study1.getId(), cohort2.getId());
+    String tsv = reviewService.buildTsvStringForAnnotationValues(study1, cohort2);
     assertEquals("person_id\tkey1\tkey2\n24\tval 1\t\n25\t\tval 2\n", tsv);
   }
 }

@@ -8,10 +8,7 @@ import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.artifact.AnnotationKey;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.Review;
+import bio.terra.tanagra.service.artifact.*;
 import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.BooleanAndOrFilter;
@@ -382,11 +379,10 @@ public class ReviewService {
             .build());
   }
 
-  public String buildTsvStringForAnnotationValues(String studyId, String cohortId) {
+  public String buildTsvStringForAnnotationValues(Study study, Cohort cohort) {
     // Build the column headers: id column name in source data, then annotation key display names.
     // Sort the annotation keys by display name, so that we get a consistent ordering.
     // e.g. person_id, key1, key2
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
     Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
     String primaryIdSourceColumnName =
         underlay
@@ -400,7 +396,8 @@ public class ReviewService {
         annotationService
             .listAnnotationKeys(
                 ResourceCollection.allResourcesAllPermissions(
-                    ResourceType.ANNOTATION_KEY, ResourceId.forCohort(studyId, cohortId)),
+                    ResourceType.ANNOTATION_KEY,
+                    ResourceId.forCohort(study.getId(), cohort.getId())),
                 /*offset=*/ 0,
                 /*limit=*/ Integer.MAX_VALUE)
             .stream()
@@ -413,14 +410,15 @@ public class ReviewService {
     StringBuilder fileContents = new StringBuilder(columnHeaders + "\n");
 
     // Get all the annotation values for the latest revision.
-    List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId);
+    List<AnnotationValue> annotationValues = listAnnotationValues(study.getId(), cohort.getId());
 
     // Convert the list of annotation values to a TSV-ready table.
     Table<String, String, String> tsvValues = HashBasedTable.create();
     annotationValues.forEach(
         value -> {
           AnnotationKey key =
-              annotationService.getAnnotationKey(studyId, cohortId, value.getAnnotationKeyId());
+              annotationService.getAnnotationKey(
+                  study.getId(), cohort.getId(), value.getAnnotationKeyId());
           tsvValues.put(
               value.getInstanceId(), // row
               key.getDisplayName(), // column

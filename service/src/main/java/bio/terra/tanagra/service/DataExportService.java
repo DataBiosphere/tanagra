@@ -3,12 +3,17 @@ package bio.terra.tanagra.service;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
 import bio.terra.tanagra.query.QueryExecutor;
+import bio.terra.tanagra.service.artifact.Cohort;
+import bio.terra.tanagra.service.artifact.Study;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
+import bio.terra.tanagra.service.utils.ToApiConversionUtils;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
+import bio.terra.tanagra.utils.NameUtils;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
@@ -24,11 +29,19 @@ public class DataExportService {
   private final ExportConfiguration.Shared shared;
   private final Map<String, DataExport> modelToImpl = new HashMap<>();
   private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
+  private final UnderlaysService underlaysService;
+  private final StudyService studyService;
+  private final CohortService cohortService;
   private final ReviewService reviewService;
   private GoogleCloudStorage storageService;
 
   @Autowired
-  public DataExportService(ExportConfiguration exportConfiguration, ReviewService reviewService) {
+  public DataExportService(
+      ExportConfiguration exportConfiguration,
+      UnderlaysService underlaysService,
+      StudyService studyService,
+      CohortService cohortService,
+      ReviewService reviewService) {
     this.shared = exportConfiguration.getShared();
     for (PerModel perModelConfig : exportConfiguration.getModels()) {
       DataExport dataExportImplInstance = perModelConfig.getType().createNewInstance();
@@ -43,6 +56,9 @@ public class DataExportService {
       this.modelToImpl.put(modelName, dataExportImplInstance);
       this.modelToConfig.put(modelName, perModelConfig);
     }
+    this.underlaysService = underlaysService;
+    this.studyService = studyService;
+    this.cohortService = cohortService;
     this.reviewService = reviewService;
   }
 
@@ -64,9 +80,27 @@ public class DataExportService {
   }
 
   public ExportResult run(
-      ExportRequest.Builder request, List<EntityQueryRequest> entityQueryRequests) {
+      String studyId,
+      List<String> cohortIds,
+      ExportRequest.Builder request,
+      List<EntityQueryRequest> entityQueryRequests) {
     // Get the implementation class instance for the requested data export model.
     DataExport impl = modelToImpl.get(request.getModel());
+
+    // Populate the study, cohort, and underlay API objects in the request.
+    Study study = studyService.getStudy(studyId);
+    List<Cohort> cohorts =
+        cohortIds.stream()
+            .map(cohortId -> cohortService.getCohort(studyId, cohortId))
+            .collect(Collectors.toList());
+    Underlay underlay = underlaysService.getUnderlay(cohorts.get(0).getUnderlay());
+    request
+        .underlay(ToApiConversionUtils.toApiObject(underlay))
+        .study(ToApiConversionUtils.toApiObject(study))
+        .cohorts(
+            cohorts.stream()
+                .map(cohort -> ToApiConversionUtils.toApiObject(cohort))
+                .collect(Collectors.toList()));
 
     // Populate the function pointers for generating SQL query strings and writing GCS files.
     // Instead of executing these functions here and passing the outputs to the implementation
@@ -81,8 +115,7 @@ public class DataExportService {
     }
     if (request.isIncludeAnnotations()) {
       request.writeAnnotationDataToGcsFn(
-          fileNameTemplate ->
-              writeAnnotationDataToGcs(fileNameTemplate, request.getStudy(), request.getCohorts()));
+          fileNameTemplate -> writeAnnotationDataToGcs(fileNameTemplate, study, cohorts));
     }
     request.getGoogleCloudStorageFn(() -> getStorageService());
 
@@ -136,17 +169,20 @@ public class DataExportService {
    * @return map of cohort id -> GCS full path (e.g. gs://bucket/filename.csv)
    */
   private Map<String, String> writeAnnotationDataToGcs(
-      String fileNameTemplate, String studyId, List<String> cohorts) {
+      String fileNameTemplate, Study study, List<Cohort> cohorts) {
     // Just pick the first GCS bucket name.
     String bucketName = shared.getGcsBucketNames().get(0);
     return cohorts.stream()
         .collect(
             Collectors.toMap(
-                Function.identity(),
-                cohortId -> {
-                  String fileName = getFileName(fileNameTemplate, "cohort", cohortId);
+                Cohort::getId,
+                cohort -> {
+                  String cohortIdAndName =
+                      NameUtils.simplifyStringForName(
+                          cohort.getDisplayName() + "_" + cohort.getId());
+                  String fileName = getFileName(fileNameTemplate, "cohort", cohortIdAndName);
                   String fileContents =
-                      reviewService.buildTsvStringForAnnotationValues(studyId, cohortId);
+                      reviewService.buildTsvStringForAnnotationValues(study, cohort);
                   BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
                   return blobId.toGsUtilUri();
                 }));
