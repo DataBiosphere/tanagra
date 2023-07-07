@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.export;
 import bio.terra.tanagra.generated.model.ApiCohortV2;
 import bio.terra.tanagra.generated.model.ApiStudyV2;
 import bio.terra.tanagra.generated.model.ApiUnderlayV2;
+import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import java.util.*;
 import java.util.function.Function;
@@ -18,7 +19,7 @@ public class ExportRequest {
   private final List<ApiCohortV2> cohorts;
   private final Supplier<Map<String, String>> generateSqlQueriesFn;
   private final Function<String, Map<String, String>> writeEntityDataToGcsFn;
-  private final Function<String, Map<String, String>> writeAnnotationDataToGcsFn;
+  private final Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn;
   private final Supplier<GoogleCloudStorage> getGoogleCloudStorageFn;
 
   private ExportRequest(Builder builder) {
@@ -77,7 +78,7 @@ public class ExportRequest {
         : writeEntityDataToGcsFn.apply(fileNameTemplate);
   }
 
-  public Map<String, String> writeAnnotationDataToGcs(String fileNameTemplate) {
+  public Map<Cohort, String> writeAnnotationDataToGcs(String fileNameTemplate) {
     return writeAnnotationDataToGcsFn == null
         ? Collections.emptyMap()
         : writeAnnotationDataToGcsFn.apply(fileNameTemplate);
@@ -97,7 +98,7 @@ public class ExportRequest {
     private List<ApiCohortV2> cohorts;
     private Supplier<Map<String, String>> generateSqlQueriesFn;
     private Function<String, Map<String, String>> writeEntityDataToGcsFn;
-    private Function<String, Map<String, String>> writeAnnotationDataToGcsFn;
+    private Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn;
 
     private Supplier<GoogleCloudStorage> getGoogleCloudStorageFn;
 
@@ -148,7 +149,7 @@ public class ExportRequest {
     }
 
     public Builder writeAnnotationDataToGcsFn(
-        Function<String, Map<String, String>> writeAnnotationDataToGcsFn) {
+        Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn) {
       this.writeAnnotationDataToGcsFn = writeAnnotationDataToGcsFn;
       return this;
     }

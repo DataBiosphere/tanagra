@@ -168,14 +168,14 @@ public class DataExportService {
    *     reference to the cohort id ${cohort}.
    * @return map of cohort id -> GCS full path (e.g. gs://bucket/filename.csv)
    */
-  private Map<String, String> writeAnnotationDataToGcs(
+  private Map<Cohort, String> writeAnnotationDataToGcs(
       String fileNameTemplate, Study study, List<Cohort> cohorts) {
     // Just pick the first GCS bucket name.
     String bucketName = shared.getGcsBucketNames().get(0);
     return cohorts.stream()
         .collect(
             Collectors.toMap(
-                Cohort::getId,
+                Function.identity(),
                 cohort -> {
                   String cohortIdAndName =
                       NameUtils.simplifyStringForName(
