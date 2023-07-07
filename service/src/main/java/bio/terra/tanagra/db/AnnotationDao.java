@@ -209,8 +209,9 @@ public class AnnotationDao {
               annotationKeysMap.get(annotationKeyId).addEnumVal(enumVal);
             });
 
-    return annotationKeysMap.values().stream()
-        .map(AnnotationKey.Builder::build)
+    // Preserve the order returned by the original query.
+    return annotationKeys.stream()
+        .map(a -> annotationKeysMap.get(a.getId()).build())
         .collect(Collectors.toList());
   }
 

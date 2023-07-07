@@ -238,8 +238,9 @@ public class ConceptSetDao {
               conceptSetsMap.get(conceptSetId).addCriteria(criteria);
             });
 
-    return conceptSetsMap.values().stream()
-        .map(ConceptSet.Builder::build)
+    // Preserve the order returned by the original query.
+    return conceptSets.stream()
+        .map(c -> conceptSetsMap.get(c.getId()).build())
         .collect(Collectors.toList());
   }
 

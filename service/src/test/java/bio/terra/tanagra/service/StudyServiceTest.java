@@ -9,10 +9,12 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.Study;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -114,6 +116,11 @@ public class StudyServiceTest {
         studyService.listStudies(
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
     assertEquals(2, allStudies.size());
+    List<Study> allStudiesSortedByDisplayNameAsc =
+        allStudies.stream()
+            .sorted(Comparator.comparing(Study::getDisplayName))
+            .collect(Collectors.toList());
+    assertEquals(allStudies, allStudiesSortedByDisplayNameAsc);
 
     // List selected.
     List<Study> selectedStudies =

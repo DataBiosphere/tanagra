@@ -11,9 +11,11 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Study;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -186,6 +188,11 @@ public class ConceptSetServiceTest {
     assertEquals(2, allConceptSets.size());
     LOGGER.info(
         "concept sets found: {}, {}", allConceptSets.get(0).getId(), allConceptSets.get(1).getId());
+    List<ConceptSet> allConceptSetsSortedByDisplayNameAsc =
+        allConceptSets.stream()
+            .sorted(Comparator.comparing(ConceptSet::getDisplayName))
+            .collect(Collectors.toList());
+    assertEquals(allConceptSets, allConceptSetsSortedByDisplayNameAsc);
 
     // List selected concept set in study2.
     List<ConceptSet> selectedConceptSets =

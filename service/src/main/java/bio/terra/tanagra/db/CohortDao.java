@@ -335,7 +335,10 @@ public class CohortDao {
               cohortsMap.get(cohortId).addRevision(cohortRevision);
             });
 
-    return cohortsMap.values().stream().map(Cohort.Builder::build).collect(Collectors.toList());
+    // Preserve the order returned by the original query.
+    return cohorts.stream()
+        .map(c -> cohortsMap.get(c.getId()).build())
+        .collect(Collectors.toList());
   }
 
   @WriteTransaction
