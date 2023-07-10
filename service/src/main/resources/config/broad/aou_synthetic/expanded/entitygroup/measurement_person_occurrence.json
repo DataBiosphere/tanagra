@@ -283,6 +283,5 @@
   },
   "criteriaEntity" : "measurement",
   "occurrenceEntity" : "measurement_occurrence",
-  "occurrenceRelatedEntities" : [ ],
   "modifierAttributes" : [ "value_numeric", "value_enum" ]
 }

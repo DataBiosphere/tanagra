@@ -1,15 +1,19 @@
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ErrorIcon from "@mui/icons-material/Error";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import Box from "@mui/material/Box";
+import SwapVertIcon from "@mui/icons-material/SwapVert";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import { Theme, useTheme } from "@mui/material/styles";
+import { SxProps, Theme, useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import produce from "immer";
 import { GridBox } from "layout/gridBox";
-import { ReactNode, useEffect, useRef } from "react";
+import GridLayout from "layout/gridLayout";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useImmer } from "use-immer";
 import { spacing } from "util/spacing";
 
@@ -41,6 +45,7 @@ export type TreeGridColumn = {
   key: string;
   width: string | number;
   title?: string | JSX.Element;
+  sortable?: boolean;
 };
 
 export type ColumnCustomization = {
@@ -48,6 +53,16 @@ export type ColumnCustomization = {
   prefixElements?: ReactNode;
   onClick?: () => void;
   content?: ReactNode;
+};
+
+export enum TreeGridSortDirection {
+  Asc = "ASC",
+  Desc = "DESC",
+}
+
+export type TreeGridSortOrder = {
+  column: string;
+  direction: TreeGridSortDirection;
 };
 
 export type TreeGridProps = {
@@ -63,6 +78,10 @@ export type TreeGridProps = {
   wrapBodyText?: boolean;
   rowHeight?: number | string;
   padding?: number | string;
+
+  initialSortOrders?: TreeGridSortOrder[];
+  onSort?: (orders: TreeGridSortOrder[]) => void;
+  sortLevels?: number;
 };
 
 export function TreeGrid(props: TreeGridProps) {
@@ -70,6 +89,10 @@ export function TreeGrid(props: TreeGridProps) {
 
   const [state, updateState] = useImmer<TreeGridState>(
     new Map<TreeGridId, TreeGridItemState>()
+  );
+
+  const [sortOrders, setSortOrders] = useState<TreeGridSortOrder[]>(
+    props.initialSortOrders ?? []
   );
 
   const cancel = useRef<boolean>(false);
@@ -132,6 +155,30 @@ export function TreeGrid(props: TreeGridProps) {
     }
   }, [props.defaultExpanded]);
 
+  const onSort = useCallback(
+    (col: TreeGridColumn, orders: TreeGridSortOrder[]) => {
+      const index = orders.findIndex((o) => o.column === col.key);
+      const dir = nextDirection(orders[index]?.direction);
+
+      const newOrders = produce(orders, (o) => {
+        if (index >= 0) {
+          o.splice(index, 1);
+        }
+        if (dir) {
+          o.unshift({
+            column: col.key,
+            direction: dir,
+          });
+          o.splice(props.sortLevels ?? 2);
+        }
+      });
+
+      setSortOrders(newOrders);
+      props.onSort?.(newOrders);
+    },
+    [setSortOrders, props.sortLevels]
+  );
+
   const paperColor = theme.palette.background.paper;
 
   return (
@@ -166,7 +213,10 @@ export function TreeGrid(props: TreeGridProps) {
                   zIndex: 1,
                 }}
               >
-                <Box
+                <GridLayout
+                  cols
+                  spacing={1}
+                  rowAlign="middle"
                   sx={{
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -182,7 +232,14 @@ export function TreeGrid(props: TreeGridProps) {
                   >
                     {col.title}
                   </Typography>
-                </Box>
+                  {col.sortable ? (
+                    <SortIconButton
+                      col={col}
+                      orders={sortOrders}
+                      onClick={() => onSort(col, sortOrders)}
+                    />
+                  ) : null}
+                </GridLayout>
               </th>
             ))}
           </tr>
@@ -396,4 +453,67 @@ function ItemIcon(props: ItemIconProps) {
       return <ErrorIcon fontSize="inherit" />;
   }
   return <KeyboardArrowRightIcon fontSize="inherit" />;
+}
+
+type SortIconProps = {
+  col: TreeGridColumn;
+  orders: TreeGridSortOrder[];
+  onClick?: () => void;
+};
+
+function SortIconButton(props: SortIconProps) {
+  const theme = useTheme();
+
+  if (!props.col.sortable) {
+    return null;
+  }
+
+  const index = props.orders.findIndex((o) => o.column === props.col.key);
+  const order = props.orders[index];
+
+  let sx: SxProps = {};
+  if (index === 0) {
+    sx = {
+      "&.MuiIconButton-root": {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText,
+      },
+      "&.MuiIconButton-root:hover": {
+        backgroundColor: theme.palette.primary.dark,
+      },
+    };
+  } else if (index > 0) {
+    sx = {
+      "&.MuiIconButton-root": {
+        outline: `1px solid ${theme.palette.primary.main}`,
+        outlineOffset: "-1px",
+      },
+    };
+  }
+
+  return (
+    <IconButton size="small" onClick={() => props.onClick?.()} sx={{ ...sx }}>
+      {directionIcon(order?.direction)}
+    </IconButton>
+  );
+}
+
+function directionIcon(dir?: TreeGridSortDirection) {
+  switch (dir) {
+    case TreeGridSortDirection.Asc:
+      return <ArrowUpwardIcon fontSize="inherit" />;
+    case TreeGridSortDirection.Desc:
+      return <ArrowDownwardIcon fontSize="inherit" />;
+  }
+  return <SwapVertIcon fontSize="inherit" />;
+}
+
+function nextDirection(dir?: TreeGridSortDirection) {
+  switch (dir) {
+    case TreeGridSortDirection.Asc:
+      return TreeGridSortDirection.Desc;
+    case TreeGridSortDirection.Desc:
+      return undefined;
+  }
+  return TreeGridSortDirection.Asc;
 }

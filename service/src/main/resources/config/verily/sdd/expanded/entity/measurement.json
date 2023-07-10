@@ -18,14 +18,6 @@
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "NULL"
-          },
-          "display" : "Unknown"
-        },
-        "count" : 9
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "C"
           },
           "display" : "Unknown"
@@ -39,6 +31,14 @@
           "display" : "Unknown"
         },
         "count" : 101999
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NULL"
+          },
+          "display" : "Unknown"
+        },
+        "count" : 9
       } ]
     },
     "displayHintTypes" : [ ]

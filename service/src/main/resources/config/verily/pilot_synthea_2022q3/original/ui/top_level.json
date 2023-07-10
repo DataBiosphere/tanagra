@@ -396,9 +396,9 @@
         "plugin": {
           "occurrence": "condition_occurrence",
           "columns": [
-            { "key": "condition", "width": "100%", "title": "Condition name" },
-            { "key": "start_date", "width": 200, "title": "Start date" },
-            { "key": "end_date", "width": 200, "title": "End date" }
+            { "key": "condition", "width": "100%", "title": "Condition name", "sortable": true },
+            { "key": "start_date", "width": 200, "title": "Start date", "sortable": true },
+            { "key": "end_date", "width": 200, "title": "End date", "sortable": true }
           ]
         }
       },
@@ -409,8 +409,8 @@
         "plugin": {
           "occurrence": "procedure_occurrence",
           "columns": [
-            { "key": "procedure", "width": "100%", "title": "Procedure name" },
-            { "key": "date", "width": 200, "title": "Date" }
+            { "key": "procedure", "width": "100%", "title": "Procedure name", "sortable": true },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true }
           ]
         }
       },
@@ -424,9 +424,10 @@
             {
               "key": "observation",
               "width": "100%",
-              "title": "Observation name"
+              "title": "Observation name",
+              "sortable": true
             },
-            { "key": "date", "width": 200, "title": "Date" }
+            { "key": "date", "width": 200, "title": "Date", "sortable": true }
           ]
         }
       },
@@ -437,9 +438,9 @@
         "plugin": {
           "occurrence": "ingredient_occurrence",
           "columns": [
-            { "key": "ingredient", "width": "100%", "title": "Drug name" },
-            { "key": "start_date", "width": 200, "title": "Start date" },
-            { "key": "end_date", "width": 200, "title": "End date" }
+            { "key": "ingredient", "width": "100%", "title": "Drug name", "sortable": true },
+            { "key": "start_date", "width": 200, "title": "Start date", "sortable": true },
+            { "key": "end_date", "width": 200, "title": "End date", "sortable": true }
           ]
         }
       },
@@ -453,12 +454,13 @@
             {
               "key": "measurement",
               "width": "100%",
-              "title": "Lab/measurement name"
+              "title": "Lab/measurement name",
+              "sortable": true
             },
-            { "key": "date", "width": 200, "title": "Date" },
-            { "key": "value_enum", "width": 160, "title": "Categorical value" },
-            { "key": "value_numeric", "width": 160, "title": "Numeric value" },
-            { "key": "unit", "width": 160, "title": "Unit" }
+            { "key": "date", "width": 200, "title": "Date", "sortable": true },
+            { "key": "value_enum", "width": 160, "title": "Categorical value", "sortable": true },
+            { "key": "value_numeric", "width": 160, "title": "Numeric value", "sortable": true },
+            { "key": "unit", "width": 160, "title": "Unit", "sortable": true }
           ]
         }
       }
