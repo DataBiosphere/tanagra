@@ -104,7 +104,7 @@
     "displayHint" : {
       "type" : "RANGE",
       "minVal" : 1.0,
-      "maxVal" : 109.0
+      "maxVal" : 110.0
     },
     "displayHintTypes" : [ ]
   }, {

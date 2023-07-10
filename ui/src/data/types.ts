@@ -15,3 +15,23 @@ export type CohortReview = {
   cohort: tanagra.Cohort;
   created: Date;
 };
+
+export function compareDataValues(a?: DataValue, b?: DataValue) {
+  if (a === b) {
+    return 0;
+  }
+  if (!a) {
+    return -1;
+  }
+  if (!b) {
+    return 1;
+  }
+
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+  return 0;
+}

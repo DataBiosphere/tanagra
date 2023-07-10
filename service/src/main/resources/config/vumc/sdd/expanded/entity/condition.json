@@ -18,19 +18,19 @@
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : ""
-          },
-          "display" : "Unknown"
-        },
-        "count" : 523932
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "C"
           },
           "display" : "Unknown"
         },
         "count" : 384
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
+        },
+        "count" : 523932
       } ]
     },
     "displayHintTypes" : [ ]

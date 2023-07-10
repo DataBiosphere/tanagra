@@ -310,9 +310,9 @@
         "plugin": {
           "occurrence": "condition_occurrence",
           "columns": [
-            { "key": "condition", "width": "100%", "title": "Condition name" },
-            { "key": "start_date", "width": 200, "title": "Start date" },
-            { "key": "end_date", "width": 200, "title": "End date" }
+            { "key": "condition", "width": "100%", "title": "Condition name", "sortable": true },
+            { "key": "start_date", "width": 200, "title": "Start date", "sortable": true },
+            { "key": "end_date", "width": 200, "title": "End date", "sortable": true }
           ]
         }
       },
@@ -323,8 +323,8 @@
         "plugin": {
           "occurrence": "procedure_occurrence",
           "columns": [
-            { "key": "procedure", "width": "100%", "title": "Procedure name" },
-            { "key": "date", "width": 200, "title": "Date" }
+            { "key": "procedure", "width": "100%", "title": "Procedure name", "sortable": true },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true }
           ]
         }
       },
@@ -338,9 +338,10 @@
             {
               "key": "observation",
               "width": "100%",
-              "title": "Observation name"
+              "title": "Observation name",
+              "sortable": true
             },
-            { "key": "date", "width": 200, "title": "Date" }
+            { "key": "date", "width": 200, "title": "Date" , "sortable": true}
           ]
         }
       },
@@ -351,9 +352,9 @@
         "plugin": {
           "occurrence": "ingredient_occurrence",
           "columns": [
-            { "key": "ingredient", "width": "100%", "title": "Drug name" },
-            { "key": "start_date", "width": 200, "title": "Start date" },
-            { "key": "end_date", "width": 200, "title": "End date" }
+            { "key": "ingredient", "width": "100%", "title": "Drug name", "sortable": true },
+            { "key": "start_date", "width": 200, "title": "Start date", "sortable": true },
+            { "key": "end_date", "width": 200, "title": "End date", "sortable": true }
           ]
         }
       }
