@@ -1,0 +1,137 @@
+{
+  "name" : "t_brand",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : "Source"
+        },
+        "count" : 0
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : ""
+          },
+          "display" : "Unknown"
+        },
+        "count" : 7
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {"rawSqlFile" : "t_brand_all.sql"},
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)",
+          "runtimeCalculated" : false
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer": { "rawSqlFile": "t_brand_textSearch.sql" },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "brand"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_standard_concept",
+          "runtimeCalculated" : false
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name",
+          "runtimeCalculated" : false
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text",
+        "runtimeCalculated" : false
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

@@ -1,0 +1,379 @@
+{
+  "name" : "t_visit_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "end_date",
+    "dataType" : "DATE",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -21.0,
+      "maxVal" : 89.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "visit",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21039000
+          },
+          "display" : "10 ML Morphine 0.2 MG/ML Prefilled Syringe Box of 10"
+        },
+        "count" : 21
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21050000
+          },
+          "display" : "2000 ML benzyl benzoate 250 MG/ML Topical Solution"
+        },
+        "count" : 60
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581478
+          },
+          "display" : "Ambulance Visit"
+        },
+        "count" : 1746
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38004207
+          },
+          "display" : "Ambulatory Clinic / Center"
+        },
+        "count" : 80437
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581479
+          },
+          "display" : "Ambulatory Rehabilitation Visit"
+        },
+        "count" : 179
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21056626
+          },
+          "display" : "Amiodarone 50 MG/ML Oral Suspension"
+        },
+        "count" : 10
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090200
+          },
+          "display" : "Cholecalciferol 50000 UNT Oral Capsule [Aciferol D3] Box of 10 by Rhodes"
+        },
+        "count" : 2
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090300
+          },
+          "display" : "Chondroitin Sulfates 400 MG / Glucosamine 500 MG Oral Tablet [Joint-Flex] Box of 60"
+        },
+        "count" : 32
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21036000
+          },
+          "display" : "Daptomycin 500 MG Injection Box of 1"
+        },
+        "count" : 100
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090500
+          },
+          "display" : "Diphenhydramine 25 MG Oral Tablet by Ennogen"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
+        },
+        "count" : 439748
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 262
+          },
+          "display" : "Emergency Room and Inpatient Visit"
+        },
+        "count" : 25323
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090400
+          },
+          "display" : "Ergocalciferol 300000 UNT/ML Prefilled Syringe Box of 10"
+        },
+        "count" : 75
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581476
+          },
+          "display" : "Home Visit"
+        },
+        "count" : 40500
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
+        },
+        "count" : 568911
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 32036
+          },
+          "display" : "Laboratory Visit"
+        },
+        "count" : 1850
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 12
+          },
+          "display" : "Modifier"
+        },
+        "count" : 30318
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 1340218
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 42898160
+          },
+          "display" : "Non-hospital institution Visit"
+        },
+        "count" : 22
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581477
+          },
+          "display" : "Office Visit"
+        },
+        "count" : 629739
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814711
+          },
+          "display" : "Other ambulatory visit"
+        },
+        "count" : 4720
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
+        },
+        "count" : 9929594
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581458
+          },
+          "display" : "Pharmacy visit"
+        },
+        "count" : 25279
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21033000
+          },
+          "display" : "Risperidone 0.5 MG Oral Tablet by Consilient"
+        },
+        "count" : 17
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44818518
+          },
+          "display" : "Visit derived from EHR record"
+        },
+        "count" : 856887
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "start_date",
+    "dataType" : "DATE",
+    "displayHintTypes" : [ "NONE" ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT   vo.visit_occurrence_id AS id, vo.person_id, vo.visit_concept_id,   vo.visit_start_date AS start_date, vo.visit_end_date AS end_date,   vo.visit_source_value AS source_value, vo.visit_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(vo.visit_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence  FROM `all-of-us-ehr-dev.SC2022Q4R6.visit_occurrence` AS vo  JOIN `all-of-us-ehr-dev.SC2022Q4R6.person` AS p ON p.person_id = vo.person_id "
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "end_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit" : {
+        "value" : {
+          "column" : "visit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "visit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "t_visit_occurrence"
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "end_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit" : {
+        "value" : {
+          "column" : "visit",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_visit",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

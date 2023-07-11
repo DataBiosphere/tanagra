@@ -1,0 +1,105 @@
+{
+  "name" : "t_visit",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "BOOLEAN_AND_OR",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Visit"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "standard_concept",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "S"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "name" : {
+        "value" : {
+          "column" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `all-of-us-ehr-dev.SC2022Q4R6.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `all-of-us-ehr-dev.SC2022Q4R6.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `all-of-us-ehr-dev.SC2022Q4R6.concept` c ) AS textsearch  JOIN `all-of-us-ehr-dev.SC2022Q4R6.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Visit' AND c.standard_concept = 'S' "
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "t_visit"
+    },
+    "attributeMappings" : {
+      "name" : {
+        "value" : {
+          "column" : "name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text",
+        "runtimeCalculated" : false
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

@@ -1,0 +1,440 @@
+{
+  "name" : "t_measurement_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "date",
+    "dataType" : "DATE",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "unit",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -16.0,
+      "maxVal" : 89.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "visit_type",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21050000
+          },
+          "display" : "2000 ML benzyl benzoate 250 MG/ML Topical Solution"
+        },
+        "count" : 120
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581478
+          },
+          "display" : "Ambulance Visit"
+        },
+        "count" : 20677
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 38004207
+          },
+          "display" : "Ambulatory Clinic / Center"
+        },
+        "count" : 171479
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581479
+          },
+          "display" : "Ambulatory Rehabilitation Visit"
+        },
+        "count" : 19210
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21090300
+          },
+          "display" : "Chondroitin Sulfates 400 MG / Glucosamine 500 MG Oral Tablet [Joint-Flex] Box of 60"
+        },
+        "count" : 20
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21036000
+          },
+          "display" : "Daptomycin 500 MG Injection Box of 1"
+        },
+        "count" : 194
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9203
+          },
+          "display" : "Emergency Room Visit"
+        },
+        "count" : 9544109
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 262
+          },
+          "display" : "Emergency Room and Inpatient Visit"
+        },
+        "count" : 3392363
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581476
+          },
+          "display" : "Home Visit"
+        },
+        "count" : 163900
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9201
+          },
+          "display" : "Inpatient Visit"
+        },
+        "count" : 31423676
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 32036
+          },
+          "display" : "Laboratory Visit"
+        },
+        "count" : 14879
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 12
+          },
+          "display" : "Modifier"
+        },
+        "count" : 8
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 5486054
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 42898160
+          },
+          "display" : "Non-hospital institution Visit"
+        },
+        "count" : 930
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581477
+          },
+          "display" : "Office Visit"
+        },
+        "count" : 5710238
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44814711
+          },
+          "display" : "Other ambulatory visit"
+        },
+        "count" : 21079
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9202
+          },
+          "display" : "Outpatient Visit"
+        },
+        "count" : 29219282
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 581458
+          },
+          "display" : "Pharmacy visit"
+        },
+        "count" : 1925
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 21033000
+          },
+          "display" : "Risperidone 0.5 MG Oral Tablet by Consilient"
+        },
+        "count" : 29
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 44818518
+          },
+          "display" : "Visit derived from EHR record"
+        },
+        "count" : 4031119
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "value_numeric",
+    "dataType" : "DOUBLE",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "value_enum",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "measurement",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "rawSql" : "SELECT   mo.measurement_id AS id, mo.person_id, mo.measurement_concept_id, mo.measurement_date,   mo.value_as_number AS value_numeric, mo.value_as_concept_id, mo.unit_concept_id,   mo.measurement_source_value AS source_value, mo.measurement_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   mo.visit_occurrence_id, vo.visit_concept_id  FROM `all-of-us-ehr-dev.SC2022Q4R6.measurement` AS mo  JOIN `all-of-us-ehr-dev.SC2022Q4R6.person` AS p ON p.person_id = mo.person_id  LEFT JOIN `all-of-us-ehr-dev.SC2022Q4R6.visit_occurrence` AS vo ON vo.visit_occurrence_id = mo.visit_occurrence_id "
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "measurement_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "unit" : {
+        "value" : {
+          "column" : "unit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "unit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "visit_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_numeric" : {
+        "value" : {
+          "column" : "value_numeric",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_enum" : {
+        "value" : {
+          "column" : "value_as_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "value_as_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "measurement" : {
+        "value" : {
+          "column" : "measurement_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "measurement_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "t_measurement_occurrence"
+    },
+    "attributeMappings" : {
+      "date" : {
+        "value" : {
+          "column" : "date",
+          "runtimeCalculated" : false
+        }
+      },
+      "unit" : {
+        "value" : {
+          "column" : "unit",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_unit",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_type" : {
+        "value" : {
+          "column" : "visit_type",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_visit_type",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_numeric" : {
+        "value" : {
+          "column" : "value_numeric",
+          "runtimeCalculated" : false
+        }
+      },
+      "value_enum" : {
+        "value" : {
+          "column" : "value_enum",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_value_enum",
+          "runtimeCalculated" : false
+        }
+      },
+      "measurement" : {
+        "value" : {
+          "column" : "measurement",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_measurement",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
