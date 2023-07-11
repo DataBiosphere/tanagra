@@ -32,6 +32,8 @@ tanagra:
       -
         type: INDIVIDUAL_FILE_DOWNLOAD
       -
+        type: IPYNB_FILE_DOWNLOAD
+      -
         type: VWB_FILE_IMPORT
         redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
 

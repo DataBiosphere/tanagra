@@ -27,6 +27,8 @@ tanagra:
       -
         type: INDIVIDUAL_FILE_DOWNLOAD
       -
+        type: IPYNB_FILE_DOWNLOAD
+      -
         name: VWB_FILE_IMPORT_DEVEL
         displayName: Import to VWB (devel)
         type: VWB_FILE_IMPORT

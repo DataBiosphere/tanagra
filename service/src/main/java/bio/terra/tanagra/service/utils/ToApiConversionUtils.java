@@ -3,12 +3,10 @@ package bio.terra.tanagra.service.utils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.CohortRevision;
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.*;
 import bio.terra.tanagra.service.instances.EntityInstanceCount;
 import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.HashMap;
 import java.util.Map;
@@ -132,5 +130,30 @@ public final class ToApiConversionUtils {
         .value(toApiObject(annotationValue.getLiteral()))
         .isMostRecent(annotationValue.isMostRecent())
         .isPartOfSelectedReview(annotationValue.isPartOfSelectedReview());
+  }
+
+  public static ApiStudyV2 toApiObject(Study study) {
+    ApiPropertiesV2 apiProperties = new ApiPropertiesV2();
+    study
+        .getProperties()
+        .forEach(
+            (key, value) -> apiProperties.add(new ApiPropertyKeyValueV2().key(key).value(value)));
+    return new ApiStudyV2()
+        .id(study.getId())
+        .displayName(study.getDisplayName())
+        .description(study.getDescription())
+        .properties(apiProperties)
+        .created(study.getCreated())
+        .createdBy(study.getCreatedBy())
+        .lastModified(study.getLastModified());
+  }
+
+  public static ApiUnderlayV2 toApiObject(Underlay underlay) {
+    return new ApiUnderlayV2()
+        .name(underlay.getName())
+        // TODO: Add display name to underlay config files.
+        .displayName(underlay.getName())
+        .primaryEntity(underlay.getPrimaryEntity().getName())
+        .uiConfiguration(underlay.getUIConfig());
   }
 }

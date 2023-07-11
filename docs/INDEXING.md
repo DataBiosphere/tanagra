@@ -7,7 +7,10 @@
     + [Expand Underlay Config](#expand-underlay-config)
     + [Create Index Dataset](#create-index-dataset)
     + [Kickoff Jobs](#kickoff-jobs)
-    + [Tips](#tips)
+  * [Troubleshooting](#troubleshooting)
+    + [Concurrency](#concurrency)
+    + [Re-Run Jobs](#re-run-jobs)
+    + [Run dataflow locally](#run-dataflow-locally)
   * [OMOP Example](#omop-example)
 
 
@@ -154,7 +157,9 @@ or entity group:
 All the entities in a group should be indexed before the group. The `INDEX_ALL` command ensures this ordering, but keep 
 this in  mind if you're running the jobs for each entity or entity group separately.
 
-#### Concurrency
+## Troubleshooting
+
+### Concurrency
 By default, the indexing jobs are run concurrently as much as possible. You can force it to run jobs serially by
 appending `SERIAL` to the command:
 ```
@@ -162,9 +167,28 @@ appending `SERIAL` to the command:
 ./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json NOT_DRY_RUN SERIAL"
 ```
 
-### Tips
+### Re-Run Jobs
+Indexing jobs will not overwrite existing index tables. If you want to re-run indexing, either for a single entity/group 
+or for everything, you need to delete any existing index tables. You can either do that manually or using the clean
+commands below. Similar to the indexing commands, the clean commands also respect the dry run flag.
 
-#### Run dataflow locally
+To clean the generated index tables for everything:
+```
+./gradlew indexer:index -Dexec.args="CLEAN_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json DRY_RUN"
+./gradlew indexer:index -Dexec.args="CLEAN_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json"
+```
+or a particular entity:
+```
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person DRY_RUN"
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person"
+```
+or a particular entity group:
+```
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json person DRY_RUN"
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json person"
+```
+
+### Run dataflow locally
 
 While developing a job, running locally is faster. Also, you can use Intellij debugger.
 - Add to `BigQueryIndexingJob.buildDataflowPipelineOptions()`:

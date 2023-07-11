@@ -44,7 +44,8 @@ public final class TablePointer implements SQLExpression {
               .resolve(SQL_DIRECTORY_NAME)
               .resolve(Path.of(serialized.getRawSqlFile()));
       String rawSqlString =
-          FileUtils.readStringFromFile(FileIO.getGetFileInputStreamFunction().apply(rawSqlFile));
+          FileUtils.readStringFromFileNoLineBreaks(
+              FileIO.getGetFileInputStreamFunction().apply(rawSqlFile));
       return TablePointer.fromRawSql(rawSqlString, dataPointer);
     }
     // Table is defined by a table name and optional filter.
