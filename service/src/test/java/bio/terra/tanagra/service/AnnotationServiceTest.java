@@ -15,6 +15,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.*;
 import java.sql.Date;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -240,6 +241,11 @@ public class AnnotationServiceTest {
         "Annotation keys found: {}, {}",
         allAnnotationKeys.get(0).getId(),
         allAnnotationKeys.get(1).getId());
+    List<AnnotationKey> allAnnotationKeyssSortedByDisplayNameAsc =
+        allAnnotationKeys.stream()
+            .sorted(Comparator.comparing(AnnotationKey::getDisplayName))
+            .collect(Collectors.toList());
+    assertEquals(allAnnotationKeys, allAnnotationKeyssSortedByDisplayNameAsc);
 
     // List selected annotation key for cohort2.
     List<AnnotationKey> selectedAnnotationKeys =
@@ -731,7 +737,7 @@ public class AnnotationServiceTest {
     LOGGER.info("Created annotation value");
 
     // Generate a TSV string with the annotation values data.
-    String tsv = reviewService.buildTsvStringForAnnotationValues(study1.getId(), cohort2.getId());
+    String tsv = reviewService.buildTsvStringForAnnotationValues(study1, cohort2);
     assertEquals("person_id\tkey1\tkey2\n24\tval 1\t\n25\t\tval 2\n", tsv);
   }
 }

@@ -77,10 +77,24 @@ public final class FileUtils {
    * @param inputStream the stream to the file contents
    * @return a Java String representing the file contents
    */
-  public static String readStringFromFile(InputStream inputStream) {
+  public static String readStringFromFileNoLineBreaks(InputStream inputStream) {
     try {
       return CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
           .replace(System.lineSeparator(), " ");
+    } catch (IOException ioEx) {
+      throw new SystemException("Error reading file contents", ioEx);
+    }
+  }
+
+  /**
+   * Read a file into a string.
+   *
+   * @param inputStream the stream to the file contents
+   * @return a Java String representing the file contents
+   */
+  public static String readStringFromFile(InputStream inputStream) {
+    try {
+      return CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
     } catch (IOException ioEx) {
       throw new SystemException("Error reading file contents", ioEx);
     }

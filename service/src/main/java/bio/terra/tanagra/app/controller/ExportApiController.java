@@ -77,8 +77,6 @@ public class ExportApiController implements ExportApi {
             .model(body.getExportModel())
             .inputs(body.getInputs())
             .redirectBackUrl(body.getRedirectBackUrl())
-            .study(studyId)
-            .cohorts(body.getCohorts())
             .includeAnnotations(body.isIncludeAnnotations());
     List<EntityQueryRequest> entityQueryRequests =
         body.getInstanceQuerys().stream()
@@ -87,7 +85,8 @@ public class ExportApiController implements ExportApi {
                     fromApiConversionService.fromApiObject(
                         apiQuery.getQuery(), underlayName, apiQuery.getEntity()))
             .collect(Collectors.toList());
-    ExportResult result = dataExportService.run(request, entityQueryRequests);
+    ExportResult result =
+        dataExportService.run(studyId, body.getCohorts(), request, entityQueryRequests);
     return ResponseEntity.ok(toApiObject(result));
   }
 

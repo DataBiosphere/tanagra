@@ -12,9 +12,11 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Study;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -167,6 +169,11 @@ public class CohortServiceTest {
             10);
     assertEquals(2, allCohorts.size());
     LOGGER.info("cohorts found: {}, {}", allCohorts.get(0).getId(), allCohorts.get(1).getId());
+    List<Cohort> allCohortsSortedByDisplayNameAsc =
+        allCohorts.stream()
+            .sorted(Comparator.comparing(Cohort::getDisplayName))
+            .collect(Collectors.toList());
+    assertEquals(allCohorts, allCohortsSortedByDisplayNameAsc);
 
     // List selected cohort in study2.
     List<Cohort> selectedCohorts =
