@@ -83,7 +83,7 @@ public class ReviewDao {
   public List<Review> getAllReviews(String cohortId, int offset, int limit) {
     String sql =
         REVIEW_SELECT_SQL
-            + " WHERE cohort_id = :cohort_id ORDER BY display_name LIMIT :limit OFFSET :offset";
+            + " WHERE cohort_id = :cohort_id ORDER BY created DESC LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET ALL reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -98,7 +98,7 @@ public class ReviewDao {
   @ReadTransaction
   public List<Review> getReviewsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
-        REVIEW_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
+        REVIEW_SELECT_SQL + " WHERE id IN (:ids) ORDER BY created DESC LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET MATCHING reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -242,6 +242,9 @@ public class ReviewDao {
               reviewsMap.get(reviewId).revision(cohortRevision);
             });
 
-    return reviewsMap.values().stream().map(Review.Builder::build).collect(Collectors.toList());
+    // Preserve the order returned by the original query.
+    return reviews.stream()
+        .map(r -> reviewsMap.get(r.getId()).build())
+        .collect(Collectors.toList());
   }
 }
