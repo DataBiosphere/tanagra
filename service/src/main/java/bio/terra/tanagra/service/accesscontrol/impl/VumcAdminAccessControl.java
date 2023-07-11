@@ -141,7 +141,7 @@ public class VumcAdminAccessControl implements AccessControl {
       case CREATE_CONCEPT_SET:
         return Set.of(ResourceAction.UPDATE);
       default:
-        LOGGER.debug("Unknown mapping for underlay action {}", action);
+        LOGGER.debug("Unknown mapping for study action {}", action);
         return Set.of();
     }
   }
@@ -182,7 +182,7 @@ public class VumcAdminAccessControl implements AccessControl {
       Map<ResourceId, Set<ResourceAction>> studyApiActionsMap =
           listAllPermissions(user, ResourceType.STUDY);
 
-      // User does not have access to the parent study.
+      // Check that the user has access to the parent study.
       ResourceId studyAncestorResource = ResourceId.forStudy(parentResource.getStudy());
       if (!studyApiActionsMap.containsKey(studyAncestorResource)) {
         return ResourceCollection.empty(type, parentResource);
@@ -215,7 +215,7 @@ public class VumcAdminAccessControl implements AccessControl {
               // Ignore any API resources returned that don't match the expected resource type.
               if (!org.vumc.vda.tanagra.admin.model.ResourceType.ALL.equals(apiResource.getType())
                   && !apiResource.getType().name().equals(type.name())) {
-                LOGGER.debug(
+                LOGGER.warn(
                     "API resource list includes unexpected resource type: requested {}, returned {}",
                     type,
                     apiResource.getType());
@@ -254,7 +254,7 @@ public class VumcAdminAccessControl implements AccessControl {
       case CREATE:
       case DELETE:
       default:
-        LOGGER.debug("Unknown mapping for underlay API resource action {}", apiAction);
+        LOGGER.warn("Unknown mapping for underlay API resource action {}", apiAction);
         return Set.of();
     }
   }
@@ -273,7 +273,7 @@ public class VumcAdminAccessControl implements AccessControl {
       case DELETE:
         return Set.of(DELETE);
       default:
-        LOGGER.debug("Unknown mapping for study API resource action {}", apiAction);
+        LOGGER.warn("Unknown mapping for study API resource action {}", apiAction);
         return Set.of();
     }
   }
@@ -297,7 +297,7 @@ public class VumcAdminAccessControl implements AccessControl {
       case CREATE:
       case DELETE:
       default:
-        LOGGER.debug(
+        LOGGER.warn(
             "Unknown mapping for study API resource action {} for descendant resource type {}",
             apiAction,
             descendantType);
