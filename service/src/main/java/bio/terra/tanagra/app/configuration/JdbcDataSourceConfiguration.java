@@ -74,10 +74,10 @@ public class JdbcDataSourceConfiguration {
     ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(getUrl(), props);
 
     PoolableConnectionFactory poolableConnectionFactory =
-            new PoolableConnectionFactory(connectionFactory, null);
+        new PoolableConnectionFactory(connectionFactory, null);
 
     ObjectPool<PoolableConnection> connectionPool =
-            new GenericObjectPool<>(poolableConnectionFactory);
+        new GenericObjectPool<>(poolableConnectionFactory);
 
     poolableConnectionFactory.setPool(connectionPool);
 
