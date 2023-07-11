@@ -1,6 +1,3 @@
-![Underlay Build](https://github.com/DataBiosphere/tanagra/actions/workflows/underlay-test.yaml/badge.svg?branch=main)
-![Service Build](https://github.com/DataBiosphere/tanagra/actions/workflows/service-test.yaml/badge.svg?branch=main)
-![Indexer Build](https://github.com/DataBiosphere/tanagra/actions/workflows/indexer-test.yaml/badge.svg?branch=main)
 # Tanagra
 
 Tanagra is a project to build a configurable data explorer. It provides tools for indexing a dataset, a backend
@@ -14,3 +11,15 @@ More information about this codebase can be found in the links below.
 * [Data Export](./docs/DATA_EXPORT.md)
 * [VUMC Admin Service](./docs/VUMC_ADMIN_SERVICE.md)
 * [Contribute Code](./docs/CONTRIBUTING.md)
+
+![Underlay Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/underlay-test.yaml/badge.svg?branch=main)
+
+![Indexer Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/indexer-test.yaml/badge.svg?branch=main)
+
+![Service (PostGres) Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/service-test-postgres.yaml/badge.svg?branch=main)
+
+![Service (MariaDB) Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/service-test-mariadb.yaml/badge.svg?branch=main)
+
+![UI Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/ui-test.yaml/badge.svg?branch=main)
+
+![UI Integration Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/ui-integration-test.yaml/badge.svg?branch=main)
