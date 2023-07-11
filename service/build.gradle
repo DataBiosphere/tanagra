@@ -63,7 +63,7 @@ dependencies {
     implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
     implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
     implementation group: "org.mariadb.jdbc", name: "mariadb-java-client"
-    implementation "mysql:mysql-connector-java:8.0.30"
+    implementation group: "mysql", name: "mysql-connector-java", version: "8.0.30"
 
     // GCP libraries. Most versions are controlled by the BOM specified in buildSrc.
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
