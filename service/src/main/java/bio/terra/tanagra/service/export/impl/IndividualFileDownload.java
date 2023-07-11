@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.export.impl;
 
+import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
@@ -9,8 +10,8 @@ import java.util.*;
 
 public class IndividualFileDownload implements DataExport {
 
-  private static final String ENTITY_OUTPUT_KEY_PREFIX = "entity:";
-  private static final String COHORT_OUTPUT_KEY_PREFIX = "cohort:";
+  private static final String ENTITY_OUTPUT_KEY_PREFIX = "Data:";
+  private static final String COHORT_OUTPUT_KEY_PREFIX = "Annotations:";
 
   @Override
   public Type getType() {
@@ -44,7 +45,7 @@ public class IndividualFileDownload implements DataExport {
   public ExportResult run(ExportRequest request) {
     Map<String, String> entityToGcsUrl =
         request.writeEntityDataToGcs("tanagra_${entity}_" + Instant.now() + "_*.csv");
-    Map<String, String> cohortToGcsUrl =
+    Map<Cohort, String> cohortToGcsUrl =
         request.writeAnnotationDataToGcs("tanagra_${cohort}_" + Instant.now() + "_*.tsv");
 
     Map<String, String> outputParams = new HashMap<>();
@@ -56,10 +57,15 @@ public class IndividualFileDownload implements DataExport {
                     request.getGoogleCloudStorage().createSignedUrl(entry.getValue())));
     cohortToGcsUrl.entrySet().stream()
         .forEach(
-            entry ->
-                outputParams.put(
-                    COHORT_OUTPUT_KEY_PREFIX + entry.getKey(),
-                    request.getGoogleCloudStorage().createSignedUrl(entry.getValue())));
+            entry -> {
+              String cohortName = entry.getKey().getDisplayName();
+              if (cohortName == null || cohortName.isEmpty()) {
+                cohortName = entry.getKey().getId();
+              }
+              outputParams.put(
+                  COHORT_OUTPUT_KEY_PREFIX + cohortName,
+                  request.getGoogleCloudStorage().createSignedUrl(entry.getValue()));
+            });
     return ExportResult.forOutputParams(outputParams, ExportResult.Status.COMPLETE);
   }
 }

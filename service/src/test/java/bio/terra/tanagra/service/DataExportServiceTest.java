@@ -73,7 +73,7 @@ public class DataExportServiceTest {
     cohort1 =
         cohortService.createCohort(
             study1.getId(),
-            Cohort.builder().underlay(UNDERLAY_NAME),
+            Cohort.builder().underlay(UNDERLAY_NAME).displayName("First Cohort"),
             userEmail,
             List.of(CRITERIA_GROUP_SECTION_3));
     assertNotNull(cohort1);
@@ -217,8 +217,7 @@ public class DataExportServiceTest {
         exportResult
             .getOutputs()
             .get(
-                "entity:"
-                    + underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
+                "Data:" + underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
     assertNotNull(signedUrl);
     LOGGER.info("Entity instances signed URL: {}", signedUrl);
     String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
@@ -230,7 +229,7 @@ public class DataExportServiceTest {
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
     // Validate the annotations file.
-    signedUrl = exportResult.getOutputs().get("cohort:" + cohort1.getId());
+    signedUrl = exportResult.getOutputs().get("Annotations:" + cohort1.getDisplayName());
     assertNotNull(signedUrl);
     LOGGER.info("Annotations signed URL: {}", signedUrl);
     fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
