@@ -12,6 +12,7 @@ import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,8 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
     List<Underlay> authorizedUnderlays = underlaysService.listUnderlays(authorizedUnderlayNames);
     ApiUnderlayListV2 apiUnderlays = new ApiUnderlayListV2();
     authorizedUnderlays.stream()
-        .forEach(underlay -> apiUnderlays.addUnderlaysItem(toApiObject(underlay)));
+        .forEach(
+            underlay -> apiUnderlays.addUnderlaysItem(ToApiConversionUtils.toApiObject(underlay)));
     return ResponseEntity.ok(apiUnderlays);
   }
 
@@ -48,15 +50,7 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    return ResponseEntity.ok(toApiObject(underlaysService.getUnderlay(underlayName)));
-  }
-
-  private ApiUnderlayV2 toApiObject(Underlay underlay) {
-    return new ApiUnderlayV2()
-        .name(underlay.getName())
-        // TODO: Add display name to underlay config files.
-        .displayName(underlay.getName())
-        .primaryEntity(underlay.getPrimaryEntity().getName())
-        .uiConfiguration(underlay.getUIConfig());
+    return ResponseEntity.ok(
+        ToApiConversionUtils.toApiObject(underlaysService.getUnderlay(underlayName)));
   }
 }

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * <p>Some names traverse Tanagra from HTTP requests to SQL generation. For these names, it's
  * important that they are relatively friendly and simple.
  */
-final class NameUtils {
+public final class NameUtils {
   private NameUtils() {}
 
   // Start with simple lower case letters, numbers, and underscores of less than 32 characters.
@@ -22,6 +22,8 @@ final class NameUtils {
   // attributes (e.g. the t_path_xx attribute that is added for an entity with a hierarchy on
   // attribute xx).
   private static final String TANAGRA_RESERVED_PREFIX = "t_";
+
+  private static final String SIMPLIFY_TO_NAME_REGEX = "[^a-zA-Z0-9_]";
 
   /**
    * Check that the {@code name} matches the {@link #NAME_REGEX}, or else throws an
@@ -47,5 +49,9 @@ final class NameUtils {
         fieldName,
         TANAGRA_RESERVED_PREFIX,
         name);
+  }
+
+  public static String simplifyStringForName(String str) {
+    return str.replaceAll(SIMPLIFY_TO_NAME_REGEX, "");
   }
 }

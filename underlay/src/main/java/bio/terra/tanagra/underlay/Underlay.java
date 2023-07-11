@@ -105,7 +105,7 @@ public final class Underlay {
               .resolve(UI_CONFIG_DIRECTORY_NAME)
               .resolve(serialized.getUiConfigFile());
       uiConfig =
-          FileUtils.readStringFromFile(
+          FileUtils.readStringFromFileNoLineBreaks(
               FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
     }
     Map<String, String> metadata =

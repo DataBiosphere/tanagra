@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.export;
 
 import bio.terra.tanagra.service.export.impl.IndividualFileDownload;
+import bio.terra.tanagra.service.export.impl.IpynbFileDownload;
 import bio.terra.tanagra.service.export.impl.VwbFileImport;
 import java.util.Collections;
 import java.util.Map;
@@ -9,7 +10,8 @@ import java.util.function.Supplier;
 public interface DataExport {
   enum Type {
     INDIVIDUAL_FILE_DOWNLOAD(() -> new IndividualFileDownload()),
-    VWB_FILE_IMPORT(() -> new VwbFileImport());
+    VWB_FILE_IMPORT(() -> new VwbFileImport()),
+    IPYNB_FILE_DOWNLOAD(() -> new IpynbFileDownload());
 
     private Supplier<DataExport> createNewInstanceFn;
 
