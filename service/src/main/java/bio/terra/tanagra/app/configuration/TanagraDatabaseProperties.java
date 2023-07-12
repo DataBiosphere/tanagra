@@ -14,6 +14,11 @@ public class TanagraDatabaseProperties extends BaseDatabaseProperties {
   /** If true, primary database will have changesets applied */
   private boolean upgradeOnStart;
 
+  private String cloudSqlInstance;
+  private String socketFactory;
+  private String driverClassName;
+  private String ipTypes;
+
   public boolean isInitializeOnStart() {
     return initializeOnStart;
   }
@@ -30,11 +35,47 @@ public class TanagraDatabaseProperties extends BaseDatabaseProperties {
     this.upgradeOnStart = upgradeOnStart;
   }
 
+  public String getCloudSqlInstance() {
+    return cloudSqlInstance;
+  }
+
+  public void setCloudSqlInstance(String cloudSqlInstance) {
+    this.cloudSqlInstance = cloudSqlInstance;
+  }
+
+  public String getSocketFactory() {
+    return socketFactory;
+  }
+
+  public void setSocketFactory(String socketFactory) {
+    this.socketFactory = socketFactory;
+  }
+
+  public String getDriverClassName() {
+    return driverClassName;
+  }
+
+  public void setDriverClassName(String driverClassName) {
+    this.driverClassName = driverClassName;
+  }
+
+  public String getIpTypes() {
+    return ipTypes;
+  }
+
+  public void setIpTypes(String ipTypes) {
+    this.ipTypes = ipTypes;
+  }
+
   /** Write the properties into the log. Add an entry here for each new property. */
   public void logFlags() {
     LOGGER.info("Database flag: initialize-on-start: {}", isInitializeOnStart());
     LOGGER.info("Database flag: upgrade-on-start: {}", isUpgradeOnStart());
     LOGGER.info("Database flag: uri: {}", getUri());
     LOGGER.info("Database flag: username: {}", getUsername());
+    LOGGER.info("Database flag: cloud-sql-instance: {}", getCloudSqlInstance());
+    LOGGER.info("Database flag: socket-factory: {}", getSocketFactory());
+    LOGGER.info("Database flag: driver-class-name: {}", getDriverClassName());
+    LOGGER.info("Database flag: ip-types: {}", getIpTypes());
   }
 }

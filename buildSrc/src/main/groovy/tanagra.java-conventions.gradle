@@ -40,7 +40,7 @@ sourceCompatibility = JavaVersion.VERSION_11
 dependencies {
     // GCP BOM version controlled libraries
     // See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
-    implementation platform(group: "com.google.cloud", name: "libraries-bom", version: "22.0.0")
+    implementation platform(group: "com.google.cloud", name: "libraries-bom", version: "26.18.0")
     constraints {
         // "-jre" for Java 8 or higher
         implementation group: "com.google.guava", name:"guava", version: "30.1.1-jre"
