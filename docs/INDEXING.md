@@ -2,11 +2,15 @@
   * [Underlay Config Files](#underlay-config-files)
     + [Environment](#environment)
     + [Directory Structure](#directory-structure)
-    + [Indexing Features](#indexing-features)
   * [Running Indexing Jobs](#running-indexing-jobs)
+    + [Setup Credentials](#setup-credentials)
+      + [Default Application Credentials](#default-application-credentials)
+      + [gcloud Credentials](#gcloud-credentials)
     + [Expand Underlay Config](#expand-underlay-config)
     + [Create Index Dataset](#create-index-dataset)
     + [Kickoff Jobs](#kickoff-jobs)
+      + [All Jobs](#all-jobs)
+      + [Jobs for One Entity/Group](#jobs-for-one-entitygroup)
   * [Troubleshooting](#troubleshooting)
     + [Concurrency](#concurrency)
     + [Re-Run Jobs](#re-run-jobs)
@@ -22,9 +26,6 @@ them instead**. Each underlay config also specifies a data pointer where Tanagra
 **Generating the index tables is part of the deployment process**; It is not managed by the service. There is a basic
 command line interface to run the indexing jobs. Currently, this CLI just uses Gradle's application plugin, so the
 commands are actually Gradle commands.
-
-(TODO: Improve this UX e.g. package a proper CLI, add service endpoints for kicking off and monitoring these jobs,
-etc.).
 
 ## Underlay Config Files
 There should be a separate config for each set of source data. The underlay configs are static resources (defined at
@@ -56,48 +57,53 @@ sql/
   rawsql.sql
 ```
 
-### Indexing Features
-
-#### age_at_occurrence modifier
-
-If you want to be able to query by age at occurrence (eg search for people who had diabetes when they were over 70):
-
-- In primary entity config, set `sourceStartDateColumn` to the column containing birth date. Column can be DATE or TIMESTAMP.
-- In occurrence entity config, set `sourceStartDateColumn` to the column containing occurrence start date. Column can be DATE or TIMESTAMP.
-- There must be an entity group involving primary and occurrence entity.
-                     
-During indexing, Tanagra will add and populate age_at_occurrence column to occurrence table.
-
-#### Visit type modifier
-
-If you want to be able to query occurrence by visit type (eg search for people who had
-diabetes condition during in in-patient visit):
-
-- You must have a visit occurrence entity
-- In entity group config (eg condition_person_occurrence.json), set `occurrenceRelatedEntities` and add
- `occurrenceRelatedEntity0` relationship.
-  - If you are interested in things besides visit occurrences, you can add more than one related entity/relationship. Relationship
- names are `occurrenceRelatedEntity0`, `occurrenceRelatedEntity1`, etc.
-
-This feature is only available for `CRITERIA_OCCURRENCE` entity groups.
-
 ## Running Indexing Jobs
 Before running the indexing jobs, you need to specify the underlay config files.
 
 There are 3 steps to generating the index tables:
-1. [Expand](#expand-underlay-config) the user-specified underlay config to include information from scanning the 
+1. [Setup](#setup-credentials) credentials with read permissions on the source data, and read-write permissions on 
+the index data.
+2. [Expand](#expand-underlay-config) the user-specified underlay config to include information from scanning the 
 source data. For example, data types and UI hints.
-2. [Create](#create-index-dataset) the index dataset, if it doesn't already exist.
-3. [Kickoff](#kickoff-jobs) the jobs.
+3. [Create](#create-index-dataset) the index dataset, if it doesn't already exist.
+4. [Kickoff](#kickoff-jobs) the jobs.
 
 Below you can see an [example](#omop-example) of the commands for an OMOP dataset.
 
-### Expand Underlay Config
-Set the default application credentials to a service account key file that has read access to both the source and 
-index data.
+### Setup Credentials
+You need to set up 2 types of credentials to run all parts of indexing:
+1. Default application credentials to allow Tanagra to talk to BigQuery.
+2. gcloud credentials to allow you to create a new BigQuery dataset using the `bq` CLI.
+
+#### Default Application Credentials
+Set the default application credentials to an account that has read permissions on the source data, and read-write 
+permissions on the index data. Best practice is to use a service account that has indexing-specific permissions, but
+for debugging, end-user credentials can be very useful.
+
+To use a service account key file, you can set an environment variable:
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=$(PWD)/rendered/tanagra_sa.json
 ```
+
+To use end-user credentials, you can run:
+```
+gcloud auth application-default login
+```
+More information and ways to set up application default credentials in 
+[the GCP docs](https://cloud.google.com/docs/authentication/provide-credentials-adc).
+
+#### gcloud Credentials
+To use a service account key file:
+```
+gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+```
+
+To use end-user credentials:
+```
+gcloud auth login
+```
+
+### Expand Underlay Config
 Expand the defaults, scan the source data, and generate an expanded underlay config file that includes all this 
 information. The first argument is a pointer to the user-specified underlay file.
 The second argument is a pointer to the directory where Tanagra can write the expanded config files.
@@ -110,18 +116,12 @@ Both arguments must be absolute paths. Example:
 Create a new BigQuery dataset to hold the indexed tables.
 Change the location, project, and dataset name below to your own.
 ```
-gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 bq mk --location=location project_id:dataset_id
 ```
 (TODO: Tanagra could do this in the future. Upside is fewer steps to run indexing and maybe easier for testing.
 Potential downside is more permissions needed by indexing service account.)
 
 ### Kickoff Jobs
-Set the default application credentials to a service account key file that has read access to the source and read + 
-write access to the index data.
-```
-export GOOGLE_APPLICATION_CREDENTIALS=$HOME/tanagra/credentials/indexing_sa.json
-```
 
 #### All Jobs
 Do a dry run of all the indexing jobs. This provides a sanity check that the indexing jobs inputs, especially the SQL 
