@@ -1,5 +1,9 @@
 package bio.terra.tanagra.app.configuration;
 
+import bio.terra.common.db.DataSourceInitializer;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +15,35 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableConfigurationProperties(TanagraDatabaseProperties.class)
 @EnableTransactionManagement
-public class TanagraDatabaseConfiguration extends BaseDatabaseConfiguration {
+public class TanagraDatabaseConfiguration {
+  private final DataSource dataSource;
+
   public TanagraDatabaseConfiguration(TanagraDatabaseProperties databaseProperties) {
-    super(databaseProperties);
+    boolean useCloudSqlConnector =
+        databaseProperties.getCloudSqlInstance() != null
+            && !databaseProperties.getCloudSqlInstance().isEmpty();
+
+    if (useCloudSqlConnector) {
+      // Connect to application DB using CloudSQL connector (e.g. when deployed in AppEngine).
+      HikariConfig config = new HikariConfig();
+      config.setJdbcUrl(databaseProperties.getUri());
+      config.setUsername(databaseProperties.getUsername());
+      config.setPassword(databaseProperties.getPassword());
+      config.setDriverClassName(databaseProperties.getDriverClassName());
+
+      config.addDataSourceProperty("cloudSqlInstance", databaseProperties.getCloudSqlInstance());
+      config.addDataSourceProperty("socketFactory", databaseProperties.getSocketFactory());
+
+      if (databaseProperties.getIpTypes() != null && !databaseProperties.getIpTypes().isEmpty()) {
+        config.addDataSourceProperty("ipTypes", databaseProperties.getIpTypes());
+      }
+
+      dataSource = new HikariDataSource(config);
+    } else {
+      // Connect to application DB via localhost (e.g. when deployed in GKE and using the CloudSQL
+      // proxy sidecar container).
+      dataSource = DataSourceInitializer.initializeDataSource(databaseProperties);
+    }
   }
 
   @Bean("jdbcTemplate")
@@ -26,5 +56,9 @@ public class TanagraDatabaseConfiguration extends BaseDatabaseConfiguration {
   @Bean("transactionManager")
   public PlatformTransactionManager getTransactionManager() {
     return new DataSourceTransactionManager(getDataSource());
+  }
+
+  public DataSource getDataSource() {
+    return dataSource;
   }
 }
