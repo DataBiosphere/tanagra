@@ -2,8 +2,8 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
 import java.util.Collections;
@@ -72,10 +72,10 @@ public class CohortService {
   }
 
   /** List cohorts with their most recent revisions. */
-  public List<Cohort> listCohorts(
-      ResourceIdCollection authorizedCohortIds, String studyId, int offset, int limit) {
+  public List<Cohort> listCohorts(ResourceCollection authorizedCohortIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (authorizedCohortIds.isAllResourceIds()) {
+    String studyId = authorizedCohortIds.getParent().getStudy();
+    if (authorizedCohortIds.isAllResources()) {
       return cohortDao.getAllCohorts(studyId, offset, limit);
     } else if (authorizedCohortIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
@@ -83,7 +83,7 @@ public class CohortService {
       return Collections.emptyList();
     } else {
       return cohortDao.getCohortsMatchingList(
-          authorizedCohortIds.getResourceIds().stream()
+          authorizedCohortIds.getResources().stream()
               .map(ResourceId::getCohort)
               .collect(Collectors.toSet()),
           offset,

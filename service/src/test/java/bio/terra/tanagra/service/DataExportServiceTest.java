@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service;
 
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
+import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.tanagra.app.Main;
@@ -72,7 +73,7 @@ public class DataExportServiceTest {
     cohort1 =
         cohortService.createCohort(
             study1.getId(),
-            Cohort.builder().underlay(UNDERLAY_NAME),
+            Cohort.builder().underlay(UNDERLAY_NAME).displayName("First Cohort"),
             userEmail,
             List.of(CRITERIA_GROUP_SECTION_3));
     assertNotNull(cohort1);
@@ -146,7 +147,7 @@ public class DataExportServiceTest {
   @Test
   void listEntityModels() {
     Map<String, Pair<String, DataExport>> models = dataExportService.getModels(UNDERLAY_NAME);
-    assertEquals(2, models.size());
+    assertEquals(3, models.size());
 
     // Check the INDIVIDUAL_FILE_DOWNLOAD export option.
     Optional<Map.Entry<String, Pair<String, DataExport>>> individualFileDownload =
@@ -162,6 +163,22 @@ public class DataExportServiceTest {
     DataExport impl = individualFileDownload.get().getValue().getValue();
     assertEquals(
         DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.name(),
+        modelName); // Default model name is type enum value.
+    assertEquals(impl.getDefaultDisplayName(), displayName);
+    assertNotNull(impl);
+
+    // Check the IPYNB_FILE_DOWNLOAD export option.
+    Optional<Map.Entry<String, Pair<String, DataExport>>> ipynbFileDownload =
+        models.entrySet().stream()
+            .filter(
+                m -> DataExport.Type.IPYNB_FILE_DOWNLOAD.equals(m.getValue().getValue().getType()))
+            .findFirst();
+    assertTrue(ipynbFileDownload.isPresent());
+    modelName = ipynbFileDownload.get().getKey();
+    displayName = ipynbFileDownload.get().getValue().getKey();
+    impl = ipynbFileDownload.get().getValue().getValue();
+    assertEquals(
+        DataExport.Type.IPYNB_FILE_DOWNLOAD.name(),
         modelName); // Default model name is type enum value.
     assertEquals(impl.getDefaultDisplayName(), displayName);
     assertNotNull(impl);
@@ -183,22 +200,24 @@ public class DataExportServiceTest {
   @Test
   void individualFileDownload() throws IOException {
     ExportRequest.Builder exportRequest =
-        ExportRequest.builder()
-            .model("INDIVIDUAL_FILE_DOWNLOAD")
-            .study(study1.getId())
-            .cohorts(List.of(cohort1.getId()))
-            .includeAnnotations(true);
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
-    EntityQueryRequest entityQueryRequest = buildEntityQueryRequest();
-
-    ExportResult exportResult = dataExportService.run(exportRequest, List.of(entityQueryRequest));
+        ExportRequest.builder().model("INDIVIDUAL_FILE_DOWNLOAD").includeAnnotations(true);
+    ExportResult exportResult =
+        dataExportService.run(
+            study1.getId(),
+            List.of(cohort1.getId()),
+            exportRequest,
+            List.of(buildEntityQueryRequest()));
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertNull(exportResult.getRedirectAwayUrl());
     assertEquals(2, exportResult.getOutputs().size());
 
     // Validate the entity instances file.
-    String signedUrl = exportResult.getOutputs().get("entity:" + primaryEntity.getName());
+    String signedUrl =
+        exportResult
+            .getOutputs()
+            .get(
+                "Data:" + underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
     assertNotNull(signedUrl);
     LOGGER.info("Entity instances signed URL: {}", signedUrl);
     String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
@@ -210,7 +229,7 @@ public class DataExportServiceTest {
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
     // Validate the annotations file.
-    signedUrl = exportResult.getOutputs().get("cohort:" + cohort1.getId());
+    signedUrl = exportResult.getOutputs().get("Annotations:" + cohort1.getDisplayName());
     assertNotNull(signedUrl);
     LOGGER.info("Annotations signed URL: {}", signedUrl);
     fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
@@ -227,19 +246,13 @@ public class DataExportServiceTest {
         ExportRequest.builder()
             .model("VWB_FILE_IMPORT_DEVEL")
             .redirectBackUrl(redirectBackUrl)
-            .study(study1.getId())
-            .cohorts(List.of(cohort1.getId()))
             .includeAnnotations(true);
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(primaryEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(primaryEntity.getAttributes())
-            .limit(5)
-            .build();
-
-    ExportResult exportResult = dataExportService.run(exportRequest, List.of(entityQueryRequest));
+    ExportResult exportResult =
+        dataExportService.run(
+            study1.getId(),
+            List.of(cohort1.getId()),
+            exportRequest,
+            List.of(buildEntityQueryRequest()));
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertTrue(exportResult.getOutputs().isEmpty());
@@ -288,6 +301,31 @@ public class DataExportServiceTest {
         entityInstancesFileContents.startsWith(
             "ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race,year_of_birth"));
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
+  }
+
+  @Test
+  void ipynbFileDownload() throws IOException {
+    ExportRequest.Builder exportRequest = ExportRequest.builder().model("IPYNB_FILE_DOWNLOAD");
+    ExportResult exportResult =
+        dataExportService.run(
+            study1.getId(),
+            List.of(cohort1.getId()),
+            exportRequest,
+            List.of(buildEntityQueryRequest()));
+    assertNotNull(exportResult);
+    assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
+    assertNull(exportResult.getRedirectAwayUrl());
+    assertEquals(1, exportResult.getOutputs().size());
+
+    // Validate the ipynb file.
+    String signedUrl = exportResult.getOutputs().get(IPYNB_FILE_KEY);
+    assertNotNull(signedUrl);
+    LOGGER.info("ipynb file signed URL: {}", signedUrl);
+    String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
+    assertFalse(fileContents.isEmpty());
+    LOGGER.info("ipynb fileContents: {}", fileContents);
+    assertTrue(fileContents.contains("# This query was generated for"));
+    assertTrue(fileContents.split("\n").length >= 16); // length of notebook template file
   }
 
   private EntityQueryRequest buildEntityQueryRequest() {

@@ -5,12 +5,10 @@ import bio.terra.tanagra.db.ReviewDao;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.artifact.AnnotationKey;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.Review;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
+import bio.terra.tanagra.service.artifact.*;
 import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.service.instances.filter.BooleanAndOrFilter;
@@ -126,14 +124,10 @@ public class ReviewService {
   }
 
   /** List reviews with their cohort revisions. */
-  public List<Review> listReviews(
-      ResourceIdCollection authorizedReviewIds,
-      String studyId,
-      String cohortId,
-      int offset,
-      int limit) {
+  public List<Review> listReviews(ResourceCollection authorizedReviewIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (authorizedReviewIds.isAllResourceIds()) {
+    String cohortId = authorizedReviewIds.getParent().getCohort();
+    if (authorizedReviewIds.isAllResources()) {
       return reviewDao.getAllReviews(cohortId, offset, limit);
     } else if (authorizedReviewIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
@@ -141,7 +135,7 @@ public class ReviewService {
       return Collections.emptyList();
     } else {
       return reviewDao.getReviewsMatchingList(
-          authorizedReviewIds.getResourceIds().stream()
+          authorizedReviewIds.getResources().stream()
               .map(ResourceId::getReview)
               .collect(Collectors.toSet()),
           offset,
@@ -385,11 +379,10 @@ public class ReviewService {
             .build());
   }
 
-  public String buildTsvStringForAnnotationValues(String studyId, String cohortId) {
+  public String buildTsvStringForAnnotationValues(Study study, Cohort cohort) {
     // Build the column headers: id column name in source data, then annotation key display names.
     // Sort the annotation keys by display name, so that we get a consistent ordering.
     // e.g. person_id, key1, key2
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
     Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
     String primaryIdSourceColumnName =
         underlay
@@ -402,9 +395,9 @@ public class ReviewService {
     List<AnnotationKey> annotationKeys =
         annotationService
             .listAnnotationKeys(
-                ResourceIdCollection.allResourceIds(),
-                studyId,
-                cohortId,
+                ResourceCollection.allResourcesAllPermissions(
+                    ResourceType.ANNOTATION_KEY,
+                    ResourceId.forCohort(study.getId(), cohort.getId())),
                 /*offset=*/ 0,
                 /*limit=*/ Integer.MAX_VALUE)
             .stream()
@@ -417,14 +410,15 @@ public class ReviewService {
     StringBuilder fileContents = new StringBuilder(columnHeaders + "\n");
 
     // Get all the annotation values for the latest revision.
-    List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId);
+    List<AnnotationValue> annotationValues = listAnnotationValues(study.getId(), cohort.getId());
 
     // Convert the list of annotation values to a TSV-ready table.
     Table<String, String, String> tsvValues = HashBasedTable.create();
     annotationValues.forEach(
         value -> {
           AnnotationKey key =
-              annotationService.getAnnotationKey(studyId, cohortId, value.getAnnotationKeyId());
+              annotationService.getAnnotationKey(
+                  study.getId(), cohort.getId(), value.getAnnotationKeyId());
           tsvValues.put(
               value.getInstanceId(), // row
               key.getDisplayName(), // column

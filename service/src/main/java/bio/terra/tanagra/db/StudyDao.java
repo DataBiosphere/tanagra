@@ -302,7 +302,10 @@ public class StudyDao {
               studiesMap.get(studyId).addProperty(property.getKey(), property.getValue());
             });
 
-    return studiesMap.values().stream().map(Study.Builder::build).collect(Collectors.toList());
+    // Preserve the order returned by the original query.
+    return studies.stream()
+        .map(s -> studiesMap.get(s.getId()).build())
+        .collect(Collectors.toList());
   }
 
   private void updatePropertiesHelper(String studyId, Map<String, String> properties) {

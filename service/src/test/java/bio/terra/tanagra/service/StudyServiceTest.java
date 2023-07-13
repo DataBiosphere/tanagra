@@ -4,12 +4,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.Study;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +38,8 @@ public class StudyServiceTest {
   @AfterEach
   void deleteAll() {
     List<Study> allStudies =
-        studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 100);
+        studyService.listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 100);
     for (Study study : allStudies) {
       try {
         studyService.deleteStudy(study.getId());
@@ -106,13 +112,22 @@ public class StudyServiceTest {
     LOGGER.info("Created study {} at {}", study2.getId(), study2.getCreated());
 
     // List all.
-    List<Study> allStudies = studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 10);
+    List<Study> allStudies =
+        studyService.listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
     assertEquals(2, allStudies.size());
+    List<Study> allStudiesSortedByDisplayNameAsc =
+        allStudies.stream()
+            .sorted(Comparator.comparing(Study::getDisplayName))
+            .collect(Collectors.toList());
+    assertEquals(allStudies, allStudiesSortedByDisplayNameAsc);
 
     // List selected.
     List<Study> selectedStudies =
         studyService.listStudies(
-            ResourceIdCollection.forCollection(List.of(ResourceId.forStudy(study2.getId()))),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.STUDY),
+                Set.of(ResourceId.forStudy(study2.getId()))),
             0,
             10);
     assertEquals(1, selectedStudies.size());
@@ -122,7 +137,11 @@ public class StudyServiceTest {
     Study.Builder filter1 =
         Study.builder().displayName("1").description("one").properties(Map.of("irb", "23"));
     List<Study> allStudiesWithFilter =
-        studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 10, filter1);
+        studyService.listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null),
+            0,
+            10,
+            filter1);
     assertEquals(1, allStudiesWithFilter.size());
     assertEquals(study1.getId(), allStudiesWithFilter.get(0).getId());
 
@@ -130,7 +149,9 @@ public class StudyServiceTest {
     Study.Builder filter2 = Study.builder().properties(Map.of("irb", "45"));
     List<Study> selectedStudiesWithFilter =
         studyService.listStudies(
-            ResourceIdCollection.forCollection(List.of(ResourceId.forStudy(study1.getId()))),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.STUDY),
+                Set.of(ResourceId.forStudy(study1.getId()))),
             0,
             10,
             filter2);
@@ -140,13 +161,18 @@ public class StudyServiceTest {
   @Test
   void invalid() {
     // List all.
-    List<Study> allStudies = studyService.listStudies(ResourceIdCollection.allResourceIds(), 0, 10);
+    List<Study> allStudies =
+        studyService.listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
     assertTrue(allStudies.isEmpty());
 
     // List selected.
     List<Study> selectedStudies =
         studyService.listStudies(
-            ResourceIdCollection.forCollection(List.of(ResourceId.forStudy("123"))), 0, 10);
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.STUDY), Set.of(ResourceId.forStudy("123"))),
+            0,
+            10);
     assertTrue(selectedStudies.isEmpty());
 
     // Get invalid.

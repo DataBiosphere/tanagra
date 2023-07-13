@@ -19,6 +19,7 @@ import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Attribute;
@@ -56,8 +57,7 @@ public class HintsV2ApiController implements HintsV2Api {
       String underlayName, String entityName, ApiHintQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        QUERY_COUNTS,
-        UNDERLAY,
+        Permissions.forActions(UNDERLAY, QUERY_COUNTS),
         ResourceId.forUnderlay(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 

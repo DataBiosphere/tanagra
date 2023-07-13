@@ -4,6 +4,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.util.List;
+import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 
 public final class ResourceId {
@@ -13,9 +14,9 @@ public final class ResourceId {
   private final String study;
   private final String cohort;
   private final String conceptSet;
-  private final String dataset;
   private final String review;
   private final String annotationKey;
+  private final boolean isNull;
 
   private ResourceId(Builder builder) {
     this.type = builder.type;
@@ -23,9 +24,9 @@ public final class ResourceId {
     this.study = builder.study;
     this.cohort = builder.cohort;
     this.conceptSet = builder.conceptSet;
-    this.dataset = builder.dataset;
     this.review = builder.review;
     this.annotationKey = builder.annotationKey;
+    this.isNull = builder.isNull;
   }
 
   public static Builder builder() {
@@ -48,24 +49,44 @@ public final class ResourceId {
     return builder().type(CONCEPT_SET).study(study).conceptSet(conceptSet).build();
   }
 
-  public static ResourceId forDataset(String study, String dataset) {
-    return builder().type(DATASET).study(study).dataset(dataset).build();
-  }
-
   public static ResourceId forReview(String study, String cohort, String review) {
-    return builder().type(COHORT_REVIEW).study(study).cohort(cohort).review(review).build();
+    return builder().type(REVIEW).study(study).cohort(cohort).review(review).build();
   }
 
   public static ResourceId forAnnotationKey(String study, String cohort, String annotationKey) {
     return builder()
-        .type(ANNOTATION)
+        .type(ANNOTATION_KEY)
         .study(study)
         .cohort(cohort)
         .annotationKey(annotationKey)
         .build();
   }
 
+  public ResourceType getType() {
+    return type;
+  }
+
+  public boolean isNull() {
+    return isNull;
+  }
+
+  public ResourceId getParent() {
+    switch (type) {
+      case COHORT:
+      case CONCEPT_SET:
+        return forStudy(study);
+      case REVIEW:
+      case ANNOTATION_KEY:
+        return forCohort(study, cohort);
+      default:
+        return null;
+    }
+  }
+
   public String getId() {
+    if (isNull) {
+      return "NULL_" + type;
+    }
     switch (type) {
       case UNDERLAY:
         return underlay;
@@ -75,11 +96,9 @@ public final class ResourceId {
         return buildCompositeId(List.of(study, cohort));
       case CONCEPT_SET:
         return buildCompositeId(List.of(study, conceptSet));
-      case DATASET:
-        return buildCompositeId(List.of(study, dataset));
-      case COHORT_REVIEW:
+      case REVIEW:
         return buildCompositeId(List.of(study, cohort, review));
-      case ANNOTATION:
+      case ANNOTATION_KEY:
         return buildCompositeId(List.of(study, cohort, annotationKey));
       default:
         throw new IllegalArgumentException("Unknown resource type: " + type);
@@ -105,7 +124,7 @@ public final class ResourceId {
   }
 
   public String getCohort() {
-    if (!List.of(COHORT, COHORT_REVIEW, ANNOTATION).contains(type)) {
+    if (!List.of(COHORT, REVIEW, ANNOTATION_KEY).contains(type)) {
       throw new SystemException("Cohort id is not set for resource type: " + type);
     }
     return cohort;
@@ -118,25 +137,42 @@ public final class ResourceId {
     return conceptSet;
   }
 
-  public String getDataset() {
-    if (type != DATASET) {
-      throw new SystemException("Dataset id is not set for resource type: " + type);
-    }
-    return dataset;
-  }
-
   public String getReview() {
-    if (type != COHORT_REVIEW) {
+    if (type != REVIEW) {
       throw new SystemException("Review id is not set for resource type: " + type);
     }
     return review;
   }
 
   public String getAnnotationKey() {
-    if (type != ANNOTATION) {
+    if (type != ANNOTATION_KEY) {
       throw new SystemException("Annotation key id is not set for resource type: " + type);
     }
     return annotationKey;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ResourceId that = (ResourceId) o;
+    return isNull == that.isNull
+        && type == that.type
+        && Objects.equals(underlay, that.underlay)
+        && Objects.equals(study, that.study)
+        && Objects.equals(cohort, that.cohort)
+        && Objects.equals(conceptSet, that.conceptSet)
+        && Objects.equals(review, that.review)
+        && Objects.equals(annotationKey, that.annotationKey);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, underlay, study, cohort, conceptSet, review, annotationKey, isNull);
   }
 
   public static class Builder {
@@ -145,9 +181,9 @@ public final class ResourceId {
     private String study;
     private String cohort;
     private String conceptSet;
-    private String dataset;
     private String review;
     private String annotationKey;
+    private boolean isNull;
 
     public Builder type(ResourceType type) {
       this.type = type;
@@ -174,11 +210,6 @@ public final class ResourceId {
       return this;
     }
 
-    public Builder dataset(String dataset) {
-      this.dataset = dataset;
-      return this;
-    }
-
     public Builder review(String review) {
       this.review = review;
       return this;
@@ -186,6 +217,11 @@ public final class ResourceId {
 
     public Builder annotationKey(String annotationKey) {
       this.annotationKey = annotationKey;
+      return this;
+    }
+
+    public Builder isNull(boolean isNull) {
+      this.isNull = isNull;
       return this;
     }
 

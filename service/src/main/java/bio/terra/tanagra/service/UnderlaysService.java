@@ -3,8 +3,8 @@ package bio.terra.tanagra.service;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.utils.FileIO;
 import java.io.IOException;
@@ -38,8 +38,8 @@ public class UnderlaysService {
     this.underlaysMap = underlaysMapBuilder;
   }
 
-  public List<Underlay> listUnderlays(ResourceIdCollection authorizedIds) {
-    if (authorizedIds.isAllResourceIds()) {
+  public List<Underlay> listUnderlays(ResourceCollection authorizedIds) {
+    if (authorizedIds.isAllResources()) {
       return underlaysMap.values().stream().collect(Collectors.toUnmodifiableList());
     } else {
       // If the incoming list is empty, the caller does not have permission to see any
@@ -48,7 +48,7 @@ public class UnderlaysService {
         return Collections.emptyList();
       }
       List<String> authorizedNames =
-          authorizedIds.getResourceIds().stream()
+          authorizedIds.getResources().stream()
               .map(ResourceId::getUnderlay)
               .collect(Collectors.toList());
       return underlaysMap.values().stream()

@@ -32,7 +32,7 @@ describe("Basic tests", () => {
     cy.iframe().find("button:Contains(Review)").click();
 
     cy.iframe().find("button:Contains(Procedures)", { timeout: 20000 }).click();
-    cy.iframe().contains("Retrograde pyelogram");
+    cy.iframe().contains("Retrograde pyelogram"), { timeout: 20000 };
     cy.iframe().contains("1/5");
 
     cy.iframe().find("button:Contains(Conditions)").click();

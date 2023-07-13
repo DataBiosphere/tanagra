@@ -1,12 +1,8 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
-import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
-import static bio.terra.tanagra.service.accesscontrol.Action.READ;
-import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT_REVIEW;
+import static bio.terra.tanagra.service.accesscontrol.Action.*;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.ReviewsV2Api;
@@ -15,8 +11,9 @@ import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.CohortService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.ReviewService;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.AnnotationValue;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
@@ -28,11 +25,7 @@ import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import bio.terra.tanagra.utils.SqlFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,8 +56,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, ApiReviewCreateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        CREATE,
-        COHORT_REVIEW,
+        Permissions.forActions(COHORT, CREATE_REVIEW),
         ResourceId.forCohort(studyId, cohortId));
 
     // TODO: Remove the entity filter from here once we store it for the cohort.
@@ -89,8 +81,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<Void> deleteReview(String studyId, String cohortId, String reviewId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        DELETE,
-        COHORT_REVIEW,
+        Permissions.forActions(REVIEW, DELETE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     reviewService.deleteReview(studyId, cohortId, reviewId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -100,8 +91,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   public ResponseEntity<ApiReviewV2> getReview(String studyId, String cohortId, String reviewId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        READ,
-        COHORT_REVIEW,
+        Permissions.forActions(REVIEW, READ),
         ResourceId.forReview(studyId, cohortId, reviewId));
     return ResponseEntity.ok(
         toApiObject(
@@ -112,15 +102,15 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
   @Override
   public ResponseEntity<ApiReviewListV2> listReviews(
       String studyId, String cohortId, Integer offset, Integer limit) {
-    ResourceIdCollection authorizedReviewIds =
-        accessControlService.listResourceIds(
+    ResourceCollection authorizedReviewIds =
+        accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(),
-            COHORT_REVIEW,
+            Permissions.forActions(REVIEW, READ),
             ResourceId.forCohort(studyId, cohortId),
             offset,
             limit);
     ApiReviewListV2 apiReviews = new ApiReviewListV2();
-    reviewService.listReviews(authorizedReviewIds, studyId, cohortId, offset, limit).stream()
+    reviewService.listReviews(authorizedReviewIds, offset, limit).stream()
         .forEach(
             review ->
                 apiReviews.add(toApiObject(review, cohortService.getCohort(studyId, cohortId))));
@@ -132,8 +122,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        UPDATE,
-        COHORT_REVIEW,
+        Permissions.forActions(REVIEW, UPDATE),
         ResourceId.forReview(studyId, cohortId, reviewId));
     Review updatedReview =
         reviewService.updateReview(
@@ -152,8 +141,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        QUERY_INSTANCES,
-        COHORT_REVIEW,
+        Permissions.forActions(REVIEW, QUERY_INSTANCES),
         ResourceId.forReview(studyId, cohortId, reviewId));
     ReviewQueryResult reviewQueryResult =
         reviewService.listReviewInstances(
@@ -179,8 +167,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       String studyId, String cohortId, String reviewId, ApiReviewCountQueryV2 body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        QUERY_COUNTS,
-        COHORT_REVIEW,
+        Permissions.forActions(REVIEW, QUERY_COUNTS),
         ResourceId.forReview(studyId, cohortId, reviewId));
     EntityCountResult countResult =
         reviewService.countReviewInstances(studyId, cohortId, reviewId, body.getAttributes());

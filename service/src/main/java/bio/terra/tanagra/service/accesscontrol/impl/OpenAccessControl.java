@@ -1,10 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
-import bio.terra.tanagra.service.accesscontrol.AccessControl;
-import bio.terra.tanagra.service.accesscontrol.Action;
-import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
-import bio.terra.tanagra.service.accesscontrol.ResourceType;
+import bio.terra.tanagra.service.accesscontrol.*;
 import bio.terra.tanagra.service.auth.UserId;
 import javax.annotation.Nullable;
 
@@ -19,16 +15,13 @@ public class OpenAccessControl implements AccessControl {
   }
 
   @Override
-  public boolean isAuthorized(
-      UserId userId, Action action, ResourceType resourceType, @Nullable ResourceId resourceId) {
-    // Every possible action is allowed.
+  public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
     return true;
   }
 
   @Override
-  public ResourceIdCollection listResourceIds(
-      UserId userId, ResourceType type, ResourceId parentResourceId, int offset, int limit) {
-    // Everyone can list everything.
-    return ResourceIdCollection.allResourceIds();
+  public ResourceCollection listAllPermissions(
+      UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
+    return ResourceCollection.allResourcesAllPermissions(type, parentResource);
   }
 }

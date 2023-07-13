@@ -9,8 +9,10 @@ import bio.terra.tanagra.generated.model.ApiUnderlayListV2;
 import bio.terra.tanagra.generated.model.ApiUnderlayV2;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +33,14 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
 
   @Override
   public ResponseEntity<ApiUnderlayListV2> listUnderlays() {
-    ResourceIdCollection authorizedUnderlayNames =
-        accessControlService.listResourceIds(SpringAuthentication.getCurrentUser(), UNDERLAY);
+    ResourceCollection authorizedUnderlayNames =
+        accessControlService.listAuthorizedResources(
+            SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ));
     List<Underlay> authorizedUnderlays = underlaysService.listUnderlays(authorizedUnderlayNames);
     ApiUnderlayListV2 apiUnderlays = new ApiUnderlayListV2();
     authorizedUnderlays.stream()
-        .forEach(underlay -> apiUnderlays.addUnderlaysItem(toApiObject(underlay)));
+        .forEach(
+            underlay -> apiUnderlays.addUnderlaysItem(ToApiConversionUtils.toApiObject(underlay)));
     return ResponseEntity.ok(apiUnderlays);
   }
 
@@ -44,18 +48,9 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
   public ResponseEntity<ApiUnderlayV2> getUnderlay(String underlayName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        READ,
-        UNDERLAY,
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    return ResponseEntity.ok(toApiObject(underlaysService.getUnderlay(underlayName)));
-  }
-
-  private ApiUnderlayV2 toApiObject(Underlay underlay) {
-    return new ApiUnderlayV2()
-        .name(underlay.getName())
-        // TODO: Add display name to underlay config files.
-        .displayName(underlay.getName())
-        .primaryEntity(underlay.getPrimaryEntity().getName())
-        .uiConfiguration(underlay.getUIConfig());
+    return ResponseEntity.ok(
+        ToApiConversionUtils.toApiObject(underlaysService.getUnderlay(underlayName)));
   }
 }

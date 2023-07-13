@@ -12,9 +12,11 @@ import bio.terra.tanagra.generated.controller.StudiesV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.StudyService;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
 import bio.terra.tanagra.service.artifact.Study;
+import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
@@ -38,14 +40,15 @@ public class StudiesV2ApiController implements StudiesV2Api {
 
   @Override
   public ResponseEntity<ApiStudyV2> createStudy(ApiStudyCreateInfoV2 body) {
-    accessControlService.throwIfUnauthorized(SpringAuthentication.getCurrentUser(), CREATE, STUDY);
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(), Permissions.forActions(STUDY, CREATE));
     Study.Builder studyToCreate =
         Study.builder()
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .properties(fromApiObject(body.getProperties()));
     return ResponseEntity.ok(
-        toApiObject(
+        ToApiConversionUtils.toApiObject(
             studyService.createStudy(
                 studyToCreate, SpringAuthentication.getCurrentUser().getEmail())));
   }
@@ -53,7 +56,9 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), DELETE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, DELETE),
+        ResourceId.forStudy(studyId));
     studyService.deleteStudy(studyId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -61,8 +66,10 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<ApiStudyV2> getStudy(String studyId) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), READ, STUDY, ResourceId.forStudy(studyId));
-    return ResponseEntity.ok(toApiObject(studyService.getStudy(studyId)));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, READ),
+        ResourceId.forStudy(studyId));
+    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(studyService.getStudy(studyId)));
   }
 
   @Override
@@ -72,35 +79,43 @@ public class StudiesV2ApiController implements StudiesV2Api {
       List<String> properties,
       Integer offset,
       Integer limit) {
-    ResourceIdCollection authorizedStudyIds =
-        accessControlService.listResourceIds(
-            SpringAuthentication.getCurrentUser(), STUDY, offset, limit);
+    ResourceCollection authorizedStudyIds =
+        accessControlService.listAuthorizedResources(
+            SpringAuthentication.getCurrentUser(),
+            Permissions.forActions(STUDY, READ),
+            offset,
+            limit);
     List<Study> authorizedStudies =
         studyService.listStudies(
             authorizedStudyIds, offset, limit, fromApiObject(displayName, description, properties));
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
-    authorizedStudies.stream().forEach(study -> apiStudies.add(toApiObject(study)));
+    authorizedStudies.stream()
+        .forEach(study -> apiStudies.add(ToApiConversionUtils.toApiObject(study)));
     return ResponseEntity.ok(apiStudies);
   }
 
   @Override
   public ResponseEntity<ApiStudyV2> updateStudy(String studyId, ApiStudyUpdateInfoV2 body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, UPDATE),
+        ResourceId.forStudy(studyId));
     Study updatedStudy =
         studyService.updateStudy(
             studyId,
             SpringAuthentication.getCurrentUser().getEmail(),
             body.getDisplayName(),
             body.getDescription());
-    return ResponseEntity.ok(toApiObject(updatedStudy));
+    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedStudy));
   }
 
   @Override
   public ResponseEntity<Void> updateStudyProperties(
       String studyId, List<ApiPropertyKeyValueV2> body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, UPDATE),
+        ResourceId.forStudy(studyId));
     studyService.updateStudyProperties(
         studyId, SpringAuthentication.getCurrentUser().getEmail(), fromApiObject(body));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -109,26 +124,12 @@ public class StudiesV2ApiController implements StudiesV2Api {
   @Override
   public ResponseEntity<Void> deleteStudyProperties(String studyId, List<String> body) {
     accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(), UPDATE, STUDY, ResourceId.forStudy(studyId));
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, UPDATE),
+        ResourceId.forStudy(studyId));
     studyService.deleteStudyProperties(
         studyId, SpringAuthentication.getCurrentUser().getEmail(), body);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-  }
-
-  private static ApiStudyV2 toApiObject(Study study) {
-    ApiPropertiesV2 apiProperties = new ApiPropertiesV2();
-    study
-        .getProperties()
-        .forEach(
-            (key, value) -> apiProperties.add(new ApiPropertyKeyValueV2().key(key).value(value)));
-    return new ApiStudyV2()
-        .id(study.getId())
-        .displayName(study.getDisplayName())
-        .description(study.getDescription())
-        .properties(apiProperties)
-        .created(study.getCreated())
-        .createdBy(study.getCreatedBy())
-        .lastModified(study.getLastModified());
   }
 
   private static ImmutableMap<String, String> fromApiObject(

@@ -8,11 +8,15 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceIdCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.*;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
@@ -196,17 +200,24 @@ public class ReviewServiceTest {
     // List all reviews for cohort2.
     List<Review> allReviews =
         reviewService.listReviews(
-            ResourceIdCollection.allResourceIds(), study1.getId(), cohort2.getId(), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.REVIEW, ResourceId.forCohort(study1.getId(), cohort2.getId())),
+            0,
+            10);
     assertEquals(2, allReviews.size());
     LOGGER.info("reviews found: {}, {}", allReviews.get(0).getId(), allReviews.get(1).getId());
+    List<Review> allReviewsSortedByCreatedDesc =
+        allReviews.stream()
+            .sorted(Comparator.comparing(Review::getCreated).reversed())
+            .collect(Collectors.toList());
+    assertEquals(allReviews, allReviewsSortedByCreatedDesc);
 
     // List selected review for cohort2.
     List<Review> selectedReviews =
         reviewService.listReviews(
-            ResourceIdCollection.forCollection(
-                List.of(ResourceId.forReview(study1.getId(), cohort2.getId(), review3.getId()))),
-            study1.getId(),
-            cohort2.getId(),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.REVIEW),
+                Set.of(ResourceId.forReview(study1.getId(), cohort2.getId(), review3.getId()))),
             0,
             10);
     assertEquals(1, selectedReviews.size());
@@ -217,16 +228,18 @@ public class ReviewServiceTest {
     // List all.
     List<Review> allReviews =
         reviewService.listReviews(
-            ResourceIdCollection.allResourceIds(), study1.getId(), cohort1.getId(), 0, 10);
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.REVIEW, ResourceId.forCohort(study1.getId(), cohort1.getId())),
+            0,
+            10);
     assertTrue(allReviews.isEmpty());
 
     // List selected.
     List<Review> selectedReviews =
         reviewService.listReviews(
-            ResourceIdCollection.forCollection(
-                List.of(ResourceId.forReview(study1.getId(), cohort1.getId(), "123"))),
-            study1.getId(),
-            cohort1.getId(),
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.REVIEW),
+                Set.of(ResourceId.forReview(study1.getId(), cohort1.getId(), "123"))),
             0,
             10);
     assertTrue(selectedReviews.isEmpty());
