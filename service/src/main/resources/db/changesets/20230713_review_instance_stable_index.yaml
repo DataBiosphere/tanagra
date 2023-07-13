@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: review_instance_stable_index
+      author: marikomedlock
+      changes:
+        - addColumn:
+            tableName: primary_entity_instance
+            columns:
+              - column:
+                  name: stable_index
+                  type: integer
+                  value: 0 # Backfill existing rows with zeros.
