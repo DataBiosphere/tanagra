@@ -76,6 +76,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   public ResponseEntity<ApiStudyListV2> listStudies(
       String displayName,
       String description,
+      String createdBy,
       List<String> properties,
       Integer offset,
       Integer limit) {
@@ -87,7 +88,10 @@ public class StudiesV2ApiController implements StudiesV2Api {
             limit);
     List<Study> authorizedStudies =
         studyService.listStudies(
-            authorizedStudyIds, offset, limit, fromApiObject(displayName, description, properties));
+            authorizedStudyIds,
+            offset,
+            limit,
+            fromApiObject(displayName, description, createdBy, properties));
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
     authorizedStudies.stream()
         .forEach(study -> apiStudies.add(ToApiConversionUtils.toApiObject(study)));
@@ -144,7 +148,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
   }
 
   private static Study.Builder fromApiObject(
-      String displayName, String description, List<String> properties) {
+      String displayName, String description, String createdBy, List<String> properties) {
     // Convert the list of properties (key1, value1, key2, value2,...) to a map.
     // The API uses a list parameter here because map query parameters aren't handled by the Java
     // codegen.
@@ -164,6 +168,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
     return Study.builder()
         .displayName(displayName)
         .description(description)
+        .createdBy(createdBy)
         .properties(propertiesMap);
   }
 }

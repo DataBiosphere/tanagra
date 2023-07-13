@@ -87,14 +87,13 @@ public class StudyServiceTest {
   @Test
   void listAllOrSelected() {
     // Create two studies.
-    String createdByEmail = "abc@123.com";
     Study study1 =
         studyService.createStudy(
             Study.builder()
                 .displayName("study 1")
                 .description("oneoneone")
                 .properties(Map.of("irb", "123")),
-            createdByEmail);
+            "abc@123.com");
     assertNotNull(study1);
     assertEquals(1, study1.getProperties().size());
     assertEquals("123", study1.getProperties().get("irb"));
@@ -105,7 +104,7 @@ public class StudyServiceTest {
                 .displayName("study 2")
                 .description("twotwotwo")
                 .properties(Map.of("irb", "456")),
-            createdByEmail);
+            "def@one.two-three.123.com");
     assertNotNull(study2);
     assertEquals(1, study2.getProperties().size());
     assertEquals("456", study2.getProperties().get("irb"));
@@ -145,6 +144,17 @@ public class StudyServiceTest {
     assertEquals(1, allStudiesWithFilter.size());
     assertEquals(study1.getId(), allStudiesWithFilter.get(0).getId());
 
+    // List all with filter on createdBy only.
+    filter1 = Study.builder().createdBy("@123.com");
+    allStudiesWithFilter =
+        studyService.listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null),
+            0,
+            10,
+            filter1);
+    assertEquals(1, allStudiesWithFilter.size());
+    assertEquals(study1.getId(), allStudiesWithFilter.get(0).getId());
+
     // List selected with filter.
     Study.Builder filter2 = Study.builder().properties(Map.of("irb", "45"));
     List<Study> selectedStudiesWithFilter =
@@ -156,6 +166,19 @@ public class StudyServiceTest {
             10,
             filter2);
     assertTrue(selectedStudiesWithFilter.isEmpty());
+
+    // List selected with filter on createdBy only.
+    filter2 = Study.builder().createdBy("@one.two-three.123.com");
+    selectedStudiesWithFilter =
+        studyService.listStudies(
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.STUDY),
+                Set.of(ResourceId.forStudy(study1.getId()), ResourceId.forStudy(study2.getId()))),
+            0,
+            10,
+            filter2);
+    assertEquals(1, selectedStudiesWithFilter.size());
+    assertEquals(study2.getId(), selectedStudiesWithFilter.get(0).getId());
   }
 
   @Test
