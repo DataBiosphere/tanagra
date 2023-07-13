@@ -209,6 +209,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/StudyFilterDisplayNameV2"
         - $ref: "#/components/parameters/StudyFilterDescriptionV2"
+        - $ref: "#/components/parameters/StudyFilterCreatedByV2"
         - $ref: "#/components/parameters/StudyFilterPropertiesV2"
         - $ref: "#/components/parameters/OffsetV2"
         - $ref: "#/components/parameters/LimitV2"
@@ -951,6 +952,14 @@ components:
       name: description
       in: query
       description: Text search on the study description
+      required: false
+      schema:
+        type: string
+
+    StudyFilterCreatedByV2:
+      name: createdBy
+      in: query
+      description: Text search on the study created by email
       required: false
       schema:
         type: string
