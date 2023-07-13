@@ -12,28 +12,47 @@ import Loading from "components/loading";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/sourceContext";
 import GridLayout from "layout/gridLayout";
+import { useCallback } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 export function StudiesList() {
   const source = useSource();
 
-  const studiesState = useSWR({ component: "StudiesList" }, async () => {
-    return await source.listStudies();
+  const userState = useSWRImmutable({ type: "user" }, async () => {
+    return await source.getUser();
   });
+
+  const listStudies = useCallback(async () => {
+    const domain = userState.data?.email?.split("@")[1];
+    return await source.listStudies({
+      createdBy: domain ? "@" + domain : undefined,
+    });
+  }, [source, userState.data?.email]);
+
+  const studiesState = useSWR(
+    () =>
+      userState.data
+        ? { type: "studies", email: userState.data.email }
+        : undefined,
+    async () => {
+      return listStudies();
+    }
+  );
 
   const onCreateNewStudy = (name: string) => {
     studiesState.mutate(async () => {
       await source.createStudy(name);
-      return await source.listStudies();
+      return listStudies();
     });
   };
 
   const onDeleteStudy = (studyId: string) => {
     studiesState.mutate(async () => {
       await source.deleteStudy(studyId);
-      return await source.listStudies();
+      return listStudies();
     });
   };
 

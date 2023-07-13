@@ -9,6 +9,7 @@ import {
   ReviewsApiContext,
   StudiesApiContext,
   UnderlaysApiContext,
+  UsersApiContext,
 } from "apiContext";
 import Loading from "components/loading";
 import { createContext, useCallback, useContext } from "react";
@@ -54,6 +55,7 @@ export function SourceContextRoot() {
     AnnotationsApiContext
   ) as tanagra.AnnotationsV2Api;
   const exportApi = useContext(ExportApiContext) as tanagra.ExportApi;
+  const usersApi = useContext(UsersApiContext) as tanagra.UsersV2Api;
 
   const sourceState = useSWRImmutable(
     { type: "underlay", underlayName },
@@ -92,6 +94,7 @@ export function SourceContextRoot() {
           reviewsApi,
           annotationsApi,
           exportApi,
+          usersApi,
           underlay,
           underlay.uiConfiguration.dataConfig
         ),
