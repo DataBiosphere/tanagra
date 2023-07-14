@@ -5,7 +5,7 @@
     "name" : "index_dataset",
     "projectId" : "all-of-us-ehr-dev",
     "datasetId" : "SR2022Q4R6",
-    "queryProjectId": "fc-aou-cdr-synth-test",
+    "queryProjectId" : "fc-aou-cdr-synth-test",
     "dataflowServiceAccountEmail" : "tanagra-indexing-runner@all-of-us-ehr-dev.iam.gserviceaccount.com",
     "dataflowTempLocation" : "gs://all-of-us-ehr-dev-tanagra-indexing/SR2022Q4R6/tanagra_index_temp",
     "dataflowRegion" : "us-central1",
@@ -16,7 +16,7 @@
     "name" : "omop_dataset",
     "projectId" : "all-of-us-ehr-dev",
     "datasetId" : "SR2022Q4R6",
-    "queryProjectId": "fc-aou-cdr-synth-test",
+    "queryProjectId" : "fc-aou-cdr-synth-test",
     "dataflowRegion" : "us-central1",
     "dataflowWorkerMachineType" : "n1-standard-4",
     "dataflowUsePublicIps" : true
