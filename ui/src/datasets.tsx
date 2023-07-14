@@ -47,9 +47,13 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  absoluteExportURL,
   cohortURL,
   conceptSetURL,
   newConceptSetURL,
+  redirect,
+  RETURN_URL_PLACEHOLDER,
+  useBaseParams,
   useExitAction,
 } from "router";
 import { StudyName } from "studyName";
@@ -752,6 +756,7 @@ function ExportDialog(
   const source = useSource();
   const underlay = useUnderlay();
   const studyId = useStudyId();
+  const params = useBaseParams();
 
   const [selId, setSelId] = useState<string | undefined>(undefined);
   const [exporting, setExporting] = useState(false);
@@ -796,7 +801,7 @@ function ExportDialog(
       underlay.name,
       studyId,
       model.id,
-      window.location.href,
+      RETURN_URL_PLACEHOLDER,
       props.cohorts.map((c) => c.id),
       props.conceptSetParams.map((params) => ({
         requestedAttributes: params.attributes,
@@ -811,7 +816,7 @@ function ExportDialog(
         setOutput(<CenteredContent progress text="Redirecting..." />);
         setExporting(false);
 
-        window.location.href = result.redirectURL;
+        redirect(result.redirectURL, absoluteExportURL(params));
       } else {
         const artifactLists: {
           section: string;

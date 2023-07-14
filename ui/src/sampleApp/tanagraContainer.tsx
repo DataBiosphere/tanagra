@@ -1,6 +1,11 @@
 import GridLayout from "layout/gridLayout";
-import { useNavigate, useParams } from "react-router-dom";
-import { useBaseParams, useExitActionListener } from "router";
+import { useHref, useNavigate, useParams } from "react-router-dom";
+import {
+  RETURN_URL_PLACEHOLDER,
+  useBaseParams,
+  useExitActionListener,
+  useRedirectListener,
+} from "router";
 import { Header } from "sampleApp/header";
 
 export function TanagraContainer() {
@@ -8,8 +13,21 @@ export function TanagraContainer() {
   const params = useBaseParams();
   const { "*": splat } = useParams<{ "*": string }>();
 
+  const currentPath = useHref(".");
+
   useExitActionListener(() => {
     navigate(`/underlays/${params.underlayName}/studies/${params.studyId}`);
+  });
+
+  useRedirectListener((redirectUrl, returnPath) => {
+    const currentURL = new URL(window.location.href);
+    const returnUrl = encodeURIComponent(
+      `${currentURL.origin}/${currentPath}${returnPath}`
+    );
+    window.location.href = redirectUrl.replace(
+      RETURN_URL_PLACEHOLDER,
+      returnUrl
+    );
   });
 
   return (

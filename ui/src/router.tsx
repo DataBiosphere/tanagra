@@ -166,19 +166,19 @@ export function useExitAction() {
   }, [location, params, navigate]);
 }
 
-export function useExitActionListener(callback: () => void) {
+function useMessageListener<T>(message: string, callback: (event: T) => void) {
   const listener = useCallback(
     (event) => {
       if (
         event.origin != window.window.location.origin ||
         typeof event.data !== "object" ||
-        event.data.message != "CLOSE"
+        event.data.message != message
       ) {
         return;
       }
-      callback();
+      callback(event.data);
     },
-    [callback]
+    [message, callback]
   );
 
   useEffect(() => {
@@ -187,6 +187,32 @@ export function useExitActionListener(callback: () => void) {
       window.removeEventListener("message", listener);
     };
   }, [listener]);
+}
+
+export function useExitActionListener(callback: () => void) {
+  useMessageListener("CLOSE", () => callback());
+}
+
+export const RETURN_URL_PLACEHOLDER = "T_RETURN_URL";
+
+export type RedirectEvent = {
+  redirectURL: string;
+  returnPath: string;
+};
+
+export function useRedirectListener(
+  callback: (redirectURL: string, returnPath: string) => void
+) {
+  useMessageListener<RedirectEvent>("REDIRECT", (event) =>
+    callback(event.redirectURL, event.returnPath)
+  );
+}
+
+export function redirect(redirectURL: string, returnPath: string) {
+  window.parent.postMessage(
+    { message: "REDIRECT", redirectURL, returnPath },
+    window.location.origin
+  );
 }
 
 export function exitURL(params: BaseParams) {
