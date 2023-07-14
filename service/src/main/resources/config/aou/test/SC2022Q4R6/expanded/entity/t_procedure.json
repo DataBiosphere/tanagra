@@ -33,7 +33,7 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "SIMPLE",
+    "type" : "KEY_AND_DISPLAY",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -43,7 +43,7 @@
           "value" : {
             "stringVal" : "CIEL"
           },
-          "display" : "CIEL"
+          "display" : "Columbia International eHealth Laboratory (Columbia University)"
         },
         "count" : 648
       }, {
@@ -51,15 +51,23 @@
           "value" : {
             "stringVal" : "CPT4"
           },
-          "display" : "CPT4"
+          "display" : "Current Procedural Terminology version 4 (AMA)"
         },
         "count" : 13409
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "NAACCR"
+          },
+          "display" : "Data Standards & Data Dictionary Volume II (NAACCR)"
+        },
+        "count" : 710
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "HCPCS"
           },
-          "display" : "HCPCS"
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
         "count" : 1289
       }, {
@@ -73,17 +81,9 @@
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICD10CM"
-          },
-          "display" : "ICD10CM"
-        },
-        "count" : 7
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "ICD10PCS"
           },
-          "display" : "ICD10PCS"
+          "display" : "ICD-10 Procedure Coding System (CMS)"
         },
         "count" : 194874
       }, {
@@ -91,7 +91,7 @@
           "value" : {
             "stringVal" : "ICD9CM"
           },
-          "display" : "ICD9CM"
+          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
         "count" : 177
       }, {
@@ -99,25 +99,25 @@
           "value" : {
             "stringVal" : "ICD9Proc"
           },
-          "display" : "ICD9Proc"
+          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 3 (NCHS)"
         },
         "count" : 4657
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "LOINC"
+            "stringVal" : "ICD10CM"
           },
-          "display" : "LOINC"
+          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "count" : 9280
+        "count" : 7
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "NAACCR"
+            "stringVal" : "LOINC"
           },
-          "display" : "NAACCR"
+          "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
         },
-        "count" : 710
+        "count" : 9280
       }, {
         "enumVal" : {
           "value" : {
@@ -131,7 +131,7 @@
           "value" : {
             "stringVal" : "OMOP Extension"
           },
-          "display" : "OMOP Extension"
+          "display" : "OMOP Extension (OHDSI)"
         },
         "count" : 2
       }, {
@@ -139,7 +139,7 @@
           "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "SNOMED"
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
         "count" : 86910
       } ]
@@ -149,12 +149,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -192,6 +192,13 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name",
           "runtimeCalculated" : false
         }
       },
@@ -293,6 +300,10 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_vocabulary",
           "runtimeCalculated" : false
         }
       },

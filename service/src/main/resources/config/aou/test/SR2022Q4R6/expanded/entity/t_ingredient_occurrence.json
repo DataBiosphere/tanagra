@@ -5,12 +5,32 @@
     "type" : "SIMPLE",
     "name" : "end_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ingredient",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "refills",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 10.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 2.000007519E9
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "stop_reason",
@@ -27,181 +47,19 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "KEY_AND_DISPLAY",
-    "name" : "visit_type",
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
     "dataType" : "INT64",
     "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21039000
-          },
-          "display" : "10 ML Morphine 0.2 MG/ML Prefilled Syringe Box of 10"
-        },
-        "count" : 1
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21050000
-          },
-          "display" : "2000 ML benzyl benzoate 250 MG/ML Topical Solution"
-        },
-        "count" : 31
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581478
-          },
-          "display" : "Ambulance Visit"
-        },
-        "count" : 1707
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 38004207
-          },
-          "display" : "Ambulatory Clinic / Center"
-        },
-        "count" : 28333
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581479
-          },
-          "display" : "Ambulatory Rehabilitation Visit"
-        },
-        "count" : 2017
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21090300
-          },
-          "display" : "Chondroitin Sulfates 400 MG / Glucosamine 500 MG Oral Tablet [Joint-Flex] Box of 60"
-        },
-        "count" : 2
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21036000
-          },
-          "display" : "Daptomycin 500 MG Injection Box of 1"
-        },
-        "count" : 191
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9203
-          },
-          "display" : "Emergency Room Visit"
-        },
-        "count" : 400623
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 262
-          },
-          "display" : "Emergency Room and Inpatient Visit"
-        },
-        "count" : 193705
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21090400
-          },
-          "display" : "Ergocalciferol 300000 UNT/ML Prefilled Syringe Box of 10"
-        },
-        "count" : 1
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581476
-          },
-          "display" : "Home Visit"
-        },
-        "count" : 12432
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9201
-          },
-          "display" : "Inpatient Visit"
-        },
-        "count" : 1685591
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 32036
-          },
-          "display" : "Laboratory Visit"
-        },
-        "count" : 99
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 12
-          },
-          "display" : "Modifier"
-        },
-        "count" : 374
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 0
-          },
-          "display" : "No matching concept"
-        },
-        "count" : 296645
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 42898160
-          },
-          "display" : "Non-hospital institution Visit"
-        },
-        "count" : 16
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581477
-          },
-          "display" : "Office Visit"
-        },
-        "count" : 190779
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 44814711
-          },
-          "display" : "Other ambulatory visit"
-        },
-        "count" : 1481
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9202
-          },
-          "display" : "Outpatient Visit"
-        },
-        "count" : 2425597
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581458
-          },
-          "display" : "Pharmacy visit"
-        },
-        "count" : 42993
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 44818518
-          },
-          "display" : "Visit derived from EHR record"
-        },
-        "count" : 123255
-      } ]
+      "type" : "RANGE",
+      "minVal" : 2020479.0,
+      "maxVal" : 1.5996253E7
     },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
@@ -215,64 +73,34 @@
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
-    "name" : "refills",
-    "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : -9.223372036854776E18,
-      "maxVal" : 10.0
-    },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "source_criteria_id",
-    "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "age_at_occurrence",
-    "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : -17.0,
-      "maxVal" : 89.0
-    },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "visit_occurrence_id",
-    "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "id",
-    "dataType" : "INT64",
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2.0201235E7,
+      "maxVal" : 2.0435757E7
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   de.drug_exposure_id AS id, de.person_id, de.drug_concept_id,   de.drug_exposure_start_date AS start_date, de.drug_exposure_end_date AS end_date,   de.stop_reason, de.refills, de.days_supply,   de.drug_source_value AS source_value, de.drug_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(de.drug_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   de.visit_occurrence_id, vo.visit_concept_id  FROM `all-of-us-ehr-dev.SR2022Q4R6.drug_exposure` AS de  JOIN `all-of-us-ehr-dev.SR2022Q4R6.person` AS p ON p.person_id = de.person_id  LEFT JOIN `all-of-us-ehr-dev.SR2022Q4R6.visit_occurrence` AS vo ON vo.visit_occurrence_id = de.visit_occurrence_id "
+      "table" : "drug_exposure"
     },
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "end_date",
+          "column" : "drug_exposure_end_date",
           "runtimeCalculated" : false
         }
       },
@@ -289,31 +117,6 @@
           "runtimeCalculated" : false
         }
       },
-      "stop_reason" : {
-        "value" : {
-          "column" : "stop_reason",
-          "runtimeCalculated" : false
-        }
-      },
-      "visit_type" : {
-        "value" : {
-          "column" : "visit_concept_id",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "visit_concept_id",
-          "foreignTable" : "concept",
-          "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name",
-          "runtimeCalculated" : false
-        }
-      },
-      "days_supply" : {
-        "value" : {
-          "column" : "days_supply",
-          "runtimeCalculated" : false
-        }
-      },
       "refills" : {
         "value" : {
           "column" : "refills",
@@ -322,13 +125,13 @@
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id",
+          "column" : "drug_source_concept_id",
           "runtimeCalculated" : false
         }
       },
-      "age_at_occurrence" : {
+      "stop_reason" : {
         "value" : {
-          "column" : "age_at_occurrence",
+          "column" : "stop_reason",
           "runtimeCalculated" : false
         }
       },
@@ -340,13 +143,19 @@
       },
       "id" : {
         "value" : {
-          "column" : "id",
+          "column" : "drug_exposure_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply",
           "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value",
+          "column" : "drug_source_value",
           "runtimeCalculated" : false
         }
       },
@@ -358,7 +167,7 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "start_date",
+          "column" : "drug_exposure_start_date",
           "runtimeCalculated" : false
         }
       }
@@ -368,7 +177,7 @@
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
     "tablePointer" : {
-      "table" : "ingredient_occurrence"
+      "table" : "t_ingredient_occurrence"
     },
     "attributeMappings" : {
       "end_date" : {
@@ -387,28 +196,6 @@
           "runtimeCalculated" : false
         }
       },
-      "stop_reason" : {
-        "value" : {
-          "column" : "stop_reason",
-          "runtimeCalculated" : false
-        }
-      },
-      "visit_type" : {
-        "value" : {
-          "column" : "visit_type",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "t_display_visit_type",
-          "runtimeCalculated" : false
-        }
-      },
-      "days_supply" : {
-        "value" : {
-          "column" : "days_supply",
-          "runtimeCalculated" : false
-        }
-      },
       "refills" : {
         "value" : {
           "column" : "refills",
@@ -421,9 +208,9 @@
           "runtimeCalculated" : false
         }
       },
-      "age_at_occurrence" : {
+      "stop_reason" : {
         "value" : {
-          "column" : "age_at_occurrence",
+          "column" : "stop_reason",
           "runtimeCalculated" : false
         }
       },
@@ -436,6 +223,12 @@
       "id" : {
         "value" : {
           "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply",
           "runtimeCalculated" : false
         }
       },

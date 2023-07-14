@@ -5,20 +5,15 @@
     "type" : "SIMPLE",
     "name" : "end_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "age_at_occurrence",
-    "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -21.0,
-      "maxVal" : 89.0
+      "minVal" : 0.0,
+      "maxVal" : 5.542608719E9
     },
     "displayHintTypes" : [ ]
   }, {
@@ -239,45 +234,44 @@
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2.0201234E7,
+      "maxVal" : 2.0435758E7
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   vo.visit_occurrence_id AS id, vo.person_id, vo.visit_concept_id,   vo.visit_start_date AS start_date, vo.visit_end_date AS end_date,   vo.visit_source_value AS source_value, vo.visit_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(vo.visit_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence  FROM `all-of-us-ehr-dev.SC2022Q4R6.visit_occurrence` AS vo  JOIN `all-of-us-ehr-dev.SC2022Q4R6.person` AS p ON p.person_id = vo.person_id "
+      "table" : "visit_occurrence"
     },
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "end_date",
+          "column" : "visit_end_date",
           "runtimeCalculated" : false
         }
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id",
-          "runtimeCalculated" : false
-        }
-      },
-      "age_at_occurrence" : {
-        "value" : {
-          "column" : "age_at_occurrence",
+          "column" : "visit_source_concept_id",
           "runtimeCalculated" : false
         }
       },
       "id" : {
         "value" : {
-          "column" : "id",
+          "column" : "visit_occurrence_id",
           "runtimeCalculated" : false
         }
       },
@@ -296,7 +290,7 @@
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value",
+          "column" : "visit_source_value",
           "runtimeCalculated" : false
         }
       },
@@ -308,7 +302,7 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "start_date",
+          "column" : "visit_start_date",
           "runtimeCalculated" : false
         }
       }
@@ -330,12 +324,6 @@
       "source_criteria_id" : {
         "value" : {
           "column" : "source_criteria_id",
-          "runtimeCalculated" : false
-        }
-      },
-      "age_at_occurrence" : {
-        "value" : {
-          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },

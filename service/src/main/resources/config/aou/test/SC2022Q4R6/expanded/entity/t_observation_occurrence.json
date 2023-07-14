@@ -5,25 +5,272 @@
     "type" : "SIMPLE",
     "name" : "date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "unit",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4118133
+          },
+          "display" : "IU/L"
+        },
+        "count" : 5
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 35289501
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121007
+          },
+          "display" : "Seconds"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8799
+          },
+          "display" : "copies per milliliter"
+        },
+        "count" : 231
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8512
+          },
+          "display" : "day"
+        },
+        "count" : 2028
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9484
+          },
+          "display" : "degree"
+        },
+        "count" : 55
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8653
+          },
+          "display" : "degree Celsius"
+        },
+        "count" : 53
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8529
+          },
+          "display" : "index"
+        },
+        "count" : 88
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8519
+          },
+          "display" : "liter"
+        },
+        "count" : 15
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9546
+          },
+          "display" : "meter"
+        },
+        "count" : 66
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121396
+          },
+          "display" : "mg/dL"
+        },
+        "count" : 26047
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8720
+          },
+          "display" : "microgram per gram"
+        },
+        "count" : 23
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8587
+          },
+          "display" : "milliliter"
+        },
+        "count" : 87
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8588
+          },
+          "display" : "millimeter"
+        },
+        "count" : 55
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8876
+          },
+          "display" : "millimeter mercury column"
+        },
+        "count" : 36
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8753
+          },
+          "display" : "millimole per liter"
+        },
+        "count" : 22
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8931
+          },
+          "display" : "million per cubic millimeter"
+        },
+        "count" : 957
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4118323
+          },
+          "display" : "mmHg"
+        },
+        "count" : 63
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4122417
+          },
+          "display" : "ng/dL"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9372
+          },
+          "display" : "ounce (apothecary)"
+        },
+        "count" : 25481
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8647
+          },
+          "display" : "per microliter"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8554
+          },
+          "display" : "percent"
+        },
+        "count" : 360
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4120725
+          },
+          "display" : "pg/mL"
+        },
+        "count" : 1235
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8729
+          },
+          "display" : "picomole per liter"
+        },
+        "count" : 3
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8555
+          },
+          "display" : "second"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8525
+          },
+          "display" : "titer"
+        },
+        "count" : 534
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 4121397
+          },
+          "display" : "ug/dL"
+        },
+        "count" : 1
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8510
+          },
+          "display" : "unit"
+        },
+        "count" : 908557
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 8763
+          },
+          "display" : "unit per milliliter"
+        },
+        "count" : 164
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9234
+          },
+          "display" : "volume percent"
+        },
+        "count" : 7
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 9448
+          },
+          "display" : "year"
+        },
+        "count" : 129781
+      } ]
+    },
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "age_at_occurrence",
-    "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -14.0,
-      "maxVal" : 91.0
+      "minVal" : -2.0,
+      "maxVal" : 2.000023487E9
     },
     "displayHintTypes" : [ ]
   }, {
@@ -35,147 +282,15 @@
     "type" : "SIMPLE",
     "name" : "value_as_string",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
-  }, {
-    "type" : "KEY_AND_DISPLAY",
-    "name" : "visit_type",
-    "dataType" : "INT64",
     "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21050000
-          },
-          "display" : "2000 ML benzyl benzoate 250 MG/ML Topical Solution"
-        },
-        "count" : 16
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581478
-          },
-          "display" : "Ambulance Visit"
-        },
-        "count" : 100
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581479
-          },
-          "display" : "Ambulatory Rehabilitation Visit"
-        },
-        "count" : 15415
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21036000
-          },
-          "display" : "Daptomycin 500 MG Injection Box of 1"
-        },
-        "count" : 1
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9203
-          },
-          "display" : "Emergency Room Visit"
-        },
-        "count" : 375498
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 262
-          },
-          "display" : "Emergency Room and Inpatient Visit"
-        },
-        "count" : 55762
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581476
-          },
-          "display" : "Home Visit"
-        },
-        "count" : 7912
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9201
-          },
-          "display" : "Inpatient Visit"
-        },
-        "count" : 923517
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 32036
-          },
-          "display" : "Laboratory Visit"
-        },
-        "count" : 187
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 0
-          },
-          "display" : "No matching concept"
-        },
-        "count" : 154087
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 42898160
-          },
-          "display" : "Non-hospital institution Visit"
-        },
-        "count" : 17
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581477
-          },
-          "display" : "Office Visit"
-        },
-        "count" : 375582
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 44814711
-          },
-          "display" : "Other ambulatory visit"
-        },
-        "count" : 144
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9202
-          },
-          "display" : "Outpatient Visit"
-        },
-        "count" : 2354720
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581458
-          },
-          "display" : "Pharmacy visit"
-        },
-        "count" : 1703
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 21033000
-          },
-          "display" : "Risperidone 0.5 MG Oral Tablet by Consilient"
-        },
-        "count" : 12
-      } ]
+      "type" : "RANGE",
+      "minVal" : 2020475.0,
+      "maxVal" : 1.5996262E7
     },
     "displayHintTypes" : [ ]
   }, {
@@ -187,22 +302,27 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "value",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2.0201234E7,
+      "maxVal" : 2.0435758E7
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   o.observation_id AS id, o.person_id, o.observation_concept_id,   o.observation_date, o.value_as_string, o.value_as_concept_id, o.unit_concept_id,   o.observation_source_value AS source_value, o.observation_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(o.observation_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   o.visit_occurrence_id, vo.visit_concept_id  FROM `all-of-us-ehr-dev.SC2022Q4R6.observation` AS o  JOIN `all-of-us-ehr-dev.SC2022Q4R6.person` AS p ON p.person_id = o.person_id  LEFT JOIN `all-of-us-ehr-dev.SC2022Q4R6.visit_occurrence` AS vo ON vo.visit_occurrence_id = o.visit_occurrence_id "
+      "table" : "observation"
     },
     "attributeMappings" : {
       "date" : {
@@ -226,13 +346,7 @@
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id",
-          "runtimeCalculated" : false
-        }
-      },
-      "age_at_occurrence" : {
-        "value" : {
-          "column" : "age_at_occurrence",
+          "column" : "observation_source_concept_id",
           "runtimeCalculated" : false
         }
       },
@@ -261,22 +375,9 @@
           "runtimeCalculated" : false
         }
       },
-      "visit_type" : {
-        "value" : {
-          "column" : "visit_concept_id",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "visit_concept_id",
-          "foreignTable" : "concept",
-          "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name",
-          "runtimeCalculated" : false
-        }
-      },
       "id" : {
         "value" : {
-          "column" : "id",
+          "column" : "observation_id",
           "runtimeCalculated" : false
         }
       },
@@ -295,7 +396,7 @@
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value",
+          "column" : "observation_source_value",
           "runtimeCalculated" : false
         }
       },
@@ -336,12 +437,6 @@
           "runtimeCalculated" : false
         }
       },
-      "age_at_occurrence" : {
-        "value" : {
-          "column" : "age_at_occurrence",
-          "runtimeCalculated" : false
-        }
-      },
       "observation" : {
         "value" : {
           "column" : "observation",
@@ -361,16 +456,6 @@
       "visit_occurrence_id" : {
         "value" : {
           "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        }
-      },
-      "visit_type" : {
-        "value" : {
-          "column" : "visit_type",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "t_display_visit_type",
           "runtimeCalculated" : false
         }
       },

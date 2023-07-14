@@ -6,7 +6,7 @@
       "name": "omop_dataset",
       "projectId": "all-of-us-ehr-dev",
       "datasetId": "SC2022Q4R6",
-      "queryProjectId": "fc-aou-cdr-synth-test-2"
+      "queryProjectId": "all-of-us-ehr-dev"
     },
     { "type": "BQ_DATASET",
       "name": "index_dataset",

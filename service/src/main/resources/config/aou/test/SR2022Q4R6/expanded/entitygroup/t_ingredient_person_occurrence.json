@@ -70,7 +70,7 @@
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "ingredient_occurrence"
+              "table" : "t_ingredient_occurrence"
             },
             "id" : {
               "column" : "id",
@@ -89,7 +89,7 @@
         "rollupInformationMapB" : {
           "standard" : {
             "table" : {
-              "table" : "ingredient"
+              "table" : "t_ingredient"
             },
             "id" : {
               "column" : "id",
@@ -106,7 +106,7 @@
           },
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "ingredient"
+              "table" : "t_ingredient"
             },
             "id" : {
               "column" : "id",
@@ -138,7 +138,7 @@
         "rollupInformationMapA" : {
           "standard" : {
             "table" : {
-              "table" : "ingredient"
+              "table" : "t_ingredient"
             },
             "id" : {
               "column" : "id",
@@ -155,7 +155,7 @@
           },
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "ingredient"
+              "table" : "t_ingredient"
             },
             "id" : {
               "column" : "id",
@@ -206,7 +206,7 @@
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "ingredient_occurrence"
+              "table" : "t_ingredient_occurrence"
             },
             "id" : {
               "column" : "id",

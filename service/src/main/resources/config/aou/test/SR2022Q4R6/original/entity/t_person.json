@@ -4,18 +4,16 @@
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
     { "type": "SIMPLE", "name": "year_of_birth" },
-    { "type": "SIMPLE", "name": "age" },
     { "type": "KEY_AND_DISPLAY", "name": "gender" },
     { "type": "KEY_AND_DISPLAY", "name": "race" },
-    { "type": "KEY_AND_DISPLAY", "name": "ethnicity" }
-  ],
+    { "type": "KEY_AND_DISPLAY", "name": "ethnicity" },
+    { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "rawSqlFile": "t_person.sql" },
+    "tablePointer": { "table": "person" },
     "attributeMappings": {
       "id": { "value": { "column": "person_id" } },
-      "age": { "value": { "column": "birth_datetime", "runtimeCalculated": true, "sqlFunctionWrapper": "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)" } },
       "gender": {
         "value": { "column": "gender_concept_id" },
         "display": {
@@ -34,6 +32,13 @@
         "value": { "column": "ethnicity_concept_id" },
         "display": {
           "column": "ethnicity_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "sex_at_birth": {
+        "value": { "column": "sex_at_birth_concept_id" },
+        "display": {
+          "column": "sex_at_birth_concept_id",
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } }

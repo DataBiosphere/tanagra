@@ -5,154 +5,25 @@
     "type" : "SIMPLE",
     "name" : "date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "age_at_occurrence",
-    "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : -20.0,
-      "maxVal" : 89.0
+      "minVal" : 0.0,
+      "maxVal" : 2.000023474E9
     },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "visit_occurrence_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
-  }, {
-    "type" : "KEY_AND_DISPLAY",
-    "name" : "visit_type",
-    "dataType" : "INT64",
     "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581478
-          },
-          "display" : "Ambulance Visit"
-        },
-        "count" : 4260
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 38004207
-          },
-          "display" : "Ambulatory Clinic / Center"
-        },
-        "count" : 950
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581479
-          },
-          "display" : "Ambulatory Rehabilitation Visit"
-        },
-        "count" : 616
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9203
-          },
-          "display" : "Emergency Room Visit"
-        },
-        "count" : 123985
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 262
-          },
-          "display" : "Emergency Room and Inpatient Visit"
-        },
-        "count" : 27649
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581476
-          },
-          "display" : "Home Visit"
-        },
-        "count" : 2605
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9201
-          },
-          "display" : "Inpatient Visit"
-        },
-        "count" : 189220
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 32036
-          },
-          "display" : "Laboratory Visit"
-        },
-        "count" : 179
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 12
-          },
-          "display" : "Modifier"
-        },
-        "count" : 82
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 0
-          },
-          "display" : "No matching concept"
-        },
-        "count" : 150536
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 42898160
-          },
-          "display" : "Non-hospital institution Visit"
-        },
-        "count" : 2
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581477
-          },
-          "display" : "Office Visit"
-        },
-        "count" : 77810
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 9202
-          },
-          "display" : "Outpatient Visit"
-        },
-        "count" : 1358860
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 581458
-          },
-          "display" : "Pharmacy visit"
-        },
-        "count" : 501
-      }, {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 44818518
-          },
-          "display" : "Visit derived from EHR record"
-        },
-        "count" : 342938
-      } ]
+      "type" : "RANGE",
+      "minVal" : 2020476.0,
+      "maxVal" : 1.5996259E7
     },
     "displayHintTypes" : [ ]
   }, {
@@ -164,22 +35,27 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "procedure",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2.0201235E7,
+      "maxVal" : 2.0435757E7
+    },
+    "displayHintTypes" : [ ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT   po.procedure_occurrence_id AS id, po.person_id, po.procedure_concept_id, po.procedure_date,   po.procedure_source_value AS source_value, po.procedure_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(po.procedure_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,   po.visit_occurrence_id, vo.visit_concept_id  FROM `all-of-us-ehr-dev.SR2022Q4R6.procedure_occurrence` AS po  JOIN `all-of-us-ehr-dev.SR2022Q4R6.person` AS p ON p.person_id = po.person_id  LEFT JOIN `all-of-us-ehr-dev.SR2022Q4R6.visit_occurrence` AS vo ON vo.visit_occurrence_id = po.visit_occurrence_id "
+      "table" : "procedure_occurrence"
     },
     "attributeMappings" : {
       "date" : {
@@ -190,13 +66,7 @@
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "source_criteria_id",
-          "runtimeCalculated" : false
-        }
-      },
-      "age_at_occurrence" : {
-        "value" : {
-          "column" : "age_at_occurrence",
+          "column" : "procedure_source_concept_id",
           "runtimeCalculated" : false
         }
       },
@@ -206,22 +76,9 @@
           "runtimeCalculated" : false
         }
       },
-      "visit_type" : {
-        "value" : {
-          "column" : "visit_concept_id",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "visit_concept_id",
-          "foreignTable" : "concept",
-          "foreignKey" : "concept_id",
-          "foreignColumn" : "concept_name",
-          "runtimeCalculated" : false
-        }
-      },
       "id" : {
         "value" : {
-          "column" : "id",
+          "column" : "procedure_occurrence_id",
           "runtimeCalculated" : false
         }
       },
@@ -240,7 +97,7 @@
       },
       "source_value" : {
         "value" : {
-          "column" : "source_value",
+          "column" : "procedure_source_value",
           "runtimeCalculated" : false
         }
       },
@@ -271,25 +128,9 @@
           "runtimeCalculated" : false
         }
       },
-      "age_at_occurrence" : {
-        "value" : {
-          "column" : "age_at_occurrence",
-          "runtimeCalculated" : false
-        }
-      },
       "visit_occurrence_id" : {
         "value" : {
           "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        }
-      },
-      "visit_type" : {
-        "value" : {
-          "column" : "visit_type",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "t_display_visit_type",
           "runtimeCalculated" : false
         }
       },

@@ -3,10 +3,10 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "vocabulary" },
+    { "type": "SIMPLE", "name": "name" },
+    { "type": "KEY_AND_DISPLAY", "name": "vocabulary" },
     { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
-    { "type": "SIMPLE", "name": "concept_code", "displayHintTypes": ["NONE"] } ],
+    { "type": "SIMPLE", "name": "concept_code" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
@@ -36,7 +36,13 @@
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } },
-      "vocabulary": { "value": { "column": "vocabulary_id" } },
+      "vocabulary": {
+        "value": { "column": "vocabulary_id" },
+        "display": {
+          "column": "vocabulary_id",
+          "foreignTable": "vocabulary",
+          "foreignKey": "vocabulary_id",
+          "foreignColumn": "vocabulary_name" } },
       "standard_concept": {
         "value": { "column": "standard_concept" },
         "display": {

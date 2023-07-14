@@ -25,7 +25,7 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "SIMPLE",
+    "type" : "KEY_AND_DISPLAY",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -33,9 +33,17 @@
       "enumVals" : [ {
         "enumVal" : {
           "value" : {
+            "stringVal" : "PPI"
+          },
+          "display" : "AllOfUs_PPI (Columbia)"
+        },
+        "count" : 74
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "CIEL"
           },
-          "display" : "CIEL"
+          "display" : "Columbia International eHealth Laboratory (Columbia University)"
         },
         "count" : 38818
       }, {
@@ -43,7 +51,7 @@
           "value" : {
             "stringVal" : "HCPCS"
           },
-          "display" : "HCPCS"
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
         "count" : 1
       }, {
@@ -57,27 +65,27 @@
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICD10CM"
+            "stringVal" : "ICDO3"
           },
-          "display" : "ICD10CM"
+          "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
         },
-        "count" : 90699
+        "count" : 62535
       }, {
         "enumVal" : {
           "value" : {
             "stringVal" : "ICD9CM"
           },
-          "display" : "ICD9CM"
+          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
         },
         "count" : 15760
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICDO3"
+            "stringVal" : "ICD10CM"
           },
-          "display" : "ICDO3"
+          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
         },
-        "count" : 62535
+        "count" : 90699
       }, {
         "enumVal" : {
           "value" : {
@@ -91,23 +99,15 @@
           "value" : {
             "stringVal" : "OMOP Extension"
           },
-          "display" : "OMOP Extension"
+          "display" : "OMOP Extension (OHDSI)"
         },
         "count" : 321
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "PPI"
-          },
-          "display" : "PPI"
-        },
-        "count" : 74
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "SNOMED"
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
         "count" : 180133
       } ]
@@ -117,12 +117,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -160,6 +160,13 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name",
           "runtimeCalculated" : false
         }
       },
@@ -261,6 +268,10 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_vocabulary",
           "runtimeCalculated" : false
         }
       },

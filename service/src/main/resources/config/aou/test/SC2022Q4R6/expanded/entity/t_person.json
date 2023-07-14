@@ -170,13 +170,44 @@
     "dataType" : "INT64",
     "displayHintTypes" : [ ]
   }, {
-    "type" : "SIMPLE",
-    "name" : "age",
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "sex_at_birth",
     "dataType" : "INT64",
     "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 22.0,
-      "maxVal" : 93.0
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45878463
+          },
+          "display" : "Female"
+        },
+        "count" : 143479
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 45880669
+          },
+          "display" : "Male"
+        },
+        "count" : 87821
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 0
+          },
+          "display" : "No matching concept"
+        },
+        "count" : 257
+      }, {
+        "enumVal" : {
+          "value" : {
+            "int64Val" : 2000000009
+          },
+          "display" : "Not male, not female, prefer not to answer, or skipped"
+        },
+        "count" : 2968
+      } ]
     },
     "displayHintTypes" : [ ]
   }, {
@@ -193,7 +224,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT     p.person_id, p.year_of_birth, p.birth_datetime, p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id FROM `all-of-us-ehr-dev.SC2022Q4R6.person` p  "
+      "table" : "person"
     },
     "attributeMappings" : {
       "gender" : {
@@ -241,11 +272,17 @@
           "runtimeCalculated" : false
         }
       },
-      "age" : {
+      "sex_at_birth" : {
         "value" : {
-          "column" : "birth_datetime",
-          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
-          "runtimeCalculated" : true
+          "column" : "sex_at_birth_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "sex_at_birth_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
         }
       },
       "year_of_birth" : {
@@ -299,11 +336,14 @@
           "runtimeCalculated" : false
         }
       },
-      "age" : {
+      "sex_at_birth" : {
         "value" : {
-          "column" : "age",
-          "sqlFunctionWrapper" : "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
-          "runtimeCalculated" : true
+          "column" : "sex_at_birth",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_sex_at_birth",
+          "runtimeCalculated" : false
         }
       },
       "year_of_birth" : {

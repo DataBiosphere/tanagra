@@ -33,7 +33,7 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "SIMPLE",
+    "type" : "KEY_AND_DISPLAY",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -43,7 +43,7 @@
           "value" : {
             "stringVal" : "LOINC"
           },
-          "display" : "LOINC"
+          "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
         },
         "count" : 191836
       }, {
@@ -51,7 +51,7 @@
           "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "SNOMED"
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
         "count" : 29999
       } ]
@@ -61,12 +61,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -170,6 +170,13 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name",
           "runtimeCalculated" : false
         }
       },
@@ -313,6 +320,10 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_vocabulary",
           "runtimeCalculated" : false
         }
       },

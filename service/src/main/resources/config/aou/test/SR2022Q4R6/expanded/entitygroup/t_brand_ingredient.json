@@ -40,7 +40,7 @@
         "rollupInformationMapA" : {
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "brand"
+              "table" : "t_brand"
             },
             "id" : {
               "column" : "id",
@@ -59,7 +59,7 @@
         "rollupInformationMapB" : {
           "standard" : {
             "table" : {
-              "table" : "ingredient"
+              "table" : "t_ingredient"
             },
             "id" : {
               "column" : "id",
@@ -76,7 +76,7 @@
           },
           "NO_HIERARCHY" : {
             "table" : {
-              "table" : "ingredient"
+              "table" : "t_ingredient"
             },
             "id" : {
               "column" : "id",

@@ -5,7 +5,7 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",

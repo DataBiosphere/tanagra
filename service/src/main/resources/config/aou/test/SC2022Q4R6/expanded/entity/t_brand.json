@@ -20,12 +20,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -35,7 +35,64 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "rawSql" : "SELECT * FROM `all-of-us-ehr-dev.SC2022Q4R6.concept` WHERE   domain_id = 'Drug' AND concept_class_id = 'Brand Name'   AND vocabulary_id IN ('RxNorm', 'RxNorm Extension')   AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0 "
+      "table" : "concept",
+      "filter" : {
+        "type" : "BOOLEAN_AND_OR",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Drug"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "concept_class_id",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Brand Name"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "invalid_reason",
+            "runtimeCalculated" : false
+          },
+          "operator" : "IS",
+          "value" : { }
+        }, {
+          "type" : "BOOLEAN_AND_OR",
+          "operator" : "OR",
+          "subfilters" : [ {
+            "type" : "BINARY",
+            "field" : {
+              "column" : "vocabulary_id",
+              "runtimeCalculated" : false
+            },
+            "operator" : "EQUALS",
+            "value" : {
+              "stringVal" : "RxNorm"
+            }
+          }, {
+            "type" : "BINARY",
+            "field" : {
+              "column" : "vocabulary_id",
+              "runtimeCalculated" : false
+            },
+            "operator" : "EQUALS",
+            "value" : {
+              "stringVal" : "RxNorm Extension"
+            }
+          } ]
+        } ]
+      }
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -90,7 +147,7 @@
   "indexDataMapping" : {
     "dataPointer" : "index_dataset",
     "tablePointer" : {
-      "table" : "brand"
+      "table" : "t_brand"
     },
     "attributeMappings" : {
       "standard_concept" : {

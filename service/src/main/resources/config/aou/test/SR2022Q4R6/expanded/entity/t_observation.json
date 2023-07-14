@@ -19,7 +19,7 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "SIMPLE",
+    "type" : "KEY_AND_DISPLAY",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -29,7 +29,7 @@
           "value" : {
             "stringVal" : "APC"
           },
-          "display" : "APC"
+          "display" : "Ambulatory Payment Classification (CMS)"
         },
         "count" : 715
       }, {
@@ -53,15 +53,23 @@
           "value" : {
             "stringVal" : "CPT4"
           },
-          "display" : "CPT4"
+          "display" : "Current Procedural Terminology version 4 (AMA)"
         },
         "count" : 1092
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "NAACCR"
+          },
+          "display" : "Data Standards & Data Dictionary Volume II (NAACCR)"
+        },
+        "count" : 96
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "DRG"
           },
-          "display" : "DRG"
+          "display" : "Diagnosis-related group (CMS)"
         },
         "count" : 752
       }, {
@@ -69,7 +77,7 @@
           "value" : {
             "stringVal" : "HCPCS"
           },
-          "display" : "HCPCS"
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
         },
         "count" : 2667
       }, {
@@ -77,7 +85,7 @@
           "value" : {
             "stringVal" : "ICDO3"
           },
-          "display" : "ICDO3"
+          "display" : "International Classification of Diseases for Oncology, Third Edition (WHO)"
         },
         "count" : 49
       }, {
@@ -85,7 +93,7 @@
           "value" : {
             "stringVal" : "LOINC"
           },
-          "display" : "LOINC"
+          "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
         },
         "count" : 10831
       }, {
@@ -93,23 +101,23 @@
           "value" : {
             "stringVal" : "MDC"
           },
-          "display" : "MDC"
+          "display" : "Major Diagnostic Categories (CMS)"
         },
         "count" : 26
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "NAACCR"
+            "stringVal" : "PCORNet"
           },
-          "display" : "NAACCR"
+          "display" : "National Patient-Centered Clinical Research Network (PCORI)"
         },
-        "count" : 96
+        "count" : 2
       }, {
         "enumVal" : {
           "value" : {
             "stringVal" : "NUCC"
           },
-          "display" : "NUCC"
+          "display" : "National Uniform Claim Committee Health Care Provider Taxonomy Code Set (NUCC)"
         },
         "count" : 4
       }, {
@@ -125,23 +133,15 @@
           "value" : {
             "stringVal" : "OMOP Extension"
           },
-          "display" : "OMOP Extension"
+          "display" : "OMOP Extension (OHDSI)"
         },
         "count" : 136
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "PCORNet"
-          },
-          "display" : "PCORNet"
-        },
-        "count" : 2
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "SNOMED"
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
         },
         "count" : 117406
       }, {
@@ -149,7 +149,7 @@
           "value" : {
             "stringVal" : "UB04 Pri Typ of Adm"
           },
-          "display" : "UB04 Pri Typ of Adm"
+          "display" : "UB04 Claim Inpatient Admission Type Code (CMS)"
         },
         "count" : 6
       } ]
@@ -159,12 +159,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ "NONE" ]
+    "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -237,6 +237,13 @@
         "value" : {
           "column" : "vocabulary_id",
           "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name",
+          "runtimeCalculated" : false
         }
       },
       "name" : {
@@ -296,6 +303,10 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_vocabulary",
           "runtimeCalculated" : false
         }
       },
