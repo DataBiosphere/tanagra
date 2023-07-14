@@ -84,6 +84,10 @@ export type PropertyMap = {
   [key: string]: string;
 };
 
+export type ListStudiesFilter = {
+  createdBy?: string;
+};
+
 export type Study = {
   id: string;
   displayName: string;
@@ -136,6 +140,10 @@ export type ExportRequestEntity = {
 export type ExportResult = {
   redirectURL?: string | null;
   outputs: { [key: string]: string };
+};
+
+export type User = {
+  email: string;
 };
 
 export interface Source {
@@ -228,7 +236,7 @@ export interface Source {
 
   getStudy(studyId: string): Promise<Study>;
 
-  listStudies(): Promise<Study[]>;
+  listStudies(filter?: ListStudiesFilter): Promise<Study[]>;
 
   createStudy(displayName: string): Promise<Study>;
 
@@ -306,6 +314,8 @@ export interface Source {
     cohortIds: string[],
     entities: ExportRequestEntity[]
   ): Promise<ExportResult>;
+
+  getUser(): Promise<User>;
 }
 
 export class BackendSource implements Source {
@@ -318,6 +328,7 @@ export class BackendSource implements Source {
     private reviewsApi: tanagra.ReviewsV2Api,
     private annotationsApi: tanagra.AnnotationsV2Api,
     private exportApi: tanagra.ExportApi,
+    private usersApi: tanagra.UsersV2Api,
     public underlay: Underlay,
     public config: Configuration
   ) {}
@@ -741,10 +752,13 @@ export class BackendSource implements Source {
     );
   }
 
-  public listStudies(): Promise<Study[]> {
+  public listStudies(filter?: ListStudiesFilter): Promise<Study[]> {
     return parseAPIError(
       this.studiesApi
-        .listStudies({})
+        .listStudies({
+          createdBy: filter?.createdBy,
+          limit: 250,
+        })
         .then((studies) => studies.map((study) => processStudy(study)))
     );
   }
@@ -1008,6 +1022,14 @@ export class BackendSource implements Source {
           redirectURL: res.redirectAwayUrl,
           outputs: res.outputs ?? {},
         }))
+    );
+  }
+
+  public async getUser(): Promise<User> {
+    return parseAPIError(
+      this.usersApi.getMe({}).then((res) => ({
+        email: res.email,
+      }))
     );
   }
 
