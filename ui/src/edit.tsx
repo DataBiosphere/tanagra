@@ -15,7 +15,6 @@ export default function Edit() {
         plugin
       )}" for group ${name}`}
       plugin={plugin}
-      cohort
     />
   );
 }

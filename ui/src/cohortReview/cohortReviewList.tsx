@@ -185,6 +185,7 @@ export function CohortReviewList() {
   };
 
   const [newReviewDialog, showNewReviewDialog] = useNewReviewDialog({
+    cohort,
     onCreate: onCreateNewReview,
   });
 

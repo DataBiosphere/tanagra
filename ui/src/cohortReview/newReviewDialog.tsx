@@ -4,13 +4,20 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import { generateCohortFilter } from "cohort";
+import Loading from "components/loading";
+import { useSource } from "data/sourceContext";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { TextField } from "mui-rff";
 import { useState } from "react";
 import { Form } from "react-final-form";
+import useSWRImmutable from "swr/immutable";
+import * as tanagra from "tanagra-api";
+import { isValid } from "util/valid";
 
-export type NewReviewDialogProps = {
+export type UseNewReviewDialogProps = {
+  cohort: tanagra.Cohort;
   onCreate: (name: string, size: number) => void;
 };
 
@@ -22,17 +29,44 @@ type FormData = {
 const MAX = 10000;
 
 export function useNewReviewDialog(
-  props: NewReviewDialogProps
+  props: UseNewReviewDialogProps
 ): [JSX.Element, () => void] {
   const [open, setOpen] = useState(false);
   const show = () => setOpen(true);
 
   return [
     // eslint-disable-next-line react/jsx-key
+    <NewReviewDialog open={open} setOpen={setOpen} {...props} />,
+    show,
+  ];
+}
+
+export type NewReviewDialogProps = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+} & UseNewReviewDialogProps;
+
+export function NewReviewDialog(props: NewReviewDialogProps) {
+  const source = useSource();
+
+  const countState = useSWRImmutable(
+    {
+      type: "count",
+      cohort: props.cohort,
+    },
+    async () => {
+      return await source.filterCount(generateCohortFilter(props.cohort));
+    }
+  );
+
+  const cohortCount = countState.data?.[0]?.count;
+  const max = isValid(cohortCount) ? Math.min(MAX, cohortCount) : MAX;
+
+  return (
     <Dialog
-      open={open}
+      open={props.open}
       onClose={() => {
-        setOpen(false);
+        props.setOpen(false);
       }}
       aria-labelledby="new-review-dialog-title"
       maxWidth="sm"
@@ -56,8 +90,8 @@ export function useNewReviewDialog(
               ret.size = "Size must be a number.";
             } else if (s <= 0) {
               ret.size = "Size must be greater than 0.";
-            } else if (s > MAX) {
-              ret.size = `Size may not be greater than ${formatNumber(MAX)}.`;
+            } else if (s > max) {
+              ret.size = `Size may not be greater than ${formatNumber(max)}.`;
             }
           }
 
@@ -66,34 +100,39 @@ export function useNewReviewDialog(
           }
         }}
         onSubmit={({ name, size }: FormData) => {
-          setOpen(false);
+          props.setOpen(false);
           props.onCreate(name, Math.floor(parseNumber(size)));
         }}
         render={({ handleSubmit, invalid }) => (
           <form noValidate onSubmit={handleSubmit}>
-            <DialogContent>
-              <GridLayout rows>
-                <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
-                  <TextField
-                    autoFocus
-                    fullWidth
-                    name="name"
-                    label="Cohort Review Name"
-                    autoComplete="off"
-                  />
-                </GridBox>
-                <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
-                  <TextField
-                    fullWidth
-                    name="size"
-                    label={`Participant Count (max ${formatNumber(MAX)})`}
-                    autoComplete="off"
-                  />
-                </GridBox>
-              </GridLayout>
-            </DialogContent>
+            <Loading status={countState}>
+              <DialogContent>
+                <GridLayout rows>
+                  <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
+                    <TextField
+                      autoFocus
+                      fullWidth
+                      name="name"
+                      label="Cohort Review Name"
+                      autoComplete="off"
+                    />
+                  </GridBox>
+                  <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
+                    <TextField
+                      fullWidth
+                      name="size"
+                      label={`Participant Count (max ${maxDisplay(
+                        max,
+                        cohortCount
+                      )})`}
+                      autoComplete="off"
+                    />
+                  </GridBox>
+                </GridLayout>
+              </DialogContent>
+            </Loading>
             <DialogActions>
-              <Button onClick={() => setOpen(false)}>Cancel</Button>
+              <Button onClick={() => props.setOpen(false)}>Cancel</Button>
               <Button type="submit" variant="contained" disabled={invalid}>
                 Create
               </Button>
@@ -101,7 +140,15 @@ export function useNewReviewDialog(
           </form>
         )}
       />
-    </Dialog>,
-    show,
-  ];
+    </Dialog>
+  );
+}
+
+function maxDisplay(max: number, cohortCount?: number) {
+  if (!cohortCount) {
+    return formatNumber(max);
+  } else if (cohortCount > MAX) {
+    return `${formatNumber(MAX)} of ${formatNumber(cohortCount)}`;
+  }
+  return max;
 }

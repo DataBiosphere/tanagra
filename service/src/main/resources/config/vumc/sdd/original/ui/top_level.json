@@ -242,7 +242,7 @@
       "type": "classification",
       "id": "tanagra-genotyping",
       "title": "Genotyping platform",
-      "category": "Program data",
+      "category": "Demographics",
       "columns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" }
       ],
@@ -290,28 +290,28 @@
       "type": "attribute",
       "id": "tanagra-ethnicity",
       "title": "Ethnicity",
-      "category": "Program data",
+      "category": "Demographics",
       "attribute": "ethnicity"
     },
     {
       "type": "attribute",
       "id": "tanagra-gender",
       "title": "Gender identity",
-      "category": "Program data",
+      "category": "Demographics",
       "attribute": "gender"
     },
     {
       "type": "attribute",
       "id": "tanagra-race",
       "title": "Race",
-      "category": "Program data",
+      "category": "Demographics",
       "attribute": "race"
     },
     {
       "type": "attribute",
       "id": "tanagra-age",
       "title": "Age",
-      "category": "Program data",
+      "category": "Demographics",
       "attribute": "age"
     },
     {
@@ -333,7 +333,7 @@
       "type": "classification",
       "id": "tanagra-snp",
       "title": "SNP variant",
-      "category": "Program data",
+      "category": "Demographics",
       "columns": [{ "key": "id", "width": "100%", "title": "SNP variant" }],
       "occurrence": "",
       "classification": "snp"
