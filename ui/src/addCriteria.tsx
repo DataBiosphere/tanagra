@@ -1,5 +1,6 @@
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
@@ -282,9 +283,16 @@ function AddCriteria(props: AddCriteriaProps) {
                               paddingLeft: theme.spacing(2),
                             }}
                           >
-                            <Typography key="" variant="body2">
+                            <Link
+                              key=""
+                              component="button"
+                              variant="body2"
+                              color="inherit"
+                              underline="hover"
+                              onClick={() => onClick(config)}
+                            >
                               {config.title}
-                            </Typography>
+                            </Link>
                           </td>
                           <td
                             style={{

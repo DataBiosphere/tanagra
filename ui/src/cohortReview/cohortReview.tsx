@@ -285,7 +285,7 @@ export function CohortReview() {
                   ) : null}
                 </GridLayout>
                 <Loading status={annotationsState}>
-                  <GridLayout rows>
+                  <GridLayout rows spacing={2}>
                     {annotationsState.data?.map(
                       (a) =>
                         !!instance && (
