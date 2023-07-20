@@ -20,12 +20,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -35,64 +35,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "concept",
-      "filter" : {
-        "type" : "BOOLEAN_AND_OR",
-        "operator" : "AND",
-        "subfilters" : [ {
-          "type" : "BINARY",
-          "field" : {
-            "column" : "domain_id",
-            "runtimeCalculated" : false
-          },
-          "operator" : "EQUALS",
-          "value" : {
-            "stringVal" : "Drug"
-          }
-        }, {
-          "type" : "BINARY",
-          "field" : {
-            "column" : "concept_class_id",
-            "runtimeCalculated" : false
-          },
-          "operator" : "EQUALS",
-          "value" : {
-            "stringVal" : "Brand Name"
-          }
-        }, {
-          "type" : "BINARY",
-          "field" : {
-            "column" : "invalid_reason",
-            "runtimeCalculated" : false
-          },
-          "operator" : "IS",
-          "value" : { }
-        }, {
-          "type" : "BOOLEAN_AND_OR",
-          "operator" : "OR",
-          "subfilters" : [ {
-            "type" : "BINARY",
-            "field" : {
-              "column" : "vocabulary_id",
-              "runtimeCalculated" : false
-            },
-            "operator" : "EQUALS",
-            "value" : {
-              "stringVal" : "RxNorm"
-            }
-          }, {
-            "type" : "BINARY",
-            "field" : {
-              "column" : "vocabulary_id",
-              "runtimeCalculated" : false
-            },
-            "operator" : "EQUALS",
-            "value" : {
-              "stringVal" : "RxNorm Extension"
-            }
-          } ]
-        } ]
-      }
+      "rawSql" : "SELECT * FROM `bigquery-public-data.cms_synthetic_patient_data_omop.concept` WHERE   domain_id = 'Drug' AND concept_class_id = 'Brand Name'   AND vocabulary_id IN ('RxNorm', 'RxNorm Extension')   AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0"
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -126,7 +69,21 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "name", "id", "concept_code" ]
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ) AS textsearch  JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Drug' AND c.concept_class_id = 'Brand Name' AND c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')"
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
     },
     "hierarchyMappings" : { }
   },
