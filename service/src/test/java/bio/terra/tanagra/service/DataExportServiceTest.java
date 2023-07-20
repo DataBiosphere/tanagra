@@ -225,7 +225,7 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", fileContents);
     assertTrue(
         fileContents.startsWith(
-            "ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race,year_of_birth"));
+            "age,ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race"));
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
     // Validate the annotations file.
@@ -299,7 +299,7 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
     assertTrue(
         entityInstancesFileContents.startsWith(
-            "ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race,year_of_birth"));
+            "age,ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race"));
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
   }
 

@@ -5,20 +5,30 @@
     "type" : "SIMPLE",
     "name" : "end_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "ingredient",
     "dataType" : "INT64",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "refills",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 0.0,
-      "maxVal" : 4.5383587E7
+      "minVal" : 24.0,
+      "maxVal" : 101.0
     },
     "displayHintTypes" : [ ]
   }, {
@@ -38,16 +48,6 @@
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
-    "name" : "visit_occurrence_id",
-    "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 43.0,
-      "maxVal" : 1.11638243E8
-    },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
     "name" : "id",
     "dataType" : "INT64",
     "displayHintTypes" : [ ]
@@ -55,42 +55,32 @@
     "type" : "SIMPLE",
     "name" : "days_supply",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 0.0,
-      "maxVal" : 90.0
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 2326856.0
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "drug_exposure"
+      "rawSql" : "SELECT   de.drug_exposure_id AS id, de.person_id, de.drug_concept_id,   de.drug_exposure_start_date AS start_date, de.drug_exposure_end_date AS end_date,   de.stop_reason, de.refills, de.days_supply,   de.drug_source_value AS source_value, de.drug_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(de.drug_exposure_start_date, DATETIME(p.year_of_birth, p.month_of_birth, p.day_of_birth, 0, 0, 0), DAY) / 365.25) AS INT64) AS age_at_occurrence,  FROM `bigquery-public-data.cms_synthetic_patient_data_omop.drug_exposure` AS de  JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.person` AS p ON p.person_id = de.person_id  "
     },
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "drug_exposure_end_date",
+          "column" : "end_date",
           "runtimeCalculated" : false
         }
       },
@@ -107,9 +97,21 @@
           "runtimeCalculated" : false
         }
       },
+      "refills" : {
+        "value" : {
+          "column" : "refills",
+          "runtimeCalculated" : false
+        }
+      },
       "source_criteria_id" : {
         "value" : {
-          "column" : "drug_source_concept_id",
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },
@@ -119,15 +121,9 @@
           "runtimeCalculated" : false
         }
       },
-      "visit_occurrence_id" : {
-        "value" : {
-          "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        }
-      },
       "id" : {
         "value" : {
-          "column" : "drug_exposure_id",
+          "column" : "id",
           "runtimeCalculated" : false
         }
       },
@@ -139,7 +135,7 @@
       },
       "source_value" : {
         "value" : {
-          "column" : "drug_source_value",
+          "column" : "source_value",
           "runtimeCalculated" : false
         }
       },
@@ -151,7 +147,7 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "drug_exposure_start_date",
+          "column" : "start_date",
           "runtimeCalculated" : false
         }
       }
@@ -180,21 +176,27 @@
           "runtimeCalculated" : false
         }
       },
+      "refills" : {
+        "value" : {
+          "column" : "refills",
+          "runtimeCalculated" : false
+        }
+      },
       "source_criteria_id" : {
         "value" : {
           "column" : "source_criteria_id",
           "runtimeCalculated" : false
         }
       },
-      "stop_reason" : {
+      "age_at_occurrence" : {
         "value" : {
-          "column" : "stop_reason",
+          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },
-      "visit_occurrence_id" : {
+      "stop_reason" : {
         "value" : {
-          "column" : "visit_occurrence_id",
+          "column" : "stop_reason",
           "runtimeCalculated" : false
         }
       },
