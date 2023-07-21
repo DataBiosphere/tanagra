@@ -60,7 +60,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(CONCEPT_SET, DELETE),
-        ResourceId.forCohort(studyId, conceptSetId));
+        ResourceId.forConceptSet(studyId, conceptSetId));
     conceptSetService.deleteConceptSet(studyId, conceptSetId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -70,7 +70,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(CONCEPT_SET, READ),
-        ResourceId.forCohort(studyId, conceptSetId));
+        ResourceId.forConceptSet(studyId, conceptSetId));
     return ResponseEntity.ok(toApiObject(conceptSetService.getConceptSet(studyId, conceptSetId)));
   }
 
@@ -96,7 +96,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(CONCEPT_SET, UPDATE),
-        ResourceId.forCohort(studyId, conceptSetId));
+        ResourceId.forConceptSet(studyId, conceptSetId));
     Criteria singleCriteria =
         body.getCriteria() == null
             ? null
