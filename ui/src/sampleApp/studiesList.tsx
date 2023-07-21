@@ -1,22 +1,38 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 import Empty from "components/empty";
 import Loading from "components/loading";
+import { useSimpleDialog } from "components/simpleDialog";
 import { useTextInputDialog } from "components/textInputDialog";
+import { TreeGrid, TreeGridData } from "components/treegrid";
 import { useSource } from "data/sourceContext";
+import { DataKey } from "data/types";
 import GridLayout from "layout/gridLayout";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
+
+const columns = [
+  {
+    key: "name",
+    width: "100%",
+    title: "Name",
+  },
+  {
+    key: "created",
+    width: 160,
+    title: "Creation date",
+  },
+  {
+    key: "controls",
+    width: 80,
+    title: "",
+  },
+];
 
 export function StudiesList() {
   const source = useSource();
@@ -63,44 +79,70 @@ export function StudiesList() {
     onConfirm: onCreateNewStudy,
   });
 
+  const [confirmDialog, showConfirmDialog] = useSimpleDialog();
+
+  const data = useMemo(() => {
+    const children: DataKey[] = [];
+    const data: TreeGridData = {
+      root: { data: {}, children },
+    };
+
+    studiesState.data?.forEach((study) => {
+      const key = study.id;
+      children.push(key);
+
+      const item = {
+        data: {
+          name: (
+            <Link
+              variant="body1"
+              color="inherit"
+              underline="hover"
+              component={RouterLink}
+              to={"studies/" + study.id}
+            >
+              {study.displayName}
+            </Link>
+          ),
+          created: study.created,
+          controls: (
+            <GridLayout colAlign="center">
+              <IconButton
+                onClick={() =>
+                  showConfirmDialog({
+                    title: `Delete ${study.displayName}?`,
+                    text: `Are you sure you want to delete "${study.displayName}"? This action is permanent.`,
+                    buttons: ["Cancel", "Delete"],
+                    onButton: (button) => {
+                      if (button === 1) {
+                        onDeleteStudy(study.id);
+                      }
+                    },
+                  })
+                }
+              >
+                <DeleteIcon />
+              </IconButton>
+            </GridLayout>
+          ),
+        },
+      };
+      data[key] = item;
+    });
+
+    return data;
+  }, [source, studiesState.data]);
+
   return (
-    <GridLayout rows>
+    <GridLayout
+      rows
+      sx={{ backgroundColor: (theme) => theme.palette.background.paper }}
+    >
       <Header />
       <Loading status={studiesState}>
-        <Box sx={{ p: 1 }}>
-          {!!studiesState.data?.length ? (
-            <List sx={{ p: 0 }}>
-              {studiesState.data?.map((study) => (
-                <ListItemButton
-                  sx={{ p: 0, mb: 1 }}
-                  component={RouterLink}
-                  key={study.id}
-                  to={"studies/" + study.id}
-                >
-                  <Paper sx={{ p: 1 }}>
-                    <Stack direction="row">
-                      <Stack>
-                        <Typography variant="body1em">
-                          {study.displayName}
-                        </Typography>
-                        <Typography variant="body2">
-                          {study.created.toLocaleString()}
-                        </Typography>
-                      </Stack>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          onDeleteStudy(study.id);
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Stack>
-                  </Paper>
-                </ListItemButton>
-              ))}
-            </List>
+        <GridLayout rows spacing={4}>
+          {!!data?.root?.children?.length ? (
+            <TreeGrid columns={columns} data={data} />
           ) : (
             <Empty
               maxWidth="90%"
@@ -108,11 +150,16 @@ export function StudiesList() {
               title="No studies created"
             />
           )}
-          <Button onClick={showNewStudyDialog} variant="contained">
+          <Button
+            onClick={showNewStudyDialog}
+            variant="contained"
+            sx={{ ml: 4 }}
+          >
             Add study
           </Button>
-          {newStudyDialog}
-        </Box>
+        </GridLayout>
+        {newStudyDialog}
+        {confirmDialog}
       </Loading>
     </GridLayout>
   );
