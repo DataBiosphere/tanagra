@@ -7,7 +7,7 @@ beforeEach(() => {
   cy.contains("Add study").click();
   cy.get("input[name=text]").type(studyName);
   cy.get("button:Contains(Create)").click();
-  cy.get(`.MuiListItemButton-root:Contains(${studyName})`).click();
+  cy.get(`a:Contains(${studyName})`).click();
   cy.contains("Create cohorts and data features");
 });
 
