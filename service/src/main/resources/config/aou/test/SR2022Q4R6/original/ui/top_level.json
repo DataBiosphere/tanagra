@@ -2,7 +2,7 @@
   "dataConfig": {
     "primaryEntity": {
       "displayName": "Person",
-      "entity": "person",
+      "entity": "t_person",
       "key": "id",
       "classifications": [
       ]
@@ -11,13 +11,13 @@
       {
         "id": "condition_occurrence",
         "displayName": "Condition Occurrences",
-        "entity": "condition_occurrence",
+        "entity": "t_condition_occurrence",
         "key": "id",
         "classifications": [
           {
             "id": "condition",
             "attribute": "condition",
-            "entity": "condition",
+            "entity": "t_condition",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -30,13 +30,13 @@
       {
         "id": "procedure_occurrence",
         "displayName": "Procedure Occurrences",
-        "entity": "procedure_occurrence",
+        "entity": "t_procedure_occurrence",
         "key": "id",
         "classifications": [
           {
             "id": "procedure",
             "attribute": "procedure",
-            "entity": "procedure",
+            "entity": "t_procedure",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -49,13 +49,13 @@
       {
         "id": "observation_occurrence",
         "displayName": "Observation Occurrence",
-        "entity": "observation_occurrence",
+        "entity": "t_observation_occurrence",
         "key": "id",
         "classifications": [
           {
             "id": "observation",
             "attribute": "observation",
-            "entity": "observation",
+            "entity": "t_observation",
             "entityAttribute": "id",
             "defaultSort": {
               "attribute": "t_rollup_count",
@@ -67,13 +67,13 @@
       {
         "id": "ingredient_occurrence",
         "displayName": "Drug Occurrence",
-        "entity": "ingredient_occurrence",
+        "entity": "t_ingredient_occurrence",
         "key": "id",
         "classifications": [
           {
             "id": "ingredient",
             "attribute": "id",
-            "entity": "ingredient",
+            "entity": "t_ingredient",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -83,7 +83,7 @@
             "groupings": [
               {
                 "id": "brand",
-                "entity": "brand",
+                "entity": "t_brand",
                 "defaultSort": {
                   "attribute": "name",
                   "direction": "ASC"
@@ -97,13 +97,13 @@
       {
         "id": "measurement_occurrence",
         "displayName": "Measurement Occurrence",
-        "entity": "measurement_occurrence",
+        "entity": "t_measurement_occurrence",
         "key": "id",
         "classifications": [
           {
             "id": "measurement",
             "attribute": "measurement",
-            "entity": "measurement",
+            "entity": "t_measurement",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {

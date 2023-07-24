@@ -5,13 +5,16 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":avm" arg; do
+while getopts ":avtm" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
       ;;
     v) # Use Verily underlays.
       useVerilyUnderlays=1
+      ;;
+    t) # Use AoU test underlays
+      useAouUnderlays=1
       ;;
     m) # Use MariaDB.
       useMariaDB=1
@@ -41,6 +44,11 @@ if [[ ${useVerilyUnderlays} ]]; then
   export TANAGRA_UNDERLAY_FILES=verily/aou_synthetic/expanded/aou_synthetic.json,verily/cms_synpuf/expanded/cms_synpuf.json,verily/sdd/expanded/sdd.json,verily/sdd_refresh0323/expanded/sdd_refresh0323.json,verily/pilot_synthea_2022q3/expanded/pilot_synthea_2022q3.json
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=verily-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-dev-export-bucket
+elif [[ ${useAouUnderlays} ]]; then
+  echo "Using AoU test underlays."
+  export TANAGRA_UNDERLAY_FILES=aou/test/SC2022Q4R6/expanded/SC2022Q4R6.json,aou/test/SR2022Q4R6/expanded/SR2022Q4R6.json
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
 else
   echo "Using Broad underlays."
   export TANAGRA_UNDERLAY_FILES=broad/aou_synthetic/expanded/aou_synthetic.json,broad/cms_synpuf/expanded/cms_synpuf.json
