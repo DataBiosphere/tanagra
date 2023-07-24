@@ -25,7 +25,7 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "KEY_AND_DISPLAY",
+    "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -35,31 +35,31 @@
           "value" : {
             "stringVal" : "HCPCS"
           },
-          "display" : "Healthcare Common Procedure Coding System (CMS)"
+          "display" : "HCPCS"
         },
         "count" : 1
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICD9CM"
-          },
-          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
-        },
-        "count" : 16632
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "ICD10CM"
           },
-          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
+          "display" : "ICD10CM"
         },
         "count" : 108038
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "ICD9CM"
+          },
+          "display" : "ICD9CM"
+        },
+        "count" : 16632
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+          "display" : "SNOMED"
         },
         "count" : 148722
       } ]
@@ -69,12 +69,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -113,13 +113,6 @@
         "value" : {
           "column" : "vocabulary_id",
           "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "vocabulary_id",
-          "foreignTable" : "vocabulary",
-          "foreignKey" : "vocabulary_id",
-          "foreignColumn" : "vocabulary_name",
-          "runtimeCalculated" : false
         }
       },
       "name" : {
@@ -142,7 +135,21 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "name", "concept_code" ]
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ) AS textsearch  JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Condition' "
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
     },
     "hierarchyMappings" : {
       "standard" : {
@@ -206,10 +213,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "t_display_vocabulary",
           "runtimeCalculated" : false
         }
       },

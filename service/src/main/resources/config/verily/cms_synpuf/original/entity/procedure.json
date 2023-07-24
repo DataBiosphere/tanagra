@@ -3,10 +3,10 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name" },
-    { "type": "KEY_AND_DISPLAY", "name": "vocabulary" },
+    { "type": "SIMPLE", "name": "name", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "vocabulary" },
     { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
-    { "type": "SIMPLE", "name": "concept_code" } ],
+    { "type": "SIMPLE", "name": "concept_code", "displayHintTypes": ["NONE"] } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
@@ -20,19 +20,13 @@
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } },
-      "vocabulary": {
-        "value": { "column": "vocabulary_id" },
-        "display": {
-          "column": "vocabulary_id",
-          "foreignTable": "vocabulary",
-          "foreignKey": "vocabulary_id",
-          "foreignColumn": "vocabulary_name" } },
+      "vocabulary": { "value": { "column": "vocabulary_id" } },
       "standard_concept": {
         "value": { "column": "standard_concept" },
         "display": {
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
-    "textSearchMapping": { "attributes": [ "name", "concept_code" ] },
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "procedure_textSearch.sql" } } },
     "hierarchyMappings": {
       "standard": {
         "childParent": {
