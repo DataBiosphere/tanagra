@@ -304,6 +304,8 @@ class FakeAnnotationsAPI {}
 
 class FakeExportAPI {}
 
+class FakeUsersAPI {}
+
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
@@ -360,4 +362,8 @@ export const AnnotationsApiContext = apiForEnvironment(
 export const ExportApiContext = apiForEnvironment(
   tanagra.ExportApi,
   FakeExportAPI
+);
+export const UsersApiContext = apiForEnvironment(
+  tanagra.UsersV2Api,
+  FakeUsersAPI
 );

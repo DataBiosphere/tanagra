@@ -1,20 +1,24 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import IconButton from "@mui/material/IconButton";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
-import renderer from "react-test-renderer";
+import React from "react";
 
-test("Table renders correctly", () => {
+test("Table renders correctly", async () => {
   const columns = [
     {
       key: "col1",
       width: "100%",
       title: "Column 1",
+      sortable: true,
     },
     {
       key: "col2",
       width: 150,
       title: "Column 2",
+      sortable: true,
     },
     {
       key: "col3",
@@ -68,14 +72,21 @@ test("Table renders correctly", () => {
     ];
   };
 
-  const tree = renderer
-    .create(
-      <TreeGrid
-        columns={columns}
-        data={data}
-        rowCustomization={rowCustomization}
-      />
-    )
-    .toJSON();
-  expect(tree).toMatchSnapshot();
+  const onSort = jest.fn();
+  const { asFragment } = render(
+    <TreeGrid
+      columns={columns}
+      data={data}
+      onSort={onSort}
+      rowCustomization={rowCustomization}
+    />
+  );
+  expect(asFragment()).toMatchSnapshot();
+
+  const sortIcons = await screen.findAllByTestId("SwapVertIcon");
+  expect(sortIcons.length).toBe(2);
+
+  userEvent.click(sortIcons[0]);
+  expect(asFragment()).toMatchSnapshot();
+  expect(onSort).toHaveBeenCalled();
 });

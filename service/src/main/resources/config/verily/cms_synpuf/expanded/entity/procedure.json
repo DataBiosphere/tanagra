@@ -33,7 +33,7 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "KEY_AND_DISPLAY",
+    "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -43,7 +43,7 @@
           "value" : {
             "stringVal" : "CPT4"
           },
-          "display" : "Current Procedural Terminology version 4 (AMA)"
+          "display" : "CPT4"
         },
         "count" : 13070
       }, {
@@ -51,15 +51,23 @@
           "value" : {
             "stringVal" : "HCPCS"
           },
-          "display" : "Healthcare Common Procedure Coding System (CMS)"
+          "display" : "HCPCS"
         },
         "count" : 981
       }, {
         "enumVal" : {
           "value" : {
+            "stringVal" : "ICD10CM"
+          },
+          "display" : "ICD10CM"
+        },
+        "count" : 6
+      }, {
+        "enumVal" : {
+          "value" : {
             "stringVal" : "ICD9CM"
           },
-          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS)"
+          "display" : "ICD9CM"
         },
         "count" : 1318
       }, {
@@ -67,23 +75,15 @@
           "value" : {
             "stringVal" : "ICD9Proc"
           },
-          "display" : "International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 3 (NCHS)"
+          "display" : "ICD9Proc"
         },
         "count" : 4657
       }, {
         "enumVal" : {
           "value" : {
-            "stringVal" : "ICD10CM"
-          },
-          "display" : "International Classification of Diseases, Tenth Revision, Clinical Modification (NCHS)"
-        },
-        "count" : 6
-      }, {
-        "enumVal" : {
-          "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+          "display" : "SNOMED"
         },
         "count" : 74959
       } ]
@@ -93,12 +93,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -137,13 +137,6 @@
         "value" : {
           "column" : "vocabulary_id",
           "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "vocabulary_id",
-          "foreignTable" : "vocabulary",
-          "foreignKey" : "vocabulary_id",
-          "foreignColumn" : "vocabulary_name",
-          "runtimeCalculated" : false
         }
       },
       "name" : {
@@ -166,7 +159,21 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "name", "concept_code" ]
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ) AS textsearch  JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Procedure' "
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
     },
     "hierarchyMappings" : {
       "standard" : {
@@ -230,10 +237,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "t_display_vocabulary",
           "runtimeCalculated" : false
         }
       },
@@ -316,6 +319,5 @@
         "maxHierarchyDepth" : 19
       }
     }
-  },
-  "sourceStartDateColumn" : null
+  }
 }

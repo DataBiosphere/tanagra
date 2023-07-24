@@ -169,6 +169,10 @@ public class StudyDao {
       whereConditions.add("description LIKE :description_filter");
       params.addValue("description_filter", "%" + studyFilter.getDescription() + "%");
     }
+    if (studyFilter.getCreatedBy() != null && !studyFilter.getCreatedBy().isEmpty()) {
+      whereConditions.add("created_by LIKE :created_by_filter");
+      params.addValue("created_by_filter", "%" + studyFilter.getCreatedBy() + "%");
+    }
 
     // Filter on specific properties key-value pairs.
     if (studyFilter.getProperties() != null && !studyFilter.getProperties().isEmpty()) {

@@ -19,7 +19,7 @@
     },
     "displayHintTypes" : [ ]
   }, {
-    "type" : "KEY_AND_DISPLAY",
+    "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
     "displayHint" : {
@@ -29,7 +29,7 @@
           "value" : {
             "stringVal" : "CPT4"
           },
-          "display" : "Current Procedural Terminology version 4 (AMA)"
+          "display" : "CPT4"
         },
         "count" : 629
       }, {
@@ -37,7 +37,7 @@
           "value" : {
             "stringVal" : "HCPCS"
           },
-          "display" : "Healthcare Common Procedure Coding System (CMS)"
+          "display" : "HCPCS"
         },
         "count" : 1489
       }, {
@@ -45,7 +45,7 @@
           "value" : {
             "stringVal" : "LOINC"
           },
-          "display" : "Logical Observation Identifiers Names and Codes (Regenstrief Institute)"
+          "display" : "LOINC"
         },
         "count" : 16762
       }, {
@@ -53,7 +53,7 @@
           "value" : {
             "stringVal" : "SNOMED"
           },
-          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+          "display" : "SNOMED"
         },
         "count" : 130839
       } ]
@@ -63,12 +63,12 @@
     "type" : "SIMPLE",
     "name" : "name",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "concept_code",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -141,13 +141,6 @@
         "value" : {
           "column" : "vocabulary_id",
           "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "vocabulary_id",
-          "foreignTable" : "vocabulary",
-          "foreignKey" : "vocabulary_id",
-          "foreignColumn" : "vocabulary_name",
-          "runtimeCalculated" : false
         }
       },
       "name" : {
@@ -170,7 +163,21 @@
       }
     },
     "textSearchMapping" : {
-      "attributes" : [ "name", "concept_code" ]
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ) AS textsearch  JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Observation' AND c.vocabulary_id != 'PPI' AND c.concept_class_id != 'Survey' "
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
     },
     "hierarchyMappings" : { }
   },
@@ -193,10 +200,6 @@
       "vocabulary" : {
         "value" : {
           "column" : "vocabulary",
-          "runtimeCalculated" : false
-        },
-        "display" : {
-          "column" : "t_display_vocabulary",
           "runtimeCalculated" : false
         }
       },
@@ -226,6 +229,5 @@
       }
     },
     "hierarchyMappings" : { }
-  },
-  "sourceStartDateColumn" : null
+  }
 }

@@ -113,7 +113,7 @@ dependencies {
     // [Access control]: VUMC admin service
     // The Jersey libraries are required to use the VUMC admin service client library.
     // Since the client library doesn't correctly expose these dependencies, we include them explicitly here.
-    implementation group: "org.vumc.vda.tanagra", name: "admin-client", version: "0.0.51-SNAPSHOT"
+    implementation group: "org.vumc.vda.tanagra", name: "admin-client", version: "0.0.56-SNAPSHOT"
     implementation group: "org.glassfish.jersey.core", name: "jersey-client", version: "2.32"
     implementation group: "org.glassfish.jersey.inject", name: "jersey-hk2", version: "2.32"
     implementation group: "org.glassfish.jersey.media", name: "jersey-media-multipart", version: "2.32"

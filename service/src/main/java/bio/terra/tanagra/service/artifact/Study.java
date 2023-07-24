@@ -197,6 +197,10 @@ public class Study {
       return description;
     }
 
+    public String getCreatedBy() {
+      return createdBy;
+    }
+
     public Map<String, String> getProperties() {
       return properties == null ? null : Collections.unmodifiableMap(properties);
     }

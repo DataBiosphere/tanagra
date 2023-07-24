@@ -4,6 +4,7 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { Link as RouterLink } from "react-router-dom";
 import { useBaseParams } from "router";
+import { StudyName } from "studyName";
 
 export function Header() {
   const params = useBaseParams();
@@ -47,7 +48,7 @@ export function Header() {
             component={RouterLink}
             to={`/underlays/${params.underlayName}/studies/${params.studyId}`}
           >
-            Study: {params.studyId}
+            <StudyName />
           </Link>
         ) : null}
       </GridLayout>

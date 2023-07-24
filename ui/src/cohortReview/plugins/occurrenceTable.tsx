@@ -3,10 +3,17 @@ import {
   CohortReviewPlugin,
   registerCohortReviewPlugin,
 } from "cohortReview/pluginRegistry";
-import { TreeGrid, TreeGridColumn, TreeGridData } from "components/treegrid";
-import { DataKey } from "data/types";
+import {
+  TreeGrid,
+  TreeGridColumn,
+  TreeGridData,
+  TreeGridSortDirection,
+  TreeGridSortOrder,
+} from "components/treegrid";
+import { compareDataValues, DataKey, DataValue } from "data/types";
+import produce from "immer";
 import { GridBox } from "layout/gridBox";
-import React, { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
 
 interface Config {
@@ -35,6 +42,8 @@ class _ implements CohortReviewPlugin {
 }
 
 function OccurrenceTable({ config }: { config: Config }) {
+  const [sortOrders, setSortOrders] = useState<TreeGridSortOrder[]>([]);
+
   const context = useCohortReviewContext();
   if (!context) {
     return null;
@@ -54,13 +63,34 @@ function OccurrenceTable({ config }: { config: Config }) {
     return data;
   }, [context]);
 
+  const sortedData = useMemo(() => {
+    return produce(data, (data) => {
+      data.root?.children?.sort((a, b) => {
+        for (const o of sortOrders) {
+          const valA = data[a].data[o.column] as DataValue | undefined;
+          const valB = data[b].data[o.column] as DataValue | undefined;
+          const c = compareDataValues(valA, valB);
+          if (c !== 0) {
+            return o.direction === TreeGridSortDirection.Asc ? c : -c;
+          }
+        }
+
+        return 0;
+      });
+    });
+  }, [data, sortOrders]);
+
   return (
     <GridBox
       sx={{
         width: "100%",
       }}
     >
-      <TreeGrid columns={config.columns} data={data} />
+      <TreeGrid
+        columns={config.columns}
+        data={sortedData}
+        onSort={setSortOrders}
+      />
     </GridBox>
   );
 }

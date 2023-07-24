@@ -5,24 +5,25 @@
     "type" : "SIMPLE",
     "name" : "date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "unit",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ ]
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 2101829.0,
-      "maxVal" : 4.5890981E7
+      "minVal" : 24.0,
+      "maxVal" : 101.0
     },
     "displayHintTypes" : [ ]
   }, {
@@ -34,27 +35,7 @@
     "type" : "SIMPLE",
     "name" : "value_as_string",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : { },
-          "display" : null
-        },
-        "count" : 0
-      } ]
-    },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
-    "name" : "visit_occurrence_id",
-    "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 1.11638269E8
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "id",
@@ -64,39 +45,22 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "value",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "int64Val" : 0
-          },
-          "display" : "No matching concept"
-        },
-        "count" : 37531051
-      } ]
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 2326856.0
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "observation"
+      "rawSql" : "SELECT   o.observation_id AS id, o.person_id, o.observation_concept_id,   o.observation_date, o.value_as_string, o.value_as_concept_id, o.unit_concept_id,   o.observation_source_value AS source_value, o.observation_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(o.observation_date, DATETIME(p.year_of_birth, p.month_of_birth, p.day_of_birth, 0, 0, 0), DAY) / 365.25) AS INT64) AS age_at_occurrence,  FROM `bigquery-public-data.cms_synthetic_patient_data_omop.observation` AS o  JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.person` AS p ON p.person_id = o.person_id  "
     },
     "attributeMappings" : {
       "date" : {
@@ -120,7 +84,13 @@
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "observation_source_concept_id",
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },
@@ -143,15 +113,9 @@
           "runtimeCalculated" : false
         }
       },
-      "visit_occurrence_id" : {
-        "value" : {
-          "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        }
-      },
       "id" : {
         "value" : {
-          "column" : "observation_id",
+          "column" : "id",
           "runtimeCalculated" : false
         }
       },
@@ -170,7 +134,7 @@
       },
       "source_value" : {
         "value" : {
-          "column" : "observation_source_value",
+          "column" : "source_value",
           "runtimeCalculated" : false
         }
       },
@@ -211,6 +175,12 @@
           "runtimeCalculated" : false
         }
       },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
+          "runtimeCalculated" : false
+        }
+      },
       "observation" : {
         "value" : {
           "column" : "observation",
@@ -224,12 +194,6 @@
       "value_as_string" : {
         "value" : {
           "column" : "value_as_string",
-          "runtimeCalculated" : false
-        }
-      },
-      "visit_occurrence_id" : {
-        "value" : {
-          "column" : "visit_occurrence_id",
           "runtimeCalculated" : false
         }
       },
@@ -263,6 +227,5 @@
       }
     },
     "hierarchyMappings" : { }
-  },
-  "sourceStartDateColumn" : null
+  }
 }

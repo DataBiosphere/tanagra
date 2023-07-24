@@ -91,6 +91,16 @@
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
+    "name" : "age",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 40.0,
+      "maxVal" : 114.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
     "name" : "year_of_birth",
     "dataType" : "INT64",
     "displayHint" : {
@@ -103,7 +113,7 @@
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "person"
+      "rawSql" : "SELECT     /* Can't do \"*\". During expansion, there's an error about person_id column being ambiguous. */     p.person_id, p.year_of_birth, DATETIME(p.year_of_birth, p.month_of_birth, p.day_of_birth, 0, 0, 0), p.gender_concept_id, p.race_concept_id, p.ethnicity_concept_id FROM `bigquery-public-data.cms_synthetic_patient_data_omop.person` p "
     },
     "attributeMappings" : {
       "gender" : {
@@ -149,6 +159,13 @@
         "value" : {
           "column" : "person_id",
           "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "year_of_birth",
+          "sqlFunctionWrapper" : "EXTRACT(YEAR FROM CURRENT_DATE()) - ${fieldSql}",
+          "runtimeCalculated" : true
         }
       },
       "year_of_birth" : {
@@ -202,6 +219,13 @@
           "runtimeCalculated" : false
         }
       },
+      "age" : {
+        "value" : {
+          "column" : "age",
+          "sqlFunctionWrapper" : "EXTRACT(YEAR FROM CURRENT_DATE()) - ${fieldSql}",
+          "runtimeCalculated" : true
+        }
+      },
       "year_of_birth" : {
         "value" : {
           "column" : "year_of_birth",
@@ -210,6 +234,5 @@
       }
     },
     "hierarchyMappings" : { }
-  },
-  "sourceStartDateColumn" : null
+  }
 }

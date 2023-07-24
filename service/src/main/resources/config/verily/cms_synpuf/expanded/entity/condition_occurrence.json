@@ -5,20 +5,25 @@
     "type" : "SIMPLE",
     "name" : "end_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "KEY_AND_DISPLAY",
     "name" : "condition",
     "dataType" : "INT64",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "source_criteria_id",
     "dataType" : "INT64",
+    "displayHintTypes" : [ "NONE" ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
     "displayHint" : {
       "type" : "RANGE",
-      "minVal" : 2617496.0,
-      "maxVal" : 4.5890988E7
+      "minVal" : 24.0,
+      "maxVal" : 101.0
     },
     "displayHintTypes" : [ ]
   }, {
@@ -38,16 +43,6 @@
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
-    "name" : "visit_occurrence_id",
-    "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 1.1163827E8
-    },
-    "displayHintTypes" : [ ]
-  }, {
-    "type" : "SIMPLE",
     "name" : "id",
     "dataType" : "INT64",
     "displayHintTypes" : [ ]
@@ -55,32 +50,27 @@
     "type" : "SIMPLE",
     "name" : "source_value",
     "dataType" : "STRING",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "person_id",
     "dataType" : "INT64",
-    "displayHint" : {
-      "type" : "RANGE",
-      "minVal" : 1.0,
-      "maxVal" : 2326856.0
-    },
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   }, {
     "type" : "SIMPLE",
     "name" : "start_date",
     "dataType" : "DATE",
-    "displayHintTypes" : [ ]
+    "displayHintTypes" : [ "NONE" ]
   } ],
   "sourceDataMapping" : {
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
-      "table" : "condition_occurrence"
+      "rawSql" : "SELECT   co.condition_occurrence_id AS id, co.person_id, co.condition_concept_id,   co.condition_start_date AS start_date, co.condition_end_date AS end_date, co.stop_reason,   co.condition_source_value AS source_value, co.condition_source_concept_id AS source_criteria_id,   CAST(FLOOR(TIMESTAMP_DIFF(co.condition_start_date, DATETIME(p.year_of_birth, p.month_of_birth, p.day_of_birth, 0, 0, 0), DAY) / 365.25) AS INT64) AS age_at_occurrence,  FROM `bigquery-public-data.cms_synthetic_patient_data_omop.condition_occurrence` AS co  JOIN `bigquery-public-data.cms_synthetic_patient_data_omop.person` AS p ON p.person_id = co.person_id  "
     },
     "attributeMappings" : {
       "end_date" : {
         "value" : {
-          "column" : "condition_end_date",
+          "column" : "end_date",
           "runtimeCalculated" : false
         }
       },
@@ -99,7 +89,13 @@
       },
       "source_criteria_id" : {
         "value" : {
-          "column" : "condition_source_concept_id",
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "age_at_occurrence" : {
+        "value" : {
+          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },
@@ -109,21 +105,15 @@
           "runtimeCalculated" : false
         }
       },
-      "visit_occurrence_id" : {
-        "value" : {
-          "column" : "visit_occurrence_id",
-          "runtimeCalculated" : false
-        }
-      },
       "id" : {
         "value" : {
-          "column" : "condition_occurrence_id",
+          "column" : "id",
           "runtimeCalculated" : false
         }
       },
       "source_value" : {
         "value" : {
-          "column" : "condition_source_value",
+          "column" : "source_value",
           "runtimeCalculated" : false
         }
       },
@@ -135,7 +125,7 @@
       },
       "start_date" : {
         "value" : {
-          "column" : "condition_start_date",
+          "column" : "start_date",
           "runtimeCalculated" : false
         }
       }
@@ -170,15 +160,15 @@
           "runtimeCalculated" : false
         }
       },
-      "stop_reason" : {
+      "age_at_occurrence" : {
         "value" : {
-          "column" : "stop_reason",
+          "column" : "age_at_occurrence",
           "runtimeCalculated" : false
         }
       },
-      "visit_occurrence_id" : {
+      "stop_reason" : {
         "value" : {
-          "column" : "visit_occurrence_id",
+          "column" : "stop_reason",
           "runtimeCalculated" : false
         }
       },
@@ -208,6 +198,5 @@
       }
     },
     "hierarchyMappings" : { }
-  },
-  "sourceStartDateColumn" : null
+  }
 }
