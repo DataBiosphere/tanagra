@@ -18,7 +18,9 @@ import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.ValueDisplay;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -702,6 +704,37 @@ public class ReviewInstanceTest {
     Attribute primaryEntityIdAttribute =
         underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getIdAttribute();
 
+    // Default order.
+    List<ReviewInstance> reviewInstancesDefault =
+        reviewService
+            .listReviewInstances(
+                study1.getId(),
+                cohort1.getId(),
+                review4.getId(),
+                ReviewQueryRequest.builder().build())
+            .getReviewInstances();
+    reviewInstancesDefault.stream().forEach(rid -> LOGGER.info("si {}", rid.getStableIndex()));
+
+    // Check the rows are returned in ascending stable index order.
+    List<ReviewInstance> reviewInstancesOrderedByStableIndexAsc =
+        reviewInstancesDefault.stream()
+            .sorted(Comparator.comparing(ReviewInstance::getStableIndex))
+            .collect(Collectors.toList());
+    assertEquals(reviewInstancesOrderedByStableIndexAsc, reviewInstancesDefault);
+
+    // Save the map of instance id -> stable index, so we can check that the index is in fact stable
+    // across the following list calls with various order bys.
+    Map<Long, Integer> reviewInstanceStableIndexMap =
+        reviewInstancesDefault.stream()
+            .collect(
+                Collectors.toMap(
+                    rid ->
+                        rid.getAttributeValues()
+                            .get(primaryEntityIdAttribute)
+                            .getValue()
+                            .getInt64Val(),
+                    ReviewInstance::getStableIndex));
+
     // Order by an entity attribute.
     List<ReviewInstance> reviewInstancesByAttr =
         reviewService
@@ -723,6 +756,17 @@ public class ReviewInstanceTest {
                 ri ->
                     ri.getAttributeValues().get(primaryEntityIdAttribute).getValue().getInt64Val())
             .collect(Collectors.toList()));
+    assertEquals(
+        reviewInstanceStableIndexMap,
+        reviewInstancesByAttr.stream()
+            .collect(
+                Collectors.toMap(
+                    ri ->
+                        ri.getAttributeValues()
+                            .get(primaryEntityIdAttribute)
+                            .getValue()
+                            .getInt64Val(),
+                    ReviewInstance::getStableIndex)));
 
     // Order by an annotation key.
     List<ReviewInstance> reviewInstancesByAnn =
@@ -744,6 +788,17 @@ public class ReviewInstanceTest {
                 ri ->
                     ri.getAttributeValues().get(primaryEntityIdAttribute).getValue().getInt64Val())
             .collect(Collectors.toList()));
+    assertEquals(
+        reviewInstanceStableIndexMap,
+        reviewInstancesByAnn.stream()
+            .collect(
+                Collectors.toMap(
+                    ri ->
+                        ri.getAttributeValues()
+                            .get(primaryEntityIdAttribute)
+                            .getValue()
+                            .getInt64Val(),
+                    ReviewInstance::getStableIndex)));
 
     // Order by both.
     List<ReviewInstance> reviewInstancesByBoth =
@@ -767,6 +822,17 @@ public class ReviewInstanceTest {
                 ri ->
                     ri.getAttributeValues().get(primaryEntityIdAttribute).getValue().getInt64Val())
             .collect(Collectors.toList()));
+    assertEquals(
+        reviewInstanceStableIndexMap,
+        reviewInstancesByBoth.stream()
+            .collect(
+                Collectors.toMap(
+                    ri ->
+                        ri.getAttributeValues()
+                            .get(primaryEntityIdAttribute)
+                            .getValue()
+                            .getInt64Val(),
+                    ReviewInstance::getStableIndex)));
   }
 
   @Test
