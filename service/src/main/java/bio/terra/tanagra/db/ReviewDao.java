@@ -61,14 +61,16 @@ public class ReviewDao {
 
   // SQL query and row mapper for reading a primary entity instance.
   private static final String PRIMARY_ENTITY_INSTANCE_SELECT_SQL =
-      "SELECT id FROM primary_entity_instance";
-  private static final RowMapper<Literal> PRIMARY_ENTITY_INSTANCE_ROW_MAPPER =
+      "SELECT id, stable_index FROM primary_entity_instance";
+  private static final RowMapper<Pair<Literal, Integer>> PRIMARY_ENTITY_INSTANCE_ROW_MAPPER =
       (rs, rowNum) ->
-          new Literal.Builder()
-              // TODO: Support id data types other than long.
-              .int64Val(rs.getLong("id"))
-              .dataType(Literal.DataType.INT64)
-              .build();
+          Pair.of(
+              new Literal.Builder()
+                  // TODO: Support id data types other than long.
+                  .int64Val(rs.getLong("id"))
+                  .dataType(Literal.DataType.INT64)
+                  .build(),
+              rs.getInt("stable_index"));
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
   private final CohortDao cohortDao;
@@ -161,16 +163,20 @@ public class ReviewDao {
     cohortDao.createNextRevision(cohortId, review.getId(), review.getCreatedBy());
 
     // Write the primary entity instance ids contained in the review.
-    sql = "INSERT INTO primary_entity_instance (review_id, id) VALUES (:review_id, :id)";
+    sql =
+        "INSERT INTO primary_entity_instance (review_id, id, stable_index) VALUES (:review_id, :id, :stable_index)";
     LOGGER.debug("CREATE primary_entity_instance: {}", sql);
     List<MapSqlParameterSource> paramSets = new ArrayList<>();
     Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
+    int stableIndex = 0;
     while (rowResultsItr.hasNext()) {
       paramSets.add(
           new MapSqlParameterSource()
               .addValue("review_id", review.getId())
               // TODO: Support id data types other than long.
-              .addValue("id", rowResultsItr.next().get("id").getLong().getAsLong()));
+              .addValue("id", rowResultsItr.next().get("id").getLong().getAsLong())
+              .addValue("stable_index", stableIndex));
+      stableIndex++;
     }
     rowsAffected =
         IntStream.of(jdbcTemplate.batchUpdate(sql, paramSets.toArray(new MapSqlParameterSource[0])))
@@ -205,11 +211,16 @@ public class ReviewDao {
   }
 
   @ReadTransaction
-  public List<Literal> getPrimaryEntityIds(String reviewId) {
-    String sql = PRIMARY_ENTITY_INSTANCE_SELECT_SQL + " WHERE review_id = :review_id";
+  public Map<Literal, Integer> getPrimaryEntityIdsToStableIndex(String reviewId) {
+    String sql =
+        PRIMARY_ENTITY_INSTANCE_SELECT_SQL
+            + " WHERE review_id = :review_id ORDER BY stable_index ASC";
     LOGGER.debug("GET primary entity instance ids: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
-    return jdbcTemplate.query(sql, params, PRIMARY_ENTITY_INSTANCE_ROW_MAPPER);
+    List<Pair<Literal, Integer>> idIndexPairs =
+        jdbcTemplate.query(sql, params, PRIMARY_ENTITY_INSTANCE_ROW_MAPPER);
+    return idIndexPairs.stream()
+        .collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()));
   }
 
   private List<Review> getReviewsHelper(String reviewsSql, MapSqlParameterSource reviewsParams) {
