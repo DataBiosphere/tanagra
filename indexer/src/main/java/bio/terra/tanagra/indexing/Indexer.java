@@ -1,14 +1,6 @@
 package bio.terra.tanagra.indexing;
 
-import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
-import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
-import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
-import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
-import bio.terra.tanagra.indexing.job.CreateEntityTable;
-import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
-import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
-import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
-import bio.terra.tanagra.indexing.job.WriteRelationshipIdPairs;
+import bio.terra.tanagra.indexing.job.*;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
@@ -118,9 +110,11 @@ public final class Indexer {
     SequencedJobSet jobSet = new SequencedJobSet(entity.getName());
     jobSet.startNewStage();
     jobSet.addJob(new CreateEntityTable(entity));
+    jobSet.addJob(new CreateEntityLevelDisplayHintsTable(entity));
 
     jobSet.startNewStage();
     jobSet.addJob(new DenormalizeEntityInstances(entity));
+    jobSet.addJob(new ComputeEntityLevelDisplayHints(entity));
 
     if (entity.getTextSearch().isEnabled() || entity.hasHierarchies()) {
       jobSet.startNewStage();

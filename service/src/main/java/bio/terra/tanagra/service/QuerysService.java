@@ -12,13 +12,7 @@ import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.instances.*;
-import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
-import bio.terra.tanagra.underlay.DataPointer;
-import bio.terra.tanagra.underlay.DisplayHint;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityGroup;
-import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.displayhint.EnumVal;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
@@ -94,6 +88,24 @@ public class QuerysService {
         queryRequest.getSql(), instanceCounts, queryResult.getNextPageMarker());
   }
 
+  public EntityHintResult listEntityHints(EntityHintRequest entityHintRequest) {
+    QueryRequest queryRequest = entityHintRequest.buildHintsQuery();
+    DataPointer dataPointer =
+        entityHintRequest
+            .getEntity()
+            .getMapping(entityHintRequest.getMappingType())
+            .getTablePointer()
+            .getDataPointer();
+    Map<String, DisplayHint> hints = runDisplayHintsQuery(dataPointer, queryRequest);
+    Map<Attribute, DisplayHint> hintMap = new HashMap<>();
+    hints.entrySet().stream()
+        .forEach(
+            entry ->
+                hintMap.put(
+                    entityHintRequest.getEntity().getAttribute(entry.getKey()), entry.getValue()));
+    return new EntityHintResult(queryRequest.getSql(), hintMap);
+  }
+
   public QueryRequest buildDisplayHintsQuery(
       Underlay underlay,
       Entity entity,
@@ -160,6 +172,7 @@ public class QuerysService {
     Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
     while (rowResultsItr.hasNext()) {
       RowResult rowResult = rowResultsItr.next();
+
       String attrName =
           rowResult.get(MODIFIER_AUX_DATA_ATTR_COL).getLiteral().orElseThrow().getStringVal();
 

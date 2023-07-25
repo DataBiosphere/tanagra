@@ -243,4 +243,21 @@ public final class EnumVals extends DisplayHint {
         .groupBy(List.of(nestedValueFieldVar))
         .build();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnumVals enumVals = (EnumVals) o;
+    return enumValsList.equals(enumVals.enumValsList);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(enumValsList);
+  }
 }
