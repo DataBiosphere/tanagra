@@ -64,7 +64,7 @@ public abstract class BaseHintsTest {
     EntityHintResult entityHintResult = querysService.listEntityHints(entityHintRequest);
 
     for (Map.Entry<String, DisplayHint> expected : expectedHints.entrySet()) {
-      Attribute attr = entityHintRequest.getAttribute(expected.getKey());
+      Attribute attr = entityHintRequest.getEntity().getAttribute(expected.getKey());
       DisplayHint actual = entityHintResult.getHintMap().get(attr);
       assertEquals(expected.getValue(), actual);
     }

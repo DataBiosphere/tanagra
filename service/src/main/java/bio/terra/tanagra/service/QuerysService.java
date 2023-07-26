@@ -81,7 +81,7 @@ public class QuerysService {
 
       String attrName =
           rowResult.get(MODIFIER_AUX_DATA_ATTR_COL).getLiteral().orElseThrow().getStringVal();
-      Attribute attr = entityHintRequest.getAttribute(attrName);
+      Attribute attr = entityHintRequest.getEntity().getAttribute(attrName);
 
       OptionalDouble min = rowResult.get(MODIFIER_AUX_DATA_MIN_COL).getDouble();
       if (min.isPresent()) {
