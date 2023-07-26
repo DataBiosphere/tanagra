@@ -43,7 +43,7 @@ public class BaseAccessControlTest {
   protected AccessControl impl;
   protected static final String CMS_SYNPUF = "cms_synpuf";
   protected static final String AOU_SYNTHETIC = "aou_synthetic";
-  protected static final String SDD = "sdd_refresh0323";
+  protected static final String SDD = "sdd";
 
   protected static final UserId USER_1 = UserId.fromToken("subject1", "user1@gmail.com", "token1");
   protected static final UserId USER_2 = UserId.fromToken("subject2", "user2@gmail.com", "token2");

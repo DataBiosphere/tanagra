@@ -1,1 +1,1 @@
-SELECT o.concept_code AS concept_code, o.id AS id, o.name AS name, o.standard_concept AS standard_concept, o.t_display_standard_concept AS t_display_standard_concept, o.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_071923`.observation AS o LIMIT 30
+SELECT o.concept_code AS concept_code, o.id AS id, o.name AS name, o.standard_concept AS standard_concept, o.t_display_standard_concept AS t_display_standard_concept, o.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_072623`.observation AS o LIMIT 30
