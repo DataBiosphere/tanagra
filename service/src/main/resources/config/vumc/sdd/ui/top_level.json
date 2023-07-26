@@ -6,16 +6,6 @@
       "key": "id",
       "classifications": [
         {
-          "id": "snp",
-          "attribute": "id",
-          "entity": "snp",
-          "entityAttribute": "id",
-          "defaultSort": {
-            "attribute": "id",
-            "direction": "ASC"
-          }
-        },
-        {
           "id": "genotyping",
           "attribute": "id",
           "entity": "genotyping",
@@ -328,15 +318,6 @@
         "visit_type",
         "start_date_group_by_count"
       ]
-    },
-    {
-      "type": "classification",
-      "id": "tanagra-snp",
-      "title": "SNP variant",
-      "category": "Program data",
-      "columns": [{ "key": "id", "width": "100%", "title": "SNP variant" }],
-      "occurrence": "",
-      "classification": "snp"
     },
     {
       "type": "biovu",
