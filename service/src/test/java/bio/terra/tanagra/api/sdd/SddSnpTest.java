@@ -3,8 +3,10 @@ package bio.terra.tanagra.api.sdd;
 import bio.terra.tanagra.api.BaseQueriesTest;
 import java.io.IOException;
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("SDD underlay is out-of-date. Need to update this test to use SDD_REFRESH0323 instead.")
 public class SddSnpTest extends BaseQueriesTest {
   @Override
   protected String getUnderlayName() {
