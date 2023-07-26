@@ -7,8 +7,8 @@
 
 configs_to_compare_list="
 cms_synpuf broad/cms_synpuf verily/cms_synpuf\n
-aou_synthetic broad/aou_synthetic verily/aou_synthetic\n
-sdd vumc/sdd verily/sdd
+sdd vumc/sdd verily/sdd\n
+sdd_refresh0323 vumc/sdd_refresh0323 verily/sdd_refresh0323
 "
 
 # Needed for for loop to split only on newline, not on space
@@ -23,8 +23,8 @@ do
   underlay_2=$(echo ${configs_to_compare} | awk '{print $3}')
   printf "\nComparing ${underlay_1} to ${underlay_2}\n"
 
-  underlay_dir_1=$(echo service/src/main/resources/config/${underlay_1}/original)
-  underlay_dir_2=$(echo service/src/main/resources/config/${underlay_2}/original)
+  underlay_dir_1=$(echo service/src/main/resources/config/${underlay_1})
+  underlay_dir_2=$(echo service/src/main/resources/config/${underlay_2})
   # --ignore-all-space because files sometimes have newline and at of file, and sometimes don't
   diff_output=$(diff -rq --ignore-all-space --exclude ${underlay_name}.json --exclude sql ${underlay_dir_1} ${underlay_dir_2})
 
