@@ -2,13 +2,13 @@
   "name": "visit_occurrence",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "person_id" },
-    { "type": "KEY_AND_DISPLAY", "name": "visit" },
-    { "type": "SIMPLE", "name": "start_date" },
-    { "type": "SIMPLE", "name": "end_date" },
-    { "type": "SIMPLE", "name": "source_value" },
-    { "type": "SIMPLE", "name": "source_criteria_id" } ],
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "start_date", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "end_date", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "source_value", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
