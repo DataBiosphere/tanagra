@@ -51,15 +51,19 @@ public final class Indexer {
   public void validateConfig() {
     // Check that the attribute data types are all defined and match the expected.
     Map<String, List<String>> errorsForEntity = new HashMap<>();
-    underlay
-        .getEntities()
-        .values()
+    underlay.getEntities().values().stream()
+        .sorted(Comparator.comparing(Entity::getName))
         .forEach(
             entity -> {
               List<String> errors = new ArrayList<>();
               entity.getAttributes().stream()
+                  .sorted(Comparator.comparing(Attribute::getName))
                   .forEach(
                       attribute -> {
+                        LOGGER.info(
+                            "Validating data type for entity {}, attribute {}",
+                            entity.getName(),
+                            attribute.getName());
                         Literal.DataType computedDataType =
                             attribute.getMapping(Underlay.MappingType.SOURCE).computeDataType();
                         if (attribute.getDataType() == null
@@ -72,7 +76,7 @@ public final class Indexer {
                                   + ", actual data type: "
                                   + attribute.getDataType();
                           errors.add(msg);
-                          LOGGER.debug("entity: {}, {}", entity.getName(), msg);
+                          LOGGER.info("entity: {}, {}", entity.getName(), msg);
                         }
                       });
               if (!errors.isEmpty()) {

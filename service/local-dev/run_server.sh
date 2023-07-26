@@ -49,7 +49,7 @@ if [[ ${useVerilyUnderlays} ]]; then
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-dev-export-bucket
 elif [[ ${useAouUnderlays} ]]; then
   echo "Using AoU test underlays."
-  export TANAGRA_UNDERLAY_FILES=aou/test/SC2022Q4R6/expanded/SC2022Q4R6.json,aou/test/SR2022Q4R6/expanded/SR2022Q4R6.json
+  export TANAGRA_UNDERLAY_FILES=aou/test/SC2022Q4R6/SC2022Q4R6.json,aou/test/SR2022Q4R6/SR2022Q4R6.json
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
 else
