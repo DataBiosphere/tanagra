@@ -2,10 +2,10 @@
   "name": "t_brand",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name" },
-    { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
-    { "type": "SIMPLE", "name": "concept_code" } ],
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",

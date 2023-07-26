@@ -2,13 +2,13 @@
   "name": "t_person",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "year_of_birth" },
-    { "type": "SIMPLE", "name": "age" },
-    { "type": "KEY_AND_DISPLAY", "name": "gender" },
-    { "type": "KEY_AND_DISPLAY", "name": "race" },
-    { "type": "KEY_AND_DISPLAY", "name": "ethnicity" },
-    { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth" } ],
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "year_of_birth", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "age", "dataType": "INT64" },
+    { "type": "KEY_AND_DISPLAY", "name": "gender", "dataType": "INT64" },
+    { "type": "KEY_AND_DISPLAY", "name": "race", "dataType": "INT64" },
+    { "type": "KEY_AND_DISPLAY", "name": "ethnicity", "dataType": "INT64" },
+    { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth", "dataType": "INT64" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
