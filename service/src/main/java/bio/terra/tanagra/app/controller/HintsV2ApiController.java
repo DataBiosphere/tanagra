@@ -67,11 +67,11 @@ public class HintsV2ApiController implements HintsV2Api {
           .relatedEntity(
               underlaysService.getEntity(underlayName, body.getRelatedEntity().getName()))
           .relatedEntityId(FromApiConversionService.fromApiObject(body.getRelatedEntity().getId()));
-    }
+    } // else {} Return display hints computed across all entity instances (e.g. enum values for
+    // person.gender).
     EntityHintResult entityHintResult = querysService.listEntityHints(entityHintRequest.build());
     return ResponseEntity.ok(toApiObject(entityHintResult));
-  } // else {} Return display hints computed across all entity instances (e.g. enum values for
-  // person.gender).
+  }
 
   private ApiDisplayHintListV2 toApiObject(EntityHintResult entityHintResult) {
     return new ApiDisplayHintListV2()
