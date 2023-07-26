@@ -2,8 +2,8 @@
   "name": "visit",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name" } ],
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",

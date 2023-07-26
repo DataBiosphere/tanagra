@@ -1,12 +1,12 @@
 {
-  "name": "device",
+  "name": "observation",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name" },
-    { "type": "KEY_AND_DISPLAY", "name": "vocabulary" },
-    { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
-    { "type": "SIMPLE", "name": "concept_code" } ],
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING" },
+    { "type": "KEY_AND_DISPLAY", "name": "vocabulary", "dataType": "STRING" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
@@ -19,11 +19,19 @@
           { "type": "BINARY",
             "field": { "column": "domain_id" },
             "operator": "EQUALS",
-            "value": { "stringVal": "Device" } },
+            "value": { "stringVal": "Observation" } },
           { "type": "BINARY",
             "field": { "column": "standard_concept" },
             "operator": "EQUALS",
-            "value": { "stringVal": "S" } }
+            "value": { "stringVal": "S" } },
+          { "type": "BINARY",
+            "field": { "column": "vocabulary_id" },
+            "operator": "NOT_EQUALS",
+            "value": { "stringVal": "PPI" } },
+          { "type": "BINARY",
+            "field": { "column": "concept_class_id" },
+            "operator": "NOT_EQUALS",
+            "value": { "stringVal": "Survey" } }
         ] } },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
@@ -40,7 +48,7 @@
         "display": {
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
-    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "device_textSearch.sql" } } }
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "observation_textSearch.sql" } } }
   },
 
   "indexDataMapping": {
