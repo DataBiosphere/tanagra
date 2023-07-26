@@ -212,6 +212,16 @@
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
+    "name" : "age",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 22.0,
+      "maxVal" : 93.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
     "name" : "year_of_birth",
     "dataType" : "INT64",
     "displayHint" : {
@@ -285,6 +295,13 @@
           "runtimeCalculated" : false
         }
       },
+      "age" : {
+        "value" : {
+          "column" : "year_of_birth",
+          "sqlFunctionWrapper" : "EXTRACT(YEAR FROM CURRENT_DATE()) - ${fieldSql}",
+          "runtimeCalculated" : true
+        }
+      },
       "year_of_birth" : {
         "value" : {
           "column" : "year_of_birth",
@@ -344,6 +361,13 @@
         "display" : {
           "column" : "t_display_sex_at_birth",
           "runtimeCalculated" : false
+        }
+      },
+      "age" : {
+        "value" : {
+          "column" : "age",
+          "sqlFunctionWrapper" : "EXTRACT(YEAR FROM CURRENT_DATE()) - ${fieldSql}",
+          "runtimeCalculated" : true
         }
       },
       "year_of_birth" : {

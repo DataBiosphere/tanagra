@@ -5,7 +5,7 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":avtm" arg; do
+while getopts ":avtmd" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
@@ -18,6 +18,9 @@ while getopts ":avtm" arg; do
       ;;
     m) # Use MariaDB.
       useMariaDB=1
+      ;;
+    d) # enable debug-jvm for bootRun.
+      debugJvm=1
       ;;
     h | *) # Display help.
       usage
@@ -63,12 +66,24 @@ if [[ ${disableAuthChecks} ]]; then
   echo "Disabling auth checks."
   export TANAGRA_AUTH_DISABLE_CHECKS=true
   export TANAGRA_AUTH_BEARER_TOKEN=false
+  export TANAGRA_AUTH_IAP_GKE_JWT=false
 else
-  echo "Enabling auth checks."
+  echo "Enabling auth checks. bearer-token"
   export TANAGRA_AUTH_DISABLE_CHECKS=false
   export TANAGRA_AUTH_BEARER_TOKEN=true
+  export TANAGRA_AUTH_IAP_GKE_JWT=false
 fi
 
 echo
 
-./gradlew service:bootRun
+if [[ ${debugJvm} ]]; then
+  # ./gradlew service:bootRun --debug-jvm
+    echo "Enabling server jvm debug"
+    echo "Listening for transport dt_socket at address: 5005"
+  ./gradlew service:bootRun -Dagentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+else
+  ./gradlew service:bootRun
+fi
+
+
+

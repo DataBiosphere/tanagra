@@ -4,6 +4,7 @@
   "attributes": [
     { "type": "SIMPLE", "name": "id" },
     { "type": "SIMPLE", "name": "year_of_birth" },
+    { "type": "SIMPLE", "name": "age" },
     { "type": "KEY_AND_DISPLAY", "name": "gender" },
     { "type": "KEY_AND_DISPLAY", "name": "race" },
     { "type": "KEY_AND_DISPLAY", "name": "ethnicity" },
@@ -14,6 +15,7 @@
     "tablePointer": { "table": "person" },
     "attributeMappings": {
       "id": { "value": { "column": "person_id" } },
+      "age": { "value": { "column": "year_of_birth", "runtimeCalculated": true, "sqlFunctionWrapper": "EXTRACT(YEAR FROM CURRENT_DATE()) - ${fieldSql}" } },
       "gender": {
         "value": { "column": "gender_concept_id" },
         "display": {
