@@ -7,14 +7,13 @@ import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY_GROUP;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.utils.FileIO;
-import bio.terra.tanagra.utils.FileUtils;
 import java.nio.file.Path;
 
 public final class Main {
   private Main() {}
 
   enum Command {
-    EXPAND_CONFIG,
+    VALIDATE_CONFIG,
     INDEX_ENTITY,
     INDEX_ENTITY_GROUP,
     INDEX_ALL,
@@ -37,15 +36,8 @@ public final class Main {
         Indexer.deserializeUnderlay(Path.of(underlayFilePath).getFileName().toString());
 
     switch (cmd) {
-      case EXPAND_CONFIG:
-        String outputDirPath = args[2];
-
-        FileIO.setOutputParentDir(Path.of(outputDirPath));
-        FileUtils.createDirectoryIfNonexistent(FileIO.getOutputParentDir());
-
-        indexer.validateSourceDataMapping();
-
-        indexer.getUnderlay().serializeAndWriteToFile();
+      case VALIDATE_CONFIG:
+        indexer.validateConfig();
         break;
       case INDEX_ENTITY:
       case CLEAN_ENTITY:

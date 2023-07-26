@@ -12,7 +12,7 @@ import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,32 +48,51 @@ public final class Indexer {
     return new Indexer(Underlay.fromJSON(underlayFileName));
   }
 
-  public void validateSourceDataMapping() {
+  public void validateConfig() {
+    // Check that the attribute data types are all defined and match the expected.
+    Map<String, List<String>> errorsForEntity = new HashMap<>();
     underlay
         .getEntities()
         .values()
         .forEach(
             entity -> {
-              LOGGER.info("Validating entity: " + entity.getName());
+              List<String> errors = new ArrayList<>();
               entity.getAttributes().stream()
                   .forEach(
                       attribute -> {
-                        AttributeMapping attributeMapping =
-                            attribute.getMapping(Underlay.MappingType.SOURCE);
-
-                        Literal.DataType computedDataType = attributeMapping.computeDataType();
+                        Literal.DataType computedDataType =
+                            attribute.getMapping(Underlay.MappingType.SOURCE).computeDataType();
                         if (attribute.getDataType() == null
                             || !attribute.getDataType().equals(computedDataType)) {
-                          throw new InvalidConfigException(
-                              "Data type is required for each attribute. Suggested data type for attribute: "
-                                  + entity.getName()
-                                  + ", "
+                          String msg =
+                              "attribute: "
                                   + attribute.getName()
-                                  + " = "
-                                  + computedDataType);
+                                  + ", expected data type: "
+                                  + computedDataType
+                                  + ", actual data type: "
+                                  + attribute.getDataType();
+                          errors.add(msg);
+                          LOGGER.debug("entity: {}, {}", entity.getName(), msg);
                         }
                       });
+              if (!errors.isEmpty()) {
+                errorsForEntity.put(entity.getName(), errors);
+              }
             });
+
+    // Output any error messages.
+    if (errorsForEntity.isEmpty()) {
+      LOGGER.info("Validation of attribute data types succeeded");
+    } else {
+      errorsForEntity.keySet().stream()
+          .sorted()
+          .forEach(
+              entityName -> {
+                LOGGER.warn("Validation of attribute data types for entity {} failed", entityName);
+                errorsForEntity.get(entityName).stream().forEach(msg -> LOGGER.warn(msg));
+              });
+      throw new InvalidConfigException("Validation attribute data types had errors");
+    }
   }
 
   public JobRunner runJobsForAllEntities(
