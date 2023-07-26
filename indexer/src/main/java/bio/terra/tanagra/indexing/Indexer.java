@@ -125,7 +125,6 @@ public final class Indexer {
     SequencedJobSet jobSet = new SequencedJobSet(entity.getName());
     jobSet.startNewStage();
     jobSet.addJob(new CreateEntityTable(entity));
-    jobSet.addJob(new CreateEntityLevelDisplayHintsTable(entity));
 
     jobSet.startNewStage();
     jobSet.addJob(new DenormalizeEntityInstances(entity));

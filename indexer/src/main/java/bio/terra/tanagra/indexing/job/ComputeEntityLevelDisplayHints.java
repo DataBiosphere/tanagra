@@ -1,14 +1,21 @@
 package bio.terra.tanagra.indexing.job;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
+import bio.terra.tanagra.utils.GoogleBigQuery;
+import com.google.cloud.bigquery.Field;
+import com.google.cloud.bigquery.LegacySQLTypeName;
+import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +35,41 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
 
   @Override
   public void run(boolean isDryRun) {
+    // Create an empty table with this schema.
+    BigQueryDataset outputBQDataset = getBQDataPointer(getEntityIndexTable());
+    TableId destinationTable =
+        TableId.of(
+            outputBQDataset.getProjectId(),
+            outputBQDataset.getDatasetId(),
+            getAuxiliaryTable().getTableName());
+    GoogleBigQuery bigQuery = outputBQDataset.getBigQueryService();
+
+    // Convert the internal representation of the table schema to the BQ object.
+    List<Field> fieldList =
+        Entity.DISPLAY_HINTS_TABLE_SCHEMA.entrySet().stream()
+            .map(
+                entry -> {
+                  String columnName = entry.getKey();
+                  LegacySQLTypeName columnDataType =
+                      BigQueryDataset.fromSqlDataType(entry.getValue().getKey());
+                  boolean isRequired = entry.getValue().getValue();
+                  return Field.newBuilder(columnName, columnDataType)
+                      .setMode(isRequired ? Field.Mode.REQUIRED : Field.Mode.NULLABLE)
+                      .build();
+                })
+            .collect(Collectors.toList());
+
+    bigQuery.createTableFromSchema(destinationTable, Schema.of(fieldList), isDryRun);
+
+    // Sleep to make sure the table is found by the time we do the insert.
+    // TODO: Change this to poll for existence instead.
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException intEx) {
+      throw new SystemException(
+          "Interrupted during sleep after creating entity-level hints table", intEx);
+    }
+
     // TODO: Validate queries for computing display hints when the dry run flag is set.
     if (isDryRun) {
       return;
@@ -79,12 +121,6 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
             });
 
     // Do a single batch insert to BQ for all the hint rows.
-    BigQueryDataset outputBQDataset = getBQDataPointer(getEntityIndexTable());
-    TableId destinationTable =
-        TableId.of(
-            outputBQDataset.getProjectId(),
-            outputBQDataset.getDatasetId(),
-            getAuxiliaryTable().getTableName());
     outputBQDataset
         .getBigQueryService()
         .insertWithStorageWriteApi(
@@ -103,9 +139,9 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
   @Override
   public JobStatus checkStatus() {
     // Check if the table already exists.
-    return checkTableExists(getAuxiliaryTable()) && checkOneRowExists(getAuxiliaryTable())
-        ? JobStatus.COMPLETE
-        : JobStatus.NOT_STARTED;
+    // We can't include a check for a single row here (e.g. checkOneRowExists(getAuxiliaryTable())),
+    // because there are some cases where an entity has no display hints.
+    return checkTableExists(getAuxiliaryTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
   }
 
   public TablePointer getAuxiliaryTable() {
