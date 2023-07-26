@@ -1,10 +1,12 @@
 package bio.terra.tanagra.indexing;
 
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.job.*;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
@@ -46,18 +48,31 @@ public final class Indexer {
     return new Indexer(Underlay.fromJSON(underlayFileName));
   }
 
-  /** Scan the source data to validate data pointers, lookup data types, generate UI hints, etc. */
-  public void scanSourceData() {
-    // TODO: Validate existence and access for data/table/field pointers.
+  public void validateSourceDataMapping() {
     underlay
         .getEntities()
         .values()
         .forEach(
-            e -> {
-              LOGGER.info(
-                  "Looking up attribute data types and generating UI hints for entity: "
-                      + e.getName());
-              e.scanSourceData();
+            entity -> {
+              LOGGER.info("Validating entity: " + entity.getName());
+              entity.getAttributes().stream()
+                  .forEach(
+                      attribute -> {
+                        AttributeMapping attributeMapping =
+                            attribute.getMapping(Underlay.MappingType.SOURCE);
+
+                        Literal.DataType computedDataType = attributeMapping.computeDataType();
+                        if (attribute.getDataType() == null
+                            || !attribute.getDataType().equals(computedDataType)) {
+                          throw new InvalidConfigException(
+                              "Data type is required for each attribute. Suggested data type for attribute: "
+                                  + entity.getName()
+                                  + ", "
+                                  + attribute.getName()
+                                  + " = "
+                                  + computedDataType);
+                        }
+                      });
             });
   }
 

@@ -5,65 +5,11 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "standard_concept",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : { },
-          "display" : "Source"
-        },
-        "count" : 0
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "S"
-          },
-          "display" : "Standard"
-        },
-        "count" : 97214
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "HCPCS"
-          },
-          "display" : "HCPCS"
-        },
-        "count" : 1
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ICD10CM"
-          },
-          "display" : "ICD10CM"
-        },
-        "count" : 108038
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ICD9CM"
-          },
-          "display" : "ICD9CM"
-        },
-        "count" : 16632
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "SNOMED"
-          },
-          "display" : "SNOMED"
-        },
-        "count" : 148722
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
@@ -96,6 +42,9 @@
           "stringVal" : "Condition"
         }
       }
+    },
+    "displayHintTablePointer" : {
+      "table" : "eldh_condition"
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -198,6 +147,9 @@
     "dataPointer" : "index_dataset",
     "tablePointer" : {
       "table" : "condition"
+    },
+    "displayHintTablePointer" : {
+      "table" : "eldh_condition"
     },
     "attributeMappings" : {
       "standard_concept" : {

@@ -43,7 +43,7 @@ public final class Main {
         FileIO.setOutputParentDir(Path.of(outputDirPath));
         FileUtils.createDirectoryIfNonexistent(FileIO.getOutputParentDir());
 
-        indexer.scanSourceData();
+        indexer.validateSourceDataMapping();
 
         indexer.getUnderlay().serializeAndWriteToFile();
         break;

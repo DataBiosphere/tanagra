@@ -5,59 +5,11 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "standard_concept",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "S"
-          },
-          "display" : "Standard"
-        },
-        "count" : 149719
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "CPT4"
-          },
-          "display" : "CPT4"
-        },
-        "count" : 629
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "HCPCS"
-          },
-          "display" : "HCPCS"
-        },
-        "count" : 1489
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "LOINC"
-          },
-          "display" : "LOINC"
-        },
-        "count" : 16762
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "SNOMED"
-          },
-          "display" : "SNOMED"
-        },
-        "count" : 130839
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
@@ -125,6 +77,9 @@
         } ]
       }
     },
+    "displayHintTablePointer" : {
+      "table" : "eldh_observation"
+    },
     "attributeMappings" : {
       "standard_concept" : {
         "value" : {
@@ -185,6 +140,9 @@
     "dataPointer" : "index_dataset",
     "tablePointer" : {
       "table" : "observation"
+    },
+    "displayHintTablePointer" : {
+      "table" : "eldh_observation"
     },
     "attributeMappings" : {
       "standard_concept" : {

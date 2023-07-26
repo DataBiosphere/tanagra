@@ -5,89 +5,11 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "standard_concept",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : { },
-          "display" : "Source"
-        },
-        "count" : 0
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "S"
-          },
-          "display" : "Standard"
-        },
-        "count" : 61581
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "C"
-          },
-          "display" : "Unknown"
-        },
-        "count" : 2990
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "CPT4"
-          },
-          "display" : "CPT4"
-        },
-        "count" : 13070
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "HCPCS"
-          },
-          "display" : "HCPCS"
-        },
-        "count" : 981
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ICD10CM"
-          },
-          "display" : "ICD10CM"
-        },
-        "count" : 6
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ICD9CM"
-          },
-          "display" : "ICD9CM"
-        },
-        "count" : 1318
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ICD9Proc"
-          },
-          "display" : "ICD9Proc"
-        },
-        "count" : 4657
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "SNOMED"
-          },
-          "display" : "SNOMED"
-        },
-        "count" : 74959
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
@@ -120,6 +42,9 @@
           "stringVal" : "Procedure"
         }
       }
+    },
+    "displayHintTablePointer" : {
+      "table" : "eldh_procedure"
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -222,6 +147,9 @@
     "dataPointer" : "index_dataset",
     "tablePointer" : {
       "table" : "procedure"
+    },
+    "displayHintTablePointer" : {
+      "table" : "eldh_procedure"
     },
     "attributeMappings" : {
       "standard_concept" : {

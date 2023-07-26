@@ -3,13 +3,13 @@ package bio.terra.tanagra.underlayspecific;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.instances.EntityHintRequest;
 import bio.terra.tanagra.service.instances.EntityHintResult;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DisplayHint;
-import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.displayhint.EnumVal;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import java.util.*;
@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -27,6 +28,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
+@ActiveProfiles("test")
 @Tag("requires-cloud-access")
 public abstract class BaseHintsTest {
   @Autowired protected UnderlaysService underlaysService;
@@ -36,12 +38,33 @@ public abstract class BaseHintsTest {
 
   protected void assertEntityLevelHintsMatch(
       String entityName, Map<String, DisplayHint> expectedHints) {
-    Entity entity = underlaysService.getEntity(getUnderlayName(), entityName);
-    EntityHintRequest entityHintRequest = new EntityHintRequest.Builder().entity(entity).build();
+    EntityHintRequest entityHintRequest =
+        new EntityHintRequest.Builder()
+            .entity(underlaysService.getEntity(getUnderlayName(), entityName))
+            .build();
+    assertHintsMatch(entityHintRequest, expectedHints);
+  }
+
+  protected void assertInstanceLevelHintsMatch(
+      String entityName,
+      String relatedEntityName,
+      Literal relatedEntityId,
+      Map<String, DisplayHint> expectedHints) {
+    EntityHintRequest entityHintRequest =
+        new EntityHintRequest.Builder()
+            .entity(underlaysService.getEntity(getUnderlayName(), entityName))
+            .relatedEntity(underlaysService.getEntity(getUnderlayName(), relatedEntityName))
+            .relatedEntityId(relatedEntityId)
+            .build();
+    assertHintsMatch(entityHintRequest, expectedHints);
+  }
+
+  private void assertHintsMatch(
+      EntityHintRequest entityHintRequest, Map<String, DisplayHint> expectedHints) {
     EntityHintResult entityHintResult = querysService.listEntityHints(entityHintRequest);
 
     for (Map.Entry<String, DisplayHint> expected : expectedHints.entrySet()) {
-      Attribute attr = entity.getAttribute(expected.getKey());
+      Attribute attr = entityHintRequest.getAttribute(expected.getKey());
       DisplayHint actual = entityHintResult.getHintMap().get(attr);
       assertEquals(expected.getValue(), actual);
     }

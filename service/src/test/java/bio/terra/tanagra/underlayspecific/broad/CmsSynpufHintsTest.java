@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test-broad")
 @Tag("broad-underlays")
 public class CmsSynpufHintsTest extends BaseHintsTest {
 

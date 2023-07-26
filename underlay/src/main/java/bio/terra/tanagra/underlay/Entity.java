@@ -242,23 +242,6 @@ public final class Entity {
     return hierarchies;
   }
 
-  public void scanSourceData() {
-    // lookup the data type and calculate a display hint for each attribute
-    attributes.values().stream()
-        .forEach(
-            attribute -> {
-              AttributeMapping attributeMapping = attribute.getMapping(Underlay.MappingType.SOURCE);
-
-              // lookup the datatype
-              attribute.setDataType(attributeMapping.computeDataType());
-
-              // generate the display hint
-              if (!isIdAttribute(attribute) && !attribute.skipCalculateDisplayHint()) {
-                attribute.setDisplayHint(attributeMapping.computeDisplayHint());
-              }
-            });
-  }
-
   public String getName() {
     return name;
   }

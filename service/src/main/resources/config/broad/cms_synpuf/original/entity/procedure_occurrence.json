@@ -2,13 +2,13 @@
   "name": "procedure_occurrence",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "person_id", "displayHintTypes": ["NONE"] },
-    { "type": "KEY_AND_DISPLAY", "name": "procedure", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "date", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "source_value", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "source_criteria_id", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "age_at_occurrence" }
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "procedure", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "date", "dataType": "DATE", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_value", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" }
   ],
 
   "sourceDataMapping": {

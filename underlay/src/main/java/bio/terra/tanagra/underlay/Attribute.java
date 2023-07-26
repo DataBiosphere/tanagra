@@ -19,21 +19,15 @@ public final class Attribute {
   private final String name;
   private final Type type;
   private Literal.DataType dataType;
-  private DisplayHint displayHint;
   private final List<DisplayHint.Type> displayHintTypes;
   private AttributeMapping sourceMapping;
   private AttributeMapping indexMapping;
 
   public Attribute(
-      String name,
-      Type type,
-      Literal.DataType dataType,
-      DisplayHint displayHint,
-      List<DisplayHint.Type> displayHintTypes) {
+      String name, Type type, Literal.DataType dataType, List<DisplayHint.Type> displayHintTypes) {
     this.name = name;
     this.type = type;
     this.dataType = dataType;
-    this.displayHint = displayHint;
     this.displayHintTypes =
         displayHintTypes == null ? new ArrayList<>() : new ArrayList<>(displayHintTypes);
   }
@@ -52,15 +46,10 @@ public final class Attribute {
     if (Strings.isNullOrEmpty(serialized.getName())) {
       throw new InvalidConfigException("Attribute name is undefined");
     }
-    DisplayHint displayHint =
-        serialized.getDisplayHint() == null
-            ? null
-            : serialized.getDisplayHint().deserializeToInternal();
     return new Attribute(
         serialized.getName(),
         serialized.getType(),
         serialized.getDataType(),
-        displayHint,
         serialized.getDisplayHintTypes());
   }
 
@@ -78,14 +67,6 @@ public final class Attribute {
 
   public void setDataType(Literal.DataType dataType) {
     this.dataType = dataType;
-  }
-
-  public DisplayHint getDisplayHint() {
-    return displayHint;
-  }
-
-  public void setDisplayHint(DisplayHint displayHint) {
-    this.displayHint = displayHint;
   }
 
   public List<DisplayHint.Type> getDisplayHintTypes() {

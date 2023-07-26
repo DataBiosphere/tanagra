@@ -63,9 +63,6 @@ public class HintsV2ApiController implements HintsV2Api {
       // Return display hints for entity instances that are related to an instance of another entity
       // (e.g. numeric range for measurement_occurrence.value_numeric, computed across
       // measurement_occurrence instances that are related to measurement=BodyHeight).
-
-      // Otherwise, return display hints computed across all entity instances (e.g. enum values for
-      // person.gender).
       entityHintRequest
           .relatedEntity(
               underlaysService.getEntity(underlayName, body.getRelatedEntity().getName()))
@@ -73,7 +70,8 @@ public class HintsV2ApiController implements HintsV2Api {
     }
     EntityHintResult entityHintResult = querysService.listEntityHints(entityHintRequest.build());
     return ResponseEntity.ok(toApiObject(entityHintResult));
-  }
+  } // else {} Return display hints computed across all entity instances (e.g. enum values for
+  // person.gender).
 
   private ApiDisplayHintListV2 toApiObject(EntityHintResult entityHintResult) {
     return new ApiDisplayHintListV2()

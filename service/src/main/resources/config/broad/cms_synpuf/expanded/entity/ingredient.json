@@ -5,65 +5,11 @@
     "type" : "KEY_AND_DISPLAY",
     "name" : "standard_concept",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : { },
-          "display" : "Source"
-        },
-        "count" : 0
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "S"
-          },
-          "display" : "Standard"
-        },
-        "count" : 1602994
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "C"
-          },
-          "display" : "Unknown"
-        },
-        "count" : 43254
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
     "name" : "vocabulary",
     "dataType" : "STRING",
-    "displayHint" : {
-      "type" : "ENUM",
-      "enumVals" : [ {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "ATC"
-          },
-          "display" : "ATC"
-        },
-        "count" : 6129
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "RxNorm"
-          },
-          "display" : "RxNorm"
-        },
-        "count" : 278569
-      }, {
-        "enumVal" : {
-          "value" : {
-            "stringVal" : "RxNorm Extension"
-          },
-          "display" : "RxNorm Extension"
-        },
-        "count" : 1650444
-      } ]
-    },
     "displayHintTypes" : [ ]
   }, {
     "type" : "SIMPLE",
@@ -85,6 +31,9 @@
     "dataPointer" : "omop_dataset",
     "tablePointer" : {
       "rawSql" : "SELECT   c.concept_id AS id, c.concept_name AS name, c.vocabulary_id, c.standard_concept, c.concept_code FROM `bigquery-public-data.cms_synthetic_patient_data_omop.concept` c WHERE c.domain_id = 'Drug' AND (     (c.vocabulary_id = 'ATC')     OR (c.vocabulary_id IN ('RxNorm', 'RxNorm Extension')) ) "
+    },
+    "displayHintTablePointer" : {
+      "table" : "eldh_ingredient"
     },
     "attributeMappings" : {
       "standard_concept" : {
@@ -211,6 +160,9 @@
     "dataPointer" : "index_dataset",
     "tablePointer" : {
       "table" : "ingredient"
+    },
+    "displayHintTablePointer" : {
+      "table" : "eldh_ingredient"
     },
     "attributeMappings" : {
       "standard_concept" : {

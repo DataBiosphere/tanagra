@@ -20,15 +20,12 @@ public class UFAttribute {
   private final Attribute.Type type;
   private final String name;
   private final Literal.DataType dataType;
-  private final UFDisplayHint displayHint;
   private final List<DisplayHint.Type> displayHintTypes;
 
   public UFAttribute(Attribute attribute) {
     this.type = attribute.getType();
     this.name = attribute.getName();
     this.dataType = attribute.getDataType();
-    this.displayHint =
-        attribute.getDisplayHint() == null ? null : attribute.getDisplayHint().serialize();
     this.displayHintTypes = attribute.getDisplayHintTypes();
   }
 
@@ -36,7 +33,6 @@ public class UFAttribute {
     this.type = builder.type;
     this.name = builder.name;
     this.dataType = builder.dataType;
-    this.displayHint = builder.displayHint;
     this.displayHintTypes = builder.displayHintTypes;
   }
 
@@ -45,7 +41,6 @@ public class UFAttribute {
     private Attribute.Type type;
     private String name;
     private Literal.DataType dataType;
-    private UFDisplayHint displayHint;
     private List<DisplayHint.Type> displayHintTypes = new ArrayList<>();
 
     public Builder type(Attribute.Type type) {
@@ -60,11 +55,6 @@ public class UFAttribute {
 
     public Builder dataType(Literal.DataType dataType) {
       this.dataType = dataType;
-      return this;
-    }
-
-    public Builder displayHint(UFDisplayHint displayHint) {
-      this.displayHint = displayHint;
       return this;
     }
 
@@ -89,10 +79,6 @@ public class UFAttribute {
 
   public Literal.DataType getDataType() {
     return dataType;
-  }
-
-  public UFDisplayHint getDisplayHint() {
-    return displayHint;
   }
 
   public List<DisplayHint.Type> getDisplayHintTypes() {

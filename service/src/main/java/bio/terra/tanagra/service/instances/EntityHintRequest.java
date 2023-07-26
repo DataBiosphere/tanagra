@@ -31,6 +31,12 @@ public class EntityHintRequest {
     return entity;
   }
 
+  public Attribute getAttribute(String attributeName) {
+    return isEntityLevelHints()
+        ? entity.getAttribute(attributeName)
+        : relatedEntity.getAttribute(attributeName);
+  }
+
   public Underlay.MappingType getMappingType() {
     // Hints always hit the index dataset.
     return Underlay.MappingType.INDEX;
