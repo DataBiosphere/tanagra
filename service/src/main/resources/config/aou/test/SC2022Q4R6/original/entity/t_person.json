@@ -1,0 +1,52 @@
+{
+  "name": "t_person",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id" },
+    { "type": "SIMPLE", "name": "year_of_birth" },
+    { "type": "SIMPLE", "name": "age" },
+    { "type": "KEY_AND_DISPLAY", "name": "gender" },
+    { "type": "KEY_AND_DISPLAY", "name": "race" },
+    { "type": "KEY_AND_DISPLAY", "name": "ethnicity" },
+    { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth" } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "table": "person" },
+    "attributeMappings": {
+      "id": { "value": { "column": "person_id" } },
+      "age": { "value": { "column": "year_of_birth", "runtimeCalculated": true, "sqlFunctionWrapper": "EXTRACT(YEAR FROM CURRENT_DATE()) - ${fieldSql}" } },
+      "gender": {
+        "value": { "column": "gender_concept_id" },
+        "display": {
+          "column": "gender_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "race": {
+        "value": { "column": "race_concept_id" },
+        "display": {
+          "column": "race_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "ethnicity": {
+        "value": { "column": "ethnicity_concept_id" },
+        "display": {
+          "column": "ethnicity_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "sex_at_birth": {
+        "value": { "column": "sex_at_birth_concept_id" },
+        "display": {
+          "column": "sex_at_birth_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
+    } },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
