@@ -9,7 +9,7 @@
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "cmssynpuf_index_071923",
+      "datasetId": "cmssynpuf_index_072623",
       "dataflowServiceAccountEmail": "workflow-runner@verily-tanagra-dev.iam.gserviceaccount.com" } ],
   "entities": [
     "brand.json",

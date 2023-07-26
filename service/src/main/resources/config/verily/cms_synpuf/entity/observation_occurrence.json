@@ -2,16 +2,16 @@
   "name": "observation_occurrence",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "person_id", "displayHintTypes": ["NONE"] },
-    { "type": "KEY_AND_DISPLAY", "name": "observation" },
-    { "type": "SIMPLE", "name": "date", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "value_as_string", "displayHintTypes": ["NONE"] },
-    { "type": "KEY_AND_DISPLAY", "name": "value", "displayHintTypes": ["NONE"] },
-    { "type": "KEY_AND_DISPLAY", "name": "unit", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "source_value", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "source_criteria_id", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "age_at_occurrence" }
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "observation", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "date", "dataType": "DATE", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "value_as_string", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "value", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "unit", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_value", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" }
   ],
 
   "sourceDataMapping": {

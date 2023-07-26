@@ -2,11 +2,11 @@
   "name": "condition",
   "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "id" },
-    { "type": "SIMPLE", "name": "name", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "vocabulary" },
-    { "type": "KEY_AND_DISPLAY", "name": "standard_concept" },
-    { "type": "SIMPLE", "name": "concept_code", "displayHintTypes": ["NONE"] } ],
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "vocabulary", "dataType": "STRING" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING", "displayHintTypes": ["NONE"] } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
