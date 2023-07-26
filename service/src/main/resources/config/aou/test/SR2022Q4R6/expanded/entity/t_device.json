@@ -1,0 +1,232 @@
+{
+  "name" : "t_device",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "standard_concept",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "S"
+          },
+          "display" : "Standard"
+        },
+        "count" : 218461
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "vocabulary",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "CPT4"
+          },
+          "display" : "Current Procedural Terminology version 4 (AMA)"
+        },
+        "count" : 24
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "HCPCS"
+          },
+          "display" : "Healthcare Common Procedure Coding System (CMS)"
+        },
+        "count" : 4634
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "ICD10PCS"
+          },
+          "display" : "ICD-10 Procedure Coding System (CMS)"
+        },
+        "count" : 3
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "NDC"
+          },
+          "display" : "National Drug Code (FDA and manufacturers)"
+        },
+        "count" : 11233
+      }, {
+        "enumVal" : {
+          "value" : {
+            "stringVal" : "SNOMED"
+          },
+          "display" : "Systematic Nomenclature of Medicine - Clinical Terms (IHTSDO)"
+        },
+        "count" : 202567
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "name",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "concept_code",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "concept",
+      "filter" : {
+        "type" : "BOOLEAN_AND_OR",
+        "operator" : "AND",
+        "subfilters" : [ {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "domain_id",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "Device"
+          }
+        }, {
+          "type" : "BINARY",
+          "field" : {
+            "column" : "standard_concept",
+            "runtimeCalculated" : false
+          },
+          "operator" : "EQUALS",
+          "value" : {
+            "stringVal" : "S"
+          }
+        } ]
+      }
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "standard_concept",
+          "sqlFunctionWrapper" : "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)",
+          "runtimeCalculated" : false
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "vocabulary_id",
+          "foreignTable" : "vocabulary",
+          "foreignKey" : "vocabulary_id",
+          "foreignColumn" : "vocabulary_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "concept_id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchStringTable" : {
+        "tablePointer" : {
+          "rawSql" : "SELECT textsearch.id, textsearch.text FROM (      SELECT       c.concept_id AS id, c.concept_name AS text     FROM  `all-of-us-ehr-dev.SR2022Q4R6.concept` c      UNION ALL      SELECT       c.concept_id AS id, CAST(c.concept_id AS STRING) AS text     FROM  `all-of-us-ehr-dev.SR2022Q4R6.concept` c      UNION ALL      SELECT       c.concept_id AS id, c.concept_code AS text     FROM  `all-of-us-ehr-dev.SR2022Q4R6.concept` c ) AS textsearch  JOIN `all-of-us-ehr-dev.SR2022Q4R6.concept` c ON c.concept_id = textsearch.id  WHERE c.domain_id = 'Device' AND c.standard_concept = 'S' "
+        },
+        "fieldPointers" : {
+          "id" : {
+            "column" : "id",
+            "runtimeCalculated" : false
+          },
+          "text" : {
+            "column" : "text",
+            "runtimeCalculated" : false
+          }
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "t_device"
+    },
+    "attributeMappings" : {
+      "standard_concept" : {
+        "value" : {
+          "column" : "standard_concept",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_standard_concept",
+          "runtimeCalculated" : false
+        }
+      },
+      "vocabulary" : {
+        "value" : {
+          "column" : "vocabulary",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_vocabulary",
+          "runtimeCalculated" : false
+        }
+      },
+      "name" : {
+        "value" : {
+          "column" : "name",
+          "runtimeCalculated" : false
+        }
+      },
+      "concept_code" : {
+        "value" : {
+          "column" : "concept_code",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "textSearchMapping" : {
+      "searchString" : {
+        "column" : "text",
+        "runtimeCalculated" : false
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}

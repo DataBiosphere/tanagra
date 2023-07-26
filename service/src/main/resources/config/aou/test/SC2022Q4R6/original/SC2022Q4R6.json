@@ -1,0 +1,50 @@
+{
+  "name": "SC2022Q4R6",
+  "displayName": " Controlled Tier Vxx",
+  "dataPointers": [
+    { "type": "BQ_DATASET",
+      "name": "omop_dataset",
+      "projectId": "all-of-us-ehr-dev",
+      "datasetId": "SC2022Q4R6",
+      "queryProjectId": "all-of-us-ehr-dev"
+    },
+    { "type": "BQ_DATASET",
+      "name": "index_dataset",
+      "projectId": "all-of-us-ehr-dev",
+      "datasetId": "SC2022Q4R6",
+      "dataflowServiceAccountEmail" : "tanagra-indexing-runner@all-of-us-ehr-dev.iam.gserviceaccount.com",
+      "dataflowTempLocation" : "gs://all-of-us-ehr-dev-tanagra-indexing/SC2022Q4R6/tanagra_index_temp",
+      "dataflowRegion": "us-central1",
+      "dataflowWorkerMachineType" : "n1-standard-4",
+      "dataflowUsePublicIps": true
+    }
+  ],
+  "entities": [
+    "t_brand.json",
+    "t_condition.json",
+    "t_condition_occurrence.json",
+    "t_device.json",
+    "t_device_occurrence.json",
+    "t_ingredient.json",
+    "t_ingredient_occurrence.json",
+    "t_measurement.json",
+    "t_measurement_occurrence.json",
+    "t_observation.json",
+    "t_observation_occurrence.json",
+    "t_person.json",
+    "t_procedure.json",
+    "t_procedure_occurrence.json",
+    "t_visit.json",
+    "t_visit_occurrence.json"],
+  "primaryEntity": "t_person",
+  "entityGroups": [
+    "t_brand_ingredient.json",
+    "t_condition_person_occurrence.json",
+    "t_device_person_occurrence.json",
+    "t_ingredient_person_occurrence.json",
+    "t_measurement_person_occurrence.json",
+    "t_observation_person_occurrence.json",
+    "t_procedure_person_occurrence.json",
+    "t_visit_person_occurrence.json"],
+  "uiConfigFile": "top_level.json"
+}
