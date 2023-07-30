@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 public class IpynbFileDownload implements DataExport {
@@ -51,10 +52,12 @@ public class IpynbFileDownload implements DataExport {
         FileUtils.readStringFromFile(
             FileUtils.getResourceFileStream(Path.of(IPYNB_TEMPLATE_RESOURCE_FILE)));
 
-    // Generate the SQL for the primary entity.
+    // Generate the SQL for the primary entity and escape it to substitute into a notebook cell (=
+    // JSON property).
     Map<String, String> entityToSql = request.generateSqlQueries();
     String primaryEntitySql =
         SqlFormatter.format(entityToSql.get(request.getUnderlay().getPrimaryEntity()));
+    String primaryEntitySqlEscaped = StringEscapeUtils.escapeJson(primaryEntitySql);
 
     // Make substitutions in the template file contents.
     String studyIdAndName =
@@ -68,7 +71,7 @@ public class IpynbFileDownload implements DataExport {
             .put("studyName", studyIdAndName)
             .put("timestamp", Instant.now().toString())
             .put("entityName", request.getUnderlay().getPrimaryEntity())
-            .put("formattedSql", primaryEntitySql)
+            .put("formattedSql", primaryEntitySqlEscaped)
             .build();
     String fileContents = StringSubstitutor.replace(ipynbTemplate, params);
 

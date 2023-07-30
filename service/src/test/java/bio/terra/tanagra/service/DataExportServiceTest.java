@@ -19,6 +19,7 @@ import bio.terra.tanagra.service.instances.filter.AttributeFilter;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -325,7 +326,9 @@ public class DataExportServiceTest {
     assertFalse(fileContents.isEmpty());
     LOGGER.info("ipynb fileContents: {}", fileContents);
     assertTrue(fileContents.contains("# This query was generated for"));
-    assertTrue(fileContents.split("\n").length >= 16); // length of notebook template file
+    assertTrue(fileContents.split("\n").length >= 36); // Length of notebook template file = 36.
+    assertDoesNotThrow(
+        () -> new ObjectMapper().readTree(fileContents)); // Notebook file is valid json.
   }
 
   private EntityQueryRequest buildEntityQueryRequest() {
