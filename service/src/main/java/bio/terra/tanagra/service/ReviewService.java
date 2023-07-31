@@ -270,11 +270,13 @@ public class ReviewService {
     }
 
     // Add a filter on the entity: ID is included in the review.
+    Map<Literal, Integer> primaryEntityIdsToStableIndex =
+        reviewDao.getPrimaryEntityIdsToStableIndex(reviewId);
     EntityFilter entityFilter =
         new AttributeFilter(
             idAttribute,
             FunctionFilterVariable.FunctionTemplate.IN,
-            reviewDao.getPrimaryEntityIds(reviewId));
+            primaryEntityIdsToStableIndex.keySet().stream().collect(Collectors.toList()));
     if (reviewQueryRequest.getEntityFilter() != null) {
       entityFilter =
           new BooleanAndOrFilter(
@@ -316,12 +318,19 @@ public class ReviewService {
               if (!reviewQueryRequest.hasAnnotationFilter()
                   || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
                 reviewInstances.add(
-                    new ReviewInstance(ei.getAttributeValues(), associatedAnnotationValues));
+                    new ReviewInstance(
+                        primaryEntityIdsToStableIndex.get(entityInstanceId),
+                        ei.getAttributeValues(),
+                        associatedAnnotationValues));
               }
             });
 
-    // Order by the attributes and annotation values, preserving the list order.
-    if (!reviewQueryRequest.getOrderBys().isEmpty()) {
+    if (reviewQueryRequest.getOrderBys().isEmpty()) {
+      // Order by the stable index, ascending.
+      reviewInstances.sort(Comparator.comparing(ReviewInstance::getStableIndex));
+    } else {
+      // Order by the attributes and annotation values, preserving the list order. Then order by the
+      // stable index, ascending.
       Comparator<ReviewInstance> comparator = null;
       for (ReviewQueryOrderBy reviewOrderBy : reviewQueryRequest.getOrderBys()) {
         if (comparator == null) {
@@ -330,7 +339,7 @@ public class ReviewService {
           comparator = comparator.thenComparing(Function.identity(), reviewOrderBy::compare);
         }
       }
-      reviewInstances.sort(comparator);
+      reviewInstances.sort(comparator.thenComparing(ReviewInstance::getStableIndex));
     }
 
     // Return only the page of results the user requested.
@@ -369,7 +378,8 @@ public class ReviewService {
         new AttributeFilter(
             entity.getIdAttribute(),
             FunctionFilterVariable.FunctionTemplate.IN,
-            reviewDao.getPrimaryEntityIds(reviewId));
+            reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
+                .collect(Collectors.toList()));
     return querysService.countEntityInstances(
         new EntityCountRequest.Builder()
             .entity(entity)

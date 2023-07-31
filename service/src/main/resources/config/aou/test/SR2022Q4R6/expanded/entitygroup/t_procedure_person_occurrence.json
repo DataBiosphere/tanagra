@@ -1,0 +1,251 @@
+{
+  "type" : "CRITERIA_OCCURRENCE",
+  "name" : "t_procedure_person_occurrence",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "procedure_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "procedure_occurrence_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "procedure_concept_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "procedure_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "procedure_concept_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "procedure_occurrence"
+        },
+        "idPairsIdA" : {
+          "column" : "procedure_occurrence_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "idpairs_t_procedure_occurrence_t_procedure"
+        },
+        "idPairsIdA" : {
+          "column" : "id_t_procedure_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_t_procedure",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_procedure_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_procedure",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_procedure",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "standard" : {
+            "table" : {
+              "table" : "t_procedure"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_procedure_occurrence_standard",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_procedure_occurrence_standard",
+              "runtimeCalculated" : false
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_procedure"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_procedure_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_procedure_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_t_procedure_t_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_t_procedure",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_t_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "standard" : {
+            "table" : {
+              "table" : "t_procedure"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_person_standard",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_person_standard",
+              "runtimeCalculated" : false
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_procedure"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_procedure",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_procedure",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_t_procedure_occurrence_t_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_t_procedure_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_t_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_procedure_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_procedure_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_procedure_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "t_procedure",
+  "occurrenceEntity" : "t_procedure_occurrence",
+  "modifierAttributes" : [ ]
+}

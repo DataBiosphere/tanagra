@@ -201,7 +201,10 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
       }
     }
 
-    return new ApiReviewInstanceV2().attributes(attributes).annotations(annotationValues);
+    return new ApiReviewInstanceV2()
+        .stableIndex(reviewInstance.getStableIndex())
+        .attributes(attributes)
+        .annotations(annotationValues);
   }
 
   private static ApiReviewV2 toApiObject(Review review, Cohort cohort) {
