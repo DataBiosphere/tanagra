@@ -8,13 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 public final class ReviewInstance {
+  private final int stableIndex;
   private final Map<Attribute, ValueDisplay> attributeValues;
   private final List<AnnotationValue> annotationValues;
 
   public ReviewInstance(
-      Map<Attribute, ValueDisplay> attributeValues, List<AnnotationValue> annotationValues) {
+      int stableIndex,
+      Map<Attribute, ValueDisplay> attributeValues,
+      List<AnnotationValue> annotationValues) {
+    this.stableIndex = stableIndex;
     this.attributeValues = attributeValues;
     this.annotationValues = annotationValues;
+  }
+
+  public int getStableIndex() {
+    return stableIndex;
   }
 
   public Map<Attribute, ValueDisplay> getAttributeValues() {

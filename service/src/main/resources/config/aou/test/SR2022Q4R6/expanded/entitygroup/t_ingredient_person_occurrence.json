@@ -1,0 +1,251 @@
+{
+  "type" : "CRITERIA_OCCURRENCE",
+  "name" : "t_ingredient_person_occurrence",
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "drug_exposure"
+        },
+        "idPairsIdA" : {
+          "column" : "drug_exposure_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "drug_concept_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "drug_exposure"
+        },
+        "idPairsIdA" : {
+          "column" : "drug_concept_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "drug_exposure"
+        },
+        "idPairsIdA" : {
+          "column" : "drug_exposure_id",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : { },
+        "rollupInformationMapB" : { }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "relationshipMappings" : {
+      "occurrenceToCriteria" : {
+        "idPairsTable" : {
+          "table" : "idpairs_t_ingredient_occurrence_t_ingredient"
+        },
+        "idPairsIdA" : {
+          "column" : "id_t_ingredient_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_t_ingredient",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_ingredient_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_ingredient",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_ingredient",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "standard" : {
+            "table" : {
+              "table" : "t_ingredient"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_ingredient_occurrence_standard",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_ingredient_occurrence_standard",
+              "runtimeCalculated" : false
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_ingredient"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_ingredient_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_ingredient_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "criteriaToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_t_ingredient_t_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_t_ingredient",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_t_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "standard" : {
+            "table" : {
+              "table" : "t_ingredient"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_person_standard",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_person_standard",
+              "runtimeCalculated" : false
+            }
+          },
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_ingredient"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_ingredient",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_ingredient",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      },
+      "occurrenceToPrimary" : {
+        "idPairsTable" : {
+          "table" : "idpairs_t_ingredient_occurrence_t_person"
+        },
+        "idPairsIdA" : {
+          "column" : "id_t_ingredient_occurrence",
+          "runtimeCalculated" : false
+        },
+        "idPairsIdB" : {
+          "column" : "id_t_person",
+          "runtimeCalculated" : false
+        },
+        "rollupInformationMapA" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_ingredient_occurrence"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_person",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_person",
+              "runtimeCalculated" : false
+            }
+          }
+        },
+        "rollupInformationMapB" : {
+          "NO_HIERARCHY" : {
+            "table" : {
+              "table" : "t_person"
+            },
+            "id" : {
+              "column" : "id",
+              "runtimeCalculated" : false
+            },
+            "count" : {
+              "column" : "t_count_t_ingredient_occurrence",
+              "runtimeCalculated" : false
+            },
+            "displayHints" : {
+              "column" : "t_displayhints_t_ingredient_occurrence",
+              "runtimeCalculated" : false
+            }
+          }
+        }
+      }
+    },
+    "auxiliaryDataMappings" : { }
+  },
+  "criteriaEntity" : "t_ingredient",
+  "occurrenceEntity" : "t_ingredient_occurrence",
+  "modifierAttributes" : [ ]
+}

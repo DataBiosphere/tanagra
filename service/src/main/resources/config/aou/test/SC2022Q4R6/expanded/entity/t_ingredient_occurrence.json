@@ -1,0 +1,256 @@
+{
+  "name" : "t_ingredient_occurrence",
+  "idAttribute" : "id",
+  "attributes" : [ {
+    "type" : "SIMPLE",
+    "name" : "end_date",
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "KEY_AND_DISPLAY",
+    "name" : "ingredient",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "refills",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 10.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_criteria_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 2.000007519E9
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "stop_reason",
+    "dataType" : "STRING",
+    "displayHint" : {
+      "type" : "ENUM",
+      "enumVals" : [ {
+        "enumVal" : {
+          "value" : { },
+          "display" : null
+        },
+        "count" : 0
+      } ]
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "visit_occurrence_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2020479.0,
+      "maxVal" : 1.5996253E7
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "id",
+    "dataType" : "INT64",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "days_supply",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : -9.223372036854776E18,
+      "maxVal" : 180.0
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "source_value",
+    "dataType" : "STRING",
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "person_id",
+    "dataType" : "INT64",
+    "displayHint" : {
+      "type" : "RANGE",
+      "minVal" : 2.0201235E7,
+      "maxVal" : 2.0435757E7
+    },
+    "displayHintTypes" : [ ]
+  }, {
+    "type" : "SIMPLE",
+    "name" : "start_date",
+    "dataType" : "DATE",
+    "displayHintTypes" : [ ]
+  } ],
+  "sourceDataMapping" : {
+    "dataPointer" : "omop_dataset",
+    "tablePointer" : {
+      "table" : "drug_exposure"
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "drug_exposure_end_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "ingredient" : {
+        "value" : {
+          "column" : "drug_concept_id",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "drug_concept_id",
+          "foreignTable" : "concept",
+          "foreignKey" : "concept_id",
+          "foreignColumn" : "concept_name",
+          "runtimeCalculated" : false
+        }
+      },
+      "refills" : {
+        "value" : {
+          "column" : "refills",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "drug_source_concept_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "stop_reason" : {
+        "value" : {
+          "column" : "stop_reason",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "drug_exposure_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "drug_source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "drug_exposure_start_date",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  },
+  "indexDataMapping" : {
+    "dataPointer" : "index_dataset",
+    "tablePointer" : {
+      "table" : "t_ingredient_occurrence"
+    },
+    "attributeMappings" : {
+      "end_date" : {
+        "value" : {
+          "column" : "end_date",
+          "runtimeCalculated" : false
+        }
+      },
+      "ingredient" : {
+        "value" : {
+          "column" : "ingredient",
+          "runtimeCalculated" : false
+        },
+        "display" : {
+          "column" : "t_display_ingredient",
+          "runtimeCalculated" : false
+        }
+      },
+      "refills" : {
+        "value" : {
+          "column" : "refills",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_criteria_id" : {
+        "value" : {
+          "column" : "source_criteria_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "stop_reason" : {
+        "value" : {
+          "column" : "stop_reason",
+          "runtimeCalculated" : false
+        }
+      },
+      "visit_occurrence_id" : {
+        "value" : {
+          "column" : "visit_occurrence_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "id" : {
+        "value" : {
+          "column" : "id",
+          "runtimeCalculated" : false
+        }
+      },
+      "days_supply" : {
+        "value" : {
+          "column" : "days_supply",
+          "runtimeCalculated" : false
+        }
+      },
+      "source_value" : {
+        "value" : {
+          "column" : "source_value",
+          "runtimeCalculated" : false
+        }
+      },
+      "person_id" : {
+        "value" : {
+          "column" : "person_id",
+          "runtimeCalculated" : false
+        }
+      },
+      "start_date" : {
+        "value" : {
+          "column" : "start_date",
+          "runtimeCalculated" : false
+        }
+      }
+    },
+    "hierarchyMappings" : { }
+  }
+}
