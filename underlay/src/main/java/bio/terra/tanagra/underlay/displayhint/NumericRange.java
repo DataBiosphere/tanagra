@@ -18,6 +18,7 @@ import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class NumericRange extends DisplayHint {
   private final Double minVal;
@@ -109,5 +110,22 @@ public final class NumericRange extends DisplayHint {
     return new NumericRange(
         rowResult.get(minValAlias).getDouble().getAsDouble(),
         rowResult.get(maxValAlias).getDouble().getAsDouble());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    NumericRange that = (NumericRange) o;
+    return minVal.equals(that.minVal) && maxVal.equals(that.maxVal);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(minVal, maxVal);
   }
 }

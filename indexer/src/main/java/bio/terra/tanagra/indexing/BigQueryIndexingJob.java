@@ -99,6 +99,19 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
         .isPresent();
   }
 
+  protected boolean checkOneRowExists(TablePointer tablePointer) {
+    // Check if the table has at least one row.
+    BigQueryDataset dataPointer = getBQDataPointer(tablePointer);
+    int numRows =
+        dataPointer
+            .getBigQueryService()
+            .getNumRows(
+                dataPointer.getProjectId(),
+                dataPointer.getDatasetId(),
+                tablePointer.getTableName());
+    return numRows > 0;
+  }
+
   protected boolean checkOneNotNullIdRowExists(Entity entity) {
     // Check if the table has at least 1 id row where id IS NOT NULL
     FieldPointer idField =

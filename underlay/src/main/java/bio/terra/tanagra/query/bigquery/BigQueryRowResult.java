@@ -2,6 +2,7 @@ package bio.terra.tanagra.query.bigquery;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.RowResult;
 import com.google.api.client.util.Preconditions;
 import com.google.cloud.bigquery.FieldValueList;
@@ -23,8 +24,8 @@ class BigQueryRowResult implements RowResult {
 
   @Override
   public CellValue get(int index) {
-    return new BigQueryCellValue(
-        fieldValues.get(index), columnHeaderSchema.getColumnSchemas().get(index));
+    ColumnSchema columnSchema = columnHeaderSchema.getColumnSchemas().get(index);
+    return new BigQueryCellValue(fieldValues.get(columnSchema.getColumnName()), columnSchema);
   }
 
   @Override

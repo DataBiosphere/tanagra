@@ -13,24 +13,21 @@ import bio.terra.tanagra.generated.model.ApiDisplayHintNumericRangeV2;
 import bio.terra.tanagra.generated.model.ApiDisplayHintV2;
 import bio.terra.tanagra.generated.model.ApiDisplayHintV2DisplayHint;
 import bio.terra.tanagra.generated.model.ApiHintQueryV2;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.QueryRequest;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.instances.EntityHintRequest;
+import bio.terra.tanagra.service.instances.EntityHintResult;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
 import bio.terra.tanagra.utils.SqlFormatter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -61,49 +58,29 @@ public class HintsV2ApiController implements HintsV2Api {
         ResourceId.forUnderlay(underlayName));
     Entity entity = underlaysService.getEntity(underlayName, entityName);
 
-    if (body == null || body.getRelatedEntity() == null) {
-      // Return display hints computed across all entity instances (e.g. enum values for
-      // person.gender).
-      Map<String, DisplayHint> displayHints = new HashMap<>();
-      entity.getAttributes().stream()
-          .forEach(
-              attr -> {
-                if (attr.getDisplayHint() != null) {
-                  displayHints.put(attr.getName(), attr.getDisplayHint());
-                }
-              });
-      // Currently, these display hints are stored in the underlay config files, so no SQL query is
-      // necessary to look them up.
-      return ResponseEntity.ok(toApiObject(entity, displayHints, ""));
-    } else {
+    EntityHintRequest.Builder entityHintRequest = new EntityHintRequest.Builder().entity(entity);
+    if (body != null && body.getRelatedEntity() != null) {
       // Return display hints for entity instances that are related to an instance of another entity
       // (e.g. numeric range for measurement_occurrence.value_numeric, computed across
       // measurement_occurrence instances that are related to measurement=BodyHeight).
-      Underlay underlay = underlaysService.getUnderlay(underlayName);
-      Entity relatedEntity =
-          underlaysService.getEntity(underlayName, body.getRelatedEntity().getName());
-      Literal relatedEntityId =
-          FromApiConversionService.fromApiObject(body.getRelatedEntity().getId());
-      QueryRequest queryRequest =
-          querysService.buildDisplayHintsQuery(
-              underlay, entity, Underlay.MappingType.INDEX, relatedEntity, relatedEntityId);
-      Map<String, DisplayHint> displayHints =
-          querysService.runDisplayHintsQuery(
-              entity.getMapping(Underlay.MappingType.INDEX).getTablePointer().getDataPointer(),
-              queryRequest);
-      return ResponseEntity.ok(toApiObject(entity, displayHints, queryRequest.getSql()));
-    }
+      entityHintRequest
+          .relatedEntity(
+              underlaysService.getEntity(underlayName, body.getRelatedEntity().getName()))
+          .relatedEntityId(FromApiConversionService.fromApiObject(body.getRelatedEntity().getId()));
+    } // else {} Return display hints computed across all entity instances (e.g. enum values for
+    // person.gender).
+    EntityHintResult entityHintResult = querysService.listEntityHints(entityHintRequest.build());
+    return ResponseEntity.ok(toApiObject(entityHintResult));
   }
 
-  private ApiDisplayHintListV2 toApiObject(
-      Entity entity, Map<String, DisplayHint> displayHints, String sql) {
+  private ApiDisplayHintListV2 toApiObject(EntityHintResult entityHintResult) {
     return new ApiDisplayHintListV2()
-        .sql(SqlFormatter.format(sql))
+        .sql(SqlFormatter.format(entityHintResult.getSql()))
         .displayHints(
-            displayHints.entrySet().stream()
+            entityHintResult.getHintMap().entrySet().stream()
                 .map(
                     attrHint -> {
-                      Attribute attr = entity.getAttribute(attrHint.getKey());
+                      Attribute attr = attrHint.getKey();
                       DisplayHint hint = attrHint.getValue();
                       return new ApiDisplayHintV2()
                           .attribute(ToApiConversionUtils.toApiObject(attr))

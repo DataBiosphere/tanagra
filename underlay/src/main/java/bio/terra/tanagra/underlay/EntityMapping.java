@@ -11,12 +11,18 @@ import java.util.List;
 import java.util.Map;
 
 public final class EntityMapping {
+  private static final String DISPLAY_HINT_TABLE_PREFIX = "eldh_"; // entity-level display hint
   private final TablePointer tablePointer;
+  private final TablePointer displayHintTablePointer;
   private Entity entity;
   private final Underlay.MappingType mappingType;
 
-  private EntityMapping(TablePointer tablePointer, Underlay.MappingType mappingType) {
+  private EntityMapping(
+      TablePointer tablePointer,
+      TablePointer displayHintTablePointer,
+      Underlay.MappingType mappingType) {
     this.tablePointer = tablePointer;
+    this.displayHintTablePointer = displayHintTablePointer;
     this.mappingType = mappingType;
   }
 
@@ -44,7 +50,12 @@ public final class EntityMapping {
             ? TablePointer.fromSerialized(serialized.getTablePointer(), dataPointer)
             : TablePointer.fromTableName(entityName, dataPointer);
 
-    return new EntityMapping(tablePointer, mappingType);
+    TablePointer displayHintTablePointer =
+        serialized.getDisplayHintTablePointer() != null
+            ? TablePointer.fromSerialized(serialized.getTablePointer(), dataPointer)
+            : TablePointer.fromTableName(DISPLAY_HINT_TABLE_PREFIX + entityName, dataPointer);
+
+    return new EntityMapping(tablePointer, displayHintTablePointer, mappingType);
   }
 
   public Query queryIds(String alias) {
@@ -81,6 +92,10 @@ public final class EntityMapping {
 
   public TablePointer getTablePointer() {
     return tablePointer;
+  }
+
+  public TablePointer getDisplayHintTablePointer() {
+    return displayHintTablePointer;
   }
 
   public Entity getEntity() {

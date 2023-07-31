@@ -1,0 +1,52 @@
+{
+  "name": "measurement_occurrence",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "measurement", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "date", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "value_numeric", "dataType": "DOUBLE" },
+    { "type": "KEY_AND_DISPLAY", "name": "value_enum", "dataType": "INT64" },
+    { "type": "KEY_AND_DISPLAY", "name": "unit", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "source_value", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "table": "measurement" },
+    "attributeMappings": {
+      "id": { "value": { "column": "measurement_id" } },
+      "measurement": {
+        "value": { "column": "measurement_concept_id" },
+        "display": {
+          "column": "measurement_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "date": { "value": { "column": "measurement_date" } },
+      "value_numeric": { "value": { "column": "value_as_number" } },
+      "value_enum": {
+        "value": { "column": "value_as_concept_id" },
+        "display": {
+          "column": "value_as_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "unit": {
+        "value": { "column": "unit_concept_id" },
+        "display": {
+          "column": "unit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "source_value": { "value": { "column": "measurement_source_value" } },
+      "source_criteria_id": { "value": { "column": "measurement_source_concept_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

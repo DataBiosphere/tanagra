@@ -1,24 +1,18 @@
 package bio.terra.tanagra.indexing;
 
-import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
-import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
-import bio.terra.tanagra.indexing.job.ComputeDisplayHints;
-import bio.terra.tanagra.indexing.job.ComputeRollupCounts;
-import bio.terra.tanagra.indexing.job.CreateEntityTable;
-import bio.terra.tanagra.indexing.job.DenormalizeEntityInstances;
-import bio.terra.tanagra.indexing.job.WriteAncestorDescendantIdPairs;
-import bio.terra.tanagra.indexing.job.WriteParentChildIdPairs;
-import bio.terra.tanagra.indexing.job.WriteRelationshipIdPairs;
+import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.indexing.job.*;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,19 +48,55 @@ public final class Indexer {
     return new Indexer(Underlay.fromJSON(underlayFileName));
   }
 
-  /** Scan the source data to validate data pointers, lookup data types, generate UI hints, etc. */
-  public void scanSourceData() {
-    // TODO: Validate existence and access for data/table/field pointers.
-    underlay
-        .getEntities()
-        .values()
+  public void validateConfig() {
+    // Check that the attribute data types are all defined and match the expected.
+    Map<String, List<String>> errorsForEntity = new HashMap<>();
+    underlay.getEntities().values().stream()
+        .sorted(Comparator.comparing(Entity::getName))
         .forEach(
-            e -> {
-              LOGGER.info(
-                  "Looking up attribute data types and generating UI hints for entity: "
-                      + e.getName());
-              e.scanSourceData();
+            entity -> {
+              List<String> errors = new ArrayList<>();
+              entity.getAttributes().stream()
+                  .sorted(Comparator.comparing(Attribute::getName))
+                  .forEach(
+                      attribute -> {
+                        LOGGER.info(
+                            "Validating data type for entity {}, attribute {}",
+                            entity.getName(),
+                            attribute.getName());
+                        Literal.DataType computedDataType =
+                            attribute.getMapping(Underlay.MappingType.SOURCE).computeDataType();
+                        if (attribute.getDataType() == null
+                            || !attribute.getDataType().equals(computedDataType)) {
+                          String msg =
+                              "attribute: "
+                                  + attribute.getName()
+                                  + ", expected data type: "
+                                  + computedDataType
+                                  + ", actual data type: "
+                                  + attribute.getDataType();
+                          errors.add(msg);
+                          LOGGER.info("entity: {}, {}", entity.getName(), msg);
+                        }
+                      });
+              if (!errors.isEmpty()) {
+                errorsForEntity.put(entity.getName(), errors);
+              }
             });
+
+    // Output any error messages.
+    if (errorsForEntity.isEmpty()) {
+      LOGGER.info("Validation of attribute data types succeeded");
+    } else {
+      errorsForEntity.keySet().stream()
+          .sorted()
+          .forEach(
+              entityName -> {
+                LOGGER.warn("Validation of attribute data types for entity {} failed", entityName);
+                errorsForEntity.get(entityName).stream().forEach(msg -> LOGGER.warn(msg));
+              });
+      throw new InvalidConfigException("Validation attribute data types had errors");
+    }
   }
 
   public JobRunner runJobsForAllEntities(
@@ -121,6 +151,7 @@ public final class Indexer {
 
     jobSet.startNewStage();
     jobSet.addJob(new DenormalizeEntityInstances(entity));
+    jobSet.addJob(new ComputeEntityLevelDisplayHints(entity));
 
     if (entity.getTextSearch().isEnabled() || entity.hasHierarchies()) {
       jobSet.startNewStage();

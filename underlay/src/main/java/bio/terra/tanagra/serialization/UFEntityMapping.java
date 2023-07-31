@@ -17,6 +17,7 @@ import java.util.Map;
 public class UFEntityMapping {
   private final String dataPointer;
   private final UFTablePointer tablePointer;
+  private final UFTablePointer displayHintTablePointer;
   private final Map<String, UFAttributeMapping> attributeMappings;
   private final UFTextSearchMapping textSearchMapping;
   private final Map<String, UFHierarchyMapping> hierarchyMappings;
@@ -24,6 +25,7 @@ public class UFEntityMapping {
   public UFEntityMapping(EntityMapping entityMapping) {
     this.dataPointer = entityMapping.getTablePointer().getDataPointer().getName();
     this.tablePointer = new UFTablePointer(entityMapping.getTablePointer());
+    this.displayHintTablePointer = new UFTablePointer(entityMapping.getDisplayHintTablePointer());
 
     Map<String, UFAttributeMapping> attributeMappings = new HashMap<>();
     entityMapping.getEntity().getAttributes().stream()
@@ -58,6 +60,7 @@ public class UFEntityMapping {
   private UFEntityMapping(Builder builder) {
     this.dataPointer = builder.dataPointer;
     this.tablePointer = builder.tablePointer;
+    this.displayHintTablePointer = builder.displayHintTablePointer;
     this.attributeMappings = builder.attributeMappings;
     this.textSearchMapping = builder.textSearchMapping;
     this.hierarchyMappings = builder.hierarchyMappings;
@@ -67,6 +70,7 @@ public class UFEntityMapping {
   public static class Builder {
     private String dataPointer;
     private UFTablePointer tablePointer;
+    private UFTablePointer displayHintTablePointer;
     private Map<String, UFAttributeMapping> attributeMappings;
     private UFTextSearchMapping textSearchMapping;
     private Map<String, UFHierarchyMapping> hierarchyMappings;
@@ -78,6 +82,11 @@ public class UFEntityMapping {
 
     public Builder tablePointer(UFTablePointer tablePointer) {
       this.tablePointer = tablePointer;
+      return this;
+    }
+
+    public Builder displayHintTablePointer(UFTablePointer displayHintTablePointer) {
+      this.displayHintTablePointer = displayHintTablePointer;
       return this;
     }
 
@@ -108,6 +117,10 @@ public class UFEntityMapping {
 
   public UFTablePointer getTablePointer() {
     return tablePointer;
+  }
+
+  public UFTablePointer getDisplayHintTablePointer() {
+    return displayHintTablePointer;
   }
 
   public Map<String, UFAttributeMapping> getAttributeMappings() {

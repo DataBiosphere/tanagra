@@ -1,23 +1,12 @@
 package bio.terra.tanagra.utils;
 
 import bio.terra.tanagra.exception.SystemException;
+import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.BigQueryException;
-import com.google.cloud.bigquery.BigQueryOptions;
-import com.google.cloud.bigquery.Dataset;
-import com.google.cloud.bigquery.DatasetId;
-import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.JobInfo;
-import com.google.cloud.bigquery.JobStatistics;
-import com.google.cloud.bigquery.QueryJobConfiguration;
-import com.google.cloud.bigquery.Schema;
-import com.google.cloud.bigquery.StandardTableDefinition;
-import com.google.cloud.bigquery.Table;
-import com.google.cloud.bigquery.TableId;
-import com.google.cloud.bigquery.TableInfo;
-import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.bigquery.*;
+import com.google.cloud.bigquery.storage.v1.TableName;
+import com.google.protobuf.Descriptors;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
@@ -27,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +34,13 @@ public final class GoogleBigQuery {
   private static final org.threeten.bp.Duration MAX_BQ_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(5);
 
+  private final GoogleCredentials credentials;
   private final BigQuery bigQuery;
   private final ConcurrentHashMap<String, Schema> tableSchemasCache;
   private final ConcurrentHashMap<String, Schema> querySchemasCache;
 
   public GoogleBigQuery(GoogleCredentials credentials, String projectId) {
+    this.credentials = credentials;
     this.bigQuery =
         BigQueryOptions.newBuilder()
             .setCredentials(credentials)
@@ -237,6 +229,29 @@ public final class GoogleBigQuery {
     } catch (Exception ex) {
       throw new SystemException("Error deleting table", ex);
     }
+  }
+
+  /** Append rows to a table using the Storage Write API. */
+  public void insertWithStorageWriteApi(
+      String projectId, String datasetId, String tableId, List<JSONObject> records) {
+    try {
+      BigQueryStorageWriteApi.insertWithStorageWriteApi(
+          FixedCredentialsProvider.create(credentials),
+          TableName.of(projectId, datasetId, tableId),
+          records);
+    } catch (IOException | InterruptedException | Descriptors.DescriptorValidationException ex) {
+      throw new SystemException("Error inserting rows with Storage Write API", ex);
+    }
+  }
+
+  public int getNumRows(String projectId, String datasetId, String tableId) {
+    String queryRowCount =
+        "SELECT COUNT(*) FROM `" + projectId + "." + datasetId + "." + tableId + "`";
+    QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(queryRowCount).build();
+    TableResult results =
+        callWithRetries(
+            () -> bigQuery.query(queryConfig), "Error counting rows in BigQuery table: " + tableId);
+    return Integer.parseInt(results.getValues().iterator().next().get("f0_").getStringValue());
   }
 
   /**

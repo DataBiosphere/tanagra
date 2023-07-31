@@ -6,8 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
-import com.google.cloud.bigquery.FieldValue;
-import com.google.cloud.bigquery.FieldValueList;
+import com.google.cloud.bigquery.*;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -21,7 +20,10 @@ public class BigQueryRowResultTest {
             FieldValueList.of(
                 ImmutableList.of(
                     FieldValue.of(FieldValue.Attribute.PRIMITIVE, "foo"),
-                    FieldValue.of(FieldValue.Attribute.PRIMITIVE, "42"))),
+                    FieldValue.of(FieldValue.Attribute.PRIMITIVE, "42")),
+                FieldList.of(
+                    Field.of("a", LegacySQLTypeName.STRING),
+                    Field.of("b", LegacySQLTypeName.INTEGER))),
             new ColumnHeaderSchema(
                 ImmutableList.of(
                     new ColumnSchema("a", CellValue.SQLDataType.STRING),

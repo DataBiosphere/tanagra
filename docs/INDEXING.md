@@ -6,7 +6,7 @@
     + [Setup Credentials](#setup-credentials)
       + [Default Application Credentials](#default-application-credentials)
       + [gcloud Credentials](#gcloud-credentials)
-    + [Expand Underlay Config](#expand-underlay-config)
+    + [Validate Underlay Config](#validate-underlay-config)
     + [Create Index Dataset](#create-index-dataset)
     + [Kickoff Jobs](#kickoff-jobs)
       + [All Jobs](#all-jobs)
@@ -63,8 +63,7 @@ Before running the indexing jobs, you need to specify the underlay config files.
 There are 3 steps to generating the index tables:
 1. [Setup](#setup-credentials) credentials with read permissions on the source data, and read-write permissions on 
 the index data.
-2. [Expand](#expand-underlay-config) the user-specified underlay config to include information from scanning the 
-source data. For example, data types and UI hints.
+2. [Validate](#validate-underlay-config) the user-specified underlay config.
 3. [Create](#create-index-dataset) the index dataset, if it doesn't already exist.
 4. [Kickoff](#kickoff-jobs) the jobs.
 
@@ -103,13 +102,14 @@ To use end-user credentials:
 gcloud auth login
 ```
 
-### Expand Underlay Config
-Expand the defaults, scan the source data, and generate an expanded underlay config file that includes all this 
-information. The first argument is a pointer to the user-specified underlay file.
-The second argument is a pointer to the directory where Tanagra can write the expanded config files.
-Both arguments must be absolute paths. Example:
+### Validate Underlay Config
+Validate the config files by scanning the source dataset. This not strictly required, but is highly recommended.
+In particular, this will check to see if the attribute data types you specified match the underlying source data.
+If they don't, or you did not specify a data type, then this command will print out what you should set it to.
+
+The argument is a pointer to the top-level config file. It must be an absolute path. Example:
 ```
-./gradlew indexer:index -Dexec.args="EXPAND_CONFIG $HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/original/cms_synpuf.json $HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/expanded"
+./gradlew indexer:index -Dexec.args="VALIDATE_CONFIG $HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/cms_synpuf.json"
 ```
 
 ### Create Index Dataset
@@ -128,11 +128,11 @@ Do a dry run of all the indexing jobs. This provides a sanity check that the ind
 query inputs, are valid. This step is not required, but highly recommended to help catch errors/bugs sooner and without 
 running a bunch of computation first.
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json DRY_RUN"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/omop/omop.json DRY_RUN"
 ```
 Now actually kick off all the indexing jobs.
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/omop/omop.json"
 ```
 This can take a long time to complete. If e.g. your computer falls asleep or you need to kill the process on your
 computer, you can re-run the same command again. You need to check that there are no in-progress Dataflow jobs in the
@@ -146,13 +146,13 @@ kicking them off again.
 You can also kickoff the indexing jobs for a single entity or entity group. This is helpful for testing and debugging.
 To kick off all the indexing jobs for a particular entity:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY $HOME/tanagra/service/src/main/resources/config/omop/omop.json person DRY_RUN"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY $HOME/tanagra/service/src/main/resources/config/omop/omop.json person"
 ```
 or entity group:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json condition_occurrence_person DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json condition_occurrence_person"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/omop/omop.json condition_occurrence_person DRY_RUN"
+./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/omop/omop.json condition_occurrence_person"
 ```
 All the entities in a group should be indexed before the group. The `INDEX_ALL` command ensures this ordering, but keep 
 this in  mind if you're running the jobs for each entity or entity group separately.
@@ -163,8 +163,8 @@ this in  mind if you're running the jobs for each entity or entity group separat
 By default, the indexing jobs are run concurrently as much as possible. You can force it to run jobs serially by
 appending `SERIAL` to the command:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json DRY_RUN SERIAL"
-./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json NOT_DRY_RUN SERIAL"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/omop/omop.json DRY_RUN SERIAL"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $HOME/tanagra/service/src/main/resources/config/omop/omop.json NOT_DRY_RUN SERIAL"
 ```
 
 ### Re-Run Jobs
@@ -174,18 +174,18 @@ commands below. Similar to the indexing commands, the clean commands also respec
 
 To clean the generated index tables for everything:
 ```
-./gradlew indexer:index -Dexec.args="CLEAN_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json DRY_RUN"
-./gradlew indexer:index -Dexec.args="CLEAN_ALL $HOME/tanagra/service/src/main/resources/config/output/omop.json"
+./gradlew indexer:index -Dexec.args="CLEAN_ALL $HOME/tanagra/service/src/main/resources/config/omop/omop.json DRY_RUN"
+./gradlew indexer:index -Dexec.args="CLEAN_ALL $HOME/tanagra/service/src/main/resources/config/omop/omop.json"
 ```
 or a particular entity:
 ```
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person DRY_RUN"
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY $HOME/tanagra/service/src/main/resources/config/output/omop.json person"
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY $HOME/tanagra/service/src/main/resources/config/omop/omop.json person DRY_RUN"
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY $HOME/tanagra/service/src/main/resources/config/omop/omop.json person"
 ```
 or a particular entity group:
 ```
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json person DRY_RUN"
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/output/omop.json person"
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/omop/omop.json person DRY_RUN"
+./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP $HOME/tanagra/service/src/main/resources/config/omop/omop.json person"
 ```
 
 ### Run dataflow locally
@@ -216,13 +216,12 @@ You can see the underlay config files defined for this dataset in
 Note that while the source dataset is public, the index dataset that Tanagra generates is not.
 
 ```
-export INPUT_DIR=$HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/original
-export OUTPUT_DIR=$HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/expanded
+export CONFIG_FILE=$HOME/tanagra/service/src/main/resources/config/broad/cms_synpuf/cms_synpuf.json
 
-./gradlew indexer:index -Dexec.args="EXPAND_CONFIG $INPUT_DIR/cms_synpuf.json $OUTPUT_DIR/"
+./gradlew indexer:index -Dexec.args="VALIDATE_CONFIG $CONFIG_FILE"
 
 bq mk --location=US broad-tanagra-dev:cmssynpuf_index
 
-./gradlew indexer:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/cms_synpuf.json DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ALL $OUTPUT_DIR/cms_synpuf.json"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $CONFIG_FILE DRY_RUN"
+./gradlew indexer:index -Dexec.args="INDEX_ALL $CONFIG_FILE"
 ```

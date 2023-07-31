@@ -1,7 +1,6 @@
 tanagra:
   underlay:
-    # TODO: Separate out test profiles per env. For now, this works because we're just generate SQL strings, and not using credentials to actually run the queries against BQ.
-    files: [ "broad/aou_synthetic/expanded/aou_synthetic.json", "broad/cms_synpuf/expanded/cms_synpuf.json", "verily/sdd/expanded/sdd.json" ]
+    files: [ "broad/cms_synpuf/cms_synpuf.json", "broad/aou_synthetic/aou_synthetic.json", "verily/sdd/sdd.json" ]
 
   feature:
     artifact-storage-enabled: true

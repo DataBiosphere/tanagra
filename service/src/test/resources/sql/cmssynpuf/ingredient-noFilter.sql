@@ -1,1 +1,1 @@
-SELECT i.concept_code AS concept_code, i.id AS id, i.name AS name, i.standard_concept AS standard_concept, i.t_display_standard_concept AS t_display_standard_concept, i.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_071923`.ingredient AS i LIMIT 30
+SELECT i.concept_code AS concept_code, i.id AS id, i.name AS name, i.standard_concept AS standard_concept, i.t_display_standard_concept AS t_display_standard_concept, i.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_072623`.ingredient AS i LIMIT 30

@@ -76,7 +76,7 @@ public class UnderlaysService {
     return underlay.getEntity(entityName);
   }
 
-  public Attribute getAttribute(Entity entity, String attributeName) {
+  public static Attribute getAttribute(Entity entity, String attributeName) {
     Attribute attribute = entity.getAttribute(attributeName);
     if (attribute == null) {
       throw new NotFoundException(
@@ -85,7 +85,7 @@ public class UnderlaysService {
     return attribute;
   }
 
-  public Hierarchy getHierarchy(Entity entity, String hierarchyName) {
+  public static Hierarchy getHierarchy(Entity entity, String hierarchyName) {
     Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
     if (hierarchy == null) {
       throw new NotFoundException("Hierarchy not found: " + hierarchyName);
@@ -93,7 +93,7 @@ public class UnderlaysService {
     return hierarchy;
   }
 
-  public Relationship getRelationship(
+  public static Relationship getRelationship(
       Collection<EntityGroup> entityGroups, Entity entity, Entity relatedEntity) {
     for (EntityGroup entityGroup : entityGroups) {
       Optional<Relationship> relationship = entityGroup.getRelationship(entity, relatedEntity);
