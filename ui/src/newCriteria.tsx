@@ -15,7 +15,7 @@ export default function NewCriteria() {
       title={`Adding "${criteria.config.title}" criteria to ${name}`}
       plugin={getCriteriaPlugin(criteria)}
       exitAction={() => navigate("../..")}
-      cohort
+      backURL=".."
     />
   );
 }

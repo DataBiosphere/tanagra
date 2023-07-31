@@ -8,8 +8,8 @@ import { useNavigate } from "react-router-dom";
 export type CriteriaHolderProps = {
   title: string;
   plugin: CriteriaPlugin<object>;
-  cohort?: boolean;
   exitAction?: () => void;
+  backURL?: string;
 };
 
 export default function CriteriaHolder(props: CriteriaHolderProps) {
@@ -18,7 +18,10 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
 
   return (
     <GridLayout rows>
-      <ActionBar title={props.title} backAction={backURL ?? props.exitAction} />
+      <ActionBar
+        title={props.title}
+        backAction={backURL ?? props.backURL ?? props.exitAction}
+      />
       {props.plugin.renderEdit ? (
         props.plugin.renderEdit(
           props.exitAction ?? (() => navigate("..")),
