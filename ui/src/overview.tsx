@@ -330,7 +330,16 @@ function ParticipantsGroupSection(props: {
                     group={group}
                   />
                 </Box>
-                <Divider sx={{ my: 2 }} />
+                <Divider variant="middle" sx={{ my: 2 }}>
+                  <Chip
+                    label={
+                      props.groupSection.filter.kind ===
+                      tanagra.GroupSectionFilterKindEnum.Any
+                        ? "OR"
+                        : "AND"
+                    }
+                  />
+                </Divider>
               </GridLayout>
             ))
           )}

@@ -256,6 +256,8 @@ export interface Source {
 
   updateCohort(studyId: string, cohort: tanagra.Cohort): void;
 
+  deleteCohort(studyId: string, cohortId: string): void;
+
   getConceptSet(
     studyId: string,
     conceptSetId: string
@@ -270,6 +272,8 @@ export interface Source {
   ): Promise<tanagra.ConceptSet>;
 
   updateConceptSet(studyId: string, conceptSet: tanagra.ConceptSet): void;
+
+  deleteConceptSet(studyId: string, conceptSetId: string): void;
 
   listAnnotations(studyId: string, cohortId: string): Promise<Annotation[]>;
 
@@ -832,6 +836,15 @@ export class BackendSource implements Source {
     );
   }
 
+  public async deleteCohort(studyId: string, cohortId: string) {
+    await parseAPIError(
+      this.cohortsApi.deleteCohort({
+        studyId,
+        cohortId,
+      })
+    );
+  }
+
   public async getConceptSet(
     studyId: string,
     conceptSetId: string
@@ -884,6 +897,15 @@ export class BackendSource implements Source {
         conceptSetUpdateInfoV2: {
           criteria: toAPICriteria(conceptSet.criteria),
         },
+      })
+    );
+  }
+
+  public async deleteConceptSet(studyId: string, conceptSetId: string) {
+    await parseAPIError(
+      this.conceptSetsApi.deleteConceptSet({
+        studyId,
+        conceptSetId,
       })
     );
   }
