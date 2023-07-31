@@ -3,7 +3,6 @@ package bio.terra.tanagra.api.sdd;
 import bio.terra.tanagra.api.BaseQueriesTest;
 import java.io.IOException;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class SddSnpTest extends BaseQueriesTest {
