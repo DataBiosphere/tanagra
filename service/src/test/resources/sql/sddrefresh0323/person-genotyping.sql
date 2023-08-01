@@ -1,0 +1,1 @@
+SELECT p.id AS id FROM `verily-tanagra-dev.sd20230328_index_072623`.person AS p WHERE p.id IN (SELECT i.id_person FROM `verily-tanagra-dev.sd20230328_index_072623`.idpairs_genotyping_person AS i WHERE i.id_genotyping IN (SELECT g.id FROM `verily-tanagra-dev.sd20230328_index_072623`.genotyping AS g WHERE g.name = 'Illumina 5M')) LIMIT 30
