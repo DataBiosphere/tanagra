@@ -23,6 +23,7 @@
     "@types/react": "^17.0.19",
     "@types/react-dom": "^17.0.9",
     "final-form": "^4.20.6",
+    "highlight-words-core": "^1.2.2",
     "http-status-codes": "^2.1.4",
     "immer": "^9.0.12",
     "mui-rff": "^5.0.0",
@@ -33,7 +34,6 @@
     "react-error-boundary": "^3.1.4",
     "react-final-form": "^6.5.8",
     "react-final-form-listeners": "^1.0.3",
-    "react-highlight-words": "^0.20.0",
     "react-router-dom": "^6.7.0",
     "react-scripts": "5.0.0",
     "react-test-renderer": "^17.0.2",
@@ -73,6 +73,7 @@
     ]
   },
   "devDependencies": {
+    "@types/highlight-words-core": "^1.2.1",
     "@types/randomstring": "^1.1.7",
     "@types/react-final-form-listeners": "^1.0.0",
     "@types/react-highlight-words": "^0.16.4",
