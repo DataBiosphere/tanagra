@@ -304,41 +304,65 @@ function renderChildren(
             }),
       };
 
+      const expandable =
+        column === 0 &&
+        (!!child.children?.length || (props.loadChildren && !child.children));
+      let content: ReactNode = null;
+      if (columnCustomization?.onClick) {
+        content = (
+          <Link
+            component="button"
+            variant="body2"
+            color="inherit"
+            underline="hover"
+            title={title}
+            onClick={columnCustomization.onClick}
+            sx={textSx}
+          >
+            {value}
+          </Link>
+        );
+      } else if (columnCustomization?.content) {
+        content = columnCustomization?.content;
+      } else if (expandable) {
+        content = (
+          <Link
+            component="button"
+            variant="body2"
+            color="inherit"
+            underline="none"
+            title={title}
+            sx={textSx}
+            onClick={() => {
+              toggleExpanded(childId);
+            }}
+          >
+            {value}
+          </Link>
+        );
+      } else {
+        content = (
+          <Typography variant="body2" title={title} sx={textSx}>
+            {value}
+          </Typography>
+        );
+      }
+
       return (
         <>
-          {column === 0 &&
-            (!!child.children?.length ||
-              (props.loadChildren && !child.children)) && (
-              <IconButton
-                size="small"
-                title={childState?.errorMessage}
-                onClick={() => {
-                  toggleExpanded(childId);
-                }}
-              >
-                <ItemIcon state={childState} />
-              </IconButton>
-            )}
-          {columnCustomization?.prefixElements}
-          {columnCustomization?.onClick ? (
-            <Link
-              component="button"
-              variant="body2"
-              color="inherit"
-              underline="hover"
-              title={title}
-              onClick={columnCustomization.onClick}
-              sx={textSx}
+          {expandable ? (
+            <IconButton
+              size="small"
+              title={childState?.errorMessage}
+              onClick={() => {
+                toggleExpanded(childId);
+              }}
             >
-              {value}
-            </Link>
-          ) : (
-            columnCustomization?.content ?? (
-              <Typography variant="body2" title={title} sx={textSx}>
-                {value}
-              </Typography>
-            )
-          )}
+              <ItemIcon state={childState} />
+            </IconButton>
+          ) : undefined}
+          {columnCustomization?.prefixElements}
+          {content}
         </>
       );
     };

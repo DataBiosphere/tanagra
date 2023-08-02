@@ -156,12 +156,12 @@ exports[`Table renders correctly 1`] = `
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </button>
-              <p
-                class="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
+              <button
+                class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineNone MuiLink-button css-14wmvzk-MuiTypography-root-MuiLink-root"
                 title="1-col1"
               >
                 1-col1
-              </p>
+              </button>
             </div>
           </td>
           <td
@@ -484,12 +484,12 @@ exports[`Table renders correctly 2`] = `
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </button>
-              <p
-                class="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
+              <button
+                class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineNone MuiLink-button css-14wmvzk-MuiTypography-root-MuiLink-root"
                 title="1-col1"
               >
                 1-col1
-              </p>
+              </button>
             </div>
           </td>
           <td
