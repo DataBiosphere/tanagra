@@ -203,6 +203,9 @@ public class Literal implements SQLExpression {
     }
     switch (dataType) {
       case STRING:
+        if (stringVal == null) {
+          return value.getStringVal() == null ? 0 : -1;
+        }
         return stringVal.compareTo(value.getStringVal());
       case INT64:
         return Long.compare(int64Val, value.getInt64Val());
