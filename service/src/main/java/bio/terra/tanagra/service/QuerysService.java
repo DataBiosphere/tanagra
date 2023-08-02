@@ -91,12 +91,14 @@ public class QuerysService {
       } else {
         // This is part of an enum values hint, which is spread across multiple rows -- one per enum
         // value.
-        Literal val = rowResult.get(MODIFIER_AUX_DATA_ENUM_VAL_COL).getLiteral().orElseThrow();
-        Optional<String> display = rowResult.get(MODIFIER_AUX_DATA_ENUM_DISPLAY_COL).getString();
+        // TODO: Make a static NULL Literal instance, instead of overloading the String value.
+        Literal val =
+            rowResult.get(MODIFIER_AUX_DATA_ENUM_VAL_COL).getLiteral().orElse(new Literal(null));
+        String display = rowResult.get(MODIFIER_AUX_DATA_ENUM_DISPLAY_COL).getString().orElse(null);
         OptionalLong count = rowResult.get(MODIFIER_AUX_DATA_ENUM_COUNT_COL).getLong();
         List<EnumVal> runningEnumVals =
             runningEnumValsMap.containsKey(attr) ? runningEnumValsMap.get(attr) : new ArrayList<>();
-        runningEnumVals.add(new EnumVal(new ValueDisplay(val, display.get()), count.getAsLong()));
+        runningEnumVals.add(new EnumVal(new ValueDisplay(val, display), count.getAsLong()));
         runningEnumValsMap.put(attr, runningEnumVals);
       }
     }

@@ -50,4 +50,15 @@ public class CmsSynpufHintsTest extends BaseHintsTest {
             "year_of_birth", new NumericRange(1909.0, 1983.0));
     assertEntityLevelHintsMatch("person", expectedHints);
   }
+
+  @Test
+  void conditionOccurrenceEntityLevel() {
+    Map<String, DisplayHint> expectedHints =
+        Map.of(
+            "age_at_occurrence",
+            new NumericRange(24.0, 101.0),
+            "stop_reason",
+            buildEnumVals(List.of(new EnumVal(new ValueDisplay(new Literal(null), null), 0))));
+    assertEntityLevelHintsMatch("condition_occurrence", expectedHints);
+  }
 }
