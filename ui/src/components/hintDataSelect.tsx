@@ -23,14 +23,7 @@ export type HintDataSelectProps = {
 };
 
 export function HintDataSelect(props: HintDataSelectProps) {
-  const onSelect = (event: SelectChangeEvent<string[]>) => {
-    const {
-      target: { value: sel },
-    } = event;
-    if (typeof sel === "string") {
-      // This case is only for selects with text input.
-      return;
-    }
+  const update = (sel: string[]) => {
     props.onSelect?.(
       sel
         .map((name) => {
@@ -49,6 +42,21 @@ export function HintDataSelect(props: HintDataSelectProps) {
     );
   };
 
+  const onSelect = (event: SelectChangeEvent<string[]>) => {
+    const {
+      target: { value: sel },
+    } = event;
+    if (typeof sel === "string") {
+      // This case is only for selects with text input.
+      return;
+    }
+    update(sel);
+  };
+
+  const onDelete = (name: string) => {
+    update(props.selected?.map((s) => s.name)?.filter((n) => n !== name) ?? []);
+  };
+
   return (
     <FormControl>
       <Select
@@ -61,7 +69,20 @@ export function HintDataSelect(props: HintDataSelectProps) {
           <Box sx={{ mt: 0.25, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
             {selected?.length ? (
               !props.maxChips || selected.length <= props.maxChips ? (
-                selected.map((s) => <Chip key={s} label={s} />)
+                selected.map((s) => (
+                  <Chip
+                    key={s}
+                    label={s}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      onDelete(s);
+                    }}
+                  />
+                ))
               ) : (
                 <Typography variant="overline" component="em">
                   {selected.length} selected

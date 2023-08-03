@@ -13,6 +13,7 @@ import { useSource } from "data/sourceContext";
 import { DataValue } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import GridLayout from "layout/gridLayout";
 import { useRef } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
@@ -188,42 +189,65 @@ function TextSearchInline(props: TextSearchInlineProps) {
     );
   };
 
+  const onDelete = (category: string) => {
+    updateCriteria(
+      produce(props.data, (data) => {
+        data.categories = data.categories.filter((c) => c.name !== category);
+      })
+    );
+  };
+
   return (
     <Loading status={hintDataState}>
       {!!hintDataState.data?.hintData?.enumHintOptions ? (
         <FormControl sx={{ maxWidth: 500 }}>
-          <TextField
-            label="Search text"
-            defaultValue={props.data.query}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              onQueryChange(event.target.value);
-            }}
-          />
-          <Select
-            fullWidth
-            multiple
-            displayEmpty
-            value={props.data.categories.map((c) => c.name)}
-            input={<OutlinedInput />}
-            renderValue={(categories) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {categories.length > 0 ? (
-                  categories.map((c) => <Chip key={c} label={c} />)
-                ) : (
-                  <em>Any category</em>
-                )}
-              </Box>
-            )}
-            onChange={onSelect}
-          >
-            {hintDataState.data?.hintData?.enumHintOptions?.map(
-              (hint: EnumHintOption) => (
-                <MenuItem key={hint.name} value={hint.name}>
-                  {hint.name}
-                </MenuItem>
-              )
-            )}
-          </Select>
+          <GridLayout rows spacing={1} height="auto">
+            <TextField
+              label="Search text"
+              defaultValue={props.data.query}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                onQueryChange(event.target.value);
+              }}
+            />
+            <Select
+              fullWidth
+              multiple
+              displayEmpty
+              value={props.data.categories.map((c) => c.name)}
+              input={<OutlinedInput />}
+              renderValue={(categories) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {categories.length > 0 ? (
+                    categories.map((c) => (
+                      <Chip
+                        key={c}
+                        label={c}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
+                        onDelete={(e) => {
+                          e.stopPropagation();
+                          onDelete(c);
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <em>Any category</em>
+                  )}
+                </Box>
+              )}
+              onChange={onSelect}
+            >
+              {hintDataState.data?.hintData?.enumHintOptions?.map(
+                (hint: EnumHintOption) => (
+                  <MenuItem key={hint.name} value={hint.name}>
+                    {hint.name}
+                  </MenuItem>
+                )
+              )}
+            </Select>
+          </GridLayout>
         </FormControl>
       ) : null}
     </Loading>
