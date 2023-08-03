@@ -132,8 +132,9 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
 
   @Override
   public void clean(boolean isDryRun) {
-    LOGGER.info(
-        "Nothing to clean. CreateEntityLevelDisplayHintsTable will delete the output table, which includes all the rows inserted by this job.");
+    if (checkTableExists(getAuxiliaryTable())) {
+      deleteTable(getAuxiliaryTable(), isDryRun);
+    }
   }
 
   @Override
