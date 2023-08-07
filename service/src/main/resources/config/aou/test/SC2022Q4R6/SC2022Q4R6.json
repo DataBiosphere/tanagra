@@ -4,13 +4,13 @@
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
-      "projectId": "all-of-us-ehr-dev",
+      "projectId": "fc-aou-cdr-synth-test-2",
       "datasetId": "SC2022Q4R6",
-      "queryProjectId": "all-of-us-ehr-dev"
+      "queryProjectId": "fc-aou-cdr-synth-test-2"
     },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
-      "projectId": "all-of-us-ehr-dev",
+      "projectId": "fc-aou-cdr-synth-test-2",
       "datasetId": "SC2022Q4R6",
       "dataflowServiceAccountEmail" : "tanagra-indexing-runner@all-of-us-ehr-dev.iam.gserviceaccount.com",
       "dataflowTempLocation" : "gs://all-of-us-ehr-dev-tanagra-indexing/SC2022Q4R6/tanagra_index_temp",
