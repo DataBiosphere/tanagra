@@ -87,8 +87,9 @@ public class StudyServiceTest {
     // Create with id.
     String id = "aou-rw-26297573";
     Study studyWithId =
-            studyService.createStudy(
-                    Study.builder().id(id).displayName(displayName).description(description), createdByEmail);
+        studyService.createStudy(
+            Study.builder().id(id).displayName(displayName).description(description),
+            createdByEmail);
     assertNotNull(studyWithId);
     LOGGER.info("Created study {} at {}", studyWithId.getId(), studyWithId.getCreated());
     assertEquals(id, studyWithId.getId());
