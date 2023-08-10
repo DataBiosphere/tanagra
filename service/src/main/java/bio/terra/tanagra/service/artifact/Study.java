@@ -180,7 +180,7 @@ public class Study {
       if (properties == null) {
         properties = new HashMap<>();
       }
-      //true if the id is empty or null
+      // true if the id is empty or null
       if (StringUtils.isEmpty(id)) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
