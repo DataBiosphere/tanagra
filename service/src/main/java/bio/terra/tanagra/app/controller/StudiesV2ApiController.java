@@ -44,6 +44,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
         SpringAuthentication.getCurrentUser(), Permissions.forActions(STUDY, CREATE));
     Study.Builder studyToCreate =
         Study.builder()
+            .id(body.getId())
             .displayName(body.getDisplayName())
             .description(body.getDescription())
             .properties(fromApiObject(body.getProperties()));

@@ -51,7 +51,7 @@ public class StudyServiceTest {
 
   @Test
   void createUpdateDelete() throws InterruptedException {
-    // Create.
+    // Create without id.
     String displayName = "study 1";
     String description = "first study";
     String createdByEmail = "abc@123.com";
@@ -59,6 +59,7 @@ public class StudyServiceTest {
         studyService.createStudy(
             Study.builder().displayName(displayName).description(description), createdByEmail);
     assertNotNull(createdStudy);
+    assertNotNull(createdStudy.getId());
     LOGGER.info("Created study {} at {}", createdStudy.getId(), createdStudy.getCreated());
     assertEquals(displayName, createdStudy.getDisplayName());
     assertEquals(description, createdStudy.getDescription());
@@ -82,6 +83,15 @@ public class StudyServiceTest {
     // Delete.
     studyService.deleteStudy(createdStudy.getId());
     assertThrows(NotFoundException.class, () -> studyService.getStudy(createdStudy.getId()));
+
+    // Create with id.
+    String id = "aou-rw-26297573";
+    Study studyWithId =
+            studyService.createStudy(
+                    Study.builder().id(id).displayName(displayName).description(description), createdByEmail);
+    assertNotNull(studyWithId);
+    LOGGER.info("Created study {} at {}", studyWithId.getId(), studyWithId.getCreated());
+    assertEquals(id, studyWithId.getId());
   }
 
   @Test
