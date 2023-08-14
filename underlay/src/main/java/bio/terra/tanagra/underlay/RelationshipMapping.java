@@ -6,10 +6,7 @@ import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class RelationshipMapping {
   public static final String COUNT_FIELD_PREFIX = "count_";
@@ -177,5 +174,25 @@ public final class RelationshipMapping {
 
   public Map<String, RollupInformation> getRollupInformationMapB() {
     return Collections.unmodifiableMap(rollupInformationMapB);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    RelationshipMapping that = (RelationshipMapping) o;
+    return idPairsIdA.equals(that.idPairsIdA)
+        && idPairsIdB.equals(that.idPairsIdB)
+        && rollupInformationMapA.equals(that.rollupInformationMapA)
+        && rollupInformationMapB.equals(that.rollupInformationMapB);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(idPairsIdA, idPairsIdB, rollupInformationMapA, rollupInformationMapB);
   }
 }

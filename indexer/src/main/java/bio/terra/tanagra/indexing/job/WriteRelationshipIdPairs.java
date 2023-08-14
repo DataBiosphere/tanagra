@@ -39,6 +39,8 @@ public class WriteRelationshipIdPairs extends BigQueryIndexingJob {
     String sql = selectRelationshipIdPairs.renderSQL();
     LOGGER.info("select all relationship id pairs SQL: {}", sql);
 
+    // TODO: If the source relationship mapping table = one of the entity tables, then just
+    // populate a new column on that entity table, instead of always writing a new table.
     TableId destinationTable =
         TableId.of(
             getBQDataPointer(getAuxiliaryTable()).getProjectId(),
