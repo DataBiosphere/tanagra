@@ -1,21 +1,21 @@
 package bio.terra.tanagra.indexing.job;
 
+import bio.terra.tanagra.api.schemas.EntityLevelDisplayHints;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.bigquery.BigQuerySchemaUtils;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.cloud.bigquery.Field;
-import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,18 +46,7 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
 
     // Convert the internal representation of the table schema to the BQ object.
     List<Field> fieldList =
-        Entity.DISPLAY_HINTS_TABLE_SCHEMA.entrySet().stream()
-            .map(
-                entry -> {
-                  String columnName = entry.getKey();
-                  LegacySQLTypeName columnDataType =
-                      BigQueryDataset.fromSqlDataType(entry.getValue().getKey());
-                  boolean isRequired = entry.getValue().getValue();
-                  return Field.newBuilder(columnName, columnDataType)
-                      .setMode(isRequired ? Field.Mode.REQUIRED : Field.Mode.NULLABLE)
-                      .build();
-                })
-            .collect(Collectors.toList());
+        BigQuerySchemaUtils.getBigQueryFieldList(EntityLevelDisplayHints.getColumns());
 
     bigQuery.createTableFromSchema(destinationTable, Schema.of(fieldList), isDryRun);
 
@@ -93,12 +82,24 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
                 NumericRange range = (NumericRange) hint;
 
                 JSONObject hintRow = new JSONObject();
-                hintRow.put("attribute_name", attribute.getName());
-                hintRow.put("min", range.getMinVal());
-                hintRow.put("max", range.getMaxVal());
-                hintRow.put("enum_value", JSONObject.NULL);
-                hintRow.put("enum_display", JSONObject.NULL);
-                hintRow.put("enum_count", JSONObject.NULL);
+                hintRow.put(
+                    EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName(),
+                    attribute.getName());
+                hintRow.put(
+                    EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName(),
+                    range.getMinVal());
+                hintRow.put(
+                    EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName(),
+                    range.getMaxVal());
+                hintRow.put(
+                    EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName(),
+                    JSONObject.NULL);
+                hintRow.put(
+                    EntityLevelDisplayHints.Columns.ENUM_DISPLAY.getSchema().getColumnName(),
+                    JSONObject.NULL);
+                hintRow.put(
+                    EntityLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName(),
+                    JSONObject.NULL);
                 hintRecords.add(hintRow);
                 LOGGER.info("hint record (numeric range): {}", hintRow);
               } else {
@@ -107,13 +108,32 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
                         .forEach(
                             ev -> {
                               JSONObject hintRow = new JSONObject();
-                              hintRow.put("attribute_name", attribute.getName());
-                              hintRow.put("min", JSONObject.NULL);
-                              hintRow.put("max", JSONObject.NULL);
                               hintRow.put(
-                                  "enum_value", ev.getValueDisplay().getValue().getInt64Val());
-                              hintRow.put("enum_display", ev.getValueDisplay().getDisplay());
-                              hintRow.put("enum_count", ev.getCount());
+                                  EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME
+                                      .getSchema()
+                                      .getColumnName(),
+                                  attribute.getName());
+                              hintRow.put(
+                                  EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName(),
+                                  JSONObject.NULL);
+                              hintRow.put(
+                                  EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName(),
+                                  JSONObject.NULL);
+                              hintRow.put(
+                                  EntityLevelDisplayHints.Columns.ENUM_VALUE
+                                      .getSchema()
+                                      .getColumnName(),
+                                  ev.getValueDisplay().getValue().getInt64Val());
+                              hintRow.put(
+                                  EntityLevelDisplayHints.Columns.ENUM_DISPLAY
+                                      .getSchema()
+                                      .getColumnName(),
+                                  ev.getValueDisplay().getDisplay());
+                              hintRow.put(
+                                  EntityLevelDisplayHints.Columns.ENUM_COUNT
+                                      .getSchema()
+                                      .getColumnName(),
+                                  ev.getCount());
                               hintRecords.add(hintRow);
                               LOGGER.info("hint record (enum val): {}", hintRow);
                             });

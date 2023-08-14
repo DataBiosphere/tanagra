@@ -1,7 +1,6 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.serialization.UFEntity;
 import bio.terra.tanagra.serialization.UFHierarchyMapping;
 import bio.terra.tanagra.utils.FileIO;
@@ -14,25 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 
 public final class Entity {
   public static final String ENTITY_DIRECTORY_NAME = "entity";
 
-  public static final Map<String, Pair<CellValue.SQLDataType, Boolean>> DISPLAY_HINTS_TABLE_SCHEMA =
-      Map.of(
-          "attribute_name",
-          Pair.of(CellValue.SQLDataType.STRING, true),
-          "min",
-          Pair.of(CellValue.SQLDataType.FLOAT, false),
-          "max",
-          Pair.of(CellValue.SQLDataType.FLOAT, false),
-          "enum_value",
-          Pair.of(CellValue.SQLDataType.INT64, false),
-          "enum_display",
-          Pair.of(CellValue.SQLDataType.STRING, false),
-          "enum_count",
-          Pair.of(CellValue.SQLDataType.INT64, false));
   private final String name;
   private final String idAttributeName;
   private final Map<String, Attribute> attributes;

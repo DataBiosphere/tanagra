@@ -166,9 +166,7 @@ public final class Indexer {
       // e.g. To show display hints for a specific measurement entity instance, such as blood
       // pressure.
       if (!criteriaOccurrence.getModifierAttributes().isEmpty()) {
-        jobSet.addJob(
-            new ComputeDisplayHints(
-                criteriaOccurrence, criteriaOccurrence.getModifierAttributes()));
+        jobSet.addJob(new ComputeModifierDisplayHints(criteriaOccurrence));
       }
     } else if (EntityGroup.Type.GROUP_ITEMS.equals(entityGroup.getType())) {
       GroupItems groupItems = (GroupItems) entityGroup;

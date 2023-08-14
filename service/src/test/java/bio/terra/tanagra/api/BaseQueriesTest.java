@@ -5,7 +5,6 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.instances.EntityCountRequest;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
@@ -40,8 +39,6 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   protected static final int DEFAULT_LIMIT = 30;
 
   @Autowired protected UnderlaysService underlaysService;
-  @Autowired protected QuerysService querysService;
-
   private Entity entity;
 
   @BeforeEach
