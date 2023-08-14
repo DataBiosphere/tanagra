@@ -162,7 +162,7 @@ export function useExitAction() {
       } else {
         window.parent.postMessage(
           { message: "CLOSE" },
-          process.env.REACT_APP_POST_MESSAGE_ORIGIN || window.location.origin
+          process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
         );
       }
     }
