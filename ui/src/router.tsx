@@ -160,7 +160,10 @@ export function useExitAction() {
       if (process.env.REACT_APP_USE_EXIT_URL) {
         navigate(exitURL(params));
       } else {
-        window.parent.postMessage({ message: "CLOSE" }, window.location.origin);
+        window.parent.postMessage(
+          { message: "CLOSE" },
+          process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
+        );
       }
     }
   }, [location, params, navigate]);
