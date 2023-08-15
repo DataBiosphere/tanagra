@@ -1727,8 +1727,7 @@ components:
       required: [id, created, createdBy, lastModified]
       properties:
         id:
-          description: ID of the study, immutable
-          type: string
+          $ref: "#/components/schemas/StudyIdV2"
         displayName:
           $ref: "#/components/schemas/StudyDisplayNameV2"
         description:
@@ -1753,6 +1752,8 @@ components:
     StudyCreateInfoV2:
       type: object
       properties:
+        id:
+          $ref: "#/components/schemas/StudyIdV2"
         displayName:
           $ref: "#/components/schemas/StudyDisplayNameV2"
         description:
@@ -1767,6 +1768,10 @@ components:
           $ref: "#/components/schemas/StudyDisplayNameV2"
         description:
           $ref: "#/components/schemas/StudyDescriptionV2"
+
+    StudyIdV2:
+      type: string
+      description: ID of the study, immutable
 
     StudyDisplayNameV2:
       type: string
