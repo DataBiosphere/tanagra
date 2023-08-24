@@ -271,7 +271,7 @@ public final class Entity {
     underlay.getEntityGroups().values().stream()
         .forEach(
             entityGroup ->
-                entityGroup.getRelationships().values().stream()
+                entityGroup.getRelationships().stream()
                     .filter(relationship -> relationship.includesEntity(this))
                     .forEach(relationship -> relationships.add(relationship)));
     return relationships;

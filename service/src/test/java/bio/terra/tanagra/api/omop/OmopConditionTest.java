@@ -52,7 +52,8 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
 
   @Test
   void cohortNumOccurrenceDates() throws IOException {
-    Entity occurrenceEntity = getCriteriaOccurrenceEntityGroup(getEntity()).getOccurrenceEntity();
+    Entity occurrenceEntity =
+        getCriteriaOccurrenceEntityGroup(getEntity()).getOccurrenceEntities().get(0);
 
     // Cohort of people with > 1 occurrence date of condition = "Type 2 diabetes mellitus".
     singleCriteriaCohort(

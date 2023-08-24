@@ -23,7 +23,7 @@ public final class ValidationUtils {
     Map<String, List<String>> errorsForRelationship = new HashMap<>();
     Map<Set<Entity>, Relationship> relationshipMap = new HashMap<>();
     for (EntityGroup entityGroup : underlay.getEntityGroups().values()) {
-      for (Relationship relationship : entityGroup.getRelationships().values()) {
+      for (Relationship relationship : entityGroup.getRelationships()) {
         Set<Entity> relatedEntities = relationship.getEntities();
 
         if (relationshipMap.containsKey(relatedEntities)) {

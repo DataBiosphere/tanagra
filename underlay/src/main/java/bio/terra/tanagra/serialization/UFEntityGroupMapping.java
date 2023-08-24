@@ -23,7 +23,7 @@ public class UFEntityGroupMapping {
     this.dataPointer = entityGroupMapping.getDataPointer().getName();
 
     Map<String, UFRelationshipMapping> relationshipMappings = new HashMap<>();
-    entityGroupMapping.getEntityGroup().getRelationships().values().stream()
+    entityGroupMapping.getEntityGroup().getRelationshipsMap().values().stream()
         .forEach(
             relationship ->
                 relationshipMappings.put(

@@ -8,6 +8,7 @@ import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.bigquery.BigQuerySchemaUtils;
 import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
@@ -31,10 +32,13 @@ public class ComputeModifierDisplayHints extends BigQueryIndexingJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(ComputeModifierDisplayHints.class);
 
   private final CriteriaOccurrence criteriaOccurrence;
+  private final Entity occurrenceEntity;
 
-  public ComputeModifierDisplayHints(CriteriaOccurrence criteriaOccurrence) {
-    super(criteriaOccurrence.getOccurrenceEntity());
+  public ComputeModifierDisplayHints(
+      CriteriaOccurrence criteriaOccurrence, Entity occurrenceEntity) {
+    super(occurrenceEntity);
     this.criteriaOccurrence = criteriaOccurrence;
+    this.occurrenceEntity = occurrenceEntity;
   }
 
   @Override
@@ -54,7 +58,7 @@ public class ComputeModifierDisplayHints extends BigQueryIndexingJob {
     PCollection<KV<Long, Long>> occCriIdPairs =
         readInIdPairs(
             criteriaOccurrence
-                .getOccurrenceCriteriaRelationship()
+                .getOccurrenceCriteriaRelationship(occurrenceEntity)
                 .getMapping(Underlay.MappingType.SOURCE),
             pipeline);
 
@@ -62,7 +66,7 @@ public class ComputeModifierDisplayHints extends BigQueryIndexingJob {
     PCollection<KV<Long, Long>> occPriIdPairs =
         readInIdPairs(
             criteriaOccurrence
-                .getOccurrencePrimaryRelationship()
+                .getOccurrencePrimaryRelationship(occurrenceEntity)
                 .getMapping(Underlay.MappingType.SOURCE),
             pipeline);
 
@@ -113,12 +117,9 @@ public class ComputeModifierDisplayHints extends BigQueryIndexingJob {
 
   private PCollection<KV<Long, TableRow>> readInOccAllAttrs(Pipeline pipeline) {
     Query occAllAttrsQ =
-        criteriaOccurrence
-            .getOccurrenceEntity()
-            .getMapping(Underlay.MappingType.INDEX)
-            .queryAllAttributes();
+        occurrenceEntity.getMapping(Underlay.MappingType.INDEX).queryAllAttributes();
     LOGGER.info("occAllAttrsQ: {}", occAllAttrsQ.renderSQL());
-    String occIdName = criteriaOccurrence.getOccurrenceEntity().getIdAttribute().getName();
+    String occIdName = occurrenceEntity.getIdAttribute().getName();
     LOGGER.info("occIdName: {}", occIdName);
     return pipeline
         .apply(

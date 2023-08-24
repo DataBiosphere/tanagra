@@ -11,7 +11,7 @@ import java.util.*;
 public final class RelationshipMapping {
   public static final String COUNT_FIELD_PREFIX = "count_";
   public static final String DISPLAY_HINTS_FIELD_PREFIX = "displayhints_";
-  private static final String ID_PAIRS_TABLE_PREFIX = "idpairs_";
+  private static final String ID_PAIRS_TABLE_SUFFIX = "_idpairs";
   private static final String ID_FIELD_NAME_PREFIX = "id_";
   public static final String NO_HIERARCHY_KEY = "NO_HIERARCHY";
 
@@ -72,14 +72,16 @@ public final class RelationshipMapping {
   }
 
   public static RelationshipMapping defaultIndexMapping(
-      DataPointer dataPointer, Relationship relationship) {
+      DataPointer dataPointer, Relationship relationship, String entityGroupName) {
     // ID pairs table.
     TablePointer idPairsTable =
         TablePointer.fromTableName(
-            ID_PAIRS_TABLE_PREFIX
+            entityGroupName
+                + "_"
                 + relationship.getEntityA().getName()
                 + "_"
-                + relationship.getEntityB().getName(),
+                + relationship.getEntityB().getName()
+                + ID_PAIRS_TABLE_SUFFIX,
             dataPointer);
     FieldPointer idPairsIdA =
         new FieldPointer.Builder()
