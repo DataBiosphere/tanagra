@@ -45,6 +45,17 @@
               "attribute": "t_rollup_count",
               "direction": "DESC"
             }
+          },
+          {
+            "id": "phewas",
+            "attribute": "source_criteria_id",
+            "entity": "phewas",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "t_rollup_count",
+              "direction": "DESC"
+            }
           }
         ]
       },
@@ -164,6 +175,32 @@
       ],
       "occurrence": "condition_occurrence",
       "classification": "condition",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-phewas",
+      "title": "PheWAS Codes",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "condition_occurrence",
+      "classification": "phewas",
       "modifiers": [
         "age_at_occurrence",
         "visit_type",

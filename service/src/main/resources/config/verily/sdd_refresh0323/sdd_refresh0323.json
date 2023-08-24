@@ -33,6 +33,7 @@
     "observation.json",
     "observation_occurrence.json",
     "person.json",
+    "phewas.json",
     "procedure.json",
     "procedure_occurrence.json",
     "snp.json",
@@ -48,6 +49,7 @@
     "measurement_person_occurrence.json",
     "note_person_occurrence.json",
     "observation_person_occurrence.json",
+    "phewas_person_occurrences.json",
     "procedure_person_occurrence.json",
     "snp_person.json",
     "visit_person_occurrence.json"

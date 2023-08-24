@@ -1,0 +1,32 @@
+{
+  "name": "phewas",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "label", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "code", "dataType": "STRING", "displayHintTypes": ["NONE"] } ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": {
+      "rawSqlFile": "phewas_all.sql"
+    },
+    "attributeMappings": {
+      "name": { "value": { "column": "display_name" } }
+    },
+    "textSearchMapping": { "attributes": [ "name", "label", "code" ] },
+    "hierarchyMappings": {
+      "standard": {
+        "childParent": {
+          "tablePointer": { "rawSqlFile": "phewas_parentChild.sql" }
+        },
+        "maxHierarchyDepth": 5
+      }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
