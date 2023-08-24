@@ -17,10 +17,12 @@ describe("Basic tests", () => {
       .type("{selectall}" + cohortName);
     cy.iframe().find("button:Contains(Update)").click();
 
-    cy.iframe().find("button:Contains(Add criteria)").first().click();
+    cy.iframe().find("a:Contains(Add some criteria)").first().click();
     cy.iframe().find("[data-testid='tanagra-procedures']").click();
     cy.iframe().find("input").type("Retrograde pyelogram");
-    cy.iframe().find("[data-testid='Retrograde pyelogram']", { timeout: 20000 }).click();
+    cy.iframe()
+      .find("[data-testid='Retrograde pyelogram']", { timeout: 20000 })
+      .click();
 
     cy.iframe().contains("Review").click();
 

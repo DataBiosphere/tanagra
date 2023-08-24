@@ -150,6 +150,8 @@ export function insertCohortCriteria(
   sectionId: string,
   criteria: tanagra.Criteria
 ) {
+  const group = defaultGroup(criteria);
+
   context.updatePresent((present, showSnackbar) => {
     const sectionIndex = present.groupSections.findIndex(
       (section) => section.id === sectionId
@@ -163,7 +165,7 @@ export function insertCohortCriteria(
     }
 
     const section = present.groupSections[sectionIndex];
-    section.groups.push(defaultGroup(criteria));
+    section.groups.push(group);
 
     const plugin = getCriteriaPlugin(criteria);
     const title = getCriteriaTitle(criteria, plugin);
@@ -171,6 +173,8 @@ export function insertCohortCriteria(
 
     showSnackbar(`"${title}" added to group ${name}`);
   });
+
+  return group;
 }
 
 export function insertCohortCriteriaModifier(
