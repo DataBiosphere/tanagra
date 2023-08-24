@@ -185,7 +185,12 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
 
   return (
     <GridLayout rows height="auto">
-      <FormControl>
+      <FormControl
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
         <Select
           value={props.data.operator}
           input={<OutlinedInput />}

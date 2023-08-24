@@ -173,25 +173,13 @@ export function StudyOverview() {
       studyId,
       `Untitled cohort ${new Date().toLocaleString()}`
     );
-    navigate(
-      absoluteCohortURL(
-        params,
-        cohort.id,
-        cohort.groupSections[0].id
-      ).substring(1)
-    );
+    navigate(absoluteCohortURL(params, cohort.id).substring(1));
   };
 
   const onClick = (artifact: Artifact) => {
     switch (artifact.type) {
       case ArtifactType.Cohort:
-        navigate(
-          absoluteCohortURL(
-            params,
-            artifact.id,
-            artifact.cohortGroupSectionId
-          ).substring(1)
-        );
+        navigate(absoluteCohortURL(params, artifact.id).substring(1));
         break;
       case ArtifactType.ConceptSet:
         navigate(absoluteConceptSetURL(params, artifact.id).substring(1));

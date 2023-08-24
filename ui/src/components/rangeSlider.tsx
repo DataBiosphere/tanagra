@@ -1,9 +1,9 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Input from "@mui/material/Input";
 import Slider from "@mui/material/Slider";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
 import React, { useState } from "react";
 
 export type DataRange = {
@@ -69,46 +69,46 @@ export function RangeSlider(props: RangeSliderProps) {
   };
 
   return (
-    <Box sx={{ width: "30%", minWidth: 400, mt: 0.5 }}>
-      <Grid container spacing={3} direction="row">
-        <Grid item>
-          <Input
-            value={minInputValue}
-            size="medium"
-            onChange={handleMinInputChange}
-            onBlur={handleMinInputBlur}
-            inputProps={{
-              min: minBound,
-              max: maxBound,
-              type: "number",
-              "aria-labelledby": "input-slider",
-            }}
-          />
-        </Grid>
-        <Grid item xs>
-          <Slider
-            value={[minValue, maxValue]}
-            onChange={handleChange}
-            valueLabelDisplay="auto"
-            getAriaValueText={(value) => value.toString()}
-            min={minBound}
-            max={maxBound}
-            disableSwap
-          />
-        </Grid>
-        <Grid item>
-          <Input
-            value={maxInputValue}
-            onChange={handleMaxInputChange}
-            onBlur={handleMaxInputBlur}
-            inputProps={{
-              min: minBound,
-              max: maxBound,
-              type: "number",
-              "aria-labelledby": "input-slider",
-            }}
-          />
-        </Grid>
+    <GridBox
+      sx={{ width: "30%", minWidth: 400, height: "auto", mt: 0.5 }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      <GridLayout cols fillCol={1} spacing={3} height="auto">
+        <Input
+          value={minInputValue}
+          size="medium"
+          onChange={handleMinInputChange}
+          onBlur={handleMinInputBlur}
+          inputProps={{
+            min: minBound,
+            max: maxBound,
+            type: "number",
+            "aria-labelledby": "input-slider",
+          }}
+        />
+        <Slider
+          value={[minValue, maxValue]}
+          onChange={handleChange}
+          valueLabelDisplay="auto"
+          getAriaValueText={(value) => value.toString()}
+          min={minBound}
+          max={maxBound}
+          disableSwap
+        />
+        <Input
+          value={maxInputValue}
+          onChange={handleMaxInputChange}
+          onBlur={handleMaxInputBlur}
+          inputProps={{
+            min: minBound,
+            max: maxBound,
+            type: "number",
+            "aria-labelledby": "input-slider",
+          }}
+        />
         {props.multiRange && (
           <IconButton
             color="primary"
@@ -119,7 +119,7 @@ export function RangeSlider(props: RangeSliderProps) {
             <DeleteIcon fontSize="medium" />
           </IconButton>
         )}
-      </Grid>
-    </Box>
+      </GridLayout>
+    </GridBox>
   );
 }

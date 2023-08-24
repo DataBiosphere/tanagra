@@ -8,6 +8,7 @@ import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
@@ -30,11 +31,11 @@ import { useMenu } from "components/menu";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/sourceContext";
 import { DemographicCharts } from "demographicCharts";
-import { useCohort, useUnderlay } from "hooks";
+import { useCohort, useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { useCallback, useMemo } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { ReactNode, useCallback, useMemo } from "react";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import {
   absoluteCohortReviewListURL,
   cohortURL,
@@ -51,7 +52,6 @@ import {
   generateCohortFilter,
   getCriteriaPlugin,
   getCriteriaTitle,
-  sectionName,
 } from "./cohort";
 
 export function Overview() {
@@ -86,16 +86,7 @@ export function Overview() {
             <EditIcon />
           </IconButton>
         }
-        rightControls={
-          <Button
-            variant="outlined"
-            size="large"
-            component={RouterLink}
-            to={absoluteCohortReviewListURL(params, cohort.id)}
-          >
-            Review cohort
-          </Button>
-        }
+        rightControls={<CohortToolbar />}
         backAction={exit}
       />
       <GridLayout
@@ -104,7 +95,9 @@ export function Overview() {
         spacing={2}
         sx={{ px: 5, overflowY: "auto" }}
       >
-        <GroupList />
+        <GridBox sx={{ pt: 3 }}>
+          <GroupList />
+        </GridBox>
         <GridBox
           sx={{
             alignSelf: "start",
@@ -113,7 +106,19 @@ export function Overview() {
             height: "auto",
           }}
         >
-          <DemographicCharts cohort={cohort} />
+          <DemographicCharts
+            cohort={cohort}
+            extraControls={
+              <Button
+                variant="outlined"
+                size="large"
+                component={RouterLink}
+                to={absoluteCohortReviewListURL(params, cohort.id)}
+              >
+                Review individuals
+              </Button>
+            }
+          />
           {renameTitleDialog}
         </GridBox>
       </GridLayout>
@@ -135,41 +140,46 @@ function GroupList() {
 
   return (
     <GridBox sx={{ pb: 2 }}>
-      <GridLayout rows height="auto">
-        <GridBox sx={{ py: 3 }}>
-          <GridLayout cols fillCol={1} rowAlign="middle">
-            <Typography variant="h6">
-              To be included in the cohort, participants…
-            </Typography>
-            <GridBox />
-            <CohortToolbar />
+      <GridLayout rows spacing={2} height="auto">
+        {cohort.groupSections.map((s, index) => (
+          <GridLayout key={s.id} rows spacing={2} height="auto">
+            {index !== 0 ? <GroupDivider /> : null}
+            <GridBox>
+              <ParticipantsGroupSection groupSection={s} sectionIndex={index} />
+            </GridBox>
           </GridLayout>
-        </GridBox>
-        <GridLayout rows spacing={2} height="auto">
-          {cohort.groupSections.map((s, index) => (
-            <GridLayout key={s.id} rows spacing={2} height="auto">
-              {index !== 0 ? <GroupDivider /> : null}
-              <GridBox>
-                <ParticipantsGroupSection
-                  groupSection={s}
-                  sectionIndex={index}
-                />
-              </GridBox>
-            </GridLayout>
-          ))}
-          {cohort.groupSections.length > 1 ||
-          cohort.groupSections[0].groups.length > 0 ? (
-            <GridLayout rows spacing={2} height="auto">
-              <GroupDivider />
-              <Button
-                onClick={() => insertCohortGroupSection(context)}
-                variant="contained"
-              >
-                Add group
-              </Button>
-            </GridLayout>
-          ) : null}
-        </GridLayout>
+        ))}
+        {cohort.groupSections.length > 1 ||
+        cohort.groupSections[0].groups.length > 0 ? (
+          <GridLayout rows spacing={2} height="auto">
+            <GroupDivider />
+            <Paper
+              sx={{
+                width: "100%",
+                overflow: "hidden",
+                backgroundColor: "unset",
+                borderStyle: "dashed",
+                borderWidth: "1px",
+                borderColor: (theme) => theme.palette.divider,
+                p: 2,
+              }}
+            >
+              <GridLayout cols colAlign="center">
+                <GridBox>
+                  <Link
+                    variant="link"
+                    underline="hover"
+                    onClick={() => insertCohortGroupSection(context)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Add another group
+                  </Link>{" "}
+                  to manage a new set of criteria
+                </GridBox>
+              </GridLayout>
+            </Paper>
+          </GridLayout>
+        ) : null}
       </GridLayout>
     </GridBox>
   );
@@ -183,6 +193,7 @@ function ParticipantsGroupSection(props: {
   const cohort = useCohort();
   const context = useCohortContext();
   const navigate = useNavigate();
+  const { group } = useCohortGroupSectionAndGroup();
 
   const fetchSectionCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
@@ -204,156 +215,170 @@ function ParticipantsGroupSection(props: {
     },
     fetchSectionCount
   );
-  const name = sectionName(props.groupSection, props.sectionIndex);
-
-  const [renameGroupDialog, showRenameGroup] = useTextInputDialog({
-    title: "Editing group name",
-    initialText: name,
-    textLabel: "Group name",
-    buttonLabel: "Update",
-    onConfirm: (name: string) => {
-      updateCohortGroupSection(context, props.groupSection.id, name);
-    },
-  });
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+    <Paper sx={{ width: "100%", overflow: "hidden", pb: 2 }}>
       <GridLayout rows height="auto">
         <GridLayout
-          rows
-          spacing={1}
-          height="auto"
+          cols
+          fillCol={4}
+          rowAlign="baseline"
           sx={{ p: 2, backgroundColor: (theme) => theme.palette.info.main }}
         >
-          <GridLayout cols fillCol={2} rowAlign="middle">
-            <Typography variant="body1em" sx={{ mr: 1 }}>
-              {name}
-            </Typography>
-            <IconButton onClick={showRenameGroup}>
-              <EditIcon />
-            </IconButton>
-            <GridBox />
-            <IconButton
-              onClick={() => {
-                deleteCohortGroupSection(context, props.groupSection.id);
+          <FormControl>
+            <Select
+              value={props.groupSection.filter.excluded ? 1 : 0}
+              onChange={(event: SelectChangeEvent<number>) => {
+                updateCohortGroupSection(
+                  context,
+                  props.groupSection.id,
+                  undefined,
+                  {
+                    ...props.groupSection.filter,
+                    excluded: event.target.value === 1,
+                  }
+                );
               }}
-              sx={{ mr: -1 }}
+              sx={{
+                color: (theme) => theme.palette.primary.main,
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: (theme) => theme.palette.primary.main,
+                },
+              }}
             >
-              <DeleteIcon />
-            </IconButton>
-          </GridLayout>
-          <GridLayout cols fillCol={4} rowAlign="baseline">
-            <FormControl>
-              <Select
-                value={props.groupSection.filter.excluded ? 1 : 0}
-                onChange={(event: SelectChangeEvent<number>) => {
-                  updateCohortGroupSection(
-                    context,
-                    props.groupSection.id,
-                    undefined,
-                    {
-                      ...props.groupSection.filter,
-                      excluded: event.target.value === 1,
-                    }
-                  );
-                }}
-                sx={{
-                  color: (theme) => theme.palette.primary.main,
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: (theme) => theme.palette.primary.main,
-                  },
-                }}
-              >
-                <MenuItem value={0}>Must</MenuItem>
-                <MenuItem value={1}>Must not</MenuItem>
-              </Select>
-            </FormControl>
-            <Typography variant="body1">&nbsp;meet&nbsp;</Typography>
-            <FormControl>
-              <Select
-                value={props.groupSection.filter.kind}
-                onChange={(event: SelectChangeEvent<string>) => {
-                  updateCohortGroupSection(
-                    context,
-                    props.groupSection.id,
-                    undefined,
-                    {
-                      ...props.groupSection.filter,
-                      kind: event.target
-                        .value as tanagra.GroupSectionFilterKindEnum,
-                    }
-                  );
-                }}
-                sx={{
-                  color: (theme) => theme.palette.primary.main,
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: (theme) => theme.palette.primary.main,
-                  },
-                }}
-              >
-                <MenuItem value={tanagra.GroupSectionFilterKindEnum.Any}>
-                  any
-                </MenuItem>
-                <MenuItem value={tanagra.GroupSectionFilterKindEnum.All}>
-                  all
-                </MenuItem>
-              </Select>
-            </FormControl>
-            <Typography variant="body1">
-              &nbsp;of the following criteria
-            </Typography>
-            <GridBox />
+              <MenuItem value={0}>Include</MenuItem>
+              <MenuItem value={1}>Exclude</MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="body1">
+            &nbsp;participants who meet&nbsp;
+          </Typography>
+          <FormControl>
+            <Select
+              value={props.groupSection.filter.kind}
+              onChange={(event: SelectChangeEvent<string>) => {
+                updateCohortGroupSection(
+                  context,
+                  props.groupSection.id,
+                  undefined,
+                  {
+                    ...props.groupSection.filter,
+                    kind: event.target
+                      .value as tanagra.GroupSectionFilterKindEnum,
+                  }
+                );
+              }}
+              sx={{
+                color: (theme) => theme.palette.primary.main,
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: (theme) => theme.palette.primary.main,
+                },
+              }}
+            >
+              <MenuItem value={tanagra.GroupSectionFilterKindEnum.Any}>
+                any
+              </MenuItem>
+              <MenuItem value={tanagra.GroupSectionFilterKindEnum.All}>
+                all
+              </MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="body1">
+            &nbsp;of the following criteria
+          </Typography>
+          <GridBox />
+          <Typography variant="body1" color="text.muted">
+            Group count:&nbsp;
+          </Typography>
+          <Loading status={sectionCountState} size="small">
             <Typography variant="body1" color="text.muted">
-              Group count:&nbsp;
+              {sectionCountState.data?.toLocaleString()}
             </Typography>
-            <Loading status={sectionCountState} size="small">
-              <Typography variant="body1" color="text.muted">
-                {sectionCountState.data?.toLocaleString()}
-              </Typography>
-            </Loading>
-          </GridLayout>
+          </Loading>
         </GridLayout>
-        <GridLayout rows height="auto" sx={{ p: 2 }}>
-          {props.groupSection.groups.length === 0 ? (
+      </GridLayout>
+      <GridLayout rows height="auto">
+        {props.groupSection.groups.length === 0 ? (
+          <GridBox sx={{ pt: 2 }}>
             <Empty
               maxWidth="90%"
               minHeight="60px"
-              title="No criteria yet"
-              subtitle="You can add a criteria by clicking on 'Add criteria'"
-            />
-          ) : (
-            props.groupSection.groups.map((group) => (
-              <GridLayout key={group.id} rows height="auto">
-                <Box>
-                  <ParticipantsGroup
-                    groupSection={props.groupSection}
-                    group={group}
-                  />
-                </Box>
-                <Divider variant="middle" sx={{ my: 2 }}>
-                  <Chip
-                    label={
-                      props.groupSection.filter.kind ===
-                      tanagra.GroupSectionFilterKindEnum.Any
-                        ? "OR"
-                        : "AND"
+              title="Criteria are traits you select to define your cohort’s participant groups"
+              subtitle={
+                <>
+                  <Link
+                    variant="link"
+                    underline="hover"
+                    onClick={() =>
+                      navigate(
+                        `../${cohortURL(cohort.id, props.groupSection.id)}/add`
+                      )
                     }
-                  />
-                </Divider>
-              </GridLayout>
-            ))
-          )}
-          <Button
-            onClick={() =>
-              navigate(`../${cohortURL(cohort.id, props.groupSection.id)}/add`)
-            }
-            variant="contained"
-          >
-            Add criteria
-          </Button>
-        </GridLayout>
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Add some criteria
+                  </Link>{" "}
+                  to this group to get started
+                </>
+              }
+            />
+          </GridBox>
+        ) : (
+          props.groupSection.groups.map((group) => (
+            <GridLayout key={group.id} rows height="auto">
+              <Box>
+                <ParticipantsGroup
+                  groupSection={props.groupSection}
+                  group={group}
+                />
+              </Box>
+              <Divider variant="middle">
+                <Chip
+                  label={
+                    props.groupSection.filter.kind ===
+                    tanagra.GroupSectionFilterKindEnum.Any
+                      ? "OR"
+                      : "AND"
+                  }
+                />
+              </Divider>
+            </GridLayout>
+          ))
+        )}
+        {props.groupSection.groups.length !== 0 ? (
+          <GridLayout cols fillCol={1} height="auto" sx={{ px: 2 }}>
+            <Button
+              onClick={() =>
+                navigate(
+                  `../${cohortURL(
+                    cohort.id,
+                    props.groupSection.id,
+                    group?.id
+                  )}/add`
+                )
+              }
+              variant="contained"
+              sx={{
+                display:
+                  props.groupSection.groups.length === 0 ? "hidden" : undefined,
+              }}
+            >
+              Add criteria
+            </Button>
+            <GridBox />
+            <Button
+              color="error"
+              variant="outlined"
+              startIcon={<DeleteIcon />}
+              onClick={() => {
+                deleteCohortGroupSection(context, props.groupSection.id);
+              }}
+            >
+              Delete group
+            </Button>
+          </GridLayout>
+        ) : null}
       </GridLayout>
-      {renameGroupDialog}
     </Paper>
   );
 }
@@ -367,6 +392,7 @@ function ParticipantsGroup(props: {
   const navigate = useNavigate();
   const context = useCohortContext();
   const uiConfig = useUnderlay().uiConfiguration;
+  const { groupId } = useParams<{ groupId: string }>();
 
   const fetchGroupCount = useCallback(async () => {
     const cohortForFilter: tanagra.Cohort = {
@@ -404,7 +430,11 @@ function ParticipantsGroup(props: {
   );
 
   const modifierPlugins = useMemo(
-    () => modifierCriteria.map((c) => getCriteriaPlugin(c, props.group.entity)),
+    () =>
+      modifierCriteria.map((c) => {
+        const p = getCriteriaPlugin(c, props.group.entity);
+        return { title: getCriteriaTitle(c, p), plugin: p };
+      }),
     [modifierCriteria, props.group.entity]
   );
 
@@ -438,111 +468,193 @@ function ParticipantsGroup(props: {
     }),
   });
 
-  const inline = plugin.renderInline(props.group.id);
+  const selected = groupId === props.group.id;
+  const additionalText = plugin.displayDetails().additionalText;
+  let inline: ReactNode = null;
+  if (selected) {
+    inline = plugin.renderInline(props.group.id);
+    if (inline) {
+      inline = <GridBox sx={{ pt: 2 }}>{inline}</GridBox>;
+    }
+  } else if (additionalText) {
+    inline = (
+      <GridLayout rows height="auto" sx={{ pl: 2 }}>
+        {plugin.displayDetails().additionalText?.map((t) => (
+          <Typography key={t} variant="body2">
+            {t}
+          </Typography>
+        ))}
+      </GridLayout>
+    );
+  }
 
   return (
-    <GridLayout key={props.group.id} rows height="auto">
-      <GridLayout cols fillCol={4} height="auto" rowAlign="middle">
-        <Typography variant="body1" sx={{ pr: 1 }}>
-          {title}
-        </Typography>
-        {!!plugin.renderEdit ? (
-          <IconButton
-            data-testid={title}
-            onClick={() => navigate(criteriaURL(props.group.id))}
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-        ) : (
-          <GridBox />
-        )}
-        <IconButton
-          onClick={() => {
-            deleteCohortGroup(context, props.groupSection.id, props.group.id);
-          }}
-        >
-          <DeleteIcon fontSize="small" />
-        </IconButton>
-        {hasModifiers ? (
-          <Button startIcon={<TuneIcon fontSize="small" />} onClick={showMenu}>
-            Modifiers
-          </Button>
-        ) : (
-          <GridBox />
-        )}
-        <GridBox />
-        <Loading status={groupCountState} size="small">
-          <Typography variant="body2" color="text.muted" sx={{ ml: 1 }}>
-            {groupCountState.data?.toLocaleString()}
-          </Typography>
-        </Loading>
-      </GridLayout>
-      {inline ? <GridBox sx={{ pt: 2 }}>{inline}</GridBox> : null}
-      {modifierPlugins.length > 0 ? (
-        <GridLayout rows height="auto" sx={{ p: 1 }}>
-          {modifierPlugins.map((p, i) => (
-            <GridLayout key={p.id} rows height="auto">
-              <GridBox
-                sx={{
-                  boxShadow: (theme) =>
-                    `inset 1px 0 0 ${theme.palette.divider}`,
-                  height: (theme) => theme.spacing(1),
+    <GridBox key={props.group.id} sx={{ height: "auto" }}>
+      <GridBox
+        onClick={() => {
+          navigate(
+            "../" +
+              cohortURL(
+                cohort.id,
+                props.groupSection.id,
+                !selected ? props.group.id : undefined
+              )
+          );
+        }}
+        sx={{
+          p: 2,
+          height: "auto",
+          ...(selected
+            ? {
+                backgroundColor: "#F1F2FA",
+                boxShadow: "inset 0 -1px 0 #BEC2E9, inset 0 1px 0 #BEC2E9",
+              }
+            : undefined),
+        }}
+      >
+        <GridLayout key={props.group.id} rows height="auto">
+          <GridLayout cols fillCol={2} height="auto" rowAlign="middle">
+            <GridBox
+              sx={{
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+              }}
+            >
+              <Typography
+                variant="body1"
+                title={title}
+                sx={{ display: "inline", pr: 1 }}
+              >
+                {title}
+              </Typography>
+            </GridBox>
+            <GridBox
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              sx={{ visibility: selected ? "visible" : "hidden" }}
+            >
+              {!!plugin.renderEdit ? (
+                <IconButton
+                  data-testid={title}
+                  onClick={() => navigate(criteriaURL())}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              ) : (
+                <GridBox />
+              )}
+              <IconButton
+                onClick={() => {
+                  deleteCohortGroup(
+                    context,
+                    props.groupSection.id,
+                    props.group.id
+                  );
                 }}
-              />
-              <GridLayout cols="16px 1fr" spacing={1} height="auto">
-                <GridLayout rows="1fr 1fr">
-                  <GridBox
-                    sx={{
-                      boxShadow: (theme) =>
-                        `inset 1px -1px 0 ${theme.palette.divider}`,
-                    }}
-                  />
-                  <GridBox
-                    sx={{
-                      boxShadow: (theme) =>
-                        i !== modifierPlugins.length - 1
-                          ? `inset 1px 0 0 ${theme.palette.divider}`
-                          : undefined,
-                    }}
-                  />
-                </GridLayout>
-                <GridLayout cols height="auto" rowAlign="middle">
-                  <Typography variant="body2">
-                    {modifierCriteria[i].config.title}
-                  </Typography>
-                  <IconButton
-                    onClick={() =>
-                      deleteCohortCriteriaModifier(
-                        context,
-                        props.groupSection.id,
-                        props.group.id,
-                        p.id
-                      )
-                    }
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </GridLayout>
-              </GridLayout>
-              <GridLayout key={p.id} cols="24px 1fr" height="auto">
-                <GridBox
-                  sx={{
-                    boxShadow: (theme) =>
-                      i !== modifierPlugins.length - 1
-                        ? `inset 1px 0 0 ${theme.palette.divider}`
-                        : undefined,
-                  }}
-                />
-                <GridBox key={p.id} sx={{ height: "auto" }}>
-                  {p.renderInline(props.group.id)}
-                </GridBox>
-              </GridLayout>
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+              {hasModifiers ? (
+                <Button
+                  startIcon={<TuneIcon fontSize="small" />}
+                  onClick={showMenu}
+                >
+                  Modifiers
+                </Button>
+              ) : undefined}
+            </GridBox>
+            <GridBox />
+            <Loading status={groupCountState} size="small">
+              <Typography variant="body2" color="text.muted" sx={{ ml: 1 }}>
+                {groupCountState.data?.toLocaleString()}
+              </Typography>
+            </Loading>
+          </GridLayout>
+          {inline}
+          {modifierPlugins.length > 0 ? (
+            <GridLayout rows height="auto" sx={{ px: 1 }}>
+              {modifierPlugins.map(({ plugin: p, title: t }, i) =>
+                selected ? (
+                  <GridLayout key={p.id} rows height="auto">
+                    <GridBox
+                      sx={{
+                        boxShadow: (theme) =>
+                          `inset 1px 0 0 ${theme.palette.divider}`,
+                        height: (theme) => theme.spacing(1),
+                      }}
+                    />
+                    <GridLayout cols="16px 1fr" spacing={1} height="auto">
+                      <GridLayout rows="1fr 1fr">
+                        <GridBox
+                          sx={{
+                            boxShadow: (theme) =>
+                              `inset 1px -1px 0 ${theme.palette.divider}`,
+                          }}
+                        />
+                        <GridBox
+                          sx={{
+                            boxShadow: (theme) =>
+                              i !== modifierPlugins.length - 1
+                                ? `inset 1px 0 0 ${theme.palette.divider}`
+                                : undefined,
+                          }}
+                        />
+                      </GridLayout>
+                      <GridLayout cols height="auto" rowAlign="middle">
+                        <Typography variant="body2">
+                          {modifierCriteria[i].config.title}
+                        </Typography>
+                        <GridBox
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          <IconButton
+                            onClick={() =>
+                              deleteCohortCriteriaModifier(
+                                context,
+                                props.groupSection.id,
+                                props.group.id,
+                                p.id
+                              )
+                            }
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </GridBox>
+                        <GridBox />
+                      </GridLayout>
+                    </GridLayout>
+                    <GridLayout key={p.id} cols="24px 1fr" height="auto">
+                      <GridBox
+                        sx={{
+                          boxShadow: (theme) =>
+                            i !== modifierPlugins.length - 1
+                              ? `inset 1px 0 0 ${theme.palette.divider}`
+                              : undefined,
+                        }}
+                      />
+                      <GridBox key={p.id} sx={{ height: "auto" }}>
+                        {p.renderInline(props.group.id)}
+                      </GridBox>
+                    </GridLayout>
+                  </GridLayout>
+                ) : (
+                  <GridBox sx={{ pl: 4 }}>
+                    <Typography variant="body2">{t}</Typography>
+                  </GridBox>
+                )
+              )}
             </GridLayout>
-          ))}
+          ) : null}
         </GridLayout>
-      ) : null}
+      </GridBox>
       {menu}
-    </GridLayout>
+    </GridBox>
   );
 }
 

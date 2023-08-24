@@ -95,7 +95,7 @@ export function defaultSection(
 
 export function defaultGroup(criteria: tanagra.Criteria): tanagra.Group {
   return {
-    id: generateId(),
+    id: criteria.id,
     entity: getCriteriaPlugin(criteria).filterOccurrenceId(),
     criteria: [criteria],
   };

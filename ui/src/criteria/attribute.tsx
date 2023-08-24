@@ -76,26 +76,31 @@ class _ implements CriteriaPlugin<Data> {
 
   displayDetails() {
     if (this.data.selected.length > 0) {
-      return {
-        title:
-          this.data.selected.length === 1
-            ? this.data.selected[0].name
-            : `(${this.data.selected.length} selected)`,
-        additionalText: this.data.selected.map((s) => s.name),
-      };
+      return this.data.selected.length === 1
+        ? {
+            title: this.data.selected[0].name,
+          }
+        : {
+            title: `(${this.data.selected.length} selected)`,
+            additionalText:
+              this.data.selected.length > 1
+                ? this.data.selected.map((s) => s.name)
+                : undefined,
+          };
     }
 
     if (this.data.dataRanges.length > 0) {
       const additionalText = [
-        this.data.dataRanges.map((r) => `${r.min}-${r.max}`).join(", "),
+        this.data.dataRanges.map((r) => `${r.min} - ${r.max}`).join(", "),
       ];
-      return {
-        title:
-          this.data.dataRanges.length === 1
-            ? additionalText[0]
-            : `(${this.data.dataRanges.length} ranges)`,
-        additionalText,
-      };
+      return this.data.dataRanges.length === 1
+        ? {
+            title: additionalText[0],
+          }
+        : {
+            title: `(${this.data.dataRanges.length} ranges)`,
+            additionalText,
+          };
     }
 
     return {

@@ -20,7 +20,7 @@ import { createConceptSet, useConceptSetContext } from "conceptSetContext";
 import { MergedDataEntry } from "data/source";
 import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
-import { useCohortAndGroupSection, useUnderlay } from "hooks";
+import { useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
@@ -61,12 +61,12 @@ export function AddConceptSetCriteria() {
 export function AddCohortCriteria() {
   const navigate = useNavigate();
   const context = useCohortContext();
-  const { cohort, section, sectionIndex } = useCohortAndGroupSection();
+  const { cohort, section, sectionIndex } = useCohortGroupSectionAndGroup();
 
   const onInsertCriteria = useCallback(
     (criteria: tanagra.Criteria) => {
-      insertCohortCriteria(context, section.id, criteria);
-      navigate("../../" + cohortURL(cohort.id, section.id));
+      const group = insertCohortCriteria(context, section.id, criteria);
+      navigate("../../" + cohortURL(cohort.id, section.id, group.id));
     },
     [context, cohort.id, section.id]
   );
