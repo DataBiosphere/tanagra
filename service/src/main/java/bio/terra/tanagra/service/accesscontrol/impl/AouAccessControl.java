@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -138,7 +139,8 @@ public class AouAccessControl implements AccessControl {
             user.getEmail());
         return "NO ACCESS";
       } else {
-        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        BufferedReader br =
+            new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
         StringBuilder body = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) {
