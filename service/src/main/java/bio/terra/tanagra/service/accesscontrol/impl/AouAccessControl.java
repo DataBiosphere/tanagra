@@ -118,7 +118,7 @@ public class AouAccessControl implements AccessControl {
     }
   }
 
-  private String getWorkspaceAccess(UserId user, ResourceId resource) {
+  private String getWorkspaceAccess(UserId user, ResourceId resource) throws SystemException {
     //   "/v1/workspaces/access/{workspaceNamespace}":
     LOGGER.debug("ResourceId getStudy() -> {}", resource.getStudy());
     try {
