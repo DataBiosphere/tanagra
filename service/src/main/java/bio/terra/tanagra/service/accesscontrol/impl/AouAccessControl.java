@@ -52,7 +52,13 @@ public class AouAccessControl implements AccessControl {
             "User access level for workspace [{}] is [{}]", resource.getStudy(), accessLevel);
         switch (accessLevel) {
           case "OWNER":
+            return true;
           case "WRITER":
+            if (permissions.getType().equals(ResourceType.STUDY)
+                && (permissions.getActions().contains(Action.UPDATE)
+                    || permissions.getActions().contains(Action.DELETE))) {
+              return false;
+            }
             return true;
           case "READER":
             if (permissions.getActions().contains(Action.QUERY_COUNTS)
