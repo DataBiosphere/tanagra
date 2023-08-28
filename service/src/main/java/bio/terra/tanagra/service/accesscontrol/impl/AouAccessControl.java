@@ -87,7 +87,14 @@ public class AouAccessControl implements AccessControl {
       String accessLevel = getWorkspaceAccess(user, parentResource);
       switch (accessLevel) {
         case "OWNER":
+          return ResourceCollection.allResourcesAllPermissions(type, parentResource);
         case "WRITER":
+          if (type.equals(ResourceType.STUDY)) {
+            return ResourceCollection.allResourcesSamePermissions(
+                Permissions.forActions(
+                    type, Action.READ, Action.CREATE_COHORT, Action.CREATE_CONCEPT_SET),
+                parentResource);
+          }
           return ResourceCollection.allResourcesAllPermissions(type, parentResource);
         case "READER":
           if (ImmutableList.of(ResourceType.UNDERLAY, ResourceType.REVIEW).contains(type)) {
@@ -136,7 +143,9 @@ public class AouAccessControl implements AccessControl {
         BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
         StringBuilder body = new StringBuilder();
         String line;
-        while ((line = br.readLine()) != null) body.append(line);
+        while ((line = br.readLine()) != null) {
+          body.append(line);
+        }
         return body.toString();
       }
     } catch (Exception ex) {
