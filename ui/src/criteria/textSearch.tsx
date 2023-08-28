@@ -66,10 +66,7 @@ class _ implements CriteriaPlugin<Data> {
   displayDetails() {
     let additionalText = ["Any category"];
     if (this.data.categories.length > 0) {
-      additionalText = [
-        "Selected categories:",
-        ...this.data.categories.map((c) => c.name),
-      ];
+      additionalText = [...this.data.categories.map((c) => c.name)];
     }
 
     let title = "Any";
@@ -200,7 +197,13 @@ function TextSearchInline(props: TextSearchInlineProps) {
   return (
     <Loading status={hintDataState}>
       {!!hintDataState.data?.hintData?.enumHintOptions ? (
-        <FormControl sx={{ maxWidth: 500 }}>
+        <FormControl
+          sx={{ maxWidth: 500 }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
           <GridLayout rows spacing={1} height="auto">
             <TextField
               label="Search text"

@@ -20,7 +20,7 @@ Cypress.Commands.add("createCohortFromSearch", (name, search, domain) => {
     .find("input[name=text]")
     .type("{selectall}" + name);
   cy.iframe().find("button:Contains(Update)").click();
-  cy.iframe().find("button:Contains(Add criteria)").first().click();
+  cy.iframe().find("a:Contains(Add some criteria)").first().click();
   if (domain) {
     cy.iframe().find(`[data-testid='${domain}']`).click();
   }

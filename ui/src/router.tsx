@@ -40,7 +40,7 @@ export function createAppRouter() {
           element: <CohortRoot />,
           children: [
             {
-              path: "cohorts/:cohortId/:groupSectionId",
+              path: "cohorts/:cohortId/:groupSectionId/:groupId",
               children: [
                 {
                   index: true,
@@ -60,7 +60,7 @@ export function createAppRouter() {
                   ],
                 },
                 {
-                  path: "edit/:groupId",
+                  path: "edit",
                   element: <Edit />,
                 },
               ],
@@ -251,16 +251,23 @@ export function underlayURL(underlayName: string) {
   return "underlays/" + underlayName;
 }
 
-export function cohortURL(cohortId: string, groupSectionId?: string) {
-  return "cohorts/" + cohortId + "/" + (groupSectionId ?? "first");
+export function cohortURL(
+  cohortId: string,
+  groupSectionId?: string,
+  groupId?: string
+) {
+  return `cohorts/${cohortId}/${groupSectionId ?? "first"}/${
+    groupId ?? "none"
+  }`;
 }
 
 export function absoluteCohortURL(
   params: BaseParams,
   cohortId: string,
-  groupSectionId?: string
+  groupSectionId?: string,
+  groupId?: string
 ) {
-  return absolutePrefix(params) + cohortURL(cohortId, groupSectionId);
+  return absolutePrefix(params) + cohortURL(cohortId, groupSectionId, groupId);
 }
 
 export function absoluteExportURL(params: BaseParams) {
@@ -286,8 +293,8 @@ export function newConceptSetURL() {
   return `conceptSets/add`;
 }
 
-export function criteriaURL(groupId: string) {
-  return `edit/${groupId}`;
+export function criteriaURL() {
+  return "edit";
 }
 
 export function newCriteriaURL(configId: string) {

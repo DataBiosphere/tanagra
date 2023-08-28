@@ -10,7 +10,7 @@ import { useSource } from "data/sourceContext";
 import { useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { useCallback } from "react";
+import { ReactNode, useCallback } from "react";
 import {
   Bar,
   BarChart,
@@ -135,9 +135,13 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
 export type DemographicChartsProps = {
   cohort: tanagra.Cohort;
   separateCharts?: boolean;
+  extraControls?: ReactNode;
 };
 
-export function DemographicCharts({ cohort }: DemographicChartsProps) {
+export function DemographicCharts({
+  cohort,
+  extraControls,
+}: DemographicChartsProps) {
   const underlay = useUnderlay();
   const source = useSource();
 
@@ -263,13 +267,15 @@ export function DemographicCharts({ cohort }: DemographicChartsProps) {
     <>
       <GridLayout rows>
         <GridBox sx={{ py: 3 }}>
-          <GridLayout cols rowAlign="bottom">
+          <GridLayout cols fillCol={2} rowAlign="bottom">
             <Typography variant="h6">Total count:&nbsp;</Typography>
             <Loading size="small" status={demographicState}>
               <Typography variant="h6">
                 {demographicState.data?.totalCount.toLocaleString()}
               </Typography>
             </Loading>
+            <GridBox />
+            {extraControls}
           </GridLayout>
         </GridBox>
         <Paper

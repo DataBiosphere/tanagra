@@ -14,6 +14,7 @@ export default function CohortToolbar() {
     <Stack direction="row" spacing={1}>
       <Button
         onClick={() => undo?.()}
+        variant="outlined"
         startIcon={<UndoIcon />}
         disabled={!undo}
         component={RouterLink}
@@ -23,6 +24,7 @@ export default function CohortToolbar() {
       </Button>
       <Button
         onClick={() => redo?.()}
+        variant="outlined"
         startIcon={<RedoIcon />}
         disabled={!redo}
         component={RouterLink}
