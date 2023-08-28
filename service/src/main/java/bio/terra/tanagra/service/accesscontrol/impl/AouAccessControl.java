@@ -61,11 +61,9 @@ public class AouAccessControl implements AccessControl {
             }
             return true;
           case "READER":
-            if (permissions.getActions().contains(Action.QUERY_COUNTS)
+            return permissions.getActions().contains(Action.QUERY_COUNTS)
                 || permissions.getActions().contains(Action.QUERY_INSTANCES)
-                || permissions.getActions().contains(Action.READ)) {
-              return true;
-            }
+                || permissions.getActions().contains(Action.READ);
           default:
             return false;
         }
