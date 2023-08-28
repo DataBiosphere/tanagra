@@ -99,6 +99,17 @@
             }
           },
           {
+            "id": "icd9proc",
+            "attribute": "source_criteria_id",
+            "entity": "icd9proc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
             "id": "icd10pcs",
             "attribute": "source_criteria_id",
             "entity": "icd10pcs",
@@ -262,6 +273,34 @@
       ],
       "occurrence": "condition_occurrence",
       "classification": "icd9cm",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd9proc",
+      "title": "ICD-9-Proc",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "procedure_occurrence",
+      "classification": "icd9proc",
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
