@@ -2,7 +2,7 @@
   "name": "condition_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "condition",
-  "occurrenceEntity": "condition_occurrence",
+  "occurrenceEntities": [ "condition_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
