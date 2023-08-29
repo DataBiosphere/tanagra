@@ -100,3 +100,17 @@ tanagra:
         base-path: https://www.verilygroups.com
         oauth-client-id: 12345.apps.googleusercontent.com    <--- Example value only. Get this from the VerilyGroups docs.
 ```
+
+### AouWorkbench Access Control
+Access control is enforced on studies only. For studies and their child artifacts (e.g. cohorts), send a request to
+the AoU Researcher Workbench API to check access on the containing workspace. Expect the Tanagra study id to be the
+same as the workbench workspace id. =For underlays, allow everything. This was written to support the AoU deployment.
+```
+tanagra:
+    access-control:
+        model: AOU_WORKBENCH
+        params: []
+        base-path: https://all-of-us-workbench-test.appspot.com
+        oauth-client-id: 12345.apps.googleusercontent.com    <--- Example value only. Get this from the workbench team.
+```
+
