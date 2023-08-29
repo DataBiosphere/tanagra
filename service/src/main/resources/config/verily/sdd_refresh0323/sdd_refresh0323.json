@@ -21,6 +21,7 @@
     "brand.json",
     "condition.json",
     "condition_occurrence.json",
+    "cpt4.json",
     "device.json",
     "device_occurrence.json",
     "icd9cm.json",
@@ -47,6 +48,7 @@
   "entityGroups": [
     "brand_ingredient.json",
     "condition_person_occurrence.json",
+    "cpt4_person_occurrences.json",
     "device_person_occurrence.json",
     "genotyping_person.json",
     "icd9cm_person_occurrences.json",

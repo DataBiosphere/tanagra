@@ -99,6 +99,17 @@
             }
           },
           {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
             "id": "icd9proc",
             "attribute": "source_criteria_id",
             "entity": "icd9proc",
@@ -245,6 +256,34 @@
       ],
       "occurrence": "condition_occurrence",
       "classification": "phewas",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-cpt4",
+      "title": "CPT-4",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "is_standard", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "procedure_occurrence",
+      "classification": "cpt4",
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
