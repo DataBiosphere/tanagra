@@ -7,7 +7,6 @@
 
 configs_to_compare_list="
 cms_synpuf broad/cms_synpuf verily/cms_synpuf\n
-sdd vumc/sdd verily/sdd\n
 sdd_refresh0323 vumc/sdd_refresh0323 verily/sdd_refresh0323
 "
 
