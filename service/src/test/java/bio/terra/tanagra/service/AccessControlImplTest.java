@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.service.accesscontrol.*;
+import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.auth.UserId;
@@ -89,5 +90,38 @@ public class AccessControlImplTest {
                 0,
                 10)
             .isAllResources());
+  }
+
+  @Disabled(
+      "AoU Workbench service base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
+  @Test
+  void aouWorkbench() throws ApiException {
+    AouWorkbenchAccessControl impl = new AouWorkbenchAccessControl();
+    impl.initialize(
+        accessControlConfiguration.getParams(),
+        accessControlConfiguration.getBasePath(),
+        accessControlConfiguration.getOauthClientId());
+
+    // Access control is only on studies, no other resource types.
+    ResourceId firstUnderlay =
+        ResourceId.forUnderlay(
+            underlaysService
+                .listUnderlays(
+                    ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null))
+                .get(0)
+                .getName());
+    assertTrue(
+        impl.isAuthorized(
+            UserId.forDisabledAuthentication(),
+            Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
+            firstUnderlay));
+    assertFalse(
+        impl.listAuthorizedResources(
+                UserId.forDisabledAuthentication(),
+                Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
+                0,
+                10)
+            .getResources()
+            .isEmpty());
   }
 }
