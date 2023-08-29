@@ -1,6 +1,6 @@
 {
-  "name": "SR2022Q4R6",
-  "displayName": " Controlled Tier Vxx",
+  "name": "SR2023Q3R1",
+  "displayName": "Registered Tier Synthetic Dataset v4 - Tanagra",
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",

@@ -58,7 +58,12 @@ export function HintDataSelect(props: HintDataSelectProps) {
   };
 
   return (
-    <FormControl>
+    <FormControl
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
       <Select
         multiple
         displayEmpty

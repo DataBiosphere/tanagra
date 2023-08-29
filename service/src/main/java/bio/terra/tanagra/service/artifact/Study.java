@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -179,7 +180,8 @@ public class Study {
       if (properties == null) {
         properties = new HashMap<>();
       }
-      if (id == null) {
+      // true if the id is empty or null
+      if (StringUtils.isEmpty(id)) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
       return new Study(this);

@@ -18,7 +18,7 @@ describe("Basic tests", () => {
       .type("{selectall}" + cohortName);
     cy.iframe().find("button:Contains(Update)").click();
 
-    cy.iframe().find("button:Contains(Add criteria)").first().click();
+    cy.iframe().find("a:Contains(Add some criteria)").first().click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("[data-testid='AccountTreeIcon']").first().click();
     cy.iframe().find("[data-testid='Clinical finding']").click();
@@ -85,6 +85,7 @@ describe("Basic tests", () => {
     cy.get(`[title='${cohortName}']`).click();
     cy.wait(2000);
 
+    cy.iframe().find("p:Contains('Condition: Clinical finding')").click();
     cy.iframe()
       .find("[data-testid='Condition: Clinical finding']")
       .last()

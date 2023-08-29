@@ -10,7 +10,7 @@ import {
   updateConceptSet,
 } from "conceptSetContext";
 import { useSource } from "data/sourceContext";
-import { useContext, useMemo } from "react";
+import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortURL, useBaseParams } from "router";
 import * as tanagra from "tanagra-api";
@@ -41,15 +41,22 @@ export function useCohort() {
   return useOptionalCohort(true) as NonNullable<tanagra.Cohort>;
 }
 
-export function useCohortAndGroupSection() {
+export function useCohortGroupSectionAndGroup() {
   const cohort = useCohort();
 
-  const { groupSectionId } = useParams<{ groupSectionId: string }>();
+  const { groupSectionId, groupId } =
+    useParams<{ groupSectionId: string; groupId: string }>();
   const sectionIndex = Math.max(
     0,
     cohort.groupSections.findIndex((s) => s.id === groupSectionId)
   );
-  return { cohort, sectionIndex, section: cohort.groupSections[sectionIndex] };
+  const section = cohort.groupSections[sectionIndex];
+  return {
+    cohort,
+    sectionIndex,
+    section,
+    group: section.groups.find((g) => g.id === groupId),
+  };
 }
 
 function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
@@ -73,26 +80,39 @@ function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
   return { section, sectionIndex, group };
 }
 
+let newCriteria: tanagra.Criteria | undefined;
+let newCriteriaRefCount = 0;
+
 function useOptionalNewCriteria(throwOnUnknown: boolean) {
   const source = useSource();
   const underlay = useUnderlay();
   const { configId } = useParams<{ configId: string }>();
 
-  const criteria = useMemo(() => {
+  if (!newCriteria) {
     for (const config of underlay.uiConfiguration.criteriaConfigs) {
       if (config.id !== configId) {
         continue;
       }
 
-      return createCriteria(source, config);
+      newCriteria = createCriteria(source, config);
     }
-    return undefined;
+  }
+
+  useEffect(() => {
+    newCriteriaRefCount++;
+
+    return () => {
+      newCriteriaRefCount--;
+      if (newCriteriaRefCount === 0) {
+        newCriteria = undefined;
+      }
+    };
   }, [underlay, configId]);
 
-  if (throwOnUnknown && !criteria) {
+  if (throwOnUnknown && !newCriteria) {
     throw new PathError("Unknown new criteria config.");
   }
-  return criteria;
+  return newCriteria;
 }
 
 export function useNewCriteria() {
@@ -128,7 +148,6 @@ export function useConceptSet() {
 export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   const cohort = useOptionalCohort(false);
   const { section, group } = useOptionalGroupSectionAndGroup(false);
-  const newCriteria = useOptionalNewCriteria(false);
   const conceptSet = useOptionalConceptSet(false);
   const cohortContext = useContext(CohortContext);
   const conceptSetContext = useContext(ConceptSetContext);
@@ -140,10 +159,12 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
 
     if (newCriteria) {
       return (data: object) => {
-        insertCohortCriteria(cohortContext, section.id, {
-          ...newCriteria,
-          data: data,
-        });
+        if (newCriteria) {
+          insertCohortCriteria(cohortContext, section.id, {
+            ...newCriteria,
+            data: data,
+          });
+        }
       };
     }
 
@@ -161,7 +182,9 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
     }
 
     return (data: object) => {
-      createConceptSet(conceptSetContext, { ...newCriteria, data: data });
+      if (newCriteria) {
+        createConceptSet(conceptSetContext, { ...newCriteria, data: data });
+      }
     };
   }
 

@@ -1,8 +1,10 @@
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import Link from "@mui/material/Link";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { insertCohortCriteria, useCohortContext } from "cohortContext";
@@ -20,7 +22,7 @@ import { createConceptSet, useConceptSetContext } from "conceptSetContext";
 import { MergedDataEntry } from "data/source";
 import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
-import { useCohortAndGroupSection, useUnderlay } from "hooks";
+import { useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
@@ -61,12 +63,12 @@ export function AddConceptSetCriteria() {
 export function AddCohortCriteria() {
   const navigate = useNavigate();
   const context = useCohortContext();
-  const { cohort, section, sectionIndex } = useCohortAndGroupSection();
+  const { cohort, section, sectionIndex } = useCohortGroupSectionAndGroup();
 
   const onInsertCriteria = useCallback(
     (criteria: tanagra.Criteria) => {
-      insertCohortCriteria(context, section.id, criteria);
-      navigate("../../" + cohortURL(cohort.id, section.id));
+      const group = insertCohortCriteria(context, section.id, criteria);
+      navigate("../../" + cohortURL(cohort.id, section.id, group.id));
     },
     [context, cohort.id, section.id]
   );
@@ -89,7 +91,6 @@ type AddCriteriaProps = {
 };
 
 function AddCriteria(props: AddCriteriaProps) {
-  const theme = useTheme();
   const underlay = useUnderlay();
   const source = useSource();
   const navigate = useNavigate();
@@ -99,11 +100,31 @@ function AddCriteria(props: AddCriteriaProps) {
   const criteriaConfigs = underlay.uiConfiguration.criteriaConfigs;
   const searchConfig = underlay.uiConfiguration.criteriaSearchConfig;
 
+  const criteriaConfigMap = useMemo(
+    () =>
+      new Map(
+        criteriaConfigs.map((cc) => [
+          cc.id,
+          {
+            config: cc,
+            showMore: !!getCriteriaPlugin(createCriteria(source, cc))
+              .renderEdit,
+          },
+        ])
+      ),
+    [criteriaConfigs]
+  );
+
   const categories = useMemo(() => {
     const categories: CriteriaConfig[][] = [];
+    const re = new RegExp(query, "i");
 
     for (const config of criteriaConfigs) {
       if (props.conceptSet && !config.conceptSet) {
+        continue;
+      }
+
+      if (query && config.title.search(re) < 0) {
         continue;
       }
 
@@ -122,8 +143,16 @@ function AddCriteria(props: AddCriteriaProps) {
       }
     }
 
+    for (const c of categories) {
+      c.sort(
+        (a, b) =>
+          (criteriaConfigMap.get(b.id)?.showMore ? 1 : 0) -
+          (criteriaConfigMap.get(a.id)?.showMore ? 1 : 0)
+      );
+    }
+
     return categories;
-  }, [underlay]);
+  }, [query, criteriaConfigs, criteriaConfigMap]);
 
   const columns = useMemo(
     () => [
@@ -151,21 +180,6 @@ function AddCriteria(props: AddCriteriaProps) {
       }
     },
     [source]
-  );
-
-  const criteriaConfigMap = useMemo(
-    () =>
-      new Map(
-        criteriaConfigs.map((cc) => [
-          cc.id,
-          {
-            config: cc,
-            showMore: !!getCriteriaPlugin(createCriteria(source, cc))
-              .renderEdit,
-          },
-        ])
-      ),
-    [criteriaConfigs]
   );
 
   const search = useCallback(async () => {
@@ -207,165 +221,101 @@ function AddCriteria(props: AddCriteriaProps) {
   );
 
   return (
-    <GridLayout
-      rows
-      sx={{
-        backgroundColor: (theme) => theme.palette.background.paper,
-      }}
-    >
+    <GridLayout rows>
       <ActionBar title={props.title} backAction={props.backAction} />
-      <GridLayout rows>
-        <GridBox sx={{ px: 5, py: 3 }}>
+      <GridLayout rows spacing={2} sx={{ px: 5, py: 2 }}>
+        <GridBox>
           <Search placeholder="Search by code or description" />
         </GridBox>
-        <Loading status={searchState}>
-          {!searchState.data?.root?.children?.length ? (
-            query !== "" ? (
-              <Empty
-                minHeight="300px"
-                image="/empty.svg"
-                title="No matches found"
-              />
-            ) : (
-              <GridBox sx={{ px: 5, overflowY: "auto" }}>
-                <table
-                  style={{
-                    tableLayout: "fixed",
-                    width: "100%",
-                    textAlign: "left",
-                    borderCollapse: "collapse",
-                  }}
-                >
-                  <colgroup>
-                    <col
-                      style={{
-                        width: "100%",
-                        minWidth: "100%",
-                        maxWidth: "100%",
-                        verticalAlign: "center",
-                      }}
-                    />
-                    <col
-                      style={{
-                        width: "80px",
-                        minWidth: "80px",
-                        maxWidth: "80px",
-                        verticalAlign: "center",
-                      }}
-                    />
-                  </colgroup>
-                  <tbody>
-                    {categories.map((category) => [
-                      <tr key={category[0].category}>
-                        <th
-                          colSpan={2}
-                          style={{
-                            position: "sticky",
-                            top: 0,
-                            backgroundColor: theme.palette.info.main,
-                            boxShadow: `inset 0 -2px 0 ${theme.palette.divider}`,
-                            zIndex: 1,
-                            height: theme.spacing(6),
-                            paddingLeft: theme.spacing(2),
-                          }}
-                        >
-                          <Typography key="" variant="overline">
-                            {category[0].category}
-                          </Typography>
-                        </th>
-                      </tr>,
-                      ...category.map((config) => (
-                        <tr key={config.id}>
-                          <td
-                            style={{
-                              boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
-                              height: theme.spacing(6),
-                              paddingLeft: theme.spacing(2),
-                            }}
-                          >
-                            <Link
-                              key=""
-                              component="button"
-                              variant="body2"
-                              color="inherit"
-                              underline="hover"
-                              onClick={() => onClick(config)}
-                            >
-                              {config.title}
-                            </Link>
-                          </td>
-                          <td
-                            style={{
-                              boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
-                            }}
-                          >
-                            <GridLayout colAlign="center">
-                              {criteriaConfigMap.get(config.id)?.showMore ? (
-                                <Button
-                                  key={config.id}
-                                  data-testid={config.id}
-                                  onClick={() => onClick(config)}
-                                  variant="outlined"
-                                >
-                                  Explore
-                                </Button>
-                              ) : (
-                                <Button
-                                  key={config.id}
-                                  data-testid={config.id}
-                                  onClick={() => onClick(config)}
-                                  variant="outlined"
-                                  sx={{ minWidth: "auto" }}
-                                >
-                                  Add
-                                </Button>
-                              )}
-                            </GridLayout>
-                          </td>
-                        </tr>
-                      )),
-                    ])}
-                  </tbody>
-                </table>
-              </GridBox>
-            )
-          ) : (
-            <TreeGrid
-              columns={columns}
-              data={searchState.data ?? {}}
-              rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
-                if (!searchState.data) {
-                  return undefined;
-                }
-
-                const item = searchState.data[id] as CriteriaItem;
-                const config = criteriaConfigMap.get(item.entry.source)?.config;
-                if (!config) {
-                  throw new Error(
-                    `Item source "${item.entry.source}" doesn't match any criteria config ID.`
+        <GridLayout rows spacing={2} sx={{ height: "auto" }}>
+          {categories.map((category) => (
+            <GridLayout key={category[0].category} rows spacing={2}>
+              <Typography variant="h6">{category[0].category}</Typography>
+              <GridLayout cols spacing={2}>
+                {category.flatMap((config, i) => {
+                  const showMore = criteriaConfigMap.get(config.id)?.showMore;
+                  const button = (
+                    <Button
+                      key={config.id}
+                      data-testid={config.id}
+                      variant="outlined"
+                      startIcon={showMore ? <SearchIcon /> : <AddIcon />}
+                      onClick={() => onClick(config)}
+                    >
+                      {config.title}
+                    </Button>
                   );
-                }
 
-                return [
-                  {
-                    column: columns.length - 1,
-                    content: (
-                      <GridLayout colAlign="center">
-                        <Button
-                          data-testid={rowData[searchConfig.columns[0].key]}
-                          onClick={() => onClick(config, item.entry.data)}
-                          variant="outlined"
-                        >
-                          Add
-                        </Button>
-                      </GridLayout>
-                    ),
-                  },
-                ];
-              }}
-            />
-          )}
-        </Loading>
+                  if (
+                    i > 0 &&
+                    criteriaConfigMap.get(category[i - 1].id)?.showMore !=
+                      showMore
+                  ) {
+                    return [
+                      <Divider key="t_divider" orientation="vertical" />,
+                      button,
+                    ];
+                  }
+                  return button;
+                })}
+              </GridLayout>
+            </GridLayout>
+          ))}
+          {!!query ? <Divider /> : null}
+        </GridLayout>
+        {!!query ? (
+          <Paper>
+            <Loading status={searchState}>
+              {!searchState.data?.root?.children?.length ? (
+                <Empty
+                  minHeight="300px"
+                  image="/empty.svg"
+                  title="No matches found"
+                />
+              ) : (
+                <TreeGrid
+                  columns={columns}
+                  data={searchState.data ?? {}}
+                  rowCustomization={(
+                    id: TreeGridId,
+                    rowData: TreeGridRowData
+                  ) => {
+                    if (!searchState.data) {
+                      return undefined;
+                    }
+
+                    const item = searchState.data[id] as CriteriaItem;
+                    const config = criteriaConfigMap.get(
+                      item.entry.source
+                    )?.config;
+                    if (!config) {
+                      throw new Error(
+                        `Item source "${item.entry.source}" doesn't match any criteria config ID.`
+                      );
+                    }
+
+                    return [
+                      {
+                        column: columns.length - 1,
+                        content: (
+                          <GridLayout colAlign="center">
+                            <Button
+                              data-testid={rowData[searchConfig.columns[0].key]}
+                              onClick={() => onClick(config, item.entry.data)}
+                              variant="outlined"
+                            >
+                              Add
+                            </Button>
+                          </GridLayout>
+                        ),
+                      },
+                    ];
+                  }}
+                />
+              )}
+            </Loading>
+          </Paper>
+        ) : null}
       </GridLayout>
     </GridLayout>
   );
