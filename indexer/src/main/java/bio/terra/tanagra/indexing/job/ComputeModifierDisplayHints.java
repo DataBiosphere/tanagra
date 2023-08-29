@@ -1,18 +1,18 @@
 package bio.terra.tanagra.indexing.job;
 
+import bio.terra.tanagra.api.schemas.InstanceLevelDisplayHints;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.DisplayHintUtils;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.bigquery.BigQuerySchemaUtils;
 import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
-import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
-import com.google.api.services.bigquery.model.TableSchema;
-import java.util.List;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.Filter;
@@ -28,45 +28,17 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ComputeDisplayHints extends BigQueryIndexingJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ComputeDisplayHints.class);
-
-  // Schema for the output table.
-  private static final TableSchema DISPLAY_HINTS_TABLE_SCHEMA =
-      new TableSchema()
-          .setFields(
-              List.of(
-                  new TableFieldSchema()
-                      .setName("entity_id")
-                      .setType("INTEGER")
-                      .setMode("REQUIRED"),
-                  new TableFieldSchema()
-                      .setName("attribute_name")
-                      .setType("STRING")
-                      .setMode("REQUIRED"),
-                  new TableFieldSchema().setName("min").setType("FLOAT").setMode("NULLABLE"),
-                  new TableFieldSchema().setName("max").setType("FLOAT").setMode("NULLABLE"),
-                  new TableFieldSchema()
-                      .setName("enum_value")
-                      .setType("INTEGER")
-                      .setMode("NULLABLE"),
-                  new TableFieldSchema()
-                      .setName("enum_display")
-                      .setType("STRING")
-                      .setMode("NULLABLE"),
-                  new TableFieldSchema()
-                      .setName("enum_count")
-                      .setType("INTEGER")
-                      .setMode("NULLABLE")));
+public class ComputeModifierDisplayHints extends BigQueryIndexingJob {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ComputeModifierDisplayHints.class);
 
   private final CriteriaOccurrence criteriaOccurrence;
-  private final List<Attribute> modifierAttributes;
+  private final Entity occurrenceEntity;
 
-  public ComputeDisplayHints(
-      CriteriaOccurrence criteriaOccurrence, List<Attribute> modifierAttributes) {
-    super(criteriaOccurrence.getOccurrenceEntity());
+  public ComputeModifierDisplayHints(
+      CriteriaOccurrence criteriaOccurrence, Entity occurrenceEntity) {
+    super(occurrenceEntity);
     this.criteriaOccurrence = criteriaOccurrence;
-    this.modifierAttributes = modifierAttributes;
+    this.occurrenceEntity = occurrenceEntity;
   }
 
   @Override
@@ -86,7 +58,7 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
     PCollection<KV<Long, Long>> occCriIdPairs =
         readInIdPairs(
             criteriaOccurrence
-                .getOccurrenceCriteriaRelationship()
+                .getOccurrenceCriteriaRelationship(occurrenceEntity)
                 .getMapping(Underlay.MappingType.SOURCE),
             pipeline);
 
@@ -94,11 +66,11 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
     PCollection<KV<Long, Long>> occPriIdPairs =
         readInIdPairs(
             criteriaOccurrence
-                .getOccurrencePrimaryRelationship()
+                .getOccurrencePrimaryRelationship(occurrenceEntity)
                 .getMapping(Underlay.MappingType.SOURCE),
             pipeline);
 
-    for (Attribute attr : modifierAttributes) {
+    for (Attribute attr : criteriaOccurrence.getModifierAttributes()) {
       if (Attribute.Type.KEY_AND_DISPLAY.equals(attr.getType())) {
         enumValHint(occCriIdPairs, occPriIdPairs, occAllAttrs, attr);
       } else {
@@ -145,12 +117,9 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
 
   private PCollection<KV<Long, TableRow>> readInOccAllAttrs(Pipeline pipeline) {
     Query occAllAttrsQ =
-        criteriaOccurrence
-            .getOccurrenceEntity()
-            .getMapping(Underlay.MappingType.INDEX)
-            .queryAllAttributes();
+        occurrenceEntity.getMapping(Underlay.MappingType.INDEX).queryAllAttributes();
     LOGGER.info("occAllAttrsQ: {}", occAllAttrsQ.renderSQL());
-    String occIdName = criteriaOccurrence.getOccurrenceEntity().getIdAttribute().getName();
+    String occIdName = occurrenceEntity.getIdAttribute().getName();
     LOGGER.info("occIdName: {}", occIdName);
     return pipeline
         .apply(
@@ -256,7 +225,9 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
         .apply(
             BigQueryIO.writeTableRows()
                 .to(getAuxiliaryTable().getPathForIndexing())
-                .withSchema(DISPLAY_HINTS_TABLE_SCHEMA)
+                .withSchema(
+                    BigQuerySchemaUtils.getBigQueryTableSchema(
+                        InstanceLevelDisplayHints.getColumns()))
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
                 .withMethod(BigQueryIO.Write.Method.FILE_LOADS));
@@ -331,7 +302,9 @@ public class ComputeDisplayHints extends BigQueryIndexingJob {
         .apply(
             BigQueryIO.writeTableRows()
                 .to(getAuxiliaryTable().getPathForIndexing())
-                .withSchema(DISPLAY_HINTS_TABLE_SCHEMA)
+                .withSchema(
+                    BigQuerySchemaUtils.getBigQueryTableSchema(
+                        InstanceLevelDisplayHints.getColumns()))
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
                 .withMethod(BigQueryIO.Write.Method.FILE_LOADS));

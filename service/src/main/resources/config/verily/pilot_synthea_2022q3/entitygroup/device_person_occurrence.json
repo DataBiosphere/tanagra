@@ -2,7 +2,7 @@
   "name": "device_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "device",
-  "occurrenceEntity": "device_occurrence",
+  "occurrenceEntities": [ "device_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {

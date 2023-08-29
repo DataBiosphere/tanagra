@@ -1,0 +1,39 @@
+{
+  "name": "icd9proc_person_occurrences",
+  "type": "CRITERIA_OCCURRENCE",
+  "criteriaEntity": "icd9proc",
+  "occurrenceEntities": [ "procedure_occurrence", "ingredient_occurrence" ],
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria:ingredient_occurrence": {
+        "idPairsTable": { "table": "drug_exposure" },
+        "idPairsIdA": { "column": "drug_exposure_id" },
+        "idPairsIdB":  { "column": "drug_source_concept_id" }
+      },
+      "occurrenceToPrimary:ingredient_occurrence": {
+        "idPairsTable": { "table": "drug_exposure" },
+        "idPairsIdA": { "column": "drug_exposure_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "occurrenceToCriteria:procedure_occurrence": {
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "procedure_source_concept_id" }
+      },
+      "occurrenceToPrimary:procedure_occurrence": {
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "rawSqlFile": "icd9proc_person.sql" },
+        "idPairsIdA": { "column": "concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

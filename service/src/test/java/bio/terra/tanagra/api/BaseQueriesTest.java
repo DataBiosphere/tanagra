@@ -5,7 +5,6 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.QuerysService;
 import bio.terra.tanagra.service.UnderlaysService;
 import bio.terra.tanagra.service.instances.EntityCountRequest;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
@@ -40,8 +39,6 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   protected static final int DEFAULT_LIMIT = 30;
 
   @Autowired protected UnderlaysService underlaysService;
-  @Autowired protected QuerysService querysService;
-
   private Entity entity;
 
   @BeforeEach
@@ -237,10 +234,11 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     // e.g. Occurrences of any condition for people with at least one occurrence of "Type 2 diabetes
     // mellitus". This set of occurrences will include non-diabetes condition occurrences, such as
     // covid.
+    Entity occurrenceEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
     RelationshipFilter allOccurrencesForCohort =
         new RelationshipFilter(
-            criteriaOccurrence.getOccurrenceEntity(),
-            criteriaOccurrence.getOccurrencePrimaryRelationship(),
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity),
             cohortFilter,
             /*groupByCountAttribute=*/ null,
             /*groupByCountOperator=*/ null,
@@ -248,9 +246,9 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
-            .entity(criteriaOccurrence.getOccurrenceEntity())
+            .entity(occurrenceEntity)
             .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(criteriaOccurrence.getOccurrenceEntity().getAttributes())
+            .selectAttributes(occurrenceEntity.getAttributes())
             .filter(allOccurrencesForCohort)
             .limit(DEFAULT_LIMIT)
             .build();
@@ -259,7 +257,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
         "sql/"
             + getSqlDirectoryName()
             + "/"
-            + criteriaOccurrence.getOccurrenceEntity().getName().replace("_", "")
+            + occurrenceEntity.getName().replace("_", "")
             + "-"
             + description
             + ".sql");
@@ -464,10 +462,11 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                   // instances that
                   // have id=criteriaEntityId.
                   // e.g. Occurrences of "Type 2 diabetes mellitus".
+                  Entity occurrenceEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
                   RelationshipFilter occurrencesOfCriteria =
                       new RelationshipFilter(
-                          criteriaOccurrence.getOccurrenceEntity(),
-                          criteriaOccurrence.getOccurrenceCriteriaRelationship(),
+                          occurrenceEntity,
+                          criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity),
                           criteria,
                           /*groupByCountAttribute=*/ null,
                           /*groupByCountOperator=*/ null,
@@ -479,7 +478,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                   // e.g. People with occurrences of "Type 2 diabetes mellitus".
                   return new RelationshipFilter(
                       criteriaOccurrence.getPrimaryEntity(),
-                      criteriaOccurrence.getOccurrencePrimaryRelationship(),
+                      criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity),
                       occurrencesOfCriteria,
                       groupByCountAttribute,
                       groupByCountOperator,

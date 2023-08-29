@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.instances;
 
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.*;
-
+import bio.terra.tanagra.api.schemas.EntityLevelDisplayHints;
+import bio.terra.tanagra.api.schemas.InstanceLevelDisplayHints;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
@@ -59,32 +59,25 @@ public class EntityHintRequest {
     List<TableVariable> tableVars = Lists.newArrayList(primaryTableVar);
 
     List<FieldVariable> selectFieldVars = new ArrayList<>();
-    List<ColumnSchema> columnSchemas = new ArrayList<>();
-    Entity.DISPLAY_HINTS_TABLE_SCHEMA.entrySet().stream()
+    ColumnHeaderSchema columnHeaderSchema =
+        ColumnHeaderSchema.fromColumnSchemas(EntityLevelDisplayHints.getColumns());
+    columnHeaderSchema.getColumnSchemas().stream()
         .forEach(
-            entry -> {
-              String columnName = entry.getKey();
-              CellValue.SQLDataType columnDataType = entry.getValue().getKey();
+            cs -> {
               FieldPointer fieldPointer =
                   new FieldPointer.Builder()
                       .tablePointer(displayHintsTablePointer)
-                      .columnName(columnName)
+                      .columnName(cs.getColumnName())
                       .build();
               selectFieldVars.add(fieldPointer.buildVariable(primaryTableVar, tableVars));
-              columnSchemas.add(new ColumnSchema(columnName, columnDataType));
             });
-    for (ColumnSchema cs : columnSchemas) {
-      LOGGER.info("column schema: {}, {}", cs.getColumnName(), cs.getSqlDataType());
-    }
 
     Query query = new Query.Builder().select(selectFieldVars).tables(tableVars).build();
     LOGGER.info("Generated entity-level display hint query: {}", query.renderSQL());
-    return new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
+    return new QueryRequest(query.renderSQL(), columnHeaderSchema);
   }
 
   private QueryRequest buildInstanceLevelHintsQuery() {
-    // TODO: Support display hints for any relationship, not just for the CRITERIA_OCCURRENCE entity
-    // group.
     EntityGroup entityGroup =
         UnderlaysService.getRelationship(
                 entity.getUnderlay().getEntityGroups().values(), entity, relatedEntity)
@@ -105,22 +98,17 @@ public class EntityHintRequest {
             .map(
                 entry -> entry.getValue().buildVariable(primaryTableVar, tableVars, entry.getKey()))
             .collect(Collectors.toList());
-    // TODO: Centralize this schema definition used both here and in the indexing job. Also handle
-    // other enum_value data types.
-    List<ColumnSchema> columnSchemas =
-        List.of(
-            new ColumnSchema(MODIFIER_AUX_DATA_ID_COL, CellValue.SQLDataType.INT64),
-            new ColumnSchema(MODIFIER_AUX_DATA_ATTR_COL, CellValue.SQLDataType.STRING),
-            new ColumnSchema(MODIFIER_AUX_DATA_MIN_COL, CellValue.SQLDataType.FLOAT),
-            new ColumnSchema(MODIFIER_AUX_DATA_MAX_COL, CellValue.SQLDataType.FLOAT),
-            new ColumnSchema(MODIFIER_AUX_DATA_ENUM_VAL_COL, CellValue.SQLDataType.INT64),
-            new ColumnSchema(MODIFIER_AUX_DATA_ENUM_DISPLAY_COL, CellValue.SQLDataType.STRING),
-            new ColumnSchema(MODIFIER_AUX_DATA_ENUM_COUNT_COL, CellValue.SQLDataType.INT64));
 
     // Build the WHERE filter variables from the entity filter.
     FieldVariable entityIdFieldVar =
         selectFieldVars.stream()
-            .filter(fv -> fv.getAlias().equals(MODIFIER_AUX_DATA_ID_COL))
+            .filter(
+                fv ->
+                    fv.getAlias()
+                        .equals(
+                            InstanceLevelDisplayHints.Columns.ENTITY_ID
+                                .getSchema()
+                                .getColumnName()))
             .findFirst()
             .get();
     BinaryFilterVariable filterVar =
@@ -130,7 +118,9 @@ public class EntityHintRequest {
     Query query =
         new Query.Builder().select(selectFieldVars).tables(tableVars).where(filterVar).build();
     LOGGER.info("Generated instance-level display hint query: {}", query.renderSQL());
-    return new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
+    return new QueryRequest(
+        query.renderSQL(),
+        ColumnHeaderSchema.fromColumnSchemas(InstanceLevelDisplayHints.getColumns()));
   }
 
   public static class Builder {

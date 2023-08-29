@@ -11,6 +11,7 @@ import bio.terra.tanagra.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class EntityGroup {
   /** Enum for the types of entity groups supported by Tanagra. */
@@ -56,7 +57,7 @@ public abstract class EntityGroup {
     if (serialized.getSourceDataMapping().getRelationshipMappings() == null) {
       return;
     }
-    for (Relationship relationship : entityGroup.getRelationships().values()) {
+    for (Relationship relationship : entityGroup.getRelationships()) {
       UFRelationshipMapping serializedSourceMapping =
           serialized.getSourceDataMapping().getRelationshipMappings().get(relationship.getName());
       DataPointer sourceDataPointer =
@@ -76,7 +77,8 @@ public abstract class EntityGroup {
           serialized.getIndexDataMapping().getRelationshipMappings();
       RelationshipMapping indexMapping =
           indexRelationshipMappings == null || indexRelationshipMappings.isEmpty()
-              ? RelationshipMapping.defaultIndexMapping(indexDataPointer, relationship)
+              ? RelationshipMapping.defaultIndexMapping(
+                  indexDataPointer, relationship, entityGroup.getName())
               : RelationshipMapping.fromSerialized(
                   serialized
                       .getIndexDataMapping()
@@ -146,18 +148,22 @@ public abstract class EntityGroup {
 
   public abstract Type getType();
 
-  public abstract Map<String, Entity> getEntityMap();
+  protected abstract Set<Entity> getEntities();
 
   public boolean includesEntity(Entity entity) {
-    return getEntityMap().values().stream().filter(e -> entity.equals(e)).findFirst().isPresent();
+    return getEntities().contains(entity);
   }
 
   public String getName() {
     return name;
   }
 
-  public Map<String, Relationship> getRelationships() {
+  public Map<String, Relationship> getRelationshipsMap() {
     return Collections.unmodifiableMap(relationships);
+  }
+
+  public Set<Relationship> getRelationships() {
+    return relationships.values().stream().collect(Collectors.toSet());
   }
 
   public Optional<Relationship> getRelationship(Entity fromEntity, Entity toEntity) {
@@ -209,5 +215,13 @@ public abstract class EntityGroup {
     }
 
     public abstract EntityGroup build();
+
+    public String getName() {
+      return name;
+    }
+
+    public Map<String, Relationship> getRelationships() {
+      return relationships;
+    }
   }
 }

@@ -2,7 +2,7 @@
   "name": "note_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "note",
-  "occurrenceEntity": "note_occurrence",
+  "occurrenceEntities": [ "note_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {

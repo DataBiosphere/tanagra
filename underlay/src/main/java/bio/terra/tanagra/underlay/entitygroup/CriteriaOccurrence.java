@@ -1,5 +1,8 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
+import bio.terra.tanagra.api.schemas.InstanceLevelDisplayHints;
+import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AuxiliaryData;
@@ -9,52 +12,70 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
-import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class CriteriaOccurrence extends EntityGroup {
-  private static final String CRITERIA_ENTITY_NAME = "criteria";
-  private static final String OCCURRENCE_ENTITY_NAME = "occurrence";
+
   private static final String OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME = "occurrenceToCriteria";
   private static final String OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME = "occurrenceToPrimary";
   private static final String CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME = "criteriaToPrimary";
-  public static final String MODIFIER_AUX_DATA_ID_COL = "entity_id";
-  public static final String MODIFIER_AUX_DATA_ATTR_COL = "attribute_name";
-  public static final String MODIFIER_AUX_DATA_MIN_COL = "min";
-  public static final String MODIFIER_AUX_DATA_MAX_COL = "max";
-  public static final String MODIFIER_AUX_DATA_ENUM_VAL_COL = "enum_value";
-  public static final String MODIFIER_AUX_DATA_ENUM_DISPLAY_COL = "enum_display";
-  public static final String MODIFIER_AUX_DATA_ENUM_COUNT_COL = "enum_count";
 
   private static final AuxiliaryData MODIFIER_AUXILIARY_DATA =
       new AuxiliaryData(
           "modifiers",
-          List.of(
-              MODIFIER_AUX_DATA_ID_COL,
-              MODIFIER_AUX_DATA_ATTR_COL,
-              MODIFIER_AUX_DATA_MIN_COL,
-              MODIFIER_AUX_DATA_MAX_COL,
-              MODIFIER_AUX_DATA_ENUM_VAL_COL,
-              MODIFIER_AUX_DATA_ENUM_DISPLAY_COL,
-              MODIFIER_AUX_DATA_ENUM_COUNT_COL));
+          InstanceLevelDisplayHints.getColumns().stream()
+              .map(ColumnSchema::getColumnName)
+              .collect(Collectors.toList()));
 
   private final Entity criteriaEntity;
-  private final Entity occurrenceEntity;
+  private final List<Entity> occurrenceEntities;
   private final Entity primaryEntity;
   private final List<Attribute> modifierAttributes;
   private final AuxiliaryData modifierAuxiliaryData;
+  private final Relationship criteriaToPrimary;
+  private final Map<Entity, Relationship> occurrenceToCriteria;
+  private final Map<Entity, Relationship> occurrenceToPrimary;
 
   private CriteriaOccurrence(Builder builder) {
     super(builder);
     this.criteriaEntity = builder.criteriaEntity;
-    this.occurrenceEntity = builder.occurrenceEntity;
+    this.occurrenceEntities = builder.occurrenceEntities;
     this.primaryEntity = builder.primaryEntity;
     this.modifierAttributes = builder.modifierAttributes;
     boolean hasModifierAttributes =
         builder.modifierAttributes != null && !builder.modifierAttributes.isEmpty();
     this.modifierAuxiliaryData =
         hasModifierAttributes ? MODIFIER_AUXILIARY_DATA.cloneWithoutMappings() : null;
+    this.criteriaToPrimary = builder.getRelationships().get(CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME);
+
+    Map<Entity, Relationship> occurrenceToCriteria = new HashMap<>();
+    builder.occurrenceEntities.stream()
+        .forEach(
+            oe ->
+                occurrenceToCriteria.put(
+                    oe,
+                    builder
+                        .getRelationships()
+                        .get(
+                            getOccurrenceRelationshipName(
+                                OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
+                                oe,
+                                occurrenceEntities))));
+    this.occurrenceToCriteria = occurrenceToCriteria;
+
+    Map<Entity, Relationship> occurrenceToPrimary = new HashMap<>();
+    builder.occurrenceEntities.stream()
+        .forEach(
+            oe ->
+                occurrenceToPrimary.put(
+                    oe,
+                    builder
+                        .getRelationships()
+                        .get(
+                            getOccurrenceRelationshipName(
+                                OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME, oe, occurrenceEntities))));
+    this.occurrenceToPrimary = occurrenceToPrimary;
   }
 
   public static CriteriaOccurrence fromSerialized(
@@ -64,10 +85,18 @@ public class CriteriaOccurrence extends EntityGroup {
       String primaryEntityName) {
     // Entities.
     Entity criteriaEntity = entities.get(serialized.getCriteriaEntity());
-    Entity occurrenceEntity = entities.get(serialized.getOccurrenceEntity());
     Entity primaryEntity = entities.get(primaryEntityName);
+    List<Entity> occurrenceEntities =
+        serialized.getOccurrenceEntities().stream()
+            .map(name -> entities.get(name))
+            .collect(Collectors.toList());
 
     // Modifier attributes.
+    if (occurrenceEntities.size() > 1 && serialized.getModifierAttributes() != null) {
+      throw new InvalidConfigException(
+          "Modifiers are not supported for entity groups with >1 occurrence entity.");
+    }
+    Entity occurrenceEntity = occurrenceEntities.get(0);
     List<Attribute> modifierAttributes =
         serialized.getModifierAttributes() == null
             ? Collections.emptyList()
@@ -76,27 +105,39 @@ public class CriteriaOccurrence extends EntityGroup {
                 .collect(Collectors.toList());
 
     // Relationships.
-    Map<String, Relationship> relationships =
-        new HashMap<>(
-            Map.of(
-                OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
-                new Relationship(
-                    OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME,
-                    occurrenceEntity,
-                    criteriaEntity,
-                    buildRelationshipFieldList(criteriaEntity)),
-                OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
-                new Relationship(
-                    OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME,
-                    occurrenceEntity,
-                    primaryEntity,
-                    Collections.emptyList()),
-                CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
-                new Relationship(
-                    CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
-                    criteriaEntity,
-                    primaryEntity,
-                    buildRelationshipFieldList(criteriaEntity))));
+    Map<String, Relationship> relationships = new HashMap<>();
+    relationships.put(
+        CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
+        new Relationship(
+            CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME,
+            criteriaEntity,
+            primaryEntity,
+            buildRelationshipFieldList(criteriaEntity)));
+    occurrenceEntities.stream()
+        .forEach(
+            oe -> {
+              String occurrenceToCriteriaRelationshipName =
+                  getOccurrenceRelationshipName(
+                      OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME, oe, occurrenceEntities);
+              relationships.put(
+                  occurrenceToCriteriaRelationshipName,
+                  new Relationship(
+                      occurrenceToCriteriaRelationshipName,
+                      oe,
+                      criteriaEntity,
+                      buildRelationshipFieldList(criteriaEntity)));
+
+              String occurrenceToPrimaryRelationshipName =
+                  getOccurrenceRelationshipName(
+                      OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME, oe, occurrenceEntities);
+              relationships.put(
+                  occurrenceToPrimaryRelationshipName,
+                  new Relationship(
+                      occurrenceToPrimaryRelationshipName,
+                      oe,
+                      primaryEntity,
+                      Collections.emptyList()));
+            });
 
     // Source+index entity group mappings.
     EntityGroupMapping sourceDataMapping =
@@ -115,7 +156,7 @@ public class CriteriaOccurrence extends EntityGroup {
     CriteriaOccurrence criteriaOccurrence =
         builder
             .criteriaEntity(criteriaEntity)
-            .occurrenceEntity(occurrenceEntity)
+            .occurrenceEntities(occurrenceEntities)
             .primaryEntity(primaryEntity)
             .modifierAttributes(modifierAttributes)
             .build();
@@ -132,15 +173,22 @@ public class CriteriaOccurrence extends EntityGroup {
     return criteriaOccurrence;
   }
 
+  private static String getOccurrenceRelationshipName(
+      String prefix, Entity occurrenceEntity, List<Entity> occurrenceEntities) {
+    return occurrenceEntities.size() == 1 ? prefix : prefix + ":" + occurrenceEntity.getName();
+  }
+
   @Override
   public EntityGroup.Type getType() {
     return Type.CRITERIA_OCCURRENCE;
   }
 
   @Override
-  public Map<String, Entity> getEntityMap() {
-    return ImmutableMap.of(
-        CRITERIA_ENTITY_NAME, criteriaEntity, OCCURRENCE_ENTITY_NAME, occurrenceEntity);
+  protected Set<Entity> getEntities() {
+    Set<Entity> entities = new HashSet<>();
+    entities.add(criteriaEntity);
+    entities.addAll(occurrenceEntities);
+    return entities;
   }
 
   public Entity getCriteriaEntity() {
@@ -151,8 +199,8 @@ public class CriteriaOccurrence extends EntityGroup {
     return primaryEntity;
   }
 
-  public Entity getOccurrenceEntity() {
-    return occurrenceEntity;
+  public List<Entity> getOccurrenceEntities() {
+    return occurrenceEntities;
   }
 
   public List<Attribute> getModifierAttributes() {
@@ -174,20 +222,20 @@ public class CriteriaOccurrence extends EntityGroup {
   }
 
   public Relationship getCriteriaPrimaryRelationship() {
-    return relationships.get(CRITERIA_TO_PRIMARY_RELATIONSHIP_NAME);
+    return criteriaToPrimary;
   }
 
-  public Relationship getOccurrenceCriteriaRelationship() {
-    return relationships.get(OCCURRENCE_TO_CRITERIA_RELATIONSHIP_NAME);
+  public Relationship getOccurrenceCriteriaRelationship(Entity occurrenceEntity) {
+    return occurrenceToCriteria.get(occurrenceEntity);
   }
 
-  public Relationship getOccurrencePrimaryRelationship() {
-    return relationships.get(OCCURRENCE_TO_PRIMARY_RELATIONSHIP_NAME);
+  public Relationship getOccurrencePrimaryRelationship(Entity occurrenceEntity) {
+    return occurrenceToPrimary.get(occurrenceEntity);
   }
 
   private static class Builder extends EntityGroup.Builder {
     private Entity criteriaEntity;
-    private Entity occurrenceEntity;
+    private List<Entity> occurrenceEntities;
     private Entity primaryEntity;
     private List<Attribute> modifierAttributes;
 
@@ -196,8 +244,8 @@ public class CriteriaOccurrence extends EntityGroup {
       return this;
     }
 
-    public Builder occurrenceEntity(Entity occurrenceEntity) {
-      this.occurrenceEntity = occurrenceEntity;
+    public Builder occurrenceEntities(List<Entity> occurrenceEntities) {
+      this.occurrenceEntities = occurrenceEntities;
       return this;
     }
 

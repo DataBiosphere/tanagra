@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,10 @@ public class Relationship {
     return entityB;
   }
 
+  public Set<Entity> getEntities() {
+    return Set.of(entityA, entityB);
+  }
+
   public List<RelationshipField> getFields() {
     return Collections.unmodifiableList(fields);
   }
@@ -83,5 +88,12 @@ public class Relationship {
 
   public RelationshipMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceMapping : indexMapping;
+  }
+
+  public boolean isEquivalentTo(Relationship relationship) {
+    return entityA.equals(relationship.getEntityA())
+        && entityB.equals(relationship.getEntityB())
+        && fields.equals(relationship.getFields())
+        && sourceMapping.equals(relationship.getMapping(Underlay.MappingType.SOURCE));
   }
 }

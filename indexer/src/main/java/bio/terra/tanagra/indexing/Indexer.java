@@ -1,12 +1,10 @@
 package bio.terra.tanagra.indexing;
 
-import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.job.*;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
@@ -49,54 +47,8 @@ public final class Indexer {
   }
 
   public void validateConfig() {
-    // Check that the attribute data types are all defined and match the expected.
-    Map<String, List<String>> errorsForEntity = new HashMap<>();
-    underlay.getEntities().values().stream()
-        .sorted(Comparator.comparing(Entity::getName))
-        .forEach(
-            entity -> {
-              List<String> errors = new ArrayList<>();
-              entity.getAttributes().stream()
-                  .sorted(Comparator.comparing(Attribute::getName))
-                  .forEach(
-                      attribute -> {
-                        LOGGER.info(
-                            "Validating data type for entity {}, attribute {}",
-                            entity.getName(),
-                            attribute.getName());
-                        Literal.DataType computedDataType =
-                            attribute.getMapping(Underlay.MappingType.SOURCE).computeDataType();
-                        if (attribute.getDataType() == null
-                            || !attribute.getDataType().equals(computedDataType)) {
-                          String msg =
-                              "attribute: "
-                                  + attribute.getName()
-                                  + ", expected data type: "
-                                  + computedDataType
-                                  + ", actual data type: "
-                                  + attribute.getDataType();
-                          errors.add(msg);
-                          LOGGER.info("entity: {}, {}", entity.getName(), msg);
-                        }
-                      });
-              if (!errors.isEmpty()) {
-                errorsForEntity.put(entity.getName(), errors);
-              }
-            });
-
-    // Output any error messages.
-    if (errorsForEntity.isEmpty()) {
-      LOGGER.info("Validation of attribute data types succeeded");
-    } else {
-      errorsForEntity.keySet().stream()
-          .sorted()
-          .forEach(
-              entityName -> {
-                LOGGER.warn("Validation of attribute data types for entity {} failed", entityName);
-                errorsForEntity.get(entityName).stream().forEach(msg -> LOGGER.warn(msg));
-              });
-      throw new InvalidConfigException("Validation attribute data types had errors");
-    }
+    ValidationUtils.validateRelationships(underlay);
+    ValidationUtils.validateAttributes(underlay);
   }
 
   public JobRunner runJobsForAllEntities(
@@ -176,30 +128,32 @@ public final class Indexer {
     SequencedJobSet jobSet = new SequencedJobSet(entityGroup.getName());
     jobSet.startNewStage();
 
-    // For each relationship, write the index relationship mapping.
-    entityGroup.getRelationships().values().stream()
-        .forEach(
-            // TODO: If the source relationship mapping table = one of the entity tables, then just
-            // populate a new column on that entity table, instead of always writing a new table.
-            relationship -> jobSet.addJob(new WriteRelationshipIdPairs(relationship)));
-
     if (EntityGroup.Type.CRITERIA_OCCURRENCE.equals(entityGroup.getType())) {
       CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
-      // Compute the criteria rollup counts for both the criteria-primary and criteria-occurrence
+
+      // Write the relationship id-pairs for each occurrence-criteria and occurrence-primary
       // relationships.
+      // e.g. To allow joins between person-conditionOccurrence, conditionOccurrence-condition.
+      for (Entity occurrenceEntity : criteriaOccurrence.getOccurrenceEntities()) {
+        jobSet.addJob(
+            new WriteRelationshipIdPairs(
+                criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity)));
+        jobSet.addJob(
+            new WriteRelationshipIdPairs(
+                criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity)));
+      }
+
+      // Compute the criteria rollup counts for the criteria-primary relationship.
+      // e.g. To show item counts for each condition.
       jobSet.addJob(
           new ComputeRollupCounts(
               criteriaOccurrence.getCriteriaEntity(),
               criteriaOccurrence.getCriteriaPrimaryRelationship(),
               null));
-      // jobSet.addJob(
-      //     new ComputeRollupCounts(
-      //         criteriaOccurrence.getCriteriaEntity(),
-      //         criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-      //         null));
 
-      // If the criteria entity has a hierarchy, then also compute the counts for each
-      // hierarchy.
+      // If the criteria entity has hierarchies, then also compute the criteria rollup counts for
+      // each hierarchy.
+      // e.g. To show rollup counts for each condition.
       if (criteriaOccurrence.getCriteriaEntity().hasHierarchies()) {
         criteriaOccurrence.getCriteriaEntity().getHierarchies().stream()
             .forEach(
@@ -209,41 +163,29 @@ public final class Indexer {
                           criteriaOccurrence.getCriteriaEntity(),
                           criteriaOccurrence.getCriteriaPrimaryRelationship(),
                           hierarchy));
-                  // TODO: Compute rollups for the occurrence-criteria relationship also. These
-                  // workflows frequently fail in Dataflow, so they're commented out below. Either
-                  // debug these or replace them with BigQuery-based jobs.
-                  // jobSet.addJob(
-                  //     new ComputeRollupCounts(
-                  //         criteriaOccurrence.getCriteriaEntity(),
-                  //         criteriaOccurrence.getOccurrenceCriteriaRelationship(),
-                  //         hierarchy));
                 });
       }
 
-      // Compute display hints for the occurrence entity.
+      // Compute display hints for the occurrence entity attributes that are flagged as modifiers.
+      // e.g. To show display hints for a specific measurement entity instance, such as blood
+      // pressure.
       if (!criteriaOccurrence.getModifierAttributes().isEmpty()) {
         jobSet.addJob(
-            new ComputeDisplayHints(
-                criteriaOccurrence, criteriaOccurrence.getModifierAttributes()));
+            new ComputeModifierDisplayHints(
+                criteriaOccurrence, criteriaOccurrence.getOccurrenceEntities().get(0)));
       }
     } else if (EntityGroup.Type.GROUP_ITEMS.equals(entityGroup.getType())) {
       GroupItems groupItems = (GroupItems) entityGroup;
+
+      // Write the relationship id-pairs for the group-items relationship.
+      // e.g. To allow joins between brand-ingredient.
+      jobSet.addJob(new WriteRelationshipIdPairs(groupItems.getGroupItemsRelationship()));
+
       // Compute the criteria rollup counts for the group-items relationship.
+      // e.g. To show how many ingredients each brand contains.
       jobSet.addJob(
           new ComputeRollupCounts(
               groupItems.getGroupEntity(), groupItems.getGroupItemsRelationship(), null));
-
-      // If the group entity has a hierarchy, then also compute the counts for each hierarchy.
-      if (groupItems.getGroupEntity().hasHierarchies()) {
-        groupItems.getGroupEntity().getHierarchies().stream()
-            .forEach(
-                hierarchy ->
-                    jobSet.addJob(
-                        new ComputeRollupCounts(
-                            groupItems.getGroupEntity(),
-                            groupItems.getGroupItemsRelationship(),
-                            hierarchy)));
-      }
     }
 
     return jobSet;

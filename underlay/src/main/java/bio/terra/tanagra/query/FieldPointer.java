@@ -4,6 +4,7 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFFieldPointer;
 import com.google.common.base.Strings;
 import java.util.List;
+import java.util.Objects;
 
 public class FieldPointer {
   private static final String ALL_FIELDS_COLUMN_NAME = "*";
@@ -224,5 +225,37 @@ public class FieldPointer {
     public FieldPointer build() {
       return new FieldPointer(this);
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FieldPointer that = (FieldPointer) o;
+    return joinCanBeEmpty == that.joinCanBeEmpty
+        && runtimeCalculated == that.runtimeCalculated
+        && tablePointer.equals(that.tablePointer)
+        && columnName.equals(that.columnName)
+        && Objects.equals(foreignTablePointer, that.foreignTablePointer)
+        && Objects.equals(foreignKeyColumnName, that.foreignKeyColumnName)
+        && Objects.equals(foreignColumnName, that.foreignColumnName)
+        && Objects.equals(sqlFunctionWrapper, that.sqlFunctionWrapper);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        tablePointer,
+        columnName,
+        foreignTablePointer,
+        foreignKeyColumnName,
+        foreignColumnName,
+        joinCanBeEmpty,
+        sqlFunctionWrapper,
+        runtimeCalculated);
   }
 }
