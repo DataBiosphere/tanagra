@@ -1,10 +1,7 @@
 package bio.terra.tanagra.service.accesscontrol;
 
 import bio.terra.tanagra.exception.SystemException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class Permissions {
@@ -62,5 +59,24 @@ public final class Permissions {
     return isAllActions
         ? "ALL"
         : actions.stream().map(Action::name).collect(Collectors.joining(","));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Permissions that = (Permissions) o;
+    return isAllActions == that.isAllActions
+        && type == that.type
+        && Objects.equals(actions, that.actions);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, actions, isAllActions);
   }
 }
