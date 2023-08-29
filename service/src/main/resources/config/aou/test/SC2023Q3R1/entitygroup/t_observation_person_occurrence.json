@@ -2,7 +2,7 @@
   "name": "t_observation_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "t_observation",
-  "occurrenceEntity": "t_observation_occurrence",
+  "occurrenceEntities": [ "t_observation_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {

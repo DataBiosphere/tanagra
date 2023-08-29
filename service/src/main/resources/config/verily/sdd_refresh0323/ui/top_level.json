@@ -45,6 +45,39 @@
               "attribute": "t_rollup_count",
               "direction": "DESC"
             }
+          },
+          {
+            "id": "phewas",
+            "attribute": "source_criteria_id",
+            "entity": "phewas",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd9cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd9cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd10cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -63,6 +96,39 @@
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
+            }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd9proc",
+            "attribute": "source_criteria_id",
+            "entity": "icd9proc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10pcs",
+            "attribute": "source_criteria_id",
+            "entity": "icd10pcs",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
             }
           }
         ]
@@ -164,6 +230,172 @@
       ],
       "occurrence": "condition_occurrence",
       "classification": "condition",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-phewas",
+      "title": "PheWAS",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "condition_occurrence",
+      "classification": "phewas",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-cpt4",
+      "title": "CPT-4",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "is_standard", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "procedure_occurrence",
+      "classification": "cpt4",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd9cm",
+      "title": "ICD-9-CM",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "condition_occurrence",
+      "classification": "icd9cm",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd9proc",
+      "title": "ICD-9-Proc",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "procedure_occurrence",
+      "classification": "icd9proc",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd10cm",
+      "title": "ICD-10-CM",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "condition_occurrence",
+      "classification": "icd10cm",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd10pcs",
+      "title": "ICD-10-PCS",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "label", "width": 120, "title": "Label" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrence": "procedure_occurrence",
+      "classification": "icd10pcs",
       "modifiers": [
         "age_at_occurrence",
         "visit_type",

@@ -2,7 +2,7 @@
   "name": "t_visit_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "t_visit",
-  "occurrenceEntity": "t_visit_occurrence",
+  "occurrenceEntities": [ "t_visit_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {

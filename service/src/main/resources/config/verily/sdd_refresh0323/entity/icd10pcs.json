@@ -1,0 +1,44 @@
+{
+  "name": "icd10pcs",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "vocabulary", "dataType": "STRING" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "label", "dataType": "STRING" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": {
+      "rawSqlFile": "icd10pcs_all.sql"
+    },
+    "attributeMappings": {
+      "id": { "value": { "column": "concept_id" } },
+      "name": { "value": { "column": "concept_name" } },
+      "vocabulary": { "value": { "column": "vocabulary_id" } },
+      "standard_concept": {
+        "value": { "column": "standard_concept" },
+        "display": {
+          "column": "standard_concept",
+          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
+    "textSearchMapping": { "attributes": [ "id", "name", "concept_code" ] },
+    "hierarchyMappings": {
+      "standard": {
+        "childParent": {
+          "tablePointer": { "rawSqlFile": "icd10pcs_parentChild.sql" }
+        },
+        "rootNodesFilter": {
+          "tablePointer": { "rawSqlFile": "icd10pcs_rootNodesFilter.sql" }
+        },
+        "maxHierarchyDepth": 10
+      }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
