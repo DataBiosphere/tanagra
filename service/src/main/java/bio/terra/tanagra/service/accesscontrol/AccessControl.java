@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol;
 
+import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.OpenAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
@@ -13,7 +14,8 @@ public interface AccessControl {
   enum Model {
     OPEN_ACCESS(() -> new OpenAccessControl()),
     VUMC_ADMIN(() -> new VumcAdminAccessControl()),
-    VERILY_GROUP(() -> new VerilyGroupsAccessControl());
+    VERILY_GROUP(() -> new VerilyGroupsAccessControl()),
+    AOU_WORKBENCH(() -> new AouWorkbenchAccessControl());
 
     private Supplier<AccessControl> createNewInstanceFn;
 
