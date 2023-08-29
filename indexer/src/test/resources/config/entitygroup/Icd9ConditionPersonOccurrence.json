@@ -2,7 +2,7 @@
   "name": "icd9_condition_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "icd9_condition",
-  "occurrenceEntity": "condition_occurrence",
+  "occurrenceEntities": [ "condition_occurrence" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {

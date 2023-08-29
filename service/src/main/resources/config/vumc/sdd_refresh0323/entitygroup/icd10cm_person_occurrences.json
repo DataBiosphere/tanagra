@@ -1,0 +1,59 @@
+{
+  "name": "icd10cm_person_occurrences",
+  "type": "CRITERIA_OCCURRENCE",
+  "criteriaEntity": "icd10cm",
+  "occurrenceEntities": [ "condition_occurrence", "measurement_occurrence", "observation_occurrence", "procedure_occurrence" ],
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria:condition_occurrence": {
+        "idPairsTable": { "table": "condition_occurrence" },
+        "idPairsIdA": { "column": "condition_occurrence_id" },
+        "idPairsIdB":  { "column": "condition_source_concept_id" }
+      },
+      "occurrenceToPrimary:condition_occurrence": {
+        "idPairsTable": { "table": "condition_occurrence" },
+        "idPairsIdA": { "column": "condition_occurrence_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "occurrenceToCriteria:measurement_occurrence": {
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "measurement_source_concept_id" }
+      },
+      "occurrenceToPrimary:measurement_occurrence": {
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "occurrenceToCriteria:observation_occurrence": {
+        "idPairsTable": { "table": "observation" },
+        "idPairsIdA": { "column": "observation_id" },
+        "idPairsIdB":  { "column": "observation_source_concept_id" }
+      },
+      "occurrenceToPrimary:observation_occurrence": {
+        "idPairsTable": { "table": "observation" },
+        "idPairsIdA": { "column": "observation_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "occurrenceToCriteria:procedure_occurrence": {
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "procedure_source_concept_id" }
+      },
+      "occurrenceToPrimary:procedure_occurrence": {
+        "idPairsTable": { "table": "procedure_occurrence" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "rawSqlFile": "icd10cm_person.sql" },
+        "idPairsIdA": { "column": "concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

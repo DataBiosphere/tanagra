@@ -131,13 +131,17 @@ public final class Indexer {
     if (EntityGroup.Type.CRITERIA_OCCURRENCE.equals(entityGroup.getType())) {
       CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
 
-      // Write the relationship id-pairs for the occurrence-criteria and occurrence-primary
+      // Write the relationship id-pairs for each occurrence-criteria and occurrence-primary
       // relationships.
       // e.g. To allow joins between person-conditionOccurrence, conditionOccurrence-condition.
-      jobSet.addJob(
-          new WriteRelationshipIdPairs(criteriaOccurrence.getOccurrenceCriteriaRelationship()));
-      jobSet.addJob(
-          new WriteRelationshipIdPairs(criteriaOccurrence.getOccurrencePrimaryRelationship()));
+      for (Entity occurrenceEntity : criteriaOccurrence.getOccurrenceEntities()) {
+        jobSet.addJob(
+            new WriteRelationshipIdPairs(
+                criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity)));
+        jobSet.addJob(
+            new WriteRelationshipIdPairs(
+                criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity)));
+      }
 
       // Compute the criteria rollup counts for the criteria-primary relationship.
       // e.g. To show item counts for each condition.
@@ -167,8 +171,8 @@ public final class Indexer {
       // pressure.
       if (!criteriaOccurrence.getModifierAttributes().isEmpty()) {
         jobSet.addJob(
-            new ComputeDisplayHints(
-                criteriaOccurrence, criteriaOccurrence.getModifierAttributes()));
+            new ComputeModifierDisplayHints(
+                criteriaOccurrence, criteriaOccurrence.getOccurrenceEntities().get(0)));
       }
     } else if (EntityGroup.Type.GROUP_ITEMS.equals(entityGroup.getType())) {
       GroupItems groupItems = (GroupItems) entityGroup;

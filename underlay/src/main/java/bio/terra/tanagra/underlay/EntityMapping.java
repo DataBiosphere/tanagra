@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.api.schemas.EntityLevelDisplayHints;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class EntityMapping {
-  private static final String DISPLAY_HINT_TABLE_PREFIX = "eldh_"; // entity-level display hint
   private final TablePointer tablePointer;
   private final TablePointer displayHintTablePointer;
   private Entity entity;
@@ -52,8 +52,9 @@ public final class EntityMapping {
 
     TablePointer displayHintTablePointer =
         serialized.getDisplayHintTablePointer() != null
-            ? TablePointer.fromSerialized(serialized.getTablePointer(), dataPointer)
-            : TablePointer.fromTableName(DISPLAY_HINT_TABLE_PREFIX + entityName, dataPointer);
+            ? TablePointer.fromSerialized(serialized.getDisplayHintTablePointer(), dataPointer)
+            : TablePointer.fromTableName(
+                EntityLevelDisplayHints.TABLE_NAME_PREFIX + entityName, dataPointer);
 
     return new EntityMapping(tablePointer, displayHintTablePointer, mappingType);
   }

@@ -8,6 +8,7 @@ import bio.terra.tanagra.utils.FileUtils;
 import com.google.common.base.Strings;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 public final class TablePointer implements SQLExpression {
   private static final String SQL_DIRECTORY_NAME = "sql";
@@ -126,25 +127,23 @@ public final class TablePointer implements SQLExpression {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof TablePointer)) {
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    TablePointer objTP = (TablePointer) obj;
-    return objTP.getDataPointer().equals(getDataPointer())
-        && objTP.getTableName().equals(getTableName())
-        && ((!objTP.hasTableFilter() && !hasTableFilter())
-            || (objTP.hasTableFilter()) && objTP.getTableFilter().equals(getTableFilter()));
+    TablePointer that = (TablePointer) o;
+    return dataPointer.equals(that.dataPointer)
+        && Objects.equals(tableName, that.tableName)
+        && Objects.equals(filter, that.filter)
+        && Objects.equals(sql, that.sql);
   }
 
   @Override
   public int hashCode() {
-    int hash = 5;
-    hash = 37 * hash + (this.dataPointer != null ? this.dataPointer.hashCode() : 0);
-    hash = 37 * hash + (this.tableName != null ? this.tableName.hashCode() : 0);
-    hash = 37 * hash + (this.filter != null ? this.filter.hashCode() : 0);
-    return hash;
+    return Objects.hash(dataPointer, tableName, filter, sql);
   }
 
   public static class Builder {

@@ -2,7 +2,7 @@
   "name": "measurement_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "measurement",
-  "occurrenceEntity": "measurement_occurrence",
+  "occurrenceEntities": [ "measurement_occurrence" ],
   "modifierAttributes": [ "value_numeric", "value_enum" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",

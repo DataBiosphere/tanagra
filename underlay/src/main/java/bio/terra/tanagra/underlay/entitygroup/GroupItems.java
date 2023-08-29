@@ -7,12 +7,10 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Set;
 
 public class GroupItems extends EntityGroup {
-  private static final String GROUP_ENTITY_NAME = "group";
-  private static final String ITEMS_ENTITY_NAME = "items";
   private static final String GROUP_ITEMS_RELATIONSHIP_NAME = "groupToItems";
 
   private final Entity groupEntity;
@@ -86,8 +84,8 @@ public class GroupItems extends EntityGroup {
   }
 
   @Override
-  public Map<String, Entity> getEntityMap() {
-    return ImmutableMap.of(GROUP_ENTITY_NAME, groupEntity, ITEMS_ENTITY_NAME, itemsEntity);
+  protected Set<Entity> getEntities() {
+    return Set.of(groupEntity, itemsEntity);
   }
 
   public Relationship getGroupItemsRelationship() {

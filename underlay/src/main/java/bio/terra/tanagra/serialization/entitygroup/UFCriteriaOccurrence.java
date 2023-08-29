@@ -7,6 +7,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,13 +20,16 @@ import java.util.stream.Collectors;
 @JsonDeserialize(builder = UFCriteriaOccurrence.Builder.class)
 public class UFCriteriaOccurrence extends UFEntityGroup {
   private final String criteriaEntity;
-  private final String occurrenceEntity;
+  private final List<String> occurrenceEntities;
   private final List<String> modifierAttributes;
 
   public UFCriteriaOccurrence(CriteriaOccurrence criteriaOccurrence) {
     super(criteriaOccurrence);
     this.criteriaEntity = criteriaOccurrence.getCriteriaEntity().getName();
-    this.occurrenceEntity = criteriaOccurrence.getOccurrenceEntity().getName();
+    this.occurrenceEntities =
+        criteriaOccurrence.getOccurrenceEntities().stream()
+            .map(e -> e.getName())
+            .collect(Collectors.toList());
     this.modifierAttributes =
         criteriaOccurrence.getModifierAttributes().stream()
             .map(Attribute::getName)
@@ -35,14 +39,14 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
   private UFCriteriaOccurrence(Builder builder) {
     super(builder);
     this.criteriaEntity = builder.criteriaEntity;
-    this.occurrenceEntity = builder.occurrenceEntity;
+    this.occurrenceEntities = builder.occurrenceEntities;
     this.modifierAttributes = builder.modifierAttributes;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFEntityGroup.Builder {
     private String criteriaEntity;
-    private String occurrenceEntity;
+    private List<String> occurrenceEntities;
     private List<String> modifierAttributes;
 
     public Builder criteriaEntity(String criteriaEntity) {
@@ -50,8 +54,8 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
       return this;
     }
 
-    public Builder occurrenceEntity(String occurrenceEntity) {
-      this.occurrenceEntity = occurrenceEntity;
+    public Builder occurrenceEntities(List<String> occurrenceEntities) {
+      this.occurrenceEntities = occurrenceEntities;
       return this;
     }
 
@@ -79,8 +83,8 @@ public class UFCriteriaOccurrence extends UFEntityGroup {
     return criteriaEntity;
   }
 
-  public String getOccurrenceEntity() {
-    return occurrenceEntity;
+  public List<String> getOccurrenceEntities() {
+    return Collections.unmodifiableList(occurrenceEntities);
   }
 
   public List<String> getModifierAttributes() {

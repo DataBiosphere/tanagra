@@ -1,12 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_ATTR_COL;
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_ENUM_COUNT_COL;
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_ENUM_DISPLAY_COL;
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_ENUM_VAL_COL;
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_MAX_COL;
-import static bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence.MODIFIER_AUX_DATA_MIN_COL;
-
+import bio.terra.tanagra.api.schemas.EntityLevelDisplayHints;
+import bio.terra.tanagra.api.schemas.InstanceLevelDisplayHints;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.underlay.*;
@@ -80,22 +75,64 @@ public class QuerysService {
       RowResult rowResult = rowResultsItr.next();
 
       String attrName =
-          rowResult.get(MODIFIER_AUX_DATA_ATTR_COL).getLiteral().orElseThrow().getStringVal();
+          rowResult
+              .get(
+                  entityHintRequest.isEntityLevelHints()
+                      ? EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName()
+                      : InstanceLevelDisplayHints.Columns.ATTRIBUTE_NAME
+                          .getSchema()
+                          .getColumnName())
+              .getLiteral()
+              .orElseThrow()
+              .getStringVal();
       Attribute attr = entityHintRequest.getEntity().getAttribute(attrName);
 
-      OptionalDouble min = rowResult.get(MODIFIER_AUX_DATA_MIN_COL).getDouble();
+      OptionalDouble min =
+          rowResult
+              .get(
+                  entityHintRequest.isEntityLevelHints()
+                      ? EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName()
+                      : InstanceLevelDisplayHints.Columns.MIN.getSchema().getColumnName())
+              .getDouble();
       if (min.isPresent()) {
         // This is a numeric range hint, which is contained in a single row.
-        OptionalDouble max = rowResult.get(MODIFIER_AUX_DATA_MAX_COL).getDouble();
+        OptionalDouble max =
+            rowResult
+                .get(
+                    entityHintRequest.isEntityLevelHints()
+                        ? EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Columns.MAX.getSchema().getColumnName())
+                .getDouble();
         displayHints.put(attr, new NumericRange(min.getAsDouble(), max.getAsDouble()));
       } else {
         // This is part of an enum values hint, which is spread across multiple rows -- one per enum
         // value.
         // TODO: Make a static NULL Literal instance, instead of overloading the String value.
         Literal val =
-            rowResult.get(MODIFIER_AUX_DATA_ENUM_VAL_COL).getLiteral().orElse(new Literal(null));
-        String display = rowResult.get(MODIFIER_AUX_DATA_ENUM_DISPLAY_COL).getString().orElse(null);
-        OptionalLong count = rowResult.get(MODIFIER_AUX_DATA_ENUM_COUNT_COL).getLong();
+            rowResult
+                .get(
+                    entityHintRequest.isEntityLevelHints()
+                        ? EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName())
+                .getLiteral()
+                .orElse(new Literal(null));
+        String display =
+            rowResult
+                .get(
+                    entityHintRequest.isEntityLevelHints()
+                        ? EntityLevelDisplayHints.Columns.ENUM_DISPLAY.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Columns.ENUM_DISPLAY
+                            .getSchema()
+                            .getColumnName())
+                .getString()
+                .orElse(null);
+        OptionalLong count =
+            rowResult
+                .get(
+                    entityHintRequest.isEntityLevelHints()
+                        ? EntityLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName())
+                .getLong();
         List<EnumVal> runningEnumVals =
             runningEnumValsMap.containsKey(attr) ? runningEnumValsMap.get(attr) : new ArrayList<>();
         runningEnumVals.add(new EnumVal(new ValueDisplay(val, display), count.getAsLong()));
