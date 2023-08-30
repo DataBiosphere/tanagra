@@ -55,7 +55,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
   }
 
   @Override
-  public ResponseEntity<Void> deleteCohort(String studyId, String cohortId, String cohortRevisionId) {
+  public ResponseEntity<Void> deleteCohort(
+      String studyId, String cohortId, String cohortRevisionId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(COHORT, DELETE),
@@ -65,7 +66,8 @@ public class CohortsV2ApiController implements CohortsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiCohortV2> getCohort(String studyId, String cohortId, String cohortRevisionId) {
+  public ResponseEntity<ApiCohortV2> getCohort(
+      String studyId, String cohortId, String cohortRevisionId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(COHORT, READ),
