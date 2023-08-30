@@ -3,7 +3,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
+import FormControl from "@mui/material/FormControl";
+import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
@@ -25,7 +28,7 @@ import { DataEntry, DataKey } from "data/types";
 import { useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cohortURL, newCriteriaURL, useExitAction } from "router";
 import useSWRImmutable from "swr/immutable";
@@ -115,6 +118,23 @@ function AddCriteria(props: AddCriteriaProps) {
     [criteriaConfigs]
   );
 
+  const tagList = useMemo(
+    () =>
+      criteriaConfigs.reduce((out: string[], cc) => {
+        cc.tags?.forEach((t) => {
+          if (out.indexOf(t) < 0) {
+            out.push(t);
+          }
+        });
+        return out;
+      }, []),
+    [criteriaConfigs]
+  );
+
+  const [selectedTags, setSelectedTags] = useState(
+    new Set<string>(tagList.length > 0 ? [tagList[0]] : [])
+  );
+
   const categories = useMemo(() => {
     const categories: CriteriaConfig[][] = [];
     const re = new RegExp(query, "i");
@@ -125,6 +145,14 @@ function AddCriteria(props: AddCriteriaProps) {
       }
 
       if (query && config.title.search(re) < 0) {
+        continue;
+      }
+
+      if (
+        selectedTags.size &&
+        config.tags?.length &&
+        !config.tags?.reduce((out, t) => selectedTags.has(t), false)
+      ) {
         continue;
       }
 
@@ -152,7 +180,7 @@ function AddCriteria(props: AddCriteriaProps) {
     }
 
     return categories;
-  }, [query, criteriaConfigs, criteriaConfigMap]);
+  }, [query, criteriaConfigs, criteriaConfigMap, selectedTags]);
 
   const columns = useMemo(
     () => [
@@ -227,6 +255,64 @@ function AddCriteria(props: AddCriteriaProps) {
         <GridBox>
           <Search placeholder="Search by code or description" />
         </GridBox>
+        <GridLayout cols spacing={1} rowAlign="baseline">
+          {tagList.length > 0 ? (
+            <GridLayout cols spacing={1} rowAlign="baseline">
+              <Typography variant="body1">Showing criteria in:</Typography>
+              <FormControl>
+                <Select
+                  multiple
+                  displayEmpty
+                  value={tagList.filter((t) => selectedTags.has(t))}
+                  renderValue={(selected) =>
+                    selected?.length ? (
+                      <Typography variant="body1">
+                        {selected.join(", ")}
+                      </Typography>
+                    ) : (
+                      <Typography variant="body1" component="em">
+                        Any
+                      </Typography>
+                    )
+                  }
+                  onChange={(event: SelectChangeEvent<string[]>) => {
+                    setSelectedTags(new Set(event.target.value));
+                  }}
+                  sx={{
+                    color: (theme) => theme.palette.primary.main,
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) => theme.palette.primary.main,
+                    },
+                  }}
+                >
+                  {tagList.map((t) => (
+                    <MenuItem key={t} value={t}>
+                      {t}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Typography variant="body1">.</Typography>
+            </GridLayout>
+          ) : null}
+          <GridLayout cols spacing={0.5} rowAlign="middle">
+            <Typography variant="body1">Use</Typography>
+            <AddIcon
+              sx={{
+                display: "grid",
+                color: (theme) => theme.palette.primary.main,
+              }}
+            />
+            <Typography variant="body1">to directly add and</Typography>
+            <SearchIcon
+              sx={{
+                display: "grid",
+                color: (theme) => theme.palette.primary.main,
+              }}
+            />
+            <Typography variant="body1">to explore.</Typography>
+          </GridLayout>
+        </GridLayout>
         <GridLayout rows spacing={2} sx={{ height: "auto" }}>
           {categories.map((category) => (
             <GridLayout key={category[0].category} rows spacing={2}>
