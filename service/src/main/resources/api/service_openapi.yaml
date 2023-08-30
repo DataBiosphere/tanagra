@@ -912,7 +912,7 @@ components:
 
     CohortRevisionIdV2:
       name: cohortRevisionId
-      in: path
+      in: query
       description: ID of the cohort revision
       required: false
       schema:
@@ -1897,6 +1897,8 @@ components:
           description: Timestamp of when the cohort was last modified
           type: string
           format: date-time
+        isDeleted:
+          type: boolean
       required:
         - id
         - underlayName
