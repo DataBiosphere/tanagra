@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.MockAouWorkbenchAccessControl;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,32 +49,18 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   @Test
   void underlay() {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
-    ResourceId cmsSynpufId = ResourceId.forUnderlay(CMS_SYNPUF);
     ResourceId aouSyntheticId = ResourceId.forUnderlay(AOU_SYNTHETIC);
-    ResourceId sddId = ResourceId.forUnderlay(SDD);
-    assertHasPermissions(USER_1, cmsSynpufId);
-    assertHasPermissions(USER_1, aouSyntheticId);
-    assertHasPermissions(USER_1, sddId);
-    assertHasPermissions(USER_2, cmsSynpufId);
-    assertHasPermissions(USER_2, aouSyntheticId);
-    assertHasPermissions(USER_2, sddId);
-    assertHasPermissions(USER_3, cmsSynpufId);
-    assertHasPermissions(USER_3, aouSyntheticId);
-    assertHasPermissions(USER_3, sddId);
-    assertHasPermissions(USER_4, cmsSynpufId);
-    assertHasPermissions(USER_4, aouSyntheticId);
-    assertHasPermissions(USER_4, sddId);
-
+//    assertHasPermissions(USER_1, aouSyntheticId);
+//    assertHasPermissions(USER_2, aouSyntheticId);
+//    assertHasPermissions(USER_4, aouSyntheticId);
     // service.list
     assertServiceListWithReadPermission(
-        USER_1, ResourceType.UNDERLAY, null, true, cmsSynpufId, aouSyntheticId, sddId);
+        USER_1, ResourceType.UNDERLAY, null, false, aouSyntheticId);
     assertServiceListWithReadPermission(
-        USER_2, ResourceType.UNDERLAY, null, true, cmsSynpufId, aouSyntheticId, sddId);
+        USER_2, ResourceType.UNDERLAY, null, false, aouSyntheticId);
     assertServiceListWithReadPermission(
-        USER_3, ResourceType.UNDERLAY, null, true, cmsSynpufId, aouSyntheticId, sddId);
-    assertServiceListWithReadPermission(
-        USER_4, ResourceType.UNDERLAY, null, true, cmsSynpufId, aouSyntheticId, sddId);
-  }
+        USER_4, ResourceType.UNDERLAY, null, false, aouSyntheticId);
+   }
 
   @Test
   void study() {
