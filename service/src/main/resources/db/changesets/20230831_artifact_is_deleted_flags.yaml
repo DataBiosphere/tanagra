@@ -10,8 +10,6 @@ databaseChangeLog:
                   name: is_deleted
                   type: boolean
                   value: false # Backfill existing rows with false.
-                  constraints:
-                    nullable: false
         - addColumn:
             tableName: cohort
             columns:
@@ -19,8 +17,6 @@ databaseChangeLog:
                   name: is_deleted
                   type: boolean
                   value: false # Backfill existing rows with false.
-                  constraints:
-                    nullable: false
         - addColumn:
             tableName: review
             columns:
@@ -28,8 +24,6 @@ databaseChangeLog:
                   name: is_deleted
                   type: boolean
                   value: false # Backfill existing rows with false.
-                  constraints:
-                    nullable: false
         - addColumn:
             tableName: concept_set
             columns:
@@ -37,5 +31,3 @@ databaseChangeLog:
                   name: is_deleted
                   type: boolean
                   value: false # Backfill existing rows with false.
-                  constraints:
-                    nullable: false
