@@ -18,6 +18,7 @@ public class ConceptSet {
   private final String createdBy;
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
+  private final boolean isDeleted;
 
   private ConceptSet(Builder builder) {
     this.id = builder.id;
@@ -30,6 +31,7 @@ public class ConceptSet {
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.lastModifiedBy = builder.lastModifiedBy;
+    this.isDeleted = builder.isDeleted;
   }
 
   public static Builder builder() {
@@ -78,6 +80,10 @@ public class ConceptSet {
     return description;
   }
 
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
   public static class Builder {
     private String id;
     private String underlay;
@@ -89,6 +95,7 @@ public class ConceptSet {
     private String createdBy;
     private OffsetDateTime lastModified;
     private String lastModifiedBy;
+    private boolean isDeleted;
 
     public Builder id(String id) {
       this.id = id;
@@ -137,6 +144,11 @@ public class ConceptSet {
 
     public Builder lastModifiedBy(String lastModifiedBy) {
       this.lastModifiedBy = lastModifiedBy;
+      return this;
+    }
+
+    public Builder isDeleted(boolean isDeleted) {
+      this.isDeleted = isDeleted;
       return this;
     }
 

@@ -2,6 +2,7 @@ package bio.terra.tanagra.db;
 
 import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
+import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.ConceptSet;
@@ -24,7 +25,7 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading a concept set.
   private static final String CONCEPT_SET_SELECT_SQL =
-      "SELECT id, underlay, entity, display_name, description, created, created_by, last_modified, last_modified_by FROM concept_set";
+      "SELECT id, underlay, entity, display_name, description, created, created_by, last_modified, last_modified_by, is_deleted FROM concept_set";
   private static final RowMapper<ConceptSet.Builder> CONCEPT_SET_ROW_MAPPER =
       (rs, rowNum) ->
           ConceptSet.builder()
@@ -36,7 +37,8 @@ public class ConceptSetDao {
               .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
-              .lastModifiedBy(rs.getString("last_modified_by"));
+              .lastModifiedBy(rs.getString("last_modified_by"))
+              .isDeleted(rs.getBoolean("is_deleted"));
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
@@ -71,7 +73,7 @@ public class ConceptSetDao {
   public List<ConceptSet> getAllConceptSets(String studyId, int offset, int limit) {
     String sql =
         CONCEPT_SET_SELECT_SQL
-            + " WHERE study_id = :study_id ORDER BY display_name LIMIT :limit OFFSET :offset";
+            + " WHERE study_id = :study_id AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET ALL concept sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -87,7 +89,7 @@ public class ConceptSetDao {
   public List<ConceptSet> getConceptSetsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
         CONCEPT_SET_SELECT_SQL
-            + " WHERE id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
+            + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET MATCHING concept sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -119,7 +121,7 @@ public class ConceptSetDao {
 
   @WriteTransaction
   public void deleteConceptSet(String id) {
-    String sql = "DELETE FROM concept_set WHERE id = :id";
+    String sql = "UPDATE concept_set SET is_deleted = true WHERE id = :id";
     LOGGER.debug("DELETE concept set: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -131,8 +133,8 @@ public class ConceptSetDao {
     // Write the concept set. The created and last_modified fields are set by the DB automatically
     // on insert.
     String sql =
-        "INSERT INTO concept_set (study_id, id, underlay, entity, created_by, last_modified_by, display_name, description) "
-            + "VALUES (:study_id, :id, :underlay, :entity, :created_by, :last_modified_by, :display_name, :description)";
+        "INSERT INTO concept_set (study_id, id, underlay, entity, created_by, last_modified_by, display_name, description, is_deleted) "
+            + "VALUES (:study_id, :id, :underlay, :entity, :created_by, :last_modified_by, :display_name, :description, false)";
     LOGGER.debug("CREATE concept set: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -159,6 +161,16 @@ public class ConceptSetDao {
       String description,
       String entity,
       List<Criteria> criteria) {
+    if (displayName == null && description == null && (criteria == null || criteria.isEmpty())) {
+      throw new MissingRequiredFieldException("Must specify field to update.");
+    }
+
+    // Check to make sure the concept set isn't deleted.
+    ConceptSet conceptSet = getConceptSet(id);
+    if (conceptSet.isDeleted()) {
+      throw new NotFoundException("Concept set " + id + " has been deleted.");
+    }
+
     // Update the concept set: display name, description, entity, last modified, last modified by.
     MapSqlParameterSource params =
         new MapSqlParameterSource()

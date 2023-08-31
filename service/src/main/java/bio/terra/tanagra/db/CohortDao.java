@@ -29,7 +29,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a cohort.
   private static final String COHORT_SELECT_SQL =
-      "SELECT id, underlay, created, created_by, last_modified, last_modified_by, display_name, description FROM cohort";
+      "SELECT id, underlay, created, created_by, last_modified, last_modified_by, display_name, description, is_deleted FROM cohort";
   private static final RowMapper<Cohort.Builder> COHORT_ROW_MAPPER =
       (rs, rowNum) ->
           Cohort.builder()
@@ -40,7 +40,8 @@ public class CohortDao {
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .lastModifiedBy(rs.getString("last_modified_by"))
               .displayName(rs.getString("display_name"))
-              .description(rs.getString("description"));
+              .description(rs.getString("description"))
+              .isDeleted(rs.getBoolean("is_deleted"));
 
   // SQL query and row mapper for reading a cohort revision.
   private static final String COHORT_REVISION_SELECT_SQL =
@@ -136,7 +137,7 @@ public class CohortDao {
   public List<Cohort> getAllCohorts(String studyId, int offset, int limit) {
     String sql =
         COHORT_SELECT_SQL
-            + " WHERE study_id = :study_id ORDER BY display_name LIMIT :limit OFFSET :offset";
+            + " WHERE study_id = :study_id AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET ALL cohorts: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -151,7 +152,8 @@ public class CohortDao {
   @ReadTransaction
   public List<Cohort> getCohortsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
-        COHORT_SELECT_SQL + " WHERE id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
+        COHORT_SELECT_SQL
+            + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET MATCHING cohorts: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -183,7 +185,7 @@ public class CohortDao {
 
   @WriteTransaction
   public void deleteCohort(String id) {
-    String sql = "DELETE FROM cohort WHERE id = :id";
+    String sql = "UPDATE cohort SET is_deleted = true WHERE id = :id";
     LOGGER.debug("DELETE cohort: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -195,8 +197,8 @@ public class CohortDao {
     // Write the cohort. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
-        "INSERT INTO cohort (study_id, id, underlay, created_by, last_modified_by, display_name, description) "
-            + "VALUES (:study_id, :id, :underlay, :created_by, :last_modified_by, :display_name, :description)";
+        "INSERT INTO cohort (study_id, id, underlay, created_by, last_modified_by, display_name, description, is_deleted) "
+            + "VALUES (:study_id, :id, :underlay, :created_by, :last_modified_by, :display_name, :description, false)";
     LOGGER.debug("CREATE cohort: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -223,6 +225,12 @@ public class CohortDao {
       List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
     if (displayName == null && description == null && criteriaGroupSections == null) {
       throw new MissingRequiredFieldException("Must specify field to update.");
+    }
+
+    // Check to make sure the cohort isn't deleted.
+    Cohort cohort = getCohort(id);
+    if (cohort.isDeleted()) {
+      throw new NotFoundException("Cohort " + id + " has been deleted");
     }
 
     // Update the cohort: display name, description, last modified, last modified by.

@@ -27,6 +27,7 @@ public class Study {
   private final String createdBy;
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
+  private final boolean isDeleted;
 
   public Study(Builder builder) {
     this.id = builder.id;
@@ -37,6 +38,7 @@ public class Study {
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.lastModifiedBy = builder.lastModifiedBy;
+    this.isDeleted = builder.isDeleted;
   }
 
   /** The globally unique identifier of this study. */
@@ -75,6 +77,10 @@ public class Study {
     return lastModifiedBy;
   }
 
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -96,6 +102,7 @@ public class Study {
         .append(createdBy, study.createdBy)
         .append(lastModified, study.lastModified)
         .append(lastModifiedBy, study.lastModifiedBy)
+        .append(isDeleted, study.isDeleted)
         .isEquals();
   }
 
@@ -110,6 +117,7 @@ public class Study {
         .append(createdBy)
         .append(lastModified)
         .append(lastModifiedBy)
+        .append(isDeleted)
         .toHashCode();
   }
 
@@ -127,6 +135,7 @@ public class Study {
     private String createdBy;
     private OffsetDateTime lastModified;
     private String lastModifiedBy;
+    private boolean isDeleted;
 
     public Builder id(String id) {
       this.id = id;
@@ -172,6 +181,11 @@ public class Study {
 
     public Builder lastModifiedBy(String lastModifiedBy) {
       this.lastModifiedBy = lastModifiedBy;
+      return this;
+    }
+
+    public Builder isDeleted(boolean isDeleted) {
+      this.isDeleted = isDeleted;
       return this;
     }
 
