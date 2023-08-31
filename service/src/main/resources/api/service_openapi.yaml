@@ -841,6 +841,7 @@ paths:
   "/v2/activityLogEntries":
     parameters:
       - $ref: "#/components/parameters/ActivityLogFilterUserEmail"
+      - $ref: "#/components/parameters/ActivityLogFilterExactMatch"
       - $ref: "#/components/parameters/ActivityLogFilterResourceType"
       - $ref: "#/components/parameters/ActivityLogFilterActivityType"
       - $ref: "#/components/parameters/OffsetV2"
@@ -1011,6 +1012,14 @@ components:
       required: false
       schema:
         type: string
+
+    ActivityLogFilterExactMatch:
+      name: exactMatch
+      in: query
+      description: True if the user email filter should check for an exact match
+      required: false
+      schema:
+        type: boolean
 
     ActivityLogFilterResourceType:
       name: resourceType
