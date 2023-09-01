@@ -110,4 +110,8 @@ public class CohortService {
     cohortDao.updateCohort(cohortId, userEmail, displayName, description, criteriaGroupSections);
     return cohortDao.getCohort(cohortId);
   }
+
+  public void createNextRevision(String studyId, String cohortId, String userEmail) {
+    cohortDao.createNextRevision(cohortId, null, userEmail);
+  }
 }
