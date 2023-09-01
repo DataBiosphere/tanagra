@@ -86,7 +86,12 @@ public class ExportApiController implements ExportApi {
                         apiQuery.getQuery(), underlayName, apiQuery.getEntity()))
             .collect(Collectors.toList());
     ExportResult result =
-        dataExportService.run(studyId, body.getCohorts(), request, entityQueryRequests);
+        dataExportService.run(
+            studyId,
+            body.getCohorts(),
+            request,
+            entityQueryRequests,
+            SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(toApiObject(result));
   }
 

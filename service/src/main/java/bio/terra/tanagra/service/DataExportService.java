@@ -83,9 +83,11 @@ public class DataExportService {
       String studyId,
       List<String> cohortIds,
       ExportRequest.Builder request,
-      List<EntityQueryRequest> entityQueryRequests) {
-    // Get the implementation class instance for the requested data export model.
-    DataExport impl = modelToImpl.get(request.getModel());
+      List<EntityQueryRequest> entityQueryRequests,
+      String userEmail) {
+    // Make the current cohort revision un-editable, and create the next version.
+    cohortIds.stream()
+        .forEach(cohortId -> cohortService.createNextRevision(studyId, cohortId, userEmail));
 
     // Populate the study, cohort, and underlay API objects in the request.
     Study study = studyService.getStudy(studyId);
@@ -104,8 +106,8 @@ public class DataExportService {
 
     // Populate the function pointers for generating SQL query strings and writing GCS files.
     // Instead of executing these functions here and passing the outputs to the implementation
-    // class,
-    // we just pass the function pointers to allow for lazy execution, or no execution at all.
+    // class, we just pass the function pointers to allow for lazy execution, or no execution at
+    // all.
     // e.g. To export an ipynb file with the SQL queries embedded in it, there's no need to write
     // anything to GCS.
     if (!entityQueryRequests.isEmpty()) {
@@ -119,6 +121,8 @@ public class DataExportService {
     }
     request.getGoogleCloudStorageFn(() -> getStorageService());
 
+    // Get the implementation class instance for the requested data export model.
+    DataExport impl = modelToImpl.get(request.getModel());
     return impl.run(request.build());
   }
 

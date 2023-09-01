@@ -207,7 +207,8 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()));
+            List.of(buildEntityQueryRequest()),
+            "abc@123.com");
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertNull(exportResult.getRedirectAwayUrl());
@@ -253,7 +254,8 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()));
+            List.of(buildEntityQueryRequest()),
+            "abc@123.com");
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertTrue(exportResult.getOutputs().isEmpty());
@@ -312,7 +314,8 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()));
+            List.of(buildEntityQueryRequest()),
+            "abc@123.com");
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertNull(exportResult.getRedirectAwayUrl());
