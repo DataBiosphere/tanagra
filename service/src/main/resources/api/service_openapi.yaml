@@ -382,6 +382,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/StudyIdV2"
       - $ref: "#/components/parameters/CohortIdV2"
+      - $ref: "#/components/parameters/CohortRevisionIdV2"
     get:
       summary: Get an existing cohort
       operationId: getCohort
@@ -837,6 +838,45 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/activityLogEntries":
+    parameters:
+      - $ref: "#/components/parameters/ActivityLogFilterUserEmail"
+      - $ref: "#/components/parameters/ActivityLogFilterExactMatch"
+      - $ref: "#/components/parameters/ActivityLogFilterResourceType"
+      - $ref: "#/components/parameters/ActivityLogFilterActivityType"
+      - $ref: "#/components/parameters/OffsetV2"
+      - $ref: "#/components/parameters/LimitV2"
+    get:
+      summary: List the activity log entries
+      operationId: listActivityLogEntries
+      tags: [ActivityLog]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityLogEntryList"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/activityLogEntries/{activityLogEntryId}":
+    parameters:
+      - $ref: "#/components/parameters/ActivityLogEntryId"
+    get:
+      summary: Get an activity log entry
+      operationId: getActivityLogEntry
+      tags: [ActivityLog]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityLogEntry"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   /v2/vumc-admin-service-test:
     get:
       tags: [Test]
@@ -885,6 +925,14 @@ components:
       in: path
       description: ID of the cohort
       required: true
+      schema:
+        type: string
+
+    CohortRevisionIdV2:
+      name: cohortRevisionId
+      in: query
+      description: ID of the cohort revision
+      required: false
       schema:
         type: string
 
@@ -973,6 +1021,46 @@ components:
         type: array
         items:
           type: string
+
+    ActivityLogFilterUserEmail:
+      name: userEmail
+      in: query
+      description: Text search on the activity log entry user email
+      required: false
+      schema:
+        type: string
+
+    ActivityLogFilterExactMatch:
+      name: exactMatch
+      in: query
+      description: True if the user email filter should check for an exact match
+      required: false
+      schema:
+        type: boolean
+
+    ActivityLogFilterResourceType:
+      name: resourceType
+      in: query
+      description: Filter on the activity log entry resource type
+      required: false
+      schema:
+        $ref: "#/components/schemas/ResourceType"
+
+    ActivityLogFilterActivityType:
+      name: activityType
+      in: query
+      description: Filter on the activity log entry activity type
+      required: false
+      schema:
+        $ref: "#/components/schemas/ActivityType"
+
+    ActivityLogEntryId:
+      name: activityLogEntryId
+      in: path
+      description: ID of the activity log entry
+      required: true
+      schema:
+        type: string
 
   responses:
     NotFound:
@@ -1816,8 +1904,11 @@ components:
       type: object
       properties:
         id:
-          description: ID of the cohort, immutable
-          type: string
+          $ref: "#/components/schemas/CohortIdV2"
+        revisionId:
+          description: ID of the cohort revision, if frozen, null otherwise
+          $ref: "#/components/schemas/CohortRevisionIdV2"
+          nullable: true
         underlayName:
           $ref: "#/components/schemas/UnderlayNameV2"
         displayName:
@@ -1840,6 +1931,8 @@ components:
           description: Timestamp of when the cohort was last modified
           type: string
           format: date-time
+        isDeleted:
+          type: boolean
       required:
         - id
         - underlayName
@@ -1853,6 +1946,14 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/CohortV2"
+
+    CohortIdV2:
+      type: string
+      description: ID of the cohort, immutable
+
+    CohortRevisionIdV2:
+      type: string
+      description: ID of a frozen cohort revision, immutable
 
     CohortCreateInfoV2:
       type: object
@@ -1889,8 +1990,7 @@ components:
       type: object
       properties:
         id:
-          description: ID of the concept set, immutable
-          type: string
+          $ref: "#/components/schemas/ConceptSetIdV2"
         underlayName:
           $ref: "#/components/schemas/UnderlayNameV2"
         entity:
@@ -1926,6 +2026,10 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/ConceptSetV2"
+
+    ConceptSetIdV2:
+      type: string
+      description: ID of the concept set, immutable
 
     ConceptSetCreateInfoV2:
       type: object
@@ -2385,6 +2489,88 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/ExportModel"
+
+    ResourceType:
+      type: string
+      enum: [ "STUDY", "COHORT", "REVIEW" ]
+
+    Resource:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/ResourceType"
+          nullable: false
+        studyId:
+          $ref: "#/components/schemas/StudyIdV2"
+          nullable: false
+        studyDisplayName:
+          $ref: "#/components/schemas/StudyDisplayNameV2"
+          nullable: true
+        cohortId:
+          $ref: "#/components/schemas/CohortIdV2"
+          nullable: true
+        cohortDisplayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
+          nullable: true
+        cohortRevisionId:
+          $ref: "#/components/schemas/CohortRevisionIdV2"
+          nullable: true
+        reviewId:
+          $ref: "#/components/schemas/ReviewIdV2"
+          nullable: true
+        reviewDisplayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
+          nullable: true
+      required:
+        - type
+        - studyId
+
+    ActivityType:
+      type: string
+      enum: [ "CREATE_STUDY", "DELETE_STUDY", "CREATE_COHORT", "DELETE_COHORT", "EXPORT_COHORT", "CREATE_REVIEW", "DELETE_REVIEW" ]
+
+    ActivityLogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: false
+        userEmail:
+          type: string
+          nullable: false
+        logged:
+          type: string
+          format: date-time
+          nullable: false
+        systemVersion:
+          $ref: "#/components/schemas/SystemVersionV2"
+          nullable: false
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
+          nullable: false
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/Resource"
+        additionalInfo:
+          description: Additional information for specific activity types
+          type: object
+          properties:
+            exportModel:
+              description: (EXPORT_COHORT) Name of the export model used
+              type: string
+              nullable: true
+      required:
+        - id
+        - userEmail
+        - logged
+        - systemVersion
+        - activityType
+
+    ActivityLogEntryList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ActivityLogEntry"
 
     ErrorReportV2:
       type: object

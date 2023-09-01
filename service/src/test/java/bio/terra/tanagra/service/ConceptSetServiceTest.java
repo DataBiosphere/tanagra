@@ -129,9 +129,20 @@ public class ConceptSetServiceTest {
 
     // Delete.
     conceptSetService.deleteConceptSet(study1.getId(), createdConceptSet.getId());
-    assertThrows(
-        NotFoundException.class,
-        () -> conceptSetService.getConceptSet(study1.getId(), createdConceptSet.getId()));
+    List<ConceptSet> conceptSets =
+        conceptSetService.listConceptSets(
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.CONCEPT_SET, ResourceId.forStudy(study1.getId())),
+            0,
+            10);
+    assertFalse(
+        conceptSets.stream()
+            .map(ConceptSet::getId)
+            .collect(Collectors.toList())
+            .contains(createdConceptSet.getId()));
+    ConceptSet conceptSet =
+        conceptSetService.getConceptSet(study1.getId(), createdConceptSet.getId());
+    assertTrue(conceptSet.isDeleted());
   }
 
   @Test
