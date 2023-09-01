@@ -117,9 +117,19 @@ public class CohortServiceTest {
 
     // Delete.
     cohortService.deleteCohort(study1.getId(), createdCohort.getId());
-    assertThrows(
-        NotFoundException.class,
-        () -> cohortService.getCohort(study1.getId(), createdCohort.getId()));
+    List<Cohort> cohorts =
+        cohortService.listCohorts(
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.COHORT, ResourceId.forStudy(study1.getId())),
+            0,
+            10);
+    assertFalse(
+        cohorts.stream()
+            .map(Cohort::getId)
+            .collect(Collectors.toList())
+            .contains(createdCohort.getId()));
+    Cohort cohort = cohortService.getCohort(study1.getId(), createdCohort.getId());
+    assertTrue(cohort.isDeleted());
   }
 
   @Test

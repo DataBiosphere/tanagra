@@ -16,6 +16,7 @@ public class Cohort {
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final List<CohortRevision> revisions;
+  private final boolean isDeleted;
 
   private Cohort(Builder builder) {
     this.id = builder.id;
@@ -27,6 +28,7 @@ public class Cohort {
     this.displayName = builder.displayName;
     this.description = builder.description;
     this.revisions = builder.revisions;
+    this.isDeleted = builder.isDeleted;
   }
 
   public static Builder builder() {
@@ -78,6 +80,10 @@ public class Cohort {
     return mostRecentRevision.get();
   }
 
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
   public static class Builder {
     private String id;
     private String underlay;
@@ -88,6 +94,7 @@ public class Cohort {
     private @Nullable String displayName;
     private @Nullable String description;
     private List<CohortRevision> revisions;
+    private boolean isDeleted;
 
     public Builder id(String id) {
       this.id = id;
@@ -131,6 +138,11 @@ public class Cohort {
 
     public Builder revisions(List<CohortRevision> revisions) {
       this.revisions = revisions;
+      return this;
+    }
+
+    public Builder isDeleted(boolean isDeleted) {
+      this.isDeleted = isDeleted;
       return this;
     }
 

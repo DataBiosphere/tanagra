@@ -82,7 +82,16 @@ public class StudyServiceTest {
 
     // Delete.
     studyService.deleteStudy(createdStudy.getId());
-    assertThrows(NotFoundException.class, () -> studyService.getStudy(createdStudy.getId()));
+    List<Study> studies =
+        studyService.listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
+    assertFalse(
+        studies.stream()
+            .map(Study::getId)
+            .collect(Collectors.toList())
+            .contains(createdStudy.getId()));
+    Study study = studyService.getStudy(createdStudy.getId());
+    assertTrue(study.isDeleted());
 
     // Create with id.
     String id = "aou-rw-26297573";

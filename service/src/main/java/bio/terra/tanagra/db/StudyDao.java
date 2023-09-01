@@ -26,7 +26,7 @@ public class StudyDao {
 
   // SQL query and row mapper for reading a study.
   private static final String STUDY_SELECT_SQL =
-      "SELECT id, display_name, description, created, created_by, last_modified, last_modified_by FROM study";
+      "SELECT id, display_name, description, created, created_by, last_modified, last_modified_by, is_deleted FROM study";
   private static final RowMapper<Study.Builder> STUDY_ROW_MAPPER =
       (rs, rowNum) ->
           Study.builder()
@@ -36,7 +36,8 @@ public class StudyDao {
               .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
-              .lastModifiedBy(rs.getString("last_modified_by"));
+              .lastModifiedBy(rs.getString("last_modified_by"))
+              .isDeleted(rs.getBoolean("is_deleted"));
 
   // SQL query and row mapper for reading a property.
   private static final String PROPERTY_SELECT_SQL =
@@ -56,8 +57,8 @@ public class StudyDao {
   @WriteTransaction
   public void createStudy(Study study) {
     String sql =
-        "INSERT INTO study (id, display_name, description, created_by, last_modified_by) "
-            + "VALUES (:id, :display_name, :description, :created_by, :last_modified_by)";
+        "INSERT INTO study (id, display_name, description, created_by, last_modified_by, is_deleted) "
+            + "VALUES (:id, :display_name, :description, :created_by, :last_modified_by, false)";
     LOGGER.debug("CREATE study: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -95,7 +96,7 @@ public class StudyDao {
    */
   @WriteTransaction
   public boolean deleteStudy(String id) {
-    String sql = "DELETE FROM study WHERE id = :id";
+    String sql = "UPDATE study SET is_deleted = true WHERE id = :id";
     LOGGER.debug("DELETE study: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -117,7 +118,8 @@ public class StudyDao {
     String filterSql = renderSqlForStudyFilter(studyFilter, params);
     String sql =
         STUDY_SELECT_SQL
-            + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
+            + " WHERE NOT is_deleted"
+            + (filterSql.isEmpty() ? "" : " AND " + filterSql)
             + " ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET all studies: {}", sql);
     List<Study> studies = getStudiesHelper(sql, params);
@@ -144,7 +146,7 @@ public class StudyDao {
     String filterSql = renderSqlForStudyFilter(studyFilter, params);
     String sql =
         STUDY_SELECT_SQL
-            + " WHERE id IN (:ids) "
+            + " WHERE id IN (:ids) AND NOT is_deleted "
             + (filterSql.isEmpty() ? "" : "AND " + filterSql + " ")
             + "ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET matching studies: {}", sql);
@@ -217,9 +219,20 @@ public class StudyDao {
         .orElseThrow(() -> new NotFoundException(String.format("Study %s not found.", id)));
   }
 
+  public Study getStudyNotDeleted(String id) {
+    Study study = getStudy(id);
+    if (study.isDeleted()) {
+      throw new NotFoundException("Study " + id + " has been deleted");
+    }
+    return study;
+  }
+
   @WriteTransaction
   public boolean updateStudy(
       String id, String lastModifiedBy, @Nullable String name, @Nullable String description) {
+    // Check to make sure the study isn't deleted.
+    getStudyNotDeleted(id);
+
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("last_modified_by", lastModifiedBy);
     if (name != null) {
@@ -246,7 +259,7 @@ public class StudyDao {
   public void updateStudyProperties(
       String id, String lastModifiedBy, Map<String, String> propertyMap) {
     // Get the current properties for this study.
-    Study study = getStudy(id);
+    Study study = getStudyNotDeleted(id);
 
     // Update just the properties specified, leave the rest as is.
     Map<String, String> updatedProperties = new HashMap<>();
@@ -263,7 +276,7 @@ public class StudyDao {
   @WriteTransaction
   public void deleteStudyProperties(String id, String lastModifiedBy, List<String> propertyKeys) {
     // Get the current properties for this study.
-    Study study = getStudy(id);
+    Study study = getStudyNotDeleted(id);
 
     // Delete just the properties specified, leave the rest as is.
     Map<String, String> updatedProperties = new HashMap<>();
