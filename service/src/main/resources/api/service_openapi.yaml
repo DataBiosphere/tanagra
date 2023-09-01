@@ -860,6 +860,23 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/activityLogEntries/{activityLogEntryId}":
+    parameters:
+      - $ref: "#/components/parameters/ActivityLogEntryId"
+    get:
+      summary: Get an activity log entry
+      operationId: getActivityLogEntry
+      tags: [ActivityLog]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityLogEntry"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   /v2/vumc-admin-service-test:
     get:
       tags: [Test]
@@ -1036,6 +1053,14 @@ components:
       required: false
       schema:
         $ref: "#/components/schemas/ActivityType"
+
+    ActivityLogEntryId:
+      name: activityLogEntryId
+      in: path
+      description: ID of the activity log entry
+      required: true
+      schema:
+        type: string
 
   responses:
     NotFound:
@@ -2467,18 +2492,25 @@ components:
 
     ResourceType:
       type: string
-      enum: [ "STUDY", "COHORT", "REVIEW", "CONCEPT_SET" ]
+      enum: [ "STUDY", "COHORT", "REVIEW" ]
 
     Resource:
       type: object
       properties:
         type:
           $ref: "#/components/schemas/ResourceType"
+          nullable: false
         studyId:
           $ref: "#/components/schemas/StudyIdV2"
           nullable: false
+        studyDisplayName:
+          $ref: "#/components/schemas/StudyDisplayNameV2"
+          nullable: true
         cohortId:
           $ref: "#/components/schemas/CohortIdV2"
+          nullable: true
+        cohortDisplayName:
+          $ref: "#/components/schemas/CohortDisplayNameV2"
           nullable: true
         cohortRevisionId:
           $ref: "#/components/schemas/CohortRevisionIdV2"
@@ -2486,19 +2518,23 @@ components:
         reviewId:
           $ref: "#/components/schemas/ReviewIdV2"
           nullable: true
-        conceptSetId:
-          $ref: "#/components/schemas/ConceptSetIdV2"
+        reviewDisplayName:
+          $ref: "#/components/schemas/ReviewDisplayNameV2"
           nullable: true
       required:
+        - type
         - studyId
 
     ActivityType:
       type: string
-      enum: [ "CREATE_STUDY", "DELETE_STUDY", "CREATE_COHORT", "DELETE_COHORT", "EXPORT_COHORT", "CREATE_REVIEW", "DELETE_REVIEW", "CREATE_CONCEPT_SET", "DELETE_CONCEPT_SET" ]
+      enum: [ "CREATE_STUDY", "DELETE_STUDY", "CREATE_COHORT", "DELETE_COHORT", "EXPORT_COHORT", "CREATE_REVIEW", "DELETE_REVIEW" ]
 
     ActivityLogEntry:
       type: object
       properties:
+        id:
+          type: string
+          nullable: false
         userEmail:
           type: string
           nullable: false
@@ -2506,15 +2542,16 @@ components:
           type: string
           format: date-time
           nullable: false
-        codeVersion:
-          type: string
+        systemVersion:
+          $ref: "#/components/schemas/SystemVersionV2"
           nullable: false
         activityType:
           $ref: "#/components/schemas/ActivityType"
           nullable: false
-        primaryResource:
-          $ref: "#/components/schemas/Resource"
-          nullable: false
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/Resource"
         additionalInfo:
           description: Additional information for specific activity types
           type: object
@@ -2524,9 +2561,10 @@ components:
               type: string
               nullable: true
       required:
+        - id
         - userEmail
         - logged
-        - codeVersion
+        - systemVersion
         - activityType
 
     ActivityLogEntryList:
