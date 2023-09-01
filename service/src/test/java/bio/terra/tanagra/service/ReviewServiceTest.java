@@ -149,9 +149,19 @@ public class ReviewServiceTest {
 
     // Delete.
     reviewService.deleteReview(study1.getId(), cohort1.getId(), createdReview.getId());
-    assertThrows(
-        NotFoundException.class,
-        () -> reviewService.getReview(study1.getId(), cohort1.getId(), createdReview.getId()));
+    List<Review> reviews =
+        reviewService.listReviews(
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.REVIEW, ResourceId.forCohort(study1.getId(), cohort1.getId())),
+            0,
+            10);
+    assertFalse(
+        reviews.stream()
+            .map(Review::getId)
+            .collect(Collectors.toList())
+            .contains(createdReview.getId()));
+    Review review = reviewService.getReview(study1.getId(), cohort1.getId(), createdReview.getId());
+    assertTrue(review.isDeleted());
   }
 
   @Test

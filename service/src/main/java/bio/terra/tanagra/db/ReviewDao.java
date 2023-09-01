@@ -29,7 +29,7 @@ public class ReviewDao {
 
   // SQL query and row mapper for reading a review.
   private static final String REVIEW_SELECT_SQL =
-      "SELECT id, size, display_name, description, created, created_by, last_modified, last_modified_by FROM review";
+      "SELECT id, size, display_name, description, created, created_by, last_modified, last_modified_by, is_deleted FROM review";
   private static final RowMapper<Review.Builder> REVIEW_ROW_MAPPER =
       (rs, rowNum) ->
           Review.builder()
@@ -40,7 +40,8 @@ public class ReviewDao {
               .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
               .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
-              .lastModifiedBy(rs.getString("last_modified_by"));
+              .lastModifiedBy(rs.getString("last_modified_by"))
+              .isDeleted(rs.getBoolean("is_deleted"));
 
   // SQL query and row mapper for reading a cohort revision.
   private static final String COHORT_REVISION_SELECT_SQL =
@@ -85,7 +86,7 @@ public class ReviewDao {
   public List<Review> getAllReviews(String cohortId, int offset, int limit) {
     String sql =
         REVIEW_SELECT_SQL
-            + " WHERE cohort_id = :cohort_id ORDER BY created DESC LIMIT :limit OFFSET :offset";
+            + " WHERE cohort_id = :cohort_id AND NOT is_deleted ORDER BY created DESC LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET ALL reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -100,7 +101,8 @@ public class ReviewDao {
   @ReadTransaction
   public List<Review> getReviewsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
-        REVIEW_SELECT_SQL + " WHERE id IN (:ids) ORDER BY created DESC LIMIT :limit OFFSET :offset";
+        REVIEW_SELECT_SQL
+            + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY created DESC LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET MATCHING reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -132,7 +134,7 @@ public class ReviewDao {
 
   @WriteTransaction
   public void deleteReview(String id) {
-    String sql = "DELETE FROM review WHERE id = :id";
+    String sql = "UPDATE review SET is_deleted = true WHERE id = :id";
     LOGGER.debug("DELETE review: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -144,8 +146,8 @@ public class ReviewDao {
     // Write the review. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
-        "INSERT INTO review (cohort_id, id, size, display_name, description, created_by, last_modified_by) "
-            + "VALUES (:cohort_id, :id, :size, :display_name, :description, :created_by, :last_modified_by)";
+        "INSERT INTO review (cohort_id, id, size, display_name, description, created_by, last_modified_by, is_deleted) "
+            + "VALUES (:cohort_id, :id, :size, :display_name, :description, :created_by, :last_modified_by, false)";
     LOGGER.debug("CREATE review: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -189,6 +191,12 @@ public class ReviewDao {
       String id, String lastModifiedBy, String displayName, String description) {
     if (displayName == null && description == null) {
       throw new MissingRequiredFieldException("Must specify field to update.");
+    }
+
+    // Check to make sure the review isn't deleted.
+    Review review = getReview(id);
+    if (review.isDeleted()) {
+      throw new NotFoundException("Review " + id + " has been deleted.");
     }
 
     // Update the review: display name, description, last modified, last modified by.

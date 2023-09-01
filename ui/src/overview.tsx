@@ -509,7 +509,11 @@ function ParticipantsGroup(props: {
                 backgroundColor: "#F1F2FA",
                 boxShadow: "inset 0 -1px 0 #BEC2E9, inset 0 1px 0 #BEC2E9",
               }
-            : undefined),
+            : {
+                "&:hover": {
+                  textDecoration: "underline",
+                },
+              }),
         }}
       >
         <GridLayout key={props.group.id} rows height="auto">

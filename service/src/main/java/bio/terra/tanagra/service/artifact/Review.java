@@ -14,6 +14,7 @@ public class Review {
   private final String createdBy;
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
+  private final boolean isDeleted;
 
   private Review(Builder builder) {
     this.id = builder.id;
@@ -25,6 +26,7 @@ public class Review {
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.lastModifiedBy = builder.lastModifiedBy;
+    this.isDeleted = builder.isDeleted;
   }
 
   public static Builder builder() {
@@ -67,6 +69,10 @@ public class Review {
     return lastModifiedBy;
   }
 
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
   public static class Builder {
     private String id;
     private String displayName;
@@ -77,6 +83,7 @@ public class Review {
     private String createdBy;
     private OffsetDateTime lastModified;
     private String lastModifiedBy;
+    private boolean isDeleted;
 
     public Builder id(String id) {
       this.id = id;
@@ -120,6 +127,11 @@ public class Review {
 
     public Builder lastModifiedBy(String lastModifiedBy) {
       this.lastModifiedBy = lastModifiedBy;
+      return this;
+    }
+
+    public Builder isDeleted(boolean isDeleted) {
+      this.isDeleted = isDeleted;
       return this;
     }
 

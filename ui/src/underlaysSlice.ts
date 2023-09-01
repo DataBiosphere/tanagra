@@ -87,6 +87,7 @@ export interface CriteriaConfig {
   title: string;
   conceptSet?: boolean;
   category?: string;
+  tags?: string[];
   modifiers?: string[];
 
   // Plugin specific config.
