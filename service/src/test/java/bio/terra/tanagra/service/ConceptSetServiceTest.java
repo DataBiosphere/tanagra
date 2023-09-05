@@ -56,14 +56,14 @@ public class ConceptSetServiceTest {
   @AfterEach
   void deleteTwoStudies() {
     try {
-      studyService.deleteStudy(study1.getId());
+      studyService.deleteStudy(study1.getId(), "abc@123.com");
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
     }
 
     try {
-      studyService.deleteStudy(study2.getId());
+      studyService.deleteStudy(study2.getId(), "abc@123.com");
       LOGGER.info("Deleted study2 {}", study2.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study2", ex);

@@ -85,7 +85,7 @@ public class ReviewServiceTest {
   @AfterEach
   void deleteTwoCohorts() {
     try {
-      studyService.deleteStudy(study1.getId());
+      studyService.deleteStudy(study1.getId(), "abc@123.com");
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
@@ -148,7 +148,8 @@ public class ReviewServiceTest {
     assertTrue(updatedReview.getLastModified().isAfter(updatedReview.getCreated()));
 
     // Delete.
-    reviewService.deleteReview(study1.getId(), cohort1.getId(), createdReview.getId());
+    reviewService.deleteReview(
+        study1.getId(), cohort1.getId(), createdReview.getId(), "abc@123.com");
     List<Review> reviews =
         reviewService.listReviews(
             ResourceCollection.allResourcesAllPermissions(

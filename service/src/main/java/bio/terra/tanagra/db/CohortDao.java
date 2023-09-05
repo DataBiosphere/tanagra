@@ -277,10 +277,12 @@ public class CohortDao {
     }
   }
 
+  /** @return the id of the frozen revision just created */
   @WriteTransaction
-  public void createNextRevision(String cohortId, String reviewId, String userEmail) {
+  public String createNextRevision(String cohortId, String reviewId, String userEmail) {
     // Get the current most recent revision, so we can copy it.
     Cohort cohort = getCohort(cohortId);
+    String frozenRevisionId = cohort.getMostRecentRevision().getId();
 
     // Update the current revision to be un-editable and no longer the most recent.
     String sql =
@@ -310,6 +312,7 @@ public class CohortDao {
             .lastModified(null)
             .build();
     createRevision(cohortId, nextRevision);
+    return frozenRevisionId;
   }
 
   private List<Cohort> getCohortsHelper(String cohortsSql, MapSqlParameterSource cohortsParams) {

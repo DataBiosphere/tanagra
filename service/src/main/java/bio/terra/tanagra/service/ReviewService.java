@@ -39,6 +39,7 @@ public class ReviewService {
   private final QuerysService querysService;
   private final ReviewDao reviewDao;
   private final FeatureConfiguration featureConfiguration;
+  private final ActivityLogService activityLogService;
 
   @Autowired
   public ReviewService(
@@ -47,13 +48,15 @@ public class ReviewService {
       AnnotationService annotationService,
       QuerysService querysService,
       ReviewDao reviewDao,
-      FeatureConfiguration featureConfiguration) {
+      FeatureConfiguration featureConfiguration,
+      ActivityLogService activityLogService) {
     this.cohortService = cohortService;
     this.underlaysService = underlaysService;
     this.annotationService = annotationService;
     this.querysService = querysService;
     this.reviewDao = reviewDao;
     this.featureConfiguration = featureConfiguration;
+    this.activityLogService = activityLogService;
   }
 
   /** Create a review and a list of the primary entity instance ids it contains. */
@@ -114,13 +117,19 @@ public class ReviewService {
         cohortId,
         reviewBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build(),
         queryResult);
-    return reviewDao.getReview(reviewBuilder.getId());
+    Review review = reviewDao.getReview(reviewBuilder.getId());
+    activityLogService.logReview(
+        ActivityLog.Type.CREATE_REVIEW, userEmail, studyId, cohortId, review);
+    return review;
   }
 
   /** Delete a review and all the primary entity instance ids and annotation values it contains. */
-  public void deleteReview(String studyId, String cohortId, String reviewId) {
+  public void deleteReview(String studyId, String cohortId, String reviewId, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
+    Review review = reviewDao.getReview(reviewId);
     reviewDao.deleteReview(reviewId);
+    activityLogService.logReview(
+        ActivityLog.Type.DELETE_REVIEW, userEmail, studyId, cohortId, review);
   }
 
   /** List reviews with their cohort revisions. */

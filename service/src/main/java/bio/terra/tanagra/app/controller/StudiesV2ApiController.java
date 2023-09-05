@@ -60,7 +60,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(STUDY, DELETE),
         ResourceId.forStudy(studyId));
-    studyService.deleteStudy(studyId);
+    studyService.deleteStudy(studyId, SpringAuthentication.getCurrentUser().getEmail());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 

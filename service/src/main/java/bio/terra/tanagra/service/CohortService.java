@@ -4,6 +4,7 @@ import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.artifact.ActivityLog;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
 import java.util.Collections;
@@ -19,17 +20,20 @@ public class CohortService {
   private final FeatureConfiguration featureConfiguration;
   private final UnderlaysService underlaysService;
   private final StudyService studyService;
+  private final ActivityLogService activityLogService;
 
   @Autowired
   public CohortService(
       CohortDao cohortDao,
       FeatureConfiguration featureConfiguration,
       UnderlaysService underlaysService,
-      StudyService studyService) {
+      StudyService studyService,
+      ActivityLogService activityLogService) {
     this.cohortDao = cohortDao;
     this.featureConfiguration = featureConfiguration;
     this.underlaysService = underlaysService;
     this.studyService = studyService;
+    this.activityLogService = activityLogService;
   }
 
   /** Create a cohort and its first revision without any criteria. */
@@ -62,13 +66,17 @@ public class CohortService {
 
     cohortDao.createCohort(
         studyId, cohortBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
-    return cohortDao.getCohort(cohortBuilder.getId());
+    Cohort cohort = cohortDao.getCohort(cohortBuilder.getId());
+    activityLogService.logCohort(ActivityLog.Type.CREATE_COHORT, userEmail, studyId, cohort);
+    return cohort;
   }
 
   /** Delete a cohort and all its revisions. */
-  public void deleteCohort(String studyId, String cohortId) {
+  public void deleteCohort(String studyId, String cohortId, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
+    Cohort cohort = cohortDao.getCohort(cohortId);
     cohortDao.deleteCohort(cohortId);
+    activityLogService.logCohort(ActivityLog.Type.DELETE_COHORT, userEmail, studyId, cohort);
   }
 
   /** List cohorts with their most recent revisions. */
@@ -111,7 +119,8 @@ public class CohortService {
     return cohortDao.getCohort(cohortId);
   }
 
-  public void createNextRevision(String studyId, String cohortId, String userEmail) {
-    cohortDao.createNextRevision(cohortId, null, userEmail);
+  /** @return the id of the frozen revision just created */
+  public String createNextRevision(String studyId, String cohortId, String userEmail) {
+    return cohortDao.createNextRevision(cohortId, null, userEmail);
   }
 }

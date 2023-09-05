@@ -11,8 +11,6 @@ import org.springframework.stereotype.Controller;
 /** Spring controller for the unauthenticated API methods. */
 @Controller
 public class UnauthenticatedApiController implements UnauthenticatedApi {
-  private static final String GITHUB_COMMIT_URL =
-      "https://github.com/DataBiosphere/tanagra/commit/";
   private final ApiSystemVersionV2 currentVersion;
 
   @Autowired
@@ -21,7 +19,7 @@ public class UnauthenticatedApiController implements UnauthenticatedApi {
         new ApiSystemVersionV2()
             .gitTag(versionConfiguration.getGitTag())
             .gitHash(versionConfiguration.getGitHash())
-            .github(GITHUB_COMMIT_URL + versionConfiguration.getGitHash())
+            .github(versionConfiguration.getGithubUrl())
             .build(versionConfiguration.getBuild());
   }
 

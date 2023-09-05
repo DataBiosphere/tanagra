@@ -42,7 +42,7 @@ public class StudyServiceTest {
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 100);
     for (Study study : allStudies) {
       try {
-        studyService.deleteStudy(study.getId());
+        studyService.deleteStudy(study.getId(), "abc@123.com");
       } catch (Exception ex) {
         LOGGER.error("Error deleting study", ex);
       }
@@ -81,7 +81,7 @@ public class StudyServiceTest {
     assertEquals("efg@123.com", updatedStudy.getLastModifiedBy());
 
     // Delete.
-    studyService.deleteStudy(createdStudy.getId());
+    studyService.deleteStudy(createdStudy.getId(), "abc@123.com");
     List<Study> studies =
         studyService.listStudies(
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);

@@ -14,6 +14,8 @@ import org.springframework.core.env.MapPropertySource;
 @PropertySource("classpath:/generated/version.properties")
 @ConfigurationProperties(prefix = "version")
 public class VersionConfiguration implements InitializingBean {
+  private static final String GITHUB_COMMIT_URL =
+      "https://github.com/DataBiosphere/tanagra/commit/";
   private String gitHash;
   private String gitTag;
   private String build;
@@ -47,6 +49,14 @@ public class VersionConfiguration implements InitializingBean {
 
   public void setBuild(String build) {
     this.build = build;
+  }
+
+  public String getGithubUrl() {
+    return GITHUB_COMMIT_URL + gitHash;
+  }
+
+  public static String getGithubUrl(String gitHash) {
+    return GITHUB_COMMIT_URL + gitHash;
   }
 
   /**

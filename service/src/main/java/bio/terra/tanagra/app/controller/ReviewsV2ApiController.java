@@ -83,7 +83,8 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(REVIEW, DELETE),
         ResourceId.forReview(studyId, cohortId, reviewId));
-    reviewService.deleteReview(studyId, cohortId, reviewId);
+    reviewService.deleteReview(
+        studyId, cohortId, reviewId, SpringAuthentication.getCurrentUser().getEmail());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 

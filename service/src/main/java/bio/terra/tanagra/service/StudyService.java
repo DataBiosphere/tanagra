@@ -5,6 +5,7 @@ import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.artifact.ActivityLog;
 import bio.terra.tanagra.service.artifact.Study;
 import java.util.Collections;
 import java.util.List;
@@ -18,24 +19,33 @@ import org.springframework.stereotype.Component;
 public class StudyService {
   private final StudyDao studyDao;
   private final FeatureConfiguration featureConfiguration;
+  private final ActivityLogService activityLogService;
 
   @Autowired
-  public StudyService(StudyDao studyDao, FeatureConfiguration featureConfiguration) {
+  public StudyService(
+      StudyDao studyDao,
+      FeatureConfiguration featureConfiguration,
+      ActivityLogService activityLogService) {
     this.studyDao = studyDao;
     this.featureConfiguration = featureConfiguration;
+    this.activityLogService = activityLogService;
   }
 
   /** Create a new study. */
   public Study createStudy(Study.Builder studyBuilder, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
     studyDao.createStudy(studyBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
-    return studyDao.getStudy(studyBuilder.getId());
+    Study study = studyDao.getStudy(studyBuilder.getId());
+    activityLogService.logStudy(ActivityLog.Type.CREATE_STUDY, userEmail, study);
+    return study;
   }
 
   /** Delete an existing study by ID. */
-  public void deleteStudy(String id) {
+  public void deleteStudy(String id, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
+    Study study = studyDao.getStudy(id);
     studyDao.deleteStudy(id);
+    activityLogService.logStudy(ActivityLog.Type.DELETE_STUDY, userEmail, study);
   }
 
   public List<Study> listStudies(ResourceCollection authorizedIds, int offset, int limit) {

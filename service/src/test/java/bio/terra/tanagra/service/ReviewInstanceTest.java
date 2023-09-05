@@ -293,7 +293,7 @@ public class ReviewInstanceTest {
   @AfterEach
   void deleteReviewsAndAnnotations() {
     try {
-      studyService.deleteStudy(study1.getId());
+      studyService.deleteStudy(study1.getId(), "abc@123.com");
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
