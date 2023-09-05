@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.MockAouWorkbenchAccessControl;
-import java.util.Collections;
+import bio.terra.tanagra.service.auth.UserId;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,17 +51,14 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   void underlay() {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
     ResourceId aouSyntheticId = ResourceId.forUnderlay(AOU_SYNTHETIC);
-//    assertHasPermissions(USER_1, aouSyntheticId);
-//    assertHasPermissions(USER_2, aouSyntheticId);
-//    assertHasPermissions(USER_4, aouSyntheticId);
+    assertUnderlayPermissions(USER_1, aouSyntheticId);
+    assertUnderlayPermissions(USER_2, aouSyntheticId);
+    assertUnderlayPermissions(USER_4, aouSyntheticId);
     // service.list
-    assertServiceListWithReadPermission(
-        USER_1, ResourceType.UNDERLAY, null, false, aouSyntheticId);
-    assertServiceListWithReadPermission(
-        USER_2, ResourceType.UNDERLAY, null, false, aouSyntheticId);
-    assertServiceListWithReadPermission(
-        USER_4, ResourceType.UNDERLAY, null, false, aouSyntheticId);
-   }
+    assertResourceTypeNoListPermissions(USER_1, ResourceType.UNDERLAY);
+    assertResourceTypeNoListPermissions(USER_2, ResourceType.UNDERLAY);
+    assertResourceTypeNoListPermissions(USER_4, ResourceType.UNDERLAY);
+  }
 
   @Test
   void study() {
@@ -70,8 +68,8 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     };
     ResourceId study1Id = ResourceId.forStudy(study1.getId());
     ResourceId study2Id = ResourceId.forStudy(study2.getId());
-    assertHasPermissions(USER_1, study1Id, studyActionsExceptCreate);
-    assertHasPermissions(USER_1, study2Id, Action.READ);
+    assertStudyPermissions(USER_1, study1Id, studyActionsExceptCreate);
+    assertStudyPermissions(USER_1, study2Id, Action.READ);
     assertDoesNotHavePermissions(
         USER_1,
         study2Id,
@@ -79,7 +77,7 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
         Action.DELETE,
         Action.CREATE_COHORT,
         Action.CREATE_CONCEPT_SET);
-    assertHasPermissions(
+    assertStudyPermissions(
         USER_2,
         study1Id,
         Action.READ,
@@ -91,7 +89,7 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     assertDoesNotHavePermissions(USER_3, study1Id, studyActionsExceptCreate);
     assertDoesNotHavePermissions(USER_3, study2Id, studyActionsExceptCreate);
     assertDoesNotHavePermissions(USER_4, study1Id, studyActionsExceptCreate);
-    assertHasPermissions(USER_4, study2Id, Action.READ);
+    assertStudyPermissions(USER_4, study2Id, Action.READ);
     assertDoesNotHavePermissions(
         USER_4,
         study2Id,
@@ -111,11 +109,10 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
         impl.isAuthorized(USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
 
     // service.list
-    assertServiceListWithReadPermission(
-        USER_1, ResourceType.STUDY, null, false, study1Id, study2Id);
-    assertServiceListWithReadPermission(USER_2, ResourceType.STUDY, null, false, study1Id);
-    assertServiceListWithReadPermission(USER_3, ResourceType.STUDY, null, false);
-    assertServiceListWithReadPermission(USER_4, ResourceType.STUDY, null, false, study2Id);
+    assertResourceTypeNoListPermissions(USER_1, ResourceType.STUDY);
+    assertResourceTypeNoListPermissions(USER_2, ResourceType.STUDY);
+    assertResourceTypeNoListPermissions(USER_3, ResourceType.STUDY);
+    assertResourceTypeNoListPermissions(USER_4, ResourceType.STUDY);
   }
 
   @Test
@@ -256,5 +253,46 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     assertServiceListWithReadPermission(USER_4, ResourceType.ANNOTATION_KEY, cohort1Id, false);
     assertServiceListWithReadPermission(
         USER_4, ResourceType.ANNOTATION_KEY, cohort2Id, true, annotationKey2Id);
+  }
+
+  // Specific cases for AoU
+  private void assertUnderlayPermissions(UserId user, ResourceId resource) {
+    assertTrue(impl.isAuthorized(user, Permissions.empty(resource.getType()), resource));
+    assertResourceTypeNoListPermissions(user, resource.getType());
+  }
+
+  private void assertStudyPermissions(UserId user, ResourceId resource, Action... actions) {
+    assertTrue(impl.isAuthorized(user, Permissions.empty(resource.getType()), resource));
+    assertResourceTypeNoListPermissions(user, resource.getType(), actions);
+  }
+
+  private void assertResourceTypeNoListPermissions(
+      UserId user, ResourceType resource, Action... actions) {
+    ResourceCollection resources =
+        impl.listAuthorizedResources(
+            user,
+            Permissions.forActions(resource, resource.getActions()),
+            null,
+            0,
+            Integer.MAX_VALUE);
+    assertFalse(resources.isAllResources());
+    switch (resource) {
+      case UNDERLAY:
+        assertEquals(
+            actions.length,
+            underlaysService.listUnderlays(resources).stream()
+                .map(u -> ResourceId.forUnderlay(u.getName()))
+                .collect(Collectors.toSet())
+                .size());
+        break;
+      case STUDY:
+        assertEquals(
+            0,
+            studyService.listStudies(resources, 0, Integer.MAX_VALUE).stream()
+                .map(u -> ResourceId.forStudy(u.getId()))
+                .collect(Collectors.toSet())
+                .size());
+        break;
+    }
   }
 }

@@ -114,7 +114,7 @@ public class AouWorkbenchAccessControl implements AccessControl {
   @Override
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
+    if (ResourceType.UNDERLAY.equals(type)) {
       // AoU will not call to list Underlays or list studies - this is managed by Workbench
       LOGGER.error("Calls from AoU Workbench should never get here. ");
       return ResourceCollection.empty(type, null);
