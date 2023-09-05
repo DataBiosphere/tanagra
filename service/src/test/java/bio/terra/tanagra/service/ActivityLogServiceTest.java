@@ -14,6 +14,7 @@ import bio.terra.tanagra.service.instances.EntityQueryRequest;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +64,7 @@ public class ActivityLogServiceTest {
   }
 
   @Test
-  void createLogs() {
+  void createLogs() throws InterruptedException {
     // CREATE_STUDY
     study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
     assertNotNull(study1);
@@ -86,6 +87,8 @@ public class ActivityLogServiceTest {
                 buildActivityLog(
                         USER_EMAIL_1, ActivityLog.Type.CREATE_STUDY, studyActivityLogResource)
                     .build()));
+
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // CREATE_COHORT
     Cohort cohort1 =
@@ -116,6 +119,8 @@ public class ActivityLogServiceTest {
                 buildActivityLog(
                         USER_EMAIL_1, ActivityLog.Type.CREATE_COHORT, cohortActivityLogResource)
                     .build()));
+
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // CREATE_REVIEW
     ColumnHeaderSchema columnHeaderSchema =
@@ -158,6 +163,8 @@ public class ActivityLogServiceTest {
                         USER_EMAIL_2, ActivityLog.Type.CREATE_REVIEW, reviewActivityLogResource)
                     .build()));
 
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
+
     // EXPORT_COHORT
     Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     EntityQueryRequest entityQueryRequest =
@@ -189,6 +196,8 @@ public class ActivityLogServiceTest {
                     .exportModel(exportModel)
                     .build()));
 
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
+
     // DELETE_REVIEW
     reviewService.deleteReview(study1.getId(), cohort1.getId(), review1.getId(), USER_EMAIL_1);
     LOGGER.info("Deleted review {}", review1.getId());
@@ -203,6 +212,8 @@ public class ActivityLogServiceTest {
                         USER_EMAIL_1, ActivityLog.Type.DELETE_REVIEW, reviewActivityLogResource)
                     .build()));
 
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
+
     // DELETE_COHORT
     cohortService.deleteCohort(study1.getId(), cohort1.getId(), USER_EMAIL_2);
     LOGGER.info("Deleted cohort {}", cohort1.getId());
@@ -216,6 +227,8 @@ public class ActivityLogServiceTest {
                 buildActivityLog(
                         USER_EMAIL_2, ActivityLog.Type.DELETE_COHORT, cohortActivityLogResource)
                     .build()));
+
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // DELETE_STUDY
     studyService.deleteStudy(study1.getId(), USER_EMAIL_2);
@@ -250,11 +263,13 @@ public class ActivityLogServiceTest {
 
   @Test
   @SuppressWarnings("VariableDeclarationUsageDistance")
-  void filterList() {
+  void filterList() throws InterruptedException {
     // CREATE_STUDY
     study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
+
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // CREATE_COHORT
     Cohort cohort1 =
@@ -266,9 +281,13 @@ public class ActivityLogServiceTest {
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
+
     // DELETE_COHORT
     cohortService.deleteCohort(study1.getId(), cohort1.getId(), USER_EMAIL_2);
     LOGGER.info("Deleted cohort {}", cohort1.getId());
+
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // DELETE_STUDY
     studyService.deleteStudy(study1.getId(), USER_EMAIL_2);
