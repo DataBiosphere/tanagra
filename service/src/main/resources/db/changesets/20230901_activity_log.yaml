@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -55,7 +55,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: activity_log_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: activity_log(id)
                     foreignKeyName: fk_alr_al

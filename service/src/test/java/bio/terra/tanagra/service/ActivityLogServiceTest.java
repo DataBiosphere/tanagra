@@ -318,6 +318,11 @@ public class ActivityLogServiceTest {
             ActivityLogResource.Type.COHORT);
     assertEquals(1, activityLogs.size());
     assertEquals(createCohortLog, activityLogs.get(0));
+
+    // Filter by offset & limit.
+    activityLogs = activityLogService.listActivityLogs(1, 2, null, false, null, null);
+    assertEquals(2, activityLogs.size());
+    assertEquals(List.of(deleteCohortLog, createCohortLog), activityLogs);
   }
 
   private ActivityLog.Builder buildActivityLog(
