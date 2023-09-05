@@ -15,38 +15,38 @@ databaseChangeLog:
                     unique: true
               - column:
                   name: user_email
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: logged
-                  type: timestamptz
+                  type: ${date.timezone}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: version_git_tag
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: version_git_hash
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: version_build
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: activity_type
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: export_model
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
 
@@ -70,33 +70,33 @@ databaseChangeLog:
                   remarks: Return the resources in a consistent order.
               - column:
                   name: resource_type
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: study_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: study(id)
                     foreignKeyName: fk_alr_s
                     nullable: true
               - column:
                   name: cohort_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort(id)
                     foreignKeyName: fk_alr_c
                     nullable: true
               - column:
                   name: cohort_revision_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort_revision(id)
                     foreignKeyName: fk_alr_cr
                     nullable: true
               - column:
                   name: review_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: review(id)
                     foreignKeyName: fk_alr_r
