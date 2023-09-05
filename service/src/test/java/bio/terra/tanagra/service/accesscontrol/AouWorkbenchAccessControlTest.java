@@ -295,6 +295,7 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
         break;
       default:
         fail("Method should not be called for ResourceType - " + resource);
+        break;
     }
   }
 }
