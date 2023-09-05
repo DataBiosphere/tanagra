@@ -293,6 +293,8 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
                 .collect(Collectors.toSet())
                 .size());
         break;
+      default:
+        fail("Method should not be called for ResourceType - " + resource);
     }
   }
 }
