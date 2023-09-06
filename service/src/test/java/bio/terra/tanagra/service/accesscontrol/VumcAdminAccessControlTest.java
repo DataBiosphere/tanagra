@@ -17,6 +17,21 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
 
     // Define user permissions in VumcAdmin mock impl.
     MockVumcAdminAccessControl vaImpl = new MockVumcAdminAccessControl();
+    // activity logs
+    //   user1: READ
+    //   user2: READ
+    //   user3:
+    //   user4:
+    vaImpl.addPermission(
+        USER_1,
+        ResourceAction.READ,
+        org.vumc.vda.tanagra.admin.model.ResourceType.ACTIVITY_LOG,
+        null);
+    vaImpl.addPermission(
+        USER_2,
+        ResourceAction.READ,
+        org.vumc.vda.tanagra.admin.model.ResourceType.ACTIVITY_LOG,
+        null);
     // underlays
     //   user1: cmssynpuf (ALL)
     //   user2: cmssynpuf (READ), aousynthetic (ALL)
@@ -108,8 +123,8 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
     // isAuthorized
     assertTrue(impl.isAuthorized(USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
     assertTrue(impl.isAuthorized(USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertFalse(impl.isAuthorized(USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertFalse(impl.isAuthorized(USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
   }
 
   @Test
