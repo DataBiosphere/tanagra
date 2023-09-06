@@ -6,6 +6,12 @@ import java.util.*;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * AoU Researcher Workbench access control plugin implementation that checks permissions on the
@@ -33,10 +39,11 @@ public class AouWorkbenchAccessControl implements AccessControl {
           ResourceType.ANNOTATION_KEY.getActions()); // All annotation key actions.
 
   // Workspace writers have all permissions in a study, except for deleting the study.
+  // Check if a WRITER can update study (workspace)?
   private static final Map<ResourceType, Set<Action>> WORKSPACE_WRITER_PERMISSIONS =
       Map.of(
           ResourceType.STUDY,
-          Set.of(Action.READ, Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_CONCEPT_SET),
+          Set.of(Action.READ, Action.CREATE_COHORT, Action.CREATE_CONCEPT_SET),
           ResourceType.COHORT,
           ResourceType.COHORT.getActions(), // All cohort actions.
           ResourceType.CONCEPT_SET,
@@ -46,7 +53,7 @@ public class AouWorkbenchAccessControl implements AccessControl {
           ResourceType.ANNOTATION_KEY,
           ResourceType.ANNOTATION_KEY.getActions()); // All annotation key actions.
 
-  // Workspace readers cannnot persist any changes to a study, only view the existing state.
+  // Workspace readers cannot persist any changes to a study, only view the existing state.
   private static final Map<ResourceType, Set<Action>> WORKSPACE_READER_PERMISSIONS =
       Map.of(
           ResourceType.STUDY, Set.of(Action.READ),
@@ -54,8 +61,8 @@ public class AouWorkbenchAccessControl implements AccessControl {
           ResourceType.CONCEPT_SET, Set.of(Action.READ),
           ResourceType.REVIEW, Set.of(Action.READ, Action.QUERY_INSTANCES, Action.QUERY_COUNTS),
           ResourceType.ANNOTATION_KEY, Set.of(Action.READ));
+
   private String basePath;
-  private String oauthClientId;
 
   @Override
   public String getDescription() {
@@ -65,21 +72,18 @@ public class AouWorkbenchAccessControl implements AccessControl {
   @Override
   public void initialize(List<String> params, String basePath, String oauthClientId) {
     // Store the basePath and oauthClientId first, so we can use it when calling the workbench API.
-    if (basePath == null || oauthClientId == null) {
-      throw new IllegalArgumentException(
-          "Base URL and OAuth client id are required for Workbench API calls");
+    // check: oauthClientId not required?
+    if (basePath == null) {
+      throw new IllegalArgumentException("Base URL is required for Workbench API calls");
     }
     this.basePath = basePath;
-    this.oauthClientId = oauthClientId;
   }
 
   @Override
   public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
-    if (permissions.getType().equals(ResourceType.ACTIVITY_LOG)) {
-      LOGGER.warn("AoU-RW will not use the activity log, so we should never get here.");
-      return false;
-    } else if (permissions.getType().equals(ResourceType.UNDERLAY)) {
+    if (permissions.getType().equals(ResourceType.UNDERLAY)) {
       // Browsing the cohort builder without saving. Always allow.
+      // for AoU underlays? -> browsing is not allowed. Need underlay specific access (RT and CT)
       return true;
     } else if (Permissions.forActions(ResourceType.STUDY, Action.CREATE).equals(permissions)) {
       // Workbench creates a Tanagra study as part of workspace creation. Always allow.
@@ -88,12 +92,13 @@ public class AouWorkbenchAccessControl implements AccessControl {
       // Check for some permissions on a particular artifact (e.g. study, cohort).
       if (resource == null || resource.getStudy() == null) {
         LOGGER.error(
-            "Study id is required to check authorization of a particular artifact: {}", resource);
+            "AoU Workspace Access Level api Study id is required to check authorization for resource {}",
+            resource);
         return false;
       }
 
       // Call the workbench to get the user's role on the workspace that contains this study.
-      // Expect the Tanagra study id to match the Workbench workspace id.
+      // Expect the Tanagra study id to match the Workbench workspaceNamespace.
       WorkspaceRole role = apiGetWorkspaceAccess(user, resource.getStudy());
       if (role == null) {
         return false;
@@ -109,31 +114,10 @@ public class AouWorkbenchAccessControl implements AccessControl {
   @Override
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (ResourceType.ACTIVITY_LOG.equals(type)) {
-      LOGGER.warn("AoU-RW will not use the activity log, so we should never get here.");
-      return ResourceCollection.empty(ResourceType.ACTIVITY_LOG, null);
-    } else if (ResourceType.UNDERLAY.equals(type)) {
-      // Browsing the cohort builder without saving. Allow for all underlays.
-      return ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null);
-    } else if (ResourceType.STUDY.equals(type)) {
-      // Call the workbench to get the list of workspaces the user can see, and their role on each.
-      Map<String, WorkspaceRole> workspaceRoleMap = apiListWorkspacesWithAccess(user);
-
-      // Map the workspace roles to Tanagra permissions.
-      Map<ResourceId, Permissions> studyPermissionsMap = new HashMap<>();
-      workspaceRoleMap.entrySet().stream()
-          .forEach(
-              entry -> {
-                String studyId = entry.getKey();
-                WorkspaceRole role = entry.getValue();
-                studyPermissionsMap.put(
-                    ResourceId.forStudy(studyId),
-                    Permissions.forActions(
-                        ResourceType.STUDY, role.getTanagraPermissions().get(ResourceType.STUDY)));
-              });
-      return studyPermissionsMap.isEmpty()
-          ? ResourceCollection.empty(type, parentResource)
-          : ResourceCollection.resourcesDifferentPermissions(studyPermissionsMap);
+    if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
+      // AoU will not call to list Underlays or list studies - this is managed by Workbench
+      LOGGER.error("Calls from AoU Workbench should never get here. ");
+      return ResourceCollection.empty(type, null);
     } else {
       // Check for some permissions on a child artifact of a study (e.g. cohort).
       if (parentResource == null || parentResource.getStudy() == null) {
@@ -159,6 +143,7 @@ public class AouWorkbenchAccessControl implements AccessControl {
     OWNER(WORKSPACE_OWNER_PERMISSIONS),
     WRITER(WORKSPACE_WRITER_PERMISSIONS),
     READER(WORKSPACE_READER_PERMISSIONS);
+
     private final Map<ResourceType, Set<Action>> tanagraPermissions;
 
     WorkspaceRole(Map<ResourceType, Set<Action>> tanagraPermissions) {
@@ -175,22 +160,42 @@ public class AouWorkbenchAccessControl implements AccessControl {
    */
   protected @Nullable WorkspaceRole apiGetWorkspaceAccess(UserId userId, String workspaceId) {
     LOGGER.debug(
-        "Calling workbench API to check access to workspace {} for user {}",
+        "AoU Workspace Access Level api check access to workspace {} for user {}",
         workspaceId,
         userId.getEmail());
-    LOGGER.debug("Workbench API base path: {}, oauth client id: {}", basePath, oauthClientId);
-    // TODO: Call the workbench API to get the role the user has on the given workspace.
-    return WorkspaceRole.OWNER; // Temporarily, everyone is an owner on every workspace.
-  }
+    String url = basePath + "/" + workspaceId;
+    LOGGER.debug("AoU Workspace Access Level api endpoint : {}}", url);
 
-  /** @return a map of the workspace id -> role that the user has on each. */
-  protected Map<String, WorkspaceRole> apiListWorkspacesWithAccess(UserId userId) {
-    LOGGER.debug(
-        "Calling workbench API to list workspaces user {} can see, and their role on each.",
-        userId.getEmail());
-    LOGGER.debug("Workbench API base path: {}, oauth client id: {}", basePath, oauthClientId);
-    // TODO: Call the workbench API to list the workspaces the user has access to, and their role on
-    // each.
-    return Map.of(); // Temporarily, no one has access to any worksapces.
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.add("Content-Type", "application/json");
+    httpHeaders.add("Accept", "application/json");
+    httpHeaders.add("Authorization", "Bearer " + userId.getToken());
+
+    HttpEntity<String> requestEntity = new HttpEntity<>("", httpHeaders);
+    ResponseEntity<String> responseEntity =
+        restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+    if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+      String accesslevel = responseEntity.getBody();
+      LOGGER.info(
+          "AoU Workspace Access Level api User {} has {} access level for workspace {}",
+          userId.getEmail(),
+          accesslevel,
+          workspaceId);
+      try {
+        // if NO ACCESS throws IllegalArgumentException or null throws NPE
+        return WorkspaceRole.valueOf(accesslevel);
+      } catch (Exception ex) {
+        LOGGER.error(
+            "AoU Workspace Access Level api no WorkspaceRole Enum defined for access level {}.",
+            accesslevel);
+        return null;
+      }
+    }
+    LOGGER.error(
+        "AoU Workspace Access Level api error. Http status code: {}, Message: {}",
+        responseEntity.getStatusCodeValue(),
+        responseEntity.getStatusCode().getReasonPhrase());
+    return null;
   }
 }
