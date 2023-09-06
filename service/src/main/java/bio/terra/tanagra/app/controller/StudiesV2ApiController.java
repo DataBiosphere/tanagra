@@ -78,6 +78,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
       String displayName,
       String description,
       String createdBy,
+      Boolean includeDeleted,
       List<String> properties,
       Integer offset,
       Integer limit) {
