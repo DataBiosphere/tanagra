@@ -55,9 +55,9 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     assertUnderlayPermissions(USER_2, aouSyntheticId);
     assertUnderlayPermissions(USER_4, aouSyntheticId);
     // service.list
-    assertResourceTypeNoListPermissions(USER_1, ResourceType.UNDERLAY);
-    assertResourceTypeNoListPermissions(USER_2, ResourceType.UNDERLAY);
-    assertResourceTypeNoListPermissions(USER_4, ResourceType.UNDERLAY);
+    assertServiceListWithReadPermission(USER_1, ResourceType.UNDERLAY, null, false);
+    assertServiceListWithReadPermission(USER_2, ResourceType.UNDERLAY, null, false);
+    assertServiceListWithReadPermission(USER_4, ResourceType.UNDERLAY, null, false);
   }
 
   @Test
@@ -109,10 +109,10 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
         impl.isAuthorized(USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
 
     // service.list
-    assertResourceTypeNoListPermissions(USER_1, ResourceType.STUDY);
-    assertResourceTypeNoListPermissions(USER_2, ResourceType.STUDY);
-    assertResourceTypeNoListPermissions(USER_3, ResourceType.STUDY);
-    assertResourceTypeNoListPermissions(USER_4, ResourceType.STUDY);
+    assertStudyNoListPermissions(USER_1, ResourceType.STUDY);
+    assertStudyNoListPermissions(USER_2, ResourceType.STUDY);
+    assertStudyNoListPermissions(USER_3, ResourceType.STUDY);
+    assertStudyNoListPermissions(USER_4, ResourceType.STUDY);
   }
 
   @Test
@@ -258,44 +258,24 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   // Specific cases for AoU
   private void assertUnderlayPermissions(UserId user, ResourceId resource) {
     assertTrue(impl.isAuthorized(user, Permissions.empty(resource.getType()), resource));
-    assertResourceTypeNoListPermissions(user, resource.getType());
+    assertServiceListWithReadPermission(USER_1, ResourceType.UNDERLAY, null, false);
   }
 
   private void assertStudyPermissions(UserId user, ResourceId resource, Action... actions) {
     assertTrue(impl.isAuthorized(user, Permissions.empty(resource.getType()), resource));
-    assertResourceTypeNoListPermissions(user, resource.getType(), actions);
+    assertStudyNoListPermissions(user, resource.getType(), actions);
   }
 
-  private void assertResourceTypeNoListPermissions(
-      UserId user, ResourceType resource, Action... actions) {
+  private void assertStudyNoListPermissions(UserId user, ResourceType resource, Action... actions) {
     ResourceCollection resources =
         impl.listAuthorizedResources(
-            user,
-            Permissions.forActions(resource, resource.getActions()),
-            null,
-            0,
-            Integer.MAX_VALUE);
+            user, Permissions.forActions(resource, actions), null, 0, Integer.MAX_VALUE);
     assertFalse(resources.isAllResources());
-    switch (resource) {
-      case UNDERLAY:
-        assertEquals(
-            actions.length,
-            underlaysService.listUnderlays(resources).stream()
-                .map(u -> ResourceId.forUnderlay(u.getName()))
-                .collect(Collectors.toSet())
-                .size());
-        break;
-      case STUDY:
-        assertEquals(
-            0,
-            studyService.listStudies(resources, 0, Integer.MAX_VALUE).stream()
-                .map(u -> ResourceId.forStudy(u.getId()))
-                .collect(Collectors.toSet())
-                .size());
-        break;
-      default:
-        fail("Method should not be called for ResourceType - " + resource);
-        break;
-    }
+    assertEquals(
+        0,
+        studyService.listStudies(resources, 0, Integer.MAX_VALUE).stream()
+            .map(u -> ResourceId.forStudy(u.getId()))
+            .collect(Collectors.toSet())
+            .size());
   }
 }

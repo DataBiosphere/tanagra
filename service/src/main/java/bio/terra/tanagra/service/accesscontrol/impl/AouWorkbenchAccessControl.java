@@ -38,8 +38,7 @@ public class AouWorkbenchAccessControl implements AccessControl {
           ResourceType.ANNOTATION_KEY,
           ResourceType.ANNOTATION_KEY.getActions()); // All annotation key actions.
 
-  // Workspace writers have all permissions in a study, except for deleting the study.
-  // Check if a WRITER can update study (workspace)?
+  // Workspace writers have all permissions for a study, except delete and update actions.
   private static final Map<ResourceType, Set<Action>> WORKSPACE_WRITER_PERMISSIONS =
       Map.of(
           ResourceType.STUDY,
@@ -71,8 +70,8 @@ public class AouWorkbenchAccessControl implements AccessControl {
 
   @Override
   public void initialize(List<String> params, String basePath, String oauthClientId) {
-    // Store the basePath and oauthClientId first, so we can use it when calling the workbench API.
-    // check: oauthClientId not required?
+    // Store the basePath, so we can use it when calling the workbench API.
+    // oauthClientId not used for AoU RW call
     if (basePath == null) {
       throw new IllegalArgumentException("Base URL is required for Workbench API calls");
     }
@@ -83,7 +82,9 @@ public class AouWorkbenchAccessControl implements AccessControl {
   public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
     if (permissions.getType().equals(ResourceType.UNDERLAY)) {
       // Browsing the cohort builder without saving. Always allow.
-      // for AoU underlays? -> browsing is not allowed. Need underlay specific access (RT and CT)
+      // For AoU underlays - browsing is not allowed.
+      // If this has to return true consider using "/v1/profile" endpoint
+      // to get user profile for checking RT/CT access
       return true;
     } else if (Permissions.forActions(ResourceType.STUDY, Action.CREATE).equals(permissions)) {
       // Workbench creates a Tanagra study as part of workspace creation. Always allow.
@@ -158,12 +159,13 @@ public class AouWorkbenchAccessControl implements AccessControl {
   /**
    * @return the role that the user has on the workspace, or null if the user has no permissions.
    */
-  protected @Nullable WorkspaceRole apiGetWorkspaceAccess(UserId userId, String workspaceId) {
+  protected @Nullable WorkspaceRole apiGetWorkspaceAccess(
+      UserId userId, String workspaceNamespace) {
     LOGGER.debug(
         "AoU Workspace Access Level api check access to workspace {} for user {}",
-        workspaceId,
+        workspaceNamespace,
         userId.getEmail());
-    String url = basePath + "/" + workspaceId;
+    String url = basePath + "/v1/workspaces/access/" + workspaceNamespace;
     LOGGER.debug("AoU Workspace Access Level api endpoint : {}}", url);
 
     RestTemplate restTemplate = new RestTemplate();
@@ -181,14 +183,15 @@ public class AouWorkbenchAccessControl implements AccessControl {
           "AoU Workspace Access Level api User {} has {} access level for workspace {}",
           userId.getEmail(),
           accesslevel,
-          workspaceId);
+          workspaceNamespace);
       try {
         // if NO ACCESS throws IllegalArgumentException or null throws NPE
         return WorkspaceRole.valueOf(accesslevel);
       } catch (Exception ex) {
         LOGGER.error(
             "AoU Workspace Access Level api no WorkspaceRole Enum defined for access level {}.",
-            accesslevel);
+            accesslevel,
+            ex);
         return null;
       }
     }
