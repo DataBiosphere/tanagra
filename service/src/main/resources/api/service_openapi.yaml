@@ -2453,6 +2453,12 @@ components:
                 nullable: false
               query:
                 $ref: "#/components/schemas/QueryV2"
+        primaryEntityFilter:
+          # TODO: Remove this filter property from the service API once we fully support UI plugins, because the
+          # plugin-specific backend code will generate it from the cohort definition. For now, the UI builds the
+          # cohort filter and passes it to the backend when we export a cohort(s), so the backend can count the
+          # number of records and store it in the activity log.
+          $ref: "#/components/schemas/FilterV2"
 
     ExportResult:
       type: object
