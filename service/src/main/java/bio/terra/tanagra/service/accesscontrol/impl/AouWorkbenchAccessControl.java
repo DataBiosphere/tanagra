@@ -82,9 +82,8 @@ public class AouWorkbenchAccessControl implements AccessControl {
   public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
     if (permissions.getType().equals(ResourceType.UNDERLAY)) {
       // Browsing the cohort builder without saving. Always allow.
-      // For AoU underlays - browsing is not allowed.
-      // If this has to return true consider using "/v1/profile" endpoint
-      // to get user profile for checking RT/CT access
+      // For AoU underlays - browsing is not allowed, but return true for tanagra internal
+      // consider using "/v1/profile" endpoint to get user profile for checking RT/CT access
       return true;
     } else if (Permissions.forActions(ResourceType.STUDY, Action.CREATE).equals(permissions)) {
       // Workbench creates a Tanagra study as part of workspace creation. Always allow.

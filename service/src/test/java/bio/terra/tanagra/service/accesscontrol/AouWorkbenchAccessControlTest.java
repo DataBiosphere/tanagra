@@ -51,6 +51,8 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   void underlay() {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
     ResourceId aouSyntheticId = ResourceId.forUnderlay(AOU_SYNTHETIC);
+    // Need to do this one-off since we return true for underlay for isAuthorized
+    // but return empty for listAllPermissions for Underlays as listing is not allowed for AoU
     assertUnderlayPermissions(USER_1, aouSyntheticId);
     assertUnderlayPermissions(USER_2, aouSyntheticId);
     assertUnderlayPermissions(USER_4, aouSyntheticId);
@@ -68,6 +70,7 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     };
     ResourceId study1Id = ResourceId.forStudy(study1.getId());
     ResourceId study2Id = ResourceId.forStudy(study2.getId());
+    // need to do one off for study since list actions for study itself are not allowed for AoU
     assertStudyPermissions(USER_1, study1Id, studyActionsExceptCreate);
     assertStudyPermissions(USER_1, study2Id, Action.READ);
     assertDoesNotHavePermissions(
@@ -263,6 +266,7 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
 
   private void assertStudyPermissions(UserId user, ResourceId resource, Action... actions) {
     assertTrue(impl.isAuthorized(user, Permissions.empty(resource.getType()), resource));
+    // List actions are not allowed for study
     assertStudyNoListPermissions(user, resource.getType(), actions);
   }
 
