@@ -1,0 +1,30 @@
+{
+  "name": "measurementLoinc_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "criteriaEntity": "measurementLoinc",
+  "occurrenceEntities": [ "measurement_occurrence" ],
+  "modifierAttributes": [ "value_numeric", "value_enum" ],
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria": {
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "measurement_concept_id" }
+      },
+      "occurrenceToPrimary": {
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "table": "measurement" },
+        "idPairsIdA": { "column": "measurement_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
