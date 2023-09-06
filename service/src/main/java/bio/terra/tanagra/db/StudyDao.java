@@ -304,6 +304,15 @@ public class StudyDao {
     updateStudy(id, lastModifiedBy, null, null);
   }
 
+  @WriteTransaction
+  public void deleteAllStudies() {
+    LOGGER.warn("Deleting all studies. This should only happen during testing.");
+    String sql = "DELETE FROM study";
+    LOGGER.debug("DELETE study: {}", sql);
+    int rowsAffected = jdbcTemplate.update(sql, new MapSqlParameterSource());
+    LOGGER.debug("DELETE study rowsAffected = {}", rowsAffected);
+  }
+
   private List<Study> getStudiesHelper(String studiesSql, MapSqlParameterSource studiesParams) {
     // Fetch studies.
     List<Study.Builder> studies = jdbcTemplate.query(studiesSql, studiesParams, STUDY_ROW_MAPPER);

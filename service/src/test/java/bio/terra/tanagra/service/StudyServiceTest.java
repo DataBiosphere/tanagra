@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -33,20 +33,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class StudyServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
 
+  @Autowired private ActivityLogService activityLogService;
   @Autowired private StudyService studyService;
 
-  @AfterEach
+  @BeforeEach
   void deleteAll() {
-    List<Study> allStudies =
-        studyService.listStudies(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 100);
-    for (Study study : allStudies) {
-      try {
-        studyService.deleteStudy(study.getId(), "abc@123.com");
-      } catch (Exception ex) {
-        LOGGER.error("Error deleting study", ex);
-      }
-    }
+    activityLogService.clearAllActivityLogs();
+    studyService.clearAllStudies();
   }
 
   @Test

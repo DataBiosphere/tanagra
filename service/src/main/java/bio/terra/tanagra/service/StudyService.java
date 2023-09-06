@@ -7,6 +7,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.ActivityLog;
 import bio.terra.tanagra.service.artifact.Study;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -126,5 +127,11 @@ public class StudyService {
     featureConfiguration.artifactStorageEnabledCheck();
     studyDao.deleteStudyProperties(id, lastModifiedBy, propertyKeys);
     return studyDao.getStudy(id);
+  }
+
+  @VisibleForTesting
+  public void clearAllStudies() {
+    featureConfiguration.artifactStorageEnabledCheck();
+    studyDao.deleteAllStudies();
   }
 }
