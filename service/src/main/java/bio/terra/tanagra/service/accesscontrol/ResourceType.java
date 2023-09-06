@@ -27,7 +27,8 @@ public enum ResourceType {
       Set.of(
           Action.READ, Action.UPDATE, Action.DELETE, Action.QUERY_INSTANCES, Action.QUERY_COUNTS),
       COHORT),
-  ANNOTATION_KEY(Set.of(Action.READ, Action.UPDATE, Action.DELETE), COHORT);
+  ANNOTATION_KEY(Set.of(Action.READ, Action.UPDATE, Action.DELETE), COHORT),
+  ACTIVITY_LOG(Set.of(Action.READ));
 
   private final Set<Action> actions;
   private final ResourceType parentResourceType;
