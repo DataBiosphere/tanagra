@@ -210,6 +210,7 @@ paths:
         - $ref: "#/components/parameters/StudyFilterDisplayNameV2"
         - $ref: "#/components/parameters/StudyFilterDescriptionV2"
         - $ref: "#/components/parameters/StudyFilterCreatedByV2"
+        - $ref: "#/components/parameters/StudyFilterIncludeDeleted"
         - $ref: "#/components/parameters/StudyFilterPropertiesV2"
         - $ref: "#/components/parameters/OffsetV2"
         - $ref: "#/components/parameters/LimitV2"
@@ -1011,6 +1012,14 @@ components:
       required: false
       schema:
         type: string
+
+    StudyFilterIncludeDeleted:
+      name: includeDeleted
+      in: query
+      description: True to include studies that have been deleted
+      required: false
+      schema:
+        type: boolean
 
     StudyFilterPropertiesV2:
       name: properties
@@ -2512,6 +2521,9 @@ components:
         studyDisplayName:
           $ref: "#/components/schemas/StudyDisplayNameV2"
           nullable: true
+        studyProperties:
+          $ref: "#/components/schemas/PropertiesV2"
+          nullable: true
         cohortId:
           $ref: "#/components/schemas/CohortIdV2"
           nullable: true
@@ -2565,6 +2577,10 @@ components:
             exportModel:
               description: (EXPORT_COHORT) Name of the export model used
               type: string
+              nullable: true
+            primaryEntityCount:
+              description: (EXPORT_COHORT, CREATE_REVIEW) Number of primary entity instances included in the cohort revision
+              type: integer
               nullable: true
       required:
         - id
