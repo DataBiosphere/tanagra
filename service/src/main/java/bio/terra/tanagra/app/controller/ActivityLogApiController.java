@@ -1,9 +1,15 @@
 package bio.terra.tanagra.app.controller;
 
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.ACTIVITY_LOG;
+
+import bio.terra.tanagra.app.auth.SpringAuthentication;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.generated.controller.ActivityLogApi;
 import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.ActivityLogService;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.artifact.ActivityLog;
 import bio.terra.tanagra.service.artifact.ActivityLogResource;
 import java.util.stream.Collectors;
@@ -13,10 +19,13 @@ import org.springframework.http.ResponseEntity;
 public class ActivityLogApiController implements ActivityLogApi {
 
   private final ActivityLogService activityLogService;
+  private final AccessControlService accessControlService;
 
   @Autowired
-  public ActivityLogApiController(ActivityLogService activityLogService) {
+  public ActivityLogApiController(
+      ActivityLogService activityLogService, AccessControlService accessControlService) {
     this.activityLogService = activityLogService;
+    this.accessControlService = accessControlService;
   }
 
   @Override
@@ -27,7 +36,8 @@ public class ActivityLogApiController implements ActivityLogApi {
       ApiActivityType activityType,
       Integer offset,
       Integer limit) {
-    // TODO: Add access control call here.
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(), Permissions.forActions(ACTIVITY_LOG, READ));
     ApiActivityLogEntryList apiActivityLogs = new ApiActivityLogEntryList();
     activityLogService
         .listActivityLogs(
@@ -44,7 +54,8 @@ public class ActivityLogApiController implements ActivityLogApi {
 
   @Override
   public ResponseEntity<ApiActivityLogEntry> getActivityLogEntry(String activityLogEntryId) {
-    // TODO: Add access control call here.
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(), Permissions.forActions(ACTIVITY_LOG, READ));
     return ResponseEntity.ok(toApiObject(activityLogService.getActivityLog(activityLogEntryId)));
   }
 

@@ -75,7 +75,10 @@ public class AouWorkbenchAccessControl implements AccessControl {
 
   @Override
   public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
-    if (permissions.getType().equals(ResourceType.UNDERLAY)) {
+    if (permissions.getType().equals(ResourceType.ACTIVITY_LOG)) {
+      LOGGER.warn("AoU-RW will not use the activity log, so we should never get here.");
+      return false;
+    } else if (permissions.getType().equals(ResourceType.UNDERLAY)) {
       // Browsing the cohort builder without saving. Always allow.
       return true;
     } else if (Permissions.forActions(ResourceType.STUDY, Action.CREATE).equals(permissions)) {
@@ -106,7 +109,10 @@ public class AouWorkbenchAccessControl implements AccessControl {
   @Override
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (ResourceType.UNDERLAY.equals(type)) {
+    if (ResourceType.ACTIVITY_LOG.equals(type)) {
+      LOGGER.warn("AoU-RW will not use the activity log, so we should never get here.");
+      return ResourceCollection.empty(ResourceType.ACTIVITY_LOG, null);
+    } else if (ResourceType.UNDERLAY.equals(type)) {
       // Browsing the cohort builder without saving. Allow for all underlays.
       return ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null);
     } else if (ResourceType.STUDY.equals(type)) {

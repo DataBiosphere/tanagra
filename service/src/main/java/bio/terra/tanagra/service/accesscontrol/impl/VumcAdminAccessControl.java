@@ -54,7 +54,10 @@ public class VumcAdminAccessControl implements AccessControl {
 
   @Override
   public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
-    if (ResourceType.UNDERLAY.equals(permissions.getType())) {
+    if (ResourceType.ACTIVITY_LOG.equals(permissions.getType())) {
+      // TODO: Call VUMC admin service.
+      return true; // Temporarily, all users can see the activity log.
+    } else if (ResourceType.UNDERLAY.equals(permissions.getType())) {
       // For underlays, check authorization with the underlay id.
       return isAuthorized(
           user,
@@ -149,7 +152,12 @@ public class VumcAdminAccessControl implements AccessControl {
   @Override
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
+    if (ResourceType.ACTIVITY_LOG.equals(type)) {
+      // Users either have all permissions on activity logs, or none.
+      return isAuthorized(user, Permissions.forActions(ResourceType.ACTIVITY_LOG, READ), null)
+          ? ResourceCollection.allResourcesAllPermissions(ResourceType.ACTIVITY_LOG, null)
+          : ResourceCollection.empty(ResourceType.ACTIVITY_LOG, null);
+    } else if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
       // Admin service stores permissions for underlays and studies.
       Map<ResourceId, Set<ResourceAction>> resourceApiActionsMap = listAllPermissions(user, type);
 

@@ -37,6 +37,15 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   }
 
   @Test
+  void activityLog() {
+    // isAuthorized
+    assertFalse(impl.isAuthorized(USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertFalse(impl.isAuthorized(USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertFalse(impl.isAuthorized(USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertFalse(impl.isAuthorized(USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+  }
+
+  @Test
   void underlay() {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
     ResourceId cmsSynpufId = ResourceId.forUnderlay(CMS_SYNPUF);
