@@ -14,13 +14,22 @@ public class FeatureConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureConfiguration.class);
 
   private boolean artifactStorageEnabled;
+  private boolean activityLogEnabled;
 
   public boolean isArtifactStorageEnabled() {
     return artifactStorageEnabled;
   }
 
+  public boolean isActivityLogEnabled() {
+    return activityLogEnabled;
+  }
+
   public void setArtifactStorageEnabled(boolean artifactStorageEnabled) {
     this.artifactStorageEnabled = artifactStorageEnabled;
+  }
+
+  public void setActivityLogEnabled(boolean activityLogEnabled) {
+    this.activityLogEnabled = activityLogEnabled;
   }
 
   public void artifactStorageEnabledCheck() {
@@ -29,8 +38,15 @@ public class FeatureConfiguration {
     }
   }
 
+  public void activityLogEnabledCheck() {
+    if (!isActivityLogEnabled()) {
+      throw new NotImplementedException("Activity log is not enabled");
+    }
+  }
+
   /** Write the feature flags into the log. Add an entry here for each new feature flag. */
   public void logFeatures() {
     LOGGER.info("Feature: artifact-storage-enabled: {}", isArtifactStorageEnabled());
+    LOGGER.info("Feature: activity-log-enabled: {}", isActivityLogEnabled());
   }
 }

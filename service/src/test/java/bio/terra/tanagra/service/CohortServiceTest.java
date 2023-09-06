@@ -57,14 +57,14 @@ public class CohortServiceTest {
   @AfterEach
   void deleteTwoStudies() {
     try {
-      studyService.deleteStudy(study1.getId());
+      studyService.deleteStudy(study1.getId(), "abc@123.com");
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
     }
 
     try {
-      studyService.deleteStudy(study2.getId());
+      studyService.deleteStudy(study2.getId(), "abc@123.com");
       LOGGER.info("Deleted study2 {}", study2.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study2", ex);
@@ -116,7 +116,7 @@ public class CohortServiceTest {
     assertTrue(updatedCohort.getLastModified().isAfter(updatedCohort.getCreated()));
 
     // Delete.
-    cohortService.deleteCohort(study1.getId(), createdCohort.getId());
+    cohortService.deleteCohort(study1.getId(), createdCohort.getId(), "abc@123.com");
     List<Cohort> cohorts =
         cohortService.listCohorts(
             ResourceCollection.allResourcesAllPermissions(

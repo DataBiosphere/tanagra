@@ -61,7 +61,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(COHORT, DELETE),
         ResourceId.forCohort(studyId, cohortId));
-    cohortService.deleteCohort(studyId, cohortId);
+    cohortService.deleteCohort(studyId, cohortId, SpringAuthentication.getCurrentUser().getEmail());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 

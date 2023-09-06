@@ -1,0 +1,103 @@
+databaseChangeLog:
+  - changeSet:
+      id: activity_log
+      author: marikomedlock
+      changes:
+        - createTable:
+            tableName: activity_log
+            columns:
+              - column:
+                  name: id
+                  type: ${id.type}
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: user_email
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: logged
+                  type: ${date.timezone}
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: version_git_tag
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version_git_hash
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version_build
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: activity_type
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: export_model
+                  type: ${text.type}
+                  constraints:
+                    nullable: true
+
+        - createTable:
+            tableName: activity_log_resource
+            columns:
+              - column:
+                  name: activity_log_id
+                  type: ${id.type}
+                  constraints:
+                    references: activity_log(id)
+                    foreignKeyName: fk_alr_al
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting an activity log entry will cascade to delete the resources associated with it
+              - column:
+                  name: stable_index
+                  type: integer
+                  constraints:
+                    nullable: false
+                  remarks: Return the resources in a consistent order.
+              - column:
+                  name: resource_type
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: study_id
+                  type: ${id.type}
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_alr_s
+                    nullable: true
+              - column:
+                  name: cohort_id
+                  type: ${id.type}
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_alr_c
+                    nullable: true
+              - column:
+                  name: cohort_revision_id
+                  type: ${id.type}
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_alr_cr
+                    nullable: true
+              - column:
+                  name: review_id
+                  type: ${id.type}
+                  constraints:
+                    references: review(id)
+                    foreignKeyName: fk_alr_r
+                    nullable: true

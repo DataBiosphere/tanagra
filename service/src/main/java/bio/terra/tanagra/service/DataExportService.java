@@ -33,6 +33,7 @@ public class DataExportService {
   private final StudyService studyService;
   private final CohortService cohortService;
   private final ReviewService reviewService;
+  private final ActivityLogService activityLogService;
   private GoogleCloudStorage storageService;
 
   @Autowired
@@ -41,7 +42,8 @@ public class DataExportService {
       UnderlaysService underlaysService,
       StudyService studyService,
       CohortService cohortService,
-      ReviewService reviewService) {
+      ReviewService reviewService,
+      ActivityLogService activityLogService) {
     this.shared = exportConfiguration.getShared();
     for (PerModel perModelConfig : exportConfiguration.getModels()) {
       DataExport dataExportImplInstance = perModelConfig.getType().createNewInstance();
@@ -60,6 +62,7 @@ public class DataExportService {
     this.studyService = studyService;
     this.cohortService = cohortService;
     this.reviewService = reviewService;
+    this.activityLogService = activityLogService;
   }
 
   /** Return a map of model name -> (display name, implementation class instance). */
@@ -86,8 +89,13 @@ public class DataExportService {
       List<EntityQueryRequest> entityQueryRequests,
       String userEmail) {
     // Make the current cohort revision un-editable, and create the next version.
+    Map<String, String> cohortToRevisionIdMap = new HashMap<>();
     cohortIds.stream()
-        .forEach(cohortId -> cohortService.createNextRevision(studyId, cohortId, userEmail));
+        .forEach(
+            cohortId -> {
+              String revisionId = cohortService.createNextRevision(studyId, cohortId, userEmail);
+              cohortToRevisionIdMap.put(cohortId, revisionId);
+            });
 
     // Populate the study, cohort, and underlay API objects in the request.
     Study study = studyService.getStudy(studyId);
@@ -123,7 +131,9 @@ public class DataExportService {
 
     // Get the implementation class instance for the requested data export model.
     DataExport impl = modelToImpl.get(request.getModel());
-    return impl.run(request.build());
+    ExportResult result = impl.run(request.build());
+    activityLogService.logExport(request.getModel(), userEmail, studyId, cohortToRevisionIdMap);
+    return result;
   }
 
   /** Generate the entity instance SQL queries. */
