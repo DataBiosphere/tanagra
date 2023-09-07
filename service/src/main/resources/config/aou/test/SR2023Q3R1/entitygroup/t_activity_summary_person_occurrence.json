@@ -1,15 +1,15 @@
 {
   "name": "t_activity_summary_person_occurrence",
   "type": "GROUP_ITEMS",
-  "groupEntity": "t_activity_summary",
-  "itemsEntity": "t_person",
+  "groupEntity": "t_person",
+  "itemsEntity": "t_activity_summary",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "groupToItems": {
-        "idPairsTable": { "rawSqlFile": "t_activity_summary_person_occurrence.sql" },
-        "idPairsIdA": { "column": "person_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "idPairsTable": { "rawSqlFile": "t_activity_summary.sql" },
+        "idPairsIdA": { "column": "id" },
+        "idPairsIdB":  { "column": "id" }
       }
     }
   },
