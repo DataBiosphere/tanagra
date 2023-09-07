@@ -1,0 +1,33 @@
+{
+  "name": "t_activity_summary",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "date", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "activity_calories", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "calories_bmr", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "calories_out", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "elevation", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "fairly_active_minutes", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "floors", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "lightly_active_minutes", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "marginal_calories", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "sedentary_minutes", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "steps", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "very_active_minutes", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "t_activity_summary.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "row_num" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+
+}

@@ -4,7 +4,7 @@ SELECT
   vo.visit_source_value AS source_value, vo.visit_source_concept_id AS source_criteria_id,
   CAST(FLOOR(TIMESTAMP_DIFF(vo.visit_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence
 
-FROM `all-of-us-ehr-dev.SR2022Q4R6.visit_occurrence` AS vo
+FROM `all-of-us-ehr-dev.SR2023Q3R1.visit_occurrence` AS vo
 
-JOIN `all-of-us-ehr-dev.SR2022Q4R6.person` AS p
+JOIN `all-of-us-ehr-dev.SR2023Q3R1.person` AS p
 ON p.person_id = vo.person_id

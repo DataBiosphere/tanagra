@@ -6,11 +6,11 @@
       "name": "omop_dataset",
       "projectId": "fc-aou-cdr-synth-test",
       "datasetId": "SR2023Q3R1",
-      "queryProjectId": "fc-aou-cdr-synth-test"
+      "queryProjectId": "all-of-us-ehr-dev"
     },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
-      "projectId": "fc-aou-cdr-synth-test",
+      "projectId": "all-of-us-ehr-dev",
       "datasetId": "SR2023Q3R1",
       "dataflowServiceAccountEmail" : "tanagra-indexing-runner@all-of-us-ehr-dev.iam.gserviceaccount.com",
       "dataflowTempLocation" : "gs://all-of-us-ehr-dev-tanagra-indexing/SR2023Q3R1",
@@ -20,6 +20,7 @@
     }
   ],
   "entities": [
+    "t_activity_summary.json",
     "t_brand.json",
     "t_condition.json",
     "t_condition_occurrence.json",
@@ -38,6 +39,7 @@
     "t_visit_occurrence.json"],
   "primaryEntity": "t_person",
   "entityGroups": [
+    "t_activity_summary_person_occurrence.json",
     "t_brand_ingredient.json",
     "t_condition_person_occurrence.json",
     "t_device_person_occurrence.json",

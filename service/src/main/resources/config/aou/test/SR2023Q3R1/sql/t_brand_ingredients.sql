@@ -11,7 +11,7 @@
 */
 SELECT cr.*
 FROM
-    `all-of-us-ehr-dev.SR2022Q4R6.concept_relationship` cr,
-    `all-of-us-ehr-dev.SR2022Q4R6.concept` c2
+    `all-of-us-ehr-dev.SR2023Q3R1.concept_relationship` cr,
+    `all-of-us-ehr-dev.SR2023Q3R1.concept` c2
 WHERE
     cr.concept_id_2 = c2.concept_id AND c2.concept_class_id = 'Ingredient'

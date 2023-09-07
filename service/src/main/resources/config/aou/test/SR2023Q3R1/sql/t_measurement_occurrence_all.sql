@@ -5,10 +5,10 @@ SELECT
   CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   mo.visit_occurrence_id, vo.visit_concept_id
 
-FROM `all-of-us-ehr-dev.SR2022Q4R6.measurement` AS mo
+FROM `all-of-us-ehr-dev.SR2023Q3R1.measurement` AS mo
 
-JOIN `all-of-us-ehr-dev.SR2022Q4R6.person` AS p
+JOIN `all-of-us-ehr-dev.SR2023Q3R1.person` AS p
 ON p.person_id = mo.person_id
 
-LEFT JOIN `all-of-us-ehr-dev.SR2022Q4R6.visit_occurrence` AS vo
+LEFT JOIN `all-of-us-ehr-dev.SR2023Q3R1.visit_occurrence` AS vo
 ON vo.visit_occurrence_id = mo.visit_occurrence_id
