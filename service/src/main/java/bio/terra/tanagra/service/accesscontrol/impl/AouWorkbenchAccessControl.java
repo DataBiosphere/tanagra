@@ -114,12 +114,13 @@ public class AouWorkbenchAccessControl implements AccessControl {
   @Override
   public ResourceCollection listAllPermissions(
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (ResourceType.UNDERLAY.equals(type)) {
+    if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
       // AoU will not call to list Underlays or list studies - this is managed by Workbench
       LOGGER.error("Calls from AoU Workbench should never get here. ");
       return ResourceCollection.empty(type, null);
     } else {
-      // Check for some permissions on a child artifact of a study (e.g. cohort).
+      // Study is parent of cohorts, annotations, concept_sets and datasets
+      // parentResource.getStudy is required to check permissions on these artifacts
       if (parentResource == null || parentResource.getStudy() == null) {
         LOGGER.error(
             "Study id is required to list permissions for a child artifact: {}", parentResource);
@@ -127,7 +128,7 @@ public class AouWorkbenchAccessControl implements AccessControl {
       }
 
       // Call the workbench to get the user's role on the workspace that contains this study.
-      // Expect the Tanagra study id to match the Workbench workspace id.
+      // Expect the tanagra study id to match the Workbench workspace id.
       WorkspaceRole role = apiGetWorkspaceAccess(user, parentResource.getStudy());
       if (role == null) {
         return ResourceCollection.empty(type, parentResource);
