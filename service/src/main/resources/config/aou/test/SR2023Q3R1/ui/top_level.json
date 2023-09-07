@@ -9,6 +9,14 @@
     },
     "occurrences": [
       {
+        "id": "activity_summary",
+        "displayName": "Activity summary Occurrences",
+        "entity": "t_activity_summary_person_occurrence",
+        "key": "person_id",
+        "classifications": [
+        ]
+      },
+      {
         "id": "condition_occurrence",
         "displayName": "Condition Occurrences",
         "entity": "t_condition_occurrence",
@@ -116,6 +124,14 @@
     ]
   },
   "criteriaConfigs": [
+    {
+      "type": "attribute",
+      "id": "activity_summary",
+      "title": "Fitbit activity summary",
+      "category": "Fitbit",
+      "occurrence": "t_activity_summary",
+      "classification": "activity_summary"
+    },
     {
       "type": "classification",
       "id": "tanagra-conditions",
