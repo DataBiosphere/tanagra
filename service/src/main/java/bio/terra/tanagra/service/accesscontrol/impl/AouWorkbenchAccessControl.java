@@ -116,7 +116,7 @@ public class AouWorkbenchAccessControl implements AccessControl {
       UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
     if (ResourceType.UNDERLAY.equals(type) || ResourceType.STUDY.equals(type)) {
       // AoU will not call to list Underlays or list studies - this is managed by Workbench
-      LOGGER.error("Calls from AoU Workbench should never get here. ");
+      LOGGER.error("Calls from AoU Workbench should never get here. AoU will manage list action for {}", type);
       return ResourceCollection.empty(type, null);
     } else {
       // Study is parent of cohorts, annotations, concept_sets and datasets
