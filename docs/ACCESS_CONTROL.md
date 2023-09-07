@@ -111,6 +111,5 @@ tanagra:
         model: AOU_WORKBENCH
         params: []
         base-path: https://all-of-us-workbench-test.appspot.com
-        oauth-client-id: 12345.apps.googleusercontent.com    <--- Example value only. Get this from the workbench team.
 ```
 
