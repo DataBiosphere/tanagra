@@ -1,5 +1,5 @@
 {
-  "name": "measurement",
+  "name": "measurementLoinc",
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
@@ -14,42 +14,28 @@
       "table": "concept",
       "filter": {
         "type": "BOOLEAN_AND_OR",
-        "operator": "OR",
+        "operator": "AND",
         "subfilters": [
+          { "type": "BINARY",
+            "field": { "column": "vocabulary_id" },
+            "operator": "EQUALS",
+            "value": { "stringVal": "LOINC" } },
           { "type": "BOOLEAN_AND_OR",
-            "operator": "AND",
+            "operator": "OR",
             "subfilters": [
               { "type": "BINARY",
-                "field": { "column": "domain_id" },
+                "field": { "column": "concept_class_id" },
                 "operator": "EQUALS",
-                "value": { "stringVal": "Measurement" } },
+                "value": { "stringVal": "LOINC Hierarchy" } },
               { "type": "BINARY",
-                "field": { "column": "vocabulary_id" },
+                "field": { "column": "concept_class_id" },
                 "operator": "EQUALS",
-                "value": { "stringVal": "SNOMED" } } ] },
-          { "type": "BOOLEAN_AND_OR",
-            "operator": "AND",
-            "subfilters": [
+                "value": { "stringVal": "LOINC Component" } },
               { "type": "BINARY",
-                "field": { "column": "vocabulary_id" },
+                "field": { "column": "concept_class_id" },
                 "operator": "EQUALS",
-                "value": { "stringVal": "LOINC" } },
-              { "type": "BOOLEAN_AND_OR",
-                "operator": "OR",
-                "subfilters": [
-                  { "type": "BINARY",
-                    "field": { "column": "concept_class_id" },
-                    "operator": "EQUALS",
-                    "value": { "stringVal": "LOINC Hierarchy" } },
-                  { "type": "BINARY",
-                    "field": { "column": "concept_class_id" },
-                    "operator": "EQUALS",
-                    "value": { "stringVal": "LOINC Component" } },
-                  { "type": "BINARY",
-                    "field": { "column": "concept_class_id" },
-                    "operator": "EQUALS",
-                    "value": { "stringVal": "Lab Test" } }
-                ] } ] } ] } },
+                "value": { "stringVal": "Lab Test" } }
+                ] } ] } },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } },
@@ -59,31 +45,17 @@
         "display": {
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
-    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "measurement_textSearch.sql" } } },
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "measurementLoinc_textSearch.sql" } } },
     "hierarchyMappings": {
       "standard": {
         "childParent": {
-          "tablePointer": { "rawSqlFile": "measurement_parentChild.sql" }
+          "tablePointer": { "rawSqlFile": "measurementLoinc_parentChild.sql" }
         },
         "rootNodesFilter": {
           "tablePointer": {
             "table": "concept",
             "filter": {
               "type": "BOOLEAN_AND_OR",
-              "operator": "OR",
-              "subfilters": [
-                { "type": "BOOLEAN_AND_OR",
-                  "operator": "AND",
-                  "subfilters": [
-                    { "type": "BINARY",
-                      "field": { "column": "domain_id" },
-                      "operator": "EQUALS",
-                      "value": { "stringVal": "Measurement" } },
-                    { "type": "BINARY",
-                      "field": { "column": "vocabulary_id" },
-                      "operator": "EQUALS",
-                      "value": { "stringVal": "SNOMED" } } ] },
-                { "type": "BOOLEAN_AND_OR",
                   "operator": "AND",
                   "subfilters": [
                     { "type": "BINARY",
@@ -93,7 +65,7 @@
                     { "type": "BINARY",
                       "field": { "column": "concept_id" },
                       "operator": "EQUALS",
-                      "value": { "int64Val": 36206173 } } ] } ] } },
+                      "value": { "int64Val": 36206173 } } ] } },
           "fieldPointers": {
             "id": { "column": "concept_id" }
           }

@@ -93,6 +93,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
             authorizedStudyIds,
             offset,
             limit,
+            includeDeleted != null && includeDeleted,
             fromApiObject(displayName, description, createdBy, properties));
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
     authorizedStudies.stream()

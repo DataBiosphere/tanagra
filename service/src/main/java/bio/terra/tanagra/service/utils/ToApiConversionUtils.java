@@ -145,7 +145,8 @@ public final class ToApiConversionUtils {
         .properties(apiProperties)
         .created(study.getCreated())
         .createdBy(study.getCreatedBy())
-        .lastModified(study.getLastModified());
+        .lastModified(study.getLastModified())
+        .isDeleted(study.isDeleted());
   }
 
   public static ApiUnderlayV2 toApiObject(Underlay underlay) {
