@@ -8,8 +8,8 @@
     "relationshipMappings": {
       "groupToItems": {
         "idPairsTable": { "rawSqlFile": "t_activity_summary.sql" },
-        "idPairsIdA": { "column": "id" },
-        "idPairsIdB":  { "column": "id" }
+        "idPairsIdA": { "column": "person_id" },
+        "idPairsIdB":  { "column": "row_num" }
       }
     }
   },
