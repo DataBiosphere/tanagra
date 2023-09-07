@@ -23,8 +23,8 @@ SELECT
 FROM `verily-tanagra-dev.aou_static_prep_useast1.prep_concept` p
 LEFT JOIN `victr-tanagra-test.sd_20230328.concept` AS c
     ON c.vocabulary_id = p.vocabulary_id
-    AND UPPER(c.concept_code) >= UPPER(REGEXP_EXTRACT(p.concept_code, r'^([0-9\.]+)-'))
-    AND UPPER(c.concept_code) <= UPPER(REGEXP_EXTRACT(p.concept_code, r'-([0-9\.]+)$'))
+    AND UPPER(c.concept_code) >= UPPER(REGEXP_EXTRACT(p.concept_code, r'^([a-zA-Z0-9\.]+)-'))
+    AND UPPER(c.concept_code) <= UPPER(REGEXP_EXTRACT(p.concept_code, r'-([a-zA-Z0-9\.]+)$'))
     AND NOT CONTAINS_SUBSTR(c.concept_code, '.')
 WHERE p.vocabulary_id='ICD9CM' AND p.concept_id NOT IN (2500000023, 2500000024, 2500000025) AND c.concept_id IS NOT NULL
 
