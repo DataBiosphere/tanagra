@@ -196,7 +196,7 @@
           {
             "id": "measurement",
             "attribute": "measurement",
-            "entity": "measurement",
+            "entity": "measurementLoinc",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
