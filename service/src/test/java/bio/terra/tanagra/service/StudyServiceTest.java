@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -33,20 +33,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class StudyServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
 
+  @Autowired private ActivityLogService activityLogService;
   @Autowired private StudyService studyService;
 
-  @AfterEach
+  @BeforeEach
   void deleteAll() {
-    List<Study> allStudies =
-        studyService.listStudies(
-            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 100);
-    for (Study study : allStudies) {
-      try {
-        studyService.deleteStudy(study.getId(), "abc@123.com");
-      } catch (Exception ex) {
-        LOGGER.error("Error deleting study", ex);
-      }
-    }
+    activityLogService.clearAllActivityLogs();
+    studyService.clearAllStudies();
   }
 
   @Test
@@ -106,7 +99,7 @@ public class StudyServiceTest {
 
   @Test
   void listAllOrSelected() {
-    // Create two studies.
+    // Create three studies.
     Study study1 =
         studyService.createStudy(
             Study.builder()
@@ -129,6 +122,20 @@ public class StudyServiceTest {
     assertEquals(1, study2.getProperties().size());
     assertEquals("456", study2.getProperties().get("irb"));
     LOGGER.info("Created study {} at {}", study2.getId(), study2.getCreated());
+    Study study3 =
+        studyService.createStudy(
+            Study.builder()
+                .displayName("study 3")
+                .description("threethreethree")
+                .properties(Map.of("irb", "789")),
+            "fhi@one.two-three.123.com");
+    assertNotNull(study3);
+    assertEquals(1, study3.getProperties().size());
+    assertEquals("789", study3.getProperties().get("irb"));
+    LOGGER.info("Created study {} at {}", study3.getId(), study3.getCreated());
+
+    // Delete one study.
+    studyService.deleteStudy(study3.getId(), "abc@123.com");
 
     // List all.
     List<Study> allStudies =
@@ -160,6 +167,7 @@ public class StudyServiceTest {
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null),
             0,
             10,
+            false,
             filter1);
     assertEquals(1, allStudiesWithFilter.size());
     assertEquals(study1.getId(), allStudiesWithFilter.get(0).getId());
@@ -171,9 +179,21 @@ public class StudyServiceTest {
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null),
             0,
             10,
+            false,
             filter1);
     assertEquals(1, allStudiesWithFilter.size());
     assertEquals(study1.getId(), allStudiesWithFilter.get(0).getId());
+
+    // List all, including deleted.
+    allStudiesWithFilter =
+        studyService.listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null),
+            0,
+            10,
+            true,
+            null);
+    assertEquals(3, allStudiesWithFilter.size());
+    assertEquals(allStudies, allStudiesSortedByDisplayNameAsc);
 
     // List selected with filter.
     Study.Builder filter2 = Study.builder().properties(Map.of("irb", "45"));
@@ -184,6 +204,7 @@ public class StudyServiceTest {
                 Set.of(ResourceId.forStudy(study1.getId()))),
             0,
             10,
+            false,
             filter2);
     assertTrue(selectedStudiesWithFilter.isEmpty());
 
@@ -196,9 +217,23 @@ public class StudyServiceTest {
                 Set.of(ResourceId.forStudy(study1.getId()), ResourceId.forStudy(study2.getId()))),
             0,
             10,
+            false,
             filter2);
     assertEquals(1, selectedStudiesWithFilter.size());
     assertEquals(study2.getId(), selectedStudiesWithFilter.get(0).getId());
+
+    // List selected, including deleted.
+    selectedStudiesWithFilter =
+        studyService.listStudies(
+            ResourceCollection.resourcesSamePermissions(
+                Permissions.allActions(ResourceType.STUDY),
+                Set.of(ResourceId.forStudy(study3.getId()))),
+            0,
+            10,
+            true,
+            null);
+    assertEquals(1, selectedStudiesWithFilter.size());
+    assertEquals(study3.getId(), selectedStudiesWithFilter.get(0).getId());
   }
 
   @Test

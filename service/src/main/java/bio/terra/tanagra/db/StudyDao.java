@@ -112,14 +112,14 @@ public class StudyDao {
    * @return list of all studies
    */
   @ReadTransaction
-  public List<Study> getAllStudies(int offset, int limit, @Nullable Study.Builder studyFilter) {
+  public List<Study> getAllStudies(
+      int offset, int limit, boolean includeDeleted, @Nullable Study.Builder studyFilter) {
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("offset", offset).addValue("limit", limit);
-    String filterSql = renderSqlForStudyFilter(studyFilter, params);
+    String filterSql = renderSqlForStudyFilter(includeDeleted, studyFilter, params);
     String sql =
         STUDY_SELECT_SQL
-            + " WHERE NOT is_deleted"
-            + (filterSql.isEmpty() ? "" : " AND " + filterSql)
+            + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
             + " ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET all studies: {}", sql);
     List<Study> studies = getStudiesHelper(sql, params);
@@ -137,16 +137,20 @@ public class StudyDao {
    */
   @ReadTransaction
   public List<Study> getStudiesMatchingList(
-      Set<String> ids, int offset, int limit, @Nullable Study.Builder studyFilter) {
+      Set<String> ids,
+      int offset,
+      int limit,
+      boolean includeDeleted,
+      @Nullable Study.Builder studyFilter) {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("ids", ids)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    String filterSql = renderSqlForStudyFilter(studyFilter, params);
+    String filterSql = renderSqlForStudyFilter(includeDeleted, studyFilter, params);
     String sql =
         STUDY_SELECT_SQL
-            + " WHERE id IN (:ids) AND NOT is_deleted "
+            + " WHERE id IN (:ids) "
             + (filterSql.isEmpty() ? "" : "AND " + filterSql + " ")
             + "ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET matching studies: {}", sql);
@@ -156,39 +160,47 @@ public class StudyDao {
   }
 
   /** Convert a study filter object into a SQL WHERE clause. */
-  private String renderSqlForStudyFilter(Study.Builder studyFilter, MapSqlParameterSource params) {
-    if (studyFilter == null) {
+  private String renderSqlForStudyFilter(
+      boolean includeDeleted, Study.Builder studyFilter, MapSqlParameterSource params) {
+    if (includeDeleted && studyFilter == null) {
       return "";
     }
 
-    // Filter on the displayName and/or description.
+    // Filter out the deleted studies.
     List<String> whereConditions = new ArrayList<>();
-    if (studyFilter.getDisplayName() != null && !studyFilter.getDisplayName().isEmpty()) {
-      whereConditions.add("display_name LIKE :display_name_filter");
-      params.addValue("display_name_filter", "%" + studyFilter.getDisplayName() + "%");
-    }
-    if (studyFilter.getDescription() != null && !studyFilter.getDescription().isEmpty()) {
-      whereConditions.add("description LIKE :description_filter");
-      params.addValue("description_filter", "%" + studyFilter.getDescription() + "%");
-    }
-    if (studyFilter.getCreatedBy() != null && !studyFilter.getCreatedBy().isEmpty()) {
-      whereConditions.add("created_by LIKE :created_by_filter");
-      params.addValue("created_by_filter", "%" + studyFilter.getCreatedBy() + "%");
+    if (!includeDeleted) {
+      whereConditions.add("NOT is_deleted");
     }
 
-    // Filter on specific properties key-value pairs.
-    if (studyFilter.getProperties() != null && !studyFilter.getProperties().isEmpty()) {
-      int ctr = 0;
-      for (Map.Entry<String, String> entry : studyFilter.getProperties().entrySet()) {
-        whereConditions.add(
-            "EXISTS (SELECT 1 FROM study_property WHERE study_id = id AND property_key = :key_"
-                + ctr
-                + " AND property_value LIKE :value_like_"
-                + ctr
-                + ")");
-        params.addValue("key_" + ctr, entry.getKey());
-        params.addValue("value_like_" + ctr, "%" + entry.getValue() + "%");
-        ctr++;
+    if (studyFilter != null) {
+      // Filter on the displayName and/or description.
+      if (studyFilter.getDisplayName() != null && !studyFilter.getDisplayName().isEmpty()) {
+        whereConditions.add("display_name LIKE :display_name_filter");
+        params.addValue("display_name_filter", "%" + studyFilter.getDisplayName() + "%");
+      }
+      if (studyFilter.getDescription() != null && !studyFilter.getDescription().isEmpty()) {
+        whereConditions.add("description LIKE :description_filter");
+        params.addValue("description_filter", "%" + studyFilter.getDescription() + "%");
+      }
+      if (studyFilter.getCreatedBy() != null && !studyFilter.getCreatedBy().isEmpty()) {
+        whereConditions.add("created_by LIKE :created_by_filter");
+        params.addValue("created_by_filter", "%" + studyFilter.getCreatedBy() + "%");
+      }
+
+      // Filter on specific properties key-value pairs.
+      if (studyFilter.getProperties() != null && !studyFilter.getProperties().isEmpty()) {
+        int ctr = 0;
+        for (Map.Entry<String, String> entry : studyFilter.getProperties().entrySet()) {
+          whereConditions.add(
+              "EXISTS (SELECT 1 FROM study_property WHERE study_id = id AND property_key = :key_"
+                  + ctr
+                  + " AND property_value LIKE :value_like_"
+                  + ctr
+                  + ")");
+          params.addValue("key_" + ctr, entry.getKey());
+          params.addValue("value_like_" + ctr, "%" + entry.getValue() + "%");
+          ctr++;
+        }
       }
     }
 
@@ -290,6 +302,15 @@ public class StudyDao {
 
     // Update the study timestamps.
     updateStudy(id, lastModifiedBy, null, null);
+  }
+
+  @WriteTransaction
+  public void deleteAllStudies() {
+    LOGGER.warn("Deleting all studies. This should only happen during testing.");
+    String sql = "DELETE FROM study";
+    LOGGER.debug("DELETE study: {}", sql);
+    int rowsAffected = jdbcTemplate.update(sql, new MapSqlParameterSource());
+    LOGGER.debug("DELETE study rowsAffected = {}", rowsAffected);
   }
 
   private List<Study> getStudiesHelper(String studiesSql, MapSqlParameterSource studiesParams) {

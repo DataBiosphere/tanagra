@@ -1840,6 +1840,9 @@ components:
         lastModified:
           type: string
           format: date-time
+        isDeleted:
+          type: boolean
+          nullable: false
 
     StudyListV2:
       type: array

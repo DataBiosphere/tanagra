@@ -7,6 +7,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.ActivityLog;
 import bio.terra.tanagra.service.artifact.Study;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,17 +50,18 @@ public class StudyService {
   }
 
   public List<Study> listStudies(ResourceCollection authorizedIds, int offset, int limit) {
-    return listStudies(authorizedIds, offset, limit, null);
+    return listStudies(authorizedIds, offset, limit, false, null);
   }
 
   public List<Study> listStudies(
       ResourceCollection authorizedIds,
       int offset,
       int limit,
+      boolean includeDeleted,
       @Nullable Study.Builder studyFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
     if (authorizedIds.isAllResources()) {
-      return studyDao.getAllStudies(offset, limit, studyFilter);
+      return studyDao.getAllStudies(offset, limit, includeDeleted, studyFilter);
     } else if (authorizedIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
       // studies, so we return an empty list.
@@ -71,6 +73,7 @@ public class StudyService {
               .collect(Collectors.toSet()),
           offset,
           limit,
+          includeDeleted,
           studyFilter);
     }
   }
@@ -124,5 +127,11 @@ public class StudyService {
     featureConfiguration.artifactStorageEnabledCheck();
     studyDao.deleteStudyProperties(id, lastModifiedBy, propertyKeys);
     return studyDao.getStudy(id);
+  }
+
+  @VisibleForTesting
+  public void clearAllStudies() {
+    featureConfiguration.artifactStorageEnabledCheck();
+    studyDao.deleteAllStudies();
   }
 }
