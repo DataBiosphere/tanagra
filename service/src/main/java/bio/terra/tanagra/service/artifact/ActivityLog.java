@@ -161,7 +161,8 @@ public class ActivityLog {
         && this.versionBuild.equals(activityLog.getVersionBuild())
         && this.type.equals(activityLog.getType())
         && ((this.exportModel != null && this.exportModel.equals(activityLog.getExportModel()))
-            || (this.exportModel == null && activityLog.getExportModel() == null));
+            || (this.exportModel == null && activityLog.getExportModel() == null))
+        && resources.equals(activityLog.getResources());
   }
 
   @Override

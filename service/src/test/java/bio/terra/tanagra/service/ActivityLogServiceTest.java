@@ -14,6 +14,7 @@ import bio.terra.tanagra.service.instances.EntityQueryRequest;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
@@ -66,7 +67,9 @@ public class ActivityLogServiceTest {
   @Test
   void createLogs() throws InterruptedException {
     // CREATE_STUDY
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
+    study1 =
+        studyService.createStudy(
+            Study.builder().displayName("study 1").properties(Map.of("irb", "123")), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
@@ -75,6 +78,7 @@ public class ActivityLogServiceTest {
             .type(ActivityLogResource.Type.STUDY)
             .studyId(study1.getId())
             .studyDisplayName(study1.getDisplayName())
+            .studyProperties(Map.of("irb", "123"))
             .build();
 
     List<ActivityLog> activityLogs =
@@ -100,15 +104,14 @@ public class ActivityLogServiceTest {
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
-    ActivityLogResource cohortActivityLogResource =
+    ActivityLogResource.Builder cohortActivityLogResource =
         ActivityLogResource.builder()
             .type(ActivityLogResource.Type.COHORT)
             .studyId(study1.getId())
             .studyDisplayName(study1.getDisplayName())
+            .studyProperties(Map.of("irb", "123"))
             .cohortId(cohort1.getId())
-            .cohortDisplayName(cohort1.getDisplayName())
-            .cohortRevisionId(cohort1.getMostRecentRevision().getId())
-            .build();
+            .cohortDisplayName(cohort1.getDisplayName());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
     assertEquals(2, activityLogs.size());
@@ -117,7 +120,11 @@ public class ActivityLogServiceTest {
             .get(0)
             .isEquivalentTo(
                 buildActivityLog(
-                        USER_EMAIL_1, ActivityLog.Type.CREATE_COHORT, cohortActivityLogResource)
+                        USER_EMAIL_1,
+                        ActivityLog.Type.CREATE_COHORT,
+                        cohortActivityLogResource
+                            .cohortRevisionId(cohort1.getMostRecentRevision().getId())
+                            .build())
                     .build()));
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
@@ -146,6 +153,7 @@ public class ActivityLogServiceTest {
             .type(ActivityLogResource.Type.REVIEW)
             .studyId(study1.getId())
             .studyDisplayName(study1.getDisplayName())
+            .studyProperties(Map.of("irb", "123"))
             .cohortId(cohort1.getId())
             .cohortDisplayName(cohort1.getDisplayName())
             .reviewId(review1.getId())
@@ -166,6 +174,9 @@ public class ActivityLogServiceTest {
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // EXPORT_COHORT
+    cohort1 =
+        cohortService.getCohort(
+            study1.getId(), cohort1.getId()); // Get the current cohort revision, post-review.
     Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
@@ -192,7 +203,11 @@ public class ActivityLogServiceTest {
             .get(0)
             .isEquivalentTo(
                 buildActivityLog(
-                        USER_EMAIL_2, ActivityLog.Type.EXPORT_COHORT, cohortActivityLogResource)
+                        USER_EMAIL_2,
+                        ActivityLog.Type.EXPORT_COHORT,
+                        cohortActivityLogResource
+                            .cohortRevisionId(cohort1.getMostRecentRevision().getId())
+                            .build())
                     .exportModel(exportModel)
                     .build()));
 
@@ -215,6 +230,9 @@ public class ActivityLogServiceTest {
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // DELETE_COHORT
+    cohort1 =
+        cohortService.getCohort(
+            study1.getId(), cohort1.getId()); // Get the current cohort revision, post-export.
     cohortService.deleteCohort(study1.getId(), cohort1.getId(), USER_EMAIL_2);
     LOGGER.info("Deleted cohort {}", cohort1.getId());
 
@@ -225,7 +243,11 @@ public class ActivityLogServiceTest {
             .get(0)
             .isEquivalentTo(
                 buildActivityLog(
-                        USER_EMAIL_2, ActivityLog.Type.DELETE_COHORT, cohortActivityLogResource)
+                        USER_EMAIL_2,
+                        ActivityLog.Type.DELETE_COHORT,
+                        cohortActivityLogResource
+                            .cohortRevisionId(cohort1.getMostRecentRevision().getId())
+                            .build())
                     .build()));
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
@@ -248,7 +270,9 @@ public class ActivityLogServiceTest {
   @Test
   void retrieveSingleLog() {
     // CREATE_STUDY
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
+    study1 =
+        studyService.createStudy(
+            Study.builder().displayName("study 1").properties(Map.of("irb", "456")), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
@@ -265,7 +289,9 @@ public class ActivityLogServiceTest {
   @SuppressWarnings("VariableDeclarationUsageDistance")
   void filterList() throws InterruptedException {
     // CREATE_STUDY
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
+    study1 =
+        studyService.createStudy(
+            Study.builder().displayName("study 1").properties(Map.of("irb", "789")), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
