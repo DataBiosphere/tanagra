@@ -16,13 +16,6 @@ public class MockAouWorkbenchAccessControl extends AouWorkbenchAccessControl {
         : null;
   }
 
-  @Override
-  protected Map<String, WorkspaceRole> apiListWorkspacesWithAccess(UserId userId) {
-    return permissions.containsKey(userId.getEmail())
-        ? permissions.get(userId.getEmail())
-        : new HashMap<>();
-  }
-
   public void addPermission(UserId user, String workspaceId, WorkspaceRole role) {
     Map<String, WorkspaceRole> permissionsForUser =
         permissions.containsKey(user.getEmail())
