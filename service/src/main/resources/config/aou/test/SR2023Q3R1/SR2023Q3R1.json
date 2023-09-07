@@ -4,7 +4,7 @@
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
-      "projectId": "fc-aou-cdr-synth-test",
+      "projectId": "all-of-us-ehr-dev",
       "datasetId": "SR2023Q3R1",
       "queryProjectId": "all-of-us-ehr-dev"
     },
