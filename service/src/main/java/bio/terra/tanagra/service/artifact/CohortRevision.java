@@ -18,6 +18,7 @@ public class CohortRevision {
   private final String createdBy;
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
+  private final Long recordsCount;
 
   private CohortRevision(Builder builder) {
     this.id = builder.id;
@@ -29,6 +30,7 @@ public class CohortRevision {
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.lastModifiedBy = builder.lastModifiedBy;
+    this.recordsCount = builder.recordsCount;
   }
 
   public static Builder builder() {
@@ -45,7 +47,8 @@ public class CohortRevision {
         .created(created)
         .createdBy(createdBy)
         .lastModified(lastModified)
-        .lastModifiedBy(lastModifiedBy);
+        .lastModifiedBy(lastModifiedBy)
+        .recordsCount(recordsCount);
   }
 
   public String getId() {
@@ -84,6 +87,10 @@ public class CohortRevision {
     return lastModifiedBy;
   }
 
+  public Long getRecordsCount() {
+    return recordsCount;
+  }
+
   public static class Builder {
     private String id;
     private List<CriteriaGroupSection> sections = new ArrayList<>();
@@ -94,6 +101,7 @@ public class CohortRevision {
     private String createdBy;
     private OffsetDateTime lastModified;
     private String lastModifiedBy;
+    private Long recordsCount;
 
     public Builder id(String id) {
       this.id = id;
@@ -140,6 +148,11 @@ public class CohortRevision {
       return this;
     }
 
+    public Builder recordsCount(Long recordsCount) {
+      this.recordsCount = recordsCount;
+      return this;
+    }
+
     public CohortRevision build() {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
@@ -176,7 +189,8 @@ public class CohortRevision {
         && created.equals(that.created)
         && createdBy.equals(that.createdBy)
         && lastModified.equals(that.lastModified)
-        && lastModifiedBy.equals(that.lastModifiedBy);
+        && lastModifiedBy.equals(that.lastModifiedBy)
+        && recordsCount.equals(that.recordsCount);
   }
 
   @Override
@@ -190,7 +204,8 @@ public class CohortRevision {
         created,
         createdBy,
         lastModified,
-        lastModifiedBy);
+        lastModifiedBy,
+        recordsCount);
   }
 
   public static class CriteriaGroupSection {

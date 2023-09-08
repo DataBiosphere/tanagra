@@ -2582,9 +2582,10 @@ components:
               description: (EXPORT_COHORT) Name of the export model used
               type: string
               nullable: true
-            primaryEntityCount:
-              description: (EXPORT_COHORT, CREATE_REVIEW) Number of primary entity instances included in the cohort revision
+            recordsCount:
+              description: (EXPORT_COHORT, CREATE_REVIEW) Number of primary entity records involved
               type: integer
+              format: int64
               nullable: true
       required:
         - id

@@ -45,7 +45,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a cohort revision.
   private static final String COHORT_REVISION_SELECT_SQL =
-      "SELECT cohort_id, id, version, is_most_recent, is_editable, created, created_by, last_modified, last_modified_by FROM cohort_revision";
+      "SELECT cohort_id, id, version, is_most_recent, is_editable, created, created_by, last_modified, last_modified_by, records_count FROM cohort_revision";
   private static final RowMapper<Pair<String, CohortRevision.Builder>> COHORT_REVISION_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -58,7 +58,8 @@ public class CohortDao {
                   .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
                   .createdBy(rs.getString("created_by"))
                   .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
-                  .lastModifiedBy(rs.getString("last_modified_by")));
+                  .lastModifiedBy(rs.getString("last_modified_by"))
+                  .recordsCount(rs.getObject("records_count", Long.class)));
 
   // SQL query and row mapper for reading a criteria group section.
   private static final String CRITERIA_GROUP_SECTION_SELECT_SQL =
@@ -279,20 +280,22 @@ public class CohortDao {
 
   /** @return the id of the frozen revision just created */
   @WriteTransaction
-  public String createNextRevision(String cohortId, String reviewId, String userEmail) {
+  public String createNextRevision(
+      String cohortId, String reviewId, String userEmail, Long recordsCount) {
     // Get the current most recent revision, so we can copy it.
     Cohort cohort = getCohort(cohortId);
     String frozenRevisionId = cohort.getMostRecentRevision().getId();
 
     // Update the current revision to be un-editable and no longer the most recent.
     String sql =
-        "UPDATE cohort_revision SET review_id = :review_id, is_editable = :is_editable, is_most_recent = :is_most_recent WHERE id = :id";
+        "UPDATE cohort_revision SET review_id = :review_id, is_editable = :is_editable, is_most_recent = :is_most_recent, records_count = :records_count WHERE id = :id";
     LOGGER.debug("UPDATE cohort_revision: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("review_id", reviewId)
             .addValue("is_editable", false)
             .addValue("is_most_recent", false)
+            .addValue("records_count", recordsCount)
             .addValue("id", cohort.getMostRecentRevision().getId());
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE cohort_revision rowsAffected = {}", rowsAffected);
@@ -310,6 +313,7 @@ public class CohortDao {
             .id(null) // Builder will generate a new id.
             .created(null)
             .lastModified(null)
+            .recordsCount(null) // Only store the records count for frozen revisions.
             .build();
     createRevision(cohortId, nextRevision);
     return frozenRevisionId;
@@ -357,8 +361,8 @@ public class CohortDao {
     // Create the review. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
-        "INSERT INTO cohort_revision (cohort_id, id, version, is_most_recent, is_editable, created_by, last_modified_by) "
-            + "VALUES (:cohort_id, :id, :version, :is_most_recent, :is_editable, :created_by, :last_modified_by)";
+        "INSERT INTO cohort_revision (cohort_id, id, version, is_most_recent, is_editable, created_by, last_modified_by, records_count) "
+            + "VALUES (:cohort_id, :id, :version, :is_most_recent, :is_editable, :created_by, :last_modified_by, :records_count)";
     LOGGER.debug("CREATE cohort_revision: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -368,7 +372,8 @@ public class CohortDao {
             .addValue("is_most_recent", cohortRevision.isMostRecent())
             .addValue("is_editable", cohortRevision.isEditable())
             .addValue("created_by", cohortRevision.getCreatedBy())
-            .addValue("last_modified_by", cohortRevision.getLastModifiedBy());
+            .addValue("last_modified_by", cohortRevision.getLastModifiedBy())
+            .addValue("records_count", cohortRevision.getRecordsCount());
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("CREATE cohort_revision rowsAffected = {}", rowsAffected);
 

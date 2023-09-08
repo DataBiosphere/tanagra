@@ -112,7 +112,8 @@ public class ReviewServiceTest {
             cohort1.getId(),
             Review.builder().displayName(displayName).description(description).size(11),
             createdByEmail,
-            queryResult);
+            queryResult,
+            27);
     assertNotNull(createdReview);
     LOGGER.info("Created review {} at {}", createdReview.getId(), createdReview.getCreated());
     assertEquals(11, createdReview.getSize());
@@ -184,7 +185,8 @@ public class ReviewServiceTest {
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
             userEmail,
-            queryResult);
+            queryResult,
+            22);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
 
@@ -195,7 +197,8 @@ public class ReviewServiceTest {
             cohort2.getId(),
             Review.builder().displayName("review 2").description("second review").size(3),
             userEmail,
-            queryResult);
+            queryResult,
+            25);
     assertNotNull(review2);
     LOGGER.info("Created review {} at {}", review2.getId(), review2.getCreated());
     Review review3 =
@@ -204,7 +207,8 @@ public class ReviewServiceTest {
             cohort2.getId(),
             Review.builder().displayName("review 3").description("third review").size(5),
             userEmail,
-            queryResult);
+            queryResult,
+            25);
     assertNotNull(review3);
     LOGGER.info("Created review {} at {}", review3.getId(), review3.getCreated());
 
@@ -273,6 +277,7 @@ public class ReviewServiceTest {
                 cohort1.getId(),
                 Review.builder().size(11),
                 "abc@123.com",
-                emptyQueryResult));
+                emptyQueryResult,
+                0));
   }
 }

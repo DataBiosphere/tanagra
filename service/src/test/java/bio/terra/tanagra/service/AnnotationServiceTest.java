@@ -98,7 +98,12 @@ public class AnnotationServiceTest {
             columnHeaderSchema);
     review1 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort1.getId(), Review.builder().size(11), userEmail, queryResult);
+            study1.getId(),
+            cohort1.getId(),
+            Review.builder().size(11),
+            userEmail,
+            queryResult,
+            1_500_000L);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
 
@@ -111,7 +116,12 @@ public class AnnotationServiceTest {
             columnHeaderSchema);
     review2 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort2.getId(), Review.builder().size(14), userEmail, queryResult);
+            study1.getId(),
+            cohort2.getId(),
+            Review.builder().size(14),
+            userEmail,
+            queryResult,
+            4_500_000L);
     assertNotNull(review2);
     LOGGER.info("Created review {} at {}", review2.getId(), review2.getCreated());
     queryResult =
@@ -122,7 +132,12 @@ public class AnnotationServiceTest {
             columnHeaderSchema);
     review3 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort2.getId(), Review.builder().size(3), userEmail, queryResult);
+            study1.getId(),
+            cohort2.getId(),
+            Review.builder().size(3),
+            userEmail,
+            queryResult,
+            4_500_000L);
     assertNotNull(review3);
     LOGGER.info("Created review {} at {}", review3.getId(), review3.getCreated());
     queryResult =
@@ -133,7 +148,12 @@ public class AnnotationServiceTest {
             columnHeaderSchema);
     review4 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort2.getId(), Review.builder().size(4), userEmail, queryResult);
+            study1.getId(),
+            cohort2.getId(),
+            Review.builder().size(4),
+            userEmail,
+            queryResult,
+            4_500_000L);
     assertNotNull(review4);
     LOGGER.info("Created review {} at {}", review4.getId(), review4.getCreated());
   }

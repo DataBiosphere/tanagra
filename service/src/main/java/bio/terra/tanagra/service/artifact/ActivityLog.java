@@ -22,6 +22,7 @@ public class ActivityLog {
   private final String versionBuild;
   private final Type type;
   private final String exportModel;
+  private final Long recordsCount;
   private final List<ActivityLogResource> resources;
 
   private ActivityLog(Builder builder) {
@@ -33,6 +34,7 @@ public class ActivityLog {
     this.versionBuild = builder.versionBuild;
     this.type = builder.type;
     this.exportModel = builder.exportModel;
+    this.recordsCount = builder.recordsCount;
     this.resources = builder.resources;
   }
 
@@ -72,6 +74,10 @@ public class ActivityLog {
     return exportModel;
   }
 
+  public Long getRecordsCount() {
+    return recordsCount;
+  }
+
   public List<ActivityLogResource> getResources() {
     return Collections.unmodifiableList(resources);
   }
@@ -85,6 +91,7 @@ public class ActivityLog {
     private String versionBuild;
     private Type type;
     private String exportModel;
+    private Long recordsCount;
     private List<ActivityLogResource> resources;
 
     public Builder id(String id) {
@@ -127,6 +134,11 @@ public class ActivityLog {
       return this;
     }
 
+    public Builder recordsCount(Long recordsCount) {
+      this.recordsCount = recordsCount;
+      return this;
+    }
+
     public Builder resources(List<ActivityLogResource> resources) {
       this.resources = resources;
       return this;
@@ -162,6 +174,8 @@ public class ActivityLog {
         && this.type.equals(activityLog.getType())
         && ((this.exportModel != null && this.exportModel.equals(activityLog.getExportModel()))
             || (this.exportModel == null && activityLog.getExportModel() == null))
+        && ((this.recordsCount != null && this.recordsCount.equals(activityLog.getRecordsCount()))
+            || (this.recordsCount == null && activityLog.getRecordsCount() == null))
         && resources.equals(activityLog.getResources());
   }
 
@@ -182,6 +196,7 @@ public class ActivityLog {
         && versionBuild.equals(that.versionBuild)
         && type == that.type
         && Objects.equals(exportModel, that.exportModel)
+        && Objects.equals(recordsCount, that.recordsCount)
         && Objects.equals(resources, that.resources);
   }
 
@@ -196,6 +211,7 @@ public class ActivityLog {
         versionBuild,
         type,
         exportModel,
+        recordsCount,
         resources);
   }
 }

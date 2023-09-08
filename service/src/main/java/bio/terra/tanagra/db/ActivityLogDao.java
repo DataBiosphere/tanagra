@@ -26,7 +26,7 @@ public class ActivityLogDao {
 
   // SQL query and row mapper for reading an activity log entry.
   private static final String ACTIVITY_LOG_SELECT_SQL =
-      "SELECT id, user_email, logged, version_git_tag, version_git_hash, version_build, activity_type, export_model FROM activity_log";
+      "SELECT id, user_email, logged, version_git_tag, version_git_hash, version_build, activity_type, export_model, records_count FROM activity_log";
   private static final RowMapper<ActivityLog.Builder> ACTIVITY_LOG_ROW_MAPPER =
       (rs, rowNum) ->
           ActivityLog.builder()
@@ -37,7 +37,8 @@ public class ActivityLogDao {
               .versionGitHash(rs.getString("version_git_hash"))
               .versionBuild(rs.getString("version_build"))
               .type(ActivityLog.Type.valueOf(rs.getString("activity_type")))
-              .exportModel(rs.getString("export_model"));
+              .exportModel(rs.getString("export_model"))
+              .recordsCount(rs.getObject("records_count", Long.class));
 
   // SQL query and row mapper for reading an activity log entry resource.
   private static final String ACTIVITY_LOG_RESOURCE_SELECT_SQL =
@@ -72,8 +73,8 @@ public class ActivityLogDao {
   @WriteTransaction
   public void createActivityLog(ActivityLog activityLog) {
     String sql =
-        "INSERT INTO activity_log (id, user_email, version_git_tag, version_git_hash, version_build, activity_type, export_model) "
-            + "VALUES (:id, :user_email, :version_git_tag, :version_git_hash, :version_build, :activity_type, :export_model)";
+        "INSERT INTO activity_log (id, user_email, version_git_tag, version_git_hash, version_build, activity_type, export_model, records_count) "
+            + "VALUES (:id, :user_email, :version_git_tag, :version_git_hash, :version_build, :activity_type, :export_model, :records_count)";
     LOGGER.debug("CREATE activity log: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -83,7 +84,8 @@ public class ActivityLogDao {
             .addValue("version_git_hash", activityLog.getVersionGitHash())
             .addValue("version_build", activityLog.getVersionBuild())
             .addValue("activity_type", activityLog.getType().name())
-            .addValue("export_model", activityLog.getExportModel());
+            .addValue("export_model", activityLog.getExportModel())
+            .addValue("records_count", activityLog.getRecordsCount());
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("CREATE activity log rowsAffected = {}", rowsAffected);
 

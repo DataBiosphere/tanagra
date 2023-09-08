@@ -2,25 +2,38 @@ package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.ActivityLog;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
+import bio.terra.tanagra.service.instances.EntityCountRequest;
+import bio.terra.tanagra.service.instances.EntityCountResult;
+import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.underlay.AttributeMapping;
+import bio.terra.tanagra.underlay.DataPointer;
+import bio.terra.tanagra.underlay.Underlay;
+import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CohortService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CohortService.class);
+
   private final CohortDao cohortDao;
   private final FeatureConfiguration featureConfiguration;
   private final UnderlaysService underlaysService;
   private final StudyService studyService;
   private final ActivityLogService activityLogService;
+  private final QuerysService querysService;
 
   @Autowired
   public CohortService(
@@ -28,12 +41,14 @@ public class CohortService {
       FeatureConfiguration featureConfiguration,
       UnderlaysService underlaysService,
       StudyService studyService,
-      ActivityLogService activityLogService) {
+      ActivityLogService activityLogService,
+      QuerysService querysService) {
     this.cohortDao = cohortDao;
     this.featureConfiguration = featureConfiguration;
     this.underlaysService = underlaysService;
     this.studyService = studyService;
     this.activityLogService = activityLogService;
+    this.querysService = querysService;
   }
 
   /** Create a cohort and its first revision without any criteria. */
@@ -120,7 +135,68 @@ public class CohortService {
   }
 
   /** @return the id of the frozen revision just created */
-  public String createNextRevision(String studyId, String cohortId, String userEmail) {
-    return cohortDao.createNextRevision(cohortId, null, userEmail);
+  public String createNextRevision(
+      String studyId, String cohortId, String userEmail, EntityFilter entityFilter) {
+    Long recordsCount =
+        entityFilter == null ? null : getRecordsCount(studyId, cohortId, entityFilter);
+    return cohortDao.createNextRevision(cohortId, null, userEmail, recordsCount);
+  }
+
+  public long getRecordsCount(String studyId, String cohortId, EntityFilter entityFilter) {
+    return getRecordsCount(getCohort(studyId, cohortId).getUnderlay(), entityFilter);
+  }
+
+  /** Build a count query of all primary entity instance ids in the cohort. */
+  public long getRecordsCount(String underlayName, EntityFilter entityFilter) {
+    Underlay underlay = underlaysService.getUnderlay(underlayName);
+    EntityCountResult entityCountResult =
+        querysService.countEntityInstances(
+            new EntityCountRequest.Builder()
+                .entity(underlay.getPrimaryEntity())
+                .mappingType(Underlay.MappingType.INDEX)
+                .attributes(List.of())
+                .filter(entityFilter)
+                .build());
+    LOGGER.debug("getRecordsCount SQL: {}", entityCountResult.getSql());
+    if (entityCountResult.getEntityCounts().size() > 1) {
+      LOGGER.warn(
+          "getRecordsCount returned >1 count: {}", entityCountResult.getEntityCounts().size());
+    }
+    return entityCountResult.getEntityCounts().get(0).getCount();
+  }
+
+  /** Build a query of a random sample of primary entity instance ids in the cohort. */
+  public QueryResult getRandomSample(
+      String studyId, String cohortId, EntityFilter entityFilter, int sampleSize) {
+    // Build a query of a random sample of primary entity instance ids in the cohort.
+    Cohort cohort = getCohort(studyId, cohortId);
+    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
+    TableVariable entityTableVar =
+        TableVariable.forPrimary(
+            underlay.getPrimaryEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer());
+    List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
+    AttributeMapping idAttributeMapping =
+        underlay.getPrimaryEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX);
+    Query query =
+        new Query.Builder()
+            .select(idAttributeMapping.buildFieldVariables(entityTableVar, tableVars))
+            .tables(tableVars)
+            .where(entityFilter.getFilterVariable(entityTableVar, tableVars))
+            .orderBy(List.of(OrderByVariable.forRandom()))
+            .limit(sampleSize)
+            .build();
+    QueryRequest queryRequest =
+        new QueryRequest(
+            query.renderSQL(), new ColumnHeaderSchema(idAttributeMapping.buildColumnSchemas()));
+    LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", queryRequest.getSql());
+
+    // Run the query and get an iterator to its results.
+    DataPointer dataPointer =
+        underlay
+            .getPrimaryEntity()
+            .getMapping(Underlay.MappingType.INDEX)
+            .getTablePointer()
+            .getDataPointer();
+    return dataPointer.getQueryExecutor().execute(queryRequest);
   }
 }

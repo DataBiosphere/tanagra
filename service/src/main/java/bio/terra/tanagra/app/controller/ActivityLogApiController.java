@@ -78,7 +78,9 @@ public class ActivityLogApiController implements ActivityLogApi {
                 .map(alr -> toApiObject(alr))
                 .collect(Collectors.toList()))
         .additionalInfo(
-            new ApiActivityLogEntryAdditionalInfo().exportModel(activityLog.getExportModel()));
+            new ApiActivityLogEntryAdditionalInfo()
+                .exportModel(activityLog.getExportModel())
+                .recordsCount(activityLog.getRecordsCount()));
   }
 
   private ApiResource toApiObject(ActivityLogResource activityLogResource) {

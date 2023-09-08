@@ -16,7 +16,6 @@ import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.*;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import java.util.*;
 import java.util.function.Function;
@@ -68,38 +67,11 @@ public class ReviewService {
       EntityFilter entityFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
 
-    // Build a query of a random sample of primary entity instance ids in the cohort.
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
-    TableVariable entityTableVar =
-        TableVariable.forPrimary(
-            underlay.getPrimaryEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer());
-    List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
-    AttributeMapping idAttributeMapping =
-        underlay.getPrimaryEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX);
-    Query query =
-        new Query.Builder()
-            .select(idAttributeMapping.buildFieldVariables(entityTableVar, tableVars))
-            .tables(tableVars)
-            .where(entityFilter.getFilterVariable(entityTableVar, tableVars))
-            .orderBy(List.of(OrderByVariable.forRandom()))
-            .limit(reviewBuilder.getSize())
-            .build();
-    QueryRequest queryRequest =
-        new QueryRequest(
-            query.renderSQL(), new ColumnHeaderSchema(idAttributeMapping.buildColumnSchemas()));
-    LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", queryRequest.getSql());
-
-    // Run the query and get an iterator to its results.
-    DataPointer dataPointer =
-        underlay
-            .getPrimaryEntity()
-            .getMapping(Underlay.MappingType.INDEX)
-            .getTablePointer()
-            .getDataPointer();
-    QueryResult queryResult = dataPointer.getQueryExecutor().execute(queryRequest);
-
-    return createReviewHelper(studyId, cohortId, reviewBuilder, userEmail, queryResult);
+    QueryResult randomSampleQueryResult =
+        cohortService.getRandomSample(studyId, cohortId, entityFilter, reviewBuilder.getSize());
+    long cohortRecordsCount = cohortService.getRecordsCount(studyId, cohortId, entityFilter);
+    return createReviewHelper(
+        studyId, cohortId, reviewBuilder, userEmail, randomSampleQueryResult, cohortRecordsCount);
   }
 
   @VisibleForTesting
@@ -108,7 +80,8 @@ public class ReviewService {
       String cohortId,
       Review.Builder reviewBuilder,
       String userEmail,
-      QueryResult queryResult) {
+      QueryResult queryResult,
+      long cohortRecordsCount) {
     featureConfiguration.artifactStorageEnabledCheck();
     if (!queryResult.getRowResults().iterator().hasNext()) {
       throw new IllegalArgumentException("Cannot create a review with an empty query result");
@@ -116,7 +89,8 @@ public class ReviewService {
     reviewDao.createReview(
         cohortId,
         reviewBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build(),
-        queryResult);
+        queryResult,
+        cohortRecordsCount);
     Review review = reviewDao.getReview(reviewBuilder.getId());
     activityLogService.logReview(
         ActivityLog.Type.CREATE_REVIEW, userEmail, studyId, cohortId, review);

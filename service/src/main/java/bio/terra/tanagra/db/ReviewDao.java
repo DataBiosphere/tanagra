@@ -45,7 +45,7 @@ public class ReviewDao {
 
   // SQL query and row mapper for reading a cohort revision.
   private static final String COHORT_REVISION_SELECT_SQL =
-      "SELECT review_id, id, version, is_most_recent, is_editable, created, created_by, last_modified, last_modified_by FROM cohort_revision";
+      "SELECT review_id, id, version, is_most_recent, is_editable, created, created_by, last_modified, last_modified_by, records_count FROM cohort_revision";
   private static final RowMapper<Pair<String, CohortRevision.Builder>> COHORT_REVISION_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -58,7 +58,8 @@ public class ReviewDao {
                   .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
                   .createdBy(rs.getString("created_by"))
                   .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
-                  .lastModifiedBy(rs.getString("last_modified_by")));
+                  .lastModifiedBy(rs.getString("last_modified_by"))
+                  .recordsCount(rs.getObject("records_count", Long.class)));
 
   // SQL query and row mapper for reading a primary entity instance.
   private static final String PRIMARY_ENTITY_INSTANCE_SELECT_SQL =
@@ -142,7 +143,8 @@ public class ReviewDao {
   }
 
   @WriteTransaction
-  public void createReview(String cohortId, Review review, QueryResult queryResult) {
+  public void createReview(
+      String cohortId, Review review, QueryResult queryResult, long recordsCount) {
     // Write the review. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
@@ -162,7 +164,7 @@ public class ReviewDao {
     LOGGER.debug("CREATE review rowsAffected = {}", rowsAffected);
 
     // Make the current cohort revision un-editable, and create the next version.
-    cohortDao.createNextRevision(cohortId, review.getId(), review.getCreatedBy());
+    cohortDao.createNextRevision(cohortId, review.getId(), review.getCreatedBy(), recordsCount);
 
     // Write the primary entity instance ids contained in the review.
     sql =

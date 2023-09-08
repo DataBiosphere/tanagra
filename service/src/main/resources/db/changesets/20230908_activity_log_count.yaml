@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: cohort_revision_count
+      author: marikomedlock
+      changes:
+        - addColumn:
+            tableName: cohort_revision
+            columns:
+              - column:
+                  name: records_count
+                  type: bigint
+                  constraints:
+                    nullable: true
+        - addColumn:
+            tableName: activity_log
+            columns:
+              - column:
+                  name: records_count
+                  type: bigint
+                  constraints:
+                    nullable: true

@@ -6,11 +6,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.*;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
+import bio.terra.tanagra.service.instances.filter.AttributeFilter;
+import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
@@ -144,7 +147,8 @@ public class ActivityLogServiceTest {
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
             USER_EMAIL_2,
-            queryResult);
+            queryResult,
+            4_500_000L);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
 
@@ -169,6 +173,7 @@ public class ActivityLogServiceTest {
             .isEquivalentTo(
                 buildActivityLog(
                         USER_EMAIL_2, ActivityLog.Type.CREATE_REVIEW, reviewActivityLogResource)
+                    .recordsCount(4_500_000L)
                     .build()));
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
@@ -185,6 +190,11 @@ public class ActivityLogServiceTest {
             .selectAttributes(primaryEntity.getAttributes())
             .limit(5)
             .build();
+    EntityFilter primaryEntityFilter =
+        new AttributeFilter(
+            primaryEntity.getAttribute("year_of_birth"),
+            BinaryFilterVariable.BinaryOperator.GREATER_THAN_OR_EQUAL,
+            new Literal(1980L));
     String exportModel = "IPYNB_FILE_DOWNLOAD";
     ExportRequest.Builder exportRequest = ExportRequest.builder().model(exportModel);
     ExportResult exportResult =
@@ -193,6 +203,7 @@ public class ActivityLogServiceTest {
             List.of(cohort1.getId()),
             exportRequest,
             List.of(entityQueryRequest),
+            primaryEntityFilter,
             USER_EMAIL_2);
     assertNotNull(exportResult);
 
@@ -209,6 +220,7 @@ public class ActivityLogServiceTest {
                             .cohortRevisionId(cohort1.getMostRecentRevision().getId())
                             .build())
                     .exportModel(exportModel)
+                    .recordsCount(12_861L)
                     .build()));
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
@@ -225,6 +237,7 @@ public class ActivityLogServiceTest {
             .isEquivalentTo(
                 buildActivityLog(
                         USER_EMAIL_1, ActivityLog.Type.DELETE_REVIEW, reviewActivityLogResource)
+                    .recordsCount(4_500_000L)
                     .build()));
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
