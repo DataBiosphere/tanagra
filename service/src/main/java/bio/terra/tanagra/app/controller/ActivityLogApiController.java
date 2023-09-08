@@ -15,7 +15,9 @@ import bio.terra.tanagra.service.artifact.ActivityLogResource;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 
+@Controller
 public class ActivityLogApiController implements ActivityLogApi {
 
   private final ActivityLogService activityLogService;
@@ -45,8 +47,8 @@ public class ActivityLogApiController implements ActivityLogApi {
             limit,
             userEmail,
             exactMatch,
-            ActivityLog.Type.valueOf(activityType.name()),
-            ActivityLogResource.Type.valueOf(resourceType.name()))
+            activityType == null ? null : ActivityLog.Type.valueOf(activityType.name()),
+            resourceType == null ? null : ActivityLogResource.Type.valueOf(resourceType.name()))
         .stream()
         .forEach(activityLog -> apiActivityLogs.add(toApiObject(activityLog)));
     return ResponseEntity.ok(apiActivityLogs);
@@ -80,14 +82,24 @@ public class ActivityLogApiController implements ActivityLogApi {
   }
 
   private ApiResource toApiObject(ActivityLogResource activityLogResource) {
-    return new ApiResource()
-        .type(ApiResourceType.valueOf(activityLogResource.getType().name()))
-        .studyId(activityLogResource.getStudyId())
-        .studyDisplayName(activityLogResource.getStudyDisplayName())
-        .cohortId(activityLogResource.getCohortId())
-        .cohortDisplayName(activityLogResource.getCohortDisplayName())
-        .cohortRevisionId(activityLogResource.getCohortRevisionId())
-        .reviewId(activityLogResource.getReviewId())
-        .reviewDisplayName(activityLogResource.getReviewDisplayName());
+    ApiResource apiResource =
+        new ApiResource()
+            .type(ApiResourceType.valueOf(activityLogResource.getType().name()))
+            .studyId(activityLogResource.getStudyId())
+            .studyDisplayName(activityLogResource.getStudyDisplayName())
+            .cohortId(activityLogResource.getCohortId())
+            .cohortDisplayName(activityLogResource.getCohortDisplayName())
+            .cohortRevisionId(activityLogResource.getCohortRevisionId())
+            .reviewId(activityLogResource.getReviewId())
+            .reviewDisplayName(activityLogResource.getReviewDisplayName());
+    if (activityLogResource.getStudyProperties() != null) {
+      ApiPropertiesV2 apiProperties = new ApiPropertiesV2();
+      activityLogResource
+          .getStudyProperties()
+          .forEach(
+              (key, value) -> apiProperties.add(new ApiPropertyKeyValueV2().key(key).value(value)));
+      apiResource.studyProperties(apiProperties);
+    }
+    return apiResource;
   }
 }

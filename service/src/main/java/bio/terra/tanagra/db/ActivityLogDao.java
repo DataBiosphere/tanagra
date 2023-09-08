@@ -1,5 +1,8 @@
 package bio.terra.tanagra.db;
 
+import static bio.terra.tanagra.db.StudyDao.PROPERTY_ROW_MAPPER;
+import static bio.terra.tanagra.db.StudyDao.PROPERTY_SELECT_SQL;
+
 import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.NotFoundException;
@@ -44,7 +47,7 @@ public class ActivityLogDao {
           + "LEFT JOIN study AS s ON s.id = alr.study_id "
           + "LEFT JOIN cohort AS c ON c.id = alr.cohort_id "
           + "LEFT JOIN review AS r ON r.id = alr.review_id";
-  private static final RowMapper<Pair<String, ActivityLogResource>>
+  private static final RowMapper<Pair<String, ActivityLogResource.Builder>>
       ACTIVITY_LOG_RESOURCE_ROW_MAPPER =
           (rs, rowNum) ->
               Pair.of(
@@ -57,8 +60,7 @@ public class ActivityLogDao {
                       .reviewId(rs.getString("review_id"))
                       .studyDisplayName(rs.getString("study_display_name"))
                       .cohortDisplayName(rs.getString("cohort_display_name"))
-                      .reviewDisplayName(rs.getString("review_display_name"))
-                      .build());
+                      .reviewDisplayName(rs.getString("review_display_name")));
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -208,8 +210,42 @@ public class ActivityLogDao {
             .addValue(
                 "activity_log_ids",
                 activityLogs.stream().map(al -> al.getId()).collect(Collectors.toSet()));
-    List<Pair<String, ActivityLogResource>> resources =
+    List<Pair<String, ActivityLogResource.Builder>> resources =
         jdbcTemplate.query(sql, params, ACTIVITY_LOG_RESOURCE_ROW_MAPPER);
+
+    // Fetch the study properties. (study id -> property)
+    Set<String> studyIds = new HashSet<>();
+    resources.stream()
+        .forEach(
+            pair -> {
+              ActivityLogResource.Builder resource = pair.getValue();
+              if (resource.getStudyId() != null) {
+                studyIds.add(resource.getStudyId());
+              }
+            });
+    sql = PROPERTY_SELECT_SQL + " WHERE study_id IN (:study_ids)";
+    params = new MapSqlParameterSource().addValue("study_ids", studyIds);
+    List<Pair<String, Pair<String, String>>> properties =
+        jdbcTemplate.query(sql, params, PROPERTY_ROW_MAPPER);
+
+    // Put study properties into their respective activity log resources.
+    resources.stream()
+        .forEach(
+            resourcePair -> {
+              ActivityLogResource.Builder resource = resourcePair.getValue();
+              if (resource.getStudyId() != null) {
+                properties.stream()
+                    .forEach(
+                        propertyPair -> {
+                          String studyId = propertyPair.getKey();
+                          if (studyId.equals(resource.getStudyId())) {
+                            Pair<String, String> studyProperty = propertyPair.getValue();
+                            resource.addStudyProperty(
+                                studyProperty.getKey(), studyProperty.getValue());
+                          }
+                        });
+              }
+            });
 
     // Put the resources into their respective activity logs.
     Map<String, ActivityLog.Builder> activityLogsMap =
@@ -219,8 +255,8 @@ public class ActivityLogDao {
         .forEach(
             entry -> {
               String activityLogId = entry.getKey();
-              ActivityLogResource resource = entry.getValue();
-              activityLogsMap.get(activityLogId).addResource(resource);
+              ActivityLogResource.Builder resource = entry.getValue();
+              activityLogsMap.get(activityLogId).addResource(resource.build());
             });
 
     // Preserve the order returned by the original query.

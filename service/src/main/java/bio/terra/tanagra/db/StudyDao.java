@@ -40,9 +40,9 @@ public class StudyDao {
               .isDeleted(rs.getBoolean("is_deleted"));
 
   // SQL query and row mapper for reading a property.
-  private static final String PROPERTY_SELECT_SQL =
+  public static final String PROPERTY_SELECT_SQL =
       "SELECT study_id, property_key, property_value FROM study_property";
-  private static final RowMapper<Pair<String, Pair<String, String>>> PROPERTY_ROW_MAPPER =
+  public static final RowMapper<Pair<String, Pair<String, String>>> PROPERTY_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
               rs.getString("study_id"),

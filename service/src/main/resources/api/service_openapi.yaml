@@ -1046,6 +1046,7 @@ components:
       required: false
       schema:
         type: boolean
+        default: false
 
     ActivityLogFilterResourceType:
       name: resourceType

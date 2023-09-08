@@ -1,5 +1,8 @@
 package bio.terra.tanagra.service.artifact;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ActivityLogResource {
@@ -15,6 +18,7 @@ public class ActivityLogResource {
   private final String cohortRevisionId;
   private final String reviewId;
   private final String studyDisplayName;
+  private final Map<String, String> studyProperties;
   private final String cohortDisplayName;
   private final String reviewDisplayName;
 
@@ -25,6 +29,7 @@ public class ActivityLogResource {
     this.cohortRevisionId = builder.cohortRevisionId;
     this.reviewId = builder.reviewId;
     this.studyDisplayName = builder.studyDisplayName;
+    this.studyProperties = builder.studyProperties;
     this.cohortDisplayName = builder.cohortDisplayName;
     this.reviewDisplayName = builder.reviewDisplayName;
   }
@@ -53,6 +58,10 @@ public class ActivityLogResource {
     return studyDisplayName;
   }
 
+  public Map<String, String> getStudyProperties() {
+    return Collections.unmodifiableMap(studyProperties);
+  }
+
   public String getCohortDisplayName() {
     return cohortDisplayName;
   }
@@ -72,6 +81,7 @@ public class ActivityLogResource {
     private String cohortRevisionId;
     private String reviewId;
     private String studyDisplayName;
+    private Map<String, String> studyProperties;
     private String cohortDisplayName;
     private String reviewDisplayName;
 
@@ -105,6 +115,18 @@ public class ActivityLogResource {
       return this;
     }
 
+    public Builder studyProperties(Map<String, String> studyProperties) {
+      this.studyProperties = studyProperties;
+      return this;
+    }
+
+    public void addStudyProperty(String key, String value) {
+      if (studyProperties == null) {
+        studyProperties = new HashMap<>();
+      }
+      studyProperties.put(key, value);
+    }
+
     public Builder cohortDisplayName(String cohortDisplayName) {
       this.cohortDisplayName = cohortDisplayName;
       return this;
@@ -116,7 +138,15 @@ public class ActivityLogResource {
     }
 
     public ActivityLogResource build() {
+      // Always have a map, even if it is empty
+      if (studyProperties == null) {
+        studyProperties = new HashMap<>();
+      }
       return new ActivityLogResource(this);
+    }
+
+    public String getStudyId() {
+      return studyId;
     }
   }
 
@@ -135,6 +165,7 @@ public class ActivityLogResource {
         && Objects.equals(cohortRevisionId, that.cohortRevisionId)
         && Objects.equals(reviewId, that.reviewId)
         && Objects.equals(studyDisplayName, that.studyDisplayName)
+        && Objects.equals(studyProperties, that.studyProperties)
         && Objects.equals(cohortDisplayName, that.cohortDisplayName)
         && Objects.equals(reviewDisplayName, that.reviewDisplayName);
   }
@@ -148,6 +179,7 @@ public class ActivityLogResource {
         cohortRevisionId,
         reviewId,
         studyDisplayName,
+        studyProperties,
         cohortDisplayName,
         reviewDisplayName);
   }
