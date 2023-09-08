@@ -22,11 +22,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataExportService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DataExportService.class);
   private final ExportConfiguration.Shared shared;
   private final Map<String, DataExport> modelToImpl = new HashMap<>();
   private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
@@ -137,8 +140,16 @@ public class DataExportService {
     ExportResult result = impl.run(request.build());
 
     // Calculate the number of primary entity instances that were included in this export request.
-    long allCohortsCount =
-        cohortService.getRecordsCount(underlay.getName(), allCohortsEntityFilter);
+    // TODO: Remove the null handling here once the UI is passing the primary entity filter to the
+    // export endpoint.
+    long allCohortsCount;
+    if (allCohortsEntityFilter == null) {
+      allCohortsCount = -1;
+      LOGGER.error(
+          "allCohortsEntityFilter is null. This should only happen temporarily while the UI is not yet passing the filter to the API.");
+    } else {
+      allCohortsCount = cohortService.getRecordsCount(underlay.getName(), allCohortsEntityFilter);
+    }
     activityLogService.logExport(
         request.getModel(), allCohortsCount, userEmail, studyId, cohortToRevisionIdMap);
     return result;

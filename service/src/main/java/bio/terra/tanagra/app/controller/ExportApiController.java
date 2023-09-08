@@ -91,7 +91,12 @@ public class ExportApiController implements ExportApi {
             body.getCohorts(),
             request,
             entityQueryRequests,
-            fromApiConversionService.fromApiObject(body.getPrimaryEntityFilter(), underlayName),
+            // TODO: Remove the null handling here once the UI is passing the primary entity filter
+            // to the export endpoint.
+            body.getPrimaryEntityFilter() == null
+                ? null
+                : fromApiConversionService.fromApiObject(
+                    body.getPrimaryEntityFilter(), underlayName),
             SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(toApiObject(result));
   }
