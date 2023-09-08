@@ -91,6 +91,7 @@ public class ExportApiController implements ExportApi {
             body.getCohorts(),
             request,
             entityQueryRequests,
+            fromApiConversionService.fromApiObject(body.getPrimaryEntityFilter(), underlayName),
             SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(toApiObject(result));
   }

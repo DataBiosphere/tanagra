@@ -10,6 +10,7 @@ import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.instances.EntityQueryRequest;
+import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
@@ -87,13 +88,15 @@ public class DataExportService {
       List<String> cohortIds,
       ExportRequest.Builder request,
       List<EntityQueryRequest> entityQueryRequests,
+      EntityFilter allCohortsEntityFilter,
       String userEmail) {
     // Make the current cohort revision un-editable, and create the next version.
     Map<String, String> cohortToRevisionIdMap = new HashMap<>();
     cohortIds.stream()
         .forEach(
             cohortId -> {
-              String revisionId = cohortService.createNextRevision(studyId, cohortId, userEmail);
+              String revisionId =
+                  cohortService.createNextRevision(studyId, cohortId, userEmail, null);
               cohortToRevisionIdMap.put(cohortId, revisionId);
             });
 
@@ -132,7 +135,12 @@ public class DataExportService {
     // Get the implementation class instance for the requested data export model.
     DataExport impl = modelToImpl.get(request.getModel());
     ExportResult result = impl.run(request.build());
-    activityLogService.logExport(request.getModel(), userEmail, studyId, cohortToRevisionIdMap);
+
+    // Calculate the number of primary entity instances that were included in this export request.
+    long allCohortsCount =
+        cohortService.getRecordsCount(underlay.getName(), allCohortsEntityFilter);
+    activityLogService.logExport(
+        request.getModel(), allCohortsCount, userEmail, studyId, cohortToRevisionIdMap);
     return result;
   }
 

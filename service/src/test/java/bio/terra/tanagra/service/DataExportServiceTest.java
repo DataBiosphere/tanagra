@@ -16,6 +16,7 @@ import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.instances.*;
 import bio.terra.tanagra.service.instances.filter.AttributeFilter;
+import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
@@ -208,6 +209,7 @@ public class DataExportServiceTest {
             List.of(cohort1.getId()),
             exportRequest,
             List.of(buildEntityQueryRequest()),
+            buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
@@ -255,6 +257,7 @@ public class DataExportServiceTest {
             List.of(cohort1.getId()),
             exportRequest,
             List.of(buildEntityQueryRequest()),
+            buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
@@ -315,6 +318,7 @@ public class DataExportServiceTest {
             List.of(cohort1.getId()),
             exportRequest,
             List.of(buildEntityQueryRequest()),
+            buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
@@ -342,5 +346,13 @@ public class DataExportServiceTest {
         .selectAttributes(primaryEntity.getAttributes())
         .limit(5)
         .build();
+  }
+
+  private EntityFilter buildPrimaryEntityFilter() {
+    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    return new AttributeFilter(
+        primaryEntity.getAttribute("year_of_birth"),
+        BinaryFilterVariable.BinaryOperator.EQUALS,
+        new Literal(11L));
   }
 }

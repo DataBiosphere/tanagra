@@ -80,11 +80,16 @@ public class ActivityLogService {
             .reviewId(review.getId())
             .cohortRevisionId(review.getRevision().getId())
             .build();
-    createActivityLog(ActivityLog.builder(), userEmail, type, List.of(resource));
+    createActivityLog(
+        ActivityLog.builder().recordsCount(review.getRevision().getRecordsCount()),
+        userEmail,
+        type,
+        List.of(resource));
   }
 
   public void logExport(
       String exportModel,
+      Long allCohortsCount,
       String userEmail,
       String studyId,
       Map<String, String> cohortToRevisionIdMap) {
@@ -103,7 +108,7 @@ public class ActivityLogService {
                 })
             .collect(Collectors.toList());
     createActivityLog(
-        ActivityLog.builder().exportModel(exportModel),
+        ActivityLog.builder().exportModel(exportModel).recordsCount(allCohortsCount),
         userEmail,
         ActivityLog.Type.EXPORT_COHORT,
         resources);

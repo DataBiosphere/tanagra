@@ -96,7 +96,12 @@ public class ReviewInstanceTest {
             columnHeaderSchema);
     review1 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort1.getId(), Review.builder().size(11), userEmail, queryResult);
+            study1.getId(),
+            cohort1.getId(),
+            Review.builder().size(11),
+            userEmail,
+            queryResult,
+            1_500_000L);
     assertNotNull(review1);
     LOGGER.info("Created review1 {} at {}", review1.getId(), review1.getCreated());
 
@@ -108,7 +113,12 @@ public class ReviewInstanceTest {
             columnHeaderSchema);
     review2 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort1.getId(), Review.builder().size(14), userEmail, queryResult);
+            study1.getId(),
+            cohort1.getId(),
+            Review.builder().size(14),
+            userEmail,
+            queryResult,
+            1_500_000L);
     assertNotNull(review2);
     LOGGER.info("Created review2 {} at {}", review2.getId(), review2.getCreated());
 
@@ -120,7 +130,12 @@ public class ReviewInstanceTest {
             columnHeaderSchema);
     review3 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort1.getId(), Review.builder().size(3), userEmail, queryResult);
+            study1.getId(),
+            cohort1.getId(),
+            Review.builder().size(3),
+            userEmail,
+            queryResult,
+            1_500_000L);
     assertNotNull(review3);
     LOGGER.info("Created review3 {} at {}", review3.getId(), review3.getCreated());
 
@@ -132,7 +147,12 @@ public class ReviewInstanceTest {
             columnHeaderSchema);
     review4 =
         reviewService.createReviewHelper(
-            study1.getId(), cohort1.getId(), Review.builder().size(4), userEmail, queryResult);
+            study1.getId(),
+            cohort1.getId(),
+            Review.builder().size(4),
+            userEmail,
+            queryResult,
+            1_500_000L);
     assertNotNull(review4);
     LOGGER.info("Created review4 {} at {}", review4.getId(), review4.getCreated());
 

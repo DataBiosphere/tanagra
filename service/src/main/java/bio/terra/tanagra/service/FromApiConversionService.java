@@ -44,7 +44,11 @@ public final class FromApiConversionService {
 
   public EntityFilter fromApiObject(ApiFilterV2 apiFilter, String studyId, String cohortId) {
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
+    return fromApiObject(apiFilter, cohort.getUnderlay());
+  }
+
+  public EntityFilter fromApiObject(ApiFilterV2 apiFilter, String underlayName) {
+    Underlay underlay = underlaysService.getUnderlay(underlayName);
     return fromApiObject(apiFilter, underlay.getPrimaryEntity(), underlay.getName());
   }
 

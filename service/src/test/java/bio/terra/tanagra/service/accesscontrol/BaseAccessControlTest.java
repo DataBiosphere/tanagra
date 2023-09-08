@@ -138,7 +138,8 @@ public class BaseAccessControlTest {
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
             "abc@123.com",
-            queryResult);
+            queryResult,
+            14);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
     review2 =
@@ -147,7 +148,8 @@ public class BaseAccessControlTest {
             cohort2.getId(),
             Review.builder().displayName("review 2").description("second review").size(3),
             "def@123.com",
-            queryResult);
+            queryResult,
+            15);
     assertNotNull(review2);
     LOGGER.info("Created review {} at {}", review2.getId(), review2.getCreated());
 
