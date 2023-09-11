@@ -39,7 +39,7 @@
     "t_visit_occurrence.json"],
   "primaryEntity": "t_person",
   "entityGroups": [
-    "t_activity_summary_person_occurrence.json",
+    "t_activity_summary_person.json",
     "t_brand_ingredient.json",
     "t_condition_person_occurrence.json",
     "t_device_person_occurrence.json",

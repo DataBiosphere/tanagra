@@ -1,5 +1,5 @@
 {
-  "name": "t_activity_summary_person_occurrence",
+  "name": "t_activity_summary_person",
   "type": "GROUP_ITEMS",
   "groupEntity": "t_person",
   "itemsEntity": "t_activity_summary",
