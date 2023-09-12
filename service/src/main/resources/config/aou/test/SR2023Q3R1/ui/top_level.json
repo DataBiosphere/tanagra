@@ -287,6 +287,13 @@
       "title": "Age",
       "category": "Program data",
       "attribute": "age"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit-activity-summary",
+      "title": "Fitbit Activity Summary",
+      "category": "Fitbit",
+      "attribute": "has_fitbit_activity_summary"
     }
   ],
   "modifierConfigs": [
