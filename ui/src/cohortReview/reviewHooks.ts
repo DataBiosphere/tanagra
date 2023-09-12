@@ -75,13 +75,18 @@ export function useReviewInstances() {
 
 export function useReviewAnnotations() {
   const source = useSource();
-  const params = useReviewParams();
+  const params = useBaseParams();
+
+  const cohort = useCohortContext().state?.present;
+  if (!cohort) {
+    throw new Error("Cohort context state is null.");
+  }
 
   return useSWR(
     {
       type: "annotation",
       studyId: params.studyId,
-      cohortId: params.cohort.id,
+      cohortId: cohort.id,
     },
     async (key) => {
       return await source.listAnnotations(key.studyId, key.cohortId);

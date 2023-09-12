@@ -1,5 +1,5 @@
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import GridLayout from "layout/gridLayout";
 import React from "react";
 
 type EmptyProps = {
@@ -12,15 +12,13 @@ type EmptyProps = {
 
 export default function Empty(props: EmptyProps) {
   return (
-    <Stack
-      alignItems="center"
-      justifyContent="center"
-      sx={{ width: "100%", height: "100%", minHeight: props.minHeight }}
+    <GridLayout
+      cols
+      rowAlign="middle"
+      colAlign="center"
+      sx={{ px: 2, py: 1, minHeight: props.minHeight }}
     >
-      <Stack
-        alignItems="center"
-        sx={{ maxWidth: props.maxWidth, textAlign: "center" }}
-      >
+      <GridLayout colAlign="center" height="auto" sx={{ textAlign: "center" }}>
         {props.image && (
           <img src={props.image} style={{ marginBottom: "20px" }} />
         )}
@@ -30,7 +28,7 @@ export default function Empty(props: EmptyProps) {
         {props.subtitle && (
           <Typography variant="body1">{props.subtitle}</Typography>
         )}
-      </Stack>
-    </Stack>
+      </GridLayout>
+    </GridLayout>
   );
 }
