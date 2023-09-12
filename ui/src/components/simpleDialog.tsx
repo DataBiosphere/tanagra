@@ -10,6 +10,14 @@ export type SimpleDialogConfig = {
   title: string;
   text: string;
   buttons: string[];
+  primaryButtonColor?:
+    | "inherit"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "error"
+    | "info"
+    | "warning";
   onButton: (button: number) => void;
 };
 
@@ -43,6 +51,11 @@ export function useSimpleDialog(): [
               key={i}
               variant={
                 i === config.buttons.length - 1 ? "contained" : undefined
+              }
+              color={
+                i === config.buttons.length - 1
+                  ? config.primaryButtonColor
+                  : undefined
               }
               onClick={() => {
                 setConfig(null);

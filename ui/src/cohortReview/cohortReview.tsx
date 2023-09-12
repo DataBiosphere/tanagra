@@ -1,24 +1,15 @@
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import LockIcon from "@mui/icons-material/Lock";
 import MenuIcon from "@mui/icons-material/Menu";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
 import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import Tab from "@mui/material/Tab";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { CohortReviewContext } from "cohortReview/cohortReviewContext";
-import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
 import { useParticipantsListDialog } from "cohortReview/participantsList";
 import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
 import {
@@ -29,6 +20,7 @@ import {
   useReviewSearchData,
 } from "cohortReview/reviewHooks";
 import Loading from "components/loading";
+import { Tabs } from "components/tabs";
 import { FilterType } from "data/filter";
 import { Annotation, AnnotationType, ReviewInstance } from "data/source";
 import { useSource } from "data/sourceContext";
@@ -37,7 +29,7 @@ import { useUnderlay } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
@@ -107,26 +99,6 @@ export function CohortReview() {
   };
 
   const annotationsState = useReviewAnnotations();
-
-  const [newAnnotationDialog, showNewAnnotationDialog] = useNewAnnotationDialog(
-    {
-      onCreate: async (
-        displayName: string,
-        annotationType: AnnotationType,
-        enumVals?: string[]
-      ) => {
-        await source.createAnnotation(
-          params.studyId,
-          params.cohort.id,
-          displayName,
-          annotationType,
-          enumVals
-        );
-        annotationsState.mutate();
-      },
-    }
-  );
-
   const [searchData, updateSearchData] = useReviewSearchData();
 
   const instanceIndex = searchData.instanceIndex ?? 0;
@@ -135,7 +107,7 @@ export function CohortReview() {
 
   const pageId = searchData.pageId ?? pagePlugins[0].id;
 
-  const changePage = (event: React.SyntheticEvent, newValue: string) => {
+  const changePage = (newValue: string) => {
     updateSearchData((data) => {
       data.pageId = newValue;
     });
@@ -263,27 +235,7 @@ export function CohortReview() {
               </GridLayout>
               <GridBox sx={{ m: 2 }} />
               <GridLayout rows={3}>
-                <GridLayout cols rowAlign="middle">
-                  <Typography variant="body1em">Annotations</Typography>
-                  <IconButton
-                    onClick={() =>
-                      updateSearchData((data) => {
-                        data.editingAnnotations = !data?.editingAnnotations;
-                      })
-                    }
-                  >
-                    {searchData?.editingAnnotations ? (
-                      <LockIcon />
-                    ) : (
-                      <EditIcon />
-                    )}
-                  </IconButton>
-                  {searchData?.editingAnnotations ? (
-                    <IconButton onClick={() => showNewAnnotationDialog()}>
-                      <AddIcon />
-                    </IconButton>
-                  ) : null}
-                </GridLayout>
+                <Typography variant="body1em">Annotations</Typography>
                 <Loading status={annotationsState}>
                   <GridLayout rows spacing={2}>
                     {annotationsState.data?.map(
@@ -294,7 +246,6 @@ export function CohortReview() {
                             cohortId={params.cohort.id}
                             reviewId={params.reviewId}
                             annotation={a}
-                            mutateAnnotation={() => annotationsState.mutate()}
                             instance={instance}
                             mutateInstance={mutateInstance}
                             key={`${a.id}-${instance?.data?.key}`}
@@ -333,37 +284,15 @@ export function CohortReview() {
                     }),
                 }}
               >
-                <TabContext value={pageId}>
-                  <GridLayout rows>
-                    <TabList onChange={changePage}>
-                      {pagePlugins.map((p) => (
-                        <Tab key={p.id} label={p.title} value={p.id} />
-                      ))}
-                    </TabList>
-                    <GridBox
-                      sx={{
-                        borderTopStyle: "solid",
-                        borderColor: (theme) => theme.palette.divider,
-                        borderWidth: "1px",
-                      }}
-                    >
-                      {pagePlugins.map((p) => (
-                        <TabPanel
-                          key={p.id}
-                          value={p.id}
-                          sx={{ p: 0, height: "100%" }}
-                        >
-                          {p.render()}
-                        </TabPanel>
-                      ))}
-                    </GridBox>
-                  </GridLayout>
-                </TabContext>
+                <Tabs
+                  configs={pagePlugins}
+                  currentTab={pageId}
+                  setCurrentTab={changePage}
+                />
               </CohortReviewContext.Provider>
             </Loading>
           </GridBox>
         </GridLayout>
-        {newAnnotationDialog}
         {participantsListDialog}
       </Loading>
     </GridLayout>
@@ -378,14 +307,11 @@ function AnnotationComponent(props: {
   annotation: Annotation;
   instance: ReviewInstance;
 
-  mutateAnnotation: () => void;
   mutateInstance: (
     updateRemote: () => void,
     updateLocal: (instance: ReviewInstance) => void
   ) => void;
 }) {
-  const [searchData, updateSearchData] = useReviewSearchData();
-
   const source = useSource();
 
   // TODO(tjennison): Expand handling of older and newer revisions and improve
@@ -436,7 +362,6 @@ function AnnotationComponent(props: {
     }
   };
 
-  let comp: ReactNode | undefined;
   switch (props.annotation.annotationType) {
     case AnnotationType.String:
       if (props.annotation.enumVals?.length) {
@@ -454,7 +379,7 @@ function AnnotationComponent(props: {
           );
         };
 
-        comp = (
+        return (
           <FormControl fullWidth>
             <InputLabel id={`label-${props.annotation.id}`}>
               {props.annotation.displayName}
@@ -478,7 +403,7 @@ function AnnotationComponent(props: {
           </FormControl>
         );
       } else {
-        comp = (
+        return (
           <TextField
             variant="outlined"
             fullWidth
@@ -491,36 +416,12 @@ function AnnotationComponent(props: {
           />
         );
       }
-      break;
 
     default:
       throw new Error(
         `Unhandled annotation type ${props.annotation.annotationType}.`
       );
   }
-
-  return (
-    <GridLayout cols fillCol={0} rowAlign="middle">
-      {comp}
-      {searchData?.editingAnnotations ? (
-        <IconButton
-          onClick={async () => {
-            await source.deleteAnnotation(
-              props.studyId,
-              props.cohortId,
-              props.annotation.id
-            );
-            await props.mutateAnnotation();
-            updateSearchData((data) => {
-              data.editingAnnotations = false;
-            });
-          }}
-        >
-          <DeleteIcon />
-        </IconButton>
-      ) : null}
-    </GridLayout>
-  );
 }
 
 function createUpdateCurrentValue(

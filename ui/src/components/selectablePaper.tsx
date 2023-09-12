@@ -1,4 +1,3 @@
-import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import { PropsWithChildren } from "react";
 
@@ -7,20 +6,24 @@ export default function SelectablePaper({
   selected,
 }: PropsWithChildren<{ selected: boolean }>) {
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden", position: "relative" }}>
-      {selected ? (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "16px",
-            bottom: "16px",
-            left: "-4px",
-            width: "8px",
-            borderRadius: "4px",
-            backgroundColor: (theme) => theme.palette.primary.main,
-          }}
-        />
-      ) : undefined}
+    <Paper
+      elevation={0}
+      sx={{
+        width: "100%",
+        overflow: "hidden",
+        position: "relative",
+        borderStyle: "solid",
+        borderWidth: "1px",
+        ...(selected
+          ? {
+              backgroundColor: "#F1F2FA",
+              borderColor: "#BEC2E9",
+            }
+          : {
+              borderColor: (theme) => theme.palette.background.paper,
+            }),
+      }}
+    >
       {children}
     </Paper>
   );

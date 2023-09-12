@@ -1,24 +1,43 @@
 import AddIcon from "@mui/icons-material/Add";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import Box from "@mui/material/Box";
+import InsertChartIcon from "@mui/icons-material/InsertChart";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+import RecentActorsIcon from "@mui/icons-material/RecentActors";
+import WarningIcon from "@mui/icons-material/Warning";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
+import Link from "@mui/material/Link";
 import ListItemButton from "@mui/material/ListItemButton";
-import Stack from "@mui/material/Stack";
+import Paper from "@mui/material/Paper";
+import { SxProps, useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { generateId } from "cohort";
-import { useCohortContext } from "cohortContext";
+import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
+import { useReviewAnnotations } from "cohortReview/reviewHooks";
+import { CohortSummary } from "cohortSummary";
 import Empty from "components/empty";
+import Loading from "components/loading";
 import LoadingOverlay from "components/loadingOverlay";
 import SelectablePaper from "components/selectablePaper";
+import { useSimpleDialog } from "components/simpleDialog";
+import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
+import {
+  TreeGrid,
+  TreeGridId,
+  useArrayAsTreeGridData,
+} from "components/treegrid";
+import { Annotation, AnnotationType } from "data/source";
 import { useSource } from "data/sourceContext";
 import { CohortReview } from "data/types";
+import deepEqual from "deep-equal";
 import { DemographicCharts } from "demographicCharts";
+import { useCohort, useStudyId } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -35,11 +54,15 @@ type PendingItem = {
   id: string;
   displayName: string;
   size: number;
-  created: Date;
+  lastModified: Date;
 };
 
 class ReviewListItem {
   constructor(public review?: CohortReview, public pending?: PendingItem) {}
+
+  isPending() {
+    return !!this.pending;
+  }
 
   id() {
     return this.pending?.id ?? this.review?.id;
@@ -53,8 +76,8 @@ class ReviewListItem {
     return this.pending?.size ?? this.review?.size;
   }
 
-  created() {
-    return this.pending?.created ?? this.review?.created;
+  lastModified() {
+    return this.pending?.lastModified ?? this.review?.cohort?.lastModified;
   }
 }
 
@@ -70,15 +93,46 @@ function firstReview(list: ReviewListItem[]) {
 }
 
 export function CohortReviewList() {
+  const params = useBaseParams();
+  const cohort = useCohort();
+
+  return (
+    <GridLayout
+      rows
+      sx={{
+        backgroundColor: (theme) => theme.palette.background.paper,
+      }}
+    >
+      <ActionBar
+        title={`Reviews for cohort ${cohort.name}`}
+        backAction={absoluteCohortURL(params, cohort.id)}
+      />
+      <Tabs
+        configs={[
+          {
+            id: "reviews",
+            title: "Reviews",
+            render: () => <Reviews />,
+          },
+          {
+            id: "annotations",
+            title: "Annotations",
+            render: () => <Annotations />,
+          },
+        ]}
+        center
+      />
+    </GridLayout>
+  );
+}
+
+function Reviews() {
+  const theme = useTheme();
   const source = useSource();
   const navigate = useNavigate();
   const params = useBaseParams();
   const { reviewId } = useParams<{ reviewId: string }>();
-
-  const cohort = useCohortContext().state?.present;
-  if (!cohort) {
-    throw new Error("Cohort context state is null.");
-  }
+  const cohort = useCohort();
 
   const reviewsState = useSWR(
     { component: "CohortReviewList", cohortId: cohort.id },
@@ -106,6 +160,11 @@ export function CohortReviewList() {
     }
   });
 
+  const selectedReviewUpToDate = deepEqual(
+    selectedReview?.cohort?.groupSections,
+    cohort?.groupSections
+  );
+
   const onCreateNewReview = (name: string, size: number) => {
     reviewsState.mutate(
       async () => {
@@ -126,7 +185,7 @@ export function CohortReviewList() {
           new ReviewListItem(undefined, {
             displayName: name,
             size,
-            created: new Date(),
+            lastModified: cohort.lastModified,
             id: generateId(),
           }),
           ...(reviewsState?.data ?? []),
@@ -134,6 +193,8 @@ export function CohortReviewList() {
       }
     );
   };
+
+  const [confirmDialog, showConfirmDialog] = useSimpleDialog();
 
   const onDeleteReview = () => {
     reviewsState.mutate(
@@ -197,145 +258,459 @@ export function CohortReviewList() {
     onConfirm: onRenameReview,
   });
 
+  const emptyIconSx: SxProps = {
+    p: 1,
+    color: theme.palette.primary.main,
+    backgroundColor: theme.palette.info.main,
+    borderRadius: "50%",
+    width: "2em",
+    height: "2em",
+  };
+
   return (
-    <GridLayout rows>
-      <ActionBar
-        title={`Reviews for cohort ${cohort.name}`}
-        backAction={absoluteCohortURL(params, cohort.id)}
-      />
-      <Box
+    <GridLayout cols="300px 1fr">
+      <GridLayout
+        rows
         sx={{
-          width: "100%",
-          height: "100%",
-          display: "grid",
-          gridTemplateColumns: "280px 1fr",
-          gridTemplateRows: "1fr",
-          gridTemplateAreas: "'reviews stats'",
+          boxShadow: (theme) => `inset -1px 0 0 ${theme.palette.divider}`,
         }}
       >
-        <Box
+        <GridLayout
+          cols
+          fillCol={0}
+          rowAlign="middle"
+          height="auto"
           sx={{
-            gridArea: "reviews",
-            p: 1,
+            px: 3,
+            py: 2,
+            boxShadow: (theme) => `inset -1px -1px 0 ${theme.palette.divider}`,
           }}
         >
-          <GridLayout rows>
-            <GridLayout cols height="auto">
-              <Typography variant="h6" sx={{ mr: 1 }}>
-                Reviews
-              </Typography>
-              <IconButton onClick={showNewReviewDialog}>
-                <AddIcon />
-              </IconButton>
-              <GridBox />
+          <Typography variant="h6" sx={{ mr: 1 }}>
+            {`Reviews (${reviewsState.data?.length ?? 0})`}
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={showNewReviewDialog}
+          >
+            New review
+          </Button>
+          <GridBox />
+        </GridLayout>
+        <GridBox
+          sx={{
+            backgroundColor: (theme) => theme.palette.background.default,
+          }}
+        >
+          {!!reviewsState.data?.length ? (
+            <GridLayout
+              rows
+              spacing={2}
+              sx={{
+                px: 3,
+                py: 2,
+                boxShadow: (theme) =>
+                  `inset -1px -1px 0 ${theme.palette.divider}`,
+              }}
+            >
+              {reviewsState.data?.map((item) => (
+                <ListItemButton
+                  sx={{
+                    p: 0,
+                    borderRadius: (theme) => `${theme.shape.borderRadius}px`,
+                  }}
+                  component={RouterLink}
+                  key={item.id()}
+                  to={absoluteCohortReviewListURL(params, cohort.id, item.id())}
+                  disabled={!!item.pending}
+                >
+                  <SelectablePaper selected={item.id() === selectedReview?.id}>
+                    <GridLayout rows sx={{ p: 1 }}>
+                      <GridLayout cols fillCol={0}>
+                        <ReviewChip item={item} />
+                        {!!item.pending ? (
+                          <CircularProgress
+                            sx={{ maxWidth: "1em", maxHeight: "1em" }}
+                          />
+                        ) : null}
+                      </GridLayout>
+                      <Typography variant="body1em">
+                        {item.displayName()}
+                      </Typography>
+                      <Typography variant="body1">
+                        {item.lastModified()?.toLocaleString()}
+                      </Typography>
+                      <Typography variant="body1">
+                        {`Participants: ${item.size()}`}
+                      </Typography>
+                    </GridLayout>
+                  </SelectablePaper>
+                </ListItemButton>
+              ))}
             </GridLayout>
-            {!!reviewsState.data?.length ? (
-              <List sx={{ p: 0 }}>
-                {reviewsState.data?.map((item) => (
-                  <ListItemButton
-                    sx={{ p: 0, mt: 1 }}
-                    component={RouterLink}
-                    key={item.id()}
-                    to={absoluteCohortReviewListURL(
-                      params,
-                      cohort.id,
-                      item.id()
-                    )}
-                    disabled={!!item.pending}
-                  >
-                    <SelectablePaper
-                      selected={item.id() === selectedReview?.id}
-                    >
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        sx={{ p: 1 }}
-                      >
-                        <Stack>
-                          <Typography variant="body1em">
-                            {item.displayName()}
-                          </Typography>
-                          <Typography variant="body1">
-                            {item.created()?.toLocaleString()}
-                          </Typography>
-                          <Typography variant="body1">
-                            {`Participants: ${item.size()}`}
-                          </Typography>
-                        </Stack>
-                        <Typography variant="body1">
-                          {!!item.pending ? (
-                            <CircularProgress
-                              sx={{ maxWidth: "1em", maxHeight: "1em" }}
-                            />
-                          ) : null}
-                        </Typography>
-                      </Stack>
-                    </SelectablePaper>
-                  </ListItemButton>
-                ))}
-              </List>
-            ) : (
-              <Empty
-                maxWidth="90%"
-                minHeight="200px"
-                title="No reviews created"
-              />
-            )}
-          </GridLayout>
-        </Box>
-        <Box
-          sx={{
-            gridArea: "stats",
-            backgroundColor: (theme) => theme.palette.background.paper,
-            p: 1,
-          }}
-        >
-          {!!selectedReview ? (
-            <Stack>
-              <Stack direction="row">
-                <Typography variant="h6" sx={{ mr: 1 }}>
-                  {selectedReview.displayName}
-                </Typography>
-                <IconButton onClick={showRenameReviewDialog}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton onClick={onDeleteReview}>
-                  <DeleteIcon />
-                </IconButton>
-              </Stack>
-              <ReviewStats review={selectedReview} />
-            </Stack>
           ) : (
             <Empty
-              maxWidth="60%"
-              minHeight="300px"
-              image="/empty.svg"
-              title="No reviews created"
-              subtitle="You can create a review by clicking on the '+' button"
+              maxWidth="80%"
+              title="Your reviews will show up here"
+              subtitle="Create a new review to get started"
             />
           )}
-        </Box>
-        <Box sx={{ gridArea: "1/1/-1/-1" }}>
-          {reviewsState.isLoading ? <LoadingOverlay /> : undefined}
-        </Box>
+        </GridBox>
+      </GridLayout>
+      <GridBox>
+        {!!selectedReview ? (
+          <GridLayout rows>
+            <GridLayout
+              cols
+              rowAlign="middle"
+              colAlign="right"
+              sx={{
+                px: 3,
+                py: 2,
+              }}
+            >
+              <GridLayout rows>
+                <GridLayout cols>
+                  <Typography variant="h6" sx={{ mr: 1 }}>
+                    {selectedReview.displayName}
+                  </Typography>
+                  <IconButton onClick={showRenameReviewDialog}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={() =>
+                      showConfirmDialog({
+                        title: `Delete ${selectedReview?.displayName}?`,
+                        text: `Review "${selectedReview?.displayName}" will be deleted. Are you sure you want to continue?`,
+                        buttons: ["Cancel", "Delete review"],
+                        primaryButtonColor: "error",
+                        onButton: (button) => {
+                          if (button === 1) {
+                            onDeleteReview();
+                          }
+                        },
+                      })
+                    }
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </GridLayout>
+                <Typography variant="body1">{`Created by: ${selectedReview.createdBy}`}</Typography>
+              </GridLayout>
+              <Button variant="contained" onClick={() => navigate("review")}>
+                Review individual participants
+              </Button>
+            </GridLayout>
+            <ReviewStats
+              review={selectedReview}
+              upToDate={selectedReviewUpToDate}
+            />
+          </GridLayout>
+        ) : (
+          <Empty
+            maxWidth="80%"
+            minHeight="300px"
+            title="Here you can review a subset of your cohort, and add notes & annotations"
+            subtitle={
+              <GridLayout rows spacing={4} height="auto">
+                <GridLayout
+                  cols
+                  fillCol={-1}
+                  spacing={4}
+                  height="auto"
+                  sx={{ mt: 2 }}
+                >
+                  <GridLayout rows colAlign="center" height="auto">
+                    <RecentActorsIcon sx={emptyIconSx} />
+                    <Typography variant="body1">
+                      Review cohort participant data
+                    </Typography>
+                  </GridLayout>
+                  <GridLayout rows colAlign="center" height="auto">
+                    <InsertChartIcon sx={emptyIconSx} />
+                    <Typography variant="body1">
+                      View descriptive cohort statistics
+                    </Typography>
+                  </GridLayout>
+                  <GridLayout rows colAlign="center" height="auto">
+                    <RateReviewIcon sx={emptyIconSx} />
+                    <Typography variant="body1">
+                      Share notes with collaborators
+                    </Typography>
+                  </GridLayout>
+                </GridLayout>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={showNewReviewDialog}
+                >
+                  New review
+                </Button>
+              </GridLayout>
+            }
+          />
+        )}
+        {confirmDialog}
         {newReviewDialog}
         {renameReviewDialog}
-      </Box>
+      </GridBox>
+      <GridBox sx={{ gridArea: "1/1/-1/-1" }}>
+        {reviewsState.isLoading ? <LoadingOverlay /> : undefined}
+      </GridBox>
     </GridLayout>
   );
 }
 
-function ReviewStats(props: { review: CohortReview }) {
-  const navigate = useNavigate();
+type ReviewChipProps = {
+  item: ReviewListItem;
+};
+
+function ReviewChip(props: ReviewChipProps) {
+  const cohort = useCohort();
+
+  if (props.item.isPending()) {
+    return (
+      <Chip
+        color="secondary"
+        icon={<CheckCircleIcon />}
+        variant="outlined"
+        label="Creating"
+      />
+    );
+  }
+  if (
+    deepEqual(props.item?.review?.cohort?.groupSections, cohort?.groupSections)
+  ) {
+    return (
+      <Chip
+        color="success"
+        icon={<CheckCircleIcon />}
+        variant="outlined"
+        label="Latest"
+      />
+    );
+  }
+  return (
+    <Chip
+      color="warning"
+      icon={<WarningIcon />}
+      variant="outlined"
+      label="Outdated"
+    />
+  );
+}
+
+type ReviewStatsProps = {
+  review: CohortReview;
+  upToDate: boolean;
+};
+
+function ReviewStats(props: ReviewStatsProps) {
+  return (
+    <Tabs
+      configs={[
+        {
+          id: "overview",
+          title: "Overview",
+          render: () => (
+            <Summary review={props.review} upToDate={props.upToDate} />
+          ),
+        },
+        {
+          id: "charts",
+          title: "Charts",
+          render: () => (
+            <GridBox
+              sx={{
+                px: 3,
+                py: 2,
+                backgroundColor: (theme) => theme.palette.background.default,
+              }}
+            >
+              <DemographicCharts cohort={props.review.cohort} />
+            </GridBox>
+          ),
+        },
+      ]}
+    />
+  );
+}
+
+type SummaryProps = {
+  review: CohortReview;
+  upToDate: boolean;
+};
+
+function Summary(props: SummaryProps) {
+  return (
+    <GridLayout
+      rows
+      spacing={2}
+      sx={{
+        px: 3,
+        py: 2,
+        backgroundColor: (theme) => theme.palette.background.default,
+      }}
+    >
+      <GridLayout rows>
+        <Typography variant="h6">
+          Cohort definition when review started
+        </Typography>
+        <GridLayout cols spacing={1}>
+          {props.upToDate ? (
+            <CheckCircleIcon color="success" />
+          ) : (
+            <WarningIcon color="warning" />
+          )}
+          <Typography variant="body2">
+            {props.upToDate
+              ? "Reviewing the most recent version of this cohort"
+              : "Reviewing an outdated version of this cohort"}
+          </Typography>
+        </GridLayout>
+      </GridLayout>
+      <Paper sx={{ p: 1 }}>
+        <CohortSummary cohort={props.review.cohort} />
+      </Paper>
+    </GridLayout>
+  );
+}
+
+function Annotations() {
+  const source = useSource();
+  const studyId = useStudyId();
+  const cohort = useCohort();
+
+  const annotationsState = useReviewAnnotations();
+
+  const [newAnnotationDialog, showNewAnnotationDialog] = useNewAnnotationDialog(
+    {
+      onCreate: async (
+        displayName: string,
+        annotationType: AnnotationType,
+        enumVals?: string[]
+      ) => {
+        await source.createAnnotation(
+          studyId,
+          cohort.id,
+          displayName,
+          annotationType,
+          enumVals
+        );
+        annotationsState.mutate();
+      },
+    }
+  );
+
+  const [confirmDialog, showConfirmDialog] = useSimpleDialog();
+
+  const data = useArrayAsTreeGridData(
+    annotationsState.data?.map((a) => ({
+      ...a,
+      type: a.enumVals?.length ? "Review status" : "Free text",
+    })) ?? [],
+    "id"
+  );
+
+  const columns = [
+    { key: "displayName", width: "100%", title: "Name" },
+    { key: "type", width: 200, title: "Type" },
+    { key: "buttons", width: 200 },
+  ];
 
   return (
-    <GridLayout rows width="auto">
-      <Button variant="contained" onClick={() => navigate("review")}>
-        Review
-      </Button>
-      <GridBox sx={{ p: 2 }}>
-        <DemographicCharts cohort={props.review.cohort} />
-      </GridBox>
-    </GridLayout>
+    <Loading status={annotationsState}>
+      <GridLayout rows spacing={2} sx={{ px: 5, py: 3 }}>
+        <GridLayout cols fillCol={0} rowAlign="middle">
+          <GridLayout rows>
+            <Typography variant="body1em">
+              Annotation fields ({annotationsState.data?.length})
+            </Typography>
+            <Typography variant="body2">
+              Fields you add here will appear in all reviews of this cohort.
+              You’ll see annotation fields when reviewing individuals.
+            </Typography>
+          </GridLayout>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => showNewAnnotationDialog()}
+          >
+            Add annotation field
+          </Button>
+        </GridLayout>
+        <Paper>
+          {annotationsState.data?.length ? (
+            <TreeGrid
+              data={data}
+              columns={columns}
+              rowCustomization={(id: TreeGridId) => {
+                if (!annotationsState.data) {
+                  return undefined;
+                }
+
+                const annotation = data[id].data as Annotation;
+                if (!annotation) {
+                  return undefined;
+                }
+
+                return [
+                  {
+                    column: columns.length - 1,
+                    content: (
+                      <GridLayout cols colAlign="right">
+                        <IconButton
+                          onClick={() =>
+                            showConfirmDialog({
+                              title: `Delete ${annotation.displayName}?`,
+                              text: `All annotations in the field "${annotation.displayName}" will be deleted. Are you sure you want to continue?`,
+                              buttons: ["Cancel", "Delete annotations"],
+                              primaryButtonColor: "error",
+                              onButton: async (button) => {
+                                if (button === 1) {
+                                  await source.deleteAnnotation(
+                                    studyId,
+                                    cohort.id,
+                                    annotation.id
+                                  );
+                                  await annotationsState.mutate();
+                                }
+                              },
+                            })
+                          }
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </GridLayout>
+                    ),
+                  },
+                ];
+              }}
+            />
+          ) : (
+            <Empty
+              maxWidth="80%"
+              title="Add notes about individuals during cohort review"
+              subtitle={
+                <>
+                  <Link
+                    variant="link"
+                    underline="hover"
+                    onClick={() => showNewAnnotationDialog()}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Add an annotation field
+                  </Link>{" "}
+                  to get started
+                </>
+              }
+            />
+          )}
+        </Paper>
+      </GridLayout>
+      {newAnnotationDialog}
+      {confirmDialog}
+    </Loading>
   );
 }

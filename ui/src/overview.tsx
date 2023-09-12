@@ -100,6 +100,7 @@ export function Overview() {
         </GridBox>
         <GridBox
           sx={{
+            pt: 3,
             alignSelf: "start",
             position: "sticky",
             top: 0,

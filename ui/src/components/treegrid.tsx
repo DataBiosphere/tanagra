@@ -13,7 +13,14 @@ import Typography from "@mui/material/Typography";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useImmer } from "use-immer";
 import { spacing } from "util/spacing";
 
@@ -254,12 +261,33 @@ export function TreeGrid(props: TreeGridProps) {
             "root",
             "root",
             0,
-            false
+            false, // collapse
+            true // first
           )}
         </tbody>
       </table>
     </GridBox>
   );
+}
+
+export function useArrayAsTreeGridData<
+  T extends TreeGridRowData,
+  K extends keyof T
+>(array: T[], key: K) {
+  return useMemo(() => {
+    const children: TreeGridId[] = [];
+    const data: TreeGridData = {
+      root: { data: {}, children },
+    };
+
+    array?.forEach((a) => {
+      const k = a[key] as TreeGridId;
+      data[k] = { data: a };
+      children.push(k);
+    });
+
+    return data;
+  }, [array]);
 }
 
 function renderChildren(
@@ -270,7 +298,8 @@ function renderChildren(
   id: TreeGridId,
   key: string,
   indent: number,
-  collapse: boolean
+  collapse: boolean,
+  first: boolean
 ): JSX.Element[] {
   const results: JSX.Element[] = [];
 
@@ -404,7 +433,9 @@ function renderChildren(
                   width: col.width,
                   minWidth: col.width,
                 }),
-                boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
+                boxShadow: !first
+                  ? `inset 0 1px 0 ${theme.palette.divider}`
+                  : undefined,
               }}
             >
               <Stack
@@ -432,6 +463,8 @@ function renderChildren(
       </tr>
     );
 
+    first = false;
+
     results.push(
       ...renderChildren(
         theme,
@@ -441,7 +474,8 @@ function renderChildren(
         childId,
         childKey,
         indent + 1,
-        collapse || childState?.status !== Status.Expanded
+        collapse || childState?.status !== Status.Expanded,
+        false
       )
     );
   });
