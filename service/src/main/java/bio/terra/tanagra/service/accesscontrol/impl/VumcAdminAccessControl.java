@@ -3,7 +3,7 @@ package bio.terra.tanagra.service.accesscontrol.impl;
 import static bio.terra.tanagra.service.accesscontrol.Action.*;
 
 import bio.terra.common.logging.RequestIdFilter;
-import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;

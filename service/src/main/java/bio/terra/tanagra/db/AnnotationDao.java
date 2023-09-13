@@ -6,7 +6,8 @@ import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.*;
+import bio.terra.tanagra.service.artifact.model.AnnotationKey;
+import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -237,7 +238,7 @@ public class AnnotationDao {
     String sql =
         String.format(
             "UPDATE annotation_key SET %s WHERE cohort_id = :cohort_id AND id = :id",
-            DbUtils.setColumnsClause(params));
+            JdbcUtils.setColumnsClause(params));
     LOGGER.debug("UPDATE annotation key: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE annotation key rowsAffected = {}", rowsAffected);

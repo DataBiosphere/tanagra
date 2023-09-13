@@ -3,15 +3,15 @@ package bio.terra.tanagra.app.controller;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.EntitiesV2Api;
 import bio.terra.tanagra.generated.model.ApiEntityListV2;
 import bio.terra.tanagra.generated.model.ApiEntityV2;
-import bio.terra.tanagra.service.AccessControlService;
-import bio.terra.tanagra.service.UnderlayService;
+import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Entity;
 import java.util.List;
 import java.util.stream.Collectors;

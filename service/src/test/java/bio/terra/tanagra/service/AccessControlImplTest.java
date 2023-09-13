@@ -9,6 +9,7 @@ import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
+import bio.terra.tanagra.service.query.UnderlayService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service;
 
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.model.Criteria;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;

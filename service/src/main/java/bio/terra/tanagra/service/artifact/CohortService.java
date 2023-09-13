@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.api.query.EntityCountRequest;
 import bio.terra.tanagra.api.query.EntityCountResult;
@@ -8,10 +8,11 @@ import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.artifact.ActivityLog;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.CohortRevision;
+import bio.terra.tanagra.service.artifact.model.ActivityLog;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.query.QueryRunner;
+import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Underlay;

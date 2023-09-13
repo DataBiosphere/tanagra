@@ -3,7 +3,7 @@ package bio.terra.tanagra.service.export;
 import bio.terra.tanagra.generated.model.ApiCohortV2;
 import bio.terra.tanagra.generated.model.ApiStudyV2;
 import bio.terra.tanagra.generated.model.ApiUnderlayV2;
-import bio.terra.tanagra.service.artifact.Cohort;
+import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import java.util.*;
 import java.util.function.Function;

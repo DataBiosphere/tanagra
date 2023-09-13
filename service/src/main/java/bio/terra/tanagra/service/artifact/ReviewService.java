@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.api.query.*;
 import bio.terra.tanagra.api.query.filter.AttributeFilter;
@@ -12,7 +12,7 @@ import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.artifact.*;
+import bio.terra.tanagra.service.artifact.model.*;
 import bio.terra.tanagra.service.query.*;
 import bio.terra.tanagra.underlay.*;
 import com.google.common.annotations.VisibleForTesting;

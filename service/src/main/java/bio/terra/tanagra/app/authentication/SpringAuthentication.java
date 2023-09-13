@@ -1,4 +1,4 @@
-package bio.terra.tanagra.app.auth;
+package bio.terra.tanagra.app.authentication;
 
 import bio.terra.common.exception.UnauthorizedException;
 import bio.terra.tanagra.service.authentication.UserId;

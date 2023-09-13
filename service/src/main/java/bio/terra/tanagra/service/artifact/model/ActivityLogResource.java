@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.artifact;
+package bio.terra.tanagra.service.artifact.model;
 
 import java.util.Collections;
 import java.util.HashMap;

@@ -7,9 +7,9 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.service.artifact.Cohort;
-import bio.terra.tanagra.service.artifact.CohortRevision;
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.CohortRevision;
+import bio.terra.tanagra.service.artifact.model.Criteria;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -35,9 +35,9 @@ public class CohortDao {
           Cohort.builder()
               .id(rs.getString("id"))
               .underlay(rs.getString("underlay"))
-              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
-              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+              .lastModified(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .lastModifiedBy(rs.getString("last_modified_by"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
@@ -55,9 +55,9 @@ public class CohortDao {
                   .version(rs.getInt("version"))
                   .setIsMostRecent(rs.getBoolean("is_most_recent"))
                   .setIsEditable(rs.getBoolean("is_editable"))
-                  .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+                  .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
                   .createdBy(rs.getString("created_by"))
-                  .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+                  .lastModified(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
                   .lastModifiedBy(rs.getString("last_modified_by"))
                   .recordsCount(rs.getObject("records_count", Long.class)));
 
@@ -238,7 +238,7 @@ public class CohortDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("id", id)
-            .addValue("last_modified", DbUtils.sqlTimestampUTC())
+            .addValue("last_modified", JdbcUtils.sqlTimestampUTC())
             .addValue("last_modified_by", lastModifiedBy);
     if (displayName != null) {
       params.addValue("display_name", displayName);
@@ -247,7 +247,7 @@ public class CohortDao {
       params.addValue("description", description);
     }
     String sql =
-        String.format("UPDATE cohort SET %s WHERE id = :id", DbUtils.setColumnsClause(params));
+        String.format("UPDATE cohort SET %s WHERE id = :id", JdbcUtils.setColumnsClause(params));
     LOGGER.debug("UPDATE cohort: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE cohort rowsAffected = {}", rowsAffected);
@@ -267,7 +267,7 @@ public class CohortDao {
       LOGGER.debug("UPDATE cohort_revision: {}", sql);
       params =
           new MapSqlParameterSource()
-              .addValue("last_modified", DbUtils.sqlTimestampUTC())
+              .addValue("last_modified", JdbcUtils.sqlTimestampUTC())
               .addValue("last_modified_by", lastModifiedBy)
               .addValue("id", cohortRevisionId);
       rowsAffected = jdbcTemplate.update(sql, params);

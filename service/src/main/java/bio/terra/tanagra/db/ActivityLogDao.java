@@ -7,7 +7,8 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.artifact.*;
+import bio.terra.tanagra.service.artifact.model.ActivityLog;
+import bio.terra.tanagra.service.artifact.model.ActivityLogResource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class ActivityLogDao {
           ActivityLog.builder()
               .id(rs.getString("id"))
               .userEmail(rs.getString("user_email"))
-              .logged(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("logged")))
+              .logged(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("logged")))
               .versionGitTag(rs.getString("version_git_tag"))
               .versionGitHash(rs.getString("version_git_hash"))
               .versionBuild(rs.getString("version_build"))

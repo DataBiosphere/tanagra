@@ -1,12 +1,12 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.artifact;
 
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.StudyDao;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.artifact.ActivityLog;
-import bio.terra.tanagra.service.artifact.Study;
+import bio.terra.tanagra.service.artifact.model.ActivityLog;
+import bio.terra.tanagra.service.artifact.model.Study;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
