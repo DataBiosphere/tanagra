@@ -1,22 +1,22 @@
 package bio.terra.tanagra.api;
 
+import bio.terra.tanagra.api.query.EntityCountRequest;
+import bio.terra.tanagra.api.query.EntityQueryRequest;
+import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api.query.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api.query.filter.HierarchyAncestorFilter;
+import bio.terra.tanagra.api.query.filter.HierarchyMemberFilter;
+import bio.terra.tanagra.api.query.filter.HierarchyParentFilter;
+import bio.terra.tanagra.api.query.filter.HierarchyRootFilter;
+import bio.terra.tanagra.api.query.filter.RelationshipFilter;
+import bio.terra.tanagra.api.query.filter.TextFilter;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.UnderlaysService;
-import bio.terra.tanagra.service.instances.EntityCountRequest;
-import bio.terra.tanagra.service.instances.EntityQueryRequest;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
-import bio.terra.tanagra.service.instances.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyAncestorFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyMemberFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyParentFilter;
-import bio.terra.tanagra.service.instances.filter.HierarchyRootFilter;
-import bio.terra.tanagra.service.instances.filter.RelationshipFilter;
-import bio.terra.tanagra.service.instances.filter.TextFilter;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.Attribute;
@@ -38,12 +38,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   protected static final int DEFAULT_LIMIT = 30;
 
-  @Autowired protected UnderlaysService underlaysService;
+  @Autowired protected UnderlayService underlayService;
   private Entity entity;
 
   @BeforeEach
   void setup() {
-    entity = underlaysService.getEntity(getUnderlayName(), getEntityName());
+    entity = underlayService.getEntity(getUnderlayName(), getEntityName());
   }
 
   protected abstract String getUnderlayName();
@@ -317,7 +317,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   // singleCriteriaCohort().
   protected void relationshipCohort(String filterAttributeName, String text) throws IOException {
     // Build select attribute: person id
-    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     String selectEntityName = "person";
     Entity selectEntity = underlay.getEntity(selectEntityName);
     Attribute selectAttribute = entity.getAttribute("id");
@@ -381,7 +381,7 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   // countSingleCriteriaCohort().
   protected void countRelationshipCohort(
       List<String> groupByAttributes, String filterAttributeName, String text) throws IOException {
-    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     Entity countEntity = underlay.getEntity("person");
     EntityFilter cohortFilter =
         buildCohortFilterNoOccurrence(countEntity, filterAttributeName, text);
@@ -427,13 +427,13 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     // Find the CRITERIA_OCCURRENCE entity group for this entity. We need to lookup the entity group
     // with the criteria entity, not the primary entity, because the primary entity will be a member
     // of many groups.
-    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     return (CriteriaOccurrence)
         underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, criteriaEntity);
   }
 
   private GroupItems getGroupItemsEntityGroup(Entity groupEntity) {
-    Underlay underlay = underlaysService.getUnderlay(getUnderlayName());
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     return (GroupItems) underlay.getEntityGroup(EntityGroup.Type.GROUP_ITEMS, groupEntity);
   }
 

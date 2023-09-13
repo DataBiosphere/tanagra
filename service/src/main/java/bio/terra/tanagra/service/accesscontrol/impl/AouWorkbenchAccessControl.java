@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
 import bio.terra.tanagra.service.accesscontrol.*;
-import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.authentication.UserId;
 import java.util.*;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;

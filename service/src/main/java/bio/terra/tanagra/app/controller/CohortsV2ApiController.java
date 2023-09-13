@@ -5,19 +5,19 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.CohortsV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.AccessControlService;
 import bio.terra.tanagra.service.CohortService;
-import bio.terra.tanagra.service.FromApiConversionService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
                 .description(body.getDescription())
                 .underlay(body.getUnderlayName()),
             SpringAuthentication.getCurrentUser().getEmail());
-    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(createdCohort));
+    return ResponseEntity.ok(ToApiUtils.toApiObject(createdCohort));
   }
 
   @Override
@@ -72,8 +72,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(COHORT, READ),
         ResourceId.forCohort(studyId, cohortId));
-    return ResponseEntity.ok(
-        ToApiConversionUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
+    return ResponseEntity.ok(ToApiUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
   }
 
   @Override
@@ -88,7 +87,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
             limit);
     ApiCohortListV2 apiCohorts = new ApiCohortListV2();
     cohortService.listCohorts(authorizedCohortIds, offset, limit).stream()
-        .forEach(cohort -> apiCohorts.add(ToApiConversionUtils.toApiObject(cohort)));
+        .forEach(cohort -> apiCohorts.add(ToApiUtils.toApiObject(cohort)));
     return ResponseEntity.ok(apiCohorts);
   }
 
@@ -111,7 +110,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
             body.getDisplayName(),
             body.getDescription(),
             sections);
-    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedCohort));
+    return ResponseEntity.ok(ToApiUtils.toApiObject(updatedCohort));
   }
 
   private static CohortRevision.CriteriaGroupSection fromApiObject(
@@ -141,7 +140,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
         .groupByCountValue(apiObj.getGroupByCountValue())
         .criteria(
             apiObj.getCriteria().stream()
-                .map(FromApiConversionService::fromApiObject)
+                .map(FromApiUtils::fromApiObject)
                 .collect(Collectors.toList()))
         .build();
   }

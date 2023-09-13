@@ -2,9 +2,9 @@ package bio.terra.tanagra.service.accesscontrol.impl;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.*;
-import bio.terra.tanagra.service.auth.AppDefaultUtils;
-import bio.terra.tanagra.service.auth.InvalidCredentialsException;
-import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.authentication.AppDefaultUtils;
+import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
+import bio.terra.tanagra.service.authentication.UserId;
 import com.google.auth.oauth2.IdToken;
 import java.io.BufferedReader;
 import java.io.IOException;

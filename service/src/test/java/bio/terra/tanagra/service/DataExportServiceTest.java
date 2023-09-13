@@ -4,6 +4,9 @@ import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
 import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.tanagra.api.query.EntityQueryRequest;
+import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
@@ -14,9 +17,7 @@ import bio.terra.tanagra.service.artifact.Study;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.instances.*;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.query.*;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
@@ -52,7 +53,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class DataExportServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportServiceTest.class);
   private static final String UNDERLAY_NAME = "cms_synpuf";
-  @Autowired private UnderlaysService underlaysService;
+  @Autowired private UnderlayService underlayService;
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
@@ -92,7 +93,7 @@ public class DataExportServiceTest {
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotation key {}", annotationKey1.getId());
 
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     Review review1 =
         reviewService.createReview(
             study1.getId(),
@@ -220,8 +221,7 @@ public class DataExportServiceTest {
     String signedUrl =
         exportResult
             .getOutputs()
-            .get(
-                "Data:" + underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
+            .get("Data:" + underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
     assertNotNull(signedUrl);
     LOGGER.info("Entity instances signed URL: {}", signedUrl);
     String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
@@ -339,7 +339,7 @@ public class DataExportServiceTest {
   }
 
   private EntityQueryRequest buildEntityQueryRequest() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     return new EntityQueryRequest.Builder()
         .entity(primaryEntity)
         .mappingType(Underlay.MappingType.INDEX)
@@ -349,7 +349,7 @@ public class DataExportServiceTest {
   }
 
   private EntityFilter buildPrimaryEntityFilter() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     return new AttributeFilter(
         primaryEntity.getAttribute("year_of_birth"),
         BinaryFilterVariable.BinaryOperator.EQUALS,

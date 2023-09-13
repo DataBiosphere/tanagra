@@ -3,6 +3,9 @@ package bio.terra.tanagra.service;
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.tanagra.api.query.EntityQueryRequest;
+import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.query.*;
@@ -11,9 +14,6 @@ import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.*;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.instances.EntityQueryRequest;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
@@ -42,7 +42,7 @@ public class ActivityLogServiceTest {
 
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
-  @Autowired private UnderlaysService underlaysService;
+  @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private ReviewService reviewService;
@@ -182,7 +182,7 @@ public class ActivityLogServiceTest {
     cohort1 =
         cohortService.getCohort(
             study1.getId(), cohort1.getId()); // Get the current cohort revision, post-review.
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
             .entity(primaryEntity)

@@ -1,11 +1,11 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
+import bio.terra.tanagra.api.query.EntityQueryRequest;
+import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api.query.filter.RelationshipFilter;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.service.instances.EntityQueryRequest;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
-import bio.terra.tanagra.service.instances.filter.RelationshipFilter;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Relationship;
@@ -51,7 +51,7 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
 
   @Test
   void relationshipFilter() throws IOException {
-    Entity brandEntity = underlaysService.getEntity(getUnderlayName(), "brand");
+    Entity brandEntity = underlayService.getEntity(getUnderlayName(), "brand");
     Relationship brandIngredientRelationship = getEntity().getRelationship(brandEntity);
 
     // filter for "brand" entity instances that have concept_id=19082059

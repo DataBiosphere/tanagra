@@ -4,7 +4,9 @@ import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
+import bio.terra.tanagra.api.query.EntityQueryRequest;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.generated.controller.ExportApi;
 import bio.terra.tanagra.generated.model.ApiExportModel;
 import bio.terra.tanagra.generated.model.ApiExportModelList;
@@ -16,7 +18,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.instances.EntityQueryRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,16 +30,16 @@ import org.springframework.stereotype.Controller;
 public class ExportApiController implements ExportApi {
   private final AccessControlService accessControlService;
   private final DataExportService dataExportService;
-  private final FromApiConversionService fromApiConversionService;
+  private final UnderlayService underlayService;
 
   @Autowired
   public ExportApiController(
       AccessControlService accessControlService,
       DataExportService dataExportService,
-      FromApiConversionService fromApiConversionService) {
+      UnderlayService underlayService) {
     this.accessControlService = accessControlService;
     this.dataExportService = dataExportService;
-    this.fromApiConversionService = fromApiConversionService;
+    this.underlayService = underlayService;
   }
 
   @Override
@@ -82,8 +83,9 @@ public class ExportApiController implements ExportApi {
         body.getInstanceQuerys().stream()
             .map(
                 apiQuery ->
-                    fromApiConversionService.fromApiObject(
-                        apiQuery.getQuery(), underlayName, apiQuery.getEntity()))
+                    FromApiUtils.fromApiObject(
+                        apiQuery.getQuery(),
+                        underlayService.getEntity(underlayName, apiQuery.getEntity())))
             .collect(Collectors.toList());
     ExportResult result =
         dataExportService.run(
@@ -95,8 +97,8 @@ public class ExportApiController implements ExportApi {
             // to the export endpoint.
             body.getPrimaryEntityFilter() == null
                 ? null
-                : fromApiConversionService.fromApiObject(
-                    body.getPrimaryEntityFilter(), underlayName),
+                : FromApiUtils.fromApiObject(
+                    body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName)),
             SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(toApiObject(result));
   }

@@ -3,7 +3,11 @@ package bio.terra.tanagra.app.controller;
 import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.api.query.EntityHintRequest;
+import bio.terra.tanagra.api.query.EntityHintResult;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.HintsV2Api;
 import bio.terra.tanagra.generated.model.ApiDisplayHintEnumV2;
@@ -14,14 +18,10 @@ import bio.terra.tanagra.generated.model.ApiDisplayHintV2;
 import bio.terra.tanagra.generated.model.ApiDisplayHintV2DisplayHint;
 import bio.terra.tanagra.generated.model.ApiHintQueryV2;
 import bio.terra.tanagra.service.AccessControlService;
-import bio.terra.tanagra.service.FromApiConversionService;
-import bio.terra.tanagra.service.QuerysService;
-import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.instances.EntityHintRequest;
-import bio.terra.tanagra.service.instances.EntityHintResult;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
+import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.Entity;
@@ -35,17 +35,13 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class HintsV2ApiController implements HintsV2Api {
-  private final UnderlaysService underlaysService;
-  private final QuerysService querysService;
+  private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public HintsV2ApiController(
-      UnderlaysService underlaysService,
-      QuerysService querysService,
-      AccessControlService accessControlService) {
-    this.underlaysService = underlaysService;
-    this.querysService = querysService;
+      UnderlayService underlayService, AccessControlService accessControlService) {
+    this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
@@ -56,20 +52,26 @@ public class HintsV2ApiController implements HintsV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_COUNTS),
         ResourceId.forUnderlay(underlayName));
-    Entity entity = underlaysService.getEntity(underlayName, entityName);
+    Entity entity = underlayService.getEntity(underlayName, entityName);
 
     EntityHintRequest.Builder entityHintRequest = new EntityHintRequest.Builder().entity(entity);
     if (body != null && body.getRelatedEntity() != null) {
       // Return display hints for entity instances that are related to an instance of another entity
       // (e.g. numeric range for measurement_occurrence.value_numeric, computed across
       // measurement_occurrence instances that are related to measurement=BodyHeight).
+      Entity relatedEntity =
+          underlayService.getEntity(underlayName, body.getRelatedEntity().getName());
       entityHintRequest
-          .relatedEntity(
-              underlaysService.getEntity(underlayName, body.getRelatedEntity().getName()))
-          .relatedEntityId(FromApiConversionService.fromApiObject(body.getRelatedEntity().getId()));
+          .relatedEntity(relatedEntity)
+          .relatedEntityId(FromApiUtils.fromApiObject(body.getRelatedEntity().getId()))
+          .entityGroup(
+              underlayService
+                  .getRelationship(
+                      entity.getUnderlay().getEntityGroups().values(), entity, relatedEntity)
+                  .getEntityGroup());
     } // else {} Return display hints computed across all entity instances (e.g. enum values for
     // person.gender).
-    EntityHintResult entityHintResult = querysService.listEntityHints(entityHintRequest.build());
+    EntityHintResult entityHintResult = QueryRunner.listEntityHints(entityHintRequest.build());
     return ResponseEntity.ok(toApiObject(entityHintResult));
   }
 
@@ -83,7 +85,7 @@ public class HintsV2ApiController implements HintsV2Api {
                       Attribute attr = attrHint.getKey();
                       DisplayHint hint = attrHint.getValue();
                       return new ApiDisplayHintV2()
-                          .attribute(ToApiConversionUtils.toApiObject(attr))
+                          .attribute(ToApiUtils.toApiObject(attr))
                           .displayHint(hint == null ? null : toApiObject(hint));
                     })
                 .collect(Collectors.toList()));
@@ -101,8 +103,7 @@ public class HintsV2ApiController implements HintsV2Api {
                             .map(
                                 ev ->
                                     new ApiDisplayHintEnumV2EnumHintValues()
-                                        .enumVal(
-                                            ToApiConversionUtils.toApiObject(ev.getValueDisplay()))
+                                        .enumVal(ToApiUtils.toApiObject(ev.getValueDisplay()))
                                         .count(Math.toIntExact(ev.getCount())))
                             .collect(Collectors.toList())));
       case RANGE:

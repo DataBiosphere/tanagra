@@ -8,7 +8,7 @@ import bio.terra.tanagra.service.accesscontrol.*;
 import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
-import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.authentication.UserId;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ import org.vumc.vda.tanagra.admin.model.SystemVersion;
 @ActiveProfiles("test")
 public class AccessControlImplTest {
   @Autowired private AccessControlConfiguration accessControlConfiguration;
-  @Autowired private UnderlaysService underlaysService;
+  @Autowired private UnderlayService underlayService;
 
   @Disabled(
       "VUMC admin service base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
@@ -47,7 +47,7 @@ public class AccessControlImplTest {
     // Access control is only on studies, no other resource types.
     ResourceId firstUnderlay =
         ResourceId.forUnderlay(
-            underlaysService
+            underlayService
                 .listUnderlays(
                     ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null))
                 .get(0)
@@ -105,7 +105,7 @@ public class AccessControlImplTest {
     // Access control is only on studies, no other resource types.
     ResourceId firstUnderlay =
         ResourceId.forUnderlay(
-            underlaysService
+            underlayService
                 .listUnderlays(
                     ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null))
                 .get(0)

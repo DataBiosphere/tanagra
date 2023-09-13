@@ -11,7 +11,7 @@ import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.*;
 import bio.terra.tanagra.service.artifact.*;
-import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.authentication.UserId;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SuppressWarnings("PMD.TooManyFields")
 public class BaseAccessControlTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseAccessControlTest.class);
-  @Autowired protected UnderlaysService underlaysService;
+  @Autowired protected UnderlayService underlayService;
   @Autowired protected StudyService studyService;
   @Autowired protected CohortService cohortService;
   @Autowired protected ConceptSetService conceptSetService;
@@ -271,7 +271,7 @@ public class BaseAccessControlTest {
     switch (type) {
       case UNDERLAY:
         actual =
-            underlaysService.listUnderlays(resources).stream()
+            underlayService.listUnderlays(resources).stream()
                 .map(u -> ResourceId.forUnderlay(u.getName()))
                 .collect(Collectors.toSet());
         break;

@@ -4,7 +4,7 @@ import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.OpenAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
-import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;

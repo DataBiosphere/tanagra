@@ -1,5 +1,9 @@
 package bio.terra.tanagra.service;
 
+import bio.terra.tanagra.api.query.*;
+import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api.query.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
 import bio.terra.tanagra.query.*;
@@ -9,10 +13,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.*;
-import bio.terra.tanagra.service.instances.*;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
-import bio.terra.tanagra.service.instances.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.query.*;
 import bio.terra.tanagra.underlay.*;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashBasedTable;
@@ -32,10 +33,9 @@ public class ReviewService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewService.class);
 
   private final CohortService cohortService;
-  private final UnderlaysService underlaysService;
+  private final UnderlayService underlayService;
 
   private final AnnotationService annotationService;
-  private final QuerysService querysService;
   private final ReviewDao reviewDao;
   private final FeatureConfiguration featureConfiguration;
   private final ActivityLogService activityLogService;
@@ -43,16 +43,14 @@ public class ReviewService {
   @Autowired
   public ReviewService(
       CohortService cohortService,
-      UnderlaysService underlaysService,
+      UnderlayService underlayService,
       AnnotationService annotationService,
-      QuerysService querysService,
       ReviewDao reviewDao,
       FeatureConfiguration featureConfiguration,
       ActivityLogService activityLogService) {
     this.cohortService = cohortService;
-    this.underlaysService = underlaysService;
+    this.underlayService = underlayService;
     this.annotationService = annotationService;
-    this.querysService = querysService;
     this.reviewDao = reviewDao;
     this.featureConfiguration = featureConfiguration;
     this.activityLogService = activityLogService;
@@ -243,7 +241,7 @@ public class ReviewService {
   public ReviewQueryResult listReviewInstances(
       String studyId, String cohortId, String reviewId, ReviewQueryRequest reviewQueryRequest) {
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity primaryEntity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
 
     // Make sure the entity ID attribute is included, so we can match the entity instances to their
     // associated annotations.
@@ -269,7 +267,7 @@ public class ReviewService {
 
     // Get all the entity instances.
     EntityQueryResult entityQueryResult =
-        querysService.listEntityInstances(
+        QueryRunner.listEntityInstances(
             new EntityQueryRequest.Builder()
                 .entity(primaryEntity)
                 .mappingType(Underlay.MappingType.INDEX)
@@ -351,7 +349,7 @@ public class ReviewService {
   public EntityCountResult countReviewInstances(
       String studyId, String cohortId, String reviewId, List<String> groupByAttributeNames) {
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity entity = underlaysService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
+    Entity entity = underlayService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
     List<Attribute> groupByAttributes =
         groupByAttributeNames.stream()
             .map(attrName -> entity.getAttribute(attrName))
@@ -363,7 +361,7 @@ public class ReviewService {
             FunctionFilterVariable.FunctionTemplate.IN,
             reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
                 .collect(Collectors.toList()));
-    return querysService.countEntityInstances(
+    return QueryRunner.countEntityInstances(
         new EntityCountRequest.Builder()
             .entity(entity)
             .mappingType(Underlay.MappingType.INDEX)
@@ -376,7 +374,7 @@ public class ReviewService {
     // Build the column headers: id column name in source data, then annotation key display names.
     // Sort the annotation keys by display name, so that we get a consistent ordering.
     // e.g. person_id, key1, key2
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
+    Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
     String primaryIdSourceColumnName =
         underlay
             .getPrimaryEntity()

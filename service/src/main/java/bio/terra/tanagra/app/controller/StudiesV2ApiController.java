@@ -8,6 +8,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.StudiesV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.AccessControlService;
@@ -16,7 +17,6 @@ import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.Study;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +49,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
             .description(body.getDescription())
             .properties(fromApiObject(body.getProperties()));
     return ResponseEntity.ok(
-        ToApiConversionUtils.toApiObject(
+        ToApiUtils.toApiObject(
             studyService.createStudy(
                 studyToCreate, SpringAuthentication.getCurrentUser().getEmail())));
   }
@@ -70,7 +70,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(STUDY, READ),
         ResourceId.forStudy(studyId));
-    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(studyService.getStudy(studyId)));
+    return ResponseEntity.ok(ToApiUtils.toApiObject(studyService.getStudy(studyId)));
   }
 
   @Override
@@ -96,8 +96,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
             includeDeleted != null && includeDeleted,
             fromApiObject(displayName, description, createdBy, properties));
     ApiStudyListV2 apiStudies = new ApiStudyListV2();
-    authorizedStudies.stream()
-        .forEach(study -> apiStudies.add(ToApiConversionUtils.toApiObject(study)));
+    authorizedStudies.stream().forEach(study -> apiStudies.add(ToApiUtils.toApiObject(study)));
     return ResponseEntity.ok(apiStudies);
   }
 
@@ -113,7 +112,7 @@ public class StudiesV2ApiController implements StudiesV2Api {
             SpringAuthentication.getCurrentUser().getEmail(),
             body.getDisplayName(),
             body.getDescription());
-    return ResponseEntity.ok(ToApiConversionUtils.toApiObject(updatedStudy));
+    return ResponseEntity.ok(ToApiUtils.toApiObject(updatedStudy));
   }
 
   @Override
