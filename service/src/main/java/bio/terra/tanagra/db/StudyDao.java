@@ -5,7 +5,7 @@ import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.artifact.Study;
+import bio.terra.tanagra.service.artifact.model.Study;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,9 +33,9 @@ public class StudyDao {
               .id(rs.getString("id"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
-              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
-              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+              .lastModified(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .lastModifiedBy(rs.getString("last_modified_by"))
               .isDeleted(rs.getBoolean("is_deleted"));
 
@@ -257,9 +257,9 @@ public class StudyDao {
     String sql =
         String.format(
             "UPDATE study SET %s, last_modified = :last_modified WHERE id = :id",
-            DbUtils.setColumnsClause(params));
+            JdbcUtils.setColumnsClause(params));
     params.addValue("id", id);
-    params.addValue("last_modified", DbUtils.sqlTimestampUTC());
+    params.addValue("last_modified", JdbcUtils.sqlTimestampUTC());
 
     LOGGER.debug("UPDATE study: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);

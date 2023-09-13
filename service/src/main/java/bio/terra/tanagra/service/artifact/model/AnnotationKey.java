@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.artifact;
+package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.exception.SystemException;

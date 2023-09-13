@@ -5,8 +5,8 @@ import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.artifact.ConceptSet;
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.Criteria;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,9 +34,9 @@ public class ConceptSetDao {
               .entity(rs.getString("entity"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
-              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
-              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+              .lastModified(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .lastModifiedBy(rs.getString("last_modified_by"))
               .isDeleted(rs.getBoolean("is_deleted"));
 
@@ -174,7 +174,7 @@ public class ConceptSetDao {
     // Update the concept set: display name, description, entity, last modified, last modified by.
     MapSqlParameterSource params =
         new MapSqlParameterSource()
-            .addValue("last_modified", DbUtils.sqlTimestampUTC())
+            .addValue("last_modified", JdbcUtils.sqlTimestampUTC())
             .addValue("last_modified_by", lastModifiedBy);
     if (displayName != null) {
       params.addValue("display_name", displayName);
@@ -186,7 +186,8 @@ public class ConceptSetDao {
       params.addValue("entity", entity);
     }
     String sql =
-        String.format("UPDATE concept_set SET %s WHERE id = :id", DbUtils.setColumnsClause(params));
+        String.format(
+            "UPDATE concept_set SET %s WHERE id = :id", JdbcUtils.setColumnsClause(params));
     params.addValue("id", id);
     LOGGER.debug("UPDATE concept set: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);

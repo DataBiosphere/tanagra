@@ -1,36 +1,33 @@
-package bio.terra.tanagra.service.artifact;
+package bio.terra.tanagra.service.artifact.model;
 
+import bio.terra.tanagra.exception.SystemException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class ConceptSet {
+public class Cohort {
   private final String id;
   private final String underlay;
-  private final String entity;
-  private final List<Criteria> criteria;
-  private final @Nullable String displayName;
-  private final @Nullable String description;
   private final OffsetDateTime created;
   private final String createdBy;
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
+  private final @Nullable String displayName;
+  private final @Nullable String description;
+  private final List<CohortRevision> revisions;
   private final boolean isDeleted;
 
-  private ConceptSet(Builder builder) {
+  private Cohort(Builder builder) {
     this.id = builder.id;
     this.underlay = builder.underlay;
-    this.entity = builder.entity;
-    this.criteria = builder.criteria;
-    this.displayName = builder.displayName;
-    this.description = builder.description;
     this.created = builder.created;
     this.createdBy = builder.createdBy;
     this.lastModified = builder.lastModified;
     this.lastModifiedBy = builder.lastModifiedBy;
+    this.displayName = builder.displayName;
+    this.description = builder.description;
+    this.revisions = builder.revisions;
     this.isDeleted = builder.isDeleted;
   }
 
@@ -44,14 +41,6 @@ public class ConceptSet {
 
   public String getUnderlay() {
     return underlay;
-  }
-
-  public String getEntity() {
-    return entity;
-  }
-
-  public List<Criteria> getCriteria() {
-    return criteria;
   }
 
   public OffsetDateTime getCreated() {
@@ -70,14 +59,25 @@ public class ConceptSet {
     return lastModifiedBy;
   }
 
-  @Nullable
   public String getDisplayName() {
     return displayName;
   }
 
-  @Nullable
   public String getDescription() {
     return description;
+  }
+
+  public List<CohortRevision> getRevisions() {
+    return Collections.unmodifiableList(revisions);
+  }
+
+  public CohortRevision getMostRecentRevision() {
+    Optional<CohortRevision> mostRecentRevision =
+        revisions.stream().filter(r -> r.isMostRecent()).findFirst();
+    if (mostRecentRevision.isEmpty()) {
+      throw new SystemException("Most recent cohort revision not found " + id);
+    }
+    return mostRecentRevision.get();
   }
 
   public boolean isDeleted() {
@@ -87,14 +87,13 @@ public class ConceptSet {
   public static class Builder {
     private String id;
     private String underlay;
-    private String entity;
-    private List<Criteria> criteria = new ArrayList<>();
-    private String displayName;
-    private String description;
     private OffsetDateTime created;
     private String createdBy;
     private OffsetDateTime lastModified;
     private String lastModifiedBy;
+    private @Nullable String displayName;
+    private @Nullable String description;
+    private List<CohortRevision> revisions;
     private boolean isDeleted;
 
     public Builder id(String id) {
@@ -104,26 +103,6 @@ public class ConceptSet {
 
     public Builder underlay(String underlay) {
       this.underlay = underlay;
-      return this;
-    }
-
-    public Builder entity(String entity) {
-      this.entity = entity;
-      return this;
-    }
-
-    public Builder criteria(List<Criteria> criteria) {
-      this.criteria = criteria;
-      return this;
-    }
-
-    public Builder displayName(String displayName) {
-      this.displayName = displayName;
-      return this;
-    }
-
-    public Builder description(String description) {
-      this.description = description;
       return this;
     }
 
@@ -147,18 +126,33 @@ public class ConceptSet {
       return this;
     }
 
+    public Builder displayName(String displayName) {
+      this.displayName = displayName;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder revisions(List<CohortRevision> revisions) {
+      this.revisions = revisions;
+      return this;
+    }
+
     public Builder isDeleted(boolean isDeleted) {
       this.isDeleted = isDeleted;
       return this;
     }
 
-    public ConceptSet build() {
+    public Cohort build() {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
-      criteria = new ArrayList<>(criteria);
-      criteria.sort(Comparator.comparing(Criteria::getId));
-      return new ConceptSet(this);
+      revisions = new ArrayList<>(revisions);
+      revisions.sort(Comparator.comparing(CohortRevision::getVersion));
+      return new Cohort(this);
     }
 
     public String getId() {
@@ -169,12 +163,11 @@ public class ConceptSet {
       return underlay;
     }
 
-    public String getEntity() {
-      return entity;
-    }
-
-    public void addCriteria(Criteria newCriteria) {
-      criteria.add(newCriteria);
+    public void addRevision(CohortRevision cohortRevision) {
+      if (revisions == null) {
+        revisions = new ArrayList<>();
+      }
+      revisions.add(cohortRevision);
     }
   }
 }

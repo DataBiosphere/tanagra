@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.query.EntityInstanceCount;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.*;
+import bio.terra.tanagra.service.artifact.model.*;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;

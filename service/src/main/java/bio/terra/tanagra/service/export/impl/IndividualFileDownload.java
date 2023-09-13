@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.export.impl;
 
-import bio.terra.tanagra.service.artifact.Cohort;
+import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;

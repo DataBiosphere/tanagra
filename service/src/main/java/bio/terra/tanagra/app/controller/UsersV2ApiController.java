@@ -1,6 +1,6 @@
 package bio.terra.tanagra.app.controller;
 
-import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.generated.controller.UsersV2Api;
 import bio.terra.tanagra.generated.model.ApiUserProfileV2;
 import bio.terra.tanagra.service.authentication.UserId;

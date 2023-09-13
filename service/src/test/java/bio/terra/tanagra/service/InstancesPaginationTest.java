@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.query.EntityQueryResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.service.query.QueryRunner;
+import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;

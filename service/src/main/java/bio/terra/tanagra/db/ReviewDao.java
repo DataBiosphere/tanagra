@@ -8,8 +8,8 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
-import bio.terra.tanagra.service.artifact.CohortRevision;
-import bio.terra.tanagra.service.artifact.Review;
+import bio.terra.tanagra.service.artifact.model.CohortRevision;
+import bio.terra.tanagra.service.artifact.model.Review;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,9 +37,9 @@ public class ReviewDao {
               .size(rs.getInt("size"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
-              .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+              .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
-              .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+              .lastModified(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
               .lastModifiedBy(rs.getString("last_modified_by"))
               .isDeleted(rs.getBoolean("is_deleted"));
 
@@ -55,9 +55,10 @@ public class ReviewDao {
                   .version(rs.getInt("version"))
                   .setIsMostRecent(rs.getBoolean("is_most_recent"))
                   .setIsEditable(rs.getBoolean("is_editable"))
-                  .created(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
+                  .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
                   .createdBy(rs.getString("created_by"))
-                  .lastModified(DbUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+                  .lastModified(
+                      JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
                   .lastModifiedBy(rs.getString("last_modified_by"))
                   .recordsCount(rs.getObject("records_count", Long.class)));
 
@@ -205,7 +206,7 @@ public class ReviewDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("id", id)
-            .addValue("last_modified", DbUtils.sqlTimestampUTC())
+            .addValue("last_modified", JdbcUtils.sqlTimestampUTC())
             .addValue("last_modified_by", lastModifiedBy);
     if (displayName != null) {
       params.addValue("display_name", displayName);
@@ -214,7 +215,7 @@ public class ReviewDao {
       params.addValue("description", description);
     }
     String sql =
-        String.format("UPDATE review SET %s WHERE id = :id", DbUtils.setColumnsClause(params));
+        String.format("UPDATE review SET %s WHERE id = :id", JdbcUtils.setColumnsClause(params));
     LOGGER.debug("UPDATE review: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE review rowsAffected = {}", rowsAffected);

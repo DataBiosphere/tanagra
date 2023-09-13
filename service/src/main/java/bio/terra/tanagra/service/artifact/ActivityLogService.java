@@ -1,9 +1,9 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.db.ActivityLogDao;
-import bio.terra.tanagra.service.artifact.*;
+import bio.terra.tanagra.service.artifact.model.*;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;

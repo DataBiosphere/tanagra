@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.query;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;

@@ -11,8 +11,8 @@ import java.util.Set;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 /** Utility functions for interacting with Tanagra's database */
-public final class DbUtils {
-  private DbUtils() {}
+public final class JdbcUtils {
+  private JdbcUtils() {}
 
   /**
    * This method builds an SQL clause string for setting fields specified in the given parameters.

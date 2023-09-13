@@ -1,11 +1,12 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ConceptSetDao;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.artifact.ConceptSet;
-import bio.terra.tanagra.service.artifact.Criteria;
+import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.query.UnderlayService;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

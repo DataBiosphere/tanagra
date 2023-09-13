@@ -3,8 +3,8 @@ package bio.terra.tanagra.service.query.filter;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
-import bio.terra.tanagra.service.artifact.AnnotationKey;
-import bio.terra.tanagra.service.artifact.AnnotationValue;
+import bio.terra.tanagra.service.artifact.model.AnnotationKey;
+import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import java.util.List;
 
 public class AnnotationFilter {
