@@ -25,6 +25,7 @@ type Selection = {
 interface Config extends CriteriaConfig {
   attribute: string;
   multiRange?: boolean;
+  occurrenceId?: string; //occurrence table name
 }
 
 interface Data {
@@ -118,7 +119,7 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   filterOccurrenceId() {
-    return "";
+    return this.config.occurrenceId?? "";
   }
 }
 
