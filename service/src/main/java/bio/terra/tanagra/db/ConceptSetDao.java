@@ -186,7 +186,8 @@ public class ConceptSetDao {
       params.addValue("entity", entity);
     }
     String sql =
-        String.format("UPDATE concept_set SET %s WHERE id = :id", JdbcUtils.setColumnsClause(params));
+        String.format(
+            "UPDATE concept_set SET %s WHERE id = :id", JdbcUtils.setColumnsClause(params));
     params.addValue("id", id);
     LOGGER.debug("UPDATE concept set: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);

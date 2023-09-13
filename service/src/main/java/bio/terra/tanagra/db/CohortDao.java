@@ -57,7 +57,8 @@ public class CohortDao {
                   .setIsEditable(rs.getBoolean("is_editable"))
                   .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
                   .createdBy(rs.getString("created_by"))
-                  .lastModified(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
+                  .lastModified(
+                      JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))
                   .lastModifiedBy(rs.getString("last_modified_by"))
                   .recordsCount(rs.getObject("records_count", Long.class)));
 
