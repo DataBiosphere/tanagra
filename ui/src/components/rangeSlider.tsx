@@ -4,7 +4,7 @@ import Input from "@mui/material/Input";
 import Slider from "@mui/material/Slider";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 export type DataRange = {
   id: string;
@@ -35,10 +35,19 @@ export function RangeSlider(props: RangeSliderProps) {
   const [minValue, setMinValue] = useState(initialMin);
   const [maxValue, setMaxValue] = useState(initialMax);
 
+  const updateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const updateValue = (newMin: number, newMax: number) => {
     setMinValue(newMin);
     setMaxValue(newMax);
-    props.onUpdate(range, index, newMin, newMax);
+
+    if (updateTimeout.current) {
+      clearTimeout(updateTimeout.current);
+    }
+
+    updateTimeout.current = setTimeout(() => {
+      props.onUpdate(range, index, newMin, newMax);
+    }, 500);
   };
 
   const handleChange = (event: Event, newValue: number | number[]) => {
