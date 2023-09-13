@@ -31,8 +31,6 @@ public class FieldVariable implements SQLExpression {
   }
 
   public String renderSqlForOrderOrGroupBy(boolean includedInSelect) {
-    LOGGER.info(
-        "renderSqlForOrderOrGroupBy: includedInSelect {}, alias {}", includedInSelect, alias);
     if (includedInSelect) {
       if (alias == null) {
         String sql = renderSQL(false, true);

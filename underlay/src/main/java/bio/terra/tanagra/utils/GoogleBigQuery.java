@@ -194,7 +194,8 @@ public final class GoogleBigQuery {
    */
   public TableResult queryBigQuery(
       String query, @Nullable String pageToken, @Nullable Integer pageSize) {
-    QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+    QueryJobConfiguration queryConfig =
+        QueryJobConfiguration.newBuilder(query).setUseLegacySql(false).build();
     Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
 
     List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
