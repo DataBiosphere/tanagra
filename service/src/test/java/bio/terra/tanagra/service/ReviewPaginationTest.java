@@ -3,14 +3,14 @@ package bio.terra.tanagra.service;
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.tanagra.api.query.filter.AttributeFilter;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Review;
 import bio.terra.tanagra.service.artifact.Study;
-import bio.terra.tanagra.service.instances.*;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
+import bio.terra.tanagra.service.query.*;
 import bio.terra.tanagra.underlay.Entity;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -34,7 +34,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ReviewPaginationTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewPaginationTest.class);
   private static final String UNDERLAY_NAME = "cms_synpuf";
-  @Autowired private UnderlaysService underlaysService;
+  @Autowired private UnderlayService underlayService;
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
@@ -61,7 +61,7 @@ public class ReviewPaginationTest {
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     review1 =
         reviewService.createReview(
             study1.getId(),
@@ -88,7 +88,7 @@ public class ReviewPaginationTest {
 
   @Test
   void noPagination() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     ReviewQueryRequest reviewQueryRequest =
         ReviewQueryRequest.builder()
             .attributes(primaryEntity.getAttributes())
@@ -107,7 +107,7 @@ public class ReviewPaginationTest {
 
   @Test
   void withPagination() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
 
     // First query request gets the first page of results.
     ReviewQueryRequest reviewQueryRequest1 =

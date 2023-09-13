@@ -1,7 +1,7 @@
 package bio.terra.tanagra.app.auth;
 
 import bio.terra.common.exception.UnauthorizedException;
-import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.authentication.UserId;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.security.core.Authentication;

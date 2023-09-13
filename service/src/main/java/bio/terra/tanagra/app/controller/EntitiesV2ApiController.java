@@ -4,14 +4,14 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.EntitiesV2Api;
 import bio.terra.tanagra.generated.model.ApiEntityListV2;
 import bio.terra.tanagra.generated.model.ApiEntityV2;
 import bio.terra.tanagra.service.AccessControlService;
-import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Entity;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,13 +21,13 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class EntitiesV2ApiController implements EntitiesV2Api {
-  private final UnderlaysService underlaysService;
+  private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public EntitiesV2ApiController(
-      UnderlaysService underlaysService, AccessControlService accessControlService) {
-    this.underlaysService = underlaysService;
+      UnderlayService underlayService, AccessControlService accessControlService) {
+    this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
@@ -38,7 +38,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     ApiEntityListV2 apiEntities = new ApiEntityListV2();
-    List<Entity> entities = underlaysService.listEntities(underlayName);
+    List<Entity> entities = underlayService.listEntities(underlayName);
     entities.stream().forEach(entity -> apiEntities.addEntitiesItem(toApiObject(entity)));
     return ResponseEntity.ok(apiEntities);
   }
@@ -49,7 +49,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    Entity entity = underlaysService.getEntity(underlayName, entityName);
+    Entity entity = underlayService.getEntity(underlayName, entityName);
     return ResponseEntity.ok(toApiObject(entity));
   }
 
@@ -59,7 +59,7 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
         .idAttribute(entity.getIdAttribute().getName())
         .attributes(
             entity.getAttributes().stream()
-                .map(a -> ToApiConversionUtils.toApiObject(a))
+                .map(a -> ToApiUtils.toApiObject(a))
                 .collect(Collectors.toList()));
   }
 }

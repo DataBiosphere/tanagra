@@ -1,5 +1,8 @@
 package bio.terra.tanagra.service;
 
+import bio.terra.tanagra.api.query.EntityCountRequest;
+import bio.terra.tanagra.api.query.EntityCountResult;
+import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.query.*;
@@ -8,9 +11,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.ActivityLog;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.CohortRevision;
-import bio.terra.tanagra.service.instances.EntityCountRequest;
-import bio.terra.tanagra.service.instances.EntityCountResult;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
+import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Underlay;
@@ -30,25 +31,22 @@ public class CohortService {
 
   private final CohortDao cohortDao;
   private final FeatureConfiguration featureConfiguration;
-  private final UnderlaysService underlaysService;
+  private final UnderlayService underlayService;
   private final StudyService studyService;
   private final ActivityLogService activityLogService;
-  private final QuerysService querysService;
 
   @Autowired
   public CohortService(
       CohortDao cohortDao,
       FeatureConfiguration featureConfiguration,
-      UnderlaysService underlaysService,
+      UnderlayService underlayService,
       StudyService studyService,
-      ActivityLogService activityLogService,
-      QuerysService querysService) {
+      ActivityLogService activityLogService) {
     this.cohortDao = cohortDao;
     this.featureConfiguration = featureConfiguration;
-    this.underlaysService = underlaysService;
+    this.underlayService = underlayService;
     this.studyService = studyService;
     this.activityLogService = activityLogService;
-    this.querysService = querysService;
   }
 
   /** Create a cohort and its first revision without any criteria. */
@@ -65,7 +63,7 @@ public class CohortService {
     featureConfiguration.artifactStorageEnabledCheck();
 
     // Make sure underlay name and study id are valid.
-    underlaysService.getUnderlay(cohortBuilder.getUnderlay());
+    underlayService.getUnderlay(cohortBuilder.getUnderlay());
     studyService.getStudy(studyId);
 
     // Create the first revision.
@@ -148,9 +146,9 @@ public class CohortService {
 
   /** Build a count query of all primary entity instance ids in the cohort. */
   public long getRecordsCount(String underlayName, EntityFilter entityFilter) {
-    Underlay underlay = underlaysService.getUnderlay(underlayName);
+    Underlay underlay = underlayService.getUnderlay(underlayName);
     EntityCountResult entityCountResult =
-        querysService.countEntityInstances(
+        QueryRunner.countEntityInstances(
             new EntityCountRequest.Builder()
                 .entity(underlay.getPrimaryEntity())
                 .mappingType(Underlay.MappingType.INDEX)
@@ -170,7 +168,7 @@ public class CohortService {
       String studyId, String cohortId, EntityFilter entityFilter, int sampleSize) {
     // Build a query of a random sample of primary entity instance ids in the cohort.
     Cohort cohort = getCohort(studyId, cohortId);
-    Underlay underlay = underlaysService.getUnderlay(cohort.getUnderlay());
+    Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
     TableVariable entityTableVar =
         TableVariable.forPrimary(
             underlay.getPrimaryEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer());

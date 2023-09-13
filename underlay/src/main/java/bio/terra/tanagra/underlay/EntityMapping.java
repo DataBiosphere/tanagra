@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.tanagra.api.schemas.EntityLevelDisplayHints;
+import bio.terra.tanagra.api.schema.EntityLevelDisplayHints;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;

@@ -4,6 +4,8 @@ import static bio.terra.tanagra.service.accesscontrol.Action.*;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.ConceptSetsV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.*;
@@ -12,7 +14,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.ConceptSet;
 import bio.terra.tanagra.service.artifact.Criteria;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,9 +40,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
         Permissions.forActions(STUDY, CREATE_CONCEPT_SET),
         ResourceId.forStudy(studyId));
     Criteria singleCriteria =
-        body.getCriteria() == null
-            ? null
-            : FromApiConversionService.fromApiObject(body.getCriteria());
+        body.getCriteria() == null ? null : FromApiUtils.fromApiObject(body.getCriteria());
     ConceptSet createdConceptSet =
         conceptSetService.createConceptSet(
             studyId,
@@ -98,9 +97,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
         Permissions.forActions(CONCEPT_SET, UPDATE),
         ResourceId.forConceptSet(studyId, conceptSetId));
     Criteria singleCriteria =
-        body.getCriteria() == null
-            ? null
-            : FromApiConversionService.fromApiObject(body.getCriteria());
+        body.getCriteria() == null ? null : FromApiUtils.fromApiObject(body.getCriteria());
     ConceptSet updatedConceptSet =
         conceptSetService.updateConceptSet(
             studyId,
@@ -126,6 +123,6 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
         .criteria(
             conceptSet.getCriteria() == null
                 ? null
-                : ToApiConversionUtils.toApiObject(conceptSet.getCriteria().get(0)));
+                : ToApiUtils.toApiObject(conceptSet.getCriteria().get(0)));
   }
 }

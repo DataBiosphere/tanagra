@@ -4,15 +4,15 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.UnderlaysV2Api;
 import bio.terra.tanagra.generated.model.ApiUnderlayListV2;
 import bio.terra.tanagra.generated.model.ApiUnderlayV2;
 import bio.terra.tanagra.service.AccessControlService;
-import bio.terra.tanagra.service.UnderlaysService;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class UnderlaysV2ApiController implements UnderlaysV2Api {
-  private final UnderlaysService underlaysService;
+  private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public UnderlaysV2ApiController(
-      UnderlaysService underlaysService, AccessControlService accessControlService) {
-    this.underlaysService = underlaysService;
+      UnderlayService underlayService, AccessControlService accessControlService) {
+    this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
@@ -36,11 +36,10 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
     ResourceCollection authorizedUnderlayNames =
         accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ));
-    List<Underlay> authorizedUnderlays = underlaysService.listUnderlays(authorizedUnderlayNames);
+    List<Underlay> authorizedUnderlays = underlayService.listUnderlays(authorizedUnderlayNames);
     ApiUnderlayListV2 apiUnderlays = new ApiUnderlayListV2();
     authorizedUnderlays.stream()
-        .forEach(
-            underlay -> apiUnderlays.addUnderlaysItem(ToApiConversionUtils.toApiObject(underlay)));
+        .forEach(underlay -> apiUnderlays.addUnderlaysItem(ToApiUtils.toApiObject(underlay)));
     return ResponseEntity.ok(apiUnderlays);
   }
 
@@ -50,7 +49,6 @@ public class UnderlaysV2ApiController implements UnderlaysV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    return ResponseEntity.ok(
-        ToApiConversionUtils.toApiObject(underlaysService.getUnderlay(underlayName)));
+    return ResponseEntity.ok(ToApiUtils.toApiObject(underlayService.getUnderlay(underlayName)));
   }
 }

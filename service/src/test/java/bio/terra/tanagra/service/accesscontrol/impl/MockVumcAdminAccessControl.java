@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
-import bio.terra.tanagra.service.auth.UserId;
+import bio.terra.tanagra.service.authentication.UserId;
 import java.util.*;
 import org.vumc.vda.tanagra.admin.model.Resource;
 import org.vumc.vda.tanagra.admin.model.ResourceAction;

@@ -2,11 +2,12 @@ package bio.terra.tanagra.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.tanagra.api.query.EntityQueryOrderBy;
+import bio.terra.tanagra.api.query.EntityQueryRequest;
+import bio.terra.tanagra.api.query.EntityQueryResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.service.instances.EntityQueryOrderBy;
-import bio.terra.tanagra.service.instances.EntityQueryRequest;
-import bio.terra.tanagra.service.instances.EntityQueryResult;
+import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
@@ -26,12 +27,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("requires-cloud-access")
 public class InstancesPaginationTest {
   private static final String UNDERLAY_NAME = "cms_synpuf";
-  @Autowired private UnderlaysService underlaysService;
-  @Autowired private QuerysService querysService;
+  @Autowired private UnderlayService underlayService;
 
   @Test
   void noPagination() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
 
     EntityQueryRequest entityQueryRequest =
         new EntityQueryRequest.Builder()
@@ -45,7 +45,7 @@ public class InstancesPaginationTest {
             .limit(10)
             .build();
 
-    EntityQueryResult entityQueryResult = querysService.listEntityInstances(entityQueryRequest);
+    EntityQueryResult entityQueryResult = QueryRunner.listEntityInstances(entityQueryRequest);
 
     assertNotNull(entityQueryResult.getSql());
     assertEquals(10, entityQueryResult.getEntityInstances().size());
@@ -54,7 +54,7 @@ public class InstancesPaginationTest {
 
   @Test
   void withPagination() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
 
     // First query request gets the first page of results.
     EntityQueryRequest entityQueryRequest1 =
@@ -69,7 +69,7 @@ public class InstancesPaginationTest {
             .limit(10)
             .pageSize(3)
             .build();
-    EntityQueryResult entityQueryResult1 = querysService.listEntityInstances(entityQueryRequest1);
+    EntityQueryResult entityQueryResult1 = QueryRunner.listEntityInstances(entityQueryRequest1);
 
     assertNotNull(entityQueryResult1.getSql());
     assertEquals(3, entityQueryResult1.getEntityInstances().size());
@@ -90,7 +90,7 @@ public class InstancesPaginationTest {
             .pageMarker(entityQueryResult1.getPageMarker())
             .pageSize(7)
             .build();
-    EntityQueryResult entityQueryResult2 = querysService.listEntityInstances(entityQueryRequest2);
+    EntityQueryResult entityQueryResult2 = QueryRunner.listEntityInstances(entityQueryRequest2);
 
     assertNotNull(entityQueryResult2.getSql());
     assertEquals(7, entityQueryResult2.getEntityInstances().size());

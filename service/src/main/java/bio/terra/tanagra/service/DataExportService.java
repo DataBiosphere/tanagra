@@ -1,7 +1,10 @@
 package bio.terra.tanagra.service;
 
+import bio.terra.tanagra.api.query.EntityQueryRequest;
+import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.service.artifact.Cohort;
 import bio.terra.tanagra.service.artifact.Study;
@@ -9,9 +12,6 @@ import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.instances.EntityQueryRequest;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
@@ -33,7 +33,7 @@ public class DataExportService {
   private final ExportConfiguration.Shared shared;
   private final Map<String, DataExport> modelToImpl = new HashMap<>();
   private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
-  private final UnderlaysService underlaysService;
+  private final UnderlayService underlayService;
   private final StudyService studyService;
   private final CohortService cohortService;
   private final ReviewService reviewService;
@@ -43,7 +43,7 @@ public class DataExportService {
   @Autowired
   public DataExportService(
       ExportConfiguration exportConfiguration,
-      UnderlaysService underlaysService,
+      UnderlayService underlayService,
       StudyService studyService,
       CohortService cohortService,
       ReviewService reviewService,
@@ -62,7 +62,7 @@ public class DataExportService {
       this.modelToImpl.put(modelName, dataExportImplInstance);
       this.modelToConfig.put(modelName, perModelConfig);
     }
-    this.underlaysService = underlaysService;
+    this.underlayService = underlayService;
     this.studyService = studyService;
     this.cohortService = cohortService;
     this.reviewService = reviewService;
@@ -109,13 +109,13 @@ public class DataExportService {
         cohortIds.stream()
             .map(cohortId -> cohortService.getCohort(studyId, cohortId))
             .collect(Collectors.toList());
-    Underlay underlay = underlaysService.getUnderlay(cohorts.get(0).getUnderlay());
+    Underlay underlay = underlayService.getUnderlay(cohorts.get(0).getUnderlay());
     request
-        .underlay(ToApiConversionUtils.toApiObject(underlay))
-        .study(ToApiConversionUtils.toApiObject(study))
+        .underlay(ToApiUtils.toApiObject(underlay))
+        .study(ToApiUtils.toApiObject(study))
         .cohorts(
             cohorts.stream()
-                .map(cohort -> ToApiConversionUtils.toApiObject(cohort))
+                .map(cohort -> ToApiUtils.toApiObject(cohort))
                 .collect(Collectors.toList()));
 
     // Populate the function pointers for generating SQL query strings and writing GCS files.

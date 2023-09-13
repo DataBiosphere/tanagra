@@ -4,16 +4,18 @@ import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
 import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.api.query.*;
+import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
+import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.InstancesV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.*;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.instances.*;
-import bio.terra.tanagra.service.instances.filter.EntityFilter;
-import bio.terra.tanagra.service.utils.ToApiConversionUtils;
+import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyField;
@@ -29,20 +31,13 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class InstancesV2ApiController implements InstancesV2Api {
-  private final UnderlaysService underlaysService;
-  private final QuerysService querysService;
-  private final FromApiConversionService fromApiConversionService;
+  private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public InstancesV2ApiController(
-      UnderlaysService underlaysService,
-      QuerysService querysService,
-      FromApiConversionService fromApiConversionService,
-      AccessControlService accessControlService) {
-    this.underlaysService = underlaysService;
-    this.querysService = querysService;
-    this.fromApiConversionService = fromApiConversionService;
+      UnderlayService underlayService, AccessControlService accessControlService) {
+    this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
@@ -54,8 +49,8 @@ public class InstancesV2ApiController implements InstancesV2Api {
         Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
         ResourceId.forUnderlay(underlayName));
     EntityQueryRequest entityQueryRequest =
-        fromApiConversionService.fromApiObject(body, underlayName, entityName);
-    EntityQueryResult entityQueryResult = querysService.listEntityInstances(entityQueryRequest);
+        FromApiUtils.fromApiObject(body, underlayService.getEntity(underlayName, entityName));
+    EntityQueryResult entityQueryResult = QueryRunner.listEntityInstances(entityQueryRequest);
     return ResponseEntity.ok(
         new ApiInstanceListResultV2()
             .instances(
@@ -75,8 +70,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
     for (Map.Entry<Attribute, ValueDisplay> attributeValue :
         entityInstance.getAttributeValues().entrySet()) {
       attributes.put(
-          attributeValue.getKey().getName(),
-          ToApiConversionUtils.toApiObject(attributeValue.getValue()));
+          attributeValue.getKey().getName(), ToApiUtils.toApiObject(attributeValue.getValue()));
     }
 
     Map<String, ApiInstanceV2HierarchyFields> hierarchyFieldSets = new HashMap<>();
@@ -162,23 +156,23 @@ public class InstancesV2ApiController implements InstancesV2Api {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_COUNTS),
         ResourceId.forUnderlay(underlayName));
-    Entity entity = underlaysService.getEntity(underlayName, entityName);
+    Entity entity = underlayService.getEntity(underlayName, entityName);
 
     List<Attribute> attributes = new ArrayList<>();
     if (body.getAttributes() != null) {
       attributes =
           body.getAttributes().stream()
-              .map(attrName -> underlaysService.getAttribute(entity, attrName))
+              .map(attrName -> underlayService.getAttribute(entity, attrName))
               .collect(Collectors.toList());
     }
 
     EntityFilter entityFilter = null;
     if (body.getFilter() != null) {
-      entityFilter = fromApiConversionService.fromApiObject(body.getFilter(), entity, underlayName);
+      entityFilter = FromApiUtils.fromApiObject(body.getFilter(), entity, underlayName);
     }
 
     EntityCountResult entityCountResult =
-        querysService.countEntityInstances(
+        QueryRunner.countEntityInstances(
             new EntityCountRequest.Builder()
                 .entity(entity)
                 .mappingType(Underlay.MappingType.INDEX)
@@ -189,7 +183,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
         new ApiInstanceCountListV2()
             .instanceCounts(
                 entityCountResult.getEntityCounts().stream()
-                    .map(ToApiConversionUtils::toApiObject)
+                    .map(ToApiUtils::toApiObject)
                     .collect(Collectors.toList()))
             .sql(SqlFormatter.format(entityCountResult.getSql())));
   }

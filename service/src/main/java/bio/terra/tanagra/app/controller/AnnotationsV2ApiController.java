@@ -4,6 +4,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.*;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.app.auth.SpringAuthentication;
+import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.generated.controller.AnnotationsV2Api;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
@@ -121,7 +122,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
         annotationKeyId,
         reviewId,
         instanceId,
-        List.of(FromApiConversionService.fromApiObject(body)));
+        List.of(FromApiUtils.fromApiObject(body)));
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 

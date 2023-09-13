@@ -4,16 +4,16 @@ import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROU
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.tanagra.api.query.filter.AttributeFilter;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.*;
-import bio.terra.tanagra.service.instances.ReviewInstance;
-import bio.terra.tanagra.service.instances.ReviewQueryOrderBy;
-import bio.terra.tanagra.service.instances.ReviewQueryRequest;
-import bio.terra.tanagra.service.instances.filter.AnnotationFilter;
-import bio.terra.tanagra.service.instances.filter.AttributeFilter;
+import bio.terra.tanagra.service.query.ReviewInstance;
+import bio.terra.tanagra.service.query.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.query.ReviewQueryRequest;
+import bio.terra.tanagra.service.query.filter.AnnotationFilter;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.ValueDisplay;
@@ -48,7 +48,7 @@ public class ReviewInstanceTest {
   @Autowired private CohortService cohortService;
   @Autowired private AnnotationService annotationService;
   @Autowired private ReviewService reviewService;
-  @Autowired private UnderlaysService underlaysService;
+  @Autowired private UnderlayService underlayService;
 
   private Study study1;
   private Cohort cohort1;
@@ -322,7 +322,7 @@ public class ReviewInstanceTest {
 
   @Test
   void entityAttributes() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
     Attribute idAttr = primaryEntity.getIdAttribute();
 
     // List instances for review2. Request only the gender attribute.
@@ -357,7 +357,7 @@ public class ReviewInstanceTest {
     //   - The correct annotation values are included.
     //   - The isMostRecent and isPartOfSelectedReview flags are set correctly.
     Attribute primaryEntityIdAttribute =
-        underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getIdAttribute();
+        underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getIdAttribute();
 
     // List instances for review1.
     List<ReviewInstance> reviewInstances1 =
@@ -722,7 +722,7 @@ public class ReviewInstanceTest {
   @Test
   void orderBys() {
     Attribute primaryEntityIdAttribute =
-        underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getIdAttribute();
+        underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getIdAttribute();
 
     // Default order.
     List<ReviewInstance> reviewInstancesDefault =
@@ -857,7 +857,7 @@ public class ReviewInstanceTest {
 
   @Test
   void filters() {
-    Entity primaryEntity = underlaysService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
 
     // Filter by an entity attribute.
     List<ReviewInstance> reviewInstancesByAttr =

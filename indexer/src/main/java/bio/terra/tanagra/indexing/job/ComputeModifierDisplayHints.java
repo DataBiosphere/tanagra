@@ -1,6 +1,6 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.api.schemas.InstanceLevelDisplayHints;
+import bio.terra.tanagra.api.schema.InstanceLevelDisplayHints;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.DisplayHintUtils;

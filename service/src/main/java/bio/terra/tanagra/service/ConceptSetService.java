@@ -17,18 +17,18 @@ import org.springframework.stereotype.Component;
 public class ConceptSetService {
   private final ConceptSetDao conceptSetDao;
   private final FeatureConfiguration featureConfiguration;
-  private final UnderlaysService underlaysService;
+  private final UnderlayService underlayService;
   private final StudyService studyService;
 
   @Autowired
   public ConceptSetService(
       ConceptSetDao conceptSetDao,
       FeatureConfiguration featureConfiguration,
-      UnderlaysService underlaysService,
+      UnderlayService underlayService,
       StudyService studyService) {
     this.conceptSetDao = conceptSetDao;
     this.featureConfiguration = featureConfiguration;
-    this.underlaysService = underlaysService;
+    this.underlayService = underlayService;
     this.studyService = studyService;
   }
 
@@ -38,7 +38,7 @@ public class ConceptSetService {
 
     // Make sure underlay name, study id, and entity are valid.
     studyService.getStudy(studyId);
-    underlaysService.getEntity(conceptSetBuilder.getUnderlay(), conceptSetBuilder.getEntity());
+    underlayService.getEntity(conceptSetBuilder.getUnderlay(), conceptSetBuilder.getEntity());
 
     conceptSetDao.createConceptSet(
         studyId, conceptSetBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
@@ -89,7 +89,7 @@ public class ConceptSetService {
     // Make sure entity name is valid.
     if (entity != null) {
       ConceptSet conceptSet = conceptSetDao.getConceptSet(conceptSetId);
-      underlaysService.getEntity(conceptSet.getUnderlay(), entity);
+      underlayService.getEntity(conceptSet.getUnderlay(), entity);
     }
     conceptSetDao.updateConceptSet(
         conceptSetId, userEmail, displayName, description, entity, criteria);
