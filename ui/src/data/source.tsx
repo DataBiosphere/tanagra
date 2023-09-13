@@ -1718,12 +1718,8 @@ function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
   }
 
   return {
-    id: review.id,
-    displayName: review.displayName,
-    description: review.description,
-    size: review.size,
+    ...review,
     cohort: fromAPICohort(review.cohort),
-    created: review.created,
   };
 }
 

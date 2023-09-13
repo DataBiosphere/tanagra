@@ -14,6 +14,8 @@ export type CohortReview = {
   size: number;
   cohort: tanagra.Cohort;
   created: Date;
+  createdBy: string;
+  lastModified: Date;
 };
 
 export function compareDataValues(a?: DataValue, b?: DataValue) {

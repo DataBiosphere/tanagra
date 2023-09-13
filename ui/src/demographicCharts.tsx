@@ -265,19 +265,17 @@ export function DemographicCharts({
 
   return (
     <>
-      <GridLayout rows>
-        <GridBox sx={{ py: 3 }}>
-          <GridLayout cols fillCol={2} rowAlign="bottom">
-            <Typography variant="h6">Total count:&nbsp;</Typography>
-            <Loading size="small" status={demographicState}>
-              <Typography variant="h6">
-                {demographicState.data?.totalCount.toLocaleString()}
-              </Typography>
-            </Loading>
-            <GridBox />
-            {extraControls}
-          </GridLayout>
-        </GridBox>
+      <GridLayout rows spacing={3}>
+        <GridLayout cols fillCol={2} rowAlign="bottom">
+          <Typography variant="h6">Total count:&nbsp;</Typography>
+          <Loading size="small" status={demographicState}>
+            <Typography variant="h6">
+              {demographicState.data?.totalCount.toLocaleString()}
+            </Typography>
+          </Loading>
+          <GridBox />
+          {extraControls}
+        </GridLayout>
         <Paper
           sx={{
             p: 2,
