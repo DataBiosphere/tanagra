@@ -14,6 +14,7 @@ import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import {
+  MutableRefObject,
   ReactNode,
   useCallback,
   useEffect,
@@ -76,6 +77,7 @@ export type TreeGridProps = {
   columns: TreeGridColumn[];
   data: TreeGridData;
   defaultExpanded?: TreeGridId[];
+  highlightId?: TreeGridId;
   rowCustomization?: (
     id: TreeGridId,
     data: TreeGridRowData
@@ -110,6 +112,9 @@ export function TreeGrid(props: TreeGridProps) {
     []
   );
 
+  const scrolledToHighlightRef = useRef<boolean>(false);
+  const highlightRef = useRef<HTMLTableRowElement>(null);
+
   const toggleExpanded = (draft: TreeGridState, id: TreeGridId) => {
     const itemState = draft.get(id) || {
       status: Status.Collapsed,
@@ -135,6 +140,17 @@ export function TreeGrid(props: TreeGridProps) {
                     loaded: true,
                   });
                 });
+              }
+            })
+            .then(() => {
+              if (!scrolledToHighlightRef.current && highlightRef.current) {
+                // Delay scroll to allow time for rendering.
+                setTimeout(() => {
+                  if (highlightRef.current) {
+                    highlightRef.current.scrollIntoView({ block: "center" });
+                  }
+                }, 0);
+                scrolledToHighlightRef.current = true;
               }
             })
             .catch((error) => {
@@ -262,7 +278,9 @@ export function TreeGrid(props: TreeGridProps) {
             "root",
             0,
             false, // collapse
-            true // first
+            true, // first
+            highlightRef,
+            props.highlightId
           )}
         </tbody>
       </table>
@@ -299,7 +317,9 @@ function renderChildren(
   key: string,
   indent: number,
   collapse: boolean,
-  first: boolean
+  first: boolean,
+  highlightRef: MutableRefObject<HTMLTableRowElement | null>,
+  highlightId?: TreeGridId
 ): JSX.Element[] {
   const results: JSX.Element[] = [];
 
@@ -341,7 +361,7 @@ function renderChildren(
         content = (
           <Link
             component="button"
-            variant="body2"
+            variant={childId === highlightId ? "body2em" : "body2"}
             color="inherit"
             underline="hover"
             title={title}
@@ -357,7 +377,7 @@ function renderChildren(
         content = (
           <Link
             component="button"
-            variant="body2"
+            variant={childId === highlightId ? "body2em" : "body2"}
             color="inherit"
             underline="none"
             title={title}
@@ -400,6 +420,11 @@ function renderChildren(
     results.push(
       <tr
         key={childKey}
+        ref={
+          !highlightRef.current && highlightId === childId
+            ? highlightRef
+            : undefined
+        }
         style={{
           ...(collapse ? { display: "none" } : undefined),
           height: spacing(theme, props.rowHeight ?? 6),
@@ -475,7 +500,9 @@ function renderChildren(
         childKey,
         indent + 1,
         collapse || childState?.status !== Status.Expanded,
-        false
+        false,
+        highlightRef,
+        highlightId
       )
     );
   });
