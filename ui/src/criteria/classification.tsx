@@ -210,6 +210,8 @@ type SearchData = {
   query?: string;
   // The ancestor list of the item to view the hierarchy for.
   hierarchy?: DataKey[];
+  // The item to highlight and scroll to in the hierarchy.
+  highlightId?: DataKey;
 };
 
 type ClassificationEditProps = {
@@ -378,6 +380,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
               columns={!!searchData?.hierarchy ? hierarchyColumns : allColumns}
               data={classificationState?.data ?? {}}
               defaultExpanded={searchData?.hierarchy}
+              highlightId={searchData?.highlightId}
               rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
                 if (!classificationState.data) {
                   return undefined;
@@ -407,6 +410,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       updateSearchData((data: SearchData) => {
                         if (rowData.view_hierarchy) {
                           data.hierarchy = rowData.view_hierarchy as DataKey[];
+                          data.highlightId = id;
                         }
                       });
                     }}
