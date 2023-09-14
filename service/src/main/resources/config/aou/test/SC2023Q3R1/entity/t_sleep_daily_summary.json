@@ -1,0 +1,32 @@
+{
+  "name": "t_sleep_daily_summary",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "sleep_date", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "is_main_sleep", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "minute_in_bed", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_asleep", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_after_wakeup", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_awake", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_restless", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_deep", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_light", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_rem", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_wake", "dataType": "INT64" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "t_sleep_daily_summary.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "row_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+
+}

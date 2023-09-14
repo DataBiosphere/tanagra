@@ -1,0 +1,27 @@
+{
+  "name": "t_sleep_level",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "sleep_date", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "is_main_sleep", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "level", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "start_datetime_utc", "dataType": "TIMESTAMP" },
+    { "type": "SIMPLE", "name": "start_datetime_str", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "duration_in_min", "dataType": "DOUBLE" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "t_sleep_level.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "row_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+
+}

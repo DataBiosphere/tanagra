@@ -1,0 +1,19 @@
+{
+  "name": "t_sleep_level_person",
+  "type": "GROUP_ITEMS",
+  "groupEntity": "t_person",
+  "itemsEntity": "t_sleep_level",
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "groupToItems": {
+        "idPairsTable": { "rawSqlFile": "t_sleep_level.sql" },
+        "idPairsIdA": { "column": "person_id" },
+        "idPairsIdB":  { "column": "row_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
