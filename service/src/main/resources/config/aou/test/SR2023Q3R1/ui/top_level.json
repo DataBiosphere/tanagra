@@ -423,6 +423,11 @@
   },
   "prepackagedConceptSets": [
     {
+      "id": "_demographics",
+      "name": "Demographics",
+      "occurrence": ""
+    },
+    {
       "id": "_fitbit_actvity_summary_id",
       "name": "Fitbit Activity Summary",
       "occurrence": "t_fitbit_activity_summary_id"
@@ -451,22 +456,6 @@
       "id": "_fitbit_sleep_level_id",
       "name": "Fitbit Sleep Level",
       "occurrence": "t_fitbit_sleep_level_id"
-    },
-    {
-      "id": "_demographics",
-      "name": "Demographics",
-      "occurrence": ""
-    },
-    {
-      "id": "_analgesics",
-      "name": "Analgesics",
-      "occurrence": "t_ingredient_occurrence",
-      "filter": {
-        "type": "CLASSIFICATION",
-        "occurrenceId": "t_ingredient_occurrence",
-        "classificationId": "ingredient",
-        "keys": [21604253]
-      }
     }
   ],
   "criteriaSearchConfig": {
