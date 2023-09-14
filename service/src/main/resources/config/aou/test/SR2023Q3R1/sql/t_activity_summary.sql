@@ -1,5 +1,5 @@
 SELECT
-    ROW_NUMBER() OVER() AS row_num,
+    ROW_NUMBER() OVER() AS row_id,
     date,
     activity_calories,
     calories_bmr,
@@ -14,5 +14,3 @@ SELECT
     very_active_minutes,
     person_id
 FROM `all-of-us-ehr-dev.SR2023Q3R1.activity_summary`
-
-

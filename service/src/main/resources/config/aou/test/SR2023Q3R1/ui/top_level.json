@@ -114,11 +114,42 @@
         ]
       },
       {
-        "id": "t_activity_summary_id",
+        "id": "t_fitbit_activity_summary_id",
         "displayName": "Fitbit Activity Summary",
         "entity": "t_activity_summary",
         "key": "person_id"
-      }    ]
+      },
+      {
+        "id": "t_fitbit_steps_intraday_id",
+        "displayName": "Fitbit Steps Intraday",
+        "entity": "t_steps_intraday",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_heart_rate_summary_id",
+        "displayName": "Fitbit Heart Rate Summary",
+        "entity": "t_heart_rate_summary",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_heart_rate_level_id",
+        "displayName": "Fitbit Heart Rate Level",
+        "entity": "t_heart_rate_level",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_sleep_daily_summary_id",
+        "displayName": "Fitbit Sleep Daily Summary",
+        "entity": "t_sleep_daily_summary",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_sleep_level_id",
+        "displayName": "Fitbit Sleep Level",
+        "entity": "t_sleep_level",
+        "key": "person_id"
+      }
+    ]
   },
   "criteriaConfigs": [
     {
@@ -289,8 +320,7 @@
       "id": "tanagra-fitbit-activity-summary",
       "title": "Fitbit Activity Summary",
       "category": "Fitbit",
-      "attribute": "person_id",
-      "occurrenceId": "t_activity_summary_id"
+      "attribute": "has_fitbit_activity_summary"
     },
     {
       "type": "attribute",
@@ -393,9 +423,34 @@
   },
   "prepackagedConceptSets": [
     {
-      "id": "_blah",
-      "name": "Fitbit ...",
-      "occurrence": "t_fitbit_actvity_summary_id"
+      "id": "_fitbit_actvity_summary_id",
+      "name": "Fitbit Activity Summary",
+      "occurrence": "t_fitbit_activity_summary_id"
+    },
+    {
+      "id": "_fitbit_steps_intraday_id",
+      "name": "Fitbit Steps Intraday",
+      "occurrence": "t_fitbit_steps_intraday_id"
+    },
+    {
+      "id": "_fitbit_heart_rate_summary_id",
+      "name": "Fitbit Heart Rate Summary",
+      "occurrence": "t_fitbit_heart_rate_summary_id"
+    },
+    {
+      "id": "_fitbit_heart_rate_level_id",
+      "name": "Fitbit Heart Rate Level",
+      "occurrence": "t_fitbit_heart_rate_level_id"
+    },
+    {
+      "id": "_fitbit_sleep_daily_summary_id",
+      "name": "Fitbit Sleep Daily Summary",
+      "occurrence": "t_fitbit_sleep_daily_summary_id"
+    },
+    {
+      "id": "_fitbit_sleep_level_id",
+      "name": "Fitbit Sleep Level",
+      "occurrence": "t_fitbit_sleep_level_id"
     },
     {
       "id": "_demographics",

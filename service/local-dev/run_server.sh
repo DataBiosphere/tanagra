@@ -80,10 +80,10 @@ fi
 echo
 
 if [[ ${debugJvm} ]]; then
-  # ./gradlew service:bootRun --debug-jvm
+   ./gradlew service:bootRun --debug-jvm
     echo "Enabling server jvm debug"
     echo "Listening for transport dt_socket at address: 5005"
-  ./gradlew service:bootRun -Dagentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+  # ./gradlew service:bootRun -Dagentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 else
   ./gradlew service:bootRun
 fi

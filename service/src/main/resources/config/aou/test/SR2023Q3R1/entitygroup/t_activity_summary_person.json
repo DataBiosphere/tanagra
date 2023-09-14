@@ -9,7 +9,7 @@
       "groupToItems": {
         "idPairsTable": { "rawSqlFile": "t_activity_summary.sql" },
         "idPairsIdA": { "column": "person_id" },
-        "idPairsIdB":  { "column": "row_num" }
+        "idPairsIdB":  { "column": "row_id" }
       }
     }
   },

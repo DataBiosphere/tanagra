@@ -9,13 +9,13 @@
     { "type": "KEY_AND_DISPLAY", "name": "race", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "ethnicity", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "has_fitbit_activity_summary", "dataType": "BOOLEAN" },
-    { "type": "SIMPLE", "name": "has_fitbit_heart_rate_level", "dataType": "BOOLEAN" },
-    { "type": "SIMPLE", "name": "has_fitbit_heart_rate_summary", "dataType": "BOOLEAN" },
-    { "type": "SIMPLE", "name": "has_fitbit_steps_intraday", "dataType": "BOOLEAN" },
-    { "type": "SIMPLE", "name": "has_fitbit_sleep_daily_summary", "dataType": "BOOLEAN" },
-    { "type": "SIMPLE", "name": "has_fitbit_sleep_level", "dataType": "BOOLEAN" },
-    { "type": "SIMPLE", "name": "has_fitbit", "dataType": "BOOLEAN" }
+    { "type": "SIMPLE", "name": "has_fitbit_activity_summary", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_heart_rate_level", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_heart_rate_summary", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_steps_intraday", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_sleep_daily_summary", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_sleep_level", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit", "dataType": "INT64" }
   ],
 
   "sourceDataMapping": {

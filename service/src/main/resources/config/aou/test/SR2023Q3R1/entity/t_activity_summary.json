@@ -22,7 +22,7 @@
     "dataPointer": "omop_dataset",
     "tablePointer": { "rawSqlFile": "t_activity_summary.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "row_num" } }
+      "id": { "value": { "column": "row_id" } }
     }
   },
 

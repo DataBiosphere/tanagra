@@ -1,0 +1,27 @@
+{
+  "name": "t_heart_rate_summary",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "date", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "zone_name", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "min_heart_rate", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "max_heart_rate", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "minute_in_zone", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "calorie_count", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "t_heart_rate_summary.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "row_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+
+}

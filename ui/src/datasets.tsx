@@ -128,9 +128,9 @@ export function Datasets() {
     // TODO(tjennison): Only show demographics until we have better prepackaged
     // concept sets.
     const cs = conceptSets;
-    if (!editable) {
-      cs.splice(1, Infinity);
-    }
+    // if (!editable) {
+    //   cs.splice(1, Infinity);
+    // }
 
     return cs.map((conceptSet, i) => (
       <GridLayout

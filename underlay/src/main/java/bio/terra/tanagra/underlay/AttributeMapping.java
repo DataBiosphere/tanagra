@@ -195,6 +195,7 @@ public final class AttributeMapping {
         return EnumVals.computeForField(attribute.getDataType(), value);
       case DATE:
       case DOUBLE:
+      case TIMESTAMP:
         // TODO: Compute display hints for other data types.
         return null;
       default:
