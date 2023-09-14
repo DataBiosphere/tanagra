@@ -479,13 +479,9 @@ function ParticipantsGroup(props: {
     }
   } else if (additionalText) {
     inline = (
-      <GridLayout rows height="auto" sx={{ pl: 2 }}>
-        {plugin.displayDetails().additionalText?.map((t) => (
-          <Typography key={t} variant="body2">
-            {t}
-          </Typography>
-        ))}
-      </GridLayout>
+      <Typography variant="body2">
+        {plugin.displayDetails().additionalText?.join(", ")}
+      </Typography>
     );
   }
 
@@ -513,6 +509,10 @@ function ParticipantsGroup(props: {
             : {
                 "&:hover": {
                   textDecoration: "underline",
+                  cursor: "pointer",
+                  color: (theme) =>
+                    (theme.typography as { link: { color: string } }).link
+                      .color,
                 },
               }),
         }}
@@ -573,7 +573,15 @@ function ParticipantsGroup(props: {
             </GridBox>
             <GridBox />
             <Loading status={groupCountState} size="small">
-              <Typography variant="body2" color="text.muted" sx={{ ml: 1 }}>
+              <Typography
+                variant="body2"
+                color="text.muted"
+                sx={{
+                  display: "inline-block",
+                  ml: 1,
+                  "&:hover": { textDecoration: "none" },
+                }}
+              >
                 {groupCountState.data?.toLocaleString()}
               </Typography>
             </Loading>
