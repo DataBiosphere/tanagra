@@ -8,11 +8,13 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
+        "foreignKeyAttribute": "measurement",
         "idPairsTable": { "table": "measurement" },
         "idPairsIdA": { "column": "measurement_id" },
         "idPairsIdB":  { "column": "measurement_concept_id" }
       },
       "occurrenceToPrimary": {
+        "foreignKeyAttribute": "person_id",
         "idPairsTable": { "table": "measurement" },
         "idPairsIdA": { "column": "measurement_id" },
         "idPairsIdB":  { "column": "person_id" }

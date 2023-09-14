@@ -14,7 +14,7 @@ public final class RelationshipMapping {
   private static final String ID_PAIRS_TABLE_SUFFIX = "_idpairs";
   private static final String ID_FIELD_NAME_PREFIX = "id_";
   public static final String NO_HIERARCHY_KEY = "NO_HIERARCHY";
-
+  private final String foreignKeyAttribute;
   private final FieldPointer idPairsIdA;
   private final FieldPointer idPairsIdB;
   private final Map<String, RollupInformation> rollupInformationMapA;
@@ -23,10 +23,12 @@ public final class RelationshipMapping {
   private Relationship relationship;
 
   private RelationshipMapping(
+      String foreignKeyAttribute,
       FieldPointer idPairsIdA,
       FieldPointer idPairsIdB,
       Map<String, RollupInformation> rollupInformationMapA,
       Map<String, RollupInformation> rollupInformationMapB) {
+    this.foreignKeyAttribute = foreignKeyAttribute;
     this.idPairsIdA = idPairsIdA;
     this.idPairsIdB = idPairsIdB;
     this.rollupInformationMapA = rollupInformationMapA;
@@ -68,31 +70,55 @@ public final class RelationshipMapping {
     }
 
     return new RelationshipMapping(
-        idPairsIdA, idPairsIdB, rollupInformationMapA, rollupInformationMapB);
+        serialized.getForeignKeyAttribute(),
+        idPairsIdA,
+        idPairsIdB,
+        rollupInformationMapA,
+        rollupInformationMapB);
   }
 
   public static RelationshipMapping defaultIndexMapping(
-      DataPointer dataPointer, Relationship relationship, String entityGroupName) {
+      DataPointer dataPointer,
+      Relationship relationship,
+      String entityGroupName,
+      RelationshipMapping sourceMapping) {
     // ID pairs table.
-    TablePointer idPairsTable =
-        TablePointer.fromTableName(
-            entityGroupName
-                + "_"
-                + relationship.getEntityA().getName()
-                + "_"
-                + relationship.getEntityB().getName()
-                + ID_PAIRS_TABLE_SUFFIX,
-            dataPointer);
-    FieldPointer idPairsIdA =
-        new FieldPointer.Builder()
-            .tablePointer(idPairsTable)
-            .columnName(ID_FIELD_NAME_PREFIX + relationship.getEntityA().getName())
-            .build();
-    FieldPointer idPairsIdB =
-        new FieldPointer.Builder()
-            .tablePointer(idPairsTable)
-            .columnName(ID_FIELD_NAME_PREFIX + relationship.getEntityB().getName())
-            .build();
+    FieldPointer idPairsIdA;
+    FieldPointer idPairsIdB;
+    if (sourceMapping.getForeignKeyAttribute() == null) {
+      TablePointer idPairsTable =
+          TablePointer.fromTableName(
+              entityGroupName
+                  + "_"
+                  + relationship.getEntityA().getName()
+                  + "_"
+                  + relationship.getEntityB().getName()
+                  + ID_PAIRS_TABLE_SUFFIX,
+              dataPointer);
+      idPairsIdA =
+          new FieldPointer.Builder()
+              .tablePointer(idPairsTable)
+              .columnName(ID_FIELD_NAME_PREFIX + relationship.getEntityA().getName())
+              .build();
+      idPairsIdB =
+          new FieldPointer.Builder()
+              .tablePointer(idPairsTable)
+              .columnName(ID_FIELD_NAME_PREFIX + relationship.getEntityB().getName())
+              .build();
+    } else {
+      idPairsIdA =
+          relationship
+              .getEntityA()
+              .getIdAttribute()
+              .getMapping(Underlay.MappingType.INDEX)
+              .getValue();
+      idPairsIdB =
+          relationship
+              .getEntityA()
+              .getAttribute(sourceMapping.getForeignKeyAttribute())
+              .getMapping(Underlay.MappingType.INDEX)
+              .getValue();
+    }
 
     // Rollup columns in entity A table.
     Map<String, RollupInformation> rollupInformationMapA = new HashMap<>();
@@ -127,7 +153,11 @@ public final class RelationshipMapping {
     }
 
     return new RelationshipMapping(
-        idPairsIdA, idPairsIdB, rollupInformationMapA, rollupInformationMapB);
+        sourceMapping.getForeignKeyAttribute(),
+        idPairsIdA,
+        idPairsIdB,
+        rollupInformationMapA,
+        rollupInformationMapB);
   }
 
   public Query queryIdPairs(String idAAlias, String idBAlias) {
@@ -142,6 +172,10 @@ public final class RelationshipMapping {
 
   public FieldPointer getIdPairsId(Entity entity) {
     return (relationship.getEntityA().equals(entity)) ? getIdPairsIdA() : getIdPairsIdB();
+  }
+
+  public String getForeignKeyAttribute() {
+    return foreignKeyAttribute;
   }
 
   public TablePointer getIdPairsTable() {

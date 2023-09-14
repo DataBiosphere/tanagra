@@ -78,7 +78,7 @@ public abstract class EntityGroup {
       RelationshipMapping indexMapping =
           indexRelationshipMappings == null || indexRelationshipMappings.isEmpty()
               ? RelationshipMapping.defaultIndexMapping(
-                  indexDataPointer, relationship, entityGroup.getName())
+                  indexDataPointer, relationship, entityGroup.getName(), sourceMapping)
               : RelationshipMapping.fromSerialized(
                   serialized
                       .getIndexDataMapping()
