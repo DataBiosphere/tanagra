@@ -346,7 +346,8 @@ function ParticipantsGroupSection(props: {
             </GridLayout>
           ))
         )}
-        {props.groupSection.groups.length !== 0 ? (
+        {props.groupSection.groups.length !== 0 ||
+        cohort.groupSections.length > 1 ? (
           <GridLayout cols fillCol={1} height="auto" sx={{ px: 2 }}>
             <Button
               onClick={() =>
