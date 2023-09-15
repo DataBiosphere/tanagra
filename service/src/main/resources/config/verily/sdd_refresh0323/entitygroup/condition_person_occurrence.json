@@ -7,16 +7,10 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "foreignKeyAttribute": "condition",
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
-        "idPairsIdB":  { "column": "condition_concept_id" }
+        "foreignKeyAttribute": "condition"
       },
       "occurrenceToPrimary": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "table": "condition_occurrence" },
