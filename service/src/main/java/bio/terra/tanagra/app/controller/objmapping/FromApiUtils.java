@@ -130,14 +130,11 @@ public final class FromApiUtils {
   }
 
   public static void validateApiFilter(ApiFilterV2 filter) {
-    // If one RelationshipFilterV2 group_by field is set, all group_by fields must be set.
     if (filter != null && filter.getFilterType() == ApiFilterV2.FilterTypeEnum.RELATIONSHIP) {
       ApiRelationshipFilterV2 relationshipFilter = filter.getFilterUnion().getRelationshipFilter();
-      if (!((relationshipFilter.getGroupByCountAttribute() == null
-              && relationshipFilter.getGroupByCountOperator() == null
+      if (!((relationshipFilter.getGroupByCountOperator() == null
               && relationshipFilter.getGroupByCountValue() == null)
-          || (relationshipFilter.getGroupByCountAttribute() != null
-              && relationshipFilter.getGroupByCountOperator() != null
+          || (relationshipFilter.getGroupByCountOperator() != null
               && relationshipFilter.getGroupByCountValue() != null))) {
         throw new InvalidConfigException(
             "If one RelationshipFilterV2 group_by field is set, all group_by fields must be set");
