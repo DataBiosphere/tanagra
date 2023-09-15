@@ -15,7 +15,6 @@ import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.*;
-import com.google.common.base.Strings;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,9 +79,12 @@ public final class FromApiUtils {
         Attribute groupByCountAttribute = null;
         BinaryFilterVariable.BinaryOperator groupByCountOperator = null;
         Integer groupByCountValue = null;
-        if (!Strings.isNullOrEmpty(apiRelationshipFilter.getGroupByCountAttribute())) {
+        if (apiRelationshipFilter.getGroupByCountOperator() != null
+            && apiRelationshipFilter.getGroupByCountValue() != null) {
           groupByCountAttribute =
-              relatedEntity.getAttribute(apiRelationshipFilter.getGroupByCountAttribute());
+              apiRelationshipFilter.getGroupByCountAttribute() == null
+                  ? null
+                  : relatedEntity.getAttribute(apiRelationshipFilter.getGroupByCountAttribute());
           groupByCountOperator = fromApiObject(apiRelationshipFilter.getGroupByCountOperator());
           groupByCountValue = apiRelationshipFilter.getGroupByCountValue();
         }
