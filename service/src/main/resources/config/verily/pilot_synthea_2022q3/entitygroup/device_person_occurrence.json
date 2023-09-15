@@ -7,11 +7,13 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
+        "foreignKeyAttribute": "device",
         "idPairsTable": { "table": "device_exposure" },
         "idPairsIdA": { "column": "device_exposure_id" },
         "idPairsIdB":  { "column": "device_concept_id" }
       },
       "occurrenceToPrimary": {
+        "foreignKeyAttribute": "person_id",
         "idPairsTable": { "table": "device_exposure" },
         "idPairsIdA": { "column": "device_exposure_id" },
         "idPairsIdB":  { "column": "person_id" }
