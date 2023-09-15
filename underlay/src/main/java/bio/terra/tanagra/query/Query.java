@@ -151,12 +151,7 @@ public class Query implements SQLExpression {
         tables.stream().filter(table -> table.isPrimary()).collect(Collectors.toList());
     if (primaryTable.size() != 1) {
       throw new SystemException(
-          "Query can only have one primary table, but found "
-              + primaryTable.size()
-              + ": "
-              + tables.stream()
-                  .map(t -> t.getTablePointer().getTableName())
-                  .collect(Collectors.joining(",")));
+          "Query can only have one primary table, but found " + primaryTable.size());
     }
     return primaryTable.get(0);
   }

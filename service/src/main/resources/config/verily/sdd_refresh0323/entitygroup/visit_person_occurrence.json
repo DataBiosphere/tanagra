@@ -7,7 +7,7 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "foreignKeyAttribute": "source_criteria_id",
+        "foreignKeyAttribute": "visit",
         "idPairsTable": { "table": "visit_occurrence" },
         "idPairsIdA": { "column": "visit_occurrence_id" },
         "idPairsIdB":  { "column": "visit_concept_id" }
