@@ -7,21 +7,25 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria:ingredient_occurrence": {
+        "foreignKeyAttribute": "source_criteria_id",
         "idPairsTable": { "table": "drug_exposure" },
         "idPairsIdA": { "column": "drug_exposure_id" },
         "idPairsIdB":  { "column": "drug_source_concept_id" }
       },
       "occurrenceToPrimary:ingredient_occurrence": {
+        "foreignKeyAttribute": "person_id",
         "idPairsTable": { "table": "drug_exposure" },
         "idPairsIdA": { "column": "drug_exposure_id" },
         "idPairsIdB":  { "column": "person_id" }
       },
       "occurrenceToCriteria:procedure_occurrence": {
+        "foreignKeyAttribute": "source_criteria_id",
         "idPairsTable": { "table": "procedure_occurrence" },
         "idPairsIdA": { "column": "procedure_occurrence_id" },
         "idPairsIdB":  { "column": "procedure_source_concept_id" }
       },
       "occurrenceToPrimary:procedure_occurrence": {
+        "foreignKeyAttribute": "person_id",
         "idPairsTable": { "table": "procedure_occurrence" },
         "idPairsIdA": { "column": "procedure_occurrence_id" },
         "idPairsIdB":  { "column": "person_id" }

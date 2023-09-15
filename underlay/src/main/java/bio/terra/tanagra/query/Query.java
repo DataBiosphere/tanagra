@@ -151,7 +151,12 @@ public class Query implements SQLExpression {
         tables.stream().filter(table -> table.isPrimary()).collect(Collectors.toList());
     if (primaryTable.size() != 1) {
       throw new SystemException(
-          "Query can only have one primary table, but found " + primaryTable.size());
+          "Query can only have one primary table, but found "
+              + primaryTable.size()
+              + ": "
+              + tables.stream()
+                  .map(t -> t.getTablePointer().getTableName())
+                  .collect(Collectors.joining(",")));
     }
     return primaryTable.get(0);
   }
@@ -180,7 +185,17 @@ public class Query implements SQLExpression {
     }
 
     public Builder tables(List<TableVariable> tables) {
-      this.tables = tables;
+      this.tables = new ArrayList<>(tables);
+      return this;
+    }
+
+    public Builder addTable(TableVariable newTable) {
+      if (this.tables == null) {
+        this.tables = new ArrayList<>();
+      }
+      if (!this.tables.contains(newTable)) {
+        this.tables.add(newTable);
+      }
       return this;
     }
 
@@ -220,6 +235,10 @@ public class Query implements SQLExpression {
 
     public List<FieldVariable> getSelect() {
       return select;
+    }
+
+    public List<TableVariable> getTables() {
+      return tables;
     }
   }
 }

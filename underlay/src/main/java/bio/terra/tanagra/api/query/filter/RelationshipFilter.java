@@ -8,6 +8,7 @@ import bio.terra.tanagra.underlay.*;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,52 +174,118 @@ public class RelationshipFilter extends EntityFilter {
     if (!hasGroupByFilter) {
       return new SubQueryFilterVariable(
           whereField, SubQueryFilterVariable.Operator.IN, filterEntitySubQuery.build());
-    } else {
-      Query.Builder innerQueryBuilder = filterEntitySubQuery;
+    }
 
-      // SELECT selectEntityId, groupByAttributes
+    Query.Builder innerQueryBuilder;
+    if (groupByCountAttribute == null) {
+      // We're only grouping by the select entity id, which is already included in the filter entity
+      // sub-query, so no need to add anything.
+
+      // SELECT selectEntityId
       // FROM filterEntity WHERE [subfilter]
-      // GROUP BY selectEntityId, groupByAttributes)
-      if (groupByCountAttribute != null) {
+      // GROUP BY selectEntityId
+      innerQueryBuilder = filterEntitySubQuery;
+    } else {
+      // We're grouping by the select entity id (e.g. person_id) and another attribute on the filter
+      // entity (e.g. start_date), so we need to add the other attribute to the inner query.
+      if (fkOnSelectTable || fkOnFilterTable) {
+        // Since we're already selecting the select entity id from filterEntity, just select an
+        // additional field from the same table.
+
+        // SELECT selectEntityId, groupByAttribute
+        // FROM filterEntity WHERE [subfilter]
+        // GROUP BY selectEntityId, groupByAttribute
+        innerQueryBuilder = filterEntitySubQuery;
         FieldVariable groupByCountAttrFieldVar =
             groupByCountAttribute
                 .getMapping(Underlay.MappingType.INDEX)
                 .getValue()
                 .buildVariable(filterEntityTableVar, filterEntityTableVars);
         innerQueryBuilder.addSelect(groupByCountAttrFieldVar);
+      } else {
+        // Since we're selecting from an intermediate table, we need to add a sub-select on the
+        // filter entity to get the group by attribute.
+
+        if (indexMapping.getIdPairsId(filterEntity).isForeignKey()) {
+          throw new NotImplementedException(
+              "Group by attribute is only supported for intermediate id pairs tables where both ids are inline (i.e. no foreign key to another table)");
+        }
+        if (groupByCountAttribute
+            .getMapping(Underlay.MappingType.INDEX)
+            .getValue()
+            .isForeignKey()) {
+          throw new NotImplementedException(
+              "Group by attribute is only supported for inline attributes (i.e. no foreign key to another table).");
+        }
+
+        //  SELECT selectEntityId, (SELECT groupByAttribute FROM filterEntity WHERE
+        // id=filterEntityId) AS groupByAttribute
+        //  FROM intermediateTable WHERE filterEntityId IN
+        //      (SELECT id FROM filterEntity WHERE [subfilter])
+        // GROUP BY selectEntityId, groupByAttribute
+        innerQueryBuilder = filterEntitySubQuery;
+        FieldPointer groupByCountAttrValueField =
+            new FieldPointer.Builder()
+                .tablePointer(indexMapping.getIdPairsTable())
+                .columnName(indexMapping.getIdPairsId(filterEntity).getColumnName())
+                .foreignTablePointer(
+                    filterEntity.getMapping(Underlay.MappingType.INDEX).getTablePointer())
+                .foreignKeyColumnName(
+                    filterEntity
+                        .getIdAttribute()
+                        .getMapping(Underlay.MappingType.INDEX)
+                        .getValue()
+                        .getColumnName())
+                .foreignColumnName(
+                    groupByCountAttribute
+                        .getMapping(Underlay.MappingType.INDEX)
+                        .getValue()
+                        .getColumnName())
+                .sqlFunctionWrapper(
+                    groupByCountAttribute
+                        .getMapping(Underlay.MappingType.INDEX)
+                        .getValue()
+                        .getSqlFunctionWrapper())
+                .build();
+        TableVariable intermediateTableVar = selectEntityIdInSubQuery.getTableVariable();
+        FieldVariable groupByCountAttrValueFieldVar =
+            groupByCountAttrValueField.buildVariable(
+                intermediateTableVar, filterEntitySubQuery.getTables());
+        innerQueryBuilder.addSelect(groupByCountAttrValueFieldVar);
       }
-      Query innerQuery = innerQueryBuilder.groupBy(filterEntitySubQuery.getSelect()).build();
-
-      // SELECT selectEntityId FROM
-      //    (SELECT selectEntityId, groupByAttribute    --> from above
-      //     FROM filterEntity WHERE [subfilter]         --> from above
-      //     GROUP BY selectEntityId, groupByAttribute)  --> from above
-      // GROUP BY selectEntityId HAVING COUNT(*) > countValue)
-      TablePointer innerQueryTempTable =
-          new TablePointer.Builder().sql(innerQuery.renderSQL()).build();
-      TableVariable innerQueryTableVar = TableVariable.forPrimary(innerQueryTempTable);
-      FieldPointer outerSelectEntityIdField =
-          new FieldPointer.Builder()
-              .tablePointer(innerQueryTempTable)
-              .columnName(selectEntityIdInSubQuery.getAliasOrColumnName())
-              .build();
-      FieldVariable outerSelectEntityIdFieldVar =
-          new FieldVariable(outerSelectEntityIdField, innerQueryTableVar);
-      Query outerQuery =
-          new Query.Builder()
-              .select(List.of(outerSelectEntityIdFieldVar))
-              .tables(List.of(innerQueryTableVar))
-              .groupBy(List.of(outerSelectEntityIdFieldVar))
-              .having(new HavingFilterVariable(groupByCountOperator, groupByCountValue))
-              .build();
-
-      // WHERE whereField IN
-      //    (SELECT selectEntityId FROM                           --> from above
-      //          (SELECT selectEntityId, groupByAttribute        --> from above
-      //          FROM filterEntity WHERE [subfilter]             --> from above
-      //          GROUP BY selectEntityId, groupByAttribute)      --> from above
-      //    GROUP BY selectEntityId HAVING COUNT(*) > countValue) --> from above
-      return new SubQueryFilterVariable(whereField, SubQueryFilterVariable.Operator.IN, outerQuery);
     }
+    // Group by all the select fields.
+    Query innerQuery = innerQueryBuilder.groupBy(innerQueryBuilder.getSelect()).build();
+
+    // SELECT selectEntityId FROM
+    //    (SELECT selectEntityId, groupByAttribute    --> from above
+    //     FROM filterEntity WHERE [subfilter]         --> from above
+    //     GROUP BY selectEntityId, groupByAttribute)  --> from above
+    // GROUP BY selectEntityId HAVING COUNT(*) > countValue)
+    TablePointer innerQueryTempTable =
+        new TablePointer.Builder().sql(innerQuery.renderSQL()).build();
+    TableVariable innerQueryTableVar = TableVariable.forPrimary(innerQueryTempTable);
+    FieldPointer outerSelectEntityIdField =
+        new FieldPointer.Builder()
+            .tablePointer(innerQueryTempTable)
+            .columnName(selectEntityIdInSubQuery.getAliasOrColumnName())
+            .build();
+    FieldVariable outerSelectEntityIdFieldVar =
+        new FieldVariable(outerSelectEntityIdField, innerQueryTableVar);
+    Query outerQuery =
+        new Query.Builder()
+            .select(List.of(outerSelectEntityIdFieldVar))
+            .tables(List.of(innerQueryTableVar))
+            .groupBy(List.of(outerSelectEntityIdFieldVar))
+            .having(new HavingFilterVariable(groupByCountOperator, groupByCountValue))
+            .build();
+
+    // WHERE whereField IN
+    //    (SELECT selectEntityId FROM                           --> from above
+    //          (SELECT selectEntityId, groupByAttribute        --> from above
+    //          FROM filterEntity WHERE [subfilter]             --> from above
+    //          GROUP BY selectEntityId, groupByAttribute)      --> from above
+    //    GROUP BY selectEntityId HAVING COUNT(*) > countValue) --> from above
+    return new SubQueryFilterVariable(whereField, SubQueryFilterVariable.Operator.IN, outerQuery);
   }
 }

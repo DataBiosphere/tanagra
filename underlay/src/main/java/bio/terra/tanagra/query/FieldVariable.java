@@ -111,6 +111,10 @@ public class FieldVariable implements SQLExpression {
     return fieldPointer;
   }
 
+  public TableVariable getTableVariable() {
+    return tableVariable;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
