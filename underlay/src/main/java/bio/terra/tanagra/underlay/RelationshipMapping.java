@@ -46,22 +46,22 @@ public final class RelationshipMapping {
     FieldPointer idPairsIdB;
     if (serialized.getForeignKeyAttribute() == null) {
       TablePointer idPairsTable =
-              TablePointer.fromSerialized(serialized.getIdPairsTable(), dataPointer);
+          TablePointer.fromSerialized(serialized.getIdPairsTable(), dataPointer);
       idPairsIdA = FieldPointer.fromSerialized(serialized.getIdPairsIdA(), idPairsTable);
       idPairsIdB = FieldPointer.fromSerialized(serialized.getIdPairsIdB(), idPairsTable);
     } else {
       idPairsIdA =
-              relationship
-                      .getEntityA()
-                      .getIdAttribute()
-                      .getMapping(Underlay.MappingType.SOURCE)
-                      .getValue();
+          relationship
+              .getEntityA()
+              .getIdAttribute()
+              .getMapping(Underlay.MappingType.SOURCE)
+              .getValue();
       idPairsIdB =
-              relationship
-                      .getEntityA()
-                      .getAttribute(serialized.getForeignKeyAttribute())
-                      .getMapping(Underlay.MappingType.SOURCE)
-                      .getValue();
+          relationship
+              .getEntityA()
+              .getAttribute(serialized.getForeignKeyAttribute())
+              .getMapping(Underlay.MappingType.SOURCE)
+              .getValue();
     }
 
     // Rollup columns for entity A.

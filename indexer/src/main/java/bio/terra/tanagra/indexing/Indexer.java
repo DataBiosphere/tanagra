@@ -1,6 +1,5 @@
 package bio.terra.tanagra.indexing;
 
-import bio.terra.tanagra.indexing.job.*;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;

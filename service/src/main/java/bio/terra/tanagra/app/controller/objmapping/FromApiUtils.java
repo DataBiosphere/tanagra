@@ -1,5 +1,6 @@
 package bio.terra.tanagra.app.controller.objmapping;
 
+import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.query.*;
 import bio.terra.tanagra.api.query.filter.*;
 import bio.terra.tanagra.exception.InvalidConfigException;
@@ -13,7 +14,6 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.artifact.model.Criteria;
-import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public final class FromApiUtils {
       case ATTRIBUTE:
         ApiAttributeFilterV2 apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
         return new AttributeFilter(
-            UnderlayService.getAttribute(entity, apiAttributeFilter.getAttribute()),
+            getAttribute(entity, apiAttributeFilter.getAttribute()),
             FromApiUtils.fromApiObject(apiAttributeFilter.getOperator()),
             FromApiUtils.fromApiObject(apiAttributeFilter.getValue()));
       case TEXT:
@@ -43,14 +43,12 @@ public final class FromApiUtils {
                 .functionTemplate(FromApiUtils.fromApiObject(apiTextFilter.getMatchType()))
                 .text(apiTextFilter.getText());
         if (apiTextFilter.getAttribute() != null) {
-          textFilterBuilder.attribute(
-              UnderlayService.getAttribute(entity, apiTextFilter.getAttribute()));
+          textFilterBuilder.attribute(getAttribute(entity, apiTextFilter.getAttribute()));
         }
         return textFilterBuilder.build();
       case HIERARCHY:
         ApiHierarchyFilterV2 apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
-        Hierarchy hierarchy =
-            UnderlayService.getHierarchy(entity, apiHierarchyFilter.getHierarchy());
+        Hierarchy hierarchy = getHierarchy(entity, apiHierarchyFilter.getHierarchy());
         switch (apiHierarchyFilter.getOperator()) {
           case IS_ROOT:
             return new HierarchyRootFilter(hierarchy);
@@ -71,8 +69,7 @@ public final class FromApiUtils {
             apiFilter.getFilterUnion().getRelationshipFilter();
         Collection<EntityGroup> entityGroups = entity.getUnderlay().getEntityGroups().values();
         Entity relatedEntity = entity.getUnderlay().getEntity(apiRelationshipFilter.getEntity());
-        Relationship relationship =
-            UnderlayService.getRelationship(entityGroups, entity, relatedEntity);
+        Relationship relationship = getRelationship(entityGroups, entity, relatedEntity);
         EntityFilter subFilter =
             fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlayName);
 
@@ -213,7 +210,7 @@ public final class FromApiUtils {
     if (body.getIncludeAttributes() != null) {
       selectAttributes =
           body.getIncludeAttributes().stream()
-              .map(attrName -> UnderlayService.getAttribute(entity, attrName))
+              .map(attrName -> getAttribute(entity, attrName))
               .collect(Collectors.toList());
     }
     return selectAttributes;
@@ -284,8 +281,7 @@ public final class FromApiUtils {
                 String attrName = orderBy.getAttribute();
                 if (attrName != null) {
                   entityOrderBys.add(
-                      new EntityQueryOrderBy(
-                          UnderlayService.getAttribute(entity, attrName), direction));
+                      new EntityQueryOrderBy(getAttribute(entity, attrName), direction));
                 } else {
                   Entity relatedEntity =
                       entity
@@ -303,5 +299,37 @@ public final class FromApiUtils {
               });
     }
     return entityOrderBys;
+  }
+
+  public static Attribute getAttribute(Entity entity, String attributeName) {
+    Attribute attribute = entity.getAttribute(attributeName);
+    if (attribute == null) {
+      throw new NotFoundException(
+          "Attribute not found: " + entity.getName() + ", " + attributeName);
+    }
+    return attribute;
+  }
+
+  private static Hierarchy getHierarchy(Entity entity, String hierarchyName) {
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
+    if (hierarchy == null) {
+      throw new NotFoundException("Hierarchy not found: " + hierarchyName);
+    }
+    return hierarchy;
+  }
+
+  public static Relationship getRelationship(
+      Collection<EntityGroup> entityGroups, Entity entity, Entity relatedEntity) {
+    for (EntityGroup entityGroup : entityGroups) {
+      Optional<Relationship> relationship = entityGroup.getRelationship(entity, relatedEntity);
+      if (relationship.isPresent()) {
+        return relationship.get();
+      }
+    }
+    throw new NotFoundException(
+        "Relationship not found for entities: "
+            + entity.getName()
+            + " -- "
+            + relatedEntity.getName());
   }
 }

@@ -14,6 +14,7 @@
     { "type": "SIMPLE", "name": "biovu_sample_is_nonshippable", "dataType": "BOOLEAN" },
     { "type": "SIMPLE", "name": "biovu_sample_has_plasma", "dataType": "BOOLEAN" }
   ],
+  "frequentFilterAttributes": [ "gender", "race", "age" ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",

@@ -62,6 +62,19 @@ public final class EnumVals extends DisplayHint {
     return Collections.unmodifiableList(enumValsList);
   }
 
+  public String getEnumDisplay(Literal enumValue) {
+    Optional<EnumVal> enumDisplay =
+        enumValsList.stream()
+            .filter(ev -> ev.getValueDisplay().getValue().equals(enumValue))
+            .findFirst();
+    if (enumDisplay.isEmpty()) {
+      LOGGER.warn("Enum display not found for value: {}", enumValue.toString());
+      return null;
+    } else {
+      return enumDisplay.get().getValueDisplay().getDisplay();
+    }
+  }
+
   /**
    * Build a query to fetch a set of distinct values, up to the maximum allowed. e.g.
    *

@@ -7,13 +7,8 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
-import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class JobSequencer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(JobSequencer.class);
-
+public final class JobSequencer {
   private JobSequencer() {}
 
   public static SequencedJobSet getJobSetForEntity(Entity entity) {
@@ -54,15 +49,23 @@ public class JobSequencer {
       // relationship that is not a direct foreign-key mapping.
       // e.g. To allow joins between person-conditionOccurrence, conditionOccurrence-condition.
       for (Entity occurrenceEntity : criteriaOccurrence.getOccurrenceEntities()) {
-        if (criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity).getMapping(Underlay.MappingType.INDEX).getForeignKeyAttribute() == null) {
+        if (criteriaOccurrence
+                .getOccurrenceCriteriaRelationship(occurrenceEntity)
+                .getMapping(Underlay.MappingType.INDEX)
+                .getForeignKeyAttribute()
+            == null) {
           jobSet.addJob(
-                  new WriteRelationshipIdPairs(
-                          criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity)));
+              new WriteRelationshipIdPairs(
+                  criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity)));
         }
-        if (criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity).getMapping(Underlay.MappingType.INDEX).getForeignKeyAttribute() == null) {
+        if (criteriaOccurrence
+                .getOccurrencePrimaryRelationship(occurrenceEntity)
+                .getMapping(Underlay.MappingType.INDEX)
+                .getForeignKeyAttribute()
+            == null) {
           jobSet.addJob(
-                  new WriteRelationshipIdPairs(
-                          criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity)));
+              new WriteRelationshipIdPairs(
+                  criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity)));
         }
       }
 

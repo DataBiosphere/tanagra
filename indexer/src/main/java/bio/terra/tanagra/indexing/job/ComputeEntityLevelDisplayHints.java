@@ -10,6 +10,7 @@ import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
 import bio.terra.tanagra.utils.GoogleBigQuery;
+import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;
@@ -48,7 +49,16 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
     List<Field> fieldList =
         BigQuerySchemaUtils.getBigQueryFieldList(EntityLevelDisplayHints.getColumns());
 
-    bigQuery.createTableFromSchema(destinationTable, Schema.of(fieldList), isDryRun);
+    bigQuery.createTableFromSchema(
+        destinationTable,
+        Schema.of(fieldList),
+        Clustering.newBuilder()
+            .setFields(
+                List.of(
+                    EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName(),
+                    EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName()))
+            .build(),
+        isDryRun);
 
     // Sleep to make sure the table is found by the time we do the insert.
     // TODO: Change this to poll for existence instead.

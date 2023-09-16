@@ -30,8 +30,6 @@ import org.junit.Test;
 public class IndexEntityTest {
   private static Map<String, DataPointer> dataPointers;
 
-  private static Indexer indexer;
-
   @BeforeClass
   public static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
@@ -39,7 +37,7 @@ public class IndexEntityTest {
     Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
 
-    indexer = Indexer.deserializeUnderlay("underlay/Omop.json");
+    Indexer.deserializeUnderlay("underlay/Omop.json");
   }
 
   @Test

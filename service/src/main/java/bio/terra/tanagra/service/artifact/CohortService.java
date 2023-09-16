@@ -11,7 +11,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
-import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.AttributeMapping;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -149,7 +148,7 @@ public class CohortService {
   public long getRecordsCount(String underlayName, EntityFilter entityFilter) {
     Underlay underlay = underlayService.getUnderlay(underlayName);
     EntityCountResult entityCountResult =
-        QueryRunner.countEntityInstances(
+        underlayService.countEntityInstances(
             new EntityCountRequest.Builder()
                 .entity(underlay.getPrimaryEntity())
                 .mappingType(Underlay.MappingType.INDEX)

@@ -1,6 +1,7 @@
 package bio.terra.tanagra.api;
 
 import bio.terra.tanagra.api.query.EntityCountRequest;
+import bio.terra.tanagra.api.query.EntityHintResult;
 import bio.terra.tanagra.api.query.EntityQueryRequest;
 import bio.terra.tanagra.api.query.filter.AttributeFilter;
 import bio.terra.tanagra.api.query.filter.BooleanAndOrFilter;
@@ -28,6 +29,7 @@ import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitygroup.GroupItems;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -412,7 +414,9 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             .filter(cohortFilter)
             .build();
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityCountRequest.buildCountsQuery().getSql(),
+        entityCountRequest
+            .buildCountsQuery(new EntityHintResult("placeholder sql", new HashMap<>()))
+            .getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"

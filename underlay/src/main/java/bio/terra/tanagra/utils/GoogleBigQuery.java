@@ -126,8 +126,14 @@ public final class GoogleBigQuery {
    * @param isDryRun true if this is a dry run and no table should actually be created
    * @return the result of the BQ query job
    */
-  public Table createTableFromSchema(TableId destinationTable, Schema schema, boolean isDryRun) {
-    TableInfo tableInfo = TableInfo.of(destinationTable, StandardTableDefinition.of(schema));
+  public Table createTableFromSchema(
+      TableId destinationTable, Schema schema, @Nullable Clustering clustering, boolean isDryRun) {
+    StandardTableDefinition.Builder tableDefn =
+        StandardTableDefinition.newBuilder().setSchema(schema);
+    if (clustering != null) {
+      tableDefn.setClustering(clustering);
+    }
+    TableInfo tableInfo = TableInfo.of(destinationTable, tableDefn.build());
     LOGGER.info("schema: {}", schema);
     if (isDryRun) {
       // TODO: Can we validate the schema here or something?
@@ -147,10 +153,11 @@ public final class GoogleBigQuery {
    * @return the result of the BQ query job
    */
   public TableResult createTableFromQuery(
-      TableId destinationTable, String query, boolean isDryRun) {
+      TableId destinationTable, String query, Clustering clustering, boolean isDryRun) {
     return runUpdateQuery(
         QueryJobConfiguration.newBuilder(query)
             .setDestinationTable(destinationTable)
+            .setClustering(clustering)
             .setDryRun(isDryRun)
             .build(),
         isDryRun);
