@@ -5,7 +5,6 @@ import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
-import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.TableId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

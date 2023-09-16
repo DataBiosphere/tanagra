@@ -154,7 +154,8 @@ public final class GoogleBigQuery {
    */
   public TableResult createTableFromQuery(
       TableId destinationTable, String query, @Nullable Clustering clustering, boolean isDryRun) {
-    QueryJobConfiguration.Builder queryJobConfig = QueryJobConfiguration.newBuilder(query)
+    QueryJobConfiguration.Builder queryJobConfig =
+        QueryJobConfiguration.newBuilder(query)
             .setDestinationTable(destinationTable)
             .setDryRun(isDryRun);
     if (clustering != null) {
