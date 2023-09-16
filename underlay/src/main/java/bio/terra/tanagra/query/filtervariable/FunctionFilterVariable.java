@@ -38,7 +38,7 @@ public class FunctionFilterVariable extends FilterVariable {
   }
 
   public enum FunctionTemplate {
-    TEXT_EXACT_MATCH("CONTAINS_SUBSTR(${fieldVariable}, ${value})"),
+    TEXT_EXACT_MATCH("REGEXP_CONTAINS(${fieldVariable}, ${value})"),
     TEXT_FUZZY_MATCH("bqutil.fn.levenshtein(UPPER(${fieldVariable}), UPPER(${value}))<5"),
     IN("${fieldVariable} IN (${value})"),
     NOT_IN("${fieldVariable} NOT IN (${value})");

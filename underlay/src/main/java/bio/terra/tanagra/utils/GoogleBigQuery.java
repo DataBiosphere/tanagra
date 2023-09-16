@@ -153,14 +153,14 @@ public final class GoogleBigQuery {
    * @return the result of the BQ query job
    */
   public TableResult createTableFromQuery(
-      TableId destinationTable, String query, Clustering clustering, boolean isDryRun) {
-    return runUpdateQuery(
-        QueryJobConfiguration.newBuilder(query)
+      TableId destinationTable, String query, @Nullable Clustering clustering, boolean isDryRun) {
+    QueryJobConfiguration.Builder queryJobConfig = QueryJobConfiguration.newBuilder(query)
             .setDestinationTable(destinationTable)
-            .setClustering(clustering)
-            .setDryRun(isDryRun)
-            .build(),
-        isDryRun);
+            .setDryRun(isDryRun);
+    if (clustering != null) {
+      queryJobConfig.setClustering(clustering);
+    }
+    return runUpdateQuery(queryJobConfig.build(), isDryRun);
   }
 
   /**
