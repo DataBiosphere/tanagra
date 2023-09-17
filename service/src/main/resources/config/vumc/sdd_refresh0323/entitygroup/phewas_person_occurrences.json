@@ -7,52 +7,36 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria:condition_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
         "idPairsTable": { "rawSqlFile": "phewas_conditionOccurrence.sql" },
         "idPairsIdA": { "column": "condition_occurrence_id" },
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:condition_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:measurement_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
         "idPairsTable": { "rawSqlFile": "phewas_measurementOccurrence.sql" },
         "idPairsIdA": { "column": "measurement_occurrence_id" },
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:measurement_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "measurement" },
-        "idPairsIdA": { "column": "measurement_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:observation_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
         "idPairsTable": { "rawSqlFile": "phewas_observationOccurrence.sql" },
         "idPairsIdA": { "column": "observation_occurrence_id" },
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:observation_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "observation" },
-        "idPairsIdA": { "column": "observation_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:procedure_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
         "idPairsTable": { "rawSqlFile": "phewas_procedureOccurrence.sql" },
         "idPairsIdA": { "column": "procedure_occurrence_id" },
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:procedure_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "rawSqlFile": "phewas_person.sql" },

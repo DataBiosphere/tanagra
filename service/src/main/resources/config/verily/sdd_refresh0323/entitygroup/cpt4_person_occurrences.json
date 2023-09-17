@@ -7,25 +7,33 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria:ingredient_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id"
+        "idPairsTable": { "rawSqlFile": "cpt4_ingredientOccurrence.sql" },
+        "idPairsIdA": { "column": "drug_exposure_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:ingredient_occurrence": {
         "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:measurement_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id"
+        "idPairsTable": { "rawSqlFile": "cpt4_measurementOccurrence.sql" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:measurement_occurrence": {
         "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:observation_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id"
+        "idPairsTable": { "rawSqlFile": "cpt4_observationOccurrence.sql" },
+        "idPairsIdA": { "column": "observation_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:observation_occurrence": {
         "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:procedure_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id"
+        "idPairsTable": { "rawSqlFile": "cpt4_procedureOccurrence.sql" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:procedure_occurrence": {
         "foreignKeyAttribute": "person_id"
