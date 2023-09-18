@@ -5,7 +5,9 @@ import bio.terra.tanagra.query.SQLExpression;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
+import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.TableId;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,11 @@ public class WriteParentChildIdPairs extends BigQueryIndexingJob {
             getAuxiliaryTable().getTableName());
     getBQDataPointer(getAuxiliaryTable())
         .getBigQueryService()
-        .createTableFromQuery(destinationTable, sql, isDryRun);
+        .createTableFromQuery(
+            destinationTable,
+            sql,
+            Clustering.newBuilder().setFields(List.of("parent")).build(),
+            isDryRun);
   }
 
   @Override

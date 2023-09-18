@@ -5,8 +5,10 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.DisplayHint;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +27,7 @@ public final class EntityInstanceCount {
   }
 
   public static EntityInstanceCount fromRowResult(
-      RowResult rowResult, List<Attribute> selectedAttributes) {
+      RowResult rowResult, List<Attribute> selectedAttributes, EntityHintResult entityHintResult) {
     CellValue countCellValue = rowResult.get(DEFAULT_COUNT_COLUMN_NAME);
     if (countCellValue == null) {
       throw new SystemException("Count column not found: " + DEFAULT_COUNT_COLUMN_NAME);
@@ -45,14 +47,33 @@ public final class EntityInstanceCount {
       } else if (selectedAttribute.getType() == Attribute.Type.SIMPLE) {
         attributeValues.put(selectedAttribute, new ValueDisplay(valueOpt.get()));
       } else if (selectedAttribute.getType() == Attribute.Type.KEY_AND_DISPLAY) {
-        String display =
-            rowResult
-                .get(
-                    selectedAttribute
-                        .getMapping(Underlay.MappingType.INDEX)
-                        .getDisplayMappingAlias())
-                .getString()
-                .get();
+        String display;
+        if (entityHintResult.hasHint(selectedAttribute)
+            && entityHintResult
+                .getHint(selectedAttribute)
+                .getType()
+                .equals(DisplayHint.Type.ENUM)) {
+          // TODO: Move this logic somewhere it's not duplicated both here and in the count request
+          // class.
+          // If there are entity-level enum hints for an attribute, we skipped grouping by the
+          // display field. Instead, we'll populate it after the fact, when processing the returned
+          // query rows.
+          DisplayHint displayHint = entityHintResult.getHint(selectedAttribute);
+          if (!DisplayHint.Type.ENUM.equals(displayHint.getType())) {
+            throw new SystemException(
+                "Expected enum display hint for attribute: " + selectedAttribute.getName());
+          }
+          display = ((EnumVals) displayHint).getEnumDisplay(valueOpt.get());
+        } else {
+          display =
+              rowResult
+                  .get(
+                      selectedAttribute
+                          .getMapping(Underlay.MappingType.INDEX)
+                          .getDisplayMappingAlias())
+                  .getString()
+                  .get();
+        }
         attributeValues.put(selectedAttribute, new ValueDisplay(valueOpt.get(), display));
       } else {
         throw new SystemException("Unknown attribute type: " + selectedAttribute.getType());

@@ -7,16 +7,10 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "foreignKeyAttribute": "procedure",
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "procedure_concept_id" }
+        "foreignKeyAttribute": "procedure"
       },
       "occurrenceToPrimary": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "table": "procedure_occurrence" },

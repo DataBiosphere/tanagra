@@ -40,12 +40,29 @@ public final class RelationshipMapping {
   }
 
   public static RelationshipMapping fromSerialized(
-      UFRelationshipMapping serialized, DataPointer dataPointer) {
+      UFRelationshipMapping serialized, DataPointer dataPointer, Relationship relationship) {
     // ID pairs table.
-    TablePointer idPairsTable =
-        TablePointer.fromSerialized(serialized.getIdPairsTable(), dataPointer);
-    FieldPointer idPairsIdA = FieldPointer.fromSerialized(serialized.getIdPairsIdA(), idPairsTable);
-    FieldPointer idPairsIdB = FieldPointer.fromSerialized(serialized.getIdPairsIdB(), idPairsTable);
+    FieldPointer idPairsIdA;
+    FieldPointer idPairsIdB;
+    if (serialized.getForeignKeyAttribute() == null) {
+      TablePointer idPairsTable =
+          TablePointer.fromSerialized(serialized.getIdPairsTable(), dataPointer);
+      idPairsIdA = FieldPointer.fromSerialized(serialized.getIdPairsIdA(), idPairsTable);
+      idPairsIdB = FieldPointer.fromSerialized(serialized.getIdPairsIdB(), idPairsTable);
+    } else {
+      idPairsIdA =
+          relationship
+              .getEntityA()
+              .getIdAttribute()
+              .getMapping(Underlay.MappingType.SOURCE)
+              .getValue();
+      idPairsIdB =
+          relationship
+              .getEntityA()
+              .getAttribute(serialized.getForeignKeyAttribute())
+              .getMapping(Underlay.MappingType.SOURCE)
+              .getValue();
+    }
 
     // Rollup columns for entity A.
     Map<String, RollupInformation> rollupInformationMapA = new HashMap<>();

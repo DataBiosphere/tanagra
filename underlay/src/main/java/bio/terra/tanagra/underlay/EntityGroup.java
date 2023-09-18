@@ -69,7 +69,8 @@ public abstract class EntityGroup {
                 entityGroup.getName(), relationship.getName()));
       }
       RelationshipMapping sourceMapping =
-          RelationshipMapping.fromSerialized(serializedSourceMapping, sourceDataPointer);
+          RelationshipMapping.fromSerialized(
+              serializedSourceMapping, sourceDataPointer, relationship);
 
       DataPointer indexDataPointer =
           entityGroup.getMapping(Underlay.MappingType.INDEX).getDataPointer();
@@ -84,7 +85,8 @@ public abstract class EntityGroup {
                       .getIndexDataMapping()
                       .getRelationshipMappings()
                       .get(relationship.getName()),
-                  indexDataPointer);
+                  indexDataPointer,
+                  relationship);
 
       relationship.initialize(sourceMapping, indexMapping, entityGroup);
     }

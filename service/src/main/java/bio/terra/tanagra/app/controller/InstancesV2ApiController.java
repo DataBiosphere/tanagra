@@ -15,7 +15,6 @@ import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.Entity;
@@ -51,7 +50,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
         ResourceId.forUnderlay(underlayName));
     EntityQueryRequest entityQueryRequest =
         FromApiUtils.fromApiObject(body, underlayService.getEntity(underlayName, entityName));
-    EntityQueryResult entityQueryResult = QueryRunner.listEntityInstances(entityQueryRequest);
+    EntityQueryResult entityQueryResult = UnderlayService.listEntityInstances(entityQueryRequest);
     return ResponseEntity.ok(
         new ApiInstanceListResultV2()
             .instances(
@@ -163,7 +162,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
     if (body.getAttributes() != null) {
       attributes =
           body.getAttributes().stream()
-              .map(attrName -> underlayService.getAttribute(entity, attrName))
+              .map(attrName -> FromApiUtils.getAttribute(entity, attrName))
               .collect(Collectors.toList());
     }
 
@@ -173,7 +172,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
     }
 
     EntityCountResult entityCountResult =
-        QueryRunner.countEntityInstances(
+        underlayService.countEntityInstances(
             new EntityCountRequest.Builder()
                 .entity(entity)
                 .mappingType(Underlay.MappingType.INDEX)

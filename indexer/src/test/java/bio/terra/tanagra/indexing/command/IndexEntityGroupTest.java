@@ -2,7 +2,7 @@ package bio.terra.tanagra.indexing.command;
 
 import static org.junit.Assert.assertEquals;
 
-import bio.terra.tanagra.indexing.Indexer;
+import bio.terra.tanagra.indexing.JobSequencer;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
@@ -34,7 +34,7 @@ public class IndexEntityGroupTest {
   public void oneToMany() throws IOException {
     EntityGroup brandIngredient =
         EntityGroup.fromJSON("BrandIngredient.json", dataPointers, entities, primaryEntityName);
-    SequencedJobSet jobs = Indexer.getJobSetForEntityGroup(brandIngredient);
+    SequencedJobSet jobs = JobSequencer.getJobSetForEntityGroup(brandIngredient);
 
     // copy relationship id pairs
     assertEquals(1, jobs.getNumStages());
@@ -45,7 +45,7 @@ public class IndexEntityGroupTest {
     EntityGroup conditionPersonOccurrence =
         EntityGroup.fromJSON(
             "ConditionPersonOccurrence.json", dataPointers, entities, primaryEntityName);
-    SequencedJobSet jobs = Indexer.getJobSetForEntityGroup(conditionPersonOccurrence);
+    SequencedJobSet jobs = JobSequencer.getJobSetForEntityGroup(conditionPersonOccurrence);
 
     // copy relationship id pairs (x2 relationships)
     // compute rollup counts (x1 criteria-primary relationship)

@@ -48,7 +48,7 @@ public class WriteRelationshipIdPairs extends BigQueryIndexingJob {
             getAuxiliaryTable().getTableName());
     getBQDataPointer(getAuxiliaryTable())
         .getBigQueryService()
-        .createTableFromQuery(destinationTable, sql, isDryRun);
+        .createTableFromQuery(destinationTable, sql, null, isDryRun);
   }
 
   @Override

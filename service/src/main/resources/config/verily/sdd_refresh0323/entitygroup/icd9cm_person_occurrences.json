@@ -7,52 +7,28 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria:condition_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
-        "idPairsIdB":  { "column": "condition_source_concept_id" }
+        "foreignKeyAttribute": "source_criteria_id"
       },
       "occurrenceToPrimary:condition_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:measurement_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
-        "idPairsTable": { "table": "measurement" },
-        "idPairsIdA": { "column": "measurement_id" },
-        "idPairsIdB":  { "column": "measurement_source_concept_id" }
+        "foreignKeyAttribute": "source_criteria_id"
       },
       "occurrenceToPrimary:measurement_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "measurement" },
-        "idPairsIdA": { "column": "measurement_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:observation_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
-        "idPairsTable": { "table": "observation" },
-        "idPairsIdA": { "column": "observation_id" },
-        "idPairsIdB":  { "column": "observation_source_concept_id" }
+        "foreignKeyAttribute": "source_criteria_id"
       },
       "occurrenceToPrimary:observation_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "observation" },
-        "idPairsIdA": { "column": "observation_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:procedure_occurrence": {
-        "foreignKeyAttribute": "source_criteria_id",
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "procedure_source_concept_id" }
+        "foreignKeyAttribute": "source_criteria_id"
       },
       "occurrenceToPrimary:procedure_occurrence": {
-        "foreignKeyAttribute": "person_id",
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "rawSqlFile": "icd9cm_person.sql" },

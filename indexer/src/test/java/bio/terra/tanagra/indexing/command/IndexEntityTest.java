@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.Indexer;
 import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.indexing.JobSequencer;
 import bio.terra.tanagra.indexing.job.BuildNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.BuildTextSearchStrings;
 import bio.terra.tanagra.indexing.job.CreateEntityTable;
@@ -29,8 +30,6 @@ import org.junit.Test;
 public class IndexEntityTest {
   private static Map<String, DataPointer> dataPointers;
 
-  private static Indexer indexer;
-
   @BeforeClass
   public static void readDataPointers() throws IOException {
     FileIO.setToReadResourceFiles();
@@ -38,13 +37,13 @@ public class IndexEntityTest {
     Underlay underlay = Underlay.fromJSON("underlay/Omop.json");
     dataPointers = underlay.getDataPointers();
 
-    indexer = Indexer.deserializeUnderlay("underlay/Omop.json");
+    Indexer.deserializeUnderlay("underlay/Omop.json");
   }
 
   @Test
   public void person() throws IOException {
     Entity person = Entity.fromJSON("Person.json", dataPointers);
-    SequencedJobSet jobs = indexer.getJobSetForEntity(person);
+    SequencedJobSet jobs = JobSequencer.getJobSetForEntity(person);
 
     assertEquals("two indexing job stages generated", 2, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
@@ -65,7 +64,7 @@ public class IndexEntityTest {
   @Test
   public void condition() throws IOException {
     Entity condition = Entity.fromJSON("Condition.json", dataPointers);
-    SequencedJobSet jobs = indexer.getJobSetForEntity(condition);
+    SequencedJobSet jobs = JobSequencer.getJobSetForEntity(condition);
 
     assertEquals("three indexing job stages generated", 3, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();

@@ -198,7 +198,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
     if (apiObj.getIncludeAttributes() != null) {
       attributes =
           apiObj.getIncludeAttributes().stream()
-              .map(attrName -> UnderlayService.getAttribute(entity, attrName))
+              .map(attrName -> FromApiUtils.getAttribute(entity, attrName))
               .collect(Collectors.toList());
     }
 
@@ -236,7 +236,7 @@ public class ReviewsV2ApiController implements ReviewsV2Api {
                 if (attrName != null) {
                   orderBys.add(
                       new ReviewQueryOrderBy(
-                          UnderlayService.getAttribute(entity, attrName), direction));
+                          FromApiUtils.getAttribute(entity, attrName), direction));
                 } else {
                   orderBys.add(
                       new ReviewQueryOrderBy(

@@ -20,7 +20,6 @@ import bio.terra.tanagra.generated.model.ApiHintQueryV2;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DisplayHint;
@@ -65,13 +64,12 @@ public class HintsV2ApiController implements HintsV2Api {
           .relatedEntity(relatedEntity)
           .relatedEntityId(FromApiUtils.fromApiObject(body.getRelatedEntity().getId()))
           .entityGroup(
-              underlayService
-                  .getRelationship(
+              FromApiUtils.getRelationship(
                       entity.getUnderlay().getEntityGroups().values(), entity, relatedEntity)
                   .getEntityGroup());
     } // else {} Return display hints computed across all entity instances (e.g. enum values for
     // person.gender).
-    EntityHintResult entityHintResult = QueryRunner.listEntityHints(entityHintRequest.build());
+    EntityHintResult entityHintResult = underlayService.listEntityHints(entityHintRequest.build());
     return ResponseEntity.ok(toApiObject(entityHintResult));
   }
 
