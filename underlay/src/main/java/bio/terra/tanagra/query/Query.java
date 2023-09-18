@@ -3,10 +3,7 @@ package bio.terra.tanagra.query;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.filtervariable.HavingFilterVariable;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -170,12 +167,30 @@ public class Query implements SQLExpression {
     private Integer offset;
 
     public Builder select(List<FieldVariable> select) {
-      this.select = select;
+      this.select = new ArrayList<>(select);
+      return this;
+    }
+
+    public Builder addSelect(FieldVariable newSelect) {
+      if (this.select == null) {
+        this.select = new ArrayList<>();
+      }
+      this.select.add(newSelect);
       return this;
     }
 
     public Builder tables(List<TableVariable> tables) {
-      this.tables = tables;
+      this.tables = new ArrayList<>(tables);
+      return this;
+    }
+
+    public Builder addTable(TableVariable newTable) {
+      if (this.tables == null) {
+        this.tables = new ArrayList<>();
+      }
+      if (!this.tables.contains(newTable)) {
+        this.tables.add(newTable);
+      }
       return this;
     }
 
@@ -211,6 +226,14 @@ public class Query implements SQLExpression {
 
     public Query build() {
       return new Query(this);
+    }
+
+    public List<FieldVariable> getSelect() {
+      return select;
+    }
+
+    public List<TableVariable> getTables() {
+      return tables;
     }
   }
 }

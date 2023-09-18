@@ -15,6 +15,7 @@ import java.util.Map;
 @JsonDeserialize(builder = UFRelationshipMapping.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UFRelationshipMapping {
+  private final String foreignKeyAttribute;
   private final UFTablePointer idPairsTable;
   private final UFFieldPointer idPairsIdA;
   private final UFFieldPointer idPairsIdB;
@@ -22,6 +23,7 @@ public class UFRelationshipMapping {
   private final Map<String, UFRollupInformation> rollupInformationMapB;
 
   public UFRelationshipMapping(RelationshipMapping relationshipMapping) {
+    this.foreignKeyAttribute = relationshipMapping.getForeignKeyAttribute();
     this.idPairsTable = new UFTablePointer(relationshipMapping.getIdPairsTable());
     this.idPairsIdA = new UFFieldPointer(relationshipMapping.getIdPairsIdA());
     this.idPairsIdB = new UFFieldPointer(relationshipMapping.getIdPairsIdB());
@@ -48,6 +50,7 @@ public class UFRelationshipMapping {
   }
 
   private UFRelationshipMapping(Builder builder) {
+    this.foreignKeyAttribute = builder.foreignKeyAttribute;
     this.idPairsTable = builder.idPairsTable;
     this.idPairsIdA = builder.idPairsIdA;
     this.idPairsIdB = builder.idPairsIdB;
@@ -57,11 +60,17 @@ public class UFRelationshipMapping {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
+    private String foreignKeyAttribute;
     private UFTablePointer idPairsTable;
     private UFFieldPointer idPairsIdA;
     private UFFieldPointer idPairsIdB;
     private Map<String, UFRollupInformation> rollupInformationMapA;
     private Map<String, UFRollupInformation> rollupInformationMapB;
+
+    public Builder foreignKeyAttribute(String foreignKeyAttribute) {
+      this.foreignKeyAttribute = foreignKeyAttribute;
+      return this;
+    }
 
     public Builder idPairsTable(UFTablePointer idPairsTable) {
       this.idPairsTable = idPairsTable;
@@ -91,6 +100,10 @@ public class UFRelationshipMapping {
     public UFRelationshipMapping build() {
       return new UFRelationshipMapping(this);
     }
+  }
+
+  public String getForeignKeyAttribute() {
+    return foreignKeyAttribute;
   }
 
   public UFTablePointer getIdPairsTable() {

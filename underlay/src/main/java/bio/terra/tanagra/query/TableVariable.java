@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -117,5 +118,26 @@ public final class TableVariable implements SQLExpression {
 
   public boolean isPrimary() {
     return joinField == null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TableVariable that = (TableVariable) o;
+    return isLeftJoin == that.isLeftJoin
+        && Objects.equals(alias, that.alias)
+        && tablePointer.equals(that.tablePointer)
+        && Objects.equals(joinField, that.joinField)
+        && Objects.equals(joinFieldOnParent, that.joinFieldOnParent);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(alias, tablePointer, joinField, joinFieldOnParent, isLeftJoin);
   }
 }

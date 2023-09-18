@@ -7,7 +7,6 @@ import bio.terra.tanagra.api.query.EntityQueryRequest;
 import bio.terra.tanagra.api.query.EntityQueryResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
@@ -46,7 +45,7 @@ public class InstancesPaginationTest {
             .limit(10)
             .build();
 
-    EntityQueryResult entityQueryResult = QueryRunner.listEntityInstances(entityQueryRequest);
+    EntityQueryResult entityQueryResult = UnderlayService.listEntityInstances(entityQueryRequest);
 
     assertNotNull(entityQueryResult.getSql());
     assertEquals(10, entityQueryResult.getEntityInstances().size());
@@ -70,7 +69,7 @@ public class InstancesPaginationTest {
             .limit(10)
             .pageSize(3)
             .build();
-    EntityQueryResult entityQueryResult1 = QueryRunner.listEntityInstances(entityQueryRequest1);
+    EntityQueryResult entityQueryResult1 = UnderlayService.listEntityInstances(entityQueryRequest1);
 
     assertNotNull(entityQueryResult1.getSql());
     assertEquals(3, entityQueryResult1.getEntityInstances().size());
@@ -91,7 +90,7 @@ public class InstancesPaginationTest {
             .pageMarker(entityQueryResult1.getPageMarker())
             .pageSize(7)
             .build();
-    EntityQueryResult entityQueryResult2 = QueryRunner.listEntityInstances(entityQueryRequest2);
+    EntityQueryResult entityQueryResult2 = UnderlayService.listEntityInstances(entityQueryRequest2);
 
     assertNotNull(entityQueryResult2.getSql());
     assertEquals(7, entityQueryResult2.getEntityInstances().size());
