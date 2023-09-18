@@ -12,6 +12,7 @@ import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.HierarchyMapping;
 import bio.terra.tanagra.underlay.Underlay;
+import com.google.api.services.bigquery.model.Clustering;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory;
  * ancestor-descendant relationships.
  */
 public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(WriteParentChildIdPairs.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(WriteAncestorDescendantIdPairs.class);
 
   // The default table schema for the ancestor-descendant output table.
   private static final TableSchema ANCESTOR_DESCENDANT_TABLE_SCHEMA =
@@ -97,6 +99,7 @@ public class WriteAncestorDescendantIdPairs extends BigQueryIndexingJob {
             BigQueryIO.writeTableRows()
                 .to(getAuxiliaryTable().getPathForIndexing())
                 .withSchema(ANCESTOR_DESCENDANT_TABLE_SCHEMA)
+                .withClustering(new Clustering().setFields(List.of("ancestor")))
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
                 .withMethod(BigQueryIO.Write.Method.FILE_LOADS));

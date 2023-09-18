@@ -7,14 +7,10 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "idPairsTable": { "table": "drug_exposure" },
-        "idPairsIdA": { "column": "drug_exposure_id" },
-        "idPairsIdB":  { "column": "drug_concept_id" }
+        "foreignKeyAttribute": "ingredient"
       },
       "occurrenceToPrimary": {
-        "idPairsTable": { "table": "drug_exposure" },
-        "idPairsIdA": { "column": "drug_exposure_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "table": "drug_exposure" },

@@ -12,9 +12,7 @@
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:condition_occurrence": {
-        "idPairsTable": { "table": "condition_occurrence" },
-        "idPairsIdA": { "column": "condition_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:measurement_occurrence": {
         "idPairsTable": { "rawSqlFile": "phewas_measurementOccurrence.sql" },
@@ -22,9 +20,7 @@
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:measurement_occurrence": {
-        "idPairsTable": { "table": "measurement" },
-        "idPairsIdA": { "column": "measurement_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:observation_occurrence": {
         "idPairsTable": { "rawSqlFile": "phewas_observationOccurrence.sql" },
@@ -32,9 +28,7 @@
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:observation_occurrence": {
-        "idPairsTable": { "table": "observation" },
-        "idPairsIdA": { "column": "observation_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:procedure_occurrence": {
         "idPairsTable": { "rawSqlFile": "phewas_procedureOccurrence.sql" },
@@ -42,9 +36,7 @@
         "idPairsIdB":  { "column": "phewas_id" }
       },
       "occurrenceToPrimary:procedure_occurrence": {
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "rawSqlFile": "phewas_person.sql" },

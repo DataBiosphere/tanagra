@@ -63,7 +63,7 @@ public class FieldVariable implements SQLExpression {
     }
 
     if (fieldPointer.hasSqlFunctionWrapper() && useFunctionWrapper) {
-      LOGGER.debug("Found sql function wrapper: " + fieldPointer.getSqlFunctionWrapper());
+      LOGGER.trace("Found sql function wrapper: " + fieldPointer.getSqlFunctionWrapper());
       final String substitutionVar = "${fieldSql}";
       if (fieldPointer.getSqlFunctionWrapper().contains(substitutionVar)) {
         template = fieldPointer.getSqlFunctionWrapper();
@@ -109,6 +109,10 @@ public class FieldVariable implements SQLExpression {
 
   public FieldPointer getFieldPointer() {
     return fieldPointer;
+  }
+
+  public TableVariable getTableVariable() {
+    return tableVariable;
   }
 
   @Override

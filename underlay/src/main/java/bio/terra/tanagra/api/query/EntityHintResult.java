@@ -21,4 +21,12 @@ public class EntityHintResult {
   public Map<Attribute, DisplayHint> getHintMap() {
     return Collections.unmodifiableMap(hintMap);
   }
+
+  public DisplayHint getHint(Attribute attribute) {
+    return hintMap.get(attribute);
+  }
+
+  public boolean hasHint(Attribute attribute) {
+    return hintMap.containsKey(attribute);
+  }
 }

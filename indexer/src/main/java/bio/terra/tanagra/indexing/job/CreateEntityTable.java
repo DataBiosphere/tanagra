@@ -5,11 +5,13 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
+import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CreateEntityTable extends BigQueryIndexingJob {
   public CreateEntityTable(Entity entity) {
@@ -71,6 +73,30 @@ public class CreateEntityTable extends BigQueryIndexingJob {
                         relationshipField ->
                             fields.add(fromColumnSchema(relationshipField.buildColumnSchema()))));
 
+    // Build a clustering specification.
+    List<String> clusterFields;
+    if (!getEntity().getFrequentFilterAttributes().isEmpty()) {
+      // If the frequent filter attributes are defined in the config, use those.
+      clusterFields =
+          getEntity().getFrequentFilterAttributes().stream()
+              .map(a -> a.getMapping(Underlay.MappingType.INDEX).getValue().getColumnName())
+              .collect(Collectors.toList());
+    } else if (getEntity().getTextSearch().isEnabled()) {
+      // If not, the use the text search string, if there is one.
+      clusterFields =
+          List.of(
+              getEntity()
+                  .getTextSearch()
+                  .getMapping(Underlay.MappingType.INDEX)
+                  .getSearchString()
+                  .getColumnName());
+    } else {
+      // Otherwise skip clustering.
+      clusterFields = List.of();
+    }
+    Clustering clustering =
+        clusterFields.isEmpty() ? null : Clustering.newBuilder().setFields(clusterFields).build();
+
     // Create an empty table with this schema.
     BigQueryDataset outputBQDataset = getBQDataPointer(getEntityIndexTable());
     TableId destinationTable =
@@ -80,7 +106,7 @@ public class CreateEntityTable extends BigQueryIndexingJob {
             getEntityIndexTable().getTableName());
     outputBQDataset
         .getBigQueryService()
-        .createTableFromSchema(destinationTable, Schema.of(fields), isDryRun);
+        .createTableFromSchema(destinationTable, Schema.of(fields), clustering, isDryRun);
   }
 
   @Override
@@ -91,9 +117,12 @@ public class CreateEntityTable extends BigQueryIndexingJob {
   }
 
   private Field fromColumnSchema(ColumnSchema columnSchema) {
-    return Field.of(
-        columnSchema.getColumnName(),
-        BigQueryDataset.fromSqlDataType(columnSchema.getSqlDataType()));
+    Field.Builder field =
+        Field.newBuilder(
+            columnSchema.getColumnName(),
+            BigQueryDataset.fromSqlDataType(columnSchema.getSqlDataType()));
+
+    return field.build();
   }
 
   @Override

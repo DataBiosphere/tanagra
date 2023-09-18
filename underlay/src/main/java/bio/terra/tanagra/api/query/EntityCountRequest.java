@@ -57,7 +57,7 @@ public class EntityCountRequest {
     return pageSize;
   }
 
-  public QueryRequest buildCountsQuery() {
+  public QueryRequest buildCountsQuery(EntityHintResult entityHintResult) {
     TableVariable entityTableVar =
         TableVariable.forPrimary(entity.getMapping(mappingType).getTablePointer());
     List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
@@ -70,9 +70,21 @@ public class EntityCountRequest {
         .forEach(
             attribute -> {
               AttributeMapping attributeMapping = attribute.getMapping(Underlay.MappingType.INDEX);
-              attributeFieldVars.addAll(
-                  attributeMapping.buildFieldVariables(entityTableVar, tableVars));
-              columnSchemas.addAll(attributeMapping.buildColumnSchemas());
+              if (attributeMapping.hasDisplay()
+                  && entityHintResult.hasHint(attribute)
+                  && entityHintResult.getHint(attribute).getType().equals(DisplayHint.Type.ENUM)) {
+                // If there are entity-level enum hints for an attribute, skip grouping by the
+                // display field. Instead, we'll populate it after the fact, when processing the
+                // returned query rows.
+                attributeFieldVars.add(
+                    attributeMapping.buildValueFieldVariable(entityTableVar, tableVars));
+                columnSchemas.add(attributeMapping.buildValueColumnSchema());
+              } else {
+                // Otherwise, group by the value and display fields.
+                attributeFieldVars.addAll(
+                    attributeMapping.buildFieldVariables(entityTableVar, tableVars));
+                columnSchemas.addAll(attributeMapping.buildColumnSchemas());
+              }
             });
 
     // Additionally, build a count field variable and column schema to SELECT.

@@ -6,7 +6,6 @@ import bio.terra.tanagra.api.query.EntityHintRequest;
 import bio.terra.tanagra.api.query.EntityHintResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.query.QueryRunner;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.DisplayHint;
@@ -60,7 +59,7 @@ public abstract class BaseHintsTest {
 
   private void assertHintsMatch(
       EntityHintRequest entityHintRequest, Map<String, DisplayHint> expectedHints) {
-    EntityHintResult entityHintResult = QueryRunner.listEntityHints(entityHintRequest);
+    EntityHintResult entityHintResult = underlayService.listEntityHints(entityHintRequest);
 
     for (Map.Entry<String, DisplayHint> expected : expectedHints.entrySet()) {
       Attribute attr = entityHintRequest.getEntity().getAttribute(expected.getKey());

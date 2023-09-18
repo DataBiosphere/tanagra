@@ -267,7 +267,7 @@ public class ReviewService {
 
     // Get all the entity instances.
     EntityQueryResult entityQueryResult =
-        QueryRunner.listEntityInstances(
+        UnderlayService.listEntityInstances(
             new EntityQueryRequest.Builder()
                 .entity(primaryEntity)
                 .mappingType(Underlay.MappingType.INDEX)
@@ -361,7 +361,7 @@ public class ReviewService {
             FunctionFilterVariable.FunctionTemplate.IN,
             reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
                 .collect(Collectors.toList()));
-    return QueryRunner.countEntityInstances(
+    return underlayService.countEntityInstances(
         new EntityCountRequest.Builder()
             .entity(entity)
             .mappingType(Underlay.MappingType.INDEX)

@@ -7,24 +7,16 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria:ingredient_occurrence": {
-        "idPairsTable": { "table": "drug_exposure" },
-        "idPairsIdA": { "column": "drug_exposure_id" },
-        "idPairsIdB":  { "column": "drug_source_concept_id" }
+        "foreignKeyAttribute": "source_criteria_id"
       },
       "occurrenceToPrimary:ingredient_occurrence": {
-        "idPairsTable": { "table": "drug_exposure" },
-        "idPairsIdA": { "column": "drug_exposure_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:procedure_occurrence": {
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "procedure_source_concept_id" }
+        "foreignKeyAttribute": "source_criteria_id"
       },
       "occurrenceToPrimary:procedure_occurrence": {
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "rawSqlFile": "icd9proc_person.sql" },

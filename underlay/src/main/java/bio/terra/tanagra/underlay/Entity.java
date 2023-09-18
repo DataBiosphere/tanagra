@@ -24,6 +24,7 @@ public final class Entity {
   private final TextSearch textSearch;
   private final EntityMapping sourceDataMapping;
   private final EntityMapping indexDataMapping;
+  private final List<Attribute> frequentFilterAttributes;
   private Underlay underlay;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -34,7 +35,8 @@ public final class Entity {
       Map<String, Hierarchy> hierarchies,
       TextSearch textSearch,
       EntityMapping sourceDataMapping,
-      EntityMapping indexDataMapping) {
+      EntityMapping indexDataMapping,
+      List<Attribute> frequentFilterAttributes) {
     this.name = name;
     this.idAttributeName = idAttributeName;
     this.attributes = attributes;
@@ -42,6 +44,7 @@ public final class Entity {
     this.textSearch = textSearch;
     this.sourceDataMapping = sourceDataMapping;
     this.indexDataMapping = indexDataMapping;
+    this.frequentFilterAttributes = frequentFilterAttributes;
   }
 
   public void initialize(Underlay underlay) {
@@ -109,6 +112,12 @@ public final class Entity {
             indexDataMapping,
             attributes.get(serialized.getIdAttribute()).getMapping(Underlay.MappingType.INDEX));
 
+    // Frequent filter attributes.
+    List<Attribute> frequentFilterAttributes =
+        serialized.getFrequentFilterAttributes().stream()
+            .map(attrName -> attributes.get(attrName))
+            .collect(Collectors.toList());
+
     Entity entity =
         new Entity(
             serialized.getName(),
@@ -117,7 +126,8 @@ public final class Entity {
             hierarchies,
             textSearch,
             sourceDataMapping,
-            indexDataMapping);
+            indexDataMapping,
+            frequentFilterAttributes);
 
     sourceDataMapping.initialize(entity);
     indexDataMapping.initialize(entity);
@@ -290,5 +300,9 @@ public final class Entity {
 
   public EntityMapping getMapping(Underlay.MappingType mappingType) {
     return Underlay.MappingType.SOURCE.equals(mappingType) ? sourceDataMapping : indexDataMapping;
+  }
+
+  public List<Attribute> getFrequentFilterAttributes() {
+    return Collections.unmodifiableList(frequentFilterAttributes);
   }
 }

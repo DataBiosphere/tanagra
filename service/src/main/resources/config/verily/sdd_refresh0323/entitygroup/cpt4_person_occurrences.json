@@ -12,9 +12,7 @@
         "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:ingredient_occurrence": {
-        "idPairsTable": { "table": "drug_exposure" },
-        "idPairsIdA": { "column": "drug_exposure_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:measurement_occurrence": {
         "idPairsTable": { "rawSqlFile": "cpt4_measurementOccurrence.sql" },
@@ -22,9 +20,7 @@
         "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:measurement_occurrence": {
-        "idPairsTable": { "table": "measurement" },
-        "idPairsIdA": { "column": "measurement_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:observation_occurrence": {
         "idPairsTable": { "rawSqlFile": "cpt4_observationOccurrence.sql" },
@@ -32,9 +28,7 @@
         "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:observation_occurrence": {
-        "idPairsTable": { "table": "observation" },
-        "idPairsIdA": { "column": "observation_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "occurrenceToCriteria:procedure_occurrence": {
         "idPairsTable": { "rawSqlFile": "cpt4_procedureOccurrence.sql" },
@@ -42,9 +36,7 @@
         "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:procedure_occurrence": {
-        "idPairsTable": { "table": "procedure_occurrence" },
-        "idPairsIdA": { "column": "procedure_occurrence_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
         "idPairsTable": { "rawSqlFile": "cpt4_person.sql" },
