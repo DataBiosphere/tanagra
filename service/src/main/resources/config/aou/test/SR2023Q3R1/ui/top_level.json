@@ -112,6 +112,42 @@
             }
           }
         ]
+      },
+      {
+        "id": "t_fitbit_activity_summary_id",
+        "displayName": "Fitbit Activity Summary",
+        "entity": "t_activity_summary",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_steps_intraday_id",
+        "displayName": "Fitbit Steps Intraday",
+        "entity": "t_steps_intraday",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_heart_rate_summary_id",
+        "displayName": "Fitbit Heart Rate Summary",
+        "entity": "t_heart_rate_summary",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_heart_rate_level_id",
+        "displayName": "Fitbit Heart Rate Level",
+        "entity": "t_heart_rate_level",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_sleep_daily_summary_id",
+        "displayName": "Fitbit Sleep Daily Summary",
+        "entity": "t_sleep_daily_summary",
+        "key": "person_id"
+      },
+      {
+        "id": "t_fitbit_sleep_level_id",
+        "displayName": "Fitbit Sleep Level",
+        "entity": "t_sleep_level",
+        "key": "person_id"
       }
     ]
   },
@@ -271,6 +307,55 @@
       "title": "Age",
       "category": "Program data",
       "attribute": "age"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit",
+      "title": "Fitbit data",
+      "category": "Fitbit",
+      "attribute": "has_fitbit"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit-activity-summary",
+      "title": "Fitbit Activity Summary",
+      "category": "Fitbit",
+      "attribute": "has_fitbit_activity_summary"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit-steps-intraday",
+      "title": "Fitbit Steps Intraday",
+      "category": "Fitbit",
+      "attribute": "has_fitbit_steps_intraday"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit-heart-rate-level",
+      "title": "Fitbit Heart Rate Level",
+      "category": "Fitbit",
+      "attribute": "has_fitbit_heart_rate_level"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit-heart-rate-summary",
+      "title": "Fitbit Heart Rate Summary",
+      "category": "Fitbit",
+      "attribute": "has_fitbit_heart_rate_summary"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit-sleep-daily-summary",
+      "title": "Fitbit Sleep Daily Summary",
+      "category": "Fitbit",
+      "attribute": "has_fitbit_sleep_daily_summary"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-fitbit-sleep-level",
+      "title": "Fitbit Sleep Level",
+      "category": "Fitbit",
+      "attribute": "has_fitbit_sleep_level"
     }
   ],
   "modifierConfigs": [
@@ -343,15 +428,34 @@
       "occurrence": ""
     },
     {
-      "id": "_analgesics",
-      "name": "Analgesics",
-      "occurrence": "ingredient_occurrence",
-      "filter": {
-        "type": "CLASSIFICATION",
-        "occurrenceId": "ingredient_occurrence",
-        "classificationId": "ingredient",
-        "keys": [21604253]
-      }
+      "id": "_fitbit_actvity_summary_id",
+      "name": "Fitbit Activity Summary",
+      "occurrence": "t_fitbit_activity_summary_id"
+    },
+    {
+      "id": "_fitbit_steps_intraday_id",
+      "name": "Fitbit Steps Intraday",
+      "occurrence": "t_fitbit_steps_intraday_id"
+    },
+    {
+      "id": "_fitbit_heart_rate_summary_id",
+      "name": "Fitbit Heart Rate Summary",
+      "occurrence": "t_fitbit_heart_rate_summary_id"
+    },
+    {
+      "id": "_fitbit_heart_rate_level_id",
+      "name": "Fitbit Heart Rate Level",
+      "occurrence": "t_fitbit_heart_rate_level_id"
+    },
+    {
+      "id": "_fitbit_sleep_daily_summary_id",
+      "name": "Fitbit Sleep Daily Summary",
+      "occurrence": "t_fitbit_sleep_daily_summary_id"
+    },
+    {
+      "id": "_fitbit_sleep_level_id",
+      "name": "Fitbit Sleep Level",
+      "occurrence": "t_fitbit_sleep_level_id"
     }
   ],
   "criteriaSearchConfig": {

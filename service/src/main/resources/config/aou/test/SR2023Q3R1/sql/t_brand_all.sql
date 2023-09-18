@@ -1,5 +1,5 @@
 SELECT *
-FROM `all-of-us-ehr-dev.SR2022Q4R6.concept`
+FROM `all-of-us-ehr-dev.SR2023Q3R1.concept`
 WHERE
   domain_id = 'Drug' AND concept_class_id = 'Brand Name'
   AND vocabulary_id IN ('RxNorm', 'RxNorm Extension')

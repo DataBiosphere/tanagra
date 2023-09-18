@@ -6,10 +6,10 @@ SELECT
   CAST(FLOOR(TIMESTAMP_DIFF(de.drug_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   de.visit_occurrence_id, vo.visit_concept_id
 
-FROM `all-of-us-ehr-dev.SR2022Q4R6.drug_exposure` AS de
+FROM `all-of-us-ehr-dev.SR2023Q3R1.drug_exposure` AS de
 
-JOIN `all-of-us-ehr-dev.SR2022Q4R6.person` AS p
+JOIN `all-of-us-ehr-dev.SR2023Q3R1.person` AS p
 ON p.person_id = de.person_id
 
-LEFT JOIN `all-of-us-ehr-dev.SR2022Q4R6.visit_occurrence` AS vo
+LEFT JOIN `all-of-us-ehr-dev.SR2023Q3R1.visit_occurrence` AS vo
 ON vo.visit_occurrence_id = de.visit_occurrence_id

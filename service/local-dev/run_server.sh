@@ -52,9 +52,9 @@ elif [[ ${useAouUnderlays} ]]; then
   export TANAGRA_UNDERLAY_FILES=aou/test/SC2023Q3R1/SC2023Q3R1.json,aou/test/SR2023Q3R1/SR2023Q3R1.json
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
-  # specify access-control
-  export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://all-of-us-workbench-test.appspot.com
-  export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
+  # uncomment both lines below for test AoU Workbench access-control model
+  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://api-dot-all-of-us-workbench-test.appspot.com
+  # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
 else
   echo "Using Broad underlays."
   export TANAGRA_UNDERLAY_FILES=broad/aou_synthetic/aou_synthetic.json,broad/cms_synpuf/cms_synpuf.json
@@ -80,10 +80,10 @@ fi
 echo
 
 if [[ ${debugJvm} ]]; then
-  # ./gradlew service:bootRun --debug-jvm
+   ./gradlew service:bootRun --debug-jvm
     echo "Enabling server jvm debug"
     echo "Listening for transport dt_socket at address: 5005"
-  ./gradlew service:bootRun -Dagentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+  # ./gradlew service:bootRun -Dagentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 else
   ./gradlew service:bootRun
 fi

@@ -125,14 +125,8 @@ export function Datasets() {
     editable: boolean,
     conceptSets: { id: string; name: string }[]
   ) => {
-    // TODO(tjennison): Only show demographics until we have better prepackaged
-    // concept sets.
-    const cs = conceptSets;
-    if (!editable) {
-      cs.splice(1, Infinity);
-    }
-
-    return cs.map((conceptSet, i) => (
+    // Show all prepackaged concept sets configured in the top_level.json
+    return conceptSets.map((conceptSet, i) => (
       <GridLayout
         key={conceptSet.id}
         cols

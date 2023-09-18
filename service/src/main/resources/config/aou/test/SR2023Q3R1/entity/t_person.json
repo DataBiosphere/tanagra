@@ -8,11 +8,19 @@
     { "type": "KEY_AND_DISPLAY", "name": "gender", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "race", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "ethnicity", "dataType": "INT64" },
-    { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth", "dataType": "INT64" } ],
+    { "type": "KEY_AND_DISPLAY", "name": "sex_at_birth", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_activity_summary", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_heart_rate_level", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_heart_rate_summary", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_steps_intraday", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_sleep_daily_summary", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit_sleep_level", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_fitbit", "dataType": "INT64" }
+  ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "table": "person" },
+    "tablePointer": { "rawSqlFile": "t_person.sql" },
     "attributeMappings": {
       "id": { "value": { "column": "person_id" } },
       "age": { "value": { "column": "year_of_birth", "runtimeCalculated": true, "sqlFunctionWrapper": "EXTRACT(YEAR FROM CURRENT_DATE()) - ${fieldSql}" } },

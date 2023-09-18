@@ -1,0 +1,23 @@
+{
+  "name": "t_steps_intraday",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "date", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "sum_steps", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "t_steps_intraday.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "row_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+
+}

@@ -1,0 +1,19 @@
+{
+  "name": "t_steps_intraday_person",
+  "type": "GROUP_ITEMS",
+  "groupEntity": "t_person",
+  "itemsEntity": "t_steps_intraday",
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "groupToItems": {
+        "idPairsTable": { "rawSqlFile": "t_steps_intraday.sql" },
+        "idPairsIdA": { "column": "person_id" },
+        "idPairsIdB":  { "column": "row_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
