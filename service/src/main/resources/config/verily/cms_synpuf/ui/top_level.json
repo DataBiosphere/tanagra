@@ -115,7 +115,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "condition_occurrence",
-      "classification": "condition",
+      "classifications": ["condition"],
       "modifiers": [
         "age_at_occurrence",
         "start_date_group_by_count"
@@ -141,7 +141,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "procedure_occurrence",
-      "classification": "procedure",
+      "classifications": ["procedure"],
       "modifiers": ["age_at_occurrence", "date_group_by_count"]
     },
     {
@@ -159,7 +159,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "observation_occurrence",
-      "classification": "observation",
+      "classifications": ["observation"],
       "modifiers": ["age_at_occurrence", "date_group_by_count"]
     },
     {
@@ -182,7 +182,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "ingredient_occurrence",
-      "classification": "ingredient",
+      "classifications": ["ingredient"],
       "modifiers": [
         "age_at_occurrence",
         "start_date_group_by_count"

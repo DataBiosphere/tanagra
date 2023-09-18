@@ -1,10 +1,11 @@
+import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
 import {
   Filter,
   FilterType,
   makeArrayFilter,
   UnaryFilterOperator,
 } from "data/filter";
-import { MergedDataEntry, Source } from "data/source";
+import { MergedItem, Source } from "data/source";
 import { DataEntry } from "data/types";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
@@ -176,7 +177,11 @@ export function searchCriteria(
     .filter(isValid);
 
   return Promise.all(promises).then((responses) => ({
-    data: source.mergeDataEntryLists(responses, 100),
+    data: source.mergeLists(
+      responses,
+      100,
+      (value: DataEntry) => value[ROLLUP_COUNT_ATTRIBUTE]
+    ),
   }));
 }
 
@@ -222,7 +227,7 @@ type SearchFn = (
 ) => Promise<DataEntry[]>;
 
 export type SearchResponse = {
-  data: MergedDataEntry[];
+  data: MergedItem<DataEntry>[];
 };
 
 export function createCriteria(

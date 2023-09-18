@@ -194,9 +194,20 @@
         "key": "id",
         "classifications": [
           {
-            "id": "measurement",
+            "id": "loinc",
             "attribute": "measurement",
             "entity": "measurementLoinc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "t_item_count",
+              "direction": "DESC"
+            }
+          },
+          {
+            "id": "snomed",
+            "attribute": "measurement",
+            "entity": "measurementSnomed",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -222,7 +233,7 @@
         { "key": "id", "width": 100, "title": "Id" }
       ],
       "occurrence": "",
-      "classification": "genotyping"
+      "classifications": ["genotyping"]
     },
     {
       "type": "attribute",
@@ -259,7 +270,7 @@
       "category": "Demographics",
       "columns": [{ "key": "name", "width": "100%", "title": "SNP variant" }],
       "occurrence": "",
-      "classification": "snp"
+      "classifications": ["snp"]
     },
     {
       "type": "biovu",
@@ -287,7 +298,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "measurement_occurrence",
-      "classification": "measurement",
+      "classifications": ["loinc", "snomed"],
+      "classificationMergeSort": {
+        "attribute": "t_item_count",
+        "direction": "DESC"
+      },
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {
@@ -336,7 +351,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "condition_occurrence",
-      "classification": "condition",
+      "classifications": ["condition"],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -353,7 +368,6 @@
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "code", "width": 120, "title": "Code" },
-        { "key": "label", "width": 120, "title": "Label" },
         { "key": "id", "width": 100, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
@@ -363,7 +377,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "condition_occurrence",
-      "classification": "phewas",
+      "classifications": ["phewas"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -383,7 +401,6 @@
         { "key": "is_standard", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "code", "width": 120, "title": "Code" },
-        { "key": "label", "width": 120, "title": "Label" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
@@ -392,7 +409,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "procedure_occurrence",
-      "classification": "cpt4",
+      "classifications": ["cpt4"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -412,7 +433,6 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "label", "width": 120, "title": "Label" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
@@ -421,7 +441,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "condition_occurrence",
-      "classification": "icd9cm",
+      "classifications": ["icd9cm"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -441,7 +465,6 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "label", "width": 120, "title": "Label" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
@@ -450,7 +473,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "procedure_occurrence",
-      "classification": "icd9proc",
+      "classifications": ["icd9proc"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -470,7 +497,6 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "label", "width": 120, "title": "Label" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
@@ -479,7 +505,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "condition_occurrence",
-      "classification": "icd10cm",
+      "classifications": ["icd10cm"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -499,7 +529,6 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "label", "width": 120, "title": "Label" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
@@ -508,7 +537,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "procedure_occurrence",
-      "classification": "icd10pcs",
+      "classifications": ["icd10pcs"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -536,7 +569,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "procedure_occurrence",
-      "classification": "procedure",
+      "classifications": ["procedure"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
@@ -555,7 +588,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "observation_occurrence",
-      "classification": "observation",
+      "classifications": ["observation"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
@@ -579,7 +612,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "ingredient_occurrence",
-      "classification": "ingredient",
+      "classifications": ["ingredient"],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",

@@ -18,6 +18,7 @@ import {
   Occurrence,
   ROLLUP_COUNT_ATTRIBUTE,
   SortDirection,
+  SortOrder,
   VALUE_SUFFIX,
 } from "./configuration";
 import {
@@ -43,6 +44,7 @@ export type SearchClassificationOptions = {
   query?: string;
   parent?: DataKey;
   includeGroupings?: boolean;
+  sortOrder?: SortOrder;
 };
 
 export type SearchClassificationResult = {
@@ -76,9 +78,9 @@ export type FilterCountValue = {
   [x: string]: DataValue;
 };
 
-export type MergedDataEntry = {
+export type MergedItem<T> = {
   source: string;
-  data: DataEntry;
+  data: T;
 };
 
 export type PropertyMap = {
@@ -199,10 +201,11 @@ export interface Source {
     groupByAttributes?: string[]
   ): Promise<FilterCountValue[]>;
 
-  mergeDataEntryLists(
-    lists: [string, DataEntry[]][],
-    maxCount: number
-  ): MergedDataEntry[];
+  mergeLists<T, R>(
+    lists: [string, T[]][],
+    maxCount: number,
+    get: (value: T) => R
+  ): MergedItem<T>[];
 
   listCohortReviews(studyId: string, cohortId: string): Promise<CohortReview[]>;
 
@@ -375,7 +378,8 @@ export class BackendSource implements Source {
           classification,
           undefined,
           options?.query,
-          options?.parent
+          options?.parent,
+          options?.sortOrder
         )
       ),
     ];
@@ -606,28 +610,25 @@ export class BackendSource implements Source {
     });
   }
 
-  public mergeDataEntryLists(
-    lists: [string, DataEntry[]][],
-    maxCount: number
-  ): MergedDataEntry[] {
-    const merged: MergedDataEntry[] = [];
+  public mergeLists<T, R>(
+    lists: [string, T[]][],
+    maxCount: number,
+    get: (value: T) => R
+  ): MergedItem<T>[] {
+    const merged: MergedItem<T>[] = [];
     const sources = lists.map(
-      ([source, data]) => new MergeSource(source, data)
+      ([source, data]) => new MergeSource<T>(source, data)
     );
-    // TODO(tjennison): Pass this as a parameter and base it on the criteria
-    // config ordering.
-    const countKey = ROLLUP_COUNT_ATTRIBUTE;
-
     while (true) {
-      let maxSource: MergeSource | undefined;
+      let maxSource: MergeSource<T> | undefined;
 
       sources.forEach((source) => {
         if (!source.done()) {
           if (!maxSource) {
             maxSource = source;
           } else {
-            const value = source.peek()[countKey];
-            const maxValue = maxSource.peek()[countKey];
+            const value = get(source.peek());
+            const maxValue = get(maxSource.peek());
             if (
               (value && !maxValue) ||
               (value && maxValue && value > maxValue)
@@ -1100,8 +1101,8 @@ export class BackendSource implements Source {
   }
 }
 
-class MergeSource {
-  constructor(public source: string, private data: DataEntry[]) {
+class MergeSource<T> {
+  constructor(public source: string, private data: T[]) {
     this.source = source;
     this.data = data;
     this.current = 0;
@@ -1115,7 +1116,7 @@ class MergeSource {
     return this.data[this.current];
   }
 
-  pop(): DataEntry {
+  pop(): T {
     const data = this.peek();
     this.current++;
     return data;
@@ -1182,24 +1183,12 @@ function searchRequest(
   classification: Classification,
   grouping?: Grouping,
   query?: string,
-  parent?: DataValue
+  parent?: DataValue,
+  sortOrder?: SortOrder
 ) {
   const entity = grouping?.entity || classification.entity;
 
   const operands: tanagra.Filter[] = [];
-  if (classification.hierarchy && !grouping) {
-    operands.push({
-      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
-      filterUnion: {
-        hierarchyFilter: {
-          hierarchy: classification.hierarchy,
-          operator: tanagra.HierarchyFilterOperatorEnum.IsMember,
-          value: literalFromDataValue(true),
-        },
-      },
-    });
-  }
-
   if (classification.hierarchy && parent) {
     operands.push({
       filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
@@ -1230,6 +1219,19 @@ function searchRequest(
         hierarchyFilter: {
           hierarchy: classification.hierarchy,
           operator: tanagra.HierarchyFilterOperatorEnum.IsRoot,
+          value: literalFromDataValue(true),
+        },
+      },
+    });
+  }
+
+  if (classification.hierarchy && !grouping) {
+    operands.push({
+      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
+      filterUnion: {
+        hierarchyFilter: {
+          hierarchy: classification.hierarchy,
+          operator: tanagra.HierarchyFilterOperatorEnum.IsMember,
           value: literalFromDataValue(true),
         },
       },
@@ -1270,7 +1272,7 @@ function searchRequest(
           tanagra.BooleanLogicFilterOperatorEnum.And,
           operands
         ) ?? undefined,
-      orderBys: [makeOrderBy(underlay, classification, grouping)],
+      orderBys: [makeOrderBy(underlay, classification, grouping, sortOrder)],
     },
   };
   return req;
@@ -1580,16 +1582,21 @@ function makeBooleanLogicFilter(
 function makeOrderBy(
   underlay: Underlay,
   classification: Classification,
-  grouping?: Grouping
+  grouping?: Grouping,
+  sortData?: SortOrder
 ) {
   const orderBy: tanagra.QueryOrderBys = {
     direction: convertSortDirection(
-      grouping?.defaultSort?.direction ?? classification.defaultSort?.direction
+      sortData?.direction ??
+        grouping?.defaultSort?.direction ??
+        classification.defaultSort?.direction
     ),
   };
 
   const sortAttribute =
-    grouping?.defaultSort?.attribute ?? classification.defaultSort?.attribute;
+    sortData?.attribute ??
+    grouping?.defaultSort?.attribute ??
+    classification.defaultSort?.attribute;
   if (sortAttribute === ROLLUP_COUNT_ATTRIBUTE) {
     orderBy.relationshipField = {
       relatedEntity: underlay.primaryEntity,

@@ -115,7 +115,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "condition_occurrence",
-      "classification": "condition"
+      "classifications": ["condition"]
     },
     {
       "type": "classification",
@@ -137,7 +137,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "procedure_occurrence",
-      "classification": "procedure"
+      "classifications": ["procedure"]
     },
     {
       "type": "classification",
@@ -154,7 +154,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "observation_occurrence",
-      "classification": "observation"
+      "classifications": ["observation"]
     },
     {
       "type": "classification",
@@ -176,7 +176,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrence": "ingredient_occurrence",
-      "classification": "ingredient"
+      "classifications": ["ingredient"]
     },
     {
       "type": "attribute",
