@@ -22,7 +22,7 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { createConceptSet, useConceptSetContext } from "conceptSetContext";
-import { MergedDataEntry } from "data/source";
+import { MergedItem } from "data/source";
 import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
 import { useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
@@ -408,5 +408,5 @@ function AddCriteria(props: AddCriteriaProps) {
 }
 
 type CriteriaItem = TreeGridItem & {
-  entry: MergedDataEntry;
+  entry: MergedItem<DataEntry>;
 };

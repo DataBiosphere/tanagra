@@ -19,12 +19,9 @@ import {
   TreeGridItem,
   TreeGridRowData,
 } from "components/treegrid";
+import { ROLLUP_COUNT_ATTRIBUTE, SortOrder } from "data/configuration";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
-import {
-  ClassificationNode,
-  SearchClassificationResult,
-  Source,
-} from "data/source";
+import { ClassificationNode, MergedItem, Source } from "data/source";
 import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey, DataValue } from "data/types";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
@@ -39,12 +36,14 @@ import { searchParamsFromData, useSearchData } from "util/searchData";
 type Selection = {
   key: DataKey;
   name: string;
+  entity: string;
 };
 
 // A custom TreeGridItem allows us to store the ClassificationNode along with
 // the rest of the data.
 type ClassificationNodeItem = TreeGridItem & {
   node: ClassificationNode;
+  classification: string;
 };
 
 type ValueConfig = {
@@ -57,9 +56,11 @@ export interface Config extends CriteriaConfig {
   nameColumnIndex?: number;
   hierarchyColumns?: TreeGridColumn[];
   occurrence: string;
-  classification: string;
+  classifications: string[];
+  classificationMergeSort?: SortOrder;
   multiSelect?: boolean;
   valueConfigs?: ValueConfig[];
+  defaultSort?: SortOrder;
 }
 
 type ValueSelection = {
@@ -106,10 +107,19 @@ export interface Data {
     };
 
     if (dataEntry) {
+      // TODO(tjennison): Pass in the appropriate classification for dataEntry.
+      // This impacts prepackaged criteria for occurences with multiple
+      // classifications.
+      const classification = source.lookupClassification(
+        config.occurrence,
+        config.classifications[0]
+      );
+
       const column = config.columns[config.nameColumnIndex ?? 0];
       data.selected.push({
         key: dataEntry.key,
         name: String(dataEntry[column.key]) ?? "",
+        entity: classification.entity,
       });
     }
 
@@ -168,11 +178,13 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter() {
+    // TODO(tjennison): This assumes all classifications refer to the same
+    // occurrence.
     const filters: Filter[] = [
       {
         type: FilterType.Classification,
         occurrenceId: this.config.occurrence,
-        classificationId: this.config.classification,
+        classificationId: this.config.classifications[0],
         keys: this.data.selected.map(({ key }) => key),
       },
     ];
@@ -208,6 +220,8 @@ function keyForNode(node: ClassificationNode): DataKey {
 type SearchData = {
   // The query entered in the search box.
   query?: string;
+  // The classification to show the hierarchy for.
+  hierarchyClassification?: string;
   // The ancestor list of the item to view the hierarchy for.
   hierarchy?: DataKey[];
   // The item to highlight and scroll to in the hierarchy.
@@ -224,9 +238,8 @@ type ClassificationEditProps = {
 function ClassificationEdit(props: ClassificationEditProps) {
   const source = useSource();
   const occurrence = source.lookupOccurrence(props.config.occurrence);
-  const classification = source.lookupClassification(
-    props.config.occurrence,
-    props.config.classification
+  const classifications = props.config.classifications.map((c) =>
+    source.lookupClassification(props.config.occurrence, c)
   );
   const updateCriteria = useUpdateCriteria();
   const isNewCriteria = useIsNewCriteria();
@@ -243,7 +256,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   const processEntities = useCallback(
     (
-      res: SearchClassificationResult,
+      nodes: MergedItem<ClassificationNode>[],
       hierarchy?: DataKey[],
       parent?: DataKey,
       prevData?: TreeGridData
@@ -251,7 +264,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       const data = prevData ?? {};
 
       const children: DataKey[] = [];
-      res.nodes.forEach((node) => {
+      nodes.forEach(({ source: classification, data: node }) => {
         const rowData: TreeGridRowData = { ...node.data };
         if (node.ancestors) {
           rowData.view_hierarchy = node.ancestors;
@@ -273,6 +286,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           data: rowData,
           children: childChildren,
           node: node,
+          classification: classification,
         };
         data[key] = cItem;
       });
@@ -297,19 +311,44 @@ function ClassificationEdit(props: ClassificationEditProps) {
     [props.config.columns]
   );
 
-  const fetchClassification = useCallback(() => {
-    return source
-      .searchClassification(attributes, occurrence.id, classification.id, {
-        query: !searchData?.hierarchy ? searchData?.query ?? "" : undefined,
-        includeGroupings: !searchData?.hierarchy,
-      })
-      .then((res) => processEntities(res, searchData?.hierarchy));
+  const fetchClassification = useCallback(async () => {
+    const searchClassifications = classifications
+      .map((c) => c.id)
+      .filter(
+        (c) =>
+          !searchData?.hierarchyClassification ||
+          searchData?.hierarchyClassification === c
+      );
+
+    const raw: [string, ClassificationNode[]][] = await Promise.all(
+      searchClassifications.map(async (c) => [
+        c,
+        (
+          await source.searchClassification(attributes, occurrence.id, c, {
+            query: !searchData?.hierarchy ? searchData?.query ?? "" : undefined,
+            includeGroupings: !searchData?.hierarchy,
+            sortOrder: props.config.defaultSort,
+          })
+        ).nodes,
+      ])
+    );
+
+    const merged = source.mergeLists(
+      raw,
+      100,
+      (n) =>
+        n.data[
+          props.config.classificationMergeSort?.attribute ??
+            ROLLUP_COUNT_ATTRIBUTE
+        ]
+    );
+    return processEntities(merged, searchData?.hierarchy);
   }, [source, attributes, processEntities, searchData]);
   const classificationState = useSWRImmutable(
     {
       component: "Classification",
       occurrenceId: occurrence.id,
-      classificationId: classification.id,
+      classificationIds: classifications.map((c) => c.id),
       searchData,
       attributes,
     },
@@ -335,7 +374,12 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
       ...props.config.columns,
-      { key: "view_hierarchy", width: classification.hierarchy ? 180 : 60 },
+      {
+        key: "view_hierarchy",
+        width: classifications.reduce((r, c) => r || !!c.hierarchy, false)
+          ? 180
+          : 60,
+      },
     ],
     [props.config.columns]
   );
@@ -396,11 +440,16 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   return undefined;
                 }
 
+                const classification = source.lookupClassification(
+                  props.config.occurrence,
+                  item.classification
+                );
                 const column = props.config.columns[nameColumnIndex];
                 const name = rowData[column.key];
                 const newItem = {
                   key: item.node.data.key,
                   name: !!name ? String(name) : "",
+                  entity: classification.entity,
                 };
 
                 const hierarchyButton = (
@@ -409,6 +458,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     onClick={() => {
                       updateSearchData((data: SearchData) => {
                         if (rowData.view_hierarchy) {
+                          data.hierarchyClassification = classification?.id;
                           data.hierarchy = rowData.view_hierarchy as DataKey[];
                           data.highlightId = id;
                         }
@@ -466,6 +516,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   : [];
 
                 if (props.config.multiSelect) {
+                  // TODO(tjennison): Handle duplicate keys across entities.
                   const index = props.data.selected.findIndex(
                     (sel) => item.node.data.key === sel.key
                   );
@@ -506,6 +557,11 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   return Promise.resolve();
                 }
 
+                const classification = searchData?.hierarchyClassification;
+                if (!classification) {
+                  throw new Error("Classification unset for hierarchy.");
+                }
+
                 const item = data[id] as ClassificationNodeItem;
                 const key = item?.node ? keyForNode(item.node) : id;
                 if (item?.node.grouping) {
@@ -513,12 +569,20 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     .searchGrouping(
                       attributes,
                       occurrence.id,
-                      classification.id,
+                      classification,
                       item.node
                     )
                     .then((res) => {
                       updateData(
-                        processEntities(res, searchData?.hierarchy, key, data)
+                        processEntities(
+                          res.nodes.map((r) => ({
+                            source: classification,
+                            data: r,
+                          })),
+                          searchData?.hierarchy,
+                          key,
+                          data
+                        )
                       );
                     });
                 } else {
@@ -526,14 +590,22 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     .searchClassification(
                       attributes,
                       occurrence.id,
-                      classification.id,
+                      classification,
                       {
                         parent: key,
                       }
                     )
                     .then((res) => {
                       updateData(
-                        processEntities(res, searchData?.hierarchy, key, data)
+                        processEntities(
+                          res.nodes.map((r) => ({
+                            source: classification,
+                            data: r,
+                          })),
+                          searchData?.hierarchy,
+                          key,
+                          data
+                        )
                       );
                     });
                 }
@@ -557,7 +629,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
   const source = useSource();
   const classification = source.lookupClassification(
     props.config.occurrence,
-    props.config.classification
+    props.config.classifications[0]
   );
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
 
@@ -565,7 +637,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
     {
       type: "hintData",
       occurrence: props.config.occurrence,
-      entity: classification.entity,
+      entity: props.data.selected[0].entity ?? classification.entity,
       key: props.data.selected[0].key,
     },
     async (key) => {
@@ -708,9 +780,10 @@ function search(
     .searchClassification(
       config.columns.map(({ key }) => key),
       config.occurrence,
-      config.classification,
+      config.classifications[0],
       {
         query,
+        sortOrder: config.defaultSort,
       }
     )
     .then((res) => res.nodes.map((node) => node.data));
