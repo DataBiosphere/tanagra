@@ -3,9 +3,8 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "datetime_utc", "dataType": "TIMESTAMP" },
-    { "type": "SIMPLE", "name": "datetime_str", "dataType": "STRING" },
-    { "type": "SIMPLE", "name": "steps", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "date", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "sum_steps", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" }
   ],
 
