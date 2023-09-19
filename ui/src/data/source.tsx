@@ -325,8 +325,7 @@ export interface Source {
 
 export class BackendSource implements Source {
   constructor(
-    private instancesApi: tanagra.InstancesApi,
-    private hintsApi: tanagra.HintsApi,
+    private underlaysApi: tanagra.UnderlaysApi,
     private studiesApi: tanagra.StudiesApi,
     private cohortsApi: tanagra.CohortsApi,
     private conceptSetsApi: tanagra.ConceptSetsApi,
@@ -368,7 +367,7 @@ export class BackendSource implements Source {
     );
 
     const promises = [
-      this.instancesApi.listInstances(
+      this.underlaysApi.listInstances(
         searchRequest(
           requestedAttributes,
           this.underlay,
@@ -384,7 +383,7 @@ export class BackendSource implements Source {
     if (options?.includeGroupings) {
       promises.push(
         ...(classification.groupings?.map((grouping) =>
-          this.instancesApi.listInstances(
+          this.underlaysApi.listInstances(
             searchRequest(
               requestedAttributes,
               this.underlay,
@@ -435,7 +434,7 @@ export class BackendSource implements Source {
     const grouping = findByID(root.grouping, classification.groupings);
 
     return parseAPIError(
-      this.instancesApi
+      this.underlaysApi
         .listInstances({
           entityName: classification.entity,
           underlayName: this.underlay.name,
@@ -510,7 +509,7 @@ export class BackendSource implements Source {
     const ra = normalizeRequestedAttributes(requestedAttributes, entity.key);
 
     const res = await parseAPIError(
-      this.instancesApi.listInstances({
+      this.underlaysApi.listInstances({
         entityName: entity.entity,
         underlayName: this.underlay.name,
         query: this.makeQuery(ra, occurrenceID, cohort, conceptSet, limit),
@@ -533,7 +532,7 @@ export class BackendSource implements Source {
     relatedID?: DataKey
   ): Promise<HintData | undefined> {
     const res = await parseAPIError(
-      this.hintsApi.queryHints({
+      this.underlaysApi.queryHints({
         entityName: findEntity(occurrenceID, this.config).entity,
         underlayName: this.underlay.name,
         hintQuery:
@@ -561,7 +560,7 @@ export class BackendSource implements Source {
     relatedID?: DataKey
   ): Promise<HintData[]> {
     const res = await parseAPIError(
-      this.hintsApi.queryHints({
+      this.underlaysApi.queryHints({
         entityName: findEntity(occurrenceID, this.config).entity,
         underlayName: this.underlay.name,
         hintQuery:
@@ -584,7 +583,7 @@ export class BackendSource implements Source {
     groupByAttributes?: string[]
   ): Promise<FilterCountValue[]> {
     const data = await parseAPIError(
-      this.instancesApi.countInstances({
+      this.underlaysApi.countInstances({
         underlayName: this.underlay.name,
         entityName: this.config.primaryEntity.entity,
         countQuery: {

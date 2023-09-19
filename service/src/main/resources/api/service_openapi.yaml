@@ -93,7 +93,7 @@ paths:
     get:
       summary: List the entities in an underlay
       operationId: listEntities
-      tags: [Entities]
+      tags: [Underlays]
       responses:
         200:
           description: OK
@@ -113,7 +113,7 @@ paths:
     get:
       summary: Get an entity
       operationId: getEntity
-      tags: [Entities]
+      tags: [Underlays]
       responses:
         200:
           description: OK
@@ -133,7 +133,7 @@ paths:
     post:
       summary: List entity instances
       operationId: listInstances
-      tags: [Instances]
+      tags: [Underlays]
       requestBody:
         required: true
         content:
@@ -159,7 +159,7 @@ paths:
     post:
       summary: Count entity instances
       operationId: countInstances
-      tags: [Instances]
+      tags: [Underlays]
       requestBody:
         required: true
         content:
@@ -185,7 +185,7 @@ paths:
     post:
       summary: Query entity display hints
       operationId: queryHints
-      tags: [Hints]
+      tags: [Underlays]
       requestBody:
         required: true
         content:
