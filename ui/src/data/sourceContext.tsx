@@ -43,19 +43,19 @@ export function SourceContextRoot() {
   const entitiesApi = useContext(EntitiesApiContext);
   const instancesApi = useContext(
     EntityInstancesApiContext
-  ) as tanagra.InstancesV2Api;
-  const hintsApi = useContext(HintsApiContext) as tanagra.HintsV2Api;
-  const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesV2Api;
-  const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsV2Api;
+  ) as tanagra.InstancesApi;
+  const hintsApi = useContext(HintsApiContext) as tanagra.HintsApi;
+  const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesApi;
+  const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsApi;
   const conceptSetsApi = useContext(
     ConceptSetsApiContext
-  ) as tanagra.ConceptSetsV2Api;
-  const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsV2Api;
+  ) as tanagra.ConceptSetsApi;
+  const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsApi;
   const annotationsApi = useContext(
     AnnotationsApiContext
-  ) as tanagra.AnnotationsV2Api;
+  ) as tanagra.AnnotationsApi;
   const exportApi = useContext(ExportApiContext) as tanagra.ExportApi;
-  const usersApi = useContext(UsersApiContext) as tanagra.UsersV2Api;
+  const usersApi = useContext(UsersApiContext) as tanagra.UsersApi;
 
   const sourceState = useSWRImmutable(
     { type: "underlay", underlayName },

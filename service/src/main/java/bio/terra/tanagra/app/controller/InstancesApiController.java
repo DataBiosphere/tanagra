@@ -10,7 +10,7 @@ import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.controller.InstancesV2Api;
+import bio.terra.tanagra.generated.controller.InstancesApi;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -30,20 +30,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class InstancesV2ApiController implements InstancesV2Api {
+public class InstancesApiController implements InstancesApi {
   private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
-  public InstancesV2ApiController(
+  public InstancesApiController(
       UnderlayService underlayService, AccessControlService accessControlService) {
     this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
   @Override
-  public ResponseEntity<ApiInstanceListResultV2> listInstances(
-      String underlayName, String entityName, ApiQueryV2 body) {
+  public ResponseEntity<ApiInstanceListResult> listInstances(
+      String underlayName, String entityName, ApiQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
@@ -52,7 +52,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
         FromApiUtils.fromApiObject(body, underlayService.getEntity(underlayName, entityName));
     EntityQueryResult entityQueryResult = UnderlayService.listEntityInstances(entityQueryRequest);
     return ResponseEntity.ok(
-        new ApiInstanceListResultV2()
+        new ApiInstanceListResult()
             .instances(
                 entityQueryResult.getEntityInstances().stream()
                     .map(entityInstance -> toApiObject(entityInstance))
@@ -64,26 +64,26 @@ public class InstancesV2ApiController implements InstancesV2Api {
                     : entityQueryResult.getPageMarker().serialize()));
   }
 
-  private ApiInstanceV2 toApiObject(EntityInstance entityInstance) {
-    ApiInstanceV2 instance = new ApiInstanceV2();
-    Map<String, ApiValueDisplayV2> attributes = new HashMap<>();
+  private ApiInstance toApiObject(EntityInstance entityInstance) {
+    ApiInstance instance = new ApiInstance();
+    Map<String, ApiValueDisplay> attributes = new HashMap<>();
     for (Map.Entry<Attribute, ValueDisplay> attributeValue :
         entityInstance.getAttributeValues().entrySet()) {
       attributes.put(
           attributeValue.getKey().getName(), ToApiUtils.toApiObject(attributeValue.getValue()));
     }
 
-    Map<String, ApiInstanceV2HierarchyFields> hierarchyFieldSets = new HashMap<>();
+    Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets = new HashMap<>();
     for (Map.Entry<HierarchyField, ValueDisplay> hierarchyFieldValue :
         entityInstance.getHierarchyFieldValues().entrySet()) {
       HierarchyField hierarchyField = hierarchyFieldValue.getKey();
       ValueDisplay valueDisplay = hierarchyFieldValue.getValue();
 
-      ApiInstanceV2HierarchyFields hierarchyFieldSet =
+      ApiInstanceHierarchyFields hierarchyFieldSet =
           hierarchyFieldSets.get(hierarchyField.getHierarchy().getName());
       if (hierarchyFieldSet == null) {
         hierarchyFieldSet =
-            new ApiInstanceV2HierarchyFields().hierarchy(hierarchyField.getHierarchy().getName());
+            new ApiInstanceHierarchyFields().hierarchy(hierarchyField.getHierarchy().getName());
         hierarchyFieldSets.put(hierarchyField.getHierarchy().getName(), hierarchyFieldSet);
       }
       switch (hierarchyField.getType()) {
@@ -106,17 +106,17 @@ public class InstancesV2ApiController implements InstancesV2Api {
       }
     }
 
-    Map<String, ApiInstanceV2RelationshipFields> relationshipFieldSets = new HashMap<>();
+    Map<String, ApiInstanceRelationshipFields> relationshipFieldSets = new HashMap<>();
     for (Map.Entry<RelationshipField, ValueDisplay> relationshipFieldValue :
         entityInstance.getRelationshipFieldValues().entrySet()) {
       RelationshipField relationshipField = relationshipFieldValue.getKey();
       ValueDisplay valueDisplay = relationshipFieldValue.getValue();
 
-      ApiInstanceV2RelationshipFields relationshipFieldSet =
+      ApiInstanceRelationshipFields relationshipFieldSet =
           relationshipFieldSets.get(relationshipField.getName());
       if (relationshipFieldSet == null) {
         relationshipFieldSet =
-            new ApiInstanceV2RelationshipFields()
+            new ApiInstanceRelationshipFields()
                 .relatedEntity(
                     relationshipField
                         .getRelationship()
@@ -150,8 +150,8 @@ public class InstancesV2ApiController implements InstancesV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiInstanceCountListV2> countInstances(
-      String underlayName, String entityName, ApiCountQueryV2 body) {
+  public ResponseEntity<ApiInstanceCountList> countInstances(
+      String underlayName, String entityName, ApiCountQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_COUNTS),
@@ -180,7 +180,7 @@ public class InstancesV2ApiController implements InstancesV2Api {
                 .filter(entityFilter)
                 .build());
     return ResponseEntity.ok(
-        new ApiInstanceCountListV2()
+        new ApiInstanceCountList()
             .instanceCounts(
                 entityCountResult.getEntityCounts().stream()
                     .map(ToApiUtils::toApiObject)

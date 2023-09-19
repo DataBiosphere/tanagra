@@ -325,15 +325,15 @@ export interface Source {
 
 export class BackendSource implements Source {
   constructor(
-    private instancesApi: tanagra.InstancesV2Api,
-    private hintsApi: tanagra.HintsV2Api,
-    private studiesApi: tanagra.StudiesV2Api,
-    private cohortsApi: tanagra.CohortsV2Api,
-    private conceptSetsApi: tanagra.ConceptSetsV2Api,
-    private reviewsApi: tanagra.ReviewsV2Api,
-    private annotationsApi: tanagra.AnnotationsV2Api,
+    private instancesApi: tanagra.InstancesApi,
+    private hintsApi: tanagra.HintsApi,
+    private studiesApi: tanagra.StudiesApi,
+    private cohortsApi: tanagra.CohortsApi,
+    private conceptSetsApi: tanagra.ConceptSetsApi,
+    private reviewsApi: tanagra.ReviewsApi,
+    private annotationsApi: tanagra.AnnotationsApi,
     private exportApi: tanagra.ExportApi,
-    private usersApi: tanagra.UsersV2Api,
+    private usersApi: tanagra.UsersApi,
     public underlay: Underlay,
     public config: Configuration
   ) {}
@@ -439,7 +439,7 @@ export class BackendSource implements Source {
         .listInstances({
           entityName: classification.entity,
           underlayName: this.underlay.name,
-          queryV2: {
+          query: {
             includeAttributes: normalizeRequestedAttributes(
               requestedAttributes,
               classification.entityAttribute
@@ -448,22 +448,22 @@ export class BackendSource implements Source {
               ? {
                   hierarchies: [classification.hierarchy],
                   fields: [
-                    tanagra.QueryV2IncludeHierarchyFieldsFieldsEnum.Path,
-                    tanagra.QueryV2IncludeHierarchyFieldsFieldsEnum.NumChildren,
+                    tanagra.QueryIncludeHierarchyFieldsFieldsEnum.Path,
+                    tanagra.QueryIncludeHierarchyFieldsFieldsEnum.NumChildren,
                   ],
                 }
               : undefined,
             filter: {
-              filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+              filterType: tanagra.FilterFilterTypeEnum.Relationship,
               filterUnion: {
                 relationshipFilter: {
                   entity: grouping.entity,
                   subfilter: {
-                    filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+                    filterType: tanagra.FilterFilterTypeEnum.Attribute,
                     filterUnion: {
                       attributeFilter: {
                         attribute: classification.entityAttribute,
-                        operator: tanagra.BinaryOperatorV2.Equals,
+                        operator: tanagra.BinaryOperator.Equals,
                         value: literalFromDataValue(root.data.key),
                       },
                     },
@@ -513,7 +513,7 @@ export class BackendSource implements Source {
       this.instancesApi.listInstances({
         entityName: entity.entity,
         underlayName: this.underlay.name,
-        queryV2: this.makeQuery(ra, occurrenceID, cohort, conceptSet, limit),
+        query: this.makeQuery(ra, occurrenceID, cohort, conceptSet, limit),
       })
     );
 
@@ -536,7 +536,7 @@ export class BackendSource implements Source {
       this.hintsApi.queryHints({
         entityName: findEntity(occurrenceID, this.config).entity,
         underlayName: this.underlay.name,
-        hintQueryV2:
+        hintQuery:
           !!relatedEntity && !!relatedID
             ? {
                 relatedEntity: {
@@ -564,7 +564,7 @@ export class BackendSource implements Source {
       this.hintsApi.queryHints({
         entityName: findEntity(occurrenceID, this.config).entity,
         underlayName: this.underlay.name,
-        hintQueryV2:
+        hintQuery:
           !!relatedEntity && !!relatedID
             ? {
                 relatedEntity: {
@@ -587,7 +587,7 @@ export class BackendSource implements Source {
       this.instancesApi.countInstances({
         underlayName: this.underlay.name,
         entityName: this.config.primaryEntity.entity,
-        countQueryV2: {
+        countQuery: {
           attributes: groupByAttributes,
           filter: generateFilter(this, filter) ?? undefined,
         },
@@ -669,7 +669,7 @@ export class BackendSource implements Source {
         .createReview({
           studyId,
           cohortId: cohort.id,
-          reviewCreateInfoV2: {
+          reviewCreateInfo: {
             displayName,
             size,
             filter: generateFilter(this, generateCohortFilter(cohort)) ?? {},
@@ -701,7 +701,7 @@ export class BackendSource implements Source {
           studyId,
           cohortId,
           reviewId,
-          reviewUpdateInfoV2: {
+          reviewUpdateInfo: {
             displayName,
           },
         })
@@ -733,7 +733,7 @@ export class BackendSource implements Source {
           studyId,
           cohortId,
           reviewId,
-          reviewQueryV2: {
+          reviewQuery: {
             includeAttributes,
           },
         })
@@ -772,7 +772,7 @@ export class BackendSource implements Source {
     return parseAPIError(
       this.studiesApi
         .createStudy({
-          studyCreateInfoV2: {
+          studyCreateInfo: {
             displayName,
           },
         })
@@ -816,7 +816,7 @@ export class BackendSource implements Source {
       this.cohortsApi
         .createCohort({
           studyId,
-          cohortCreateInfoV2: { underlayName, displayName },
+          cohortCreateInfo: { underlayName, displayName },
         })
         .then((c) => fromAPICohort(c))
     );
@@ -827,7 +827,7 @@ export class BackendSource implements Source {
       this.cohortsApi.updateCohort({
         studyId,
         cohortId: cohort.id,
-        cohortUpdateInfoV2: {
+        cohortUpdateInfo: {
           displayName: cohort.name,
           criteriaGroupSections: toAPICriteriaGroupSections(
             cohort.groupSections
@@ -874,7 +874,7 @@ export class BackendSource implements Source {
       this.conceptSetsApi
         .createConceptSet({
           studyId,
-          conceptSetCreateInfoV2: {
+          conceptSetCreateInfo: {
             underlayName,
             criteria: toAPICriteria(criteria),
             entity: findEntity(
@@ -895,7 +895,7 @@ export class BackendSource implements Source {
       this.conceptSetsApi.updateConceptSet({
         studyId,
         conceptSetId: conceptSet.id,
-        conceptSetUpdateInfoV2: {
+        conceptSetUpdateInfo: {
           criteria: toAPICriteria(conceptSet.criteria),
         },
       })
@@ -933,7 +933,7 @@ export class BackendSource implements Source {
       this.annotationsApi.createAnnotationKey({
         studyId,
         cohortId,
-        annotationCreateInfoV2: {
+        annotationCreateInfo: {
           displayName,
           dataType: toAPIAnnotationType(annotationType),
           enumVals,
@@ -971,7 +971,7 @@ export class BackendSource implements Source {
         reviewId,
         annotationId,
         instanceId: String(entityKey),
-        literalV2: literalFromDataValue(value),
+        literal: literalFromDataValue(value),
       })
     );
   }
@@ -1062,7 +1062,7 @@ export class BackendSource implements Source {
     cohort: Filter,
     conceptSet: Filter | null,
     limit?: number
-  ): tanagra.QueryV2 {
+  ): tanagra.Query {
     let cohortFilter = generateFilter(this, cohort);
     if (!cohortFilter) {
       throw new Error("Cohort filter is empty.");
@@ -1071,7 +1071,7 @@ export class BackendSource implements Source {
     if (occurrenceID) {
       const primaryEntity = this.config.primaryEntity.entity;
       cohortFilter = {
-        filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+        filterType: tanagra.FilterFilterTypeEnum.Relationship,
         filterUnion: {
           relationshipFilter: {
             entity: primaryEntity,
@@ -1085,7 +1085,7 @@ export class BackendSource implements Source {
     const conceptSetFilter = generateFilter(this, conceptSet);
     if (conceptSetFilter) {
       const combined = makeBooleanLogicFilter(
-        tanagra.BooleanLogicFilterV2OperatorEnum.And,
+        tanagra.BooleanLogicFilterOperatorEnum.And,
         [cohortFilter, conceptSetFilter]
       );
       if (combined) {
@@ -1129,14 +1129,14 @@ function isInternalAttribute(attribute: string): boolean {
   return attribute.startsWith("t_");
 }
 
-function literalFromDataValue(value: DataValue): tanagra.LiteralV2 {
-  let dataType = tanagra.DataTypeV2.Int64;
+function literalFromDataValue(value: DataValue): tanagra.Literal {
+  let dataType = tanagra.DataType.Int64;
   if (typeof value === "string") {
-    dataType = tanagra.DataTypeV2.String;
+    dataType = tanagra.DataType.String;
   } else if (typeof value === "boolean") {
-    dataType = tanagra.DataTypeV2.Boolean;
+    dataType = tanagra.DataType.Boolean;
   } else if (value instanceof Date) {
-    dataType = tanagra.DataTypeV2.Date;
+    dataType = tanagra.DataType.Date;
   }
 
   return {
@@ -1150,24 +1150,24 @@ function literalFromDataValue(value: DataValue): tanagra.LiteralV2 {
   };
 }
 
-function dataValueFromLiteral(value?: tanagra.LiteralV2 | null): DataValue {
+function dataValueFromLiteral(value?: tanagra.Literal | null): DataValue {
   if (!value) {
     return null;
   }
   switch (value.dataType) {
-    case tanagra.DataTypeV2.Int64:
+    case tanagra.DataType.Int64:
       return value.valueUnion?.int64Val ?? null;
-    case tanagra.DataTypeV2.String:
+    case tanagra.DataType.String:
       return value.valueUnion?.stringVal ?? null;
-    case tanagra.DataTypeV2.Date:
+    case tanagra.DataType.Date:
       return value.valueUnion?.dateVal
         ? new Date(value.valueUnion.dateVal)
         : null;
-    case tanagra.DataTypeV2.Boolean:
+    case tanagra.DataType.Boolean:
       return value.valueUnion?.boolVal ?? null;
-    case tanagra.DataTypeV2.Double:
+    case tanagra.DataType.Double:
       return value.valueUnion?.doubleVal ?? null;
-    case tanagra.DataTypeV2.Timestamp:
+    case tanagra.DataType.Timestamp:
       return value.valueUnion?.timestampVal
         ? new Date(value.valueUnion.timestampVal)
         : null;
@@ -1187,14 +1187,14 @@ function searchRequest(
 ) {
   const entity = grouping?.entity || classification.entity;
 
-  const operands: tanagra.FilterV2[] = [];
+  const operands: tanagra.Filter[] = [];
   if (classification.hierarchy && !grouping) {
     operands.push({
-      filterType: tanagra.FilterV2FilterTypeEnum.Hierarchy,
+      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
       filterUnion: {
         hierarchyFilter: {
           hierarchy: classification.hierarchy,
-          operator: tanagra.HierarchyFilterV2OperatorEnum.IsMember,
+          operator: tanagra.HierarchyFilterOperatorEnum.IsMember,
           value: literalFromDataValue(true),
         },
       },
@@ -1203,11 +1203,11 @@ function searchRequest(
 
   if (classification.hierarchy && parent) {
     operands.push({
-      filterType: tanagra.FilterV2FilterTypeEnum.Hierarchy,
+      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
       filterUnion: {
         hierarchyFilter: {
           hierarchy: classification.hierarchy,
-          operator: tanagra.HierarchyFilterV2OperatorEnum.ChildOf,
+          operator: tanagra.HierarchyFilterOperatorEnum.ChildOf,
           value: literalFromDataValue(parent),
         },
       },
@@ -1215,10 +1215,10 @@ function searchRequest(
   } else if (isValid(query)) {
     if (query !== "") {
       operands.push({
-        filterType: tanagra.FilterV2FilterTypeEnum.Text,
+        filterType: tanagra.FilterFilterTypeEnum.Text,
         filterUnion: {
           textFilter: {
-            matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
+            matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
             text: query,
           },
         },
@@ -1226,11 +1226,11 @@ function searchRequest(
     }
   } else if (classification.hierarchy && !grouping) {
     operands.push({
-      filterType: tanagra.FilterV2FilterTypeEnum.Hierarchy,
+      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
       filterUnion: {
         hierarchyFilter: {
           hierarchy: classification.hierarchy,
-          operator: tanagra.HierarchyFilterV2OperatorEnum.IsRoot,
+          operator: tanagra.HierarchyFilterOperatorEnum.IsRoot,
           value: literalFromDataValue(true),
         },
       },
@@ -1240,7 +1240,7 @@ function searchRequest(
   const req = {
     entityName: entity,
     underlayName: underlay.name,
-    queryV2: {
+    query: {
       includeAttributes: normalizeRequestedAttributes(
         grouping?.attributes ?? requestedAttributes,
         !grouping?.attributes ? classification.entityAttribute : undefined
@@ -1250,8 +1250,8 @@ function searchRequest(
           ? {
               hierarchies: [classification.hierarchy],
               fields: [
-                tanagra.QueryV2IncludeHierarchyFieldsFieldsEnum.Path,
-                tanagra.QueryV2IncludeHierarchyFieldsFieldsEnum.NumChildren,
+                tanagra.QueryIncludeHierarchyFieldsFieldsEnum.Path,
+                tanagra.QueryIncludeHierarchyFieldsFieldsEnum.NumChildren,
               ],
             }
           : undefined,
@@ -1268,7 +1268,7 @@ function searchRequest(
           : undefined,
       filter:
         makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterV2OperatorEnum.And,
+          tanagra.BooleanLogicFilterOperatorEnum.And,
           operands
         ) ?? undefined,
       orderBys: [makeOrderBy(underlay, classification, grouping)],
@@ -1279,13 +1279,13 @@ function searchRequest(
 
 function convertSortDirection(dir: SortDirection) {
   return dir === SortDirection.Desc
-    ? tanagra.OrderByDirectionV2.Descending
-    : tanagra.OrderByDirectionV2.Ascending;
+    ? tanagra.OrderByDirection.Descending
+    : tanagra.OrderByDirection.Ascending;
 }
 
 function processEntitiesResponse(
   primaryKey: string,
-  response: tanagra.InstanceListResultV2,
+  response: tanagra.InstanceListResult,
   hierarchy?: string,
   grouping?: string
 ): ClassificationNode[] {
@@ -1329,7 +1329,7 @@ function processEntitiesResponse(
 
 function makeDataEntry(
   primaryKey: string,
-  attributes?: { [key: string]: tanagra.ValueDisplayV2 }
+  attributes?: { [key: string]: tanagra.ValueDisplay }
 ): DataEntry {
   const data: DataEntry = {
     key: 0,
@@ -1352,7 +1352,7 @@ function makeDataEntry(
 export function generateFilter(
   source: Source,
   filter: Filter | null
-): tanagra.FilterV2 | null {
+): tanagra.Filter | null {
   if (!filter) {
     return null;
   }
@@ -1374,10 +1374,10 @@ export function generateFilter(
     }
 
     return {
-      filterType: tanagra.FilterV2FilterTypeEnum.BooleanLogic,
+      filterType: tanagra.FilterFilterTypeEnum.BooleanLogic,
       filterUnion: {
         booleanLogicFilter: {
-          operator: tanagra.BooleanLogicFilterV2OperatorEnum.Not,
+          operator: tanagra.BooleanLogicFilterOperatorEnum.Not,
           subfilters: [operand],
         },
       },
@@ -1392,7 +1392,7 @@ export function generateFilter(
     }
 
     return {
-      filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+      filterType: tanagra.FilterFilterTypeEnum.Relationship,
       filterUnion: {
         relationshipFilter: {
           entity: entity.entity,
@@ -1414,15 +1414,15 @@ export function generateFilter(
       entity.classifications
     );
 
-    const classificationFilter = (key: DataKey): tanagra.FilterV2 => {
+    const classificationFilter = (key: DataKey): tanagra.Filter => {
       if (classification.hierarchy) {
         return {
-          filterType: tanagra.FilterV2FilterTypeEnum.Hierarchy,
+          filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
           filterUnion: {
             hierarchyFilter: {
               hierarchy: classification.hierarchy,
               operator:
-                tanagra.HierarchyFilterV2OperatorEnum.DescendantOfInclusive,
+                tanagra.HierarchyFilterOperatorEnum.DescendantOfInclusive,
               value: literalFromDataValue(key),
             },
           },
@@ -1430,11 +1430,11 @@ export function generateFilter(
       }
 
       return {
-        filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+        filterType: tanagra.FilterFilterTypeEnum.Attribute,
         filterUnion: {
           attributeFilter: {
             attribute: classification.entityAttribute,
-            operator: tanagra.BinaryOperatorV2.Equals,
+            operator: tanagra.BinaryOperator.Equals,
             value: literalFromDataValue(key),
           },
         },
@@ -1443,17 +1443,17 @@ export function generateFilter(
 
     const operands = filter.keys.map(classificationFilter);
 
-    let subfilter: tanagra.FilterV2 | undefined;
+    let subfilter: tanagra.Filter | undefined;
     if (operands.length > 0) {
       subfilter =
         makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterV2OperatorEnum.Or,
+          tanagra.BooleanLogicFilterOperatorEnum.Or,
           operands
         ) ?? undefined;
     }
 
     return {
-      filterType: tanagra.FilterV2FilterTypeEnum.Relationship,
+      filterType: tanagra.FilterFilterTypeEnum.Relationship,
       filterUnion: {
         relationshipFilter: {
           entity: classification.entity,
@@ -1465,25 +1465,25 @@ export function generateFilter(
   if (isAttributeFilter(filter)) {
     if (filter.ranges?.length) {
       return makeBooleanLogicFilter(
-        tanagra.BooleanLogicFilterV2OperatorEnum.Or,
+        tanagra.BooleanLogicFilterOperatorEnum.Or,
         filter.ranges.map(({ min, max }) =>
-          makeBooleanLogicFilter(tanagra.BooleanLogicFilterV2OperatorEnum.And, [
+          makeBooleanLogicFilter(tanagra.BooleanLogicFilterOperatorEnum.And, [
             {
-              filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+              filterType: tanagra.FilterFilterTypeEnum.Attribute,
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  operator: tanagra.BinaryOperatorV2.LessThanOrEqual,
+                  operator: tanagra.BinaryOperator.LessThanOrEqual,
                   value: literalFromDataValue(max),
                 },
               },
             },
             {
-              filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+              filterType: tanagra.FilterFilterTypeEnum.Attribute,
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  operator: tanagra.BinaryOperatorV2.GreaterThanOrEqual,
+                  operator: tanagra.BinaryOperator.GreaterThanOrEqual,
                   value: literalFromDataValue(min),
                 },
               },
@@ -1494,13 +1494,13 @@ export function generateFilter(
     }
     if (filter.values?.length) {
       return makeBooleanLogicFilter(
-        tanagra.BooleanLogicFilterV2OperatorEnum.Or,
+        tanagra.BooleanLogicFilterOperatorEnum.Or,
         filter.values.map((value) => ({
-          filterType: tanagra.FilterV2FilterTypeEnum.Attribute,
+          filterType: tanagra.FilterFilterTypeEnum.Attribute,
           filterUnion: {
             attributeFilter: {
               attribute: filter.attribute,
-              operator: tanagra.BinaryOperatorV2.Equals,
+              operator: tanagra.BinaryOperator.Equals,
               value: literalFromDataValue(value),
             },
           },
@@ -1517,10 +1517,10 @@ export function generateFilter(
     }
 
     return {
-      filterType: tanagra.FilterV2FilterTypeEnum.Text,
+      filterType: tanagra.FilterFilterTypeEnum.Text,
       filterUnion: {
         textFilter: {
-          matchType: tanagra.TextFilterV2MatchTypeEnum.ExactMatch,
+          matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
           text: filter.text,
           attribute: filter.attribute,
         },
@@ -1533,12 +1533,12 @@ export function generateFilter(
 
 function arrayFilterOperator(
   filter: ArrayFilter
-): tanagra.BooleanLogicFilterV2OperatorEnum {
+): tanagra.BooleanLogicFilterOperatorEnum {
   if (!isValid(filter.operator.min) && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterV2OperatorEnum.And;
+    return tanagra.BooleanLogicFilterOperatorEnum.And;
   }
   if (filter.operator.min === 1 && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterV2OperatorEnum.Or;
+    return tanagra.BooleanLogicFilterOperatorEnum.Or;
   }
 
   throw new Error("Only AND and OR equivalent operators are supported.");
@@ -1546,7 +1546,7 @@ function arrayFilterOperator(
 
 function processAttributes(
   obj: { [x: string]: DataValue },
-  attributes?: { [x: string]: tanagra.ValueDisplayV2 }
+  attributes?: { [x: string]: tanagra.ValueDisplay }
 ) {
   for (const k in attributes) {
     const v = attributes[k];
@@ -1557,8 +1557,8 @@ function processAttributes(
 }
 
 function makeBooleanLogicFilter(
-  operator: tanagra.BooleanLogicFilterV2OperatorEnum,
-  operands: (tanagra.FilterV2 | null)[]
+  operator: tanagra.BooleanLogicFilterOperatorEnum,
+  operands: (tanagra.Filter | null)[]
 ) {
   const subfilters = operands.filter(isValid);
   if (!subfilters || subfilters.length === 0) {
@@ -1568,7 +1568,7 @@ function makeBooleanLogicFilter(
     return subfilters[0];
   }
   return {
-    filterType: tanagra.FilterV2FilterTypeEnum.BooleanLogic,
+    filterType: tanagra.FilterFilterTypeEnum.BooleanLogic,
     filterUnion: {
       booleanLogicFilter: {
         operator,
@@ -1583,7 +1583,7 @@ function makeOrderBy(
   classification: Classification,
   grouping?: Grouping
 ) {
-  const orderBy: tanagra.QueryV2OrderBys = {
+  const orderBy: tanagra.QueryOrderBys = {
     direction: convertSortDirection(
       grouping?.defaultSort?.direction ?? classification.defaultSort?.direction
     ),
@@ -1628,7 +1628,7 @@ function normalizeRequestedAttributes(
   return [...new Set(a)];
 }
 
-function fromAPICohort(cohort: tanagra.CohortV2): tanagraUI.UICohort {
+function fromAPICohort(cohort: tanagra.Cohort): tanagraUI.UICohort {
   return {
     id: cohort.id,
     name: cohort.displayName,
@@ -1663,7 +1663,7 @@ function fromAPICriteriaGroupSections(
   }));
 }
 
-function fromAPICriteria(criteria: tanagra.CriteriaV2): tanagraUI.UICriteria {
+function fromAPICriteria(criteria: tanagra.Criteria): tanagraUI.UICriteria {
   return {
     id: criteria.id,
     type: criteria.pluginName,
@@ -1673,7 +1673,7 @@ function fromAPICriteria(criteria: tanagra.CriteriaV2): tanagraUI.UICriteria {
 }
 
 function fromAPIConceptSet(
-  conceptSet: tanagra.ConceptSetV2
+  conceptSet: tanagra.ConceptSet
 ): tanagraUI.UIConceptSet {
   return {
     id: conceptSet.id,
@@ -1702,7 +1702,7 @@ function toAPICriteriaGroupSections(
   }));
 }
 
-function toAPICriteria(criteria: tanagraUI.UICriteria): tanagra.CriteriaV2 {
+function toAPICriteria(criteria: tanagraUI.UICriteria): tanagra.Criteria {
   return {
     id: criteria.id,
     displayName: "",
@@ -1713,7 +1713,7 @@ function toAPICriteria(criteria: tanagraUI.UICriteria): tanagra.CriteriaV2 {
   };
 }
 
-function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
+function fromAPICohortReview(review: tanagra.Review): CohortReview {
   if (!review.cohort) {
     throw new Error(`Undefined cohort for review "${review.displayName}".`);
   }
@@ -1727,7 +1727,7 @@ function fromAPICohortReview(review: tanagra.ReviewV2): CohortReview {
 function fromAPIReviewInstance(
   reviewId: string,
   primaryKey: string,
-  instance: tanagra.ReviewInstanceV2
+  instance: tanagra.ReviewInstance
 ): ReviewInstance {
   const data = makeDataEntry(primaryKey, instance.attributes);
 
@@ -1745,7 +1745,7 @@ function fromAPIReviewInstance(
 }
 
 function fromAPIAnnotationValue(
-  value: tanagra.AnnotationValueV2
+  value: tanagra.AnnotationValue
 ): AnnotationValue {
   return {
     value: dataValueFromLiteral(value.value),
@@ -1763,18 +1763,16 @@ function fromAPIAnnotationType(dataType: string): AnnotationType {
   throw new Error(`Unknown annotation data type ${dataType}.`);
 }
 
-function toAPIAnnotationType(
-  annotationType: AnnotationType
-): tanagra.DataTypeV2 {
+function toAPIAnnotationType(annotationType: AnnotationType): tanagra.DataType {
   switch (annotationType) {
     case AnnotationType.String:
-      return tanagra.DataTypeV2.String;
+      return tanagra.DataType.String;
   }
 
   throw new Error(`Unhandled annotation type ${annotationType}.`);
 }
 
-function fromAPIAnnotation(annotation: tanagra.AnnotationV2): Annotation {
+function fromAPIAnnotation(annotation: tanagra.Annotation): Annotation {
   return {
     id: annotation.id,
     displayName: annotation.displayName,
@@ -1783,7 +1781,7 @@ function fromAPIAnnotation(annotation: tanagra.AnnotationV2): Annotation {
   };
 }
 
-function fromAPIDisplayHint(hint?: tanagra.DisplayHintV2): HintData {
+function fromAPIDisplayHint(hint?: tanagra.DisplayHint): HintData {
   return {
     attribute: hint?.attribute?.name ?? "",
     integerHint: hint?.displayHint?.numericRangeHint
@@ -1811,14 +1809,14 @@ function fromAPIDisplayHint(hint?: tanagra.DisplayHintV2): HintData {
 
 function toAPIBinaryOperator(
   operator: tanagraUI.UIComparisonOperator
-): tanagra.BinaryOperatorV2 {
+): tanagra.BinaryOperator {
   switch (operator) {
     case tanagraUI.UIComparisonOperator.Equal:
-      return tanagra.BinaryOperatorV2.Equals;
+      return tanagra.BinaryOperator.Equals;
     case tanagraUI.UIComparisonOperator.GreaterThanEqual:
-      return tanagra.BinaryOperatorV2.GreaterThanOrEqual;
+      return tanagra.BinaryOperator.GreaterThanOrEqual;
     case tanagraUI.UIComparisonOperator.LessThanEqual:
-      return tanagra.BinaryOperatorV2.LessThanOrEqual;
+      return tanagra.BinaryOperator.LessThanOrEqual;
   }
 
   throw new Error(`Unhandled comparison operator: ${operator}`);
@@ -1839,7 +1837,7 @@ function parseAPIError<T>(p: Promise<T>) {
   });
 }
 
-function processStudy(study: tanagra.StudyV2): Study {
+function processStudy(study: tanagra.Study): Study {
   const properties: PropertyMap = {};
   study.properties?.forEach(({ key, value }) => (properties[key] = value));
 

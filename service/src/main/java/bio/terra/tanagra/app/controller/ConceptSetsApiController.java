@@ -6,7 +6,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
-import bio.terra.tanagra.generated.controller.ConceptSetsV2Api;
+import bio.terra.tanagra.generated.controller.ConceptSetsApi;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -22,20 +22,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
+public class ConceptSetsApiController implements ConceptSetsApi {
   private final ConceptSetService conceptSetService;
   private final AccessControlService accessControlService;
 
   @Autowired
-  public ConceptSetsV2ApiController(
+  public ConceptSetsApiController(
       ConceptSetService conceptSetService, AccessControlService accessControlService) {
     this.conceptSetService = conceptSetService;
     this.accessControlService = accessControlService;
   }
 
   @Override
-  public ResponseEntity<ApiConceptSetV2> createConceptSet(
-      String studyId, ApiConceptSetCreateInfoV2 body) {
+  public ResponseEntity<ApiConceptSet> createConceptSet(
+      String studyId, ApiConceptSetCreateInfo body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(STUDY, CREATE_CONCEPT_SET),
@@ -52,7 +52,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
                 .entity(body.getEntity())
                 .criteria(List.of(singleCriteria)),
             SpringAuthentication.getCurrentUser().getEmail());
-    return ResponseEntity.ok(ConceptSetsV2ApiController.toApiObject(createdConceptSet));
+    return ResponseEntity.ok(ConceptSetsApiController.toApiObject(createdConceptSet));
   }
 
   @Override
@@ -66,7 +66,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiConceptSetV2> getConceptSet(String studyId, String conceptSetId) {
+  public ResponseEntity<ApiConceptSet> getConceptSet(String studyId, String conceptSetId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(CONCEPT_SET, READ),
@@ -75,7 +75,7 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiConceptSetListV2> listConceptSets(
+  public ResponseEntity<ApiConceptSetList> listConceptSets(
       String studyId, Integer offset, Integer limit) {
     ResourceCollection authorizedConceptSetIds =
         accessControlService.listAuthorizedResources(
@@ -84,15 +84,15 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
             ResourceId.forStudy(studyId),
             offset,
             limit);
-    ApiConceptSetListV2 apiConceptSets = new ApiConceptSetListV2();
+    ApiConceptSetList apiConceptSets = new ApiConceptSetList();
     conceptSetService.listConceptSets(authorizedConceptSetIds, offset, limit).stream()
         .forEach(conceptSet -> apiConceptSets.add(toApiObject(conceptSet)));
     return ResponseEntity.ok(apiConceptSets);
   }
 
   @Override
-  public ResponseEntity<ApiConceptSetV2> updateConceptSet(
-      String studyId, String conceptSetId, ApiConceptSetUpdateInfoV2 body) {
+  public ResponseEntity<ApiConceptSet> updateConceptSet(
+      String studyId, String conceptSetId, ApiConceptSetUpdateInfo body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(CONCEPT_SET, UPDATE),
@@ -111,8 +111,8 @@ public class ConceptSetsV2ApiController implements ConceptSetsV2Api {
     return ResponseEntity.ok(toApiObject(updatedConceptSet));
   }
 
-  private static ApiConceptSetV2 toApiObject(ConceptSet conceptSet) {
-    return new ApiConceptSetV2()
+  private static ApiConceptSet toApiObject(ConceptSet conceptSet) {
+    return new ApiConceptSet()
         .id(conceptSet.getId())
         .underlayName(conceptSet.getUnderlay())
         .entity(conceptSet.getEntity())

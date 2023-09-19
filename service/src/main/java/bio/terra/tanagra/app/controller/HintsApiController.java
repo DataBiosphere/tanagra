@@ -9,14 +9,14 @@ import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.controller.HintsV2Api;
-import bio.terra.tanagra.generated.model.ApiDisplayHintEnumV2;
-import bio.terra.tanagra.generated.model.ApiDisplayHintEnumV2EnumHintValues;
-import bio.terra.tanagra.generated.model.ApiDisplayHintListV2;
-import bio.terra.tanagra.generated.model.ApiDisplayHintNumericRangeV2;
-import bio.terra.tanagra.generated.model.ApiDisplayHintV2;
-import bio.terra.tanagra.generated.model.ApiDisplayHintV2DisplayHint;
-import bio.terra.tanagra.generated.model.ApiHintQueryV2;
+import bio.terra.tanagra.generated.controller.HintsApi;
+import bio.terra.tanagra.generated.model.ApiDisplayHint;
+import bio.terra.tanagra.generated.model.ApiDisplayHintDisplayHint;
+import bio.terra.tanagra.generated.model.ApiDisplayHintEnum;
+import bio.terra.tanagra.generated.model.ApiDisplayHintEnumEnumHintValues;
+import bio.terra.tanagra.generated.model.ApiDisplayHintList;
+import bio.terra.tanagra.generated.model.ApiDisplayHintNumericRange;
+import bio.terra.tanagra.generated.model.ApiHintQuery;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -33,20 +33,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class HintsV2ApiController implements HintsV2Api {
+public class HintsApiController implements HintsApi {
   private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
-  public HintsV2ApiController(
+  public HintsApiController(
       UnderlayService underlayService, AccessControlService accessControlService) {
     this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
   @Override
-  public ResponseEntity<ApiDisplayHintListV2> queryHints(
-      String underlayName, String entityName, ApiHintQueryV2 body) {
+  public ResponseEntity<ApiDisplayHintList> queryHints(
+      String underlayName, String entityName, ApiHintQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_COUNTS),
@@ -73,8 +73,8 @@ public class HintsV2ApiController implements HintsV2Api {
     return ResponseEntity.ok(toApiObject(entityHintResult));
   }
 
-  private ApiDisplayHintListV2 toApiObject(EntityHintResult entityHintResult) {
-    return new ApiDisplayHintListV2()
+  private ApiDisplayHintList toApiObject(EntityHintResult entityHintResult) {
+    return new ApiDisplayHintList()
         .sql(SqlFormatter.format(entityHintResult.getSql()))
         .displayHints(
             entityHintResult.getHintMap().entrySet().stream()
@@ -82,33 +82,33 @@ public class HintsV2ApiController implements HintsV2Api {
                     attrHint -> {
                       Attribute attr = attrHint.getKey();
                       DisplayHint hint = attrHint.getValue();
-                      return new ApiDisplayHintV2()
+                      return new ApiDisplayHint()
                           .attribute(ToApiUtils.toApiObject(attr))
                           .displayHint(hint == null ? null : toApiObject(hint));
                     })
                 .collect(Collectors.toList()));
   }
 
-  private ApiDisplayHintV2DisplayHint toApiObject(DisplayHint displayHint) {
+  private ApiDisplayHintDisplayHint toApiObject(DisplayHint displayHint) {
     switch (displayHint.getType()) {
       case ENUM:
         EnumVals enumVals = (EnumVals) displayHint;
-        return new ApiDisplayHintV2DisplayHint()
+        return new ApiDisplayHintDisplayHint()
             .enumHint(
-                new ApiDisplayHintEnumV2()
+                new ApiDisplayHintEnum()
                     .enumHintValues(
                         enumVals.getEnumValsList().stream()
                             .map(
                                 ev ->
-                                    new ApiDisplayHintEnumV2EnumHintValues()
+                                    new ApiDisplayHintEnumEnumHintValues()
                                         .enumVal(ToApiUtils.toApiObject(ev.getValueDisplay()))
                                         .count(Math.toIntExact(ev.getCount())))
                             .collect(Collectors.toList())));
       case RANGE:
         NumericRange numericRange = (NumericRange) displayHint;
-        return new ApiDisplayHintV2DisplayHint()
+        return new ApiDisplayHintDisplayHint()
             .numericRangeHint(
-                new ApiDisplayHintNumericRangeV2()
+                new ApiDisplayHintNumericRange()
                     .min(numericRange.getMinVal())
                     .max(numericRange.getMaxVal()));
       default:

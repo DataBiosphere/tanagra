@@ -14,7 +14,7 @@ export type Underlay = {
   name: string;
   displayName: string;
   primaryEntity: string;
-  entities: tanagra.EntityV2[];
+  entities: tanagra.Entity[];
   uiConfiguration: UIConfiguration;
 };
 

@@ -15,48 +15,46 @@ import java.util.stream.Collectors;
 public final class ToApiUtils {
   private ToApiUtils() {}
 
-  public static ApiAttributeV2 toApiObject(Attribute attribute) {
-    return new ApiAttributeV2()
+  public static ApiAttribute toApiObject(Attribute attribute) {
+    return new ApiAttribute()
         .name(attribute.getName())
-        .type(ApiAttributeV2.TypeEnum.fromValue(attribute.getType().name()))
-        .dataType(ApiDataTypeV2.fromValue(attribute.getDataType().name()));
+        .type(ApiAttribute.TypeEnum.fromValue(attribute.getType().name()))
+        .dataType(ApiDataType.fromValue(attribute.getDataType().name()));
   }
 
-  public static ApiValueDisplayV2 toApiObject(ValueDisplay valueDisplay) {
-    ApiValueDisplayV2 apiObject = new ApiValueDisplayV2();
+  public static ApiValueDisplay toApiObject(ValueDisplay valueDisplay) {
+    ApiValueDisplay apiObject = new ApiValueDisplay();
     if (valueDisplay != null) {
       apiObject.value(toApiObject(valueDisplay.getValue())).display(valueDisplay.getDisplay());
     }
     return apiObject;
   }
 
-  public static ApiLiteralV2 toApiObject(Literal literal) {
-    ApiLiteralV2 apiLiteral =
-        new ApiLiteralV2().dataType(ApiDataTypeV2.fromValue(literal.getDataType().name()));
+  public static ApiLiteral toApiObject(Literal literal) {
+    ApiLiteral apiLiteral =
+        new ApiLiteral().dataType(ApiDataType.fromValue(literal.getDataType().name()));
     switch (literal.getDataType()) {
       case INT64:
-        return apiLiteral.valueUnion(new ApiLiteralV2ValueUnion().int64Val(literal.getInt64Val()));
+        return apiLiteral.valueUnion(new ApiLiteralValueUnion().int64Val(literal.getInt64Val()));
       case STRING:
-        return apiLiteral.valueUnion(
-            new ApiLiteralV2ValueUnion().stringVal(literal.getStringVal()));
+        return apiLiteral.valueUnion(new ApiLiteralValueUnion().stringVal(literal.getStringVal()));
       case BOOLEAN:
-        return apiLiteral.valueUnion(new ApiLiteralV2ValueUnion().boolVal(literal.getBooleanVal()));
+        return apiLiteral.valueUnion(new ApiLiteralValueUnion().boolVal(literal.getBooleanVal()));
       case DATE:
         return apiLiteral.valueUnion(
-            new ApiLiteralV2ValueUnion().dateVal(literal.getDateValAsString()));
+            new ApiLiteralValueUnion().dateVal(literal.getDateValAsString()));
       case TIMESTAMP:
         return apiLiteral.valueUnion(
-            new ApiLiteralV2ValueUnion().timestampVal(literal.getTimestampValAsString()));
+            new ApiLiteralValueUnion().timestampVal(literal.getTimestampValAsString()));
       case DOUBLE:
-        return apiLiteral.valueUnion(
-            new ApiLiteralV2ValueUnion().doubleVal(literal.getDoubleVal()));
+        return apiLiteral.valueUnion(new ApiLiteralValueUnion().doubleVal(literal.getDoubleVal()));
       default:
         throw new SystemException("Unknown literal data type: " + literal.getDataType());
     }
   }
 
-  public static ApiCohortV2 toApiObject(Cohort cohort) {
-    return new ApiCohortV2()
+  public static ApiCohort toApiObject(Cohort cohort) {
+    return new ApiCohort()
         .id(cohort.getId())
         .underlayName(cohort.getUnderlay())
         .displayName(cohort.getDisplayName())
@@ -93,7 +91,7 @@ public final class ToApiUtils {
         .groupByCountOperator(
             criteriaGroup.getGroupByCountOperator() == null
                 ? null
-                : ApiBinaryOperatorV2.valueOf(criteriaGroup.getGroupByCountOperator().name()))
+                : ApiBinaryOperator.valueOf(criteriaGroup.getGroupByCountOperator().name()))
         .groupByCountValue(criteriaGroup.getGroupByCountValue())
         .criteria(
             criteriaGroup.getCriteria().stream()
@@ -101,8 +99,8 @@ public final class ToApiUtils {
                 .collect(Collectors.toList()));
   }
 
-  public static ApiCriteriaV2 toApiObject(Criteria criteria) {
-    return new ApiCriteriaV2()
+  public static ApiCriteria toApiObject(Criteria criteria) {
+    return new ApiCriteria()
         .id(criteria.getId())
         .displayName(criteria.getDisplayName())
         .pluginName(criteria.getPluginName())
@@ -111,9 +109,9 @@ public final class ToApiUtils {
         .tags(criteria.getTags());
   }
 
-  public static ApiInstanceCountV2 toApiObject(EntityInstanceCount entityInstanceCount) {
-    ApiInstanceCountV2 instanceCount = new ApiInstanceCountV2();
-    Map<String, ApiValueDisplayV2> attributes = new HashMap<>();
+  public static ApiInstanceCount toApiObject(EntityInstanceCount entityInstanceCount) {
+    ApiInstanceCount instanceCount = new ApiInstanceCount();
+    Map<String, ApiValueDisplay> attributes = new HashMap<>();
     for (Map.Entry<Attribute, ValueDisplay> attributeValue :
         entityInstanceCount.getAttributeValues().entrySet()) {
       attributes.put(attributeValue.getKey().getName(), toApiObject(attributeValue.getValue()));
@@ -124,21 +122,21 @@ public final class ToApiUtils {
         .attributes(attributes);
   }
 
-  public static ApiAnnotationValueV2 toApiObject(AnnotationValue annotationValue) {
-    return new ApiAnnotationValueV2()
+  public static ApiAnnotationValue toApiObject(AnnotationValue annotationValue) {
+    return new ApiAnnotationValue()
         .instanceId(annotationValue.getInstanceId())
         .value(toApiObject(annotationValue.getLiteral()))
         .isMostRecent(annotationValue.isMostRecent())
         .isPartOfSelectedReview(annotationValue.isPartOfSelectedReview());
   }
 
-  public static ApiStudyV2 toApiObject(Study study) {
-    ApiPropertiesV2 apiProperties = new ApiPropertiesV2();
+  public static ApiStudy toApiObject(Study study) {
+    ApiProperties apiProperties = new ApiProperties();
     study
         .getProperties()
         .forEach(
-            (key, value) -> apiProperties.add(new ApiPropertyKeyValueV2().key(key).value(value)));
-    return new ApiStudyV2()
+            (key, value) -> apiProperties.add(new ApiPropertyKeyValue().key(key).value(value)));
+    return new ApiStudy()
         .id(study.getId())
         .displayName(study.getDisplayName())
         .description(study.getDescription())
@@ -149,8 +147,8 @@ public final class ToApiUtils {
         .isDeleted(study.isDeleted());
   }
 
-  public static ApiUnderlayV2 toApiObject(Underlay underlay) {
-    return new ApiUnderlayV2()
+  public static ApiUnderlay toApiObject(Underlay underlay) {
+    return new ApiUnderlay()
         .name(underlay.getName())
         // TODO: Add display name to underlay config files.
         .displayName(underlay.getName())

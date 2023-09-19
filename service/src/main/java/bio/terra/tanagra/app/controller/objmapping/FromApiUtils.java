@@ -21,22 +21,22 @@ import java.util.stream.Collectors;
 public final class FromApiUtils {
   private FromApiUtils() {}
 
-  public static EntityFilter fromApiObject(ApiFilterV2 apiFilter, Underlay underlay) {
+  public static EntityFilter fromApiObject(ApiFilter apiFilter, Underlay underlay) {
     return fromApiObject(apiFilter, underlay.getPrimaryEntity(), underlay.getName());
   }
 
   public static EntityFilter fromApiObject(
-      ApiFilterV2 apiFilter, Entity entity, String underlayName) {
+      ApiFilter apiFilter, Entity entity, String underlayName) {
     validateApiFilter(apiFilter);
     switch (apiFilter.getFilterType()) {
       case ATTRIBUTE:
-        ApiAttributeFilterV2 apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
+        ApiAttributeFilter apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
         return new AttributeFilter(
             getAttribute(entity, apiAttributeFilter.getAttribute()),
             FromApiUtils.fromApiObject(apiAttributeFilter.getOperator()),
             FromApiUtils.fromApiObject(apiAttributeFilter.getValue()));
       case TEXT:
-        ApiTextFilterV2 apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
+        ApiTextFilter apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
         TextFilter.Builder textFilterBuilder =
             new TextFilter.Builder()
                 .textSearch(entity.getTextSearch())
@@ -47,7 +47,7 @@ public final class FromApiUtils {
         }
         return textFilterBuilder.build();
       case HIERARCHY:
-        ApiHierarchyFilterV2 apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
+        ApiHierarchyFilter apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
         Hierarchy hierarchy = getHierarchy(entity, apiHierarchyFilter.getHierarchy());
         switch (apiHierarchyFilter.getOperator()) {
           case IS_ROOT:
@@ -65,7 +65,7 @@ public final class FromApiUtils {
                 "Unknown API hierarchy filter operator: " + apiHierarchyFilter.getOperator());
         }
       case RELATIONSHIP:
-        ApiRelationshipFilterV2 apiRelationshipFilter =
+        ApiRelationshipFilter apiRelationshipFilter =
             apiFilter.getFilterUnion().getRelationshipFilter();
         Collection<EntityGroup> entityGroups = entity.getUnderlay().getEntityGroups().values();
         Entity relatedEntity = entity.getUnderlay().getEntity(apiRelationshipFilter.getEntity());
@@ -94,7 +94,7 @@ public final class FromApiUtils {
             groupByCountOperator,
             groupByCountValue);
       case BOOLEAN_LOGIC:
-        ApiBooleanLogicFilterV2 apiBooleanLogicFilter =
+        ApiBooleanLogicFilter apiBooleanLogicFilter =
             apiFilter.getFilterUnion().getBooleanLogicFilter();
         List<EntityFilter> subFilters =
             apiBooleanLogicFilter.getSubfilters().stream()
@@ -126,20 +126,20 @@ public final class FromApiUtils {
     }
   }
 
-  public static void validateApiFilter(ApiFilterV2 filter) {
-    if (filter != null && filter.getFilterType() == ApiFilterV2.FilterTypeEnum.RELATIONSHIP) {
-      ApiRelationshipFilterV2 relationshipFilter = filter.getFilterUnion().getRelationshipFilter();
+  public static void validateApiFilter(ApiFilter filter) {
+    if (filter != null && filter.getFilterType() == ApiFilter.FilterTypeEnum.RELATIONSHIP) {
+      ApiRelationshipFilter relationshipFilter = filter.getFilterUnion().getRelationshipFilter();
       if (!((relationshipFilter.getGroupByCountOperator() == null
               && relationshipFilter.getGroupByCountValue() == null)
           || (relationshipFilter.getGroupByCountOperator() != null
               && relationshipFilter.getGroupByCountValue() != null))) {
         throw new InvalidConfigException(
-            "If one RelationshipFilterV2 group_by field is set, all group_by fields must be set");
+            "If one RelationshipFilter group_by field is set, all group_by fields must be set");
       }
     }
   }
 
-  public static EntityQueryRequest fromApiObject(ApiQueryV2 apiObj, Entity entity) {
+  public static EntityQueryRequest fromApiObject(ApiQuery apiObj, Entity entity) {
     List<Attribute> selectAttributes = selectAttributesFromRequest(apiObj, entity);
     List<HierarchyField> selectHierarchyFields = selectHierarchyFieldsFromRequest(apiObj, entity);
     List<RelationshipField> selectRelationshipFields =
@@ -163,7 +163,7 @@ public final class FromApiUtils {
         .build();
   }
 
-  public static Literal fromApiObject(ApiLiteralV2 apiLiteral) {
+  public static Literal fromApiObject(ApiLiteral apiLiteral) {
     switch (apiLiteral.getDataType()) {
       case INT64:
         return new Literal(apiLiteral.getValueUnion().getInt64Val());
@@ -178,12 +178,12 @@ public final class FromApiUtils {
     }
   }
 
-  public static BinaryFilterVariable.BinaryOperator fromApiObject(ApiBinaryOperatorV2 apiOperator) {
+  public static BinaryFilterVariable.BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {
     return BinaryFilterVariable.BinaryOperator.valueOf(apiOperator.name());
   }
 
   public static FunctionFilterVariable.FunctionTemplate fromApiObject(
-      ApiTextFilterV2.MatchTypeEnum apiMatchType) {
+      ApiTextFilter.MatchTypeEnum apiMatchType) {
     switch (apiMatchType) {
       case EXACT_MATCH:
         return FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH;
@@ -194,7 +194,7 @@ public final class FromApiUtils {
     }
   }
 
-  public static Criteria fromApiObject(ApiCriteriaV2 apiObj) {
+  public static Criteria fromApiObject(ApiCriteria apiObj) {
     return Criteria.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
@@ -205,7 +205,7 @@ public final class FromApiUtils {
         .build();
   }
 
-  public static List<Attribute> selectAttributesFromRequest(ApiQueryV2 body, Entity entity) {
+  public static List<Attribute> selectAttributesFromRequest(ApiQuery body, Entity entity) {
     List<Attribute> selectAttributes = new ArrayList<>();
     if (body.getIncludeAttributes() != null) {
       selectAttributes =
@@ -217,7 +217,7 @@ public final class FromApiUtils {
   }
 
   public static List<HierarchyField> selectHierarchyFieldsFromRequest(
-      ApiQueryV2 body, Entity entity) {
+      ApiQuery body, Entity entity) {
     List<HierarchyField> selectHierarchyFields = new ArrayList<>();
     if (body.getIncludeHierarchyFields() != null) {
       // for each hierarchy, return all the fields specified
@@ -237,7 +237,7 @@ public final class FromApiUtils {
   }
 
   public static List<RelationshipField> selectRelationshipFieldsFromRequest(
-      ApiQueryV2 body, Entity entity) {
+      ApiQuery body, Entity entity) {
     List<RelationshipField> selectRelationshipFields = new ArrayList<>();
     if (body.getIncludeRelationshipFields() != null) {
       // for each related entity, return all the fields specified
@@ -268,7 +268,7 @@ public final class FromApiUtils {
     return selectRelationshipFields;
   }
 
-  public static List<EntityQueryOrderBy> entityOrderBysFromRequest(ApiQueryV2 body, Entity entity) {
+  public static List<EntityQueryOrderBy> entityOrderBysFromRequest(ApiQuery body, Entity entity) {
     List<EntityQueryOrderBy> entityOrderBys = new ArrayList<>();
     if (body.getOrderBys() != null) {
       body.getOrderBys().stream()

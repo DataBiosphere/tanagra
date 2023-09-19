@@ -5,9 +5,9 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
-import bio.terra.tanagra.generated.controller.UnderlaysV2Api;
-import bio.terra.tanagra.generated.model.ApiUnderlayListV2;
-import bio.terra.tanagra.generated.model.ApiUnderlayV2;
+import bio.terra.tanagra.generated.controller.UnderlaysApi;
+import bio.terra.tanagra.generated.model.ApiUnderlay;
+import bio.terra.tanagra.generated.model.ApiUnderlayList;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -20,31 +20,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class UnderlaysV2ApiController implements UnderlaysV2Api {
+public class UnderlaysApiController implements UnderlaysApi {
   private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
-  public UnderlaysV2ApiController(
+  public UnderlaysApiController(
       UnderlayService underlayService, AccessControlService accessControlService) {
     this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
   @Override
-  public ResponseEntity<ApiUnderlayListV2> listUnderlays() {
+  public ResponseEntity<ApiUnderlayList> listUnderlays() {
     ResourceCollection authorizedUnderlayNames =
         accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ));
     List<Underlay> authorizedUnderlays = underlayService.listUnderlays(authorizedUnderlayNames);
-    ApiUnderlayListV2 apiUnderlays = new ApiUnderlayListV2();
+    ApiUnderlayList apiUnderlays = new ApiUnderlayList();
     authorizedUnderlays.stream()
         .forEach(underlay -> apiUnderlays.addUnderlaysItem(ToApiUtils.toApiObject(underlay)));
     return ResponseEntity.ok(apiUnderlays);
   }
 
   @Override
-  public ResponseEntity<ApiUnderlayV2> getUnderlay(String underlayName) {
+  public ResponseEntity<ApiUnderlay> getUnderlay(String underlayName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),

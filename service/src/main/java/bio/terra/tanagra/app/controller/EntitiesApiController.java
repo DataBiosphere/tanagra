@@ -5,9 +5,9 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
-import bio.terra.tanagra.generated.controller.EntitiesV2Api;
-import bio.terra.tanagra.generated.model.ApiEntityListV2;
-import bio.terra.tanagra.generated.model.ApiEntityV2;
+import bio.terra.tanagra.generated.controller.EntitiesApi;
+import bio.terra.tanagra.generated.model.ApiEntity;
+import bio.terra.tanagra.generated.model.ApiEntityList;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -20,31 +20,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class EntitiesV2ApiController implements EntitiesV2Api {
+public class EntitiesApiController implements EntitiesApi {
   private final UnderlayService underlayService;
   private final AccessControlService accessControlService;
 
   @Autowired
-  public EntitiesV2ApiController(
+  public EntitiesApiController(
       UnderlayService underlayService, AccessControlService accessControlService) {
     this.underlayService = underlayService;
     this.accessControlService = accessControlService;
   }
 
   @Override
-  public ResponseEntity<ApiEntityListV2> listEntities(String underlayName) {
+  public ResponseEntity<ApiEntityList> listEntities(String underlayName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    ApiEntityListV2 apiEntities = new ApiEntityListV2();
+    ApiEntityList apiEntities = new ApiEntityList();
     List<Entity> entities = underlayService.listEntities(underlayName);
     entities.stream().forEach(entity -> apiEntities.addEntitiesItem(toApiObject(entity)));
     return ResponseEntity.ok(apiEntities);
   }
 
   @Override
-  public ResponseEntity<ApiEntityV2> getEntity(String underlayName, String entityName) {
+  public ResponseEntity<ApiEntity> getEntity(String underlayName, String entityName) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
@@ -53,8 +53,8 @@ public class EntitiesV2ApiController implements EntitiesV2Api {
     return ResponseEntity.ok(toApiObject(entity));
   }
 
-  private ApiEntityV2 toApiObject(Entity entity) {
-    return new ApiEntityV2()
+  private ApiEntity toApiObject(Entity entity) {
+    return new ApiEntity()
         .name(entity.getName())
         .idAttribute(entity.getIdAttribute().getName())
         .attributes(
