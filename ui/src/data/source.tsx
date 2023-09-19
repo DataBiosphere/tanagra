@@ -5,6 +5,7 @@ import {
 } from "cohort";
 import { getReasonPhrase } from "http-status-codes";
 import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 import {
@@ -207,7 +208,7 @@ export interface Source {
 
   createCohortReview(
     studyId: string,
-    cohort: tanagra.Cohort,
+    cohort: tanagraUI.UICohort,
     displayName: string,
     size: number
   ): Promise<CohortReview>;
@@ -244,34 +245,34 @@ export interface Source {
 
   // TODO(tjennison): Use internal types for cohorts and related objects instead
   // of V1 types from the service definition.
-  getCohort(studyId: string, cohortId: string): Promise<tanagra.Cohort>;
+  getCohort(studyId: string, cohortId: string): Promise<tanagraUI.UICohort>;
 
-  listCohorts(studyId: string): Promise<tanagra.Cohort[]>;
+  listCohorts(studyId: string): Promise<tanagraUI.UICohort[]>;
 
   createCohort(
     underlayName: string,
     studyId: string,
     displayName: string
-  ): Promise<tanagra.Cohort>;
+  ): Promise<tanagraUI.UICohort>;
 
-  updateCohort(studyId: string, cohort: tanagra.Cohort): void;
+  updateCohort(studyId: string, cohort: tanagraUI.UICohort): void;
 
   deleteCohort(studyId: string, cohortId: string): void;
 
   getConceptSet(
     studyId: string,
     conceptSetId: string
-  ): Promise<tanagra.ConceptSet>;
+  ): Promise<tanagraUI.UIConceptSet>;
 
-  listConceptSets(studyId: string): Promise<tanagra.ConceptSet[]>;
+  listConceptSets(studyId: string): Promise<tanagraUI.UIConceptSet[]>;
 
   createConceptSet(
     underlayName: string,
     studyId: string,
-    criteria: tanagra.Criteria
-  ): Promise<tanagra.ConceptSet>;
+    criteria: tanagraUI.UICriteria
+  ): Promise<tanagraUI.UIConceptSet>;
 
-  updateConceptSet(studyId: string, conceptSet: tanagra.ConceptSet): void;
+  updateConceptSet(studyId: string, conceptSet: tanagraUI.UIConceptSet): void;
 
   deleteConceptSet(studyId: string, conceptSetId: string): void;
 
@@ -659,7 +660,7 @@ export class BackendSource implements Source {
 
   public createCohortReview(
     studyId: string,
-    cohort: tanagra.Cohort,
+    cohort: tanagraUI.UICohort,
     displayName: string,
     size: number
   ): Promise<CohortReview> {
@@ -790,7 +791,7 @@ export class BackendSource implements Source {
   public async getCohort(
     studyId: string,
     cohortId: string
-  ): Promise<tanagra.Cohort> {
+  ): Promise<tanagraUI.UICohort> {
     return parseAPIError(
       this.cohortsApi
         .getCohort({ studyId, cohortId })
@@ -798,7 +799,7 @@ export class BackendSource implements Source {
     );
   }
 
-  public listCohorts(studyId: string): Promise<tanagra.Cohort[]> {
+  public listCohorts(studyId: string): Promise<tanagraUI.UICohort[]> {
     return parseAPIError(
       this.cohortsApi
         .listCohorts({ studyId })
@@ -810,7 +811,7 @@ export class BackendSource implements Source {
     underlayName: string,
     studyId: string,
     displayName: string
-  ): Promise<tanagra.Cohort> {
+  ): Promise<tanagraUI.UICohort> {
     return parseAPIError(
       this.cohortsApi
         .createCohort({
@@ -821,7 +822,7 @@ export class BackendSource implements Source {
     );
   }
 
-  public async updateCohort(studyId: string, cohort: tanagra.Cohort) {
+  public async updateCohort(studyId: string, cohort: tanagraUI.UICohort) {
     await parseAPIError(
       this.cohortsApi.updateCohort({
         studyId,
@@ -848,7 +849,7 @@ export class BackendSource implements Source {
   public async getConceptSet(
     studyId: string,
     conceptSetId: string
-  ): Promise<tanagra.ConceptSet> {
+  ): Promise<tanagraUI.UIConceptSet> {
     return parseAPIError(
       this.conceptSetsApi
         .getConceptSet({ studyId, conceptSetId })
@@ -856,7 +857,7 @@ export class BackendSource implements Source {
     );
   }
 
-  public listConceptSets(studyId: string): Promise<tanagra.ConceptSet[]> {
+  public listConceptSets(studyId: string): Promise<tanagraUI.UIConceptSet[]> {
     return parseAPIError(
       this.conceptSetsApi
         .listConceptSets({ studyId })
@@ -867,8 +868,8 @@ export class BackendSource implements Source {
   public createConceptSet(
     underlayName: string,
     studyId: string,
-    criteria: tanagra.Criteria
-  ): Promise<tanagra.ConceptSet> {
+    criteria: tanagraUI.UICriteria
+  ): Promise<tanagraUI.UIConceptSet> {
     return parseAPIError(
       this.conceptSetsApi
         .createConceptSet({
@@ -888,7 +889,7 @@ export class BackendSource implements Source {
 
   public async updateConceptSet(
     studyId: string,
-    conceptSet: tanagra.ConceptSet
+    conceptSet: tanagraUI.UIConceptSet
   ) {
     await parseAPIError(
       this.conceptSetsApi.updateConceptSet({
@@ -1627,7 +1628,7 @@ function normalizeRequestedAttributes(
   return [...new Set(a)];
 }
 
-function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
+function fromAPICohort(cohort: tanagra.CohortV2): tanagraUI.UICohort {
   return {
     id: cohort.id,
     name: cohort.displayName,
@@ -1639,7 +1640,7 @@ function fromAPICohort(cohort: tanagra.CohortV2): tanagra.Cohort {
 
 function fromAPICriteriaGroupSections(
   sections?: tanagra.CriteriaGroupSectionV3[]
-): tanagra.GroupSection[] {
+): tanagraUI.UIGroupSection[] {
   if (!sections?.length) {
     return [defaultSection()];
   }
@@ -1650,8 +1651,8 @@ function fromAPICriteriaGroupSections(
     filter: {
       kind:
         section.operator === tanagra.CriteriaGroupSectionV3OperatorEnum.And
-          ? tanagra.GroupSectionFilterKindEnum.All
-          : tanagra.GroupSectionFilterKindEnum.Any,
+          ? tanagraUI.UIGroupSectionFilterKindEnum.All
+          : tanagraUI.UIGroupSectionFilterKindEnum.Any,
       excluded: section.excluded,
     },
     groups: section.criteriaGroups.map((group) => ({
@@ -1662,7 +1663,7 @@ function fromAPICriteriaGroupSections(
   }));
 }
 
-function fromAPICriteria(criteria: tanagra.CriteriaV2): tanagra.Criteria {
+function fromAPICriteria(criteria: tanagra.CriteriaV2): tanagraUI.UICriteria {
   return {
     id: criteria.id,
     type: criteria.pluginName,
@@ -1673,7 +1674,7 @@ function fromAPICriteria(criteria: tanagra.CriteriaV2): tanagra.Criteria {
 
 function fromAPIConceptSet(
   conceptSet: tanagra.ConceptSetV2
-): tanagra.ConceptSet {
+): tanagraUI.UIConceptSet {
   return {
     id: conceptSet.id,
     underlayName: conceptSet.underlayName,
@@ -1682,13 +1683,13 @@ function fromAPIConceptSet(
 }
 
 function toAPICriteriaGroupSections(
-  groupSections: tanagra.GroupSection[]
+  groupSections: tanagraUI.UIGroupSection[]
 ): tanagra.CriteriaGroupSectionV3[] {
   return groupSections.map((section) => ({
     id: section.id,
     displayName: section.name ?? "",
     operator:
-      section.filter.kind === tanagra.GroupSectionFilterKindEnum.All
+      section.filter.kind === tanagraUI.UIGroupSectionFilterKindEnum.All
         ? tanagra.CriteriaGroupSectionV3OperatorEnum.And
         : tanagra.CriteriaGroupSectionV3OperatorEnum.Or,
     excluded: section.filter.excluded,
@@ -1701,7 +1702,7 @@ function toAPICriteriaGroupSections(
   }));
 }
 
-function toAPICriteria(criteria: tanagra.Criteria): tanagra.CriteriaV2 {
+function toAPICriteria(criteria: tanagraUI.UICriteria): tanagra.CriteriaV2 {
   return {
     id: criteria.id,
     displayName: "",
@@ -1809,14 +1810,14 @@ function fromAPIDisplayHint(hint?: tanagra.DisplayHintV2): HintData {
 }
 
 function toAPIBinaryOperator(
-  operator: tanagra.ComparisonOperator
+  operator: tanagraUI.UIComparisonOperator
 ): tanagra.BinaryOperatorV2 {
   switch (operator) {
-    case tanagra.ComparisonOperator.Equal:
+    case tanagraUI.UIComparisonOperator.Equal:
       return tanagra.BinaryOperatorV2.Equals;
-    case tanagra.ComparisonOperator.GreaterThanEqual:
+    case tanagraUI.UIComparisonOperator.GreaterThanEqual:
       return tanagra.BinaryOperatorV2.GreaterThanOrEqual;
-    case tanagra.ComparisonOperator.LessThanEqual:
+    case tanagraUI.UIComparisonOperator.LessThanEqual:
       return tanagra.BinaryOperatorV2.LessThanOrEqual;
   }
 

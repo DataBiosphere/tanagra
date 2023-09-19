@@ -32,7 +32,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cohortURL, newCriteriaURL, useExitAction } from "router";
 import useSWRImmutable from "swr/immutable";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
 import {
   createCriteria,
@@ -46,7 +46,7 @@ export function AddConceptSetCriteria() {
   const exit = useExitAction();
 
   const onInsertCriteria = useCallback(
-    (criteria: tanagra.Criteria) => {
+    (criteria: tanagraUI.UICriteria) => {
       createConceptSet(context, criteria);
       exit();
     },
@@ -69,7 +69,7 @@ export function AddCohortCriteria() {
   const { cohort, section, sectionIndex } = useCohortGroupSectionAndGroup();
 
   const onInsertCriteria = useCallback(
-    (criteria: tanagra.Criteria) => {
+    (criteria: tanagraUI.UICriteria) => {
       const group = insertCohortCriteria(context, section.id, criteria);
       navigate("../../" + cohortURL(cohort.id, section.id, group.id));
     },
@@ -90,7 +90,7 @@ type AddCriteriaProps = {
   conceptSet?: boolean;
   title: string;
   backAction?: () => void;
-  onInsertCriteria: (criteria: tanagra.Criteria) => void;
+  onInsertCriteria: (criteria: tanagraUI.UICriteria) => void;
 };
 
 function AddCriteria(props: AddCriteriaProps) {

@@ -1,4 +1,4 @@
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { isValid } from "util/valid";
 import { DataKey, DataValue } from "./types";
 
@@ -82,7 +82,7 @@ export function isTextFilter(filter: Filter): filter is TextFilter {
 export type RelationshipFilter = BaseFilter & {
   entityId: string;
   subfilter: Filter;
-  groupByCount?: tanagra.GroupByCount;
+  groupByCount?: tanagraUI.UIGroupByCount;
 };
 
 export function isRelationshipFilter(

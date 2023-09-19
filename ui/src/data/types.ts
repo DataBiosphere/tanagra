@@ -1,4 +1,4 @@
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 export type DataKey = string | number;
 export type DataValue = null | string | number | boolean | Date;
 
@@ -12,7 +12,7 @@ export type CohortReview = {
   displayName: string;
   description?: string;
   size: number;
-  cohort: tanagra.Cohort;
+  cohort: tanagraUI.UICohort;
   created: Date;
   createdBy: string;
   lastModified: Date;

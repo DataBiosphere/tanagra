@@ -1,0 +1,222 @@
+openapi: 3.0.3
+info:
+  title: Tanagra UI Object Schema Definitions
+  description: github.com/DataBiosphere/tanagra
+  version: 0.0.0
+
+servers:
+  - url: /
+
+security:
+  - bearerAuth: []
+
+paths:
+  "/invalid-just-for-compile-to-work":
+    get:
+      operationId: invalid
+      tags: [Invalid]
+      responses:
+        200:
+          description: This path is unused, but required by openapi-generator-cli to generate the schemas in this file.
+
+components:
+  schemas:
+    UserData:
+      type: object
+      description: The root container for user generated data.
+      properties:
+        version:
+          type: integer
+          description: The version of UserData to support forward and backward compatibility.
+        cohorts:
+          type: array
+          description: User generated cohorts.
+          items:
+            $ref: "#/components/schemas/Cohort"
+        conceptSets:
+          type: array
+          description: User generated concept sets.
+          items:
+            $ref: "#/components/schemas/ConceptSet"
+      required:
+        - version
+        - cohorts
+        - conceptSets
+
+    Cohort:
+      type: object
+      description: A user generated cohort.
+      properties:
+        id:
+          type: string
+          description: The unique id of this cohort.
+        name:
+          type: string
+          description: The name of this cohort.
+        underlayName:
+          type: string
+          description: The underlay this cohort is based on.
+        lastModified:
+          description: Timestamp of when the cohort was last modified
+          type: string
+          format: date-time
+        groupSections:
+          type: array
+          description: The group sections that make up this cohort.
+          items:
+            $ref: "#/components/schemas/GroupSection"
+      required:
+        - id
+        - name
+        - underlayName
+        - lastModified
+        - groupSections
+
+    GroupSection:
+      type: object
+      description: A group section of criteria (UI block).
+      properties:
+        id:
+          type: string
+          description: The unique id of this group.
+        name:
+          type: string
+          description: The name of this group if customized.
+        filter:
+          $ref: "#/components/schemas/GroupSectionFilter"
+        groups:
+          type: array
+          description: The groups that make of this section.
+          items:
+            $ref: "#/components/schemas/Group"
+      required:
+        - id
+        - kind
+        - filter
+        - underlayName
+        - groups
+
+    Group:
+      type: object
+      description: A group of criteria (criteria + mods).
+      properties:
+        id:
+          type: string
+          description: The unique id of this group.
+        entity:
+          description: Entity referenced by the criteria
+          type: string
+        criteria:
+          type: array
+          description: The criteria that make of this group.
+          items:
+            $ref: "#/components/schemas/Criteria"
+        groupByCount:
+          $ref: "#/components/schemas/GroupByCount"
+      required:
+        - id
+        - entity
+        - criteria
+
+    ComparisonOperator:
+      type: string
+      enum: ["EQUAL", "LESS_THAN_EQUAL", "GREATER_THAN_EQUAL", "BETWEEN"]
+
+    GroupByCount:
+      type: object
+      description: A modifier to count rows grouped by date
+      properties:
+        attribute:
+          description: Attribute to group by
+          type: string
+        operator:
+          description: Operator to use for the comparison
+          $ref: "#/components/schemas/ComparisonOperator"
+        value:
+          description: Value to compare against
+          type: integer
+      required:
+        - attribute
+        - operator
+        - value
+
+    GroupSectionFilter:
+      type: object
+      description: |
+        A filter for a list of criteria that indicates how to combine the states
+        of the individual criteria.
+      properties:
+        kind:
+          type: string
+          description: The kind of this group.
+          enum: ["ANY", "ALL"]
+        excluded:
+          type: boolean
+          description: This group should be excluded instead of included.
+      required:
+        - kind
+        - excluded
+
+    ConceptSet:
+      type: object
+      description: A user generated concept set.
+      properties:
+        id:
+          type: string
+          description: The unique id of this concept set.
+        underlayName:
+          type: string
+          description: The underlay this concept set is based on.
+        criteria:
+          $ref: "#/components/schemas/Criteria"
+      required:
+        - id
+        - underlayName
+        - criteria
+
+    Criteria:
+      type: object
+      description: A single criteria in a cohort or concept set.
+      properties:
+        id:
+          type: string
+          description: The unique id of this criteria.
+        type:
+          type: string
+          description: The plugin type used by this criteria.
+        data:
+          type: object
+          description: The plugin specific data that defines this criteria.
+        config:
+          type: object
+          description: The UI configuration used by this criteria.
+          $ref: "#/components/schemas/CriteriaConfig"
+      required:
+        - id
+        - type
+        - data
+        - config
+
+    CriteriaConfig:
+      type: object
+      description: The configuration for an instance of a cohort plugin. Fields related to individual plugins may also be present.
+      properties:
+        type:
+          type: string
+          description: The plugin type to use for this criteria.
+        id:
+          type: string
+          description: The unique id of this criteria config.
+        title:
+          type: string
+          description: The display title for this criteria.
+      required:
+        - type
+        - id
+        - title
+      additionalProperties: true
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
