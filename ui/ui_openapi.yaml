@@ -11,13 +11,13 @@ security:
   - bearerAuth: []
 
 paths:
-  "/invalid-just-for-compile-to-work":
+  "/invalid-just-for-codegen-to-work":
     get:
       operationId: invalid
       tags: [Invalid]
       responses:
         200:
-          description: This path is unused, but required by openapi-generator-cli to generate the schemas in this file.
+          description: This path is unused, but at least one path is required by openapi-generator-cli to generate the schemas in this file.
 
 components:
   schemas:
