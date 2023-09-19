@@ -1763,9 +1763,7 @@ function fromAPIAnnotationType(dataType: string): AnnotationType {
   throw new Error(`Unknown annotation data type ${dataType}.`);
 }
 
-function toAPIAnnotationType(
-  annotationType: AnnotationType
-): tanagra.DataType {
+function toAPIAnnotationType(annotationType: AnnotationType): tanagra.DataType {
   switch (annotationType) {
     case AnnotationType.String:
       return tanagra.DataType.String;

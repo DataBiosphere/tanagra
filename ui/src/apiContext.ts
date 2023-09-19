@@ -9,9 +9,7 @@ class FakeUnderlaysApi {
     };
   }
 
-  async getUnderlay(req: {
-    underlayName: string;
-  }): Promise<tanagra.Underlay> {
+  async getUnderlay(req: { underlayName: string }): Promise<tanagra.Underlay> {
     const columns = [{ key: "name", width: "100%", title: "Concept name" }];
 
     const uiConfiguration = {
