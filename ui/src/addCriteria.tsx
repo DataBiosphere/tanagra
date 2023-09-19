@@ -151,7 +151,7 @@ function AddCriteria(props: AddCriteriaProps) {
       if (
         selectedTags.size &&
         config.tags?.length &&
-        !config.tags?.reduce((out, t) => selectedTags.has(t), false)
+        !config.tags?.reduce((out, t) => out || selectedTags.has(t), false)
       ) {
         continue;
       }
