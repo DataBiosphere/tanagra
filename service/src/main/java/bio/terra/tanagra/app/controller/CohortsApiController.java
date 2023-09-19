@@ -7,7 +7,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
-import bio.terra.tanagra.generated.controller.CohortsV2Api;
+import bio.terra.tanagra.generated.controller.CohortsApi;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
@@ -26,19 +26,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class CohortsV2ApiController implements CohortsV2Api {
+public class CohortsApiController implements CohortsApi {
   private final CohortService cohortService;
   private final AccessControlService accessControlService;
 
   @Autowired
-  public CohortsV2ApiController(
+  public CohortsApiController(
       CohortService cohortService, AccessControlService accessControlService) {
     this.cohortService = cohortService;
     this.accessControlService = accessControlService;
   }
 
   @Override
-  public ResponseEntity<ApiCohortV2> createCohort(String studyId, ApiCohortCreateInfoV2 body) {
+  public ResponseEntity<ApiCohort> createCohort(String studyId, ApiCohortCreateInfo body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(STUDY, CREATE_COHORT),
@@ -66,7 +66,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiCohortV2> getCohort(
+  public ResponseEntity<ApiCohort> getCohort(
       String studyId, String cohortId, String cohortRevisionId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
@@ -76,8 +76,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiCohortListV2> listCohorts(
-      String studyId, Integer offset, Integer limit) {
+  public ResponseEntity<ApiCohortList> listCohorts(String studyId, Integer offset, Integer limit) {
     ResourceCollection authorizedCohortIds =
         accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(),
@@ -85,22 +84,22 @@ public class CohortsV2ApiController implements CohortsV2Api {
             ResourceId.forStudy(studyId),
             offset,
             limit);
-    ApiCohortListV2 apiCohorts = new ApiCohortListV2();
+    ApiCohortList apiCohorts = new ApiCohortList();
     cohortService.listCohorts(authorizedCohortIds, offset, limit).stream()
         .forEach(cohort -> apiCohorts.add(ToApiUtils.toApiObject(cohort)));
     return ResponseEntity.ok(apiCohorts);
   }
 
   @Override
-  public ResponseEntity<ApiCohortV2> updateCohort(
-      String studyId, String cohortId, ApiCohortUpdateInfoV2 body, String cohortRevisionId) {
+  public ResponseEntity<ApiCohort> updateCohort(
+      String studyId, String cohortId, ApiCohortUpdateInfo body, String cohortRevisionId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(COHORT, UPDATE),
         ResourceId.forCohort(studyId, cohortId));
     List<CohortRevision.CriteriaGroupSection> sections =
         body.getCriteriaGroupSections().stream()
-            .map(CohortsV2ApiController::fromApiObject)
+            .map(CohortsApiController::fromApiObject)
             .collect(Collectors.toList());
     Cohort updatedCohort =
         cohortService.updateCohort(
@@ -122,7 +121,7 @@ public class CohortsV2ApiController implements CohortsV2Api {
         .setIsExcluded(apiObj.isExcluded())
         .criteriaGroups(
             apiObj.getCriteriaGroups().stream()
-                .map(CohortsV2ApiController::fromApiObject)
+                .map(CohortsApiController::fromApiObject)
                 .collect(Collectors.toList()))
         .build();
   }

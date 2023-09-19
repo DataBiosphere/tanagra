@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.export;
 
-import bio.terra.tanagra.generated.model.ApiCohortV2;
-import bio.terra.tanagra.generated.model.ApiStudyV2;
-import bio.terra.tanagra.generated.model.ApiUnderlayV2;
+import bio.terra.tanagra.generated.model.ApiCohort;
+import bio.terra.tanagra.generated.model.ApiStudy;
+import bio.terra.tanagra.generated.model.ApiUnderlay;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import java.util.*;
@@ -14,9 +14,9 @@ public class ExportRequest {
   private final Map<String, String> inputs;
   private final String redirectBackUrl;
   private final boolean includeAnnotations;
-  private final ApiUnderlayV2 underlay;
-  private final ApiStudyV2 study;
-  private final List<ApiCohortV2> cohorts;
+  private final ApiUnderlay underlay;
+  private final ApiStudy study;
+  private final List<ApiCohort> cohorts;
   private final Supplier<Map<String, String>> generateSqlQueriesFn;
   private final Function<String, Map<String, String>> writeEntityDataToGcsFn;
   private final Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn;
@@ -56,15 +56,15 @@ public class ExportRequest {
     return includeAnnotations;
   }
 
-  public ApiUnderlayV2 getUnderlay() {
+  public ApiUnderlay getUnderlay() {
     return underlay;
   }
 
-  public ApiStudyV2 getStudy() {
+  public ApiStudy getStudy() {
     return study;
   }
 
-  public List<ApiCohortV2> getCohorts() {
+  public List<ApiCohort> getCohorts() {
     return Collections.unmodifiableList(cohorts);
   }
 
@@ -93,9 +93,9 @@ public class ExportRequest {
     private Map<String, String> inputs;
     private String redirectBackUrl;
     private boolean includeAnnotations;
-    private ApiUnderlayV2 underlay;
-    private ApiStudyV2 study;
-    private List<ApiCohortV2> cohorts;
+    private ApiUnderlay underlay;
+    private ApiStudy study;
+    private List<ApiCohort> cohorts;
     private Supplier<Map<String, String>> generateSqlQueriesFn;
     private Function<String, Map<String, String>> writeEntityDataToGcsFn;
     private Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn;
@@ -122,17 +122,17 @@ public class ExportRequest {
       return this;
     }
 
-    public Builder underlay(ApiUnderlayV2 underlay) {
+    public Builder underlay(ApiUnderlay underlay) {
       this.underlay = underlay;
       return this;
     }
 
-    public Builder study(ApiStudyV2 study) {
+    public Builder study(ApiStudy study) {
       this.study = study;
       return this;
     }
 
-    public Builder cohorts(List<ApiCohortV2> cohorts) {
+    public Builder cohorts(List<ApiCohort> cohorts) {
       this.cohorts = cohorts;
       return this;
     }
@@ -173,11 +173,11 @@ public class ExportRequest {
       return model;
     }
 
-    public ApiStudyV2 getStudy() {
+    public ApiStudy getStudy() {
       return study;
     }
 
-    public List<ApiCohortV2> getCohorts() {
+    public List<ApiCohort> getCohorts() {
       return Collections.unmodifiableList(cohorts);
     }
 

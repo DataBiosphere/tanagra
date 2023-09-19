@@ -67,7 +67,7 @@ public class ActivityLogApiController implements ActivityLogApi {
         .userEmail(activityLog.getUserEmail())
         .logged(activityLog.getLogged())
         .systemVersion(
-            new ApiSystemVersionV2()
+            new ApiSystemVersion()
                 .gitTag(activityLog.getVersionGitTag())
                 .gitHash(activityLog.getVersionGitHash())
                 .github(VersionConfiguration.getGithubUrl(activityLog.getVersionGitHash()))
@@ -95,11 +95,11 @@ public class ActivityLogApiController implements ActivityLogApi {
             .reviewId(activityLogResource.getReviewId())
             .reviewDisplayName(activityLogResource.getReviewDisplayName());
     if (activityLogResource.getStudyProperties() != null) {
-      ApiPropertiesV2 apiProperties = new ApiPropertiesV2();
+      ApiProperties apiProperties = new ApiProperties();
       activityLogResource
           .getStudyProperties()
           .forEach(
-              (key, value) -> apiProperties.add(new ApiPropertyKeyValueV2().key(key).value(value)));
+              (key, value) -> apiProperties.add(new ApiPropertyKeyValue().key(key).value(value)));
       apiResource.studyProperties(apiProperties);
     }
     return apiResource;

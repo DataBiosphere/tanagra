@@ -5,7 +5,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
 
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
-import bio.terra.tanagra.generated.controller.AnnotationsV2Api;
+import bio.terra.tanagra.generated.controller.AnnotationsApi;
 import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
@@ -22,20 +22,20 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
-public class AnnotationsV2ApiController implements AnnotationsV2Api {
+public class AnnotationsApiController implements AnnotationsApi {
   private final AnnotationService annotationService;
   private final AccessControlService accessControlService;
 
   @Autowired
-  public AnnotationsV2ApiController(
+  public AnnotationsApiController(
       AnnotationService annotationService, AccessControlService accessControlService) {
     this.annotationService = annotationService;
     this.accessControlService = accessControlService;
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationV2> createAnnotationKey(
-      String studyId, String cohortId, ApiAnnotationCreateInfoV2 body) {
+  public ResponseEntity<ApiAnnotation> createAnnotationKey(
+      String studyId, String cohortId, ApiAnnotationCreateInfo body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(COHORT, CREATE_ANNOTATION_KEY),
@@ -64,7 +64,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationV2> getAnnotationKey(
+  public ResponseEntity<ApiAnnotation> getAnnotationKey(
       String studyId, String cohortId, String annotationKeyId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
@@ -75,7 +75,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationListV2> listAnnotationKeys(
+  public ResponseEntity<ApiAnnotationList> listAnnotationKeys(
       String studyId, String cohortId, Integer offset, Integer limit) {
     ResourceCollection authorizedAnnotationKeyIds =
         accessControlService.listAuthorizedResources(
@@ -84,15 +84,15 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
             ResourceId.forCohort(studyId, cohortId),
             offset,
             limit);
-    ApiAnnotationListV2 apiAnnotationKeys = new ApiAnnotationListV2();
+    ApiAnnotationList apiAnnotationKeys = new ApiAnnotationList();
     annotationService.listAnnotationKeys(authorizedAnnotationKeyIds, offset, limit).stream()
         .forEach(annotationKey -> apiAnnotationKeys.add(toApiObject(annotationKey)));
     return ResponseEntity.ok(apiAnnotationKeys);
   }
 
   @Override
-  public ResponseEntity<ApiAnnotationV2> updateAnnotationKey(
-      String studyId, String cohortId, String annotationKeyId, ApiAnnotationUpdateInfoV2 body) {
+  public ResponseEntity<ApiAnnotation> updateAnnotationKey(
+      String studyId, String cohortId, String annotationKeyId, ApiAnnotationUpdateInfo body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(ANNOTATION_KEY, UPDATE),
@@ -110,7 +110,7 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
       String annotationKeyId,
       String reviewId,
       String instanceId,
-      ApiLiteralV2 body) {
+      ApiLiteral body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(REVIEW, UPDATE),
@@ -139,12 +139,12 @@ public class AnnotationsV2ApiController implements AnnotationsV2Api {
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
-  private static ApiAnnotationV2 toApiObject(AnnotationKey annotationKey) {
-    return new ApiAnnotationV2()
+  private static ApiAnnotation toApiObject(AnnotationKey annotationKey) {
+    return new ApiAnnotation()
         .id(annotationKey.getId())
         .displayName(annotationKey.getDisplayName())
         .description(annotationKey.getDescription())
-        .dataType(ApiDataTypeV2.fromValue(annotationKey.getDataType().name()))
+        .dataType(ApiDataType.fromValue(annotationKey.getDataType().name()))
         .enumVals(annotationKey.getEnumVals());
   }
 }

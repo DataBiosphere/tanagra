@@ -3,7 +3,7 @@ import * as tanagra from "./tanagra-api";
 
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
 class FakeUnderlaysApi {
-  async listUnderlays(): Promise<tanagra.UnderlayListV2> {
+  async listUnderlays(): Promise<tanagra.UnderlayList> {
     return {
       underlays: [await this.getUnderlay({ underlayName: "underlay_name" })],
     };
@@ -11,7 +11,7 @@ class FakeUnderlaysApi {
 
   async getUnderlay(req: {
     underlayName: string;
-  }): Promise<tanagra.UnderlayV2> {
+  }): Promise<tanagra.Underlay> {
     const columns = [{ key: "name", width: "100%", title: "Concept name" }];
 
     const uiConfiguration = {
@@ -101,7 +101,7 @@ class FakeUnderlaysApi {
 }
 
 class FakeEntitiesApi {
-  async listEntities(): Promise<tanagra.EntityListV2> {
+  async listEntities(): Promise<tanagra.EntityList> {
     return {
       entities: [
         {
@@ -110,15 +110,15 @@ class FakeEntitiesApi {
           attributes: [
             {
               name: "id",
-              dataType: tanagra.DataTypeV2.Int64,
+              dataType: tanagra.DataType.Int64,
             },
             {
               name: "race",
-              dataType: tanagra.DataTypeV2.Int64,
+              dataType: tanagra.DataType.Int64,
             },
             {
               name: "year_of_birth",
-              dataType: tanagra.DataTypeV2.Int64,
+              dataType: tanagra.DataType.Int64,
             },
           ],
         },
@@ -128,11 +128,11 @@ class FakeEntitiesApi {
           attributes: [
             {
               name: "id",
-              dataType: tanagra.DataTypeV2.Int64,
+              dataType: tanagra.DataType.Int64,
             },
             {
               name: "name",
-              dataType: tanagra.DataTypeV2.String,
+              dataType: tanagra.DataType.String,
             },
           ],
         },
@@ -142,7 +142,7 @@ class FakeEntitiesApi {
 }
 
 class FakeInstancesApi {
-  async listInstances(): Promise<tanagra.InstanceListResultV2> {
+  async listInstances(): Promise<tanagra.InstanceListResult> {
     return {
       sql: "SELECT * FROM table WHERE xyz;",
       instances: [
@@ -155,7 +155,7 @@ class FakeInstancesApi {
           attributes: {
             id: {
               value: {
-                dataType: tanagra.DataTypeV2.Int64,
+                dataType: tanagra.DataType.Int64,
                 valueUnion: {
                   int64Val: 1234,
                 },
@@ -163,7 +163,7 @@ class FakeInstancesApi {
             },
             name: {
               value: {
-                dataType: tanagra.DataTypeV2.String,
+                dataType: tanagra.DataType.String,
                 valueUnion: {
                   stringVal: "test concept",
                 },
@@ -177,7 +177,7 @@ class FakeInstancesApi {
 }
 
 class FakeHintsApi {
-  async queryHints(): Promise<tanagra.DisplayHintListV2> {
+  async queryHints(): Promise<tanagra.DisplayHintList> {
     return {
       displayHints: [
         {
@@ -191,7 +191,7 @@ class FakeHintsApi {
                   enumVal: {
                     display: "Asian",
                     value: {
-                      dataType: tanagra.DataTypeV2.Int64,
+                      dataType: tanagra.DataType.Int64,
                       valueUnion: {
                         int64Val: 8515,
                       },
@@ -203,7 +203,7 @@ class FakeHintsApi {
                   enumVal: {
                     display: "Black or African American",
                     value: {
-                      dataType: tanagra.DataTypeV2.Int64,
+                      dataType: tanagra.DataType.Int64,
                       valueUnion: {
                         int64Val: 8516,
                       },
@@ -232,7 +232,7 @@ class FakeHintsApi {
 }
 
 class FakeStudiesAPI {
-  async listStudies(): Promise<Array<tanagra.StudyV2>> {
+  async listStudies(): Promise<Array<tanagra.Study>> {
     return [
       {
         id: "test_study",
@@ -246,7 +246,7 @@ class FakeStudiesAPI {
 }
 
 class FakeCohortsAPI {
-  async listCohorts(): Promise<Array<tanagra.CohortV2>> {
+  async listCohorts(): Promise<Array<tanagra.Cohort>> {
     return [
       {
         id: "test_cohort",
@@ -262,7 +262,7 @@ class FakeCohortsAPI {
 }
 
 class FakeConceptSetsAPI {
-  async listConceptSets(): Promise<Array<tanagra.ConceptSetV2>> {
+  async listConceptSets(): Promise<Array<tanagra.ConceptSet>> {
     return [
       {
         id: "test_concept_set",
@@ -286,7 +286,7 @@ class FakeConceptSetsAPI {
 }
 
 class FakeReviewsAPI {
-  async listReviews(): Promise<Array<tanagra.ReviewV2>> {
+  async listReviews(): Promise<Array<tanagra.Review>> {
     return [
       {
         id: "test_review",
@@ -324,39 +324,39 @@ function apiForEnvironment<Real, Fake>(
 }
 
 export const UnderlaysApiContext = apiForEnvironment(
-  tanagra.UnderlaysV2Api,
+  tanagra.UnderlaysApi,
   FakeUnderlaysApi
 );
 export const EntityInstancesApiContext = apiForEnvironment(
-  tanagra.InstancesV2Api,
+  tanagra.InstancesApi,
   FakeInstancesApi
 );
 export const EntitiesApiContext = apiForEnvironment(
-  tanagra.EntitiesV2Api,
+  tanagra.EntitiesApi,
   FakeEntitiesApi
 );
 export const HintsApiContext = apiForEnvironment(
-  tanagra.HintsV2Api,
+  tanagra.HintsApi,
   FakeHintsApi
 );
 export const StudiesApiContext = apiForEnvironment(
-  tanagra.StudiesV2Api,
+  tanagra.StudiesApi,
   FakeStudiesAPI
 );
 export const CohortsApiContext = apiForEnvironment(
-  tanagra.CohortsV2Api,
+  tanagra.CohortsApi,
   FakeCohortsAPI
 );
 export const ConceptSetsApiContext = apiForEnvironment(
-  tanagra.ConceptSetsV2Api,
+  tanagra.ConceptSetsApi,
   FakeConceptSetsAPI
 );
 export const ReviewsApiContext = apiForEnvironment(
-  tanagra.ReviewsV2Api,
+  tanagra.ReviewsApi,
   FakeReviewsAPI
 );
 export const AnnotationsApiContext = apiForEnvironment(
-  tanagra.AnnotationsV2Api,
+  tanagra.AnnotationsApi,
   FakeAnnotationsAPI
 );
 export const ExportApiContext = apiForEnvironment(
@@ -364,6 +364,6 @@ export const ExportApiContext = apiForEnvironment(
   FakeExportAPI
 );
 export const UsersApiContext = apiForEnvironment(
-  tanagra.UsersV2Api,
+  tanagra.UsersApi,
   FakeUsersAPI
 );
