@@ -650,7 +650,12 @@ function ClassificationInline(props: ClassificationInlineProps) {
   return (
     <Loading status={hintDataState}>
       <GridLayout cols spacing={2} height="auto">
-        <FormControl>
+        <FormControl
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
           <Select
             value={props.data.valueData.attribute}
             input={<OutlinedInput />}
