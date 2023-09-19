@@ -180,6 +180,19 @@ export function searchCriteria(
   }));
 }
 
+export function upgradeCriteria(
+  criteria: tanagraUI.UICriteria,
+  criteriaConfigs: CriteriaConfig[]
+) {
+  const cc = criteriaConfigs.find((cc) => cc.id === criteria.config.id);
+  if (cc) {
+    // TODO(tjennison): Add version to criteria so plugins can have an
+    // opportunity to apply custom upgrades. For now, just always update the
+    // CriteriaConfig to the latest.
+    criteria.config = cc;
+  }
+}
+
 // registerCriteriaPlugin is a decorator that allows criteria to automatically
 // register with the app simply by importing them.
 export function registerCriteriaPlugin(
