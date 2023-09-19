@@ -7,6 +7,7 @@ public class Criteria {
   private final String id;
   private final String displayName;
   private final String pluginName;
+  private final int pluginVersion;
   private final String selectionData;
   private final String uiConfig;
   private final Map<String, String> tags;
@@ -15,12 +16,14 @@ public class Criteria {
       String id,
       String displayName,
       String pluginName,
+      int pluginVersion,
       String selectionData,
       String uiConfig,
       Map<String, String> tags) {
     this.id = id;
     this.displayName = displayName;
     this.pluginName = pluginName;
+    this.pluginVersion = pluginVersion;
     this.selectionData = selectionData;
     this.uiConfig = uiConfig;
     this.tags = tags;
@@ -42,6 +45,10 @@ public class Criteria {
     return pluginName;
   }
 
+  public int getPluginVersion() {
+    return pluginVersion;
+  }
+
   public String getSelectionData() {
     return selectionData;
   }
@@ -58,6 +65,7 @@ public class Criteria {
     private String id;
     private String displayName;
     private String pluginName;
+    private int pluginVersion;
     private String selectionData;
     private String uiConfig;
     private Map<String, String> tags = new HashMap<>();
@@ -74,6 +82,11 @@ public class Criteria {
 
     public Builder pluginName(String pluginName) {
       this.pluginName = pluginName;
+      return this;
+    }
+
+    public Builder pluginVersion(int pluginVersion) {
+      this.pluginVersion = pluginVersion;
       return this;
     }
 
@@ -96,7 +109,8 @@ public class Criteria {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
-      return new Criteria(id, displayName, pluginName, selectionData, uiConfig, tags);
+      return new Criteria(
+          id, displayName, pluginName, pluginVersion, selectionData, uiConfig, tags);
     }
 
     public String getId() {
@@ -123,6 +137,7 @@ public class Criteria {
     return id.equals(criteria.id)
         && displayName.equals(criteria.displayName)
         && pluginName.equals(criteria.pluginName)
+        && pluginVersion == criteria.pluginVersion
         && selectionData.equals(criteria.selectionData)
         && uiConfig.equals(criteria.uiConfig)
         && tags.equals(criteria.tags);
@@ -130,6 +145,6 @@ public class Criteria {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, displayName, pluginName, selectionData, uiConfig, tags);
+    return Objects.hash(id, displayName, pluginName, pluginVersion, selectionData, uiConfig, tags);
   }
 }

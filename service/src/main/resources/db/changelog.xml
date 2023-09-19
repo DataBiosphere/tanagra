@@ -21,4 +21,5 @@
     <include file="changesets/20230831_artifact_is_deleted_flags_mariadb.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20230901_activity_log.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20230908_activity_log_count.yaml" relativeToChangelogFile="true"/>
+    <include file="changesets/20230919_criteria_plugin_version.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

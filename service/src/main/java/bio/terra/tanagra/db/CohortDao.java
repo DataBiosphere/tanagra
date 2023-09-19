@@ -101,7 +101,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
-      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config FROM criteria";
+      "SELECT cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, plugin_version, selection_data, ui_config FROM criteria";
   private static final RowMapper<Pair<List<String>, Criteria.Builder>> CRITERIA_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -113,6 +113,7 @@ public class CohortDao {
                   .id(rs.getString("id"))
                   .displayName(rs.getString("display_name"))
                   .pluginName(rs.getString("plugin_name"))
+                  .pluginVersion(rs.getInt("plugin_version"))
                   .selectionData(rs.getString("selection_data"))
                   .uiConfig(rs.getString("ui_config")));
 
@@ -619,6 +620,7 @@ public class CohortDao {
                   .addValue("id", c.getId())
                   .addValue("display_name", c.getDisplayName())
                   .addValue("plugin_name", c.getPluginName())
+                  .addValue("plugin_version", c.getPluginVersion())
                   .addValue("selection_data", c.getSelectionData())
                   .addValue("ui_config", c.getUiConfig())
                   .addValue("list_index", cListIndex));
@@ -659,8 +661,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, selection_data, ui_config, list_index) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :list_index)";
+        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, plugin_version, selection_data, ui_config, list_index) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :plugin_version, :selection_data, :ui_config, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
     rowsAffected =
         Arrays.stream(

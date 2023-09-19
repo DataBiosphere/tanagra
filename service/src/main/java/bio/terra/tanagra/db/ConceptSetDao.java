@@ -42,7 +42,7 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
-      "SELECT concept_set_id, id, display_name, plugin_name, selection_data, ui_config FROM criteria";
+      "SELECT concept_set_id, id, display_name, plugin_name, plugin_version, selection_data, ui_config FROM criteria";
   private static final RowMapper<Pair<String, Criteria.Builder>> CRITERIA_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -51,6 +51,7 @@ public class ConceptSetDao {
                   .id(rs.getString("id"))
                   .displayName(rs.getString("display_name"))
                   .pluginName(rs.getString("plugin_name"))
+                  .pluginVersion(rs.getInt("plugin_version"))
                   .selectionData(rs.getString("selection_data"))
                   .uiConfig(rs.getString("ui_config")));
 
@@ -274,8 +275,8 @@ public class ConceptSetDao {
 
     // Write the criteria.
     sql =
-        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, selection_data, ui_config, list_index) "
-            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :selection_data, :ui_config, :list_index)";
+        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, plugin_version, selection_data, ui_config, list_index) "
+            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :plugin_version, :selection_data, :ui_config, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
     List<MapSqlParameterSource> criteriaParamSets =
         criteria.stream()
@@ -286,6 +287,7 @@ public class ConceptSetDao {
                         .addValue("id", c.getId())
                         .addValue("display_name", c.getDisplayName())
                         .addValue("plugin_name", c.getPluginName())
+                        .addValue("plugin_version", c.getPluginVersion())
                         .addValue("selection_data", c.getSelectionData())
                         .addValue("ui_config", c.getUiConfig())
                         .addValue("list_index", 0))

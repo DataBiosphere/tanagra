@@ -1638,7 +1638,7 @@ function fromAPICohort(cohort: tanagra.Cohort): tanagraUI.UICohort {
 }
 
 function fromAPICriteriaGroupSections(
-  sections?: tanagra.CriteriaGroupSectionV3[]
+  sections?: tanagra.CriteriaGroupSection[]
 ): tanagraUI.UIGroupSection[] {
   if (!sections?.length) {
     return [defaultSection()];
@@ -1649,7 +1649,7 @@ function fromAPICriteriaGroupSections(
     name: section.displayName,
     filter: {
       kind:
-        section.operator === tanagra.CriteriaGroupSectionV3OperatorEnum.And
+        section.operator === tanagra.CriteriaGroupSectionOperatorEnum.And
           ? tanagraUI.UIGroupSectionFilterKindEnum.All
           : tanagraUI.UIGroupSectionFilterKindEnum.Any,
       excluded: section.excluded,
@@ -1683,14 +1683,14 @@ function fromAPIConceptSet(
 
 function toAPICriteriaGroupSections(
   groupSections: tanagraUI.UIGroupSection[]
-): tanagra.CriteriaGroupSectionV3[] {
+): tanagra.CriteriaGroupSection[] {
   return groupSections.map((section) => ({
     id: section.id,
     displayName: section.name ?? "",
     operator:
       section.filter.kind === tanagraUI.UIGroupSectionFilterKindEnum.All
-        ? tanagra.CriteriaGroupSectionV3OperatorEnum.And
-        : tanagra.CriteriaGroupSectionV3OperatorEnum.Or,
+        ? tanagra.CriteriaGroupSectionOperatorEnum.And
+        : tanagra.CriteriaGroupSectionOperatorEnum.Or,
     excluded: section.filter.excluded,
     criteriaGroups: section.groups.map((group) => ({
       id: group.id,

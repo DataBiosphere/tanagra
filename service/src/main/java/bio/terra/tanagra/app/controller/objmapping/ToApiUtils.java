@@ -68,13 +68,13 @@ public final class ToApiUtils {
                 .collect(Collectors.toList()));
   }
 
-  public static ApiCriteriaGroupSectionV3 toApiObject(
+  public static ApiCriteriaGroupSection toApiObject(
       CohortRevision.CriteriaGroupSection criteriaGroupSection) {
-    return new ApiCriteriaGroupSectionV3()
+    return new ApiCriteriaGroupSection()
         .id(criteriaGroupSection.getId())
         .displayName(criteriaGroupSection.getDisplayName())
         .operator(
-            ApiCriteriaGroupSectionV3.OperatorEnum.fromValue(
+            ApiCriteriaGroupSection.OperatorEnum.fromValue(
                 criteriaGroupSection.getOperator().name()))
         .excluded(criteriaGroupSection.isExcluded())
         .criteriaGroups(
@@ -83,8 +83,8 @@ public final class ToApiUtils {
                 .collect(Collectors.toList()));
   }
 
-  private static ApiCriteriaGroupV3 toApiObject(CohortRevision.CriteriaGroup criteriaGroup) {
-    return new ApiCriteriaGroupV3()
+  private static ApiCriteriaGroup toApiObject(CohortRevision.CriteriaGroup criteriaGroup) {
+    return new ApiCriteriaGroup()
         .id(criteriaGroup.getId())
         .displayName(criteriaGroup.getDisplayName())
         .entity(criteriaGroup.getEntity())
@@ -104,6 +104,7 @@ public final class ToApiUtils {
         .id(criteria.getId())
         .displayName(criteria.getDisplayName())
         .pluginName(criteria.getPluginName())
+        .pluginVersion(criteria.getPluginVersion())
         .selectionData(criteria.getSelectionData())
         .uiConfig(criteria.getUiConfig())
         .tags(criteria.getTags());
