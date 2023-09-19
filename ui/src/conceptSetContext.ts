@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import * as tanagraUI from "tanagra-ui";
+import { upgradeCriteria } from "./cohort";
 
 // SWR treats falsy values as failures, so track uncreated concept sets here.
 type ConceptSetContextState = {
@@ -53,6 +54,10 @@ export function useNewConceptSetContext() {
     const newState: ConceptSetContextState = { ...defaultState };
     if (conceptSetId) {
       newState.conceptSet = await source.getConceptSet(studyId, conceptSetId);
+      upgradeCriteria(
+        newState.conceptSet.criteria,
+        underlay.uiConfiguration.criteriaConfigs
+      );
     }
     return newState;
   });

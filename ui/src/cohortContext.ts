@@ -1,11 +1,17 @@
 import { defaultGroup, defaultSection } from "cohort";
 import { useSource } from "data/sourceContext";
+import { useUnderlay } from "hooks";
 import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import * as tanagraUI from "tanagra-ui";
-import { getCriteriaPlugin, getCriteriaTitle, sectionName } from "./cohort";
+import {
+  getCriteriaPlugin,
+  getCriteriaTitle,
+  sectionName,
+  upgradeCriteria,
+} from "./cohort";
 
 type CohortState = {
   past: tanagraUI.UICohort[];
@@ -38,6 +44,7 @@ export function useCohortContext() {
 }
 
 export function useNewCohortContext(showSnackbar: (message: string) => void) {
+  const underlay = useUnderlay();
   const source = useSource();
   const { studyId, cohortId } =
     useParams<{ studyId: string; cohortId: string }>();
@@ -56,7 +63,15 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
     cohortId,
   };
   const status = useSWR(key, async () => {
-    return await source.getCohort(studyId, cohortId);
+    const cohort = await source.getCohort(studyId, cohortId);
+    for (const gs of cohort.groupSections) {
+      for (const g of gs.groups) {
+        for (const c of g.criteria) {
+          upgradeCriteria(c, underlay.uiConfiguration.criteriaConfigs);
+        }
+      }
+    }
+    return cohort;
   });
 
   useEffect(
