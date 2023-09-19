@@ -53,7 +53,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "codegen": "rm -rf src/tanagra-api && openapi-generator-cli generate -i ../service/src/main/resources/api/api_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true -o src/tanagra-api && rm -rf src/tanagra-ui && openapi-generator-cli generate -i ./ui_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true --model-name-prefix UI -o src/tanagra-ui"
+    "codegen": "rm -rf src/tanagra-api && openapi-generator-cli generate -i ../service/src/main/resources/api/service_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true -o src/tanagra-api && rm -rf src/tanagra-ui && openapi-generator-cli generate -i ./ui_openapi.yaml -g typescript-fetch -t ./openapi-templates --additional-properties=typescriptThreePlus=true --model-name-prefix UI -o src/tanagra-ui"
   },
   "eslintConfig": {
     "extends": [
