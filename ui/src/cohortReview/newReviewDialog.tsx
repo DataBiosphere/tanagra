@@ -13,11 +13,11 @@ import { TextField } from "mui-rff";
 import { useState } from "react";
 import { Form } from "react-final-form";
 import useSWRImmutable from "swr/immutable";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { isValid } from "util/valid";
 
 export type UseNewReviewDialogProps = {
-  cohort: tanagra.Cohort;
+  cohort: tanagraUI.UICohort;
   onCreate: (name: string, size: number) => void;
 };
 

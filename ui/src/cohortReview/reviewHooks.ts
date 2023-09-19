@@ -5,14 +5,14 @@ import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useBaseParams } from "router";
 import useSWR from "swr";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { CohortReviewConfig } from "underlaysSlice";
 import { useSearchData } from "util/searchData";
 
 export type ReviewParams = {
   studyId: string;
   reviewId: string;
-  cohort: tanagra.Cohort;
+  cohort: tanagraUI.UICohort;
 
   primaryKey: string;
   primaryAttributes: string[];

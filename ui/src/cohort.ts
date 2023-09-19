@@ -8,7 +8,7 @@ import { MergedDataEntry, Source } from "data/source";
 import { DataEntry } from "data/types";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { isValid } from "util/valid";
 import { CriteriaConfig } from "./underlaysSlice";
 
@@ -16,7 +16,9 @@ export function generateId(): string {
   return generate(8);
 }
 
-export function generateCohortFilter(cohort: tanagra.Cohort): Filter | null {
+export function generateCohortFilter(
+  cohort: tanagraUI.UICohort
+): Filter | null {
   return makeArrayFilter(
     {},
     cohort.groupSections
@@ -25,9 +27,11 @@ export function generateCohortFilter(cohort: tanagra.Cohort): Filter | null {
   );
 }
 
-function generateSectionFilter(section: tanagra.GroupSection): Filter | null {
+function generateSectionFilter(
+  section: tanagraUI.UIGroupSection
+): Filter | null {
   const filter = makeArrayFilter(
-    section.filter.kind === tanagra.GroupSectionFilterKindEnum.Any
+    section.filter.kind === tanagraUI.UIGroupSectionFilterKindEnum.Any
       ? { min: 1 }
       : {},
     section.groups
@@ -45,7 +49,7 @@ function generateSectionFilter(section: tanagra.GroupSection): Filter | null {
   };
 }
 
-function generateGroupSectionFilter(group: tanagra.Group): Filter | null {
+function generateGroupSectionFilter(group: tanagraUI.UIGroup): Filter | null {
   const plugins = group.criteria.map((c) => getCriteriaPlugin(c));
   const filter = makeArrayFilter(
     {},
@@ -76,24 +80,26 @@ function generateGroupSectionFilter(group: tanagra.Group): Filter | null {
   };
 }
 
-export function sectionName(section: tanagra.GroupSection, index: number) {
+export function sectionName(section: tanagraUI.UIGroupSection, index: number) {
   return section.name || "Group " + String(index + 1);
 }
 
 export function defaultSection(
-  criteria?: tanagra.Criteria
-): tanagra.GroupSection {
+  criteria?: tanagraUI.UICriteria
+): tanagraUI.UIGroupSection {
   return {
     id: generateId(),
     filter: {
-      kind: tanagra.GroupSectionFilterKindEnum.Any,
+      kind: tanagraUI.UIGroupSectionFilterKindEnum.Any,
       excluded: false,
     },
     groups: !!criteria ? [defaultGroup(criteria)] : [],
   };
 }
 
-export function defaultGroup(criteria: tanagra.Criteria): tanagra.Group {
+export function defaultGroup(
+  criteria: tanagraUI.UICriteria
+): tanagraUI.UIGroup {
   return {
     id: criteria.id,
     entity: getCriteriaPlugin(criteria).filterOccurrenceId(),
@@ -101,8 +107,8 @@ export function defaultGroup(criteria: tanagra.Criteria): tanagra.Group {
   };
 }
 
-export const defaultFilter: tanagra.GroupSectionFilter = {
-  kind: tanagra.GroupSectionFilterKindEnum.Any,
+export const defaultFilter: tanagraUI.UIGroupSectionFilter = {
+  kind: tanagraUI.UIGroupSectionFilterKindEnum.Any,
   excluded: false,
 };
 
@@ -118,7 +124,7 @@ export interface CriteriaPlugin<DataType> {
   renderInline: (groupId: string) => ReactNode;
   displayDetails: () => DisplayDetails;
   generateFilter: () => Filter | null;
-  groupByCountFilter?: () => tanagra.GroupByCount | null;
+  groupByCountFilter?: () => tanagraUI.UIGroupByCount | null;
   filterOccurrenceId: () => string;
   outputOccurrenceIds?: () => string[];
 }
@@ -130,7 +136,7 @@ export type DisplayDetails = {
 };
 
 export function getCriteriaTitle<DataType>(
-  criteria: tanagra.Criteria,
+  criteria: tanagraUI.UICriteria,
   plugin?: CriteriaPlugin<DataType>
 ) {
   const p = plugin ?? getCriteriaPlugin(criteria);
@@ -139,7 +145,7 @@ export function getCriteriaTitle<DataType>(
 }
 
 export function getCriteriaTitleFull<DataType>(
-  criteria: tanagra.Criteria,
+  criteria: tanagraUI.UICriteria,
   plugin?: CriteriaPlugin<DataType>
 ) {
   const p = plugin ?? getCriteriaPlugin(criteria);
@@ -210,7 +216,7 @@ export function createCriteria(
   source: Source,
   config: CriteriaConfig,
   dataEntry?: DataEntry
-): tanagra.Criteria {
+): tanagraUI.UICriteria {
   const entry = getCriteriaEntry(config.type);
   return {
     id: generateId(),
@@ -221,7 +227,7 @@ export function createCriteria(
 }
 
 export function getCriteriaPlugin(
-  criteria: tanagra.Criteria,
+  criteria: tanagraUI.UICriteria,
   entity?: string
 ): CriteriaPlugin<object> {
   return new (getCriteriaEntry(criteria.type).constructor)(

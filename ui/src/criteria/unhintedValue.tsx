@@ -10,7 +10,7 @@ import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import GridLayout from "layout/gridLayout";
 import React, { useState } from "react";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
 
 interface Config extends CriteriaConfig {
@@ -19,27 +19,27 @@ interface Config extends CriteriaConfig {
 }
 
 interface Data {
-  operator: tanagra.ComparisonOperator;
+  operator: tanagraUI.UIComparisonOperator;
   min: number;
   max: number;
 }
 
 function rangeFromData(data: Data) {
-  if (data.operator === tanagra.ComparisonOperator.Equal) {
+  if (data.operator === tanagraUI.UIComparisonOperator.Equal) {
     return { min: data.min, max: data.min };
   }
 
-  if (data.operator === tanagra.ComparisonOperator.Between) {
+  if (data.operator === tanagraUI.UIComparisonOperator.Between) {
     return { min: data.min, max: data.max };
   }
 
   return {
     min:
-      data.operator === tanagra.ComparisonOperator.LessThanEqual
+      data.operator === tanagraUI.UIComparisonOperator.LessThanEqual
         ? Number.MIN_SAFE_INTEGER
         : data.min,
     max:
-      data.operator === tanagra.ComparisonOperator.GreaterThanEqual
+      data.operator === tanagraUI.UIComparisonOperator.GreaterThanEqual
         ? Number.MAX_SAFE_INTEGER
         : data.min,
   };
@@ -47,7 +47,7 @@ function rangeFromData(data: Data) {
 
 @registerCriteriaPlugin("unhinted-value", () => {
   return {
-    operator: tanagra.ComparisonOperator.GreaterThanEqual,
+    operator: tanagraUI.UIComparisonOperator.GreaterThanEqual,
     min: 1,
     max: 10,
   };
@@ -166,10 +166,12 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
   };
 
   const operatorOptions = [
-    tanagra.ComparisonOperator.Equal,
-    tanagra.ComparisonOperator.LessThanEqual,
-    tanagra.ComparisonOperator.GreaterThanEqual,
-    ...(!props.config.groupByCount ? [tanagra.ComparisonOperator.Between] : []),
+    tanagraUI.UIComparisonOperator.Equal,
+    tanagraUI.UIComparisonOperator.LessThanEqual,
+    tanagraUI.UIComparisonOperator.GreaterThanEqual,
+    ...(!props.config.groupByCount
+      ? [tanagraUI.UIComparisonOperator.Between]
+      : []),
   ];
 
   const onSelectOperator = (event: SelectChangeEvent<string>) => {
@@ -178,7 +180,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
     } = event;
     updateCriteria(
       produce(props.data, (data) => {
-        data.operator = sel as tanagra.ComparisonOperator;
+        data.operator = sel as tanagraUI.UIComparisonOperator;
       })
     );
   };
@@ -213,7 +215,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
             type: "number",
           }}
         />
-        {props.data.operator === tanagra.ComparisonOperator.Between ? (
+        {props.data.operator === tanagraUI.UIComparisonOperator.Between ? (
           <GridLayout cols rowAlign="middle" height="auto">
             <Typography variant="body1">&nbsp;and&nbsp;</Typography>
             <Input

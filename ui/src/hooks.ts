@@ -13,7 +13,7 @@ import { useSource } from "data/sourceContext";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortURL, useBaseParams } from "router";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 
 export class PathError extends Error {}
 
@@ -38,7 +38,7 @@ function useOptionalCohort(throwOnUnknown: boolean) {
 }
 
 export function useCohort() {
-  return useOptionalCohort(true) as NonNullable<tanagra.Cohort>;
+  return useOptionalCohort(true) as NonNullable<tanagraUI.UICohort>;
 }
 
 export function useCohortGroupSectionAndGroup() {
@@ -80,7 +80,7 @@ function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
   return { section, sectionIndex, group };
 }
 
-let newCriteria: tanagra.Criteria | undefined;
+let newCriteria: tanagraUI.UICriteria | undefined;
 let newCriteriaRefCount = 0;
 
 function useOptionalNewCriteria(throwOnUnknown: boolean) {
@@ -116,7 +116,7 @@ function useOptionalNewCriteria(throwOnUnknown: boolean) {
 }
 
 export function useNewCriteria() {
-  return useOptionalNewCriteria(true) as NonNullable<tanagra.Criteria>;
+  return useOptionalNewCriteria(true) as NonNullable<tanagraUI.UICriteria>;
 }
 
 export function useIsNewCriteria() {
@@ -127,9 +127,9 @@ export function useGroupSectionAndGroup() {
   const { section, sectionIndex, group } =
     useOptionalGroupSectionAndGroup(true);
   return {
-    section: section as NonNullable<tanagra.GroupSection>,
+    section: section as NonNullable<tanagraUI.UIGroupSection>,
     sectionIndex,
-    group: group as NonNullable<tanagra.Group>,
+    group: group as NonNullable<tanagraUI.UIGroup>,
   };
 }
 
@@ -142,7 +142,7 @@ function useOptionalConceptSet(throwOnUnknown: boolean) {
 }
 
 export function useConceptSet() {
-  return useOptionalConceptSet(true) as NonNullable<tanagra.ConceptSet>;
+  return useOptionalConceptSet(true) as NonNullable<tanagraUI.UIConceptSet>;
 }
 
 export function useUpdateCriteria(groupId?: string, criteriaId?: string) {

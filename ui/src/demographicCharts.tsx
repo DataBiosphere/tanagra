@@ -22,7 +22,7 @@ import {
   YAxis,
 } from "recharts";
 import useSWRImmutable from "swr/immutable";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
 import { generateCohortFilter } from "./cohort";
@@ -133,7 +133,7 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
 }
 
 export type DemographicChartsProps = {
-  cohort: tanagra.Cohort;
+  cohort: tanagraUI.UICohort;
   separateCharts?: boolean;
   extraControls?: ReactNode;
 };

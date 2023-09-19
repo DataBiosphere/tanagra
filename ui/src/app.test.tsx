@@ -10,5 +10,7 @@ test("render included datasets heading", async () => {
   });
 
   userEvent.click(screen.getByText("underlay_name"));
-  await waitFor(() => expect(screen.getByText(/add study/i)).toBeInTheDocument());
+  await waitFor(() =>
+    expect(screen.getByText(/add study/i)).toBeInTheDocument()
+  );
 });

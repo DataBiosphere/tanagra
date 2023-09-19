@@ -4,11 +4,11 @@ import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 
 // SWR treats falsy values as failures, so track uncreated concept sets here.
 type ConceptSetContextState = {
-  conceptSet: tanagra.ConceptSet | null;
+  conceptSet: tanagraUI.UIConceptSet | null;
 };
 
 type ConceptSetContextData = {
@@ -98,7 +98,7 @@ export function useNewConceptSetContext() {
 
 export function createConceptSet(
   context: ConceptSetContextData,
-  criteria: tanagra.Criteria
+  criteria: tanagraUI.UICriteria
 ) {
   context.updateState((state) => {
     state.conceptSet = { id: "", underlayName: "", criteria };

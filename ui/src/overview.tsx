@@ -45,7 +45,7 @@ import {
 } from "router";
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import {
   createCriteria,
   defaultFilter,
@@ -187,7 +187,7 @@ function GroupList() {
 }
 
 function ParticipantsGroupSection(props: {
-  groupSection: tanagra.GroupSection;
+  groupSection: tanagraUI.UIGroupSection;
   sectionIndex: number;
 }) {
   const source = useSource();
@@ -197,7 +197,7 @@ function ParticipantsGroupSection(props: {
   const { group } = useCohortGroupSectionAndGroup();
 
   const fetchSectionCount = useCallback(async () => {
-    const cohortForFilter: tanagra.Cohort = {
+    const cohortForFilter: tanagraUI.UICohort = {
       ...cohort,
       groupSections: [props.groupSection],
     };
@@ -265,7 +265,7 @@ function ParticipantsGroupSection(props: {
                   {
                     ...props.groupSection.filter,
                     kind: event.target
-                      .value as tanagra.GroupSectionFilterKindEnum,
+                      .value as tanagraUI.UIGroupSectionFilterKindEnum,
                   }
                 );
               }}
@@ -276,10 +276,10 @@ function ParticipantsGroupSection(props: {
                 },
               }}
             >
-              <MenuItem value={tanagra.GroupSectionFilterKindEnum.Any}>
+              <MenuItem value={tanagraUI.UIGroupSectionFilterKindEnum.Any}>
                 any
               </MenuItem>
-              <MenuItem value={tanagra.GroupSectionFilterKindEnum.All}>
+              <MenuItem value={tanagraUI.UIGroupSectionFilterKindEnum.All}>
                 all
               </MenuItem>
             </Select>
@@ -337,7 +337,7 @@ function ParticipantsGroupSection(props: {
                 <Chip
                   label={
                     props.groupSection.filter.kind ===
-                    tanagra.GroupSectionFilterKindEnum.Any
+                    tanagraUI.UIGroupSectionFilterKindEnum.Any
                       ? "OR"
                       : "AND"
                   }
@@ -386,8 +386,8 @@ function ParticipantsGroupSection(props: {
 }
 
 function ParticipantsGroup(props: {
-  groupSection: tanagra.GroupSection;
-  group: tanagra.Group;
+  groupSection: tanagraUI.UIGroupSection;
+  group: tanagraUI.UIGroup;
 }) {
   const source = useSource();
   const cohort = useCohort();
@@ -397,7 +397,7 @@ function ParticipantsGroup(props: {
   const { groupId } = useParams<{ groupId: string }>();
 
   const fetchGroupCount = useCallback(async () => {
-    const cohortForFilter: tanagra.Cohort = {
+    const cohortForFilter: tanagraUI.UICohort = {
       ...cohort,
       groupSections: [
         {

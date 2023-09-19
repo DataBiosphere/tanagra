@@ -4,13 +4,13 @@ import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { getCriteriaPlugin, getCriteriaTitle, sectionName } from "./cohort";
 
 type CohortState = {
-  past: tanagra.Cohort[];
-  present: tanagra.Cohort;
-  future: tanagra.Cohort[];
+  past: tanagraUI.UICohort[];
+  present: tanagraUI.UICohort;
+  future: tanagraUI.UICohort[];
 
   saving: boolean;
   showSnackbar: (message: string) => void;
@@ -21,7 +21,7 @@ type CohortContextData = {
   updateState: (update: (state: CohortState) => void) => void;
   updatePresent: (
     update: (
-      present: tanagra.Cohort,
+      present: tanagraUI.UICohort,
       showSnackbar: (message: string) => void
     ) => void
   ) => void;
@@ -111,7 +111,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
       },
       updatePresent: async (
         update: (
-          present: tanagra.Cohort,
+          present: tanagraUI.UICohort,
           showSnackbar: (message: string) => void
         ) => void
       ) => {
@@ -148,7 +148,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
 export function insertCohortCriteria(
   context: CohortContextData,
   sectionId: string,
-  criteria: tanagra.Criteria
+  criteria: tanagraUI.UICriteria
 ) {
   const group = defaultGroup(criteria);
 
@@ -181,7 +181,7 @@ export function insertCohortCriteriaModifier(
   context: CohortContextData,
   sectionId: string,
   groupId: string,
-  criteria: tanagra.Criteria
+  criteria: tanagraUI.UICriteria
 ) {
   context.updatePresent((present) => {
     const section = present.groupSections.find(
@@ -304,7 +304,7 @@ export function deleteCohortGroup(
 
 export function insertCohortGroupSection(
   context: CohortContextData,
-  criteria?: tanagra.Criteria
+  criteria?: tanagraUI.UICriteria
 ) {
   context.updatePresent((present) => {
     present.groupSections.push(defaultSection(criteria));
@@ -340,7 +340,7 @@ export function updateCohortGroupSection(
   context: CohortContextData,
   sectionId: string,
   name?: string,
-  filter?: tanagra.GroupSectionFilter
+  filter?: tanagraUI.UIGroupSectionFilter
 ) {
   context.updatePresent((present) => {
     const section = present.groupSections.find(

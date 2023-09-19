@@ -59,7 +59,7 @@ import {
 import { StudyName } from "studyName";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
-import * as tanagra from "tanagra-api";
+import * as tanagraUI from "tanagra-ui";
 import { useImmer } from "use-immer";
 import { isValid } from "util/valid";
 
@@ -458,7 +458,7 @@ type ConceptSetOccurrence = {
 
 function useConceptSetOccurrences(
   selectedConceptSets: Set<string>,
-  workspaceConceptSets?: tanagra.ConceptSet[]
+  workspaceConceptSets?: tanagraUI.UIConceptSet[]
 ): ConceptSetOccurrence[] {
   const underlay = useUnderlay();
   const source = useSource();
@@ -728,7 +728,7 @@ type ConceptSetParams = {
 };
 
 type ExportDialogProps = {
-  cohorts: tanagra.Cohort[];
+  cohorts: tanagraUI.UICohort[];
   cohortsFilter: Filter | null;
   conceptSetParams: ConceptSetParams[];
 };
