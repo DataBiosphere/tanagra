@@ -96,9 +96,7 @@ class FakeUnderlaysApi {
       uiConfiguration: JSON.stringify(uiConfiguration),
     };
   }
-}
 
-class FakeEntitiesApi {
   async listEntities(): Promise<tanagra.EntityList> {
     return {
       entities: [
@@ -137,9 +135,7 @@ class FakeEntitiesApi {
       ],
     };
   }
-}
 
-class FakeInstancesApi {
   async listInstances(): Promise<tanagra.InstanceListResult> {
     return {
       sql: "SELECT * FROM table WHERE xyz;",
@@ -172,9 +168,7 @@ class FakeInstancesApi {
       ],
     };
   }
-}
 
-class FakeHintsApi {
   async queryHints(): Promise<tanagra.DisplayHintList> {
     return {
       displayHints: [
@@ -324,18 +318,6 @@ function apiForEnvironment<Real, Fake>(
 export const UnderlaysApiContext = apiForEnvironment(
   tanagra.UnderlaysApi,
   FakeUnderlaysApi
-);
-export const EntityInstancesApiContext = apiForEnvironment(
-  tanagra.InstancesApi,
-  FakeInstancesApi
-);
-export const EntitiesApiContext = apiForEnvironment(
-  tanagra.EntitiesApi,
-  FakeEntitiesApi
-);
-export const HintsApiContext = apiForEnvironment(
-  tanagra.HintsApi,
-  FakeHintsApi
 );
 export const StudiesApiContext = apiForEnvironment(
   tanagra.StudiesApi,

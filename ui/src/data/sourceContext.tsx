@@ -2,10 +2,7 @@ import {
   AnnotationsApiContext,
   CohortsApiContext,
   ConceptSetsApiContext,
-  EntitiesApiContext,
-  EntityInstancesApiContext,
   ExportApiContext,
-  HintsApiContext,
   ReviewsApiContext,
   StudiesApiContext,
   UnderlaysApiContext,
@@ -39,12 +36,7 @@ export function SourceContextRoot() {
   }
 
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
-  const underlaysApi = useContext(UnderlaysApiContext);
-  const entitiesApi = useContext(EntitiesApiContext);
-  const instancesApi = useContext(
-    EntityInstancesApiContext
-  ) as tanagra.InstancesApi;
-  const hintsApi = useContext(HintsApiContext) as tanagra.HintsApi;
+  const underlaysApi = useContext(UnderlaysApiContext) as tanagra.UnderlaysApi;
   const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesApi;
   const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsApi;
   const conceptSetsApi = useContext(
@@ -69,7 +61,7 @@ export function SourceContextRoot() {
         throw new Error(`No UI configuration in underlay ${underlayName}.`);
       }
 
-      const entitiesRes = await entitiesApi.listEntities({
+      const entitiesRes = await underlaysApi.listEntities({
         underlayName,
       });
       if (!entitiesRes?.entities) {
@@ -86,8 +78,7 @@ export function SourceContextRoot() {
 
       return {
         source: new BackendSource(
-          instancesApi,
-          hintsApi,
+          underlaysApi,
           studiesApi,
           cohortsApi,
           conceptSetsApi,
