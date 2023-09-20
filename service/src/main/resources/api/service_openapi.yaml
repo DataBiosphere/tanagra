@@ -1735,7 +1735,7 @@ components:
           type: array
           description: Criteria group sections that define the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupSectionV3"
+            $ref: "#/components/schemas/CriteriaGroupSection"
         created:
           description: Timestamp of when the cohort was created
           type: string
@@ -1792,7 +1792,7 @@ components:
           type: array
           description: Criteria group sections that define the entity filter
           items:
-            $ref: "#/components/schemas/CriteriaGroupSectionV3"
+            $ref: "#/components/schemas/CriteriaGroupSection"
 
     CohortDisplayName:
       type: string
@@ -1889,36 +1889,7 @@ components:
       type: string
       description: Name of the underlay, immutable
 
-    CriteriaGroup:
-      type: object
-      description: Group of criteria for a cohort definition
-      properties:
-        id:
-          type: string
-          description: ID of the group, immutable
-        displayName:
-          type: string
-          description: Name of the group
-        criteria:
-          type: array
-          description: Set of criteria in the group
-          items:
-            $ref: "#/components/schemas/Criteria"
-        operator:
-          type: string
-          description: Operator to use when combining the criteria in the group
-          enum: ["AND", "OR"]
-        excluded:
-          type: boolean
-          description: True to exclude the group, false to include it
-      required:
-        - id
-        - displayName
-        - criteria
-        - operator
-        - excluded
-
-    CriteriaGroupSectionV3:
+    CriteriaGroupSection:
       type: object
       description: Section of criteria groups and boolean logic operators to combine them
       properties:
@@ -1932,7 +1903,7 @@ components:
           type: array
           description: Set of criteria groups in the section
           items:
-            $ref: "#/components/schemas/CriteriaGroupV3"
+            $ref: "#/components/schemas/CriteriaGroup"
         operator:
           type: string
           description: Operator to use when combining the criteria groups in the section
@@ -1947,7 +1918,7 @@ components:
         - operator
         - excluded
 
-    CriteriaGroupV3:
+    CriteriaGroup:
       type: object
       description: Group of related criteria (primary + modifiers)
       properties:
@@ -1991,6 +1962,9 @@ components:
         pluginName:
           type: string
           description: Name of the plugin that generated this criteria
+        pluginVersion:
+          type: integer
+          description: Version of the plugin that generated this criteria
         selectionData:
           type: string # JSON formatted
           description: Serialized plugin-specific representation of the user's selection

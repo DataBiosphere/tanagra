@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: criteria_plugin_version
+      author: marikomedlock
+      changes:
+        - addColumn:
+            tableName: criteria
+            columns:
+              - column:
+                  name: plugin_version
+                  type: int
+                  value: 0 # Backfill existing rows with 0.

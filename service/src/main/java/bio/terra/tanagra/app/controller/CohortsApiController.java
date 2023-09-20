@@ -112,8 +112,7 @@ public class CohortsApiController implements CohortsApi {
     return ResponseEntity.ok(ToApiUtils.toApiObject(updatedCohort));
   }
 
-  private static CohortRevision.CriteriaGroupSection fromApiObject(
-      ApiCriteriaGroupSectionV3 apiObj) {
+  private static CohortRevision.CriteriaGroupSection fromApiObject(ApiCriteriaGroupSection apiObj) {
     return CohortRevision.CriteriaGroupSection.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
@@ -126,7 +125,7 @@ public class CohortsApiController implements CohortsApi {
         .build();
   }
 
-  private static CohortRevision.CriteriaGroup fromApiObject(ApiCriteriaGroupV3 apiObj) {
+  private static CohortRevision.CriteriaGroup fromApiObject(ApiCriteriaGroup apiObj) {
     return CohortRevision.CriteriaGroup.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
