@@ -14,7 +14,7 @@
         "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
-        "idPairsTable": { "table": "measurement" },
+        "idPairsTable": { "rawSqlFile": "measurement_occurrence_all.sql" },
         "idPairsIdA": { "column": "measurement_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
       }
