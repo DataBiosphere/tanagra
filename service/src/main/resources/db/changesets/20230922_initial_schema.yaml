@@ -26,7 +26,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: created
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -37,7 +37,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -48,7 +48,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: is_deleted
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
 
@@ -120,7 +120,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: created
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -131,7 +131,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -142,7 +142,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: is_deleted
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
 
@@ -182,7 +182,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: created
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -193,7 +193,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -204,7 +204,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: is_deleted
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
 
@@ -239,12 +239,12 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: size
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: false
               - column:
                   name: created
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -255,7 +255,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -266,7 +266,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: is_deleted
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -295,7 +295,7 @@ databaseChangeLog:
                   remarks: The primary entity instance id is defined by the underlying dataset, not by this application DB
               - column:
                   name: stable_index
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: false
                     unique: false
@@ -334,22 +334,22 @@ databaseChangeLog:
                   remarks: Deleting a review will cascade to delete the cohort revisions associated with it
               - column:
                   name: version
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: false
               - column:
                   name: is_most_recent
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
               - column:
                   name: is_editable
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
               - column:
                   name: created
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -360,7 +360,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: last_modified
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -371,7 +371,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: records_count
-                  type: bigint
+                  type: ${bigint.type}
                   constraints:
                     nullable: true
 
@@ -400,12 +400,12 @@ databaseChangeLog:
                   type: ${text.type}
               - column:
                   name: is_excluded
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
               - column:
                   name: list_index
-                  type: int
+                  type: ${integer.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -446,10 +446,10 @@ databaseChangeLog:
                   type: ${text.type}
               - column:
                   name: group_by_count_value
-                  type: integer
+                  type: ${integer.type}
               - column:
                   name: list_index
-                  type: int
+                  type: ${integer.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -503,7 +503,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: plugin_version
-                  type: int
+                  type: ${integer.type}
                   constraints:
                     nullable: false
               - column:
@@ -518,7 +518,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: list_index
-                  type: int
+                  type: ${integer.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -676,12 +676,12 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: bool_val
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: true
               - column:
                   name: int64_val
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: true
               - column:
@@ -691,7 +691,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: date_val
-                  type: date
+                  type: ${date.type}
                   constraints:
                     nullable: true
         - addForeignKeyConstraint:
@@ -736,7 +736,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: logged
-                  type: ${date.timezone}
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
@@ -767,7 +767,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: records_count
-                  type: bigint
+                  type: ${bigint.type}
                   constraints:
                     nullable: true
 
@@ -785,7 +785,7 @@ databaseChangeLog:
                   remarks: Deleting an activity log entry will cascade to delete the resources associated with it
               - column:
                   name: stable_index
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: false
                   remarks: Return the resources in a consistent order.

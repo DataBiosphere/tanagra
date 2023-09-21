@@ -4,12 +4,20 @@
     <property global="true" dbms="postgresql" name="id.type" value="text"/>
     <property global="true" dbms="postgresql" name="text.type" value="text"/>
     <property global="true" dbms="postgresql" name="long.text.type" value="text"/>
-    <property global="true" dbms="postgresql" name="date.timezone" value="timestamptz"/>
+    <property global="true" dbms="postgresql" name="integer.type" value="integer"/>
+    <property global="true" dbms="postgresql" name="bigint.type" value="bigint"/>
+    <property global="true" dbms="postgresql" name="date.type" value="date"/>
+    <property global="true" dbms="postgresql" name="timestamp.type" value="timestamptz"/>
+    <property global="true" dbms="postgresql" name="boolean.type" value="boolean"/>
 
     <property global="true" dbms="mariadb,mysql" name="id.type" value="varchar(50)"/>
     <property global="true" dbms="mariadb,mysql" name="text.type" value="varchar(255)"/>
     <property global="true" dbms="mariadb,mysql" name="long.text.type" value="longtext"/>
-    <property global="true" dbms="mariadb,mysql" name="date.timezone" value="timestamp"/>
+    <property global="true" dbms="mariadb,mysql" name="integer.type" value="integer"/>
+    <property global="true" dbms="mariadb,mysql" name="bigint.type" value="bigint"/>
+    <property global="true" dbms="mariadb,mysql" name="date.type" value="date"/>
+    <property global="true" dbms="mariadb,mysql" name="timestamp.type" value="timestamp"/>
+    <property global="true" dbms="mariadb,mysql" name="boolean.type" value="boolean"/>
 
     <!-- Changesets -->
     <include file="changesets/20230922_initial_schema.yaml" relativeToChangelogFile="true"/>
