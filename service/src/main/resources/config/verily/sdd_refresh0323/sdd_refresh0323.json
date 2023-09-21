@@ -3,16 +3,16 @@
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
-      "projectId": "victr-tanagra-test",
-      "datasetId": "sd_20230328"
+      "projectId": "sd-vumc-tanagra-test",
+      "datasetId": "sd_20230331"
     },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
       "projectId": "verily-tanagra-dev",
-      "datasetId": "sd20230328_index_091523",
+      "datasetId": "sd20230331_index_092123",
       "dataflowServiceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
-      "dataflowTempLocation":  "gs://dataflow-staging-us-east1-694046000181/temp/",
-      "dataflowRegion": "us-east1",
+      "dataflowTempLocation":  "gs://dataflow-staging-us-central1-694046000181/temp/",
+      "dataflowRegion": "us-central1",
       "dataflowWorkerMachineType" : "n1-standard-4",
       "dataflowUsePublicIps": false
     }

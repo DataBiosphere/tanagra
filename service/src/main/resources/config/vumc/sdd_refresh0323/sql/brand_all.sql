@@ -1,5 +1,5 @@
 SELECT *
-FROM `victr-tanagra-test.sd_20230328.concept`
+FROM `sd-vumc-tanagra-test.sd_20230331.concept`
 WHERE
   domain_id = 'Drug' AND concept_class_id = 'Brand Name'
   AND vocabulary_id IN ('RxNorm', 'RxNorm Extension')

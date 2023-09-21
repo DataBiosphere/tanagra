@@ -3,7 +3,7 @@
  Currently indexing doesn't handle floats properly, so change column to INTEGER.
 */
 SELECT CAST(platform_id as INT64) AS platform_id, assay_name as assay_name
-FROM `victr-tanagra-test.sd_20230328.platform`
+FROM `sd-vumc-tanagra-test.sd_20230331.platform`
 UNION ALL
 /*
  Add some rows to get hierarchy to work. Parent ids are defined in
