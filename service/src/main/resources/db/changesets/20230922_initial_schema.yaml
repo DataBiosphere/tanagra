@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: initial_schema
-      author: marikomedlock
+      author: marikomedlock, chenchalsubraveti
       dbms: postgresql,mariadb,mysql
       changes:
         - createTable:
