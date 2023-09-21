@@ -31,7 +31,7 @@ import GridLayout from "layout/gridLayout";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
-import { searchParamsFromData, useSearchData } from "util/searchData";
+import { useLocalSearchState } from "util/searchState";
 
 type Selection = {
   key: DataKey;
@@ -137,13 +137,16 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderEdit(doneAction: () => void, setBackURL: (url?: string) => void) {
+  renderEdit(
+    doneAction: () => void,
+    setBackAction: (action?: () => void) => void
+  ) {
     return (
       <ClassificationEdit
         data={this.data}
         config={this.config}
         doneAction={doneAction}
-        setBackURL={setBackURL}
+        setBackAction={setBackAction}
       />
     );
   }
@@ -217,7 +220,7 @@ function keyForNode(node: ClassificationNode): DataKey {
   return key;
 }
 
-type SearchData = {
+type SearchState = {
   // The query entered in the search box.
   query?: string;
   // The classification to show the hierarchy for.
@@ -232,7 +235,7 @@ type ClassificationEditProps = {
   data: Data;
   config: Config;
   doneAction: () => void;
-  setBackURL: (url?: string) => void;
+  setBackAction: (action?: () => void) => void;
 };
 
 function ClassificationEdit(props: ClassificationEditProps) {
@@ -244,15 +247,21 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const updateCriteria = useUpdateCriteria();
   const isNewCriteria = useIsNewCriteria();
 
-  const [searchData, updateSearchData] = useSearchData<SearchData>();
+  const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
 
   useEffect(() => {
-    props.setBackURL(
-      searchData.hierarchy
-        ? `.?${searchParamsFromData({ query: searchData.query })}`
+    // The extra function works around React defaulting to treating a function
+    // as an update function.
+    props.setBackAction(() =>
+      searchState.hierarchy
+        ? () => {
+            updateSearchState((data) => {
+              data.hierarchy = undefined;
+            });
+          }
         : undefined
     );
-  }, [searchData]);
+  }, [searchState]);
 
   const processEntities = useCallback(
     (
@@ -303,7 +312,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
       return data;
     },
-    [updateSearchData]
+    [updateSearchState]
   );
 
   const attributes = useMemo(
@@ -316,8 +325,8 @@ function ClassificationEdit(props: ClassificationEditProps) {
       .map((c) => c.id)
       .filter(
         (c) =>
-          !searchData?.hierarchyClassification ||
-          searchData?.hierarchyClassification === c
+          !searchState?.hierarchyClassification ||
+          searchState?.hierarchyClassification === c
       );
 
     const raw: [string, ClassificationNode[]][] = await Promise.all(
@@ -325,8 +334,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
         c,
         (
           await source.searchClassification(attributes, occurrence.id, c, {
-            query: !searchData?.hierarchy ? searchData?.query ?? "" : undefined,
-            includeGroupings: !searchData?.hierarchy,
+            query: !searchState?.hierarchy
+              ? searchState?.query ?? ""
+              : undefined,
+            includeGroupings: !searchState?.hierarchy,
             sortOrder: props.config.defaultSort,
           })
         ).nodes,
@@ -342,14 +353,14 @@ function ClassificationEdit(props: ClassificationEditProps) {
             ROLLUP_COUNT_ATTRIBUTE
         ]
     );
-    return processEntities(merged, searchData?.hierarchy);
-  }, [source, attributes, processEntities, searchData]);
+    return processEntities(merged, searchState?.hierarchy);
+  }, [source, attributes, processEntities, searchState]);
   const classificationState = useSWRImmutable(
     {
       component: "Classification",
       occurrenceId: occurrence.id,
       classificationIds: classifications.map((c) => c.id),
-      searchData,
+      searchState,
       attributes,
     },
     fetchClassification
@@ -393,7 +404,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       }}
     >
       <GridLayout rows>
-        {!searchData?.hierarchy && (
+        {!searchState?.hierarchy && (
           <GridBox
             sx={{
               px: 5,
@@ -404,11 +415,11 @@ function ClassificationEdit(props: ClassificationEditProps) {
             <Search
               placeholder="Search by code or description"
               onSearch={(query: string) => {
-                updateSearchData((data: SearchData) => {
+                updateSearchState((data: SearchState) => {
                   data.query = query;
                 });
               }}
-              initialValue={searchData?.query}
+              initialValue={searchState?.query}
             />
           </GridBox>
         )}
@@ -421,10 +432,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
             />
           ) : (
             <TreeGrid
-              columns={!!searchData?.hierarchy ? hierarchyColumns : allColumns}
+              columns={!!searchState?.hierarchy ? hierarchyColumns : allColumns}
               data={classificationState?.data ?? {}}
-              defaultExpanded={searchData?.hierarchy}
-              highlightId={searchData?.highlightId}
+              defaultExpanded={searchState?.hierarchy}
+              highlightId={searchState?.highlightId}
               rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
                 if (!classificationState.data) {
                   return undefined;
@@ -456,7 +467,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   <Button
                     startIcon={<AccountTreeIcon />}
                     onClick={() => {
-                      updateSearchData((data: SearchData) => {
+                      updateSearchState((data: SearchState) => {
                         if (rowData.view_hierarchy) {
                           data.hierarchyClassification = classification?.id;
                           data.hierarchy = rowData.view_hierarchy as DataKey[];
@@ -488,7 +499,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   </Button>
                 );
 
-                const listContent = !searchData?.hierarchy
+                const listContent = !searchState?.hierarchy
                   ? [
                       {
                         column: props.config.columns.length,
@@ -502,7 +513,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     ]
                   : [];
 
-                const hierarchyContent = searchData?.hierarchy
+                const hierarchyContent = searchState?.hierarchy
                   ? [
                       {
                         column: hierarchyColumns.length - 1,
@@ -557,7 +568,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   return Promise.resolve();
                 }
 
-                const classification = searchData?.hierarchyClassification;
+                const classification = searchState?.hierarchyClassification;
                 if (!classification) {
                   throw new Error("Classification unset for hierarchy.");
                 }
@@ -579,7 +590,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                             source: classification,
                             data: r,
                           })),
-                          searchData?.hierarchy,
+                          searchState?.hierarchy,
                           key,
                           data
                         )
@@ -602,7 +613,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                             source: classification,
                             data: r,
                           })),
-                          searchData?.hierarchy,
+                          searchState?.hierarchy,
                           key,
                           data
                         )

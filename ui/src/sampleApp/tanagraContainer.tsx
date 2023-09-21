@@ -1,5 +1,5 @@
 import GridLayout from "layout/gridLayout";
-import { useHref, useNavigate, useParams } from "react-router-dom";
+import { useHref, useParams } from "react-router-dom";
 import {
   RETURN_URL_PLACEHOLDER,
   useBaseParams,
@@ -7,6 +7,7 @@ import {
   useRedirectListener,
 } from "router";
 import { Header } from "sampleApp/header";
+import { useNavigate } from "util/searchState";
 
 export function TanagraContainer() {
   const navigate = useNavigate();

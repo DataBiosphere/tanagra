@@ -35,7 +35,7 @@ import { useCohort, useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback, useMemo } from "react";
-import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   absoluteCohortReviewListURL,
   cohortURL,
@@ -46,6 +46,7 @@ import {
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
+import { RouterLink, useNavigate } from "util/searchState";
 import {
   createCriteria,
   defaultFilter,

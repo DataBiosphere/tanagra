@@ -7,7 +7,7 @@ import { useBaseParams } from "router";
 import useSWR from "swr";
 import * as tanagraUI from "tanagra-ui";
 import { CohortReviewConfig } from "underlaysSlice";
-import { useSearchData } from "util/searchData";
+import { useLocalSearchState } from "util/searchState";
 
 export type ReviewParams = {
   studyId: string;
@@ -94,18 +94,17 @@ export function useReviewAnnotations() {
   );
 }
 
-export type PluginSearchData = {
+export type PluginSearchState = {
   [x: string]: object;
 };
 
-export type SearchData = {
+export type SearchState = {
   instanceIndex?: number;
   pageId?: string;
-  editingAnnotations?: boolean;
 
-  plugins?: PluginSearchData;
+  plugins?: PluginSearchState;
 };
 
-export function useReviewSearchData() {
-  return useSearchData<SearchData>();
+export function useReviewSearchState() {
+  return useLocalSearchState<SearchState>();
 }

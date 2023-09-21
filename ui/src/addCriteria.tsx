@@ -28,18 +28,26 @@ import { DataEntry, DataKey } from "data/types";
 import { useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCallback, useMemo } from "react";
 import { cohortURL, newCriteriaURL, useExitAction } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
+import {
+  useGlobalSearchState,
+  useLocalSearchState,
+  useNavigate,
+} from "util/searchState";
 import {
   createCriteria,
   getCriteriaPlugin,
   searchCriteria,
   sectionName,
 } from "./cohort";
+
+type LocalSearchState = {
+  search?: string;
+};
 
 export function AddConceptSetCriteria() {
   const context = useConceptSetContext();
@@ -98,7 +106,8 @@ function AddCriteria(props: AddCriteriaProps) {
   const source = useSource();
   const navigate = useNavigate();
 
-  const query = useSearchParams()[0].get("search") ?? "";
+  const query = useLocalSearchState<LocalSearchState>()[0].search ?? "";
+  const [globalSearchState, updateGlobalSearchState] = useGlobalSearchState();
 
   const criteriaConfigs = underlay.uiConfiguration.criteriaConfigs;
   const searchConfig = underlay.uiConfiguration.criteriaSearchConfig;
@@ -131,8 +140,8 @@ function AddCriteria(props: AddCriteriaProps) {
     [criteriaConfigs]
   );
 
-  const [selectedTags, setSelectedTags] = useState(
-    new Set<string>(tagList.length > 0 ? [tagList[0]] : [])
+  const selectedTags = new Set(
+    globalSearchState.addCriteriaTags ?? [tagList[0]]
   );
 
   const categories = useMemo(() => {
@@ -276,7 +285,9 @@ function AddCriteria(props: AddCriteriaProps) {
                     )
                   }
                   onChange={(event: SelectChangeEvent<string[]>) => {
-                    setSelectedTags(new Set(event.target.value));
+                    updateGlobalSearchState((state) => {
+                      state.addCriteriaTags = event.target.value as string[];
+                    });
                   }}
                   sx={{
                     color: (theme) => theme.palette.primary.main,
