@@ -12,3 +12,5 @@ ON p.person_id = mo.person_id
 
 LEFT JOIN `sd-vumc-tanagra-test.sd_20230331.visit_occurrence` AS vo
 ON vo.visit_occurrence_id = mo.visit_occurrence_id
+
+WHERE mo.measurement_concept_id IS NOT NULL
