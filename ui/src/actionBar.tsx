@@ -3,7 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { Link as RouterLink } from "react-router-dom";
+import { RouterLink } from "util/searchState";
 
 type ActionBarProps = {
   title: string;

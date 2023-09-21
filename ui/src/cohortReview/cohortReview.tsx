@@ -13,11 +13,11 @@ import { CohortReviewContext } from "cohortReview/cohortReviewContext";
 import { useParticipantsListDialog } from "cohortReview/participantsList";
 import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
 import {
-  SearchData,
+  SearchState,
   useReviewAnnotations,
   useReviewInstances,
   useReviewParams,
-  useReviewSearchData,
+  useReviewSearchState,
 } from "cohortReview/reviewHooks";
 import Loading from "components/loading";
 import { Tabs } from "components/tabs";
@@ -99,17 +99,17 @@ export function CohortReview() {
   };
 
   const annotationsState = useReviewAnnotations();
-  const [searchData, updateSearchData] = useReviewSearchData();
+  const [searchState, updateSearchState] = useReviewSearchState();
 
-  const instanceIndex = searchData.instanceIndex ?? 0;
+  const instanceIndex = searchState.instanceIndex ?? 0;
   const instance = instancesState.data?.[instanceIndex];
   const count = instancesState.data?.length ?? 1;
 
-  const pageId = searchData.pageId ?? pagePlugins[0].id;
+  const pageId = searchState.pageId ?? pagePlugins[0].id;
 
   const changePage = (newValue: string) => {
-    updateSearchData((data) => {
-      data.pageId = newValue;
+    updateSearchState((state) => {
+      state.pageId = newValue;
     });
   };
 
@@ -198,8 +198,8 @@ export function CohortReview() {
                   <IconButton
                     disabled={instanceIndex === 0}
                     onClick={() =>
-                      updateSearchData((data: SearchData) => {
-                        data.instanceIndex = instanceIndex - 1;
+                      updateSearchState((state: SearchState) => {
+                        state.instanceIndex = instanceIndex - 1;
                       })
                     }
                   >
@@ -211,8 +211,8 @@ export function CohortReview() {
                   <IconButton
                     disabled={instanceIndex === count - 1}
                     onClick={() =>
-                      updateSearchData((data: SearchData) => {
-                        data.instanceIndex = instanceIndex + 1;
+                      updateSearchState((state: SearchState) => {
+                        state.instanceIndex = instanceIndex + 1;
                       })
                     }
                   >
@@ -269,16 +269,16 @@ export function CohortReview() {
               <CohortReviewContext.Provider
                 value={{
                   occurrences: instanceDataState?.data?.occurrences ?? {},
-                  searchData: <T extends object>(plugin: string) =>
-                    searchData?.plugins?.[plugin] as T,
-                  updateSearchData: <T extends object>(
+                  searchState: <T extends object>(plugin: string) =>
+                    (searchState?.plugins?.[plugin] ?? {}) as T,
+                  updateSearchState: <T extends object>(
                     plugin: string,
                     fn: (value: T) => void
                   ) =>
-                    updateSearchData((data) => {
-                      data.plugins = data.plugins ?? {};
-                      data.plugins[plugin] = produce(
-                        data.plugins[plugin] ?? {},
+                    updateSearchState((state) => {
+                      state.plugins = state.plugins ?? {};
+                      state.plugins[plugin] = produce(
+                        state.plugins[plugin] ?? {},
                         fn
                       );
                     }),

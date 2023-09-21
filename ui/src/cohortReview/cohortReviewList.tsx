@@ -41,13 +41,14 @@ import { useCohort, useStudyId } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   absoluteCohortReviewListURL,
   absoluteCohortURL,
   useBaseParams,
 } from "router";
 import useSWR from "swr";
+import { RouterLink, useNavigate } from "util/searchState";
 import { useNewReviewDialog } from "./newReviewDialog";
 
 type PendingItem = {

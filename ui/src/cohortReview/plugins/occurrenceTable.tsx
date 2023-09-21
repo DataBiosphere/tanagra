@@ -13,7 +13,7 @@ import {
 import { compareDataValues, DataKey, DataValue } from "data/types";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
 
 interface Config {
@@ -37,17 +37,21 @@ class _ implements CohortReviewPlugin {
   }
 
   render() {
-    return <OccurrenceTable config={this.config} />;
+    return <OccurrenceTable id={this.id} config={this.config} />;
   }
 }
 
-function OccurrenceTable({ config }: { config: Config }) {
-  const [sortOrders, setSortOrders] = useState<TreeGridSortOrder[]>([]);
+type SearchState = {
+  sortOrders?: TreeGridSortOrder[];
+};
 
+function OccurrenceTable({ id, config }: { id: string; config: Config }) {
   const context = useCohortReviewContext();
   if (!context) {
     return null;
   }
+
+  const searchState = context.searchState<SearchState>(id);
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
@@ -66,7 +70,7 @@ function OccurrenceTable({ config }: { config: Config }) {
   const sortedData = useMemo(() => {
     return produce(data, (data) => {
       data.root?.children?.sort((a, b) => {
-        for (const o of sortOrders) {
+        for (const o of searchState.sortOrders ?? []) {
           const valA = data[a].data[o.column] as DataValue | undefined;
           const valB = data[b].data[o.column] as DataValue | undefined;
           const c = compareDataValues(valA, valB);
@@ -78,7 +82,7 @@ function OccurrenceTable({ config }: { config: Config }) {
         return 0;
       });
     });
-  }, [data, sortOrders]);
+  }, [data, searchState]);
 
   return (
     <GridBox
@@ -89,7 +93,12 @@ function OccurrenceTable({ config }: { config: Config }) {
       <TreeGrid
         columns={config.columns}
         data={sortedData}
-        onSort={setSortOrders}
+        initialSortOrders={searchState.sortOrders}
+        onSort={(sortOrders) => {
+          context.updateSearchState(id, (state: SearchState) => {
+            state.sortOrders = sortOrders;
+          });
+        }}
       />
     </GridBox>
   );

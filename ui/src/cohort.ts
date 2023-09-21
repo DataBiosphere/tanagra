@@ -120,7 +120,7 @@ export interface CriteriaPlugin<DataType> {
   data: DataType;
   renderEdit?: (
     doneAction: () => void,
-    setBackURL: (url?: string) => void
+    setBackAction: (action?: () => void) => void
   ) => JSX.Element;
   renderInline: (groupId: string) => ReactNode;
   displayDetails: () => DisplayDetails;
