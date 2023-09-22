@@ -8,10 +8,10 @@ export type OccurrenceData = {
 export type CohortReviewContextData = {
   occurrences: OccurrenceData;
 
-  searchData: <T extends object>(plugin: string) => T;
-  updateSearchData: <T extends object>(
+  searchState: <T extends object>(plugin: string) => T;
+  updateSearchState: <T extends object>(
     plugin: string,
-    fn: (data: T) => void
+    fn: (state: T) => void
   ) => void;
 };
 

@@ -14,7 +14,6 @@ import { useStudyId, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import React, { useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   absoluteCohortURL,
   absoluteConceptSetURL,
@@ -24,6 +23,7 @@ import {
 } from "router";
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
+import { useNavigate } from "util/searchState";
 
 enum ArtifactType {
   Cohort = "Cohort",

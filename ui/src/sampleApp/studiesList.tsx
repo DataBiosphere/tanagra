@@ -11,10 +11,10 @@ import { useSource } from "data/sourceContext";
 import { DataKey } from "data/types";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
-import { Link as RouterLink } from "react-router-dom";
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
+import { RouterLink } from "util/searchState";
 
 const columns = [
   {

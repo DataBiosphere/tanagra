@@ -8,7 +8,9 @@ import { TextField } from "mui-rff";
 import { useRef } from "react";
 import { Form } from "react-final-form";
 import { OnChange } from "react-final-form-listeners";
-import { useSearchParams } from "react-router-dom";
+import { useLocalSearchState } from "util/searchState";
+
+type SearchState = Record<string, unknown>;
 
 export type SearchProps = {
   placeholder?: string;
@@ -21,7 +23,7 @@ export type SearchProps = {
 };
 
 export function Search(props: SearchProps) {
-  const [, setSearchParams] = useSearchParams();
+  const [, updateSearchState] = useLocalSearchState<SearchState>();
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onSearch = (query: string) => {
@@ -33,9 +35,8 @@ export function Search(props: SearchProps) {
       props.onSearch(query);
     } else {
       const sk = props.searchKey ?? "search";
-      setSearchParams((params) => {
-        params.set(sk, query ?? "");
-        return params;
+      updateSearchState((state) => {
+        state[sk] = query ?? "";
       });
     }
   };
