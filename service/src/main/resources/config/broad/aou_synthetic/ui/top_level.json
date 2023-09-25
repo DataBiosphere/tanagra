@@ -114,7 +114,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "condition_occurrence",
+      "occurrences": "condition_occurrence",
       "classifications": ["condition"]
     },
     {
@@ -136,7 +136,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "procedure_occurrence",
+      "occurrences": "procedure_occurrence",
       "classifications": ["procedure"]
     },
     {
@@ -153,7 +153,7 @@
         { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "observation_occurrence",
+      "occurrences": "observation_occurrence",
       "classifications": ["observation"]
     },
     {
@@ -175,7 +175,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "ingredient_occurrence",
+      "occurrences": "ingredient_occurrence",
       "classifications": ["ingredient"]
     },
     {
@@ -253,12 +253,12 @@
     {
       "id": "_demographics",
       "name": "Demographics",
-      "occurrence": ""
+      "occurrences": ""
     },
     {
       "id": "_analgesics",
       "name": "Analgesics",
-      "occurrence": "ingredient_occurrence",
+      "occurrences": "ingredient_occurrence",
       "filter": {
         "type": "CLASSIFICATION",
         "occurrenceId": "ingredient_occurrence",

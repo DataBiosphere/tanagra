@@ -167,8 +167,8 @@ class _ implements CriteriaPlugin<Data> {
     return makeArrayFilter({}, filters);
   }
 
-  filterOccurrenceId() {
-    return "";
+  filterOccurrenceIds() {
+    return [""];
   }
 }
 

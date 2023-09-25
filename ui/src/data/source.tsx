@@ -878,7 +878,7 @@ export class BackendSource implements Source {
             underlayName,
             criteria: toAPICriteria(criteria),
             entity: findEntity(
-              getCriteriaPlugin(criteria).filterOccurrenceId(),
+              getCriteriaPlugin(criteria).filterOccurrenceIds()[0],
               this.config
             ).entity,
           },

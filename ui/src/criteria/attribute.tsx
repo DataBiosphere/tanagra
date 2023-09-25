@@ -117,8 +117,8 @@ class _ implements CriteriaPlugin<Data> {
     };
   }
 
-  filterOccurrenceId() {
-    return "";
+  filterOccurrenceIds() {
+    return [""];
   }
 }
 
