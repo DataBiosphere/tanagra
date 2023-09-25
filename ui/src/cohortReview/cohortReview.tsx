@@ -136,7 +136,6 @@ export function CohortReview() {
             id,
             {
               type: FilterType.Attribute,
-              occurrenceId: "",
               attribute: "id",
               values: [instance?.data?.[primaryKey]],
             },

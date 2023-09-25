@@ -55,7 +55,10 @@ export interface Config extends CriteriaConfig {
   columns: TreeGridColumn[];
   nameColumnIndex?: number;
   hierarchyColumns?: TreeGridColumn[];
-  occurrence: string;
+  // TODO(tjennison): Multiple occurrence: Consider converting these to always
+  // take an array and updating all of the underlays. For now, firstOf is a nice
+  // funnel for tracking the inconsistent handling of multiple occurrences.
+  occurrences: string | string[];
   classifications: string[];
   classificationMergeSort?: SortOrder;
   multiSelect?: boolean;
@@ -111,7 +114,7 @@ export interface Data {
       // This impacts prepackaged criteria for occurences with multiple
       // classifications.
       const classification = source.lookupClassification(
-        config.occurrence,
+        firstOf(config.occurrences),
         config.classifications[0]
       );
 
@@ -180,13 +183,11 @@ class _ implements CriteriaPlugin<Data> {
     };
   }
 
-  generateFilter() {
-    // TODO(tjennison): This assumes all classifications refer to the same
-    // occurrence.
+  generateFilter(occurrenceId: string) {
     const filters: Filter[] = [
       {
         type: FilterType.Classification,
-        occurrenceId: this.config.occurrence,
+        occurrenceId: occurrenceId,
         classificationId: this.config.classifications[0],
         keys: this.data.selected.map(({ key }) => key),
       },
@@ -207,8 +208,11 @@ class _ implements CriteriaPlugin<Data> {
     return makeArrayFilter({}, filters);
   }
 
-  filterOccurrenceId() {
-    return this.config.occurrence;
+  filterOccurrenceIds() {
+    if (typeof this.config.occurrences === "string") {
+      return [this.config.occurrences];
+    }
+    return this.config.occurrences;
   }
 }
 
@@ -240,9 +244,9 @@ type ClassificationEditProps = {
 
 function ClassificationEdit(props: ClassificationEditProps) {
   const source = useSource();
-  const occurrence = source.lookupOccurrence(props.config.occurrence);
+  const occurrence = source.lookupOccurrence(firstOf(props.config.occurrences));
   const classifications = props.config.classifications.map((c) =>
-    source.lookupClassification(props.config.occurrence, c)
+    source.lookupClassification(firstOf(props.config.occurrences), c)
   );
   const updateCriteria = useUpdateCriteria();
   const isNewCriteria = useIsNewCriteria();
@@ -452,7 +456,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 }
 
                 const classification = source.lookupClassification(
-                  props.config.occurrence,
+                  firstOf(props.config.occurrences),
                   item.classification
                 );
                 const column = props.config.columns[nameColumnIndex];
@@ -639,7 +643,7 @@ type ClassificationInlineProps = {
 function ClassificationInline(props: ClassificationInlineProps) {
   const source = useSource();
   const classification = source.lookupClassification(
-    props.config.occurrence,
+    firstOf(props.config.occurrences),
     props.config.classifications[0]
   );
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
@@ -647,7 +651,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
   const hintDataState = useSWRImmutable(
     {
       type: "hintData",
-      occurrence: props.config.occurrence,
+      occurrence: firstOf(props.config.occurrences),
       entity: props.data.selected[0].entity ?? classification.entity,
       key: props.data.selected[0].key,
     },
@@ -790,7 +794,7 @@ function search(
   return source
     .searchClassification(
       config.columns.map(({ key }) => key),
-      config.occurrence,
+      firstOf(config.occurrences),
       config.classifications[0],
       {
         query,
@@ -798,4 +802,14 @@ function search(
       }
     )
     .then((res) => res.nodes.map((node) => node.data));
+}
+
+function firstOf(value: string | string[]) {
+  // TODO(tjennison): Multiple occurrence: This uses the first occurrence
+  // instead of somehow taking them all account, assuming that they're
+  // interchangeable.
+  if (typeof value === "string") {
+    return value;
+  }
+  return value[0];
 }

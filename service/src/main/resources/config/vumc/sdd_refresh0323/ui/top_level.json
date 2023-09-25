@@ -110,9 +110,31 @@
             }
           },
           {
-            "id": "icd9proc",
+            "id": "phewas",
             "attribute": "source_criteria_id",
-            "entity": "icd9proc",
+            "entity": "phewas",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd9cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd9cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd10cm",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -148,6 +170,50 @@
               "attribute": "t_rollup_count",
               "direction": "DESC"
             }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "phewas",
+            "attribute": "source_criteria_id",
+            "entity": "phewas",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd9cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd9cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd10cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -178,6 +244,17 @@
                 "attributes": ["name", "id", "standard_concept", "concept_code"]
               }
             ]
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -214,6 +291,72 @@
               "attribute": "t_item_count",
               "direction": "DESC"
             }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "phewas",
+            "attribute": "source_criteria_id",
+            "entity": "phewas",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd9cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd9cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd9proc",
+            "attribute": "source_criteria_id",
+            "entity": "icd9proc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "icd10cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10pcs",
+            "attribute": "source_criteria_id",
+            "entity": "icd10pcs",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       }
@@ -232,7 +375,7 @@
         { "key": "name", "width": "100%", "title": "Genotyping platform" },
         { "key": "id", "width": 100, "title": "Id" }
       ],
-      "occurrence": "",
+      "occurrences": "",
       "classifications": ["genotyping"]
     },
     {
@@ -269,7 +412,7 @@
       "title": "SNP variant",
       "category": "Demographics",
       "columns": [{ "key": "name", "width": "100%", "title": "SNP variant" }],
-      "occurrence": "",
+      "occurrences": "",
       "classifications": ["snp"]
     },
     {
@@ -297,7 +440,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "measurement_occurrence",
+      "occurrences": "measurement_occurrence",
       "classifications": ["loinc", "snomed"],
       "classificationMergeSort": {
         "attribute": "t_item_count",
@@ -350,7 +493,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "condition_occurrence",
+      "occurrences": "condition_occurrence",
       "classifications": ["condition"],
       "modifiers": [
         "age_at_occurrence",
@@ -376,7 +519,12 @@
         { "key": "id", "width": 120, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "condition_occurrence",
+      "occurrences": [
+        "condition_occurrence",
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence"
+      ],
       "classifications": ["phewas"],
       "defaultSort": {
         "attribute": "t_rollup_count",
@@ -408,7 +556,12 @@
         { "key": "id", "width": 120, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "procedure_occurrence",
+      "occurrences": [
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence",
+        "ingredient_occurrence"
+      ],
       "classifications": ["cpt4"],
       "defaultSort": {
         "attribute": "t_rollup_count",
@@ -440,7 +593,12 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "condition_occurrence",
+      "occurrences": [
+        "condition_occurrence",
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence"
+      ],
       "classifications": ["icd9cm"],
       "defaultSort": {
         "attribute": "t_rollup_count",
@@ -472,7 +630,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "procedure_occurrence",
+      "occurrences": ["procedure_occurrence"],
       "classifications": ["icd9proc"],
       "defaultSort": {
         "attribute": "t_rollup_count",
@@ -504,7 +662,12 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "condition_occurrence",
+      "occurrences": [
+        "condition_occurrence",
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence"
+      ],
       "classifications": ["icd10cm"],
       "defaultSort": {
         "attribute": "t_rollup_count",
@@ -536,7 +699,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "procedure_occurrence",
+      "occurrences": ["procedure_occurrence", "ingredient_occurrence"],
       "classifications": ["icd10pcs"],
       "defaultSort": {
         "attribute": "t_rollup_count",
@@ -568,7 +731,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "procedure_occurrence",
+      "occurrences": "procedure_occurrence",
       "classifications": ["procedure"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
@@ -587,7 +750,7 @@
         { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "observation_occurrence",
+      "occurrences": "observation_occurrence",
       "classifications": ["observation"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
@@ -611,7 +774,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrence": "ingredient_occurrence",
+      "occurrences": "ingredient_occurrence",
       "classifications": ["ingredient"],
       "modifiers": [
         "age_at_occurrence",
@@ -687,12 +850,12 @@
     {
       "id": "_demographics",
       "name": "Demographics",
-      "occurrence": ""
+      "occurrences": ""
     },
     {
       "id": "_analgesics",
       "name": "Analgesics",
-      "occurrence": "ingredient_occurrence",
+      "occurrences": "ingredient_occurrence",
       "filter": {
         "type": "CLASSIFICATION",
         "occurrenceId": "ingredient_occurrence",

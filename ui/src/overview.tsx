@@ -435,7 +435,9 @@ function ParticipantsGroup(props: {
   const modifierPlugins = useMemo(
     () =>
       modifierCriteria.map((c) => {
-        const p = getCriteriaPlugin(c, props.group.entity);
+        // TODO: Multiple occurrence: Store entities in an array instead of a
+        // string.
+        const p = getCriteriaPlugin(c, props.group.entity.split(",")[0]);
         return { title: getCriteriaTitle(c, p), plugin: p };
       }),
     [modifierCriteria, props.group.entity]

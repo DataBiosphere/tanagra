@@ -484,11 +484,10 @@ function useConceptSetOccurrences(
       ?.filter((cs) => selectedConceptSets.has(cs.id))
       ?.forEach((conceptSet) => {
         const plugin = getCriteriaPlugin(conceptSet.criteria);
-        const occurrenceIds = plugin.outputOccurrenceIds?.() ?? [
-          plugin.filterOccurrenceId(),
-        ];
+        const occurrenceIds =
+          plugin.outputOccurrenceIds?.() ?? plugin.filterOccurrenceIds();
         occurrenceIds.forEach((o) => {
-          addFilter(o, plugin.generateFilter());
+          addFilter(o, plugin.generateFilter(o));
         });
       });
 
