@@ -10,8 +10,13 @@ import {
   TreeGridSortDirection,
   TreeGridSortOrder,
 } from "components/treegrid";
-import { compareDataValues, DataKey, DataValue } from "data/types";
-import produce from "immer";
+import {
+  compareDataValues,
+  DataKey,
+  DataValue,
+  stringifyDataValue,
+} from "data/types";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import { useMemo } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
@@ -43,6 +48,7 @@ class _ implements CohortReviewPlugin {
 
 type SearchState = {
   sortOrders?: TreeGridSortOrder[];
+  columnFilters?: { [key: string]: string };
 };
 
 function OccurrenceTable({ id, config }: { id: string; config: Config }) {
@@ -67,9 +73,33 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
     return data;
   }, [context]);
 
+  const filterRegExps = useMemo(() => {
+    const regexps: { [key: string]: RegExp } = {};
+    for (const key in searchState.columnFilters) {
+      try {
+        regexps[key] = new RegExp(searchState.columnFilters[key], "i");
+      } catch (e) {
+        // TODO(tjennison): Show error messages for invalid regexps.
+      }
+    }
+    return regexps;
+  }, [searchState.columnFilters]);
+
   const sortedData = useMemo(() => {
     return produce(data, (data) => {
-      data.root?.children?.sort((a, b) => {
+      if (!data.root?.children) {
+        return;
+      }
+
+      data.root.children = data.root.children.filter((child) =>
+        Object.entries(filterRegExps ?? {}).reduce(
+          (cur: boolean, [col, re]) =>
+            cur &&
+            re.test(stringifyDataValue(data[child].data[col] as DataValue)),
+          true
+        )
+      );
+      data.root.children.sort((a, b) => {
         for (const o of searchState.sortOrders ?? []) {
           const valA = data[a].data[o.column] as DataValue | undefined;
           const valB = data[b].data[o.column] as DataValue | undefined;
@@ -93,10 +123,16 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
       <TreeGrid
         columns={config.columns}
         data={sortedData}
-        initialSortOrders={searchState.sortOrders}
+        sortOrders={searchState.sortOrders}
         onSort={(sortOrders) => {
           context.updateSearchState(id, (state: SearchState) => {
             state.sortOrders = sortOrders;
+          });
+        }}
+        filters={searchState.columnFilters}
+        onFilter={(filters) => {
+          context.updateSearchState(id, (state: SearchState) => {
+            state.columnFilters = filters;
           });
         }}
       />
