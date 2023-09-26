@@ -9,11 +9,13 @@ import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import {
+  ChangeEvent,
   MutableRefObject,
   ReactNode,
   useCallback,
@@ -54,6 +56,7 @@ export type TreeGridColumn = {
   width: string | number;
   title?: string | JSX.Element;
   sortable?: boolean;
+  filterable?: boolean;
 };
 
 export type ColumnCustomization = {
@@ -73,6 +76,10 @@ export type TreeGridSortOrder = {
   direction: TreeGridSortDirection;
 };
 
+export type TreeGridFilters = {
+  [col: string]: string;
+};
+
 export type TreeGridProps = {
   columns: TreeGridColumn[];
   data: TreeGridData;
@@ -88,9 +95,12 @@ export type TreeGridProps = {
   rowHeight?: number | string;
   padding?: number | string;
 
-  initialSortOrders?: TreeGridSortOrder[];
+  sortOrders?: TreeGridSortOrder[];
   onSort?: (orders: TreeGridSortOrder[]) => void;
   sortLevels?: number;
+
+  filters?: TreeGridFilters;
+  onFilter?: (filters: TreeGridFilters) => void;
 };
 
 export function TreeGrid(props: TreeGridProps) {
@@ -100,9 +110,8 @@ export function TreeGrid(props: TreeGridProps) {
     new Map<TreeGridId, TreeGridItemState>()
   );
 
-  const [sortOrders, setSortOrders] = useState<TreeGridSortOrder[]>(
-    props.initialSortOrders ?? []
-  );
+  const [pendingFilters, setPendingFilters] = useState<TreeGridFilters>({});
+  const filterTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const cancel = useRef<boolean>(false);
   useEffect(
@@ -179,7 +188,11 @@ export function TreeGrid(props: TreeGridProps) {
   }, [props.defaultExpanded]);
 
   const onSort = useCallback(
-    (col: TreeGridColumn, orders: TreeGridSortOrder[]) => {
+    (col: TreeGridColumn, orders?: TreeGridSortOrder[]) => {
+      if (!orders) {
+        return;
+      }
+
       const index = orders.findIndex((o) => o.column === col.key);
       const dir = nextDirection(orders[index]?.direction);
 
@@ -196,10 +209,35 @@ export function TreeGrid(props: TreeGridProps) {
         }
       });
 
-      setSortOrders(newOrders);
       props.onSort?.(newOrders);
     },
-    [setSortOrders, props.sortLevels]
+    [props.onSort, props.sortLevels]
+  );
+
+  const onFilter = useCallback(
+    (filters: TreeGridFilters) => {
+      setPendingFilters({});
+      props.onFilter?.(filters);
+    },
+    [props.onFilter]
+  );
+
+  const onChangeFilter = useCallback(
+    (col: string, value: string, filters: TreeGridFilters) => {
+      if (filterTimeout.current) {
+        clearTimeout(filterTimeout.current);
+      }
+
+      const newFilters = produce(filters, (filters) => {
+        filters[col] = value;
+      });
+      setPendingFilters(newFilters);
+
+      filterTimeout.current = setTimeout(() => {
+        onFilter(newFilters);
+      }, 500);
+    },
+    [onFilter]
   );
 
   const paperColor = theme.palette.background.paper;
@@ -237,30 +275,61 @@ export function TreeGrid(props: TreeGridProps) {
                 }}
               >
                 <GridLayout
-                  cols
+                  rows
                   spacing={1}
-                  rowAlign="middle"
                   sx={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
+                    py: 1,
                   }}
                 >
-                  <Typography
-                    variant="overline"
-                    title={String(col.title)}
+                  <GridLayout
+                    cols
+                    spacing={1}
+                    rowAlign="middle"
                     sx={{
-                      display: "inline",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
                     }}
                   >
-                    {col.title}
-                  </Typography>
-                  {col.sortable ? (
-                    <SortIconButton
-                      col={col}
-                      orders={sortOrders}
-                      onClick={() => onSort(col, sortOrders)}
-                    />
+                    <Typography
+                      variant="overline"
+                      title={String(col.title)}
+                      sx={{
+                        display: "inline",
+                      }}
+                    >
+                      {col.title}
+                    </Typography>
+                    {col.sortable ? (
+                      <SortIconButton
+                        col={col}
+                        orders={props.sortOrders}
+                        onClick={() => onSort(col, props.sortOrders)}
+                      />
+                    ) : null}
+                  </GridLayout>
+                  {col.filterable ? (
+                    <GridBox sx={{ px: 1, pb: 1 }}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        value={
+                          pendingFilters[col.key] ?? props.filters?.[col.key]
+                        }
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          onChangeFilter(
+                            col.key,
+                            event.target.value,
+                            pendingFilters
+                          );
+                        }}
+                        sx={{
+                          "& .MuiOutlinedInput-input": {
+                            py: "2px",
+                          },
+                        }}
+                      />
+                    </GridBox>
                   ) : null}
                 </GridLayout>
               </th>
@@ -540,21 +609,22 @@ function ItemIcon(props: ItemIconProps) {
   return <KeyboardArrowRightIcon fontSize="inherit" />;
 }
 
-type SortIconProps = {
+type SortIconButtonProps = {
   col: TreeGridColumn;
-  orders: TreeGridSortOrder[];
+  orders?: TreeGridSortOrder[];
   onClick?: () => void;
 };
 
-function SortIconButton(props: SortIconProps) {
+function SortIconButton(props: SortIconButtonProps) {
   const theme = useTheme();
 
   if (!props.col.sortable) {
     return null;
   }
 
-  const index = props.orders.findIndex((o) => o.column === props.col.key);
-  const order = props.orders[index];
+  const index =
+    props.orders?.findIndex((o) => o.column === props.col.key) ?? -1;
+  const order = props.orders?.[index];
 
   let sx: SxProps = {};
   if (index === 0) {

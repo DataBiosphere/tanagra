@@ -77,6 +77,7 @@ test("Table renders correctly", async () => {
     <TreeGrid
       columns={columns}
       data={data}
+      sortOrders={[]}
       onSort={onSort}
       rowCustomization={rowCustomization}
     />

@@ -1,4 +1,5 @@
 import * as tanagraUI from "tanagra-ui";
+
 export type DataKey = string | number;
 export type DataValue = null | string | number | boolean | Date;
 
@@ -36,4 +37,15 @@ export function compareDataValues(a?: DataValue, b?: DataValue) {
     return 1;
   }
   return 0;
+}
+
+export function stringifyDataValue(v?: DataValue): string {
+  if (v === null) {
+    return "NULL";
+  } else if (v === undefined) {
+    return "";
+  } else if (v instanceof Date) {
+    return v.toDateString();
+  }
+  return String(v);
 }
