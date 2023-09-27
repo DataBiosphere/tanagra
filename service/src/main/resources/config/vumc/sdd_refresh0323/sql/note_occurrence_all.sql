@@ -5,10 +5,10 @@ SELECT
   CAST(FLOOR(TIMESTAMP_DIFF(n.note_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   n.visit_occurrence_id, vo.visit_concept_id
 
-FROM `victr-tanagra-test.sd_20230328.note` AS n
+FROM `sd-vumc-tanagra-test.sd_20230328.note` AS n
 
-JOIN `victr-tanagra-test.sd_20230328.person` AS p
+JOIN `sd-vumc-tanagra-test.sd_20230328.person` AS p
 ON p.person_id = n.person_id
 
-LEFT JOIN `victr-tanagra-test.sd_20230328.visit_occurrence` AS vo
+LEFT JOIN `sd-vumc-tanagra-test.sd_20230328.visit_occurrence` AS vo
 ON vo.visit_occurrence_id = n.visit_occurrence_id
