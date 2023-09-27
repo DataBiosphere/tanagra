@@ -285,17 +285,6 @@
       "id": "_demographics",
       "name": "Demographics",
       "occurrences": ""
-    },
-    {
-      "id": "_analgesics",
-      "name": "Analgesics",
-      "occurrences": "ingredient_occurrence",
-      "filter": {
-        "type": "CLASSIFICATION",
-        "occurrenceId": "ingredient_occurrence",
-        "classificationId": "ingredient",
-        "keys": [21604253]
-      }
     }
   ],
   "criteriaSearchConfig": {
