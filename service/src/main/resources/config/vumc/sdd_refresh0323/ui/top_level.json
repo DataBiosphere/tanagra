@@ -132,6 +132,17 @@
             }
           },
           {
+            "id": "icd9proc",
+            "attribute": "source_criteria_id",
+            "entity": "icd9proc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
             "id": "icd10cm",
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
