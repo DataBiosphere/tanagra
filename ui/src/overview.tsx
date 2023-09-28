@@ -61,15 +61,7 @@ export function Overview() {
   const params = useBaseParams();
   const exit = useExitAction();
 
-  const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog({
-    title: "Editing cohort name",
-    initialText: cohort.name,
-    textLabel: "Cohort name",
-    buttonLabel: "Update",
-    onConfirm: (name: string) => {
-      updateCohort(context, name);
-    },
-  });
+  const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
 
   return (
     <GridLayout rows>
@@ -81,7 +73,19 @@ export function Overview() {
           </GridLayout>
         }
         titleControls={
-          <IconButton onClick={() => showRenameTitleDialog()}>
+          <IconButton
+            onClick={() =>
+              showRenameTitleDialog({
+                title: "Editing cohort name",
+                initialText: cohort.name,
+                textLabel: "Cohort name",
+                buttonLabel: "Update",
+                onConfirm: (name: string) => {
+                  updateCohort(context, name);
+                },
+              })
+            }
+          >
             <EditIcon />
           </IconButton>
         }

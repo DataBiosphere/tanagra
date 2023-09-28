@@ -251,13 +251,7 @@ function Reviews() {
     onCreate: onCreateNewReview,
   });
 
-  const [renameReviewDialog, showRenameReviewDialog] = useTextInputDialog({
-    title: `Rename ${selectedReview?.displayName}`,
-    initialText: selectedReview?.displayName,
-    textLabel: "Review name",
-    buttonLabel: "Rename",
-    onConfirm: onRenameReview,
-  });
+  const [renameReviewDialog, showRenameReviewDialog] = useTextInputDialog();
 
   const emptyIconSx: SxProps = {
     p: 1,
@@ -376,7 +370,17 @@ function Reviews() {
                   <Typography variant="h6" sx={{ mr: 1 }}>
                     {selectedReview.displayName}
                   </Typography>
-                  <IconButton onClick={showRenameReviewDialog}>
+                  <IconButton
+                    onClick={() =>
+                      showRenameReviewDialog({
+                        title: `Rename ${selectedReview?.displayName}`,
+                        initialText: selectedReview?.displayName,
+                        textLabel: "Review name",
+                        buttonLabel: "Rename",
+                        onConfirm: onRenameReview,
+                      })
+                    }
+                  >
                     <EditIcon />
                   </IconButton>
                   <IconButton
@@ -605,6 +609,7 @@ function Annotations() {
   );
 
   const [confirmDialog, showConfirmDialog] = useSimpleDialog();
+  const [renameDialog, showRenameDialog] = useTextInputDialog();
 
   const data = useArrayAsTreeGridData(
     annotationsState.data?.map((a) => ({
@@ -660,7 +665,29 @@ function Annotations() {
                   {
                     column: columns.length - 1,
                     content: (
-                      <GridLayout cols colAlign="right">
+                      <GridLayout cols fillCol={0}>
+                        <GridBox />
+                        <IconButton
+                          onClick={() =>
+                            showRenameDialog({
+                              title: `Updating ${annotation.displayName} display name`,
+                              textLabel: "Display name",
+                              initialText: annotation.displayName,
+                              buttonLabel: "Update",
+                              onConfirm: async (name: string) => {
+                                await source.updateAnnotation(
+                                  studyId,
+                                  cohort.id,
+                                  annotation.id,
+                                  name
+                                );
+                                annotationsState.mutate();
+                              },
+                            })
+                          }
+                        >
+                          <EditIcon />
+                        </IconButton>
                         <IconButton
                           onClick={() =>
                             showConfirmDialog({
@@ -712,6 +739,7 @@ function Annotations() {
       </GridLayout>
       {newAnnotationDialog}
       {confirmDialog}
+      {renameDialog}
     </Loading>
   );
 }
