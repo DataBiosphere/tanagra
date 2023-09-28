@@ -572,26 +572,27 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   return Promise.resolve();
                 }
 
-                const classification = searchState?.hierarchyClassification;
-                if (!classification) {
-                  throw new Error("Classification unset for hierarchy.");
-                }
-
                 const item = data[id] as ClassificationNodeItem;
                 const key = item?.node ? keyForNode(item.node) : id;
+                const classificationId =
+                  item?.classification ?? searchState.hierarchyClassification;
+                if (!classificationId) {
+                  throw new Error("No hierarchy selected.");
+                }
+
                 if (item?.node.grouping) {
                   return source
                     .searchGrouping(
                       attributes,
                       occurrence.id,
-                      classification,
+                      classificationId,
                       item.node
                     )
                     .then((res) => {
                       updateData(
                         processEntities(
                           res.nodes.map((r) => ({
-                            source: classification,
+                            source: classificationId,
                             data: r,
                           })),
                           searchState?.hierarchy,
@@ -605,7 +606,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     .searchClassification(
                       attributes,
                       occurrence.id,
-                      classification,
+                      classificationId,
                       {
                         parent: key,
                       }
@@ -614,7 +615,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       updateData(
                         processEntities(
                           res.nodes.map((r) => ({
-                            source: classification,
+                            source: classificationId,
                             data: r,
                           })),
                           searchState?.hierarchy,
