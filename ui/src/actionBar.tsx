@@ -83,9 +83,7 @@ export default function ActionBar(props: ActionBarProps) {
         </GridLayout>
 
         {props.subtitle ? <GridBox /> : null}
-        {props.subtitle ? (
-          <Typography variant="body2">{props.subtitle}</Typography>
-        ) : null}
+        {props.subtitle ? props.subtitle : null}
       </GridLayout>
       {props.rightControls ?? <GridBox />}
     </GridLayout>
