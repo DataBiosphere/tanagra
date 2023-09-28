@@ -289,6 +289,13 @@ export interface Source {
     enumVals?: string[]
   ): void;
 
+  updateAnnotation(
+    studyId: string,
+    cohortId: string,
+    annotationId: string,
+    displayName: string
+  ): void;
+
   deleteAnnotation(
     studyId: string,
     cohortId: string,
@@ -937,6 +944,24 @@ export class BackendSource implements Source {
           displayName,
           dataType: toAPIAnnotationType(annotationType),
           enumVals,
+        },
+      })
+    );
+  }
+
+  public async updateAnnotation(
+    studyId: string,
+    cohortId: string,
+    annotationId: string,
+    displayName: string
+  ) {
+    await parseAPIError(
+      this.annotationsApi.updateAnnotationKey({
+        studyId,
+        cohortId,
+        annotationId,
+        annotationUpdateInfo: {
+          displayName,
         },
       })
     );

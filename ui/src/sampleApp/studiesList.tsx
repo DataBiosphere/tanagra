@@ -72,12 +72,7 @@ export function StudiesList() {
     });
   };
 
-  const [newStudyDialog, showNewStudyDialog] = useTextInputDialog({
-    title: "New study",
-    textLabel: "Study name",
-    buttonLabel: "Create",
-    onConfirm: onCreateNewStudy,
-  });
+  const [newStudyDialog, showNewStudyDialog] = useTextInputDialog();
 
   const [confirmDialog, showConfirmDialog] = useSimpleDialog();
 
@@ -151,7 +146,14 @@ export function StudiesList() {
             />
           )}
           <Button
-            onClick={showNewStudyDialog}
+            onClick={() =>
+              showNewStudyDialog({
+                title: "New study",
+                textLabel: "Study name",
+                buttonLabel: "Create",
+                onConfirm: onCreateNewStudy,
+              })
+            }
             variant="contained"
             sx={{ ml: 4 }}
           >
