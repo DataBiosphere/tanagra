@@ -1,5 +1,5 @@
 import produce from "immer";
-import { useCallback, useMemo } from "react";
+import { forwardRef, Ref, useCallback, useMemo } from "react";
 import {
   Link as BaseLink,
   useNavigate as useRouterNavigate,
@@ -67,18 +67,22 @@ export function useNavigate() {
 
 type RouterLinkProps = { to: string } & { [key: string]: unknown };
 
-export function RouterLink(props: RouterLinkProps) {
+export const RouterLink = forwardRef(function RouterLink(
+  props: RouterLinkProps,
+  ref: Ref<HTMLAnchorElement>
+) {
   const searchStr = useGlobalSearchDataString();
   return (
     <BaseLink
       {...props}
+      ref={ref}
       to={{
         pathname: props.to,
         search: searchStr,
       }}
     />
   );
-}
+});
 
 function useSearchData(): [
   SearchData,

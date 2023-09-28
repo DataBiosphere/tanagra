@@ -77,9 +77,7 @@ export function Overview() {
         title={cohort.name}
         subtitle={
           <GridLayout cols spacing={1} rowAlign="middle">
-            <StudyName />
-            <Typography variant="body1">•</Typography>
-            <SaveStatus />
+            <StudyName />•<SaveStatus />
           </GridLayout>
         }
         titleControls={
