@@ -403,7 +403,11 @@ function Reviews() {
                 </GridLayout>
                 <Typography variant="body1">{`Created by: ${selectedReview.createdBy}`}</Typography>
               </GridLayout>
-              <Button variant="contained" onClick={() => navigate("review")}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => navigate("review")}
+              >
                 Review individual participants
               </Button>
             </GridLayout>
@@ -479,7 +483,7 @@ function ReviewChip(props: ReviewChipProps) {
       <Chip
         color="secondary"
         icon={<CheckCircleIcon />}
-        variant="outlined"
+        variant="filled"
         label="Creating"
       />
     );
@@ -491,7 +495,7 @@ function ReviewChip(props: ReviewChipProps) {
       <Chip
         color="success"
         icon={<CheckCircleIcon />}
-        variant="outlined"
+        variant="filled"
         label="Latest"
       />
     );
@@ -500,7 +504,7 @@ function ReviewChip(props: ReviewChipProps) {
     <Chip
       color="warning"
       icon={<WarningIcon />}
-      variant="outlined"
+      variant="filled"
       label="Outdated"
     />
   );
@@ -627,7 +631,15 @@ function Annotations() {
 
   return (
     <Loading status={annotationsState}>
-      <GridLayout rows spacing={2} sx={{ px: 5, py: 3 }}>
+      <GridLayout
+        rows
+        spacing={2}
+        sx={{
+          px: 5,
+          py: 3,
+          backgroundColor: (theme) => theme.palette.background.default,
+        }}
+      >
         <GridLayout cols fillCol={0} rowAlign="middle">
           <GridLayout rows>
             <Typography variant="body1em">
