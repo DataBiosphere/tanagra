@@ -195,7 +195,12 @@ function BioVUInline(props: BioVUInlineProps) {
 
   return (
     <GridLayout rows spacing={1} height="auto">
-      <FormControl>
+      <FormControl
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
         <Select
           value={props.data.sampleFilter}
           input={<OutlinedInput />}
