@@ -245,6 +245,9 @@ function ParticipantsGroupSection(props: {
               }}
               sx={{
                 color: (theme) => theme.palette.primary.main,
+                "& .MuiOutlinedInput-input": {
+                  py: "2px",
+                },
                 "& .MuiOutlinedInput-notchedOutline": {
                   borderColor: (theme) => theme.palette.primary.main,
                 },
@@ -274,6 +277,9 @@ function ParticipantsGroupSection(props: {
               }}
               sx={{
                 color: (theme) => theme.palette.primary.main,
+                "& .MuiOutlinedInput-input": {
+                  py: "2px",
+                },
                 "& .MuiOutlinedInput-notchedOutline": {
                   borderColor: (theme) => theme.palette.primary.main,
                 },

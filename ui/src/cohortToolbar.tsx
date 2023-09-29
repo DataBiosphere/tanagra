@@ -15,7 +15,8 @@ export default function CohortToolbar() {
       <Button
         onClick={() => undo?.()}
         variant="outlined"
-        startIcon={<UndoIcon />}
+        size="large"
+        startIcon={<UndoIcon fontSize="small" />}
         disabled={!undo}
         component={RouterLink}
         to={undoUrlPath}
@@ -25,7 +26,8 @@ export default function CohortToolbar() {
       <Button
         onClick={() => redo?.()}
         variant="outlined"
-        startIcon={<RedoIcon />}
+        size="large"
+        startIcon={<RedoIcon fontSize="small" />}
         disabled={!redo}
         component={RouterLink}
         to={redoUrlPath}
