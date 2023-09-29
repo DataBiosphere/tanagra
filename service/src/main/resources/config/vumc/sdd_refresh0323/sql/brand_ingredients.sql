@@ -11,7 +11,7 @@
 */
 SELECT cr.*
 FROM
-    `victr-tanagra-test.sd_20230328.concept_relationship` cr,
-    `victr-tanagra-test.sd_20230328.concept` c2
+    `sd-vumc-tanagra-test.sd_20230328.concept_relationship` cr,
+    `sd-vumc-tanagra-test.sd_20230328.concept` c2
 WHERE
     cr.concept_id_2 = c2.concept_id AND c2.concept_class_id = 'Ingredient'
