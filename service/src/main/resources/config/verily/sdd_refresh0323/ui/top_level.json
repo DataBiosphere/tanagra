@@ -439,7 +439,7 @@
       "conceptSet": true,
       "category": "Domains",
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -492,7 +492,7 @@
       "category": "Domains",
       "tags": ["Standard Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -520,13 +520,13 @@
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "code", "width": 120, "title": "Code" },
         { "key": "id", "width": 100, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
-        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
@@ -563,7 +563,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
-        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
@@ -592,7 +592,7 @@
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -600,7 +600,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
-        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
@@ -629,7 +629,7 @@
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -637,7 +637,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
-        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
@@ -661,7 +661,7 @@
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -669,7 +669,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
-        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
@@ -698,7 +698,7 @@
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -706,7 +706,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
-        { "key": "label", "width": "100%", "title": "Label" },
+        { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
@@ -730,7 +730,7 @@
       "category": "Domains",
       "tags": ["Standard Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -754,7 +754,7 @@
       "category": "Domains",
       "tags": ["Standard Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
@@ -773,7 +773,7 @@
       "category": "Domains",
       "tags": ["Standard Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },

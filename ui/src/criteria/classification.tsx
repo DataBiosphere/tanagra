@@ -320,7 +320,14 @@ function ClassificationEdit(props: ClassificationEditProps) {
   );
 
   const attributes = useMemo(
-    () => props.config.columns.map(({ key }) => key),
+    () => [
+      ...new Set(
+        [
+          props.config.columns.map(({ key }) => key),
+          (props.config.hierarchyColumns ?? []).map(({ key }) => key),
+        ].flat()
+      ),
+    ],
     [props.config.columns]
   );
 
