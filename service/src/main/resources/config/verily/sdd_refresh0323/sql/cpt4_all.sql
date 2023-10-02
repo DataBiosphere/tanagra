@@ -5,9 +5,9 @@ SELECT
     pc.type, pc.is_standard, pc.code,
     CASE WHEN pc.code IS NULL THEN pc.name ELSE CONCAT(pc.code, ' ', pc.name) END AS label
 
-FROM `verily-tanagra-dev.aou_static_prep_useast1.prep_cpt` pc
+FROM `verily-tanagra-dev.aou_static_prep_uscentral1.prep_cpt` pc
 
-LEFT JOIN `victr-tanagra-test.sd_20230328.concept` c
+LEFT JOIN `sd-vumc-tanagra-test.sd_20230331.concept` c
 ON c.concept_id = pc.concept_id
 AND c.vocabulary_id = pc.type
 

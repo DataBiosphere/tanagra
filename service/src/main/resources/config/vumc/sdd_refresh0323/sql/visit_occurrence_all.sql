@@ -4,7 +4,7 @@ SELECT
   vo.visit_source_value AS source_value, vo.visit_source_concept_id AS source_criteria_id,
   CAST(FLOOR(TIMESTAMP_DIFF(vo.visit_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence
 
-FROM `victr-tanagra-test.sd_20230328.visit_occurrence` AS vo
+FROM `sd-vumc-tanagra-test.sd_20230331.visit_occurrence` AS vo
 
-JOIN `victr-tanagra-test.sd_20230328.person` AS p
+JOIN `sd-vumc-tanagra-test.sd_20230331.person` AS p
 ON p.person_id = vo.person_id

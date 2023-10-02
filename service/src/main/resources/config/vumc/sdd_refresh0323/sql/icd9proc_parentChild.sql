@@ -4,9 +4,9 @@ Relationships between levels 1 and 2, which includes the AoU/VUMC-defined organi
 SELECT
   cr.concept_id_1 AS parent,
   cr.concept_id_2 AS child,
-FROM `victr-tanagra-test.aou_static_prep.prep_concept_relationship` cr
-JOIN `victr-tanagra-test.aou_static_prep.prep_concept` c1  ON c1.concept_id = cr.concept_id_1
-JOIN `victr-tanagra-test.aou_static_prep.prep_concept` c2  ON c2.concept_id = cr.concept_id_2
+FROM `sd-vumc-tanagra-test.aou_static_prep.prep_concept_relationship` cr
+JOIN `sd-vumc-tanagra-test.aou_static_prep.prep_concept` c1  ON c1.concept_id = cr.concept_id_1
+JOIN `sd-vumc-tanagra-test.aou_static_prep.prep_concept` c2  ON c2.concept_id = cr.concept_id_2
 WHERE
   cr.relationship_id = 'Subsumes'
   AND c1.vocabulary_id = c2.vocabulary_id
@@ -20,8 +20,8 @@ Relationships between levels 2 and 3, which is the link between the standard ICD
 SELECT
     p.concept_id AS parent,
     c.concept_id AS child
-FROM `victr-tanagra-test.aou_static_prep.prep_concept` p
-LEFT JOIN `victr-tanagra-test.sd_20230328.concept` AS c
+FROM `sd-vumc-tanagra-test.aou_static_prep.prep_concept` p
+LEFT JOIN `sd-vumc-tanagra-test.sd_20230331.concept` AS c
     ON c.vocabulary_id = p.vocabulary_id
     AND UPPER(c.concept_code) >= UPPER(REGEXP_EXTRACT(p.concept_code, r'^([0-9\.]+)-'))
     AND UPPER(c.concept_code) <= UPPER(REGEXP_EXTRACT(p.concept_code, r'-([0-9\.]+)$'))
@@ -36,9 +36,9 @@ Relationships between levels 3 and 4, which is the first level in the standard I
 SELECT
   cr.concept_id_1 AS parent,
   cr.concept_id_2 AS child,
-FROM `victr-tanagra-test.sd_20230328.concept_relationship` cr
-JOIN `victr-tanagra-test.sd_20230328.concept` c1  ON c1.concept_id = cr.concept_id_1
-JOIN `victr-tanagra-test.sd_20230328.concept` c2  ON c2.concept_id = cr.concept_id_2
+FROM `sd-vumc-tanagra-test.sd_20230331.concept_relationship` cr
+JOIN `sd-vumc-tanagra-test.sd_20230331.concept` c1  ON c1.concept_id = cr.concept_id_1
+JOIN `sd-vumc-tanagra-test.sd_20230331.concept` c2  ON c2.concept_id = cr.concept_id_2
 WHERE
   cr.relationship_id = 'Subsumes'
   AND c1.vocabulary_id = c2.vocabulary_id
@@ -54,8 +54,8 @@ Relationships between levels 4+, which are the remaining levels in the standard 
 SELECT
   p.concept_id AS parent,
   c.concept_id AS child,
-FROM `victr-tanagra-test.sd_20230328.concept` p
-LEFT JOIN `victr-tanagra-test.sd_20230328.concept` c
+FROM `sd-vumc-tanagra-test.sd_20230331.concept` p
+LEFT JOIN `sd-vumc-tanagra-test.sd_20230331.concept` c
     ON c.vocabulary_id = p.vocabulary_id
     AND STARTS_WITH(c.concept_code, p.concept_code)
 WHERE
