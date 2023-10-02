@@ -233,7 +233,7 @@ export function CohortReview() {
                 ))}
               </GridLayout>
               <GridBox sx={{ m: 2 }} />
-              <GridLayout rows={3}>
+              <GridLayout rows={3} spacing={2}>
                 <Typography variant="body1em">Annotations</Typography>
                 <Loading status={annotationsState}>
                   <GridLayout rows spacing={2}>
