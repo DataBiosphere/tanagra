@@ -1,7 +1,7 @@
 import CriteriaHolder from "criteriaHolder";
 import { useCohortGroupSectionAndGroup, useNewCriteria } from "hooks";
-import { useNavigate } from "react-router-dom";
 import { absoluteCohortURL, useBaseParams } from "router";
+import { useNavigate } from "util/searchState";
 import { getCriteriaPlugin, sectionName } from "./cohort";
 
 export default function NewCriteria() {

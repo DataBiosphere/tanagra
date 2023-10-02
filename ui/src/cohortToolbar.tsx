@@ -3,7 +3,7 @@ import UndoIcon from "@mui/icons-material/Undo";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { useRedoAction, useUndoAction, useUndoRedoUrls } from "hooks";
-import { Link as RouterLink } from "react-router-dom";
+import { RouterLink } from "util/searchState";
 
 export default function CohortToolbar() {
   const [undoUrlPath, redoUrlPath] = useUndoRedoUrls();
@@ -15,7 +15,8 @@ export default function CohortToolbar() {
       <Button
         onClick={() => undo?.()}
         variant="outlined"
-        startIcon={<UndoIcon />}
+        size="large"
+        startIcon={<UndoIcon fontSize="small" />}
         disabled={!undo}
         component={RouterLink}
         to={undoUrlPath}
@@ -25,7 +26,8 @@ export default function CohortToolbar() {
       <Button
         onClick={() => redo?.()}
         variant="outlined"
-        startIcon={<RedoIcon />}
+        size="large"
+        startIcon={<RedoIcon fontSize="small" />}
         disabled={!redo}
         component={RouterLink}
         to={redoUrlPath}

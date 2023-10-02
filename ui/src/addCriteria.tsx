@@ -28,18 +28,26 @@ import { DataEntry, DataKey } from "data/types";
 import { useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCallback, useMemo } from "react";
 import { cohortURL, newCriteriaURL, useExitAction } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
+import {
+  useGlobalSearchState,
+  useLocalSearchState,
+  useNavigate,
+} from "util/searchState";
 import {
   createCriteria,
   getCriteriaPlugin,
   searchCriteria,
   sectionName,
 } from "./cohort";
+
+type LocalSearchState = {
+  search?: string;
+};
 
 export function AddConceptSetCriteria() {
   const context = useConceptSetContext();
@@ -73,7 +81,7 @@ export function AddCohortCriteria() {
       const group = insertCohortCriteria(context, section.id, criteria);
       navigate("../../" + cohortURL(cohort.id, section.id, group.id));
     },
-    [context, cohort.id, section.id]
+    [context, cohort.id, section.id, navigate]
   );
 
   const name = sectionName(section, sectionIndex);
@@ -98,7 +106,8 @@ function AddCriteria(props: AddCriteriaProps) {
   const source = useSource();
   const navigate = useNavigate();
 
-  const query = useSearchParams()[0].get("search") ?? "";
+  const query = useLocalSearchState<LocalSearchState>()[0].search ?? "";
+  const [globalSearchState, updateGlobalSearchState] = useGlobalSearchState();
 
   const criteriaConfigs = underlay.uiConfiguration.criteriaConfigs;
   const searchConfig = underlay.uiConfiguration.criteriaSearchConfig;
@@ -131,28 +140,37 @@ function AddCriteria(props: AddCriteriaProps) {
     [criteriaConfigs]
   );
 
-  const [selectedTags, setSelectedTags] = useState(
-    new Set<string>(tagList.length > 0 ? [tagList[0]] : [])
+  const selectedTags = useMemo(
+    () => new Set(globalSearchState.addCriteriaTags ?? [tagList[0]]),
+    [globalSearchState.addCriteriaTags, tagList]
+  );
+
+  const selectedCriteriaConfigs = useMemo(
+    () =>
+      criteriaConfigs.filter((config) => {
+        if (props.conceptSet && !config.conceptSet) {
+          return false;
+        }
+
+        if (
+          selectedTags.size &&
+          config.tags?.length &&
+          !config.tags?.reduce((out, t) => out || selectedTags.has(t), false)
+        ) {
+          return false;
+        }
+
+        return true;
+      }),
+    [selectedTags, criteriaConfigs]
   );
 
   const categories = useMemo(() => {
     const categories: CriteriaConfig[][] = [];
     const re = new RegExp(query, "i");
 
-    for (const config of criteriaConfigs) {
-      if (props.conceptSet && !config.conceptSet) {
-        continue;
-      }
-
+    for (const config of selectedCriteriaConfigs) {
       if (query && config.title.search(re) < 0) {
-        continue;
-      }
-
-      if (
-        selectedTags.size &&
-        config.tags?.length &&
-        !config.tags?.reduce((out, t) => out || selectedTags.has(t), false)
-      ) {
         continue;
       }
 
@@ -180,7 +198,7 @@ function AddCriteria(props: AddCriteriaProps) {
     }
 
     return categories;
-  }, [query, criteriaConfigs, criteriaConfigMap, selectedTags]);
+  }, [query, selectedCriteriaConfigs, criteriaConfigMap]);
 
   const columns = useMemo(
     () => [
@@ -207,7 +225,7 @@ function AddCriteria(props: AddCriteriaProps) {
         props.onInsertCriteria(criteria);
       }
     },
-    [source]
+    [source, navigate]
   );
 
   const search = useCallback(async () => {
@@ -217,7 +235,7 @@ function AddCriteria(props: AddCriteriaProps) {
     };
 
     if (query) {
-      const res = await searchCriteria(source, criteriaConfigs, query);
+      const res = await searchCriteria(source, selectedCriteriaConfigs, query);
 
       res.data.forEach((entry) => {
         const key = `${entry.source}~${entry.data.key}`;
@@ -242,9 +260,14 @@ function AddCriteria(props: AddCriteriaProps) {
     }
 
     return data;
-  }, [source, query, criteriaConfigs]);
+  }, [source, query, selectedCriteriaConfigs]);
   const searchState = useSWRImmutable<TreeGridData>(
-    { component: "AddCriteria", underlayName: underlay.name, query: query },
+    {
+      component: "AddCriteria",
+      underlayName: underlay.name,
+      query,
+      selectedTags,
+    },
     search
   );
 
@@ -253,7 +276,10 @@ function AddCriteria(props: AddCriteriaProps) {
       <ActionBar title={props.title} backAction={props.backAction} />
       <GridLayout rows spacing={2} sx={{ px: 5, py: 2 }}>
         <GridBox>
-          <Search placeholder="Search by code or description" />
+          <Search
+            placeholder="Search by code or description"
+            initialValue={query}
+          />
         </GridBox>
         <GridLayout cols spacing={1} rowAlign="baseline">
           {tagList.length > 0 ? (
@@ -276,7 +302,9 @@ function AddCriteria(props: AddCriteriaProps) {
                     )
                   }
                   onChange={(event: SelectChangeEvent<string[]>) => {
-                    setSelectedTags(new Set(event.target.value));
+                    updateGlobalSearchState((state) => {
+                      state.addCriteriaTags = event.target.value as string[];
+                    });
                   }}
                   sx={{
                     color: (theme) => theme.palette.primary.main,

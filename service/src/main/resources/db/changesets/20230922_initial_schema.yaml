@@ -1,70 +1,97 @@
 databaseChangeLog:
   - changeSet:
-      id: schema_reset
-      author: marikomedlock
-      dbms: postgresql
+      id: initial_schema
+      author: marikomedlock, chenchalsubraveti
+      dbms: postgresql,mariadb,mysql
       changes:
         - createTable:
             tableName: study
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     primaryKey: true
                     nullable: false
                     unique: true
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: description
-                  type: text
-                  constraints:
-                    nullable: true
-              - column:
-                  name: properties
-                  type: jsonb
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: created_by
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: last_modified_by
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
+              - column:
+                  name: is_deleted
+                  type: ${boolean.type}
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: study_property
+            columns:
+              - column:
+                  name: study_id
+                  type: ${id.type}
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_sp_s
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a study will cascade to delete its properties
+              - column:
+                  name: property_key
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: property_value
+                  type: ${text.type}
+                  constraints:
+                    nullable: true
+        - addUniqueConstraint:
+            constraintName: pk_sp
+            tableName: study_property
+            columnNames: study_id, property_key
 
         - createTable:
             tableName: concept_set
             columns:
               - column:
                   name: id
-                  type: text
+                  type:  ${id.type}
                   constraints:
                     primaryKey: true
                     nullable: false
                     unique: true
               - column:
                   name: study_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: study(id)
                     foreignKeyName: fk_cs_s
@@ -73,44 +100,49 @@ databaseChangeLog:
                   remarks: Deleting a study will cascade to delete the concept sets contained in it
               - column:
                   name: underlay
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: entity
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: description
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: created_by
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: last_modified_by
-                  type: text
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_deleted
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
 
@@ -119,14 +151,14 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     primaryKey: true
                     nullable: false
                     unique: true
               - column:
                   name: study_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: study(id)
                     foreignKeyName: fk_c_s
@@ -135,39 +167,44 @@ databaseChangeLog:
                   remarks: Deleting a study will cascade to delete the cohorts contained in it
               - column:
                   name: underlay
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: description
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: created_by
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: last_modified_by
-                  type: text
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_deleted
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
 
@@ -176,14 +213,14 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     primaryKey: true
                     nullable: false
                     unique: true
               - column:
                   name: cohort_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort(id)
                     foreignKeyName: fk_r_c
@@ -192,43 +229,48 @@ databaseChangeLog:
                   remarks: Deleting a cohort will cascade to delete the reviews associated with it
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: description
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: size
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: false
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: created_by
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: last_modified_by
-                  type: text
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_deleted
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
-            constraintName: u_r_c
+            constraintName: pk_r_c
             tableName: review
             columnNames: id, cohort_id
 
@@ -237,7 +279,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: review_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: review(id)
                     foreignKeyName: fk_pei_r
@@ -246,11 +288,17 @@ databaseChangeLog:
                   remarks: Deleting a review will cascade to delete the entity instances contained in it
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
                     unique: false
                   remarks: The primary entity instance id is defined by the underlying dataset, not by this application DB
+              - column:
+                  name: stable_index
+                  type: ${integer.type}
+                  constraints:
+                    nullable: false
+                    unique: false
         - addUniqueConstraint:
             constraintName: pk_pei
             tableName: primary_entity_instance
@@ -261,14 +309,14 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     primaryKey: true
                     nullable: false
                     unique: true
               - column:
                   name: cohort_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort(id)
                     foreignKeyName: fk_cr_c
@@ -277,7 +325,7 @@ databaseChangeLog:
                   remarks: Deleting a cohort will cascade to delete the cohort revisions associated with it
               - column:
                   name: review_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: review(id)
                     foreignKeyName: fk_cr_r
@@ -286,53 +334,58 @@ databaseChangeLog:
                   remarks: Deleting a review will cascade to delete the cohort revisions associated with it
               - column:
                   name: version
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: false
               - column:
                   name: is_most_recent
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
               - column:
                   name: is_editable
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
               - column:
                   name: created
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: created_by
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: last_modified
-                  type: timestamptz
+                  type: ${timestamp.type}
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
               - column:
                   name: last_modified_by
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
+              - column:
+                  name: records_count
+                  type: ${bigint.type}
+                  constraints:
+                    nullable: true
 
         - createTable:
             tableName: criteria_group_section
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: cohort_revision_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort_revision(id)
                     foreignKeyName: fk_cgs_cr
@@ -341,18 +394,18 @@ databaseChangeLog:
                   remarks: Deleting a cohort revision will cascade to delete the criteria group sections contained in it
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
               - column:
                   name: operator
-                  type: text
+                  type: ${text.type}
               - column:
                   name: is_excluded
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: false
               - column:
                   name: list_index
-                  type: int
+                  type: ${integer.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -365,17 +418,17 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: criteria_group_section_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: cohort_revision_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort_revision(id)
                     foreignKeyName: fk_cg_cr
@@ -384,19 +437,19 @@ databaseChangeLog:
                   remarks: Deleting a cohort revision will cascade to delete the criteria groups contained in it
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
               - column:
                   name: entity
-                  type: text
+                  type: ${text.type}
               - column:
                   name: group_by_count_operator
-                  type: text
+                  type: ${text.type}
               - column:
                   name: group_by_count_value
-                  type: integer
+                  type: ${integer.type}
               - column:
                   name: list_index
-                  type: int
+                  type: ${integer.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -409,22 +462,22 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: criteria_group_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: true
               - column:
                   name: criteria_group_section_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: true
               - column:
                   name: cohort_revision_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort_revision(id)
                     foreignKeyName: ck_crit_cr
@@ -433,7 +486,7 @@ databaseChangeLog:
                   remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
               - column:
                   name: concept_set_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: concept_set(id)
                     foreignKeyName: fk_crit_cs
@@ -442,30 +495,30 @@ databaseChangeLog:
                   remarks: Deleting a concept set will cascade to delete the criteria contained in it
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
               - column:
                   name: plugin_name
-                  type: text
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: plugin_version
+                  type: ${integer.type}
                   constraints:
                     nullable: false
               - column:
                   name: selection_data
-                  type: text
+                  type: ${long.text.type}
                   constraints:
                     nullable: false
               - column:
                   name: ui_config
-                  type: text
-                  constraints:
-                    nullable: false
-              - column:
-                  name: tags
-                  type: text[]
+                  type: ${long.text.type}
                   constraints:
                     nullable: false
               - column:
                   name: list_index
-                  type: int
+                  type: ${integer.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -474,16 +527,73 @@ databaseChangeLog:
             columnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
 
         - createTable:
+            tableName: criteria_tag
+            columns:
+              - column:
+                  name: criteria_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criteria_group_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: criteria_group_section_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cohort_revision_id
+                  type: ${id.type}
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_ct_cr
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a cohort revision will cascade to delete the criteria contained in it
+              - column:
+                  name: concept_set_id
+                  type: ${id.type}
+                  constraints:
+                    references: concept_set(id)
+                    foreignKeyName: fk_ct_cs
+                    nullable: true
+                    deleteCascade: true
+                  remarks: Deleting a concept set will cascade to delete the criteria contained in it
+              - column:
+                  name: criteria_key
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criteria_value
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_ct
+            tableName: criteria_tag
+            columnNames: criteria_id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id, criteria_key
+        - addForeignKeyConstraint:
+            constraintName: fk_ct_c
+            baseColumnNames: criteria_id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
+            baseTableName: criteria_tag
+            referencedColumnNames: id, criteria_group_id, criteria_group_section_id, cohort_revision_id, concept_set_id
+            referencedTableName: criteria
+
+        - createTable:
             tableName: annotation_key
             columns:
               - column:
                   name: id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: cohort_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     references: cohort(id)
                     foreignKeyName: fk_ak_c
@@ -492,22 +602,17 @@ databaseChangeLog:
                   remarks: Deleting a cohort will cascade to delete the annotation keys associated with it
               - column:
                   name: display_name
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: false
               - column:
                   name: description
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: data_type
-                  type: text
-                  constraints:
-                    nullable: false
-              - column:
-                  name: enum_vals
-                  type: text[]
+                  type: ${text.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
@@ -516,46 +621,77 @@ databaseChangeLog:
             columnNames: id, cohort_id
 
         - createTable:
-            tableName: annotation_value
+            tableName: annotation_key_enum_value
             columns:
               - column:
-                  name: cohort_id
-                  type: text
+                  name: enum
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: annotation_key_id
-                  type: text
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cohort_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_akev
+            tableName: annotation_key_enum_value
+            columnNames: enum, annotation_key_id, cohort_id
+        - addForeignKeyConstraint:
+            constraintName: fk_akev_ak
+            baseColumnNames: annotation_key_id, cohort_id
+            baseTableName: annotation_key_enum_value
+            referencedColumnNames: id, cohort_id
+            referencedTableName: annotation_key
+            onDelete: CASCADE
+            validate: true
+
+        - createTable:
+            tableName: annotation_value
+            columns:
+              - column:
+                  name: cohort_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: annotation_key_id
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: review_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: primary_entity_instance_id
-                  type: text
+                  type: ${id.type}
                   constraints:
                     nullable: false
               - column:
                   name: bool_val
-                  type: boolean
+                  type: ${boolean.type}
                   constraints:
                     nullable: true
               - column:
                   name: int64_val
-                  type: integer
+                  type: ${integer.type}
                   constraints:
                     nullable: true
               - column:
                   name: string_val
-                  type: text
+                  type: ${text.type}
                   constraints:
                     nullable: true
               - column:
                   name: date_val
-                  type: date
+                  type: ${date.type}
                   constraints:
                     nullable: true
         - addForeignKeyConstraint:
@@ -582,3 +718,108 @@ databaseChangeLog:
             referencedTableName: review
             onDelete: CASCADE
             validate: true
+
+        - createTable:
+            tableName: activity_log
+            columns:
+              - column:
+                  name: id
+                  type: ${id.type}
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: user_email
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: logged
+                  type: ${timestamp.type}
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: version_git_tag
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version_git_hash
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version_build
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: activity_type
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: export_model
+                  type: ${text.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: records_count
+                  type: ${bigint.type}
+                  constraints:
+                    nullable: true
+
+        - createTable:
+            tableName: activity_log_resource
+            columns:
+              - column:
+                  name: activity_log_id
+                  type: ${id.type}
+                  constraints:
+                    references: activity_log(id)
+                    foreignKeyName: fk_alr_al
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting an activity log entry will cascade to delete the resources associated with it
+              - column:
+                  name: stable_index
+                  type: ${integer.type}
+                  constraints:
+                    nullable: false
+                  remarks: Return the resources in a consistent order.
+              - column:
+                  name: resource_type
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: study_id
+                  type: ${id.type}
+                  constraints:
+                    references: study(id)
+                    foreignKeyName: fk_alr_s
+                    nullable: true
+              - column:
+                  name: cohort_id
+                  type: ${id.type}
+                  constraints:
+                    references: cohort(id)
+                    foreignKeyName: fk_alr_c
+                    nullable: true
+              - column:
+                  name: cohort_revision_id
+                  type: ${id.type}
+                  constraints:
+                    references: cohort_revision(id)
+                    foreignKeyName: fk_alr_cr
+                    nullable: true
+              - column:
+                  name: review_id
+                  type: ${id.type}
+                  constraints:
+                    references: review(id)
+                    foreignKeyName: fk_alr_r
+                    nullable: true
+

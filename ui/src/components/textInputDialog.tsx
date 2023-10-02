@@ -13,7 +13,7 @@ type FormData = {
   text: string;
 };
 
-type TextInputDialogProps = {
+type TextInputDialogConfig = {
   title: string;
   initialText?: string;
   textLabel: string;
@@ -21,64 +21,76 @@ type TextInputDialogProps = {
   onConfirm: (name: string) => void;
 };
 
-// Return a dialog and the callback function to show the dialog.
-export function useTextInputDialog(
-  props: TextInputDialogProps
-): [ReactNode, () => void] {
-  const [open, setOpen] = useState(false);
-  const show = () => setOpen(true);
+type TextInputDialogConfigInternal = TextInputDialogConfig & {
+  initialValues: FormData;
+};
 
-  const initialValues: FormData = {
-    text: props.initialText ?? "",
+// Return a dialog and the callback function to show the dialog.
+export function useTextInputDialog(): [
+  ReactNode,
+  (config: TextInputDialogConfig) => void
+] {
+  const [config, setConfig] = useState<TextInputDialogConfigInternal | null>(
+    null
+  );
+  const show = (config: TextInputDialogConfig) => {
+    setConfig({
+      initialValues: {
+        text: config.initialText ?? "",
+      },
+      ...config,
+    });
   };
 
   return [
     // eslint-disable-next-line react/jsx-key
-    <Dialog
-      open={open}
-      onClose={() => {
-        setOpen(false);
-      }}
-      aria-labelledby="text-input-dialog-title"
-      maxWidth="sm"
-      fullWidth
-    >
-      <DialogTitle id="text-input-dialog-title">{props.title}</DialogTitle>
-      <Form
-        onSubmit={({ text }: FormData) => {
-          setOpen(false);
-          props.onConfirm(text ?? "");
+    !!config ? (
+      <Dialog
+        open={!!config}
+        onClose={() => {
+          setConfig(null);
         }}
-        initialValues={initialValues}
-        validate={({ text }: FormData) => {
-          if (!text) {
-            return { text: `${props.textLabel} may not be blank.` };
-          }
-        }}
-        render={({ handleSubmit, invalid }) => (
-          <form noValidate onSubmit={handleSubmit}>
-            <DialogContent>
-              <GridLayout rows>
-                <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
-                  <TextField
-                    autoFocus
-                    fullWidth
-                    name="text"
-                    label={props.textLabel}
-                  />
-                </GridBox>
-              </GridLayout>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" variant="contained" disabled={invalid}>
-                {props.buttonLabel}
-              </Button>
-            </DialogActions>
-          </form>
-        )}
-      />
-    </Dialog>,
+        aria-labelledby="text-input-dialog-title"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="text-input-dialog-title">{config.title}</DialogTitle>
+        <Form
+          onSubmit={({ text }: FormData) => {
+            setConfig(null);
+            config.onConfirm(text ?? "");
+          }}
+          initialValues={config.initialValues}
+          validate={({ text }: FormData) => {
+            if (!text) {
+              return { text: `${config.textLabel} may not be blank.` };
+            }
+          }}
+          render={({ handleSubmit, invalid }) => (
+            <form noValidate onSubmit={handleSubmit}>
+              <DialogContent>
+                <GridLayout rows>
+                  <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
+                    <TextField
+                      autoFocus
+                      fullWidth
+                      name="text"
+                      label={config.textLabel}
+                    />
+                  </GridBox>
+                </GridLayout>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setConfig(null)}>Cancel</Button>
+                <Button type="submit" variant="contained" disabled={invalid}>
+                  {config.buttonLabel}
+                </Button>
+              </DialogActions>
+            </form>
+          )}
+        />
+      </Dialog>
+    ) : null,
     show,
   ];
 }

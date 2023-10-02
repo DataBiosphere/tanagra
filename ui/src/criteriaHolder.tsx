@@ -3,7 +3,7 @@ import { CriteriaPlugin } from "cohort";
 import Empty from "components/empty";
 import GridLayout from "layout/gridLayout";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "util/searchState";
 
 export type CriteriaHolderProps = {
   title: string;
@@ -14,18 +14,18 @@ export type CriteriaHolderProps = {
 
 export default function CriteriaHolder(props: CriteriaHolderProps) {
   const navigate = useNavigate();
-  const [backURL, setBackURL] = useState<string | undefined>();
+  const [backAction, setBackAction] = useState<() => void | undefined>();
 
   return (
     <GridLayout rows>
       <ActionBar
         title={props.title}
-        backAction={backURL ?? props.backURL ?? props.exitAction}
+        backAction={backAction ?? props.backURL ?? props.exitAction}
       />
       {props.plugin.renderEdit ? (
         props.plugin.renderEdit(
           props.exitAction ?? (() => navigate("..")),
-          setBackURL
+          setBackAction
         )
       ) : (
         <Empty

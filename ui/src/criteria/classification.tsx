@@ -31,7 +31,7 @@ import GridLayout from "layout/gridLayout";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
-import { searchParamsFromData, useSearchData } from "util/searchData";
+import { useLocalSearchState } from "util/searchState";
 
 type Selection = {
   key: DataKey;
@@ -55,7 +55,10 @@ export interface Config extends CriteriaConfig {
   columns: TreeGridColumn[];
   nameColumnIndex?: number;
   hierarchyColumns?: TreeGridColumn[];
-  occurrence: string;
+  // TODO(tjennison): Multiple occurrence: Consider converting these to always
+  // take an array and updating all of the underlays. For now, firstOf is a nice
+  // funnel for tracking the inconsistent handling of multiple occurrences.
+  occurrences: string | string[];
   classifications: string[];
   classificationMergeSort?: SortOrder;
   multiSelect?: boolean;
@@ -111,7 +114,7 @@ export interface Data {
       // This impacts prepackaged criteria for occurences with multiple
       // classifications.
       const classification = source.lookupClassification(
-        config.occurrence,
+        firstOf(config.occurrences),
         config.classifications[0]
       );
 
@@ -137,13 +140,16 @@ class _ implements CriteriaPlugin<Data> {
     this.data = data as Data;
   }
 
-  renderEdit(doneAction: () => void, setBackURL: (url?: string) => void) {
+  renderEdit(
+    doneAction: () => void,
+    setBackAction: (action?: () => void) => void
+  ) {
     return (
       <ClassificationEdit
         data={this.data}
         config={this.config}
         doneAction={doneAction}
-        setBackURL={setBackURL}
+        setBackAction={setBackAction}
       />
     );
   }
@@ -177,13 +183,11 @@ class _ implements CriteriaPlugin<Data> {
     };
   }
 
-  generateFilter() {
-    // TODO(tjennison): This assumes all classifications refer to the same
-    // occurrence.
+  generateFilter(occurrenceId: string) {
     const filters: Filter[] = [
       {
         type: FilterType.Classification,
-        occurrenceId: this.config.occurrence,
+        occurrenceId: occurrenceId,
         classificationId: this.config.classifications[0],
         keys: this.data.selected.map(({ key }) => key),
       },
@@ -204,8 +208,11 @@ class _ implements CriteriaPlugin<Data> {
     return makeArrayFilter({}, filters);
   }
 
-  filterOccurrenceId() {
-    return this.config.occurrence;
+  filterOccurrenceIds() {
+    if (typeof this.config.occurrences === "string") {
+      return [this.config.occurrences];
+    }
+    return this.config.occurrences;
   }
 }
 
@@ -217,7 +224,7 @@ function keyForNode(node: ClassificationNode): DataKey {
   return key;
 }
 
-type SearchData = {
+type SearchState = {
   // The query entered in the search box.
   query?: string;
   // The classification to show the hierarchy for.
@@ -232,27 +239,33 @@ type ClassificationEditProps = {
   data: Data;
   config: Config;
   doneAction: () => void;
-  setBackURL: (url?: string) => void;
+  setBackAction: (action?: () => void) => void;
 };
 
 function ClassificationEdit(props: ClassificationEditProps) {
   const source = useSource();
-  const occurrence = source.lookupOccurrence(props.config.occurrence);
+  const occurrence = source.lookupOccurrence(firstOf(props.config.occurrences));
   const classifications = props.config.classifications.map((c) =>
-    source.lookupClassification(props.config.occurrence, c)
+    source.lookupClassification(firstOf(props.config.occurrences), c)
   );
   const updateCriteria = useUpdateCriteria();
   const isNewCriteria = useIsNewCriteria();
 
-  const [searchData, updateSearchData] = useSearchData<SearchData>();
+  const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
 
   useEffect(() => {
-    props.setBackURL(
-      searchData.hierarchy
-        ? `.?${searchParamsFromData({ query: searchData.query })}`
+    // The extra function works around React defaulting to treating a function
+    // as an update function.
+    props.setBackAction(() =>
+      searchState.hierarchy
+        ? () => {
+            updateSearchState((data) => {
+              data.hierarchy = undefined;
+            });
+          }
         : undefined
     );
-  }, [searchData]);
+  }, [searchState]);
 
   const processEntities = useCallback(
     (
@@ -303,11 +316,18 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
       return data;
     },
-    [updateSearchData]
+    [updateSearchState]
   );
 
   const attributes = useMemo(
-    () => props.config.columns.map(({ key }) => key),
+    () => [
+      ...new Set(
+        [
+          props.config.columns.map(({ key }) => key),
+          (props.config.hierarchyColumns ?? []).map(({ key }) => key),
+        ].flat()
+      ),
+    ],
     [props.config.columns]
   );
 
@@ -316,8 +336,8 @@ function ClassificationEdit(props: ClassificationEditProps) {
       .map((c) => c.id)
       .filter(
         (c) =>
-          !searchData?.hierarchyClassification ||
-          searchData?.hierarchyClassification === c
+          !searchState?.hierarchyClassification ||
+          searchState?.hierarchyClassification === c
       );
 
     const raw: [string, ClassificationNode[]][] = await Promise.all(
@@ -325,8 +345,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
         c,
         (
           await source.searchClassification(attributes, occurrence.id, c, {
-            query: !searchData?.hierarchy ? searchData?.query ?? "" : undefined,
-            includeGroupings: !searchData?.hierarchy,
+            query: !searchState?.hierarchy
+              ? searchState?.query ?? ""
+              : undefined,
+            includeGroupings: !searchState?.hierarchy,
             sortOrder: props.config.defaultSort,
           })
         ).nodes,
@@ -342,14 +364,14 @@ function ClassificationEdit(props: ClassificationEditProps) {
             ROLLUP_COUNT_ATTRIBUTE
         ]
     );
-    return processEntities(merged, searchData?.hierarchy);
-  }, [source, attributes, processEntities, searchData]);
+    return processEntities(merged, searchState?.hierarchy);
+  }, [source, attributes, processEntities, searchState]);
   const classificationState = useSWRImmutable(
     {
       component: "Classification",
       occurrenceId: occurrence.id,
       classificationIds: classifications.map((c) => c.id),
-      searchData,
+      searchState,
       attributes,
     },
     fetchClassification
@@ -393,7 +415,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       }}
     >
       <GridLayout rows>
-        {!searchData?.hierarchy && (
+        {!searchState?.hierarchy && (
           <GridBox
             sx={{
               px: 5,
@@ -404,11 +426,11 @@ function ClassificationEdit(props: ClassificationEditProps) {
             <Search
               placeholder="Search by code or description"
               onSearch={(query: string) => {
-                updateSearchData((data: SearchData) => {
+                updateSearchState((data: SearchState) => {
                   data.query = query;
                 });
               }}
-              initialValue={searchData?.query}
+              initialValue={searchState?.query}
             />
           </GridBox>
         )}
@@ -421,10 +443,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
             />
           ) : (
             <TreeGrid
-              columns={!!searchData?.hierarchy ? hierarchyColumns : allColumns}
+              columns={!!searchState?.hierarchy ? hierarchyColumns : allColumns}
               data={classificationState?.data ?? {}}
-              defaultExpanded={searchData?.hierarchy}
-              highlightId={searchData?.highlightId}
+              defaultExpanded={searchState?.hierarchy}
+              highlightId={searchState?.highlightId}
               rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
                 if (!classificationState.data) {
                   return undefined;
@@ -441,7 +463,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 }
 
                 const classification = source.lookupClassification(
-                  props.config.occurrence,
+                  firstOf(props.config.occurrences),
                   item.classification
                 );
                 const column = props.config.columns[nameColumnIndex];
@@ -456,7 +478,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   <Button
                     startIcon={<AccountTreeIcon />}
                     onClick={() => {
-                      updateSearchData((data: SearchData) => {
+                      updateSearchState((data: SearchState) => {
                         if (rowData.view_hierarchy) {
                           data.hierarchyClassification = classification?.id;
                           data.hierarchy = rowData.view_hierarchy as DataKey[];
@@ -488,7 +510,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   </Button>
                 );
 
-                const listContent = !searchData?.hierarchy
+                const listContent = !searchState?.hierarchy
                   ? [
                       {
                         column: props.config.columns.length,
@@ -502,7 +524,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     ]
                   : [];
 
-                const hierarchyContent = searchData?.hierarchy
+                const hierarchyContent = searchState?.hierarchy
                   ? [
                       {
                         column: hierarchyColumns.length - 1,
@@ -557,29 +579,30 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   return Promise.resolve();
                 }
 
-                const classification = searchData?.hierarchyClassification;
-                if (!classification) {
-                  throw new Error("Classification unset for hierarchy.");
-                }
-
                 const item = data[id] as ClassificationNodeItem;
                 const key = item?.node ? keyForNode(item.node) : id;
+                const classificationId =
+                  item?.classification ?? searchState.hierarchyClassification;
+                if (!classificationId) {
+                  throw new Error("No hierarchy selected.");
+                }
+
                 if (item?.node.grouping) {
                   return source
                     .searchGrouping(
                       attributes,
                       occurrence.id,
-                      classification,
+                      classificationId,
                       item.node
                     )
                     .then((res) => {
                       updateData(
                         processEntities(
                           res.nodes.map((r) => ({
-                            source: classification,
+                            source: classificationId,
                             data: r,
                           })),
-                          searchData?.hierarchy,
+                          searchState?.hierarchy,
                           key,
                           data
                         )
@@ -590,7 +613,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     .searchClassification(
                       attributes,
                       occurrence.id,
-                      classification,
+                      classificationId,
                       {
                         parent: key,
                       }
@@ -599,10 +622,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       updateData(
                         processEntities(
                           res.nodes.map((r) => ({
-                            source: classification,
+                            source: classificationId,
                             data: r,
                           })),
-                          searchData?.hierarchy,
+                          searchState?.hierarchy,
                           key,
                           data
                         )
@@ -628,7 +651,7 @@ type ClassificationInlineProps = {
 function ClassificationInline(props: ClassificationInlineProps) {
   const source = useSource();
   const classification = source.lookupClassification(
-    props.config.occurrence,
+    firstOf(props.config.occurrences),
     props.config.classifications[0]
   );
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
@@ -636,7 +659,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
   const hintDataState = useSWRImmutable(
     {
       type: "hintData",
-      occurrence: props.config.occurrence,
+      occurrence: firstOf(props.config.occurrences),
       entity: props.data.selected[0].entity ?? classification.entity,
       key: props.data.selected[0].key,
     },
@@ -779,7 +802,7 @@ function search(
   return source
     .searchClassification(
       config.columns.map(({ key }) => key),
-      config.occurrence,
+      firstOf(config.occurrences),
       config.classifications[0],
       {
         query,
@@ -787,4 +810,14 @@ function search(
       }
     )
     .then((res) => res.nodes.map((node) => node.data));
+}
+
+function firstOf(value: string | string[]) {
+  // TODO(tjennison): Multiple occurrence: This uses the first occurrence
+  // instead of somehow taking them all account, assuming that they're
+  // interchangeable.
+  if (typeof value === "string") {
+    return value;
+  }
+  return value[0];
 }

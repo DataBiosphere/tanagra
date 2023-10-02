@@ -52,33 +52,43 @@ function generateSectionFilter(
 
 function generateGroupSectionFilter(group: tanagraUI.UIGroup): Filter | null {
   const plugins = group.criteria.map((c) => getCriteriaPlugin(c));
-  const filter = makeArrayFilter(
-    {},
-    plugins.map((p) => p.generateFilter()).filter(isValid)
-  );
-
-  if (!filter || !group.entity) {
-    return filter;
-  }
-
-  const groupByCountFilters = plugins
-    .map((p) => p.groupByCountFilter?.())
-    .filter(isValid);
-  if (groupByCountFilters.length > 1) {
-    throw new Error(
-      `Criteria groups may not have multiple group by count filters: ${JSON.stringify(
-        groupByCountFilters
-      )}`
+  // TODO(tjennison): Multiple occurrence: Store entities in an array instead of
+  // a string.
+  const entityFilters = group.entity.split(",").map((entity) => {
+    // TODO(tjennison): Multiple occurrence: This should be using the occurrence
+    // that matches the entity of this iteration so we need to store occurrences
+    // instead of entities in groups.
+    const filter = makeArrayFilter(
+      {},
+      plugins
+        .map((p) => p.generateFilter(p.filterOccurrenceIds()[0]))
+        .filter(isValid)
     );
-  }
 
-  return {
-    type: FilterType.Relationship,
-    entityId: group.entity,
-    subfilter: filter,
-    groupByCount:
-      groupByCountFilters.length > 0 ? groupByCountFilters[0] : undefined,
-  };
+    if (!filter || !entity) {
+      return filter;
+    }
+
+    const groupByCountFilters = plugins
+      .map((p) => p.groupByCountFilter?.())
+      .filter(isValid);
+    if (groupByCountFilters.length > 1) {
+      throw new Error(
+        `Criteria groups may not have multiple group by count filters: ${JSON.stringify(
+          groupByCountFilters
+        )}`
+      );
+    }
+
+    return {
+      type: FilterType.Relationship,
+      entityId: entity,
+      subfilter: filter,
+      groupByCount:
+        groupByCountFilters.length > 0 ? groupByCountFilters[0] : undefined,
+    };
+  });
+  return makeArrayFilter({ min: 1 }, entityFilters);
 }
 
 export function sectionName(section: tanagraUI.UIGroupSection, index: number) {
@@ -101,9 +111,13 @@ export function defaultSection(
 export function defaultGroup(
   criteria: tanagraUI.UICriteria
 ): tanagraUI.UIGroup {
+  // TODO(tjennison): Multiple occurrence: This should be using the occurrence
+  // that matches the entity of this iteration so we need to store occurrences
+  // instead of entities in groups. It should also be storing them as an array
+  // instead of a string.
   return {
     id: criteria.id,
-    entity: getCriteriaPlugin(criteria).filterOccurrenceId(),
+    entity: getCriteriaPlugin(criteria).filterOccurrenceIds().join(","),
     criteria: [criteria],
   };
 }
@@ -120,13 +134,13 @@ export interface CriteriaPlugin<DataType> {
   data: DataType;
   renderEdit?: (
     doneAction: () => void,
-    setBackURL: (url?: string) => void
+    setBackAction: (action?: () => void) => void
   ) => JSX.Element;
   renderInline: (groupId: string) => ReactNode;
   displayDetails: () => DisplayDetails;
-  generateFilter: () => Filter | null;
+  generateFilter: (occurrenceId: string) => Filter | null;
   groupByCountFilter?: () => tanagraUI.UIGroupByCount | null;
-  filterOccurrenceId: () => string;
+  filterOccurrenceIds: () => string[];
   outputOccurrenceIds?: () => string[];
 }
 

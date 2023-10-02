@@ -8,7 +8,7 @@ import {
   useReviewAnnotations,
   useReviewInstances,
   useReviewParams,
-  useReviewSearchData,
+  useReviewSearchState,
 } from "cohortReview/reviewHooks";
 import Loading from "components/loading";
 import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
@@ -108,7 +108,7 @@ function ParticipantsList(props: ParticipantsListProps) {
   const instancesState = useReviewInstances();
   const annotationsState = useReviewAnnotations();
 
-  const [, updateSearchData] = useReviewSearchData();
+  const [, updateSearchState] = useReviewSearchState();
 
   const columns = useMemo(
     () => [
@@ -169,8 +169,8 @@ function ParticipantsList(props: ParticipantsListProps) {
                     (i) => i.data.key === id
                   );
                   if (index >= 0) {
-                    updateSearchData((data) => {
-                      data.instanceIndex = index;
+                    updateSearchState((state) => {
+                      state.instanceIndex = index;
                     });
                     props.hide();
                   }

@@ -35,7 +35,7 @@ import { useCohort, useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback, useMemo } from "react";
-import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   absoluteCohortReviewListURL,
   cohortURL,
@@ -46,6 +46,7 @@ import {
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
+import { RouterLink, useNavigate } from "util/searchState";
 import {
   createCriteria,
   defaultFilter,
@@ -60,15 +61,7 @@ export function Overview() {
   const params = useBaseParams();
   const exit = useExitAction();
 
-  const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog({
-    title: "Editing cohort name",
-    initialText: cohort.name,
-    textLabel: "Cohort name",
-    buttonLabel: "Update",
-    onConfirm: (name: string) => {
-      updateCohort(context, name);
-    },
-  });
+  const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
 
   return (
     <GridLayout rows>
@@ -76,13 +69,23 @@ export function Overview() {
         title={cohort.name}
         subtitle={
           <GridLayout cols spacing={1} rowAlign="middle">
-            <StudyName />
-            <Typography variant="body1">•</Typography>
-            <SaveStatus />
+            <StudyName />•<SaveStatus />
           </GridLayout>
         }
         titleControls={
-          <IconButton onClick={() => showRenameTitleDialog()}>
+          <IconButton
+            onClick={() =>
+              showRenameTitleDialog({
+                title: "Editing cohort name",
+                initialText: cohort.name,
+                textLabel: "Cohort name",
+                buttonLabel: "Update",
+                onConfirm: (name: string) => {
+                  updateCohort(context, name);
+                },
+              })
+            }
+          >
             <EditIcon />
           </IconButton>
         }
@@ -242,6 +245,9 @@ function ParticipantsGroupSection(props: {
               }}
               sx={{
                 color: (theme) => theme.palette.primary.main,
+                "& .MuiOutlinedInput-input": {
+                  py: "2px",
+                },
                 "& .MuiOutlinedInput-notchedOutline": {
                   borderColor: (theme) => theme.palette.primary.main,
                 },
@@ -271,6 +277,9 @@ function ParticipantsGroupSection(props: {
               }}
               sx={{
                 color: (theme) => theme.palette.primary.main,
+                "& .MuiOutlinedInput-input": {
+                  py: "2px",
+                },
                 "& .MuiOutlinedInput-notchedOutline": {
                   borderColor: (theme) => theme.palette.primary.main,
                 },
@@ -434,7 +443,9 @@ function ParticipantsGroup(props: {
   const modifierPlugins = useMemo(
     () =>
       modifierCriteria.map((c) => {
-        const p = getCriteriaPlugin(c, props.group.entity);
+        // TODO: Multiple occurrence: Store entities in an array instead of a
+        // string.
+        const p = getCriteriaPlugin(c, props.group.entity.split(",")[0]);
         return { title: getCriteriaTitle(c, p), plugin: p };
       }),
     [modifierCriteria, props.group.entity]

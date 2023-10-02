@@ -41,13 +41,14 @@ import { useCohort, useStudyId } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   absoluteCohortReviewListURL,
   absoluteCohortURL,
   useBaseParams,
 } from "router";
 import useSWR from "swr";
+import { RouterLink, useNavigate } from "util/searchState";
 import { useNewReviewDialog } from "./newReviewDialog";
 
 type PendingItem = {
@@ -250,13 +251,7 @@ function Reviews() {
     onCreate: onCreateNewReview,
   });
 
-  const [renameReviewDialog, showRenameReviewDialog] = useTextInputDialog({
-    title: `Rename ${selectedReview?.displayName}`,
-    initialText: selectedReview?.displayName,
-    textLabel: "Review name",
-    buttonLabel: "Rename",
-    onConfirm: onRenameReview,
-  });
+  const [renameReviewDialog, showRenameReviewDialog] = useTextInputDialog();
 
   const emptyIconSx: SxProps = {
     p: 1,
@@ -375,7 +370,17 @@ function Reviews() {
                   <Typography variant="h6" sx={{ mr: 1 }}>
                     {selectedReview.displayName}
                   </Typography>
-                  <IconButton onClick={showRenameReviewDialog}>
+                  <IconButton
+                    onClick={() =>
+                      showRenameReviewDialog({
+                        title: `Rename ${selectedReview?.displayName}`,
+                        initialText: selectedReview?.displayName,
+                        textLabel: "Review name",
+                        buttonLabel: "Rename",
+                        onConfirm: onRenameReview,
+                      })
+                    }
+                  >
                     <EditIcon />
                   </IconButton>
                   <IconButton
@@ -398,7 +403,11 @@ function Reviews() {
                 </GridLayout>
                 <Typography variant="body1">{`Created by: ${selectedReview.createdBy}`}</Typography>
               </GridLayout>
-              <Button variant="contained" onClick={() => navigate("review")}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => navigate("review")}
+              >
                 Review individual participants
               </Button>
             </GridLayout>
@@ -474,7 +483,7 @@ function ReviewChip(props: ReviewChipProps) {
       <Chip
         color="secondary"
         icon={<CheckCircleIcon />}
-        variant="outlined"
+        variant="filled"
         label="Creating"
       />
     );
@@ -486,7 +495,7 @@ function ReviewChip(props: ReviewChipProps) {
       <Chip
         color="success"
         icon={<CheckCircleIcon />}
-        variant="outlined"
+        variant="filled"
         label="Latest"
       />
     );
@@ -495,7 +504,7 @@ function ReviewChip(props: ReviewChipProps) {
     <Chip
       color="warning"
       icon={<WarningIcon />}
-      variant="outlined"
+      variant="filled"
       label="Outdated"
     />
   );
@@ -604,6 +613,7 @@ function Annotations() {
   );
 
   const [confirmDialog, showConfirmDialog] = useSimpleDialog();
+  const [renameDialog, showRenameDialog] = useTextInputDialog();
 
   const data = useArrayAsTreeGridData(
     annotationsState.data?.map((a) => ({
@@ -621,7 +631,15 @@ function Annotations() {
 
   return (
     <Loading status={annotationsState}>
-      <GridLayout rows spacing={2} sx={{ px: 5, py: 3 }}>
+      <GridLayout
+        rows
+        spacing={2}
+        sx={{
+          px: 5,
+          py: 3,
+          backgroundColor: (theme) => theme.palette.background.default,
+        }}
+      >
         <GridLayout cols fillCol={0} rowAlign="middle">
           <GridLayout rows>
             <Typography variant="body1em">
@@ -659,7 +677,29 @@ function Annotations() {
                   {
                     column: columns.length - 1,
                     content: (
-                      <GridLayout cols colAlign="right">
+                      <GridLayout cols fillCol={0}>
+                        <GridBox />
+                        <IconButton
+                          onClick={() =>
+                            showRenameDialog({
+                              title: `Updating ${annotation.displayName} display name`,
+                              textLabel: "Display name",
+                              initialText: annotation.displayName,
+                              buttonLabel: "Update",
+                              onConfirm: async (name: string) => {
+                                await source.updateAnnotation(
+                                  studyId,
+                                  cohort.id,
+                                  annotation.id,
+                                  name
+                                );
+                                annotationsState.mutate();
+                              },
+                            })
+                          }
+                        >
+                          <EditIcon />
+                        </IconButton>
                         <IconButton
                           onClick={() =>
                             showConfirmDialog({
@@ -711,6 +751,7 @@ function Annotations() {
       </GridLayout>
       {newAnnotationDialog}
       {confirmDialog}
+      {renameDialog}
     </Loading>
   );
 }

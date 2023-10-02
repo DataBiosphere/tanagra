@@ -3,7 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { Link as RouterLink } from "react-router-dom";
+import { RouterLink } from "util/searchState";
 
 type ActionBarProps = {
   title: string;
@@ -83,9 +83,7 @@ export default function ActionBar(props: ActionBarProps) {
         </GridLayout>
 
         {props.subtitle ? <GridBox /> : null}
-        {props.subtitle ? (
-          <Typography variant="body2">{props.subtitle}</Typography>
-        ) : null}
+        {props.subtitle ? props.subtitle : null}
       </GridLayout>
       {props.rightControls ?? <GridBox />}
     </GridLayout>

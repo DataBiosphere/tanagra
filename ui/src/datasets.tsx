@@ -45,7 +45,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   absoluteExportURL,
   cohortURL,
@@ -61,6 +60,7 @@ import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import { useImmer } from "use-immer";
+import { useNavigate } from "util/searchState";
 import { isValid } from "util/valid";
 
 export function Datasets() {
@@ -484,11 +484,10 @@ function useConceptSetOccurrences(
       ?.filter((cs) => selectedConceptSets.has(cs.id))
       ?.forEach((conceptSet) => {
         const plugin = getCriteriaPlugin(conceptSet.criteria);
-        const occurrenceIds = plugin.outputOccurrenceIds?.() ?? [
-          plugin.filterOccurrenceId(),
-        ];
+        const occurrenceIds =
+          plugin.outputOccurrenceIds?.() ?? plugin.filterOccurrenceIds();
         occurrenceIds.forEach((o) => {
-          addFilter(o, plugin.generateFilter());
+          addFilter(o, plugin.generateFilter(o));
         });
       });
 

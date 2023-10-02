@@ -49,7 +49,7 @@ class _ implements CohortReviewPlugin {
   }
 }
 
-type SearchData = {
+type SearchState = {
   query: string;
   categories?: Selection[];
   context?: boolean;
@@ -73,8 +73,8 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
     [context.occurrences]
   );
 
-  const searchData = context.searchData<SearchData>(id);
-  const query = searchData?.query ?? "";
+  const searchState = context.searchState<SearchState>(id);
+  const query = searchState?.query ?? "";
   const regExp = new RegExp(query, "i");
 
   const occurrences = useMemo(
@@ -83,10 +83,10 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
         .filter((o) => regExp.test(o[config.text] as string))
         .filter((o) => {
           const ca = config.categoryAttribute;
-          if (!ca || !searchData?.categories?.length) {
+          if (!ca || !searchState?.categories?.length) {
             return true;
           }
-          return searchData.categories.find((s) => s.name === o[ca]);
+          return searchState.categories.find((s) => s.name === o[ca]);
         })
         .sort((left, right) => {
           const a = config.sortOrder?.attribute;
@@ -110,7 +110,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
           }
           return config.sortOrder?.direction != SortDirection.Desc ? ret : -ret;
         }),
-    [filledOccurrences, searchData]
+    [filledOccurrences, searchState]
   );
 
   const hintDataState = useSWRImmutable(
@@ -132,18 +132,18 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
   );
 
   const onSearch = (query: string) =>
-    context.updateSearchData(id, (data: SearchData) => {
-      data.query = query;
+    context.updateSearchState(id, (state: SearchState) => {
+      state.query = query;
     });
 
   const onSelect = (sel: Selection[]) =>
-    context.updateSearchData(id, (data: SearchData) => {
-      data.categories = sel;
+    context.updateSearchState(id, (state: SearchState) => {
+      state.categories = sel;
     });
 
   const onChangeContext = () =>
-    context.updateSearchData(id, (data: SearchData) => {
-      data.context = !data.context;
+    context.updateSearchState(id, (state: SearchState) => {
+      state.context = !state.context;
     });
 
   return (
@@ -160,7 +160,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
         <GridLayout rows spacing={1} height="auto">
           <GridLayout cols="1fr 1fr" spacing={2} rowAlign="middle">
             <Search
-              initialValue={searchData?.query}
+              initialValue={searchState?.query}
               delayMs={0}
               onSearch={onSearch}
             />
@@ -168,7 +168,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
               <HintDataSelect
                 hintData={hintDataState.data?.hintData}
                 maxChips={2}
-                selected={searchData?.categories ?? []}
+                selected={searchState?.categories ?? []}
                 onSelect={onSelect}
               />
             ) : null}
@@ -177,7 +177,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
             <Checkbox
               size="small"
               fontSize="small"
-              checked={!!searchData?.context}
+              checked={!!searchState?.context}
               onChange={onChangeContext}
             />
             <Typography variant="body2">Show keywords in context</Typography>
@@ -214,7 +214,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
                 <TextBlock
                   query={query}
                   text={String(o[config.text])}
-                  context={searchData.context}
+                  context={searchState?.context}
                 />
               </Box>
             </Paper>

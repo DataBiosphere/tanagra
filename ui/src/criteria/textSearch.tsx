@@ -105,8 +105,8 @@ class _ implements CriteriaPlugin<Data> {
     ]);
   }
 
-  filterOccurrenceId() {
-    return this.config.occurrenceId;
+  filterOccurrenceIds() {
+    return [this.config.occurrenceId];
   }
 }
 
