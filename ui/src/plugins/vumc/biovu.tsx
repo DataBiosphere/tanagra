@@ -17,6 +17,7 @@ import { Source } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import React from "react";
 import { CriteriaConfig } from "underlaysSlice";
@@ -214,17 +215,24 @@ function BioVUInline(props: BioVUInlineProps) {
         </Select>
       </FormControl>
       {props.data.sampleFilter !== SampleFilter.NONE ? (
-        <GridLayout cols rowAlign="middle" sx={{ ml: 1 }}>
-          <Checkbox
-            checked={props.data.excludeCompromised}
-            onChange={() =>
-              updateCriteria(
-                produce(props.data, (data) => {
-                  data.excludeCompromised = !data.excludeCompromised;
-                })
-              )
-            }
-          />
+        <GridLayout cols rowAlign="middle">
+          <GridBox
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <Checkbox
+              checked={props.data.excludeCompromised}
+              onChange={() =>
+                updateCriteria(
+                  produce(props.data, (data) => {
+                    data.excludeCompromised = !data.excludeCompromised;
+                  })
+                )
+              }
+            />
+          </GridBox>
           <Typography variant="body1">{EXCLUDE_COMPROMISED}</Typography>
           <Tooltip title={EXCLUDE_COMPROMISED_TOOLTIP}>
             <InfoIcon sx={{ display: "flex", ml: 1 }} />
@@ -232,17 +240,24 @@ function BioVUInline(props: BioVUInlineProps) {
         </GridLayout>
       ) : null}
       {props.data.sampleFilter !== SampleFilter.NONE ? (
-        <GridLayout cols rowAlign="middle" sx={{ ml: 1 }}>
-          <Checkbox
-            checked={props.data.excludeInternal}
-            onChange={() =>
-              updateCriteria(
-                produce(props.data, (data) => {
-                  data.excludeInternal = !data.excludeInternal;
-                })
-              )
-            }
-          />
+        <GridLayout cols rowAlign="middle">
+          <GridBox
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <Checkbox
+              checked={props.data.excludeInternal}
+              onChange={() =>
+                updateCriteria(
+                  produce(props.data, (data) => {
+                    data.excludeInternal = !data.excludeInternal;
+                  })
+                )
+              }
+            />
+          </GridBox>
           <Typography variant="body1">{EXCLUDE_INTERNAL}</Typography>
           <Tooltip title={EXCLUDE_INTERNAL_TOOLTIP}>
             <InfoIcon sx={{ display: "flex", ml: 1 }} />
@@ -250,16 +265,23 @@ function BioVUInline(props: BioVUInlineProps) {
         </GridLayout>
       ) : null}
       <GridLayout cols rowAlign="middle">
-        <Checkbox
-          checked={props.data.plasma}
-          onChange={() =>
-            updateCriteria(
-              produce(props.data, (data) => {
-                data.plasma = !data.plasma;
-              })
-            )
-          }
-        />
+        <GridBox
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <Checkbox
+            checked={props.data.plasma}
+            onChange={() =>
+              updateCriteria(
+                produce(props.data, (data) => {
+                  data.plasma = !data.plasma;
+                })
+              )
+            }
+          />
+        </GridBox>
         <Typography variant="body1">{PLASMA}</Typography>
       </GridLayout>
     </GridLayout>
