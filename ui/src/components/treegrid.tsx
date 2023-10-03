@@ -460,7 +460,11 @@ function renderChildren(
         );
       } else {
         content = (
-          <Typography variant="body2" title={title} sx={textSx}>
+          <Typography
+            variant={childId === highlightId ? "body2em" : "body2"}
+            title={title}
+            sx={textSx}
+          >
             {value}
           </Typography>
         );
