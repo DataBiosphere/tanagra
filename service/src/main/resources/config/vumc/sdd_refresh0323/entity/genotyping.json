@@ -19,9 +19,6 @@
         "childParent": {
           "tablePointer": { "rawSqlFile": "genotyping_parentChild.sql" }
         },
-        "rootNodesFilter": {
-          "tablePointer": { "rawSqlFile": "genotyping_rootNodesFilter.sql" }
-        },
         "maxHierarchyDepth": 1
       }
     }
