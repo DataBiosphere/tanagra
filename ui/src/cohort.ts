@@ -1,4 +1,4 @@
-import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
+import { ROLLUP_COUNT_ATTRIBUTE, SortDirection } from "data/configuration";
 import {
   Filter,
   FilterType,
@@ -194,6 +194,7 @@ export function searchCriteria(
     data: source.mergeLists(
       responses,
       100,
+      SortDirection.Asc,
       (value: DataEntry) => value[ROLLUP_COUNT_ATTRIBUTE]
     ),
   }));
