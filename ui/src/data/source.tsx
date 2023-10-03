@@ -204,6 +204,7 @@ export interface Source {
   mergeLists<T, R>(
     lists: [string, T[]][],
     maxCount: number,
+    direction: SortDirection,
     get: (value: T) => R
   ): MergedItem<T>[];
 
@@ -620,6 +621,7 @@ export class BackendSource implements Source {
   public mergeLists<T, R>(
     lists: [string, T[]][],
     maxCount: number,
+    direction: SortDirection,
     get: (value: T) => R
   ): MergedItem<T>[] {
     const merged: MergedItem<T>[] = [];
@@ -638,7 +640,11 @@ export class BackendSource implements Source {
             const maxValue = get(maxSource.peek());
             if (
               (value && !maxValue) ||
-              (value && maxValue && value > maxValue)
+              (value &&
+                maxValue &&
+                (direction == SortDirection.Asc
+                  ? value > maxValue
+                  : value < maxValue))
             ) {
               maxSource = source;
             }
@@ -1281,17 +1287,16 @@ function searchRequest(
               ],
             }
           : undefined,
-      includeRelationshipFields:
-        !grouping && !!occurrenceID
-          ? [
-              {
-                relatedEntity: underlay.primaryEntity,
-                hierarchies: !!classification.hierarchy
-                  ? [classification.hierarchy]
-                  : undefined,
-              },
-            ]
-          : undefined,
+      includeRelationshipFields: !grouping
+        ? [
+            {
+              relatedEntity: underlay.primaryEntity,
+              hierarchies: !!classification.hierarchy
+                ? [classification.hierarchy]
+                : undefined,
+            },
+          ]
+        : undefined,
       filter:
         makeBooleanLogicFilter(
           tanagra.BooleanLogicFilterOperatorEnum.And,
@@ -1334,7 +1339,7 @@ function processEntitiesResponse(
 
       instance.relationshipFields?.forEach((fields) => {
         if (isValid(fields.count)) {
-          if (fields.hierarchy === hierarchy) {
+          if (hierarchy && fields.hierarchy === hierarchy) {
             data[ROLLUP_COUNT_ATTRIBUTE] = fields.count;
           } else if (!fields.hierarchy) {
             data[ITEM_COUNT_ATTRIBUTE] = fields.count;

@@ -19,7 +19,11 @@ import {
   TreeGridItem,
   TreeGridRowData,
 } from "components/treegrid";
-import { ROLLUP_COUNT_ATTRIBUTE, SortOrder } from "data/configuration";
+import {
+  ROLLUP_COUNT_ATTRIBUTE,
+  SortDirection,
+  SortOrder,
+} from "data/configuration";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { ClassificationNode, MergedItem, Source } from "data/source";
 import { useSource } from "data/sourceContext";
@@ -60,7 +64,6 @@ export interface Config extends CriteriaConfig {
   // funnel for tracking the inconsistent handling of multiple occurrences.
   occurrences: string | string[];
   classifications: string[];
-  classificationMergeSort?: SortOrder;
   multiSelect?: boolean;
   valueConfigs?: ValueConfig[];
   defaultSort?: SortOrder;
@@ -261,6 +264,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         ? () => {
             updateSearchState((data) => {
               data.hierarchy = undefined;
+              data.hierarchyClassification = undefined;
             });
           }
         : undefined
@@ -340,6 +344,23 @@ function ClassificationEdit(props: ClassificationEditProps) {
           searchState?.hierarchyClassification === c
       );
 
+    let sortOrder = {
+      attribute: ROLLUP_COUNT_ATTRIBUTE,
+      direction: SortDirection.Desc,
+    };
+
+    if (searchState.hierarchyClassification) {
+      const classification = source.lookupClassification(
+        firstOf(props.config.occurrences),
+        searchState.hierarchyClassification
+      );
+      if (classification.defaultSort) {
+        sortOrder = classification.defaultSort;
+      }
+    } else if (props.config.defaultSort) {
+      sortOrder = props.config.defaultSort;
+    }
+
     const raw: [string, ClassificationNode[]][] = await Promise.all(
       searchClassifications.map(async (c) => [
         c,
@@ -349,7 +370,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
               ? searchState?.query ?? ""
               : undefined,
             includeGroupings: !searchState?.hierarchy,
-            sortOrder: props.config.defaultSort,
+            sortOrder: sortOrder,
           })
         ).nodes,
       ])
@@ -358,11 +379,8 @@ function ClassificationEdit(props: ClassificationEditProps) {
     const merged = source.mergeLists(
       raw,
       100,
-      (n) =>
-        n.data[
-          props.config.classificationMergeSort?.attribute ??
-            ROLLUP_COUNT_ATTRIBUTE
-        ]
+      sortOrder.direction,
+      (n) => n.data[sortOrder.attribute]
     );
     return processEntities(merged, searchState?.hierarchy);
   }, [source, attributes, processEntities, searchState]);
