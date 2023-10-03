@@ -11,6 +11,8 @@ export type GlobalSearchState = {
   addCriteriaTags?: string[];
 };
 
+const STORAGE_ID = "t_globalSearchState";
+
 type SearchData = {
   global?: GlobalSearchState;
   local?: unknown;
@@ -21,14 +23,19 @@ export function useGlobalSearchState(): [
   (update: (state: GlobalSearchState) => void) => void
 ] {
   const [searchData, updateSearchData] = useSearchData();
+  const storedData = JSON.parse(
+    window.localStorage.getItem(STORAGE_ID) ?? "{}"
+  );
 
   return [
-    searchData.global ?? {},
+    searchData.global ?? storedData ?? {},
     (update: (state: GlobalSearchState) => void) => {
       updateSearchData((searchData: SearchData) => {
         const global = searchData.global ?? {};
         update(global);
         searchData.global = global;
+
+        window.localStorage.setItem(STORAGE_ID, JSON.stringify(global ?? {}));
       });
     },
   ];
