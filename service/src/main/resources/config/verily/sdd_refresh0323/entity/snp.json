@@ -13,7 +13,7 @@
       "id": { "value": { "column": "row_num" } },
       "name": { "value": { "column": "snp_id" } }
     },
-    "textSearchMapping" : { "attributes" : [ "id" ] }
+    "textSearchMapping" : { "attributes" : [ "id", "name" ] }
   },
 
   "indexDataMapping": {
