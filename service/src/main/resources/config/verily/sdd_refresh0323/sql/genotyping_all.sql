@@ -1,5 +1,5 @@
 /* Hierarchy leaf nodes all live in genotype_criteria and x_platform. */
-SELECT xp.platform_id, xp.assay_name
+SELECT CAST(xp.platform_id AS INT64) platform_id, xp.assay_name
 FROM `sd-vumc-tanagra-test.sd_20230331`.x_platform AS xp
 
 JOIN `sd-vumc-tanagra-test.sd_20230331`.genotype_criteria AS gc

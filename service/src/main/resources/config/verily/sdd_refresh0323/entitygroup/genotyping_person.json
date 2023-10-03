@@ -7,7 +7,7 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "groupToItems": {
-        "idPairsTable": { "table": "x_genotype_result" },
+        "idPairsTable": { "rawSqlFile": "genotype_result.sql" },
         "idPairsIdA": { "column": "platform_id" },
         "idPairsIdB":  { "column": "person_id" }
       }
