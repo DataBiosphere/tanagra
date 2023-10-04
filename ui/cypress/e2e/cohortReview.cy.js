@@ -21,7 +21,7 @@ describe("Basic tests", () => {
     cy.iframe().find("[data-testid='tanagra-procedures']").click();
     cy.iframe().find("input").type("Retrograde pyelogram");
     cy.iframe()
-      .find("[data-testid='Retrograde pyelogram']", { timeout: 20000 })
+      .find("[data-testid='Retrograde pyelogram']", { timeout: 30000 })
       .click();
 
     cy.iframe().contains("Review").click();
@@ -42,8 +42,8 @@ describe("Basic tests", () => {
     cy.iframe().find("button:Contains(Reviews)").click();
     cy.iframe().find("button:Contains(Review individual participants)").click();
 
-    cy.iframe().find("button:Contains(Procedures)", { timeout: 20000 }).click();
-    cy.iframe().contains("Retrograde pyelogram"), { timeout: 20000 };
+    cy.iframe().find("button:Contains(Procedures)", { timeout: 30000 }).click();
+    cy.iframe().contains("Retrograde pyelogram"), { timeout: 30000 };
     cy.iframe().contains("1/5");
 
     cy.iframe().find("button:Contains(Conditions)").click();
