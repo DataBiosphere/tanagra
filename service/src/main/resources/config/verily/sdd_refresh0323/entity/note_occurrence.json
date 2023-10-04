@@ -7,7 +7,7 @@
     { "type": "KEY_AND_DISPLAY", "name": "note", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "date", "dataType": "TIMESTAMP", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "title", "dataType": "STRING", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "text", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "note_text", "dataType": "STRING", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "source_value", "dataType": "STRING", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
@@ -34,7 +34,7 @@
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } }
     },
-    "textSearchMapping": { "attributes": [ "title", "text" ] }
+    "textSearchMapping": { "attributes": [ "title", "note_text" ] }
   },
 
   "indexDataMapping": {
