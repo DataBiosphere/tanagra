@@ -554,7 +554,8 @@
         "age_at_occurrence",
         "visit_type",
         "start_date_group_by_count"
-      ]
+      ],
+      "limit": 1000
     },
     {
       "type": "classification",
