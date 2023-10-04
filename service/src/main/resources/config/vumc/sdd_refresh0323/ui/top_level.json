@@ -382,15 +382,19 @@
       "columns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" },
         { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" },
         { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "",
-      "classifications": ["genotyping"]
+      "classifications": ["genotyping"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      }
     },
     {
       "type": "attribute",
@@ -482,7 +486,6 @@
       "conceptSet": true,
       "category": "Domains",
       "occurrenceId": "note_occurrence",
-      "searchAttribute": "title",
       "categoryAttribute": "note",
       "modifiers": [
         "age_at_occurrence",
@@ -551,7 +554,8 @@
         "age_at_occurrence",
         "visit_type",
         "start_date_group_by_count"
-      ]
+      ],
+      "limit": 1000
     },
     {
       "type": "classification",
