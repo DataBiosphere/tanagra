@@ -172,7 +172,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "condition_occurrence",
-      "classification": "condition",
+      "classifications": ["condition"],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -199,7 +199,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "procedure_occurrence",
-      "classification": "procedure",
+      "classifications": ["procedure"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
@@ -217,7 +217,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "observation_occurrence",
-      "classification": "observation",
+      "classifications": ["observation"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
@@ -240,7 +240,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "ingredient_occurrence",
-      "classification": "ingredient",
+      "classifications": ["ingredient"],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -267,7 +267,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "measurement_occurrence",
-      "classification": "measurement",
+      "classifications": ["measurement"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {
@@ -425,37 +425,37 @@
     {
       "id": "_demographics",
       "name": "Demographics",
-      "occurrences": ""
+      "occurrence": ""
     },
     {
       "id": "_fitbit_actvity_summary_id",
       "name": "Fitbit Activity Summary",
-      "occurrences": "t_fitbit_activity_summary_id"
+      "occurrence": "t_fitbit_activity_summary_id"
     },
     {
       "id": "_fitbit_steps_intraday_id",
       "name": "Fitbit Steps Intraday",
-      "occurrences": "t_fitbit_steps_intraday_id"
+      "occurrence": "t_fitbit_steps_intraday_id"
     },
     {
       "id": "_fitbit_heart_rate_summary_id",
       "name": "Fitbit Heart Rate Summary",
-      "occurrences": "t_fitbit_heart_rate_summary_id"
+      "occurrence": "t_fitbit_heart_rate_summary_id"
     },
     {
       "id": "_fitbit_heart_rate_level_id",
       "name": "Fitbit Heart Rate Level",
-      "occurrences": "t_fitbit_heart_rate_level_id"
+      "occurrence": "t_fitbit_heart_rate_level_id"
     },
     {
       "id": "_fitbit_sleep_daily_summary_id",
       "name": "Fitbit Sleep Daily Summary",
-      "occurrences": "t_fitbit_sleep_daily_summary_id"
+      "occurrence": "t_fitbit_sleep_daily_summary_id"
     },
     {
       "id": "_fitbit_sleep_level_id",
       "name": "Fitbit Sleep Level",
-      "occurrences": "t_fitbit_sleep_level_id"
+      "occurrence": "t_fitbit_sleep_level_id"
     }
   ],
   "criteriaSearchConfig": {
