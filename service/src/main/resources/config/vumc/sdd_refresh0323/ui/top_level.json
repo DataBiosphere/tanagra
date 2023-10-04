@@ -382,15 +382,19 @@
       "columns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" },
         { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" },
         { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "",
-      "classifications": ["genotyping"]
+      "classifications": ["genotyping"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      }
     },
     {
       "type": "attribute",
