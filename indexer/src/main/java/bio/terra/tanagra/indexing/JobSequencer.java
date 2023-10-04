@@ -112,6 +112,21 @@ public final class JobSequencer {
       jobSet.addJob(
           new ComputeRollupCounts(
               groupItems.getGroupEntity(), groupItems.getGroupItemsRelationship(), null));
+
+      // If the criteria entity has hierarchies, then also compute the criteria rollup counts for
+      // each hierarchy.
+      // e.g. To show rollup counts for each genotyping.
+      if (groupItems.getGroupEntity().hasHierarchies()) {
+        groupItems.getGroupEntity().getHierarchies().stream()
+            .forEach(
+                hierarchy -> {
+                  jobSet.addJob(
+                      new ComputeRollupCounts(
+                          groupItems.getGroupEntity(),
+                          groupItems.getGroupItemsRelationship(),
+                          hierarchy));
+                });
+      }
     }
 
     return jobSet;
