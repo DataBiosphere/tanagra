@@ -173,10 +173,14 @@ public class BuildNumChildrenAndPaths extends BigQueryIndexingJob {
     PCollection<KV<Long, Long>> nodeNumChildrenKVsPC =
         PathUtils.countChildren(allNodesPC, childParentRelationshipsPC);
 
-    // prune orphan nodes from the hierarchy (i.e. set path=null for nodes with no parents or
-    // children)
-    PCollection<KV<Long, String>> nodePrunedPathKVsPC =
-        PathUtils.pruneOrphanPaths(nodePathKVsPC, nodeNumChildrenKVsPC);
+    PCollection<KV<Long, String>> nodePrunedPathKVsPC;
+    if (sourceHierarchyMapping.isKeepOrphanNodes()) {
+      nodePrunedPathKVsPC = nodePathKVsPC;
+    } else {
+      // prune orphan nodes from the hierarchy (i.e. set path=null for nodes with no parents or
+      // children)
+      nodePrunedPathKVsPC = PathUtils.pruneOrphanPaths(nodePathKVsPC, nodeNumChildrenKVsPC);
+    }
 
     // filter the root nodes
     PCollection<KV<Long, String>> outputNodePathKVsPC =
