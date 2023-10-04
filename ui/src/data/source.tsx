@@ -45,10 +45,15 @@ export type SearchClassificationOptions = {
   parent?: DataKey;
   includeGroupings?: boolean;
   sortOrder?: SortOrder;
+  limit?: number;
 };
 
 export type SearchClassificationResult = {
   nodes: ClassificationNode[];
+};
+
+export type SearchGroupingOptions = {
+  limit?: number;
 };
 
 export type ListDataResponse = {
@@ -170,7 +175,8 @@ export interface Source {
     requestedAttributes: string[],
     occurrenceID: string,
     classificationID: string,
-    root: ClassificationNode
+    root: ClassificationNode,
+    options?: SearchGroupingOptions
   ): Promise<SearchClassificationResult>;
 
   listAttributes(occurrenceID: string): string[];
@@ -387,7 +393,8 @@ export class BackendSource implements Source {
           undefined,
           options?.query,
           options?.parent,
-          options?.sortOrder
+          options?.sortOrder,
+          options?.limit
         )
       ),
     ];
@@ -403,7 +410,9 @@ export class BackendSource implements Source {
               classification,
               grouping,
               options?.query,
-              options?.parent
+              options?.parent,
+              undefined,
+              options?.limit
             )
           )
         ) || [])
@@ -432,7 +441,8 @@ export class BackendSource implements Source {
     requestedAttributes: string[],
     occurrenceID: string,
     classificationID: string,
-    root: ClassificationNode
+    root: ClassificationNode,
+    options?: SearchGroupingOptions
   ): Promise<SearchClassificationResult> {
     const occurrence = findByID(occurrenceID, this.config.occurrences);
     const classification = findByID(
@@ -483,6 +493,7 @@ export class BackendSource implements Source {
               },
             },
             orderBys: [makeOrderBy(this.underlay, classification, grouping)],
+            limit: options?.limit,
           },
         })
         .then((res) => ({
@@ -1215,7 +1226,8 @@ function searchRequest(
   grouping?: Grouping,
   query?: string,
   parent?: DataValue,
-  sortOrder?: SortOrder
+  sortOrder?: SortOrder,
+  limit?: number
 ) {
   const entity = grouping?.entity || classification.entity;
 
@@ -1303,6 +1315,8 @@ function searchRequest(
           operands
         ) ?? undefined,
       orderBys: [makeOrderBy(underlay, classification, grouping, sortOrder)],
+      limit,
+      pageSize: limit,
     },
   };
   return req;

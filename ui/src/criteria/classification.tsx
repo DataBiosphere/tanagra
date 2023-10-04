@@ -67,6 +67,7 @@ export interface Config extends CriteriaConfig {
   multiSelect?: boolean;
   valueConfigs?: ValueConfig[];
   defaultSort?: SortOrder;
+  limit?: number;
 }
 
 type ValueSelection = {
@@ -372,6 +373,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
               : undefined,
             includeGroupings: !searchState?.hierarchy,
             sortOrder: sortOrder,
+            limit: props.config.limit,
           })
         ).nodes,
       ])
@@ -379,7 +381,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
     const merged = source.mergeLists(
       raw,
-      100,
+      props.config.limit ?? 100,
       sortOrder.direction,
       (n) => n.data[sortOrder.attribute]
     );
@@ -612,7 +614,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       attributes,
                       occurrence.id,
                       classificationId,
-                      item.node
+                      item.node,
+                      {
+                        limit: props.config.limit,
+                      }
                     )
                     .then((res) => {
                       updateData(
@@ -635,6 +640,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       classificationId,
                       {
                         parent: key,
+                        limit: props.config.limit,
                       }
                     )
                     .then((res) => {
