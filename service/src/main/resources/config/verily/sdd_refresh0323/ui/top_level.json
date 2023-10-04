@@ -486,7 +486,6 @@
       "conceptSet": true,
       "category": "Domains",
       "occurrenceId": "note_occurrence",
-      "searchAttribute": "title",
       "categoryAttribute": "note",
       "modifiers": [
         "age_at_occurrence",
