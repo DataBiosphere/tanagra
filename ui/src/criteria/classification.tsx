@@ -265,6 +265,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
             updateSearchState((data) => {
               data.hierarchy = undefined;
               data.hierarchyClassification = undefined;
+              data.highlightId = undefined;
             });
           }
         : undefined
