@@ -1,24 +1,21 @@
-SELECT textsearch.id, textsearch.text FROM (
+SELECT textsearch.id, textsearch.text
 
+FROM (
     SELECT
-      c.concept_id AS id, c.concept_name AS text
+      c.concept_id AS id, c.concept_name AS text, c.vocabulary_id
     FROM  `sd-vumc-tanagra-test.sd_20230331.concept` c
 
     UNION ALL
 
     SELECT
-      c.concept_id AS id, CAST(c.concept_id AS STRING) AS text
+      c.concept_id AS id, CAST(c.concept_id AS STRING) AS text, c.vocabulary_id
     FROM  `sd-vumc-tanagra-test.sd_20230331.concept` c
 
     UNION ALL
 
     SELECT
-      c.concept_id AS id, c.concept_code AS text
+      c.concept_id AS id, c.concept_code AS text, c.vocabulary_id
     FROM  `sd-vumc-tanagra-test.sd_20230331.concept` c
 ) AS textsearch
 
-JOIN `sd-vumc-tanagra-test.sd_20230331.concept` c
-ON c.concept_id = textsearch.id
-
-WHERE c.vocabulary_id IN ('Note Type', 'VUMC Note Type', 'VUMC PSS Type')
-OR c.concept_id = 0
+WHERE vocabulary_id = 'Note Type' OR id = 0

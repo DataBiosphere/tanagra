@@ -22,15 +22,7 @@
           { "type": "BINARY",
             "field": { "column": "vocabulary_id" },
             "operator": "EQUALS",
-            "value": { "stringVal": "Note Type" } },
-          { "type": "BINARY",
-            "field": { "column": "vocabulary_id" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "VUMC Note Type" } },
-          { "type": "BINARY",
-            "field": { "column": "vocabulary_id" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "VUMC PSS Type" } }
+            "value": { "stringVal": "Note Type" } }
         ] } },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
