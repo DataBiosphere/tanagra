@@ -21,7 +21,8 @@
         "childParent": {
           "tablePointer": { "rawSqlFile": "phewas_parentChild.sql" }
         },
-        "maxHierarchyDepth": 5
+        "maxHierarchyDepth": 5,
+        "keepOrphanNodes": true
       }
     }
   },
