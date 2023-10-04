@@ -5,7 +5,7 @@ SELECT
     /* Add BioVU sample columns. The way x_biovu_sample_status is created, there should be at
        most one row per person. */
     EXISTS
-        (SELECT 1 FROM `sd-vumc-tanagra-test.sd_20230331.x_biovu_sample_status` x WHERE p.person_id = x.person_id)
+        (SELECT 1 FROM `sd-vumc-tanagra-test.sd_20230331.x_biovu_sample_status` x WHERE p.person_id = x.person_id AND x.dna_yield_ind > 0)
                                                                                                         AS has_biovu_sample,
     x.dna_yield_ind AS biovu_sample_dna_yield,
     /* As a courtesy, convert string fields to boolean: 0 -> No, 1 -> Yes */
