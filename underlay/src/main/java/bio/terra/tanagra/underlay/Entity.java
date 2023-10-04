@@ -221,7 +221,8 @@ public final class Entity {
                             serialized.getName(),
                             sourceHierarchyMappingSerialized.getKey(),
                             idAttribute.getValue(),
-                            sourceHierarchyMappingSerialized.getValue().getMaxHierarchyDepth())
+                            sourceHierarchyMappingSerialized.getValue().getMaxHierarchyDepth(),
+                            sourceHierarchyMappingSerialized.getValue().isKeepOrphanNodes())
                         : HierarchyMapping.fromSerialized(
                             indexHierarchyMappingsSerialized.get(
                                 sourceHierarchyMappingSerialized.getKey()),

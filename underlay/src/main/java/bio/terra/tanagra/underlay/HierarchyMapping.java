@@ -42,6 +42,7 @@ public final class HierarchyMapping {
   private final AuxiliaryDataMapping ancestorDescendant;
   private final AuxiliaryDataMapping pathNumChildren;
   private final int maxHierarchyDepth;
+  private final boolean keepOrphanNodes;
   private final Underlay.MappingType mappingType;
   private Hierarchy hierarchy;
 
@@ -51,12 +52,14 @@ public final class HierarchyMapping {
       AuxiliaryDataMapping ancestorDescendant,
       AuxiliaryDataMapping pathNumChildren,
       int maxHierarchyDepth,
+      boolean keepOrphanNodes,
       Underlay.MappingType mappingType) {
     this.childParent = childParent;
     this.rootNodesFilter = rootNodesFilter;
     this.ancestorDescendant = ancestorDescendant;
     this.pathNumChildren = pathNumChildren;
     this.maxHierarchyDepth = maxHierarchyDepth;
+    this.keepOrphanNodes = keepOrphanNodes;
     this.mappingType = mappingType;
   }
 
@@ -95,11 +98,16 @@ public final class HierarchyMapping {
         ancestorDescendant,
         pathNumChildren,
         serialized.getMaxHierarchyDepth(),
+        serialized.isKeepOrphanNodes(),
         mappingType);
   }
 
   public static HierarchyMapping defaultIndexMapping(
-      String entityName, String hierarchyName, FieldPointer entityIdField, int maxHierarchyDepth) {
+      String entityName,
+      String hierarchyName,
+      FieldPointer entityIdField,
+      int maxHierarchyDepth,
+      boolean keepOrphanNodes) {
     TablePointer entityTable = entityIdField.getTablePointer();
     DataPointer dataPointer = entityTable.getDataPointer();
     String tablePrefix = entityName + "_" + hierarchyName + "_";
@@ -141,6 +149,7 @@ public final class HierarchyMapping {
         ancestorDescendant,
         pathNumChildren,
         maxHierarchyDepth,
+        keepOrphanNodes,
         Underlay.MappingType.INDEX);
   }
 
@@ -285,5 +294,9 @@ public final class HierarchyMapping {
 
   public int getMaxHierarchyDepth() {
     return maxHierarchyDepth <= 0 ? DEFAULT_MAX_HIERARCHY_DEPTH : maxHierarchyDepth;
+  }
+
+  public boolean isKeepOrphanNodes() {
+    return keepOrphanNodes;
   }
 }
