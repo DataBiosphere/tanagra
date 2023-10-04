@@ -32,7 +32,8 @@
           "column": "visit_concept_id",
           "foreignTable": "concept",
           "foreignKey": "concept_id",
-          "foreignColumn": "concept_name" } }
+          "foreignColumn": "concept_name" } },
+      "textSearchMapping": { "attributes": [ "title", "text" ] }
     }
   },
 
