@@ -23,8 +23,9 @@ export function useGlobalSearchState(): [
   (update: (state: GlobalSearchState) => void) => void
 ] {
   const [searchData, updateSearchData] = useSearchData();
-  const storedData = JSON.parse(
-    window.localStorage.getItem(STORAGE_ID) ?? "{}"
+  const storedData = useMemo(
+    () => JSON.parse(window.localStorage.getItem(STORAGE_ID) ?? "{}"),
+    []
   );
 
   return [
