@@ -19,7 +19,17 @@ SELECT p.person_id,
            WHEN sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_sleep_level,
        CASE
            WHEN sl.person_id IS NULL AND sl.person_id IS NULL AND hrs.person_id IS NULL
-            AND si.person_id IS NULL AND sds.person_id IS NULL THEN 0 ELSE 1 END has_fitbit
+            AND si.person_id IS NULL AND sds.person_id IS NULL THEN 0 ELSE 1 END has_fitbit,
+    CASE
+           WHEN wgv.sample_name IS NULL THEN 0 ELSE 1 END has_whole_genome_variant,
+    CASE
+           WHEN mad.sample_name IS NULL THEN 0 ELSE 1 END has_array_data,
+    CASE
+           WHEN lrwgv.sample_name IS NULL THEN 0 ELSE 1 END has_lr_whole_genome_variant,
+    CASE
+           WHEN svd.sample_name IS NULL THEN 0 ELSE 1 END has_structural_variant_data,
+    CASE
+           WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data
 FROM `all-of-us-ehr-dev.SC2023Q3R1.person` p
          LEFT JOIN
      (SELECT DISTINCT person_id
@@ -39,3 +49,51 @@ FROM `all-of-us-ehr-dev.SC2023Q3R1.person` p
          LEFT JOIN
      (SELECT DISTINCT person_id
       FROM `all-of-us-ehr-dev.SC2023Q3R1.sleep_level`) sl ON (p.person_id = sl.person_id)
+         LEFT JOIN
+     (SELECT DISTINCT sample_name
+      FROM `all-of-us-ehr-dev.SC2023Q3R1.prep_wgs_metadata`) wgv ON (CAST(p.person_id AS STRING) = wgv.sample_name)
+         LEFT JOIN
+     (SELECT DISTINCT sample_name
+      FROM `all-of-us-ehr-dev.SC2023Q3R1.prep_microarray_metadata`) mad ON (CAST(p.person_id AS STRING) = mad.sample_name)
+         LEFT JOIN
+     (SELECT DISTINCT sample_name
+      FROM `all-of-us-ehr-dev.SC2023Q3R1.prep_longreads_metadata`) lrwgv ON (CAST(p.person_id AS STRING) = lrwgv.sample_name)
+         LEFT JOIN
+     (SELECT DISTINCT sample_name
+      FROM `all-of-us-ehr-dev.SC2023Q3R1.prep_structural_variants_metadata`) svd ON (CAST(p.person_id AS STRING) = svd.sample_name)
+         LEFT JOIN
+      (SELECT DISTINCT person_id
+        FROM`all-of-us-ehr-dev.SC2023Q3R1.measurement` as a
+        LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.measurement_ext` as b on a.measurement_id = b.measurement_id
+        WHERE lower(b.src_id) like 'ehr site%'
+        UNION DISTINCT
+        SELECT DISTINCT person_id
+        FROM`all-of-us-ehr-dev.SC2023Q3R1.condition_occurrence` as a
+        LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.condition_occurrence_ext` as b on a.condition_occurrence_id = b.condition_occurrence_id
+        WHERE lower(b.src_id) like 'ehr site%'
+        UNION DISTINCT
+        SELECT DISTINCT person_id
+        FROM`all-of-us-ehr-dev.SC2023Q3R1.device_exposure` as a
+        LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.device_exposure_ext` as b on a.device_exposure_id = b.device_exposure_id
+        WHERE lower(b.src_id) like 'ehr site%'
+        UNION DISTINCT
+        SELECT DISTINCT person_id
+        FROM`all-of-us-ehr-dev.SC2023Q3R1.drug_exposure` as a
+        LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.drug_exposure_ext` as b on a.drug_exposure_id = b.drug_exposure_id
+        WHERE lower(b.src_id) like 'ehr site%'
+        UNION DISTINCT
+        SELECT DISTINCT person_id
+        FROM`all-of-us-ehr-dev.SC2023Q3R1.observation` as a
+        LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.observation_ext` as b on a.observation_id = b.observation_id
+        WHERE lower(b.src_id) like 'ehr site%'
+        UNION DISTINCT
+        SELECT DISTINCT person_id
+        FROM`all-of-us-ehr-dev.SC2023Q3R1.procedure_occurrence` as a
+        LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.procedure_occurrence_ext` as b on a.procedure_occurrence_id = b.procedure_occurrence_id
+        WHERE lower(b.src_id) like 'ehr site%'
+        UNION DISTINCT
+        SELECT DISTINCT person_id
+        FROM`all-of-us-ehr-dev.SC2023Q3R1.visit_occurrence` as a
+        LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.visit_occurrence_ext` as b on a.visit_occurrence_id = b.visit_occurrence_id
+        WHERE lower(b.src_id) like 'ehr site%'
+      ) ehr ON (p.person_id = ehr.person_id)

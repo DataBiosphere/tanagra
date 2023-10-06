@@ -1,9 +1,11 @@
 {
-  "name": "t_activity_summary",
+  "name": "t_zipcode_socioeconomic",
   "idAttribute": "id",
   "attributes": [
-    { "id": { "value": { "column": "person_id" }}},
-    { "type": "SIMPLE", "name": "observation_datetime", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "observation_datetime_utc", "dataType": "TIMESTAMP" },
+    { "type": "SIMPLE", "name": "observation_datetime_str", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "zip_code", "dataType": "STRING" },
     { "type": "SIMPLE", "name": "assisted_income", "dataType": "DOUBLE" },
     { "type": "SIMPLE", "name": "high_school_education", "dataType": "DOUBLE" },
     { "type": "SIMPLE", "name": "median_income", "dataType": "DOUBLE" },

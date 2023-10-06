@@ -4,13 +4,13 @@
   "dataPointers": [
     { "type": "BQ_DATASET",
       "name": "omop_dataset",
-      "projectId": "fc-aou-cdr-synth-test-2",
+      "projectId": "all-of-us-ehr-dev",
       "datasetId": "SC2023Q3R1",
-      "queryProjectId": "fc-aou-cdr-synth-test-2"
+      "queryProjectId": "all-of-us-ehr-dev"
     },
     { "type": "BQ_DATASET",
       "name": "index_dataset",
-      "projectId": "fc-aou-cdr-synth-test-2",
+      "projectId": "all-of-us-ehr-dev",
       "datasetId": "SC2023Q3R1",
       "dataflowServiceAccountEmail" : "tanagra-indexing-runner@all-of-us-ehr-dev.iam.gserviceaccount.com",
       "dataflowTempLocation" : "gs://all-of-us-ehr-dev-tanagra-indexing/SC2023Q3R1",
@@ -41,7 +41,8 @@
     "t_sleep_level.json",
     "t_steps_intraday.json",
     "t_visit.json",
-    "t_visit_occurrence.json"],
+    "t_visit_occurrence.json",
+    "t_zipcode_socioeconomic.json"],
   "primaryEntity": "t_person",
   "entityGroups": [
     "t_activity_summary_person.json",
@@ -57,6 +58,7 @@
     "t_sleep_daily_summary_person.json",
     "t_sleep_level_person.json",
     "t_steps_intraday_person.json",
-    "t_visit_person_occurrence.json"],
+    "t_visit_person_occurrence.json",
+    "t_zipcode_socioeconomic_person.json"],
   "uiConfigFile": "top_level.json"
 }

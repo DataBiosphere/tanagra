@@ -15,7 +15,12 @@
     { "type": "SIMPLE", "name": "has_fitbit_steps_intraday", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "has_fitbit_sleep_daily_summary", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "has_fitbit_sleep_level", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "has_fitbit", "dataType": "INT64" }
+    { "type": "SIMPLE", "name": "has_fitbit", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_array_data", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_whole_genome_variant", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_lr_whole_genome_variant", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_structural_variant_data", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "has_ehr_data", "dataType": "INT64" }
   ],
 
   "sourceDataMapping": {

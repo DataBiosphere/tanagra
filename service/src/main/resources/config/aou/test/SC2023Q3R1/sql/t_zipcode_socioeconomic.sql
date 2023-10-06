@@ -1,6 +1,7 @@
 SELECT
     observation.person_id,
-    observation.observation_datetime,
+    timestamp(observation.observation_datetime) as observation_datetime_utc,
+    format_datetime('%Y-%m-%dT%H:%M:%S', observation.observation_datetime) as observation_datetime_str,
     zip_code.zip3_as_string as zip_code,
     zip_code.fraction_assisted_income as assisted_income,
     zip_code.fraction_high_school_edu as high_school_education,
