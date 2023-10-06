@@ -282,6 +282,13 @@
     },
     {
       "type": "attribute",
+      "id": "tanagra-has-ehr-data",
+      "title": "Has EHR Data",
+      "category": "Program data",
+      "attribute": "has_ehr_data"
+    },
+    {
+      "type": "attribute",
       "id": "tanagra-ethnicity",
       "title": "Ethnicity",
       "category": "Program data",
