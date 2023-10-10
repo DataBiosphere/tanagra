@@ -24,6 +24,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.bigquery.BigQueryException;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.MoreObjects;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.http.HttpStatus;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
@@ -233,6 +235,14 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
     dataflowOptions.setJobName(getDataflowJobName());
     dataflowOptions.setUsePublicIps(outputBQDataset.isDataflowUsePublicIps());
     dataflowOptions.setWorkerMachineType(outputBQDataset.getDataflowWorkerMachineType());
+    if (outputBQDataset.getDataflowSubnetworkName() != null
+        && !outputBQDataset.getDataflowSubnetworkName().isEmpty()) {
+      dataflowOptions.setSubnetwork(
+          getSubnetworkName(
+              outputBQDataset.getProjectId(),
+              outputBQDataset.getDataflowRegion(),
+              outputBQDataset.getDataflowSubnetworkName()));
+    }
 
     if (outputBQDataset.getDataflowTempLocation() != null) {
       dataflowOptions.setTempLocation(outputBQDataset.getDataflowTempLocation());
@@ -284,5 +294,17 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
 
   protected String getTempTableName(String suffix) {
     return getEntity().getName() + "_" + suffix;
+  }
+
+  private String getSubnetworkName(String project, String region, String subnetworkName) {
+    String template =
+        "https://www.googleapis.com/compute/v1/projects/${project}/regions/${region}/subnetworks/${subnetworkName}";
+    Map<String, String> params =
+        ImmutableMap.<String, String>builder()
+            .put("project", project)
+            .put("region", region)
+            .put("subnetworkName", subnetworkName)
+            .build();
+    return StringSubstitutor.replace(template, params);
   }
 }

@@ -34,6 +34,7 @@ public final class BigQueryDataset extends DataPointer {
   private final String dataflowRegion;
   private final String dataflowWorkerMachineType;
   private final boolean dataflowUsePublicIps;
+  private final String dataflowSubnetworkName;
 
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
@@ -48,7 +49,8 @@ public final class BigQueryDataset extends DataPointer {
       String dataflowTempLocation,
       String dataflowRegion,
       String dataflowWorkerMachineType,
-      boolean dataflowUsePublicIps) {
+      boolean dataflowUsePublicIps,
+      String dataflowSubnetworkName) {
     super(name);
     this.projectId = projectId;
     this.datasetId = datasetId;
@@ -58,6 +60,7 @@ public final class BigQueryDataset extends DataPointer {
     this.dataflowRegion = dataflowRegion;
     this.dataflowWorkerMachineType = dataflowWorkerMachineType;
     this.dataflowUsePublicIps = dataflowUsePublicIps;
+    this.dataflowSubnetworkName = dataflowSubnetworkName;
   }
 
   public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
@@ -85,7 +88,8 @@ public final class BigQueryDataset extends DataPointer {
         serialized.getDataflowTempLocation(),
         serialized.getDataflowRegion(),
         serialized.getDataflowWorkerMachineType(),
-        serialized.isDataflowUsePublicIps());
+        serialized.isDataflowUsePublicIps(),
+        serialized.getDataflowSubnetworkName());
   }
 
   @Override
@@ -239,5 +243,9 @@ public final class BigQueryDataset extends DataPointer {
 
   public boolean isDataflowUsePublicIps() {
     return dataflowUsePublicIps;
+  }
+
+  public String getDataflowSubnetworkName() {
+    return dataflowSubnetworkName;
   }
 }

@@ -189,7 +189,6 @@ or a particular entity group:
 ```
 
 ### Run dataflow locally
-
 While developing a job, running locally is faster. Also, you can use Intellij debugger.
 - Add to `BigQueryIndexingJob.buildDataflowPipelineOptions()`:
   ```
