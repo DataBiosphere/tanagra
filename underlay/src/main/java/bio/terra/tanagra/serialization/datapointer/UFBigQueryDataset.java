@@ -22,6 +22,7 @@ public class UFBigQueryDataset extends UFDataPointer {
   private final String dataflowRegion;
   private final String dataflowWorkerMachineType;
   private final boolean dataflowUsePublicIps;
+  private final String dataflowSubnetworkName;
 
   public UFBigQueryDataset(BigQueryDataset dataPointer) {
     super(dataPointer);
@@ -33,6 +34,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     this.dataflowRegion = dataPointer.getDataflowRegion();
     this.dataflowWorkerMachineType = dataPointer.getDataflowWorkerMachineType();
     this.dataflowUsePublicIps = dataPointer.isDataflowUsePublicIps();
+    this.dataflowSubnetworkName = dataPointer.getDataflowSubnetworkName();
   }
 
   private UFBigQueryDataset(Builder builder) {
@@ -45,6 +47,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     this.dataflowRegion = builder.dataflowRegion;
     this.dataflowWorkerMachineType = builder.dataflowWorkerMachineType;
     this.dataflowUsePublicIps = builder.dataflowUsePublicIps;
+    this.dataflowSubnetworkName = builder.dataflowSubnetworkName;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -57,6 +60,7 @@ public class UFBigQueryDataset extends UFDataPointer {
     private String dataflowRegion;
     private String dataflowWorkerMachineType;
     private boolean dataflowUsePublicIps = true;
+    private String dataflowSubnetworkName;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -95,6 +99,11 @@ public class UFBigQueryDataset extends UFDataPointer {
 
     public Builder dataflowUsePublicIps(boolean dataflowUsePublicIps) {
       this.dataflowUsePublicIps = dataflowUsePublicIps;
+      return this;
+    }
+
+    public Builder dataflowSubnetworkName(String dataflowSubnetworkName) {
+      this.dataflowSubnetworkName = dataflowSubnetworkName;
       return this;
     }
 
@@ -141,5 +150,9 @@ public class UFBigQueryDataset extends UFDataPointer {
 
   public boolean isDataflowUsePublicIps() {
     return dataflowUsePublicIps;
+  }
+
+  public String getDataflowSubnetworkName() {
+    return dataflowSubnetworkName;
   }
 }
