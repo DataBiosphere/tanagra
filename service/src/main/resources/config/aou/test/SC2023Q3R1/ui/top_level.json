@@ -123,11 +123,7 @@
             "id": "visit",
             "attribute": "name",
             "entity": "t_visit",
-            "entityAttribute": "name",
-            "defaultSort": {
-              "attribute": "name",
-              "direction": "ASC"
-            }
+            "entityAttribute": "name"
           }
         ]
       },
@@ -316,7 +312,11 @@
         { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "occurrences": "visit_occurrence",
-      "classifications": ["visit"]
+      "classifications": ["visit"],
+      "defaultSort": {
+        "attribute": "name",
+        "direction": "ASC"
+      }
     },
     {
       "type": "attribute",

@@ -114,6 +114,20 @@
         ]
       },
       {
+        "id": "visit_occurrence",
+        "displayName": "Visit Occurrence",
+        "entity": "t_visit_occurrence",
+        "key": "id",
+        "classifications": [
+          {
+            "id": "visit",
+            "attribute": "name",
+            "entity": "t_visit",
+            "entityAttribute": "name"
+          }
+        ]
+      },
+      {
         "id": "t_fitbit_activity_summary_id",
         "displayName": "Fitbit Activity Summary",
         "entity": "t_activity_summary",
@@ -279,6 +293,24 @@
           "attribute": "value_numeric"
         }
       ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-visits",
+      "title": "Visit",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
+      ],
+      "occurrences": "visit_occurrence",
+      "classifications": ["visit"],
+      "defaultSort": {
+        "attribute": "name",
+        "direction": "ASC"
+      }
     },
     {
       "type": "attribute",
