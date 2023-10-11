@@ -16,7 +16,7 @@
       "dataflowTempLocation" : "gs://all-of-us-ehr-dev-tanagra-indexing/SC2023Q3R1",
       "dataflowRegion": "us-central1",
       "dataflowWorkerMachineType" : "n1-standard-4",
-      "dataflowUsePublicIps": true
+      "dataflowUsePublicIps": false
     }
   ],
   "entities": [
