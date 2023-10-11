@@ -123,10 +123,10 @@
             "id": "visit",
             "attribute": "name",
             "entity": "t_visit",
-            "entityAttribute": "id",
+            "entityAttribute": "name",
             "defaultSort": {
-              "attribute": "t_item_count",
-              "direction": "DESC"
+              "attribute": "name",
+              "direction": "ASC"
             }
           }
         ]
@@ -312,7 +312,8 @@
       "category": "Domains",
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "occurrences": "visit_occurrence",
       "classifications": ["visit"]
