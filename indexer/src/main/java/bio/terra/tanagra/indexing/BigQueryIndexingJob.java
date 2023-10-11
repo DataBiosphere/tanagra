@@ -20,6 +20,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.utils.GoogleBigQuery;
+import bio.terra.tanagra.utils.HttpUtils;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.bigquery.BigQueryException;
@@ -27,6 +28,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +87,31 @@ public abstract class BigQueryIndexingJob implements IndexingJob {
   }
 
   // -----Helper methods for checking whether a job has run already.-------
+  protected void pollForTableExistenceOrThrow(
+      TablePointer tablePointer, int maxCalls, Duration sleepDuration) {
+    try {
+      boolean tableExists =
+          HttpUtils.pollWithRetries(
+              () -> checkTableExists(tablePointer),
+              checkTableExistsResult -> checkTableExistsResult,
+              ex -> false,
+              maxCalls,
+              sleepDuration);
+      if (!tableExists) {
+        throw new SystemException(
+            "Error creating table "
+                + tablePointer.getTableName()
+                + ". Polling timed out after "
+                + maxCalls
+                + " tries, sleeping "
+                + sleepDuration.toString()
+                + " between each try.");
+      }
+    } catch (InterruptedException intEx) {
+      throw new SystemException("Error polling for table existence", intEx);
+    }
+  }
+
   protected boolean checkTableExists(TablePointer tablePointer) {
     BigQueryDataset outputBQDataset = getBQDataPointer(tablePointer);
     LOGGER.info(
