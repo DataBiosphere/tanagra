@@ -171,7 +171,7 @@
         "id": "t_zipcode_socioeconomic_id",
         "displayName": "Zip Code Socioeconomic Status Data",
         "entity": "t_zipcode_socioeconomic",
-        "key": "person_id"
+        "key": "id"
       }
     ]
   },
