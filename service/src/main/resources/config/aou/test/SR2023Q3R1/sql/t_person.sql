@@ -43,37 +43,37 @@ FROM `all-of-us-ehr-dev.SR2023Q3R1.person` p
       FROM `all-of-us-ehr-dev.SR2023Q3R1.sleep_level`) sl ON (p.person_id = sl.person_id)
          LEFT JOIN
      (SELECT DISTINCT person_id
-      FROM`all-of-us-ehr-dev.SC2023Q3R1.measurement` as a
-              LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.measurement_ext` as b on a.measurement_id = b.measurement_id
+      FROM`all-of-us-ehr-dev.SR2023Q3R1.measurement` as a
+              LEFT JOIN`all-of-us-ehr-dev.SR2023Q3R1.measurement_ext` as b on a.measurement_id = b.measurement_id
       WHERE lower(b.src_id) like 'ehr site%'
       UNION DISTINCT
       SELECT DISTINCT person_id
-      FROM`all-of-us-ehr-dev.SC2023Q3R1.condition_occurrence` as a
-          LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.condition_occurrence_ext` as b on a.condition_occurrence_id = b.condition_occurrence_id
+      FROM`all-of-us-ehr-dev.SR2023Q3R1.condition_occurrence` as a
+          LEFT JOIN`all-of-us-ehr-dev.SR2023Q3R1.condition_occurrence_ext` as b on a.condition_occurrence_id = b.condition_occurrence_id
       WHERE lower(b.src_id) like 'ehr site%'
       UNION DISTINCT
       SELECT DISTINCT person_id
-      FROM`all-of-us-ehr-dev.SC2023Q3R1.device_exposure` as a
-          LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.device_exposure_ext` as b on a.device_exposure_id = b.device_exposure_id
+      FROM`all-of-us-ehr-dev.SR2023Q3R1.device_exposure` as a
+          LEFT JOIN`all-of-us-ehr-dev.SR2023Q3R1.device_exposure_ext` as b on a.device_exposure_id = b.device_exposure_id
       WHERE lower(b.src_id) like 'ehr site%'
       UNION DISTINCT
       SELECT DISTINCT person_id
-      FROM`all-of-us-ehr-dev.SC2023Q3R1.drug_exposure` as a
-          LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.drug_exposure_ext` as b on a.drug_exposure_id = b.drug_exposure_id
+      FROM`all-of-us-ehr-dev.SR2023Q3R1.drug_exposure` as a
+          LEFT JOIN`all-of-us-ehr-dev.SR2023Q3R1.drug_exposure_ext` as b on a.drug_exposure_id = b.drug_exposure_id
       WHERE lower(b.src_id) like 'ehr site%'
       UNION DISTINCT
       SELECT DISTINCT person_id
-      FROM`all-of-us-ehr-dev.SC2023Q3R1.observation` as a
-          LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.observation_ext` as b on a.observation_id = b.observation_id
+      FROM`all-of-us-ehr-dev.SR2023Q3R1.observation` as a
+          LEFT JOIN`all-of-us-ehr-dev.SR2023Q3R1.observation_ext` as b on a.observation_id = b.observation_id
       WHERE lower(b.src_id) like 'ehr site%'
       UNION DISTINCT
       SELECT DISTINCT person_id
-      FROM`all-of-us-ehr-dev.SC2023Q3R1.procedure_occurrence` as a
-          LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.procedure_occurrence_ext` as b on a.procedure_occurrence_id = b.procedure_occurrence_id
+      FROM`all-of-us-ehr-dev.SR2023Q3R1.procedure_occurrence` as a
+          LEFT JOIN`all-of-us-ehr-dev.SR2023Q3R1.procedure_occurrence_ext` as b on a.procedure_occurrence_id = b.procedure_occurrence_id
       WHERE lower(b.src_id) like 'ehr site%'
       UNION DISTINCT
       SELECT DISTINCT person_id
-      FROM`all-of-us-ehr-dev.SC2023Q3R1.visit_occurrence` as a
-          LEFT JOIN`all-of-us-ehr-dev.SC2023Q3R1.visit_occurrence_ext` as b on a.visit_occurrence_id = b.visit_occurrence_id
+      FROM`all-of-us-ehr-dev.SR2023Q3R1.visit_occurrence` as a
+          LEFT JOIN`all-of-us-ehr-dev.SR2023Q3R1.visit_occurrence_ext` as b on a.visit_occurrence_id = b.visit_occurrence_id
       WHERE lower(b.src_id) like 'ehr site%'
      ) ehr ON (p.person_id = ehr.person_id)

@@ -128,6 +128,20 @@
         ]
       },
       {
+        "id": "device_occurrence",
+        "displayName": "Device Occurrence",
+        "entity": "t_device_occurrence",
+        "key": "id",
+        "classifications": [
+          {
+            "id": "device",
+            "attribute": "name",
+            "entity": "t_device",
+            "entityAttribute": "name"
+          }
+        ]
+      },
+      {
         "id": "t_fitbit_activity_summary_id",
         "displayName": "Fitbit Activity Summary",
         "entity": "t_activity_summary",
@@ -311,6 +325,23 @@
         "attribute": "name",
         "direction": "ASC"
       }
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-devices",
+      "title": "Devices",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/Standard" },
+        { "key": "vocabulary", "width": 120, "title": "Vocabulary" },
+        { "key": "concept_code", "width": 120, "title": "Concept Code" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
+      ],
+      "occurrences": "device_occurrence",
+      "classifications": ["device"]
     },
     {
       "type": "attribute",
