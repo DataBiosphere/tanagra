@@ -4,6 +4,7 @@
   "attributes": [
     { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "name", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "vocabulary_id", "dataType": "STRING" },
     { "type": "SIMPLE", "name": "vocabulary", "dataType": "STRING" },
     { "type": "SIMPLE", "name": "standard_concept", "dataType": "STRING" },
     { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING" } ],

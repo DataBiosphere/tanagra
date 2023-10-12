@@ -336,7 +336,7 @@
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "standard_concept", "width": 120, "title": "Source/Standard" },
-        { "key": "vocabulary", "width": 120, "title": "Vocabulary" },
+        { "key": "vocabulary_id", "width": 120, "title": "Vocabulary" },
         { "key": "concept_code", "width": 120, "title": "Concept Code" },
         { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],

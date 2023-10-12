@@ -3,7 +3,8 @@ SELECT DISTINCT c.concept_id, c.concept_name, c.concept_code,
                     WHEN c.standard_concept IS NULL THEN 'Source'
                     WHEN c.standard_concept = 'S' THEN 'Standard'
                     ELSE 'Unknown' END standard_concept,
-                v.vocabulary_name
+                v.vocabulary_name,
+                v.vocabulary_id
 
 FROM `all-of-us-ehr-dev.SC2023Q3R1.device_exposure` AS de
 
