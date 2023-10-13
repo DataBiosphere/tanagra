@@ -1,0 +1,55 @@
+{
+  "name": "t_cpt4_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "criteriaEntity": "t_cpt4",
+  "occurrenceEntities": [ "t_procedure_occurrence", "t_ingredient_occurrence", "t_measurement_occurrence", "t_observation_occurrence"],
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria:t_procedure_occurrence": {
+        "idPairsTable": { "rawSqlFile": "t_cpt4_procedure_occurrence.sql" },
+        "idPairsIdA": { "column": "procedure_occurrence_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
+      },
+      "occurrenceToPrimary:t_procedure_occurrence": {
+        "foreignKeyAttribute": "person_id"
+      },
+
+      "occurrenceToCriteria:t_ingredient_occurrence": {
+        "idPairsTable": { "rawSqlFile": "t_cpt4_ingredient_occurrence.sql" },
+        "idPairsIdA": { "column": "drug_exposure_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
+      },
+      "occurrenceToPrimary:t_ingredient_occurrence": {
+        "foreignKeyAttribute": "person_id"
+      },
+
+      "occurrenceToCriteria:t_measurement_occurrence": {
+        "idPairsTable": { "rawSqlFile": "t_cpt4_measurement_occurrence.sql" },
+        "idPairsIdA": { "column": "measurement_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
+      },
+      "occurrenceToPrimary:t_measurement_occurrence": {
+        "foreignKeyAttribute": "person_id"
+      },
+
+      "occurrenceToCriteria:t_observation_occurrence": {
+        "idPairsTable": { "rawSqlFile": "t_cpt4_observation_occurrence.sql" },
+        "idPairsIdA": { "column": "observation_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
+      },
+      "occurrenceToPrimary:t_observation_occurrence": {
+        "foreignKeyAttribute": "person_id"
+      },
+
+      "criteriaToPrimary": {
+        "idPairsTable": { "rawSqlFile": "t_cpt4_person.sql" },
+        "idPairsIdA": { "column": "cpt4_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
