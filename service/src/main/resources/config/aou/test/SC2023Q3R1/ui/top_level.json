@@ -114,6 +114,35 @@
         ]
       },
       {
+        "id": "visit_occurrence",
+        "displayName": "Visit Occurrence",
+        "entity": "t_visit_occurrence",
+        "key": "id",
+        "classifications": [
+          {
+            "id": "visit",
+            "attribute": "name",
+            "entity": "t_visit",
+            "entityAttribute": "name"
+          }
+        ]
+      },
+      {
+        "id": "device_occurrence",
+        "displayName": "Device Occurrence",
+        "entity": "t_device_occurrence",
+        "key": "id",
+        "classifications": [
+          {
+            "id": "device",
+            "attribute": "name",
+            "entity": "t_device",
+            "entityAttribute": "name"
+          }
+        ]
+      },
+
+      {
         "id": "t_fitbit_activity_summary_id",
         "displayName": "Fitbit Activity Summary",
         "entity": "t_activity_summary",
@@ -148,6 +177,12 @@
         "displayName": "Fitbit Sleep Level",
         "entity": "t_sleep_level",
         "key": "person_id"
+      },
+      {
+        "id": "t_zipcode_socioeconomic_id",
+        "displayName": "Zip Code Socioeconomic Status Data",
+        "entity": "t_zipcode_socioeconomic",
+        "key": "id"
       }
     ]
   },
@@ -281,6 +316,48 @@
       ]
     },
     {
+      "type": "classification",
+      "id": "tanagra-visits",
+      "title": "Visit",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
+      ],
+      "occurrences": "visit_occurrence",
+      "classifications": ["visit"],
+      "defaultSort": {
+        "attribute": "name",
+        "direction": "ASC"
+      }
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-devices",
+      "title": "Devices",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Concept name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/Standard" },
+        { "key": "vocabulary_id", "width": 120, "title": "Vocabulary" },
+        { "key": "concept_code", "width": 120, "title": "Concept Code" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
+      ],
+      "occurrences": "device_occurrence",
+      "classifications": ["device"]
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-has-ehr-data",
+      "title": "Has EHR Data",
+      "category": "Program data",
+      "attribute": "has_ehr_data"
+    },
+    {
       "type": "attribute",
       "id": "tanagra-ethnicity",
       "title": "Ethnicity",
@@ -356,6 +433,34 @@
       "title": "Fitbit Sleep Level",
       "category": "Fitbit",
       "attribute": "has_fitbit_sleep_level"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-short-read-wgs",
+      "title": "Short Read WGS",
+      "category": "Genomics",
+      "attribute": "has_whole_genome_variant"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-long-read-wgs",
+      "title": "Long Read WGS",
+      "category": "Genomics",
+      "attribute": "has_lr_whole_genome_variant"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-global-diversity-array",
+      "title": "Global Diversity Array",
+      "category": "Genomics",
+      "attribute": "has_array_data"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-structural-variants",
+      "title": "Structural Variants",
+      "category": "Genomics",
+      "attribute": "has_structural_variant_data"
     }
   ],
   "modifierConfigs": [
@@ -456,6 +561,11 @@
       "id": "_fitbit_sleep_level_id",
       "name": "Fitbit Sleep Level",
       "occurrence": "t_fitbit_sleep_level_id"
+    },
+    {
+      "id": "_zipcode_socioeconomic_id",
+      "name": "Zip Code Socioeconomic Status Data",
+      "occurrence": "t_zipcode_socioeconomic_id"
     }
   ],
   "criteriaSearchConfig": {

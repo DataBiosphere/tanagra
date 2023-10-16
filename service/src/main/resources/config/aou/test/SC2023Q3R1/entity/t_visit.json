@@ -7,20 +7,7 @@
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": {
-      "table": "concept",
-      "filter": {
-        "type": "BOOLEAN_AND_OR",
-        "operator": "AND",
-        "subfilters": [
-          { "type": "BINARY",
-            "field": { "column": "domain_id" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "Visit" } },
-          { "type": "BINARY",
-            "field": { "column": "standard_concept" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "S" } } ] } },
+    "tablePointer": { "rawSqlFile": "t_visit.sql" },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } } },
