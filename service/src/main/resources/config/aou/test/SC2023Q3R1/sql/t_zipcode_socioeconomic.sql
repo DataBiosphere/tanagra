@@ -15,7 +15,7 @@ SELECT
 FROM
     `all-of-us-ehr-dev.SC2023Q3R1.zip3_ses_map` zip_code
 JOIN
-    `all-of-us-ehr-dev.SC2023Q3R1..observation` observation
+    `all-of-us-ehr-dev.SC2023Q3R1.observation` observation
         ON CAST(SUBSTR(observation.value_as_string,
             0, STRPOS(observation.value_as_string,'*') - 1) AS INT64) = zip_code.zip3
     AND observation_source_concept_id = 1585250
