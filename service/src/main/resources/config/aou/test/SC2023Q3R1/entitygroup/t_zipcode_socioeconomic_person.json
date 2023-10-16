@@ -9,7 +9,7 @@
       "groupToItems": {
         "idPairsTable": { "rawSqlFile": "t_zipcode_socioeconomic.sql" },
         "idPairsIdA": { "column": "person_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "idPairsIdB":  { "column": "row_id" }
       }
     }
   },

@@ -1,4 +1,5 @@
 SELECT
+    ROW_NUMBER() OVER() AS row_id,
     observation.person_id,
     timestamp(observation.observation_datetime) as observation_datetime_utc,
     format_datetime('%Y-%m-%dT%H:%M:%S', observation.observation_datetime) as observation_datetime_str,

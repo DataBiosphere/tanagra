@@ -3,6 +3,7 @@
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "observation_datetime_utc", "dataType": "TIMESTAMP" },
     { "type": "SIMPLE", "name": "observation_datetime_str", "dataType": "STRING" },
     { "type": "SIMPLE", "name": "zip_code", "dataType": "STRING" },
@@ -20,7 +21,7 @@
     "dataPointer": "omop_dataset",
     "tablePointer": { "rawSqlFile": "t_zipcode_socioeconomic.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "person_id" } }
+      "id": { "value": { "column": "row_id" } }
     }
   },
 
