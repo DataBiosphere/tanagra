@@ -18,6 +18,7 @@
     }
   ],
   "entities": [
+    "bloodPressure.json",
     "brand.json",
     "condition.json",
     "condition_occurrence.json",
@@ -48,6 +49,7 @@
     "visit_occurrence.json" ],
   "primaryEntity": "person",
   "entityGroups": [
+    "bloodPressure_person.json",
     "brand_ingredient.json",
     "condition_person_occurrence.json",
     "cpt4_person_occurrences.json",
