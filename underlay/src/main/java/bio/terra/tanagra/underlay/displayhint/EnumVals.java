@@ -59,7 +59,9 @@ public final class EnumVals extends DisplayHint {
   }
 
   public List<EnumVal> getEnumValsList() {
-    return Collections.unmodifiableList(enumValsList);
+    return enumValsList == null
+        ? Collections.emptyList()
+        : Collections.unmodifiableList(enumValsList);
   }
 
   public String getEnumDisplay(Literal enumValue) {
