@@ -27,13 +27,14 @@
     "device.json",
     "device_occurrence.json",
     "familyHistory.json",
+    "genotyping.json",
+    "height.json",
     "icd9cm.json",
     "icd9proc.json",
     "icd10cm.json",
     "icd10pcs.json",
     "ingredient.json",
     "ingredient_occurrence.json",
-    "genotyping.json",
     "measurementLoinc.json",
     "measurementSnomed.json",
     "measurement_occurrence.json",
@@ -49,7 +50,8 @@
     "respiratoryRate.json",
     "snp.json",
     "visit.json",
-    "visit_occurrence.json" ],
+    "visit_occurrence.json",
+    "weight.json" ],
   "primaryEntity": "person",
   "entityGroups": [
     "bloodPressure_person.json",
@@ -60,6 +62,7 @@
     "device_person_occurrence.json",
     "familyHistory_person.json",
     "genotyping_person.json",
+    "height_person.json",
     "icd9cm_person_occurrences.json",
     "icd9proc_person_occurrences.json",
     "icd10cm_person_occurrences.json",
@@ -74,7 +77,8 @@
     "pulse_person.json",
     "respiratoryRate_person.json",
     "snp_person.json",
-    "visit_person_occurrence.json"
+    "visit_person_occurrence.json",
+    "weight_person.json"
   ],
   "uiConfigFile": "top_level.json"
 }
