@@ -1,0 +1,19 @@
+{
+  "name": "noteOccurrence_person",
+  "type": "GROUP_ITEMS",
+  "groupEntity": "note_occurrence",
+  "itemsEntity": "person",
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "groupToItems": {
+        "idPairsTable": { "rawSqlFile": "note_occurrence_all.sql" },
+        "idPairsIdA": { "column": "id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
