@@ -19,6 +19,7 @@
   ],
   "entities": [
     "bloodPressure.json",
+    "bmi.json",
     "brand.json",
     "condition.json",
     "condition_occurrence.json",
@@ -52,6 +53,7 @@
   "primaryEntity": "person",
   "entityGroups": [
     "bloodPressure_person.json",
+    "bmi_person.json",
     "brand_ingredient.json",
     "condition_person_occurrence.json",
     "cpt4_person_occurrences.json",
