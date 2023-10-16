@@ -1,13 +1,13 @@
 {
-  "name": "height_person",
+  "name": "respiratoryRate_person",
   "type": "GROUP_ITEMS",
   "groupEntity": "person",
-  "itemsEntity": "height",
+  "itemsEntity": "respiratoryRate",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "groupToItems": {
-        "idPairsTable": { "rawSqlFile": "height_all.sql" },
+        "idPairsTable": { "rawSqlFile": "respiratoryRate_all.sql" },
         "idPairsIdA": { "column": "person_id" },
         "idPairsIdB":  { "column": "id" }
       }

@@ -1,13 +1,13 @@
 {
-  "name": "height_person",
+  "name": "weight_person",
   "type": "GROUP_ITEMS",
   "groupEntity": "person",
-  "itemsEntity": "height",
+  "itemsEntity": "weight",
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "groupToItems": {
-        "idPairsTable": { "rawSqlFile": "height_all.sql" },
+        "idPairsTable": { "rawSqlFile": "weight_all.sql" },
         "idPairsIdA": { "column": "person_id" },
         "idPairsIdB":  { "column": "id" }
       }
