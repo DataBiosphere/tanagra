@@ -44,6 +44,7 @@
     "phewas.json",
     "procedure.json",
     "procedure_occurrence.json",
+    "pulse.json",
     "snp.json",
     "visit.json",
     "visit_occurrence.json" ],
@@ -67,6 +68,7 @@
     "observation_person_occurrence.json",
     "phewas_person_occurrences.json",
     "procedure_person_occurrence.json",
+    "pulse_person.json",
     "snp_person.json",
     "visit_person_occurrence.json"
   ],
