@@ -205,6 +205,8 @@ public class Literal implements SQLExpression {
       case STRING:
         if (stringVal == null) {
           return value.getStringVal() == null ? 0 : -1;
+        } else if (value.getStringVal() == null) {
+          return 1;
         }
         return stringVal.compareTo(value.getStringVal());
       case INT64:
