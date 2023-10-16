@@ -1,9 +1,9 @@
 SELECT
   mo.measurement_id AS id, mo.person_id,
-  CASE
+  CAST(CASE
     WHEN xvw.x_invalid = 'N' THEN 1
     ELSE 0
-  END AS is_clean,
+  END AS BOOLEAN) AS is_clean,
   mo.measurement_date,
   mo.value_as_number AS value_numeric, mo.value_as_concept_id, mo.unit_concept_id,
   CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
