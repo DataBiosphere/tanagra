@@ -20,11 +20,6 @@
         "idPairsTable": { "table": "visit_occurrence" },
         "idPairsIdA": { "column": "visit_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
-      },
-      "groupToItems": {
-        "idPairsTable": { "table": "visit_occurrence" },
-        "idPairsIdA": { "column": "visit_concept_id" },
-        "idPairsIdB":  { "column": "person_id" }
       }
     }
   },
