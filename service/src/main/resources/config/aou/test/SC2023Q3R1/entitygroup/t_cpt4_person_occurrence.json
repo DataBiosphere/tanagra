@@ -2,7 +2,7 @@
   "name": "t_cpt4_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
   "criteriaEntity": "t_cpt4",
-  "occurrenceEntities": [ "t_procedure_occurrence", "t_ingredient_occurrence", "t_measurement_occurrence", "t_observation_occurrence"],
+  "occurrenceEntities": [ "t_procedure_occurrence", "t_ingredient_occurrence", "t_measurement_occurrence", "t_observation_occurrence", "t_device_occurrence"],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
@@ -39,6 +39,15 @@
         "idPairsIdB":  { "column": "cpt4_id" }
       },
       "occurrenceToPrimary:t_observation_occurrence": {
+        "foreignKeyAttribute": "person_id"
+      },
+
+      "occurrenceToCriteria:t_device_occurrence": {
+        "idPairsTable": { "rawSqlFile": "t_cpt4_device_occurrence.sql" },
+        "idPairsIdA": { "column": "device_exposure_id" },
+        "idPairsIdB":  { "column": "cpt4_id" }
+      },
+      "occurrenceToPrimary:t_device_occurrence": {
         "foreignKeyAttribute": "person_id"
       },
 
