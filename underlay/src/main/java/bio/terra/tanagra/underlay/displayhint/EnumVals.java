@@ -119,18 +119,20 @@ public final class EnumVals extends DisplayHint {
 
     // Check that there is exactly one display per value.
     Map<Literal, String> valDisplay = new HashMap<>();
-    enumVals.stream()
-        .forEach(
-            enumVal -> {
-              if (valDisplay.containsKey(enumVal.getValueDisplay().getValue())) {
-                throw new InvalidConfigException(
-                    "Found >1 possible display for the enum value "
-                        + enumVal.getValueDisplay().getValue());
-              } else {
-                valDisplay.put(
-                    enumVal.getValueDisplay().getValue(), enumVal.getValueDisplay().getDisplay());
-              }
-            });
+    if (enumVals != null) {
+      enumVals.stream()
+          .forEach(
+              enumVal -> {
+                if (valDisplay.containsKey(enumVal.getValueDisplay().getValue())) {
+                  throw new InvalidConfigException(
+                      "Found >1 possible display for the enum value "
+                          + enumVal.getValueDisplay().getValue());
+                } else {
+                  valDisplay.put(
+                      enumVal.getValueDisplay().getValue(), enumVal.getValueDisplay().getDisplay());
+                }
+              });
+    }
     return new EnumVals(enumVals);
   }
 

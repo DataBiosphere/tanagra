@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.job;
 
 import bio.terra.tanagra.api.schema.EntityLevelDisplayHints;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.bigquery.BigQuerySchemaUtils;
@@ -16,6 +17,7 @@ import com.google.cloud.bigquery.TableId;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,8 +142,18 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
               }
             });
 
-    // Poll for table existence before we try to insert the hint rows. Maximum 60 x 10 sec = 10 min.
-    pollForTableExistenceOrThrow(getAuxiliaryTable(), 60, Duration.ofSeconds(10));
+    // Poll for table existence before we try to insert the hint rows. Maximum 18 x 10 sec = 3 min.
+    pollForTableExistenceOrThrow(getAuxiliaryTable(), 18, Duration.ofSeconds(10));
+
+    // Sleep before inserting.
+    // Sometimes even though the table is found in the existence check above, it still fails the
+    // insert below.
+    try {
+      TimeUnit.SECONDS.sleep(30);
+    } catch (InterruptedException intEx) {
+      throw new SystemException(
+          "Interrupted during sleep after creating entity-level hints table", intEx);
+    }
 
     // Do a single batch insert to BQ for all the hint rows.
     outputBQDataset

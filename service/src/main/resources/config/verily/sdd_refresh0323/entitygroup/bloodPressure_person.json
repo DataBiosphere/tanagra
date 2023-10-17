@@ -1,0 +1,19 @@
+{
+  "name": "bloodPressure_person",
+  "type": "GROUP_ITEMS",
+  "groupEntity": "person",
+  "itemsEntity": "bloodPressure",
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "groupToItems": {
+        "idPairsTable": { "rawSqlFile": "bloodPressure_all.sql" },
+        "idPairsIdA": { "column": "person_id" },
+        "idPairsIdB":  { "column": "id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

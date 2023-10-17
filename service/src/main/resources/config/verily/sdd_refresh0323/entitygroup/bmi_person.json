@@ -1,0 +1,19 @@
+{
+  "name": "bmi_person",
+  "type": "GROUP_ITEMS",
+  "groupEntity": "person",
+  "itemsEntity": "bmi",
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "groupToItems": {
+        "idPairsTable": { "rawSqlFile": "bmi_all.sql" },
+        "idPairsIdA": { "column": "person_id" },
+        "idPairsIdB":  { "column": "id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
