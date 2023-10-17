@@ -43,6 +43,17 @@
               "attribute": "t_rollup_count",
               "direction": "DESC"
             }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -60,6 +71,17 @@
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
+            }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
             }
           }
         ]
@@ -91,6 +113,17 @@
                 "attributes": ["name", "id", "standard_concept", "concept_code"]
               }
             ]
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -110,38 +143,20 @@
               "attribute": "t_item_count",
               "direction": "DESC"
             }
-          }
-        ]
-      },
-      {
-        "id": "visit_occurrence",
-        "displayName": "Visit Occurrence",
-        "entity": "t_visit_occurrence",
-        "key": "id",
-        "classifications": [
+          },
           {
-            "id": "visit",
-            "attribute": "name",
-            "entity": "t_visit",
-            "entityAttribute": "name"
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
-      {
-        "id": "device_occurrence",
-        "displayName": "Device Occurrence",
-        "entity": "t_device_occurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "device",
-            "attribute": "name",
-            "entity": "t_device",
-            "entityAttribute": "name"
-          }
-        ]
-      },
-
       {
         "id": "t_fitbit_activity_summary_id",
         "displayName": "Fitbit Activity Summary",
@@ -177,12 +192,6 @@
         "displayName": "Fitbit Sleep Level",
         "entity": "t_sleep_level",
         "key": "person_id"
-      },
-      {
-        "id": "t_zipcode_socioeconomic_id",
-        "displayName": "Zip Code Socioeconomic Status Data",
-        "entity": "t_zipcode_socioeconomic",
-        "key": "id"
       }
     ]
   },
@@ -317,45 +326,41 @@
     },
     {
       "type": "classification",
-      "id": "tanagra-visits",
-      "title": "Visit",
+      "id": "tanagra-cpt4",
+      "title": "CPT-4",
       "conceptSet": true,
-      "category": "Domains",
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
       "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
-        { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_item_count", "width": 120, "title": "Item count" }
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "domain_id", "width": 100, "title": "Domain" },
+        { "key": "is_standard", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "visit_occurrence",
-      "classifications": ["visit"],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrences": [
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence",
+        "ingredient_occurrence"
+      ],
+      "classifications": ["cpt4"],
       "defaultSort": {
-        "attribute": "name",
-        "direction": "ASC"
-      }
-    },
-    {
-      "type": "classification",
-      "id": "tanagra-devices",
-      "title": "Devices",
-      "conceptSet": true,
-      "category": "Domains",
-      "columns": [
-        { "key": "name", "width": "100%", "title": "Concept name" },
-        { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/Standard" },
-        { "key": "vocabulary_id", "width": 120, "title": "Vocabulary" },
-        { "key": "concept_code", "width": 120, "title": "Concept Code" },
-        { "key": "t_item_count", "width": 120, "title": "Item count" }
-      ],
-      "occurrences": "device_occurrence",
-      "classifications": ["device"]
-    },
-    {
-      "type": "attribute",
-      "id": "tanagra-has-ehr-data",
-      "title": "Has EHR Data",
-      "category": "Program data",
-      "attribute": "has_ehr_data"
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
     },
     {
       "type": "attribute",
@@ -433,34 +438,6 @@
       "title": "Fitbit Sleep Level",
       "category": "Fitbit",
       "attribute": "has_fitbit_sleep_level"
-    },
-    {
-      "type": "attribute",
-      "id": "tanagra-short-read-wgs",
-      "title": "Short Read WGS",
-      "category": "Genomics",
-      "attribute": "has_whole_genome_variant"
-    },
-    {
-      "type": "attribute",
-      "id": "tanagra-long-read-wgs",
-      "title": "Long Read WGS",
-      "category": "Genomics",
-      "attribute": "has_lr_whole_genome_variant"
-    },
-    {
-      "type": "attribute",
-      "id": "tanagra-global-diversity-array",
-      "title": "Global Diversity Array",
-      "category": "Genomics",
-      "attribute": "has_array_data"
-    },
-    {
-      "type": "attribute",
-      "id": "tanagra-structural-variants",
-      "title": "Structural Variants",
-      "category": "Genomics",
-      "attribute": "has_structural_variant_data"
     }
   ],
   "modifierConfigs": [
@@ -561,11 +538,6 @@
       "id": "_fitbit_sleep_level_id",
       "name": "Fitbit Sleep Level",
       "occurrence": "t_fitbit_sleep_level_id"
-    },
-    {
-      "id": "_zipcode_socioeconomic_id",
-      "name": "Zip Code Socioeconomic Status Data",
-      "occurrence": "t_zipcode_socioeconomic_id"
     }
   ],
   "criteriaSearchConfig": {
