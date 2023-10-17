@@ -1,5 +1,9 @@
 import Button from "@mui/material/Button";
-import { AddCohortCriteria, AddConceptSetCriteria } from "addCriteria";
+import {
+  AddCohortCriteria,
+  AddConceptSetCriteria,
+  AddFeatureSetCriteria,
+} from "addCriteria";
 import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
@@ -8,6 +12,10 @@ import ConceptSetRoot from "conceptSetRoot";
 import { SourceContextRoot } from "data/sourceContext";
 import { Datasets } from "datasets";
 import Edit from "edit";
+import { FeatureSet } from "featureSet/featureSet";
+import { FeatureSetEdit } from "featureSet/featureSetEdit";
+import FeatureSetRoot from "featureSet/featureSetRoot";
+import { NewFeatureSet } from "featureSet/newFeatureSet";
 import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
 import { Overview } from "overview";
@@ -100,6 +108,37 @@ export function createAppRouter() {
             {
               path: "edit/:conceptSetId",
               element: <ConceptSetEdit />,
+            },
+          ],
+        },
+        {
+          element: <FeatureSetRoot />,
+          children: [
+            {
+              path: "featureSets/:featureSetId",
+              children: [
+                {
+                  index: true,
+                  element: <FeatureSet />,
+                },
+                {
+                  path: "add",
+                  children: [
+                    {
+                      index: true,
+                      element: <AddFeatureSetCriteria />,
+                    },
+                    {
+                      path: ":configId",
+                      element: <NewFeatureSet />,
+                    },
+                  ],
+                },
+                {
+                  path: "edit/:criteriaId",
+                  element: <FeatureSetEdit />,
+                },
+              ],
             },
           ],
         },
@@ -270,6 +309,17 @@ export function absoluteCohortURL(
   return absolutePrefix(params) + cohortURL(cohortId, groupSectionId, groupId);
 }
 
+export function featureSetURL(featureSetId: string) {
+  return `featureSets/${featureSetId}`;
+}
+
+export function absoluteFeatureSetURL(
+  params: BaseParams,
+  featureSetId: string
+) {
+  return absolutePrefix(params) + featureSetURL(featureSetId);
+}
+
 export function absoluteExportURL(params: BaseParams) {
   return absolutePrefix(params) + "export";
 }
@@ -299,6 +349,10 @@ export function criteriaURL() {
 
 export function newCriteriaURL(configId: string) {
   return `add/${configId}`;
+}
+
+export function featureSetCriteriaURL(criteriaId: string) {
+  return "edit/" + criteriaId;
 }
 
 export function absoluteCohortReviewListURL(

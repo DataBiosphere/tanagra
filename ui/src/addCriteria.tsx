@@ -25,11 +25,24 @@ import { createConceptSet, useConceptSetContext } from "conceptSetContext";
 import { MergedItem } from "data/source";
 import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
-import { useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
+import {
+  insertFeatureSetCriteria,
+  useFeatureSetContext,
+} from "featureSet/featureSetContext";
+import {
+  useCohortGroupSectionAndGroup,
+  useFeatureSet,
+  useUnderlay,
+} from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
-import { cohortURL, newCriteriaURL, useExitAction } from "router";
+import {
+  cohortURL,
+  featureSetURL,
+  newCriteriaURL,
+  useExitAction,
+} from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
@@ -89,6 +102,28 @@ export function AddCohortCriteria() {
   return (
     <AddCriteria
       title={`Adding criteria for group ${name}`}
+      onInsertCriteria={onInsertCriteria}
+    />
+  );
+}
+
+export function AddFeatureSetCriteria() {
+  const navigate = useNavigate();
+  const context = useFeatureSetContext();
+  const featureSet = useFeatureSet();
+
+  const onInsertCriteria = useCallback(
+    (criteria: tanagraUI.UICriteria) => {
+      insertFeatureSetCriteria(context, criteria);
+      navigate("../../" + featureSetURL(featureSet.id));
+    },
+    [context, featureSet.id, navigate]
+  );
+
+  return (
+    <AddCriteria
+      conceptSet
+      title={`Adding criteria for ${featureSet.name}`}
       onInsertCriteria={onInsertCriteria}
     />
   );

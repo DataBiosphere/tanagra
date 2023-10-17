@@ -22,17 +22,21 @@ exports[`Table renders correctly 1`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-semc09"
+                  class="MuiBox-root css-ochz84"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
                   >
-                    <span
-                      class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
-                      title="Column 1"
+                    <div
+                      class="css-caf4u6"
                     >
-                      Column 1
-                    </span>
+                      <span
+                        class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
+                        title="Column 1"
+                      >
+                        Column 1
+                      </span>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-9qc0eg"
@@ -57,6 +61,13 @@ exports[`Table renders correctly 1`] = `
                         class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                       />
                     </button>
+                  </div>
+                  <div
+                    class="MuiBox-root css-buq1co"
+                  >
+                    <div
+                      class="css-uwwqev"
+                    />
                   </div>
                 </div>
               </div>
@@ -72,17 +83,21 @@ exports[`Table renders correctly 1`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-semc09"
+                  class="MuiBox-root css-ochz84"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
                   >
-                    <span
-                      class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
-                      title="Column 2"
+                    <div
+                      class="css-caf4u6"
                     >
-                      Column 2
-                    </span>
+                      <span
+                        class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
+                        title="Column 2"
+                      >
+                        Column 2
+                      </span>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-9qc0eg"
@@ -108,6 +123,13 @@ exports[`Table renders correctly 1`] = `
                       />
                     </button>
                   </div>
+                  <div
+                    class="MuiBox-root css-buq1co"
+                  >
+                    <div
+                      class="css-uwwqev"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -122,27 +144,38 @@ exports[`Table renders correctly 1`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-1jjjjm8"
+                  class="MuiBox-root css-22ybcc"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
                   >
-                    <span
-                      class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
-                      title="[object Object]"
+                    <div
+                      class="css-caf4u6"
                     >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                        data-testid="AccountTreeIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
+                      <span
+                        class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
+                        title="[object Object]"
                       >
-                        <path
-                          d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
-                        />
-                      </svg>
-                    </span>
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                          data-testid="AccountTreeIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiBox-root css-9qc0eg"
+                  >
+                    <div
+                      class="css-uwwqev"
+                    />
                   </div>
                 </div>
               </div>
@@ -155,7 +188,7 @@ exports[`Table renders correctly 1`] = `
           style="height: 48px;"
         >
           <td
-            style="max-width: 100%; width: 100%; min-width: 100%;"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-ttlwsw-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -189,7 +222,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            style="max-width: 150px; width: 150px; min-width: 150px;"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-o3sd3r-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -203,7 +236,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            style="max-width: 50px; width: 50px; min-width: 50px;"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1gu6ett-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -219,7 +252,7 @@ exports[`Table renders correctly 1`] = `
           style="display: none; height: 48px;"
         >
           <td
-            style="max-width: 100%; width: 100%; min-width: 100%; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-kv8qlv-MuiStack-root"
@@ -253,7 +286,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            style="max-width: 150px; width: 150px; min-width: 150px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -267,7 +300,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            style="max-width: 50px; width: 50px; min-width: 50px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -285,7 +318,7 @@ exports[`Table renders correctly 1`] = `
           style="height: 48px;"
         >
           <td
-            style="max-width: 100%; width: 100%; min-width: 100%; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -299,7 +332,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            style="max-width: 150px; width: 150px; min-width: 150px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -313,7 +346,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            style="max-width: 50px; width: 50px; min-width: 50px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -365,17 +398,21 @@ exports[`Table renders correctly 2`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-semc09"
+                  class="MuiBox-root css-ochz84"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
                   >
-                    <span
-                      class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
-                      title="Column 1"
+                    <div
+                      class="css-caf4u6"
                     >
-                      Column 1
-                    </span>
+                      <span
+                        class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
+                        title="Column 1"
+                      >
+                        Column 1
+                      </span>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-9qc0eg"
@@ -410,6 +447,13 @@ exports[`Table renders correctly 2`] = `
                       </span>
                     </button>
                   </div>
+                  <div
+                    class="MuiBox-root css-buq1co"
+                  >
+                    <div
+                      class="css-uwwqev"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -424,17 +468,21 @@ exports[`Table renders correctly 2`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-semc09"
+                  class="MuiBox-root css-ochz84"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
                   >
-                    <span
-                      class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
-                      title="Column 2"
+                    <div
+                      class="css-caf4u6"
                     >
-                      Column 2
-                    </span>
+                      <span
+                        class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
+                        title="Column 2"
+                      >
+                        Column 2
+                      </span>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-9qc0eg"
@@ -460,6 +508,13 @@ exports[`Table renders correctly 2`] = `
                       />
                     </button>
                   </div>
+                  <div
+                    class="MuiBox-root css-buq1co"
+                  >
+                    <div
+                      class="css-uwwqev"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -474,27 +529,38 @@ exports[`Table renders correctly 2`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-1jjjjm8"
+                  class="MuiBox-root css-22ybcc"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
                   >
-                    <span
-                      class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
-                      title="[object Object]"
+                    <div
+                      class="css-caf4u6"
                     >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                        data-testid="AccountTreeIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
+                      <span
+                        class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
+                        title="[object Object]"
                       >
-                        <path
-                          d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
-                        />
-                      </svg>
-                    </span>
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                          data-testid="AccountTreeIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiBox-root css-9qc0eg"
+                  >
+                    <div
+                      class="css-uwwqev"
+                    />
                   </div>
                 </div>
               </div>
@@ -507,7 +573,7 @@ exports[`Table renders correctly 2`] = `
           style="height: 48px;"
         >
           <td
-            style="max-width: 100%; width: 100%; min-width: 100%;"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-ttlwsw-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -541,7 +607,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            style="max-width: 150px; width: 150px; min-width: 150px;"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-o3sd3r-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -555,7 +621,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            style="max-width: 50px; width: 50px; min-width: 50px;"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1gu6ett-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -571,7 +637,7 @@ exports[`Table renders correctly 2`] = `
           style="display: none; height: 48px;"
         >
           <td
-            style="max-width: 100%; width: 100%; min-width: 100%; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-kv8qlv-MuiStack-root"
@@ -605,7 +671,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            style="max-width: 150px; width: 150px; min-width: 150px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -619,7 +685,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            style="max-width: 50px; width: 50px; min-width: 50px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -637,7 +703,7 @@ exports[`Table renders correctly 2`] = `
           style="height: 48px;"
         >
           <td
-            style="max-width: 100%; width: 100%; min-width: 100%; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -651,7 +717,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            style="max-width: 150px; width: 150px; min-width: 150px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -665,7 +731,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            style="max-width: 50px; width: 50px; min-width: 50px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.12);"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
