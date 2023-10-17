@@ -722,7 +722,7 @@
         "id": "procedure",
         "title": "Procedures",
         "plugin": {
-          "occurrences": "procedure_occurrence",
+          "occurrence": "procedure_occurrence",
           "columns": [
             { "key": "procedure", "width": "100%", "title": "Procedure name" },
             { "key": "date", "width": 200, "title": "Date" }
