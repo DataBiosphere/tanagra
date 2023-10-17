@@ -1,0 +1,32 @@
+{
+  "name": "t_zipcode_socioeconomic",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "observation_datetime_utc", "dataType": "TIMESTAMP" },
+    { "type": "SIMPLE", "name": "observation_datetime_str", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "zip_code", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "assisted_income", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "high_school_education", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "median_income", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "no_health_insurance", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "poverty", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "vacant_housing", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "deprivation_index", "dataType": "DOUBLE" },
+    { "type": "SIMPLE", "name": "american_community_survey_year", "dataType": "INT64" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "t_zipcode_socioeconomic.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "row_id" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+
+}
