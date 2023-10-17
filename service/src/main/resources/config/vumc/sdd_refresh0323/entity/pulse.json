@@ -1,0 +1,48 @@
+{
+  "name": "pulse",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "date", "dataType": "TIMESTAMP", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "value_numeric", "dataType": "DOUBLE", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "value_enum", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "unit", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit_type", "dataType": "INT64" }
+  ],
+
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "pulse_all.sql" },
+    "attributeMappings": {
+      "date": { "value": { "column": "measurement_date" } },
+      "value_enum": {
+        "value": { "column": "value_as_concept_id" },
+        "display": {
+          "column": "value_as_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "unit": {
+        "value": { "column": "unit_concept_id" },
+        "display": {
+          "column": "unit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } },
+      "visit_type": {
+        "value": { "column": "visit_concept_id" },
+        "display": {
+          "column": "visit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
+    }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
