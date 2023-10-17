@@ -43,6 +43,17 @@
               "attribute": "t_rollup_count",
               "direction": "DESC"
             }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -60,6 +71,17 @@
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
+            }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
             }
           }
         ]
@@ -91,6 +113,17 @@
                 "attributes": ["name", "id", "standard_concept", "concept_code"]
               }
             ]
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -109,6 +142,17 @@
             "defaultSort": {
               "attribute": "t_item_count",
               "direction": "DESC"
+            }
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
             }
           }
         ]
@@ -138,10 +182,20 @@
             "attribute": "name",
             "entity": "t_device",
             "entityAttribute": "name"
+          },
+          {
+            "id": "cpt4",
+            "attribute": "source_criteria_id",
+            "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
-
       {
         "id": "t_fitbit_activity_summary_id",
         "displayName": "Fitbit Activity Summary",
@@ -193,6 +247,7 @@
       "title": "Condition",
       "conceptSet": true,
       "category": "Domains",
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -220,6 +275,7 @@
       "title": "Procedure",
       "conceptSet": true,
       "category": "Domains",
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -243,6 +299,7 @@
       "title": "Observation",
       "conceptSet": true,
       "category": "Domains",
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -261,6 +318,7 @@
       "title": "Drug",
       "conceptSet": true,
       "category": "Domains",
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -288,6 +346,7 @@
       "title": "Labs and measurements",
       "conceptSet": true,
       "category": "Domains",
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -321,6 +380,7 @@
       "title": "Visit",
       "conceptSet": true,
       "category": "Domains",
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
@@ -339,6 +399,7 @@
       "title": "Devices",
       "conceptSet": true,
       "category": "Domains",
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
@@ -356,6 +417,45 @@
       "title": "Has EHR Data",
       "category": "Program data",
       "attribute": "has_ehr_data"
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-cpt4",
+      "title": "CPT-4",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "domain_id", "width": 100, "title": "Domain" },
+        { "key": "is_standard", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrences": [
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence",
+        "ingredient_occurrence",
+        "device_occurrence"
+      ],
+      "classifications": ["cpt4"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
     },
     {
       "type": "attribute",
@@ -622,7 +722,7 @@
         "id": "procedure",
         "title": "Procedures",
         "plugin": {
-          "occurrences": "procedure_occurrence",
+          "occurrence": "procedure_occurrence",
           "columns": [
             { "key": "procedure", "width": "100%", "title": "Procedure name" },
             { "key": "date", "width": 200, "title": "Date" }
