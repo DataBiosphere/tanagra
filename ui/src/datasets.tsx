@@ -24,14 +24,14 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
   generateCohortFilter,
-  getCriteriaPlugin,
   getCriteriaTitle,
+  getOccurrenceList,
+  OccurrenceFilters,
 } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { TreeGrid, TreeGridData } from "components/treegrid";
-import { findEntity } from "data/configuration";
 import { Filter, makeArrayFilter } from "data/filter";
 import { ExportModel } from "data/source";
 import { useSource } from "data/sourceContext";
@@ -93,7 +93,7 @@ export function Datasets() {
     new Map<string, Set<string>>()
   );
 
-  const conceptSetOccurrences = useConceptSetOccurrences(
+  const conceptSetOccurrences = useOccurrenceFilters(
     selectedConceptSets,
     workspaceConceptSets.data
   );
@@ -449,65 +449,40 @@ export function Datasets() {
   );
 }
 
-type ConceptSetOccurrence = {
-  id: string;
-  name: string;
-  attributes: string[];
-  filters: Filter[];
-};
-
-function useConceptSetOccurrences(
+function useOccurrenceFilters(
   selectedConceptSets: Set<string>,
   workspaceConceptSets?: tanagraUI.UIConceptSet[]
-): ConceptSetOccurrence[] {
+): OccurrenceFilters[] {
   const underlay = useUnderlay();
   const source = useSource();
 
   return useMemo(() => {
-    const occurrences = new Map<string, Filter[]>();
-    const addFilter = (occurrence: string, filter?: Filter | null) => {
-      if (!occurrences.has(occurrence)) {
-        occurrences.set(occurrence, []);
-      }
-      if (filter) {
-        occurrences.get(occurrence)?.push(filter);
-      }
-    };
-
+    const selectedCriteria = new Set<string>();
     underlay.uiConfiguration.prepackagedConceptSets?.forEach((conceptSet) => {
       if (selectedConceptSets.has(conceptSet.id)) {
-        addFilter(conceptSet.occurrence, conceptSet.filter);
+        selectedCriteria.add(conceptSet.id);
       }
     });
 
-    workspaceConceptSets
-      ?.filter((cs) => selectedConceptSets.has(cs.id))
-      ?.forEach((conceptSet) => {
-        const plugin = getCriteriaPlugin(conceptSet.criteria);
-        const occurrenceIds =
-          plugin.outputOccurrenceIds?.() ?? plugin.filterOccurrenceIds();
-        occurrenceIds.forEach((o) => {
-          addFilter(o, plugin.generateFilter(o));
-        });
-      });
+    workspaceConceptSets?.forEach((conceptSet) => {
+      if (selectedConceptSets.has(conceptSet.id)) {
+        selectedCriteria.add(conceptSet.criteria.id);
+      }
+    });
 
-    return Array.from(occurrences)
-      .sort()
-      .map(([id, filters]) => {
-        return {
-          id,
-          name: findEntity(id, source.config).entity,
-          attributes: source.listAttributes(id),
-          filters,
-        };
-      });
+    return getOccurrenceList(
+      source,
+      selectedCriteria,
+      workspaceConceptSets?.map((cs) => cs.criteria),
+      underlay.uiConfiguration.prepackagedConceptSets
+    );
   }, [selectedConceptSets, workspaceConceptSets]);
 }
 
 type PreviewProps = {
   selectedCohorts: Set<string>;
   selectedConceptSets: Set<string>;
-  conceptSetOccurrences: ConceptSetOccurrence[];
+  conceptSetOccurrences: OccurrenceFilters[];
   excludedAttributes: Map<string, Set<string>>;
 };
 

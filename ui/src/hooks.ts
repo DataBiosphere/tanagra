@@ -9,10 +9,15 @@ import {
   createConceptSet,
   updateConceptSet,
 } from "conceptSetContext";
+import { FeatureSet } from "data/source";
 import { useSource } from "data/sourceContext";
+import {
+  FeatureSetContext,
+  insertFeatureSetCriteria,
+  updateFeatureSetCriteria,
+} from "featureSet/featureSetContext";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { absoluteCohortURL, useBaseParams } from "router";
 import * as tanagraUI from "tanagra-ui";
 
 export class PathError extends Error {}
@@ -145,12 +150,45 @@ export function useConceptSet() {
   return useOptionalConceptSet(true) as NonNullable<tanagraUI.UIConceptSet>;
 }
 
+function useOptionalFeatureSet(throwOnUnknown: boolean) {
+  const featureSet = useContext(FeatureSetContext)?.state?.present;
+  if (throwOnUnknown && !featureSet) {
+    throw new PathError(`No valid feature set in current context.`);
+  }
+  return featureSet;
+}
+
+export function useFeatureSet() {
+  return useOptionalFeatureSet(true) as NonNullable<FeatureSet>;
+}
+
+function useOptionalFeatureSetAndCriteria(throwOnUnknown: boolean) {
+  const featureSet = useContext(FeatureSetContext)?.state?.present;
+  const { criteriaId } = useParams<{ criteriaId: string }>();
+  const criteria = featureSet?.criteria?.find((c) => c.id === criteriaId);
+  if (throwOnUnknown && (!featureSet || !criteria)) {
+    throw new PathError(`No valid feature set or criteria in current context.`);
+  }
+  return { featureSet, criteria };
+}
+
+export function useFeatureSetAndCriteria() {
+  return useOptionalFeatureSetAndCriteria(true) as {
+    featureSet: FeatureSet;
+    criteria: tanagraUI.UICriteria;
+  };
+}
+
 export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   const cohort = useOptionalCohort(false);
   const { section, group } = useOptionalGroupSectionAndGroup(false);
   const conceptSet = useOptionalConceptSet(false);
+  const { featureSet, criteria: featureSetCriteria } =
+    useOptionalFeatureSetAndCriteria(false);
+
   const cohortContext = useContext(CohortContext);
   const conceptSetContext = useContext(ConceptSetContext);
+  const featureSetContext = useContext(FeatureSetContext);
 
   if (cohort && section) {
     if (!cohortContext) {
@@ -174,6 +212,32 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
         updateCohortCriteria(cohortContext, section.id, gId, data, criteriaId);
       };
     }
+  }
+
+  if (featureSet) {
+    if (!featureSetContext) {
+      throw new Error(
+        "Null feature set context when updating a feature set criteria."
+      );
+    }
+
+    if (newCriteria) {
+      return (data: object) => {
+        if (newCriteria) {
+          insertFeatureSetCriteria(featureSetContext, {
+            ...newCriteria,
+            data: data,
+          });
+        }
+      };
+    }
+
+    if (!featureSetCriteria) {
+      throw new Error("Null feature set criteria when updating it.");
+    }
+    return (data: object) => {
+      updateFeatureSetCriteria(featureSetContext, data, featureSetCriteria.id);
+    };
   }
 
   if (newCriteria) {
@@ -201,51 +265,4 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   throw new Error(
     "Either concept set, or cohort, group, and criteria must be defined."
   );
-}
-
-export function useUndoRedoUrls() {
-  const params = useBaseParams();
-  const context = useContext(CohortContext);
-
-  if (context?.state) {
-    const cohortURL = absoluteCohortURL(params, context.state.present.id);
-    return [
-      context.state.past.length > 0 ? cohortURL : "",
-      context.state.future.length > 0 ? cohortURL : "",
-    ];
-  }
-
-  return ["", ""];
-}
-
-export function useUndoAction() {
-  const context = useContext(CohortContext);
-
-  if (context?.state && context.state.past.length > 0) {
-    return () => {
-      context.updateState((state) => {
-        state.future.push(state.present);
-        state.present = state.past[state.past.length - 1];
-        state.past.pop();
-      });
-    };
-  }
-
-  return null;
-}
-
-export function useRedoAction() {
-  const context = useContext(CohortContext);
-
-  if (context?.state && context.state.future.length > 0) {
-    return () => {
-      context.updateState((state) => {
-        state.past.push(state.present);
-        state.present = state.future[state.future.length - 1];
-        state.future.pop();
-      });
-    };
-  }
-
-  return null;
 }

@@ -18,6 +18,7 @@ import {
   absoluteCohortURL,
   absoluteConceptSetURL,
   absoluteExportURL,
+  absoluteFeatureSetURL,
   absoluteNewConceptSetURL,
   useBaseParams,
 } from "router";
@@ -27,6 +28,7 @@ import { useNavigate } from "util/searchState";
 
 enum ArtifactType {
   Cohort = "Cohort",
+  FeatureSet = "Feature set",
   ConceptSet = "Data feature",
 }
 
@@ -71,20 +73,27 @@ export function StudyOverview() {
             cohortGroupSectionId: c.groupSections[0].id,
           }))
       ),
-      source
-        .listConceptSets(studyId)
-
-        .then((res) =>
-          res
-            .filter((cs) => cs.underlayName === underlay.name)
-            .map((cs) => ({
-              type: ArtifactType.ConceptSet,
-              name: getCriteriaTitle(cs.criteria),
-              id: cs.id,
-              cohortGroupSectionId: "",
-            }))
-        ),
-    ]).then((res) => [...res[0], ...res[1]]);
+      source.listFeatureSets(studyId).then((res) =>
+        res
+          .filter((fs) => fs.underlayName === underlay.name)
+          .map((fs) => ({
+            type: ArtifactType.FeatureSet,
+            name: fs.name,
+            id: fs.id,
+            cohortGroupSectionId: "",
+          }))
+      ),
+      source.listConceptSets(studyId).then((res) =>
+        res
+          .filter((cs) => cs.underlayName === underlay.name)
+          .map((cs) => ({
+            type: ArtifactType.ConceptSet,
+            name: getCriteriaTitle(cs.criteria),
+            id: cs.id,
+            cohortGroupSectionId: "",
+          }))
+      ),
+    ]).then((res) => [...res[0], ...res[1], ...res[2]]);
   }, [source, studyId]);
 
   const artifactsState = useSWR(
@@ -98,6 +107,9 @@ export function StudyOverview() {
         switch (artifact.type) {
           case ArtifactType.Cohort:
             await source.deleteCohort(studyId, artifact.id);
+            break;
+          case ArtifactType.FeatureSet:
+            await source.deleteFeatureSet(studyId, artifact.id);
             break;
           case ArtifactType.ConceptSet:
             await source.deleteConceptSet(studyId, artifact.id);
@@ -168,18 +180,26 @@ export function StudyOverview() {
   const params = useBaseParams();
 
   const newCohort = async () => {
-    const cohort = await source.createCohort(
+    const cohort = await source.createCohort(underlay.name, studyId);
+    navigate(absoluteCohortURL(params, cohort.id).substring(1));
+  };
+
+  const newFeatureSet = async () => {
+    const featureSet = await source.createFeatureSet(
       underlay.name,
       studyId,
-      `Untitled cohort ${new Date().toLocaleString()}`
+      `Untitled feature set ${new Date().toLocaleString()}`
     );
-    navigate(absoluteCohortURL(params, cohort.id).substring(1));
+    navigate(absoluteFeatureSetURL(params, featureSet.id).substring(1));
   };
 
   const onClick = (artifact: Artifact) => {
     switch (artifact.type) {
       case ArtifactType.Cohort:
         navigate(absoluteCohortURL(params, artifact.id).substring(1));
+        break;
+      case ArtifactType.FeatureSet:
+        navigate(absoluteFeatureSetURL(params, artifact.id).substring(1));
         break;
       case ArtifactType.ConceptSet:
         navigate(absoluteConceptSetURL(params, artifact.id).substring(1));
@@ -197,6 +217,9 @@ export function StudyOverview() {
           <GridLayout cols={4} spacing={1}>
             <Button variant="contained" onClick={newCohort}>
               New cohort
+            </Button>
+            <Button variant="contained" onClick={newFeatureSet}>
+              New feature set
             </Button>
             <Button
               variant="contained"

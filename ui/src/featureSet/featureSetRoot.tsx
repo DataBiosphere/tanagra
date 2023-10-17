@@ -1,22 +1,22 @@
 import Snackbar from "@mui/material/Snackbar";
-import {
-  CohortContext,
-  cohortUndoRedo,
-  useNewCohortContext,
-} from "cohortContext";
 import Loading from "components/loading";
+import {
+  FeatureSetContext,
+  featureSetUndoRedo,
+  useNewFeatureSetContext,
+} from "featureSet/featureSetContext";
 import { SyntheticEvent, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useBaseParams } from "router";
 import { UndoRedoContext } from "undoRedoToolbar";
 
-export default function CohortRoot() {
+export default function FeatureSetRoot() {
   const params = useBaseParams();
 
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
 
-  const status = useNewCohortContext((message: string) => {
+  const status = useNewFeatureSetContext((message: string) => {
     setMessage(message);
     setOpen(true);
   });
@@ -31,9 +31,9 @@ export default function CohortRoot() {
 
   return (
     <Loading status={status}>
-      <CohortContext.Provider value={status.context}>
+      <FeatureSetContext.Provider value={status.context}>
         <UndoRedoContext.Provider
-          value={cohortUndoRedo(params, status.context)}
+          value={featureSetUndoRedo(params, status.context)}
         >
           <Outlet />
           <Snackbar
@@ -43,7 +43,7 @@ export default function CohortRoot() {
             message={message}
           />
         </UndoRedoContext.Provider>
-      </CohortContext.Provider>
+      </FeatureSetContext.Provider>
     </Loading>
   );
 }

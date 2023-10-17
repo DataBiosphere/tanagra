@@ -4,6 +4,7 @@ import { useUnderlay } from "hooks";
 import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { absoluteCohortURL, BaseParams } from "router";
 import useSWR, { useSWRConfig } from "swr";
 import * as tanagraUI from "tanagra-ui";
 import {
@@ -157,6 +158,32 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
         );
       },
     },
+  };
+}
+
+export function cohortUndoRedo(params: BaseParams, context: CohortContextData) {
+  const cohortURL = absoluteCohortURL(params, context.state?.present?.id ?? "");
+  return {
+    undoURL: context.state?.past?.length ? cohortURL : "",
+    redoURL: context.state?.future?.length ? cohortURL : "",
+    undoAction: context.state?.past?.length
+      ? () => {
+          context.updateState((state) => {
+            state.future.push(state.present);
+            state.present = state.past[state.past.length - 1];
+            state.past.pop();
+          });
+        }
+      : undefined,
+    redoAction: context.state?.future?.length
+      ? () => {
+          context.updateState((state) => {
+            state.past.push(state.present);
+            state.present = state.future[state.future.length - 1];
+            state.future.pop();
+          });
+        }
+      : undefined,
   };
 }
 

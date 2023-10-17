@@ -1,6 +1,5 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import LoopIcon from "@mui/icons-material/Loop";
 import TuneIcon from "@mui/icons-material/Tune";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -24,10 +23,10 @@ import {
   updateCohortGroupSection,
   useCohortContext,
 } from "cohortContext";
-import CohortToolbar from "cohortToolbar";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
+import { SaveStatus } from "components/saveStatus";
 import { useTextInputDialog } from "components/textInputDialog";
 import { useSource } from "data/sourceContext";
 import { DemographicCharts } from "demographicCharts";
@@ -46,6 +45,7 @@ import {
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
+import UndoRedoToolbar from "undoRedoToolbar";
 import { RouterLink, useNavigate } from "util/searchState";
 import {
   createCriteria,
@@ -68,8 +68,12 @@ export function Overview() {
       <ActionBar
         title={cohort.name}
         subtitle={
-          <GridLayout cols spacing={1} rowAlign="middle">
-            <StudyName />•<SaveStatus />
+          <GridLayout cols spacing={5} rowAlign="middle">
+            <StudyName />
+            <SaveStatus
+              saving={context.state?.saving}
+              lastModified={context.state?.present?.lastModified}
+            />
           </GridLayout>
         }
         titleControls={
@@ -89,7 +93,7 @@ export function Overview() {
             <EditIcon />
           </IconButton>
         }
-        rightControls={<CohortToolbar />}
+        rightControls={<UndoRedoToolbar />}
         backAction={exit}
       />
       <GridLayout
@@ -680,25 +684,5 @@ function ParticipantsGroup(props: {
       </GridBox>
       {menu}
     </GridBox>
-  );
-}
-
-function SaveStatus() {
-  const context = useCohortContext();
-  if (!context?.state) {
-    return null;
-  }
-
-  return (
-    <GridLayout cols rowAlign="middle">
-      {!context.state.saving ? (
-        <LoopIcon fontSize="small" sx={{ display: "block" }} />
-      ) : null}
-      <Typography variant="body1">
-        {context.state.saving
-          ? "Saving..."
-          : `Last saved: ${context.state.present.lastModified.toLocaleString()}`}
-      </Typography>
-    </GridLayout>
   );
 }

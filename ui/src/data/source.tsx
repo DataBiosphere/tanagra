@@ -1,9 +1,11 @@
 import {
   defaultSection,
   generateCohortFilter,
+  generateId,
   getCriteriaPlugin,
 } from "cohort";
 import { getReasonPhrase } from "http-status-codes";
+import produce from "immer";
 import * as tanagra from "tanagra-api";
 import * as tanagraUI from "tanagra-ui";
 import { Underlay } from "underlaysSlice";
@@ -154,6 +156,45 @@ export type User = {
   email: string;
 };
 
+export type FeatureSetOutput = {
+  occurrence: string;
+  excludedColumns: string[];
+};
+
+export type FeatureSet = {
+  id: string;
+  name: string;
+  underlayName: string;
+  lastModified: Date;
+
+  criteria: tanagraUI.UICriteria[];
+  predefinedCriteria: string[];
+  output: FeatureSetOutput[];
+};
+
+// TODO(tjennison): Temporary storage for feature set until API is ready.
+export type FeatureSetStorage = {
+  [studyId: string]: FeatureSet[];
+};
+
+function getLocalFeatureSets(): FeatureSetStorage {
+  const featureSets: FeatureSetStorage = JSON.parse(
+    window.localStorage.getItem("featureSets") ?? "{}"
+  );
+  // Dates get stored as strings to convert them back when loading, overriding
+  // the expected type information.
+  Object.values(featureSets).forEach((study) => {
+    study.forEach((fs) => {
+      fs.lastModified = new Date(fs.lastModified as unknown as string);
+    });
+  });
+  return featureSets;
+}
+
+function setLocalFeatureSets(storage: FeatureSetStorage) {
+  window.localStorage.setItem("featureSets", JSON.stringify(storage));
+}
+
 export interface Source {
   config: Configuration;
   underlay: Underlay;
@@ -262,12 +303,26 @@ export interface Source {
   createCohort(
     underlayName: string,
     studyId: string,
-    displayName: string
+    displayName?: string
   ): Promise<tanagraUI.UICohort>;
 
   updateCohort(studyId: string, cohort: tanagraUI.UICohort): void;
 
   deleteCohort(studyId: string, cohortId: string): void;
+
+  getFeatureSet(studyId: string, featureSetId: string): Promise<FeatureSet>;
+
+  listFeatureSets(studyId: string): Promise<FeatureSet[]>;
+
+  createFeatureSet(
+    underlayName: string,
+    studyId: string,
+    name: string
+  ): Promise<FeatureSet>;
+
+  updateFeatureSet(studyId: string, featureSet: FeatureSet): void;
+
+  deleteFeatureSet(studyId: string, featureSetId: string): void;
 
   getConceptSet(
     studyId: string,
@@ -834,13 +889,17 @@ export class BackendSource implements Source {
   public createCohort(
     underlayName: string,
     studyId: string,
-    displayName: string
+    displayName?: string
   ): Promise<tanagraUI.UICohort> {
     return parseAPIError(
       this.cohortsApi
         .createCohort({
           studyId,
-          cohortCreateInfo: { underlayName, displayName },
+          cohortCreateInfo: {
+            underlayName,
+            displayName:
+              displayName ?? `Untitled cohort ${new Date().toLocaleString()}`,
+          },
         })
         .then((c) => fromAPICohort(c))
     );
@@ -868,6 +927,75 @@ export class BackendSource implements Source {
         cohortId,
       })
     );
+  }
+
+  public async getFeatureSet(
+    studyId: string,
+    featureSetId: string
+  ): Promise<FeatureSet> {
+    const storage = getLocalFeatureSets();
+    const featureSet = storage[studyId]?.find((fs) => fs.id === featureSetId);
+    if (!featureSet) {
+      throw new Error(
+        "Unknown feature set ${featureSetId} in study ${studyId}."
+      );
+    }
+    return featureSet;
+  }
+
+  public async listFeatureSets(studyId: string): Promise<FeatureSet[]> {
+    return getLocalFeatureSets()[studyId] ?? [];
+  }
+
+  public async createFeatureSet(
+    underlayName: string,
+    studyId: string,
+    displayName: string
+  ): Promise<FeatureSet> {
+    const storage = getLocalFeatureSets();
+    const study = storage[studyId] ?? [];
+    const featureSet: FeatureSet = {
+      id: generateId(),
+      name: displayName,
+      underlayName,
+      lastModified: new Date(),
+      criteria: [],
+      predefinedCriteria: [],
+      output: [],
+    };
+    study.push(featureSet);
+    storage[studyId] = study;
+    setLocalFeatureSets(storage);
+
+    return featureSet;
+  }
+
+  public async updateFeatureSet(studyId: string, featureSet: FeatureSet) {
+    const storage = getLocalFeatureSets();
+    const index = storage[studyId]?.findIndex((fs) => fs.id === featureSet.id);
+    if (index < 0) {
+      throw new Error(
+        "Unknown feature set ${featureSetId} in study ${studyId}."
+      );
+    }
+
+    storage[studyId][index] = produce(featureSet, (fs) => {
+      fs.lastModified = new Date();
+    });
+    setLocalFeatureSets(storage);
+  }
+
+  public async deleteFeatureSet(studyId: string, featureSetId: string) {
+    const storage = getLocalFeatureSets();
+    const index = storage[studyId]?.findIndex((fs) => fs.id === featureSetId);
+    if (index < 0) {
+      throw new Error(
+        "Unknown feature set ${featureSetId} in study ${studyId}."
+      );
+    }
+
+    storage[studyId].splice(index, 1);
+    setLocalFeatureSets(storage);
   }
 
   public async getConceptSet(

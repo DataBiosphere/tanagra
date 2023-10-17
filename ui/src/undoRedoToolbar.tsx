@@ -2,35 +2,45 @@ import RedoIcon from "@mui/icons-material/Redo";
 import UndoIcon from "@mui/icons-material/Undo";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import { useRedoAction, useUndoAction, useUndoRedoUrls } from "hooks";
+import { createContext, useContext } from "react";
 import { RouterLink } from "util/searchState";
 
-export default function CohortToolbar() {
-  const [undoUrlPath, redoUrlPath] = useUndoRedoUrls();
-  const undo = useUndoAction();
-  const redo = useRedoAction();
+export type UndoRedoData = {
+  undoURL: string;
+  redoURL: string;
+  undoAction?: () => void;
+  redoAction?: () => void;
+};
+
+export const UndoRedoContext = createContext<UndoRedoData | null>(null);
+
+export default function UndoRedoToolbar() {
+  const data = useContext(UndoRedoContext);
+  if (!data) {
+    throw new Error("No UndoRedoData available.");
+  }
 
   return (
     <Stack direction="row" spacing={1}>
       <Button
-        onClick={() => undo?.()}
+        onClick={() => data.undoAction?.()}
         variant="outlined"
         size="large"
         startIcon={<UndoIcon fontSize="small" />}
-        disabled={!undo}
+        disabled={!data.undoAction}
         component={RouterLink}
-        to={undoUrlPath}
+        to={data.undoURL}
       >
         Undo
       </Button>
       <Button
-        onClick={() => redo?.()}
+        onClick={() => data.redoAction?.()}
         variant="outlined"
         size="large"
         startIcon={<RedoIcon fontSize="small" />}
-        disabled={!redo}
+        disabled={!data.redoAction}
         component={RouterLink}
-        to={redoUrlPath}
+        to={data.redoURL}
       >
         Redo
       </Button>
