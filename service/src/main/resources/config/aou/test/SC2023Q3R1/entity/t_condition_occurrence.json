@@ -8,15 +8,17 @@
     { "type": "SIMPLE", "name": "start_date", "dataType": "DATE" },
     { "type": "SIMPLE", "name": "end_date", "dataType": "DATE" },
     { "type": "SIMPLE", "name": "stop_reason", "dataType": "STRING" },
-    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "source_value", "dataType": "STRING" },
-    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] } ],
+    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit_type", "dataType": "INT64" }
+  ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "table": "condition_occurrence" },
+    "tablePointer": { "rawSqlFile": "t_condition_occurrence_all.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "condition_occurrence_id" } },
       "condition": {
         "value": { "column": "condition_concept_id" },
         "display": {
@@ -24,10 +26,13 @@
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
-      "start_date": { "value": { "column": "condition_start_date" } },
-      "end_date": { "value": { "column": "condition_end_date" } },
-      "source_value": { "value": { "column": "condition_source_value" } },
-      "source_criteria_id": { "value": { "column": "condition_source_concept_id" } }
+      "visit_type": {
+        "value": { "column": "visit_concept_id" },
+        "display": {
+          "column": "visit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
     }
   },
 

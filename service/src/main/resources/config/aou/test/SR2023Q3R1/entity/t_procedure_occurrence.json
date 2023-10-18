@@ -6,15 +6,17 @@
     { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
     { "type": "KEY_AND_DISPLAY", "name": "procedure", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "date", "dataType": "DATE" },
-    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "source_value", "dataType": "STRING" },
-    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] } ],
+    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit_type", "dataType": "INT64" }
+  ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "table": "procedure_occurrence" },
+    "tablePointer": { "rawSqlFile": "t_procedure_occurrence_all.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "procedure_occurrence_id" } },
       "procedure": {
         "value": { "column": "procedure_concept_id" },
         "display": {
@@ -23,8 +25,13 @@
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
       "date": { "value": { "column": "procedure_date" } },
-      "source_value": { "value": { "column": "procedure_source_value" } },
-      "source_criteria_id": { "value": { "column": "procedure_source_concept_id" } }
+      "visit_type": {
+        "value": { "column": "visit_concept_id" },
+        "display": {
+          "column": "visit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
     }
   },
 
