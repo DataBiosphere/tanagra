@@ -90,7 +90,8 @@ public final class EnumVals extends DisplayHint {
    *
    * <p>LIMIT 101
    */
-  public static EnumVals computeForField(FieldPointer countedIdField, Literal.DataType dataType, FieldPointer value) {
+  public static EnumVals computeForField(
+      FieldPointer countedIdField, Literal.DataType dataType, FieldPointer value) {
     return new EnumVals(queryPossibleEnumVals(countedIdField, dataType, value, null));
   }
 
@@ -114,7 +115,10 @@ public final class EnumVals extends DisplayHint {
    * <p>LIMIT 101
    */
   public static EnumVals computeForField(
-          FieldPointer countedIdField, Literal.DataType dataType, FieldPointer value, FieldPointer display) {
+      FieldPointer countedIdField,
+      Literal.DataType dataType,
+      FieldPointer value,
+      FieldPointer display) {
     List<EnumVal> enumVals = queryPossibleEnumVals(countedIdField, dataType, value, display);
 
     // Check that there is exactly one display per value.
@@ -136,8 +140,11 @@ public final class EnumVals extends DisplayHint {
     return new EnumVals(enumVals);
   }
 
-  private static List<EnumVal> queryPossibleEnumVals(FieldPointer countedIdField,
-                                                     Literal.DataType dataType, FieldPointer value, @Nullable FieldPointer display) {
+  private static List<EnumVal> queryPossibleEnumVals(
+      FieldPointer countedIdField,
+      Literal.DataType dataType,
+      FieldPointer value,
+      @Nullable FieldPointer display) {
     List<TableVariable> nestedQueryTables = new ArrayList<>();
     TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
     nestedQueryTables.add(nestedPrimaryTable);

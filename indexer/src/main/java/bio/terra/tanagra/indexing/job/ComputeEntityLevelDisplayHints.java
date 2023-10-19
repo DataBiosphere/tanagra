@@ -18,7 +18,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +67,6 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
 
     // Calculate a display hint for each attribute. Build a list of all the hints as JSON records.
     List<List<Literal>> rowsOfLiterals = new ArrayList<>();
-    List<JSONObject> hintRecords = new ArrayList<>();
     getEntity().getAttributes().stream()
         .forEach(
             attribute -> {
@@ -76,7 +74,13 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
                 return;
               }
               DisplayHint hint =
-                  attribute.getMapping(Underlay.MappingType.SOURCE).computeDisplayHint(getEntity().getIdAttribute().getMapping(Underlay.MappingType.SOURCE).getValue());
+                  attribute
+                      .getMapping(Underlay.MappingType.SOURCE)
+                      .computeDisplayHint(
+                          getEntity()
+                              .getIdAttribute()
+                              .getMapping(Underlay.MappingType.SOURCE)
+                              .getValue());
               if (hint == null) {
                 return;
               }

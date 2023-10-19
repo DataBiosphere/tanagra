@@ -191,7 +191,7 @@ public final class AttributeMapping {
         return null; // boolean values are enum by default
       case DOUBLE:
       case INT64:
-        return NumericRange.computeForField(value,attribute.getDataType());
+        return NumericRange.computeForField(value, attribute.getDataType());
       case STRING:
         return EnumVals.computeForField(countedIdField, attribute.getDataType(), value);
       case DATE:
