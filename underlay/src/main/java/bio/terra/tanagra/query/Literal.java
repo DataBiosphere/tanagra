@@ -129,7 +129,7 @@ public class Literal implements SQLExpression {
       case DATE:
         return "DATE('" + dateVal.toString() + "')";
       case DOUBLE:
-        return "FLOAT('" + doubleVal + "')";
+        return String.valueOf(doubleVal);
       case TIMESTAMP:
         return "TIMESTAMP('" + timestampVal.toString() + "')";
       default:
