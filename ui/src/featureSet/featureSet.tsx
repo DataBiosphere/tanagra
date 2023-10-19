@@ -32,6 +32,7 @@ import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { useSource } from "data/sourceContext";
 import {
   deleteFeatureSetCriteria,
+  deletePredefinedFeatureSetCriteria,
   setExcludedFeatureSetColumns,
   toggleFeatureSetColumn,
   updateFeatureSet,
@@ -144,19 +145,42 @@ export function FeatureSet() {
   );
 }
 
+type FeatureListCriteria = {
+  id: string;
+  title: string;
+  criteria?: tanagraUI.UICriteria;
+};
+
 function FeatureList() {
+  const underlay = useUnderlay();
   const featureSet = useFeatureSet();
   const navigate = useNavigate();
 
   const addURL = `../${featureSetURL(featureSet.id)}/add`;
 
+  const predefinedCriteria = underlay.uiConfiguration.prepackagedConceptSets;
+
   const sortedCriteria = useMemo(() => {
-    const criteriaNames: [string, tanagraUI.UICriteria][] =
-      featureSet.criteria.map((c) => [getCriteriaTitle(c), c]);
-    return criteriaNames
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([, c]) => c);
-  }, [featureSet.criteria]);
+    const criteria: FeatureListCriteria[] = [];
+    predefinedCriteria.forEach((c) => {
+      if (featureSet.predefinedCriteria.indexOf(c.id) >= 0) {
+        criteria.push({
+          id: c.id,
+          title: c.name,
+        });
+      }
+    });
+
+    featureSet.criteria.forEach((c) => {
+      criteria.push({
+        id: c.id,
+        title: getCriteriaTitle(c),
+        criteria: c,
+      });
+    });
+
+    return criteria.sort((a, b) => a.title.localeCompare(b.title));
+  }, [predefinedCriteria, featureSet.criteria]);
 
   return (
     <GridBox sx={{ px: 2, py: 1 }}>
@@ -200,20 +224,21 @@ function FeatureList() {
 }
 
 type FeatureSetCriteriaProps = {
-  criteria: tanagraUI.UICriteria;
+  criteria: FeatureListCriteria;
 };
 
 function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
   const context = useFeatureSetContext();
   const navigate = useNavigate();
 
-  const plugin = getCriteriaPlugin(props.criteria);
-  const title = getCriteriaTitle(props.criteria, plugin);
+  const plugin = !!props.criteria.criteria
+    ? getCriteriaPlugin(props.criteria.criteria)
+    : undefined;
 
   return (
     <GridLayout cols rowAlign="middle" sx={{ px: 1 }}>
-      <Typography variant="body1" title={title}>
-        {title}
+      <Typography variant="body1" title={props.criteria.title}>
+        {props.criteria.title}
       </Typography>
       <IconButton
         disabled={!plugin?.renderEdit}
@@ -222,7 +247,11 @@ function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
         <EditIcon />
       </IconButton>
       <IconButton
-        onClick={() => deleteFeatureSetCriteria(context, props.criteria.id)}
+        onClick={() =>
+          !!props.criteria.criteria
+            ? deleteFeatureSetCriteria(context, props.criteria.id)
+            : deletePredefinedFeatureSetCriteria(context, props.criteria.id)
+        }
       >
         <DeleteIcon />
       </IconButton>
