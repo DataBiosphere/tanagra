@@ -3,7 +3,7 @@ package bio.terra.tanagra.indexing.job;
 import bio.terra.tanagra.api.schema.EntityLevelDisplayHints;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.bigquery.BigQuerySchemaUtils;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
@@ -67,6 +67,7 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
     }
 
     // Calculate a display hint for each attribute. Build a list of all the hints as JSON records.
+      List<List<Literal>> rowsOfLiterals = new ArrayList<>();
     List<JSONObject> hintRecords = new ArrayList<>();
     getEntity().getAttributes().stream()
         .forEach(
@@ -82,6 +83,15 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
 
               if (DisplayHint.Type.RANGE.equals(hint.getType())) {
                 NumericRange range = (NumericRange) hint;
+
+                List<Literal> rowOfLiterals = new ArrayList<>();
+                rowOfLiterals.add(new Literal(attribute.getName()));
+                rowOfLiterals.add(new Literal(range.getMinVal()));
+                rowOfLiterals.add(new Literal(range.getMaxVal()));
+                rowOfLiterals.add(new Literal(null));
+                  rowOfLiterals.add(new Literal(null));
+                  rowOfLiterals.add(new Literal(null));
+                  rowsOfLiterals.add(rowOfLiterals);
 
                 JSONObject hintRow = new JSONObject();
                 hintRow.put(
@@ -109,6 +119,16 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
                     .getEnumValsList().stream()
                         .forEach(
                             ev -> {
+
+                                List<Literal> rowOfLiterals = new ArrayList<>();
+                                rowOfLiterals.add(new Literal(attribute.getName()));
+                                rowOfLiterals.add(new Literal(null));
+                                rowOfLiterals.add(new Literal(null));
+                                rowOfLiterals.add(ev.getValueDisplay().getValue());
+                                rowOfLiterals.add(new Literal(ev.getValueDisplay().getDisplay()));
+                                rowOfLiterals.add(new Literal(ev.getCount()));
+                                rowsOfLiterals.add(rowOfLiterals);
+
                               JSONObject hintRow = new JSONObject();
                               hintRow.put(
                                   EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME
@@ -155,14 +175,42 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
           "Interrupted during sleep after creating entity-level hints table", intEx);
     }
 
+    // Build the insert literals query.
+      TablePointer eldhTable = getAuxiliaryTable();
+      TableVariable eldhTableVar = TableVariable.forPrimary(eldhTable);
+      List<TableVariable> tableVars = new ArrayList<>(List.of(eldhTableVar));
+
+    List<FieldVariable> eldhColFieldVars = new ArrayList<>();
+    eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME
+                    .getSchema()
+                    .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
+      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.MIN
+              .getSchema()
+              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
+      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.MAX
+              .getSchema()
+              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
+      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ENUM_VALUE
+              .getSchema()
+              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
+      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ENUM_DISPLAY
+              .getSchema()
+              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
+      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ENUM_COUNT
+              .getSchema()
+              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
+      InsertLiterals insertQuery = new InsertLiterals(eldhTableVar, eldhColFieldVars, rowsOfLiterals);
+      QueryRequest queryRequest = new QueryRequest(insertQuery.renderSQL(), ColumnHeaderSchema.fromColumnSchemas(EntityLevelDisplayHints.getColumns()));
+      outputBQDataset.getQueryExecutor().execute(queryRequest);
+
     // Do a single batch insert to BQ for all the hint rows.
-    outputBQDataset
-        .getBigQueryService()
-        .insertWithStorageWriteApi(
-            destinationTable.getProject(),
-            destinationTable.getDataset(),
-            destinationTable.getTable(),
-            hintRecords);
+//    outputBQDataset
+//        .getBigQueryService()
+//        .insertWithStorageWriteApi(
+//            destinationTable.getProject(),
+//            destinationTable.getDataset(),
+//            destinationTable.getTable(),
+//            hintRecords);
   }
 
   @Override
