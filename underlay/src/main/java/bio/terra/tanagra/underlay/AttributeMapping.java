@@ -189,12 +189,12 @@ public final class AttributeMapping {
     switch (attribute.getDataType()) {
       case BOOLEAN:
         return null; // boolean values are enum by default
+      case DOUBLE:
       case INT64:
-        return NumericRange.computeForField(value);
+        return NumericRange.computeForField(value,attribute.getDataType());
       case STRING:
         return EnumVals.computeForField(attribute.getDataType(), value);
       case DATE:
-      case DOUBLE:
       case TIMESTAMP:
         // TODO: Compute display hints for other data types.
         return null;
