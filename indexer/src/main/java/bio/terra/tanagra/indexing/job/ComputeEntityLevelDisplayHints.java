@@ -67,7 +67,7 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
     }
 
     // Calculate a display hint for each attribute. Build a list of all the hints as JSON records.
-      List<List<Literal>> rowsOfLiterals = new ArrayList<>();
+    List<List<Literal>> rowsOfLiterals = new ArrayList<>();
     List<JSONObject> hintRecords = new ArrayList<>();
     getEntity().getAttributes().stream()
         .forEach(
@@ -89,75 +89,33 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
                 rowOfLiterals.add(new Literal(range.getMinVal()));
                 rowOfLiterals.add(new Literal(range.getMaxVal()));
                 rowOfLiterals.add(new Literal(null));
-                  rowOfLiterals.add(new Literal(null));
-                  rowOfLiterals.add(new Literal(null));
-                  rowsOfLiterals.add(rowOfLiterals);
-
-                JSONObject hintRow = new JSONObject();
-                hintRow.put(
-                    EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName(),
-                    attribute.getName());
-                hintRow.put(
-                    EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName(),
-                    range.getMinVal());
-                hintRow.put(
-                    EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName(),
+                rowOfLiterals.add(new Literal(null));
+                rowOfLiterals.add(new Literal(null));
+                rowsOfLiterals.add(rowOfLiterals);
+                LOGGER.info(
+                    "hint record (numeric range): {}, {}, {}",
+                    attribute.getName(),
+                    range.getMinVal(),
                     range.getMaxVal());
-                hintRow.put(
-                    EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName(),
-                    JSONObject.NULL);
-                hintRow.put(
-                    EntityLevelDisplayHints.Columns.ENUM_DISPLAY.getSchema().getColumnName(),
-                    JSONObject.NULL);
-                hintRow.put(
-                    EntityLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName(),
-                    JSONObject.NULL);
-                hintRecords.add(hintRow);
-                LOGGER.info("hint record (numeric range): {}", hintRow);
               } else {
                 ((EnumVals) hint)
                     .getEnumValsList().stream()
                         .forEach(
                             ev -> {
-
-                                List<Literal> rowOfLiterals = new ArrayList<>();
-                                rowOfLiterals.add(new Literal(attribute.getName()));
-                                rowOfLiterals.add(new Literal(null));
-                                rowOfLiterals.add(new Literal(null));
-                                rowOfLiterals.add(ev.getValueDisplay().getValue());
-                                rowOfLiterals.add(new Literal(ev.getValueDisplay().getDisplay()));
-                                rowOfLiterals.add(new Literal(ev.getCount()));
-                                rowsOfLiterals.add(rowOfLiterals);
-
-                              JSONObject hintRow = new JSONObject();
-                              hintRow.put(
-                                  EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME
-                                      .getSchema()
-                                      .getColumnName(),
-                                  attribute.getName());
-                              hintRow.put(
-                                  EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName(),
-                                  JSONObject.NULL);
-                              hintRow.put(
-                                  EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName(),
-                                  JSONObject.NULL);
-                              hintRow.put(
-                                  EntityLevelDisplayHints.Columns.ENUM_VALUE
-                                      .getSchema()
-                                      .getColumnName(),
-                                  ev.getValueDisplay().getValue().getInt64Val());
-                              hintRow.put(
-                                  EntityLevelDisplayHints.Columns.ENUM_DISPLAY
-                                      .getSchema()
-                                      .getColumnName(),
-                                  ev.getValueDisplay().getDisplay());
-                              hintRow.put(
-                                  EntityLevelDisplayHints.Columns.ENUM_COUNT
-                                      .getSchema()
-                                      .getColumnName(),
+                              List<Literal> rowOfLiterals = new ArrayList<>();
+                              rowOfLiterals.add(new Literal(attribute.getName()));
+                              rowOfLiterals.add(new Literal(null));
+                              rowOfLiterals.add(new Literal(null));
+                              rowOfLiterals.add(ev.getValueDisplay().getValue());
+                              rowOfLiterals.add(new Literal(ev.getValueDisplay().getDisplay()));
+                              rowOfLiterals.add(new Literal(ev.getCount()));
+                              rowsOfLiterals.add(rowOfLiterals);
+                              LOGGER.info(
+                                  "hint record (enum val): {}, {}, {}, {}",
+                                  attribute.getName(),
+                                  ev.getValueDisplay().getValue(),
+                                  ev.getValueDisplay().getDisplay(),
                                   ev.getCount());
-                              hintRecords.add(hintRow);
-                              LOGGER.info("hint record (enum val): {}", hintRow);
                             });
               }
             });
@@ -175,42 +133,54 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
           "Interrupted during sleep after creating entity-level hints table", intEx);
     }
 
-    // Build the insert literals query.
-      TablePointer eldhTable = getAuxiliaryTable();
-      TableVariable eldhTableVar = TableVariable.forPrimary(eldhTable);
-      List<TableVariable> tableVars = new ArrayList<>(List.of(eldhTableVar));
+    // Do a single insert to BQ for all the hint rows.
+    TablePointer eldhTable = getAuxiliaryTable();
+    TableVariable eldhTableVar = TableVariable.forPrimary(eldhTable);
+    List<TableVariable> tableVars = new ArrayList<>(List.of(eldhTableVar));
 
     List<FieldVariable> eldhColFieldVars = new ArrayList<>();
-    eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME
-                    .getSchema()
-                    .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
-      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.MIN
-              .getSchema()
-              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
-      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.MAX
-              .getSchema()
-              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
-      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ENUM_VALUE
-              .getSchema()
-              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
-      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ENUM_DISPLAY
-              .getSchema()
-              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
-      eldhColFieldVars.add(new FieldPointer.Builder().columnName(EntityLevelDisplayHints.Columns.ENUM_COUNT
-              .getSchema()
-              .getColumnName()).tablePointer(eldhTable).build().buildVariable(eldhTableVar, tableVars));
-      InsertLiterals insertQuery = new InsertLiterals(eldhTableVar, eldhColFieldVars, rowsOfLiterals);
-      QueryRequest queryRequest = new QueryRequest(insertQuery.renderSQL(), ColumnHeaderSchema.fromColumnSchemas(EntityLevelDisplayHints.getColumns()));
-      outputBQDataset.getQueryExecutor().execute(queryRequest);
-
-    // Do a single batch insert to BQ for all the hint rows.
-//    outputBQDataset
-//        .getBigQueryService()
-//        .insertWithStorageWriteApi(
-//            destinationTable.getProject(),
-//            destinationTable.getDataset(),
-//            destinationTable.getTable(),
-//            hintRecords);
+    eldhColFieldVars.add(
+        new FieldPointer.Builder()
+            .columnName(EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName())
+            .tablePointer(eldhTable)
+            .build()
+            .buildVariable(eldhTableVar, tableVars));
+    eldhColFieldVars.add(
+        new FieldPointer.Builder()
+            .columnName(EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName())
+            .tablePointer(eldhTable)
+            .build()
+            .buildVariable(eldhTableVar, tableVars));
+    eldhColFieldVars.add(
+        new FieldPointer.Builder()
+            .columnName(EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName())
+            .tablePointer(eldhTable)
+            .build()
+            .buildVariable(eldhTableVar, tableVars));
+    eldhColFieldVars.add(
+        new FieldPointer.Builder()
+            .columnName(EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName())
+            .tablePointer(eldhTable)
+            .build()
+            .buildVariable(eldhTableVar, tableVars));
+    eldhColFieldVars.add(
+        new FieldPointer.Builder()
+            .columnName(EntityLevelDisplayHints.Columns.ENUM_DISPLAY.getSchema().getColumnName())
+            .tablePointer(eldhTable)
+            .build()
+            .buildVariable(eldhTableVar, tableVars));
+    eldhColFieldVars.add(
+        new FieldPointer.Builder()
+            .columnName(EntityLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName())
+            .tablePointer(eldhTable)
+            .build()
+            .buildVariable(eldhTableVar, tableVars));
+    InsertLiterals insertQuery = new InsertLiterals(eldhTableVar, eldhColFieldVars, rowsOfLiterals);
+    QueryRequest queryRequest =
+        new QueryRequest(
+            insertQuery.renderSQL(),
+            ColumnHeaderSchema.fromColumnSchemas(EntityLevelDisplayHints.getColumns()));
+    outputBQDataset.getQueryExecutor().execute(queryRequest);
   }
 
   @Override
@@ -225,7 +195,7 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
     // Check if the table already exists.
     // We can't include a check for a single row here (e.g. checkOneRowExists(getAuxiliaryTable())),
     // because there are some cases where an entity has no display hints.
-    return JobStatus.NOT_STARTED; //checkTableExists(getAuxiliaryTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
+    return checkTableExists(getAuxiliaryTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
   }
 
   public TablePointer getAuxiliaryTable() {
