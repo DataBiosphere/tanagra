@@ -50,16 +50,16 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
     List<Field> fieldList =
         BigQuerySchemaUtils.getBigQueryFieldList(EntityLevelDisplayHints.getColumns());
 
-    bigQuery.createTableFromSchema(
-        destinationTable,
-        Schema.of(fieldList),
-        Clustering.newBuilder()
-            .setFields(
-                List.of(
-                    EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName(),
-                    EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName()))
-            .build(),
-        isDryRun);
+//    bigQuery.createTableFromSchema(
+//        destinationTable,
+//        Schema.of(fieldList),
+//        Clustering.newBuilder()
+//            .setFields(
+//                List.of(
+//                    EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName(),
+//                    EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName()))
+//            .build(),
+//        isDryRun);
 
     // TODO: Validate queries for computing display hints when the dry run flag is set.
     if (isDryRun) {
@@ -177,7 +177,7 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
     // Check if the table already exists.
     // We can't include a check for a single row here (e.g. checkOneRowExists(getAuxiliaryTable())),
     // because there are some cases where an entity has no display hints.
-    return checkTableExists(getAuxiliaryTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
+    return JobStatus.NOT_STARTED; //checkTableExists(getAuxiliaryTable()) ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
   }
 
   public TablePointer getAuxiliaryTable() {
