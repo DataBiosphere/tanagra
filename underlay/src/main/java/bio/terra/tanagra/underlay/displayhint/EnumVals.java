@@ -90,8 +90,8 @@ public final class EnumVals extends DisplayHint {
    *
    * <p>LIMIT 101
    */
-  public static EnumVals computeForField(Literal.DataType dataType, FieldPointer value) {
-    return new EnumVals(queryPossibleEnumVals(dataType, value, null));
+  public static EnumVals computeForField(FieldPointer countedIdField, Literal.DataType dataType, FieldPointer value) {
+    return new EnumVals(queryPossibleEnumVals(countedIdField, dataType, value, null));
   }
 
   /**
@@ -114,8 +114,8 @@ public final class EnumVals extends DisplayHint {
    * <p>LIMIT 101
    */
   public static EnumVals computeForField(
-      Literal.DataType dataType, FieldPointer value, FieldPointer display) {
-    List<EnumVal> enumVals = queryPossibleEnumVals(dataType, value, display);
+          FieldPointer countedIdField, Literal.DataType dataType, FieldPointer value, FieldPointer display) {
+    List<EnumVal> enumVals = queryPossibleEnumVals(countedIdField, dataType, value, display);
 
     // Check that there is exactly one display per value.
     Map<Literal, String> valDisplay = new HashMap<>();
@@ -136,8 +136,8 @@ public final class EnumVals extends DisplayHint {
     return new EnumVals(enumVals);
   }
 
-  private static List<EnumVal> queryPossibleEnumVals(
-      Literal.DataType dataType, FieldPointer value, @Nullable FieldPointer display) {
+  private static List<EnumVal> queryPossibleEnumVals(FieldPointer countedIdField,
+                                                     Literal.DataType dataType, FieldPointer value, @Nullable FieldPointer display) {
     List<TableVariable> nestedQueryTables = new ArrayList<>();
     TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
     nestedQueryTables.add(nestedPrimaryTable);
@@ -153,7 +153,7 @@ public final class EnumVals extends DisplayHint {
       nestedDisplayFieldVar =
           display.buildVariable(nestedPrimaryTable, nestedQueryTables, ENUM_DISPLAY_COLUMN_ALIAS);
     }
-    FieldPointer countFieldPointer = value.toBuilder().sqlFunctionWrapper("COUNT").build();
+    FieldPointer countFieldPointer = countedIdField.toBuilder().sqlFunctionWrapper("COUNT").build();
     FieldVariable nestedCountFieldVar =
         countFieldPointer.buildVariable(
             nestedPrimaryTable, nestedQueryTables, ENUM_COUNT_COLUMN_ALIAS);

@@ -181,9 +181,9 @@ public final class AttributeMapping {
     return dataPointer.lookupDatatype(value);
   }
 
-  public DisplayHint computeDisplayHint() {
+  public DisplayHint computeDisplayHint(FieldPointer countedIdField) {
     if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
-      return EnumVals.computeForField(attribute.getDataType(), value, display);
+      return EnumVals.computeForField(countedIdField, attribute.getDataType(), value, display);
     }
 
     switch (attribute.getDataType()) {
@@ -193,7 +193,7 @@ public final class AttributeMapping {
       case INT64:
         return NumericRange.computeForField(value,attribute.getDataType());
       case STRING:
-        return EnumVals.computeForField(attribute.getDataType(), value);
+        return EnumVals.computeForField(countedIdField, attribute.getDataType(), value);
       case DATE:
       case TIMESTAMP:
         // TODO: Compute display hints for other data types.

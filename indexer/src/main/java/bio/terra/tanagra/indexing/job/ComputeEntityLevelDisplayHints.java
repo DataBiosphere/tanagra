@@ -76,7 +76,7 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
                 return;
               }
               DisplayHint hint =
-                  attribute.getMapping(Underlay.MappingType.SOURCE).computeDisplayHint();
+                  attribute.getMapping(Underlay.MappingType.SOURCE).computeDisplayHint(getEntity().getIdAttribute().getMapping(Underlay.MappingType.SOURCE).getValue());
               if (hint == null) {
                 return;
               }
