@@ -125,8 +125,8 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
             });
 
     if (rowsOfLiterals.isEmpty()) {
-        LOGGER.info("No display hints to insert.");
-        return;
+      LOGGER.info("No display hints to insert.");
+      return;
     }
 
     // Poll for table existence before we try to insert the hint rows. Maximum 18 x 10 sec = 3 min.
