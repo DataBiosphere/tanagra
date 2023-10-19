@@ -27,6 +27,7 @@ import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
 import {
   insertFeatureSetCriteria,
+  insertPredefinedFeatureSetCriteria,
   useFeatureSetContext,
 } from "featureSet/featureSetContext";
 import {
@@ -51,6 +52,7 @@ import {
   useLocalSearchState,
   useNavigate,
 } from "util/searchState";
+import { isValid } from "util/valid";
 import {
   createCriteria,
   getCriteriaPlugin,
@@ -120,20 +122,42 @@ export function AddFeatureSetCriteria() {
     [context, featureSet.id, navigate]
   );
 
+  const onInsertPredefinedCriteria = useCallback(
+    (criteria: string, title: string) => {
+      insertPredefinedFeatureSetCriteria(context, criteria, title);
+      navigate("../../" + featureSetURL(featureSet.id));
+    },
+    [context, featureSet.id, navigate]
+  );
+
   return (
     <AddCriteria
       conceptSet
       title={`Adding criteria for ${featureSet.name}`}
       onInsertCriteria={onInsertCriteria}
+      excludedPredefinedCriteria={featureSet.predefinedCriteria}
+      onInsertPredefinedCriteria={onInsertPredefinedCriteria}
     />
   );
 }
+
+type AddCriteriaOption = {
+  id: string;
+  title: string;
+  showMore: boolean;
+  category?: string;
+  tags?: string[];
+  conceptSet?: boolean;
+  criteriaConfig?: CriteriaConfig;
+};
 
 type AddCriteriaProps = {
   conceptSet?: boolean;
   title: string;
   backAction?: () => void;
   onInsertCriteria: (criteria: tanagraUI.UICriteria) => void;
+  excludedPredefinedCriteria?: string[];
+  onInsertPredefinedCriteria?: (criteria: string, title: string) => void;
 };
 
 function AddCriteria(props: AddCriteriaProps) {
@@ -145,34 +169,50 @@ function AddCriteria(props: AddCriteriaProps) {
   const [globalSearchState, updateGlobalSearchState] = useGlobalSearchState();
 
   const criteriaConfigs = underlay.uiConfiguration.criteriaConfigs;
+  const predefinedCriteria = underlay.uiConfiguration.prepackagedConceptSets;
   const searchConfig = underlay.uiConfiguration.criteriaSearchConfig;
 
-  const criteriaConfigMap = useMemo(
-    () =>
-      new Map(
-        criteriaConfigs.map((cc) => [
-          cc.id,
-          {
-            config: cc,
-            showMore: !!getCriteriaPlugin(createCriteria(source, cc))
-              .renderEdit,
-          },
-        ])
-      ),
-    [criteriaConfigs]
-  );
+  const options = useMemo(() => {
+    const options: AddCriteriaOption[] = [];
+    if (props.onInsertPredefinedCriteria) {
+      predefinedCriteria.forEach((c) =>
+        options.push({
+          title: c.name,
+          category: c.category ?? "Predefined",
+          conceptSet: true,
+          showMore: false,
+          ...c,
+        })
+      );
+    }
+
+    criteriaConfigs.forEach((cc) =>
+      options.push({
+        criteriaConfig: cc,
+        showMore: !!getCriteriaPlugin(createCriteria(source, cc)).renderEdit,
+        ...cc,
+      })
+    );
+
+    return options;
+  }, [props.onInsertPredefinedCriteria, criteriaConfigs, predefinedCriteria]);
 
   const tagList = useMemo(
     () =>
-      criteriaConfigs.reduce((out: string[], cc) => {
-        cc.tags?.forEach((t) => {
+      options.reduce((out: string[], o) => {
+        o.tags?.forEach((t) => {
           if (out.indexOf(t) < 0) {
             out.push(t);
           }
         });
         return out;
       }, []),
-    [criteriaConfigs]
+    [options]
+  );
+
+  const optionsMap = useMemo(
+    () => new Map(options.map((o) => [o.id, o])),
+    [options]
   );
 
   const selectedTags = useMemo(
@@ -180,60 +220,56 @@ function AddCriteria(props: AddCriteriaProps) {
     [globalSearchState.addCriteriaTags, tagList]
   );
 
-  const selectedCriteriaConfigs = useMemo(
+  const selectedOptions = useMemo(
     () =>
-      criteriaConfigs.filter((config) => {
-        if (props.conceptSet && !config.conceptSet) {
+      options.filter((option) => {
+        if (props.conceptSet && !option.conceptSet) {
           return false;
         }
 
         if (
           selectedTags.size &&
-          config.tags?.length &&
-          !config.tags?.reduce((out, t) => out || selectedTags.has(t), false)
+          option.tags?.length &&
+          !option.tags?.reduce((out, t) => out || selectedTags.has(t), false)
         ) {
           return false;
         }
 
         return true;
       }),
-    [selectedTags, criteriaConfigs]
+    [selectedTags, options]
   );
 
   const categories = useMemo(() => {
-    const categories: CriteriaConfig[][] = [];
+    const categories: AddCriteriaOption[][] = [];
     const re = new RegExp(query, "i");
 
-    for (const config of selectedCriteriaConfigs) {
-      if (query && config.title.search(re) < 0) {
+    for (const option of selectedOptions) {
+      if (query && option.title.search(re) < 0) {
         continue;
       }
 
-      let category: CriteriaConfig[] | undefined;
+      let category: AddCriteriaOption[] | undefined;
       for (const c of categories) {
-        if (c[0].category === config.category) {
+        if (c[0].category === option.category) {
           category = c;
           break;
         }
       }
 
       if (category) {
-        category.push(config);
+        category.push(option);
       } else {
-        categories.push([config]);
+        categories.push([option]);
       }
     }
 
     for (const c of categories) {
-      c.sort(
-        (a, b) =>
-          (criteriaConfigMap.get(b.id)?.showMore ? 1 : 0) -
-          (criteriaConfigMap.get(a.id)?.showMore ? 1 : 0)
-      );
+      c.sort((a, b) => (b.showMore ? 1 : 0) - (a.showMore ? 1 : 0));
     }
 
     return categories;
-  }, [query, selectedCriteriaConfigs, criteriaConfigMap]);
+  }, [query, selectedOptions]);
 
   const columns = useMemo(
     () => [
@@ -252,12 +288,20 @@ function AddCriteria(props: AddCriteriaProps) {
   );
 
   const onClick = useCallback(
-    (config: CriteriaConfig, dataEntry?: DataEntry) => {
-      const criteria = createCriteria(source, config, dataEntry);
-      if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
-        navigate("../" + newCriteriaURL(config.id));
+    (option: AddCriteriaOption, dataEntry?: DataEntry) => {
+      if (option.criteriaConfig) {
+        const criteria = createCriteria(
+          source,
+          option.criteriaConfig,
+          dataEntry
+        );
+        if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
+          navigate("../" + newCriteriaURL(option.id));
+        } else {
+          props.onInsertCriteria(criteria);
+        }
       } else {
-        props.onInsertCriteria(criteria);
+        props.onInsertPredefinedCriteria?.(option.id, option.title);
       }
     },
     [source, navigate]
@@ -270,7 +314,11 @@ function AddCriteria(props: AddCriteriaProps) {
     };
 
     if (query) {
-      const res = await searchCriteria(source, selectedCriteriaConfigs, query);
+      const res = await searchCriteria(
+        source,
+        selectedOptions.map((o) => o.criteriaConfig).filter(isValid),
+        query
+      );
 
       res.data.forEach((entry) => {
         const key = `${entry.source}~${entry.data.key}`;
@@ -282,7 +330,7 @@ function AddCriteria(props: AddCriteriaProps) {
             t_criteria_type: (
               <Stack direction="row" justifyContent="center">
                 <Chip
-                  label={criteriaConfigMap.get(entry.source)?.config?.title}
+                  label={optionsMap.get(entry.source)?.title}
                   size="small"
                 />
               </Stack>
@@ -295,7 +343,7 @@ function AddCriteria(props: AddCriteriaProps) {
     }
 
     return data;
-  }, [source, query, selectedCriteriaConfigs]);
+  }, [source, query, selectedOptions, optionsMap]);
   const searchState = useSWRImmutable<TreeGridData>(
     {
       component: "AddCriteria",
@@ -381,25 +429,30 @@ function AddCriteria(props: AddCriteriaProps) {
             <GridLayout key={category[0].category} rows spacing={2}>
               <Typography variant="h6">{category[0].category}</Typography>
               <GridLayout cols spacing={2}>
-                {category.flatMap((config, i) => {
-                  const showMore = criteriaConfigMap.get(config.id)?.showMore;
+                {category.flatMap((option, i) => {
+                  const disabled =
+                    (props.excludedPredefinedCriteria?.indexOf(option.id) ??
+                      -1) >= 0;
                   const button = (
                     <Button
-                      key={config.id}
-                      data-testid={config.id}
+                      key={option.id}
+                      data-testid={option.id}
                       variant="outlined"
-                      startIcon={showMore ? <SearchIcon /> : <AddIcon />}
-                      onClick={() => onClick(config)}
+                      startIcon={option.showMore ? <SearchIcon /> : <AddIcon />}
+                      disabled={disabled}
+                      title={
+                        disabled
+                          ? "Only one copy of this feature may be added"
+                          : undefined
+                      }
+                      sx={{ "&.Mui-disabled": { pointerEvents: "auto" } }}
+                      onClick={() => onClick(option)}
                     >
-                      {config.title}
+                      {option.title}
                     </Button>
                   );
 
-                  if (
-                    i > 0 &&
-                    criteriaConfigMap.get(category[i - 1].id)?.showMore !=
-                      showMore
-                  ) {
+                  if (i > 0 && category[i - 1].showMore != option.showMore) {
                     return [
                       <Divider key="t_divider" orientation="vertical" />,
                       button,
@@ -434,10 +487,8 @@ function AddCriteria(props: AddCriteriaProps) {
                     }
 
                     const item = searchState.data[id] as CriteriaItem;
-                    const config = criteriaConfigMap.get(
-                      item.entry.source
-                    )?.config;
-                    if (!config) {
+                    const option = optionsMap.get(item.entry.source);
+                    if (!option) {
                       throw new Error(
                         `Item source "${item.entry.source}" doesn't match any criteria config ID.`
                       );
@@ -450,7 +501,7 @@ function AddCriteria(props: AddCriteriaProps) {
                           <GridLayout colAlign="center">
                             <Button
                               data-testid={rowData[searchConfig.columns[0].key]}
-                              onClick={() => onClick(config, item.entry.data)}
+                              onClick={() => onClick(option, item.entry.data)}
                               variant="outlined"
                             >
                               Add

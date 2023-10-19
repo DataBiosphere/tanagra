@@ -198,6 +198,17 @@ export function insertFeatureSetCriteria(
   });
 }
 
+export function insertPredefinedFeatureSetCriteria(
+  context: FeatureSetContextData,
+  criteria: string,
+  title: string
+) {
+  context.updatePresent((present, showSnackbar) => {
+    present.predefinedCriteria.push(criteria);
+    showSnackbar(`"${title}" added`);
+  });
+}
+
 export function updateFeatureSetCriteria(
   context: FeatureSetContextData,
   data: object,
@@ -216,16 +227,18 @@ export function deleteFeatureSetCriteria(
   criteriaId: string
 ) {
   context.updatePresent((present) => {
-    const index = present.criteria.findIndex((c) => c.id === criteriaId);
-    if (index < 0) {
-      throw new Error(
-        `Criteria ${criteriaId} does not exist on feature set ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
+    present.criteria = present.criteria.filter((c) => c.id != criteriaId);
+  });
+}
 
-    present.criteria.splice(index, 1);
+export function deletePredefinedFeatureSetCriteria(
+  context: FeatureSetContextData,
+  criteriaId: string
+) {
+  context.updatePresent((present) => {
+    present.predefinedCriteria = present.predefinedCriteria.filter(
+      (c) => c != criteriaId
+    );
   });
 }
 
