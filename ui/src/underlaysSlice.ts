@@ -6,6 +6,8 @@ import * as tanagra from "tanagra-api";
 export type PrepackagedConceptSet = {
   id: string;
   name: string;
+  category?: string;
+  tags?: string[];
   occurrence: string;
   filter?: Filter;
 };
