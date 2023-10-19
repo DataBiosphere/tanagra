@@ -20,4 +20,3 @@ LEFT JOIN `all-of-us-ehr-dev.SC2023Q3R1.concept` AS c
 
 WHERE c.domain_id = 'Visit'
   AND c.standard_concept = 'S'
-  AND vo.visit_concept_id > 0
