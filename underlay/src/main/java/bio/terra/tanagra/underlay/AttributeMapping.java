@@ -182,7 +182,8 @@ public final class AttributeMapping {
   }
 
   public DisplayHint computeDisplayHint(FieldPointer countedIdField) {
-    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY) && Literal.DataType.INT64.equals(attribute.getDataType())) {
+    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)
+        && Literal.DataType.INT64.equals(attribute.getDataType())) {
       return EnumVals.computeForField(countedIdField, attribute.getDataType(), value, display);
     }
 
