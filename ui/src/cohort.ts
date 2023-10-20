@@ -1,4 +1,8 @@
-import { ROLLUP_COUNT_ATTRIBUTE, SortDirection } from "data/configuration";
+import {
+  findEntity,
+  ROLLUP_COUNT_ATTRIBUTE,
+  SortDirection,
+} from "data/configuration";
 import {
   Filter,
   FilterType,
@@ -211,6 +215,64 @@ export function upgradeCriteria(
     // CriteriaConfig to the latest.
     criteria.config = cc;
   }
+}
+
+export interface PredefinedCriteria {
+  id: string;
+  occurrence: string;
+  filter?: Filter;
+}
+
+export type OccurrenceFilters = {
+  id: string;
+  name: string;
+  attributes: string[];
+  filters: Filter[];
+};
+
+export function getOccurrenceList(
+  source: Source,
+  selectedCriteria: Set<string>,
+  userCriteria?: tanagraUI.UICriteria[],
+  predefinedCriteria?: PredefinedCriteria[]
+): OccurrenceFilters[] {
+  const occurrences = new Map<string, Filter[]>();
+  const addFilter = (occurrence: string, filter?: Filter | null) => {
+    if (!occurrences.has(occurrence)) {
+      occurrences.set(occurrence, []);
+    }
+    if (filter) {
+      occurrences.get(occurrence)?.push(filter);
+    }
+  };
+
+  predefinedCriteria
+    ?.filter((c) => selectedCriteria.has(c.id))
+    ?.forEach((c) => {
+      addFilter(c.occurrence, c.filter);
+    });
+
+  userCriteria
+    ?.filter((criteria) => selectedCriteria.has(criteria.id))
+    ?.forEach((criteria) => {
+      const plugin = getCriteriaPlugin(criteria);
+      const occurrenceIds =
+        plugin.outputOccurrenceIds?.() ?? plugin.filterOccurrenceIds();
+      occurrenceIds.forEach((o) => {
+        addFilter(o, plugin.generateFilter(o));
+      });
+    });
+
+  return Array.from(occurrences)
+    .sort()
+    .map(([id, filters]) => {
+      return {
+        id,
+        name: findEntity(id, source.config).entity,
+        attributes: source.listAttributes(id),
+        filters,
+      };
+    });
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically

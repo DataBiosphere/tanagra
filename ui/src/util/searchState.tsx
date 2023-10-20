@@ -9,6 +9,9 @@ import {
 export type GlobalSearchState = {
   // addCriteria
   addCriteriaTags?: string[];
+
+  // featureSet
+  showSelectedColumnsOnly?: boolean;
 };
 
 const STORAGE_ID = "t_globalSearchState";

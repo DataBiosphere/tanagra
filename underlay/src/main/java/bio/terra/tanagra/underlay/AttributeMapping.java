@@ -181,20 +181,20 @@ public final class AttributeMapping {
     return dataPointer.lookupDatatype(value);
   }
 
-  public DisplayHint computeDisplayHint() {
-    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
-      return EnumVals.computeForField(attribute.getDataType(), value, display);
+  public DisplayHint computeDisplayHint(FieldPointer countedIdField) {
+    if (attribute.getType().equals(Attribute.Type.KEY_AND_DISPLAY)
+        && Literal.DataType.INT64.equals(attribute.getDataType())) {
+      return EnumVals.computeForField(countedIdField, attribute.getDataType(), value, display);
     }
 
     switch (attribute.getDataType()) {
       case BOOLEAN:
         return null; // boolean values are enum by default
-      case INT64:
-        return NumericRange.computeForField(value);
-      case STRING:
-        return EnumVals.computeForField(attribute.getDataType(), value);
-      case DATE:
       case DOUBLE:
+      case INT64:
+        return NumericRange.computeForField(value, attribute.getDataType());
+      case STRING:
+      case DATE:
       case TIMESTAMP:
         // TODO: Compute display hints for other data types.
         return null;

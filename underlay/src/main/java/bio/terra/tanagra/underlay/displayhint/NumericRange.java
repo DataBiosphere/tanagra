@@ -1,17 +1,7 @@
 package bio.terra.tanagra.underlay.displayhint;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.QueryRequest;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.RowResult;
-import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.serialization.UFDisplayHint;
 import bio.terra.tanagra.serialization.displayhint.UFNumericRange;
 import bio.terra.tanagra.underlay.DataPointer;
@@ -57,7 +47,7 @@ public final class NumericRange extends DisplayHint {
     return maxVal;
   }
 
-  public static NumericRange computeForField(FieldPointer value) {
+  public static NumericRange computeForField(FieldPointer value, Literal.DataType dataType) {
     // build the nested query for the possible values
     List<TableVariable> nestedQueryTables = new ArrayList<>();
     TableVariable nestedPrimaryTable = TableVariable.forPrimary(value.getTablePointer());
@@ -100,8 +90,8 @@ public final class NumericRange extends DisplayHint {
 
     List<ColumnSchema> columnSchemas =
         List.of(
-            new ColumnSchema(minValAlias, CellValue.SQLDataType.INT64),
-            new ColumnSchema(maxValAlias, CellValue.SQLDataType.INT64));
+            new ColumnSchema(minValAlias, CellValue.SQLDataType.fromUnderlayDataType(dataType)),
+            new ColumnSchema(maxValAlias, CellValue.SQLDataType.fromUnderlayDataType(dataType)));
 
     QueryRequest queryRequest =
         new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));

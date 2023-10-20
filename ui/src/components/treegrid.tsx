@@ -9,6 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
+import TableCell from "@mui/material/TableCell";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import produce from "immer";
@@ -57,6 +58,7 @@ export type TreeGridColumn = {
   title?: string | JSX.Element;
   sortable?: boolean;
   filterable?: boolean;
+  suffixElements?: ReactNode;
 };
 
 export type ColumnCustomization = {
@@ -64,6 +66,7 @@ export type ColumnCustomization = {
   prefixElements?: ReactNode;
   onClick?: () => void;
   content?: ReactNode;
+  backgroundSx?: SxProps<Theme>;
 };
 
 export enum TreeGridSortDirection {
@@ -281,25 +284,24 @@ export function TreeGrid(props: TreeGridProps) {
                     py: 1,
                   }}
                 >
-                  <GridLayout
-                    cols
-                    spacing={1}
-                    rowAlign="middle"
-                    sx={{
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Typography
-                      variant="overline"
-                      title={String(col.title)}
+                  <GridLayout cols spacing={0} rowAlign="middle" sx={{ px: 2 }}>
+                    <GridBox
                       sx={{
-                        display: "inline",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
                       }}
                     >
-                      {col.title}
-                    </Typography>
+                      <Typography
+                        variant="overline"
+                        title={String(col.title)}
+                        sx={{
+                          display: "inline",
+                        }}
+                      >
+                        {col.title}
+                      </Typography>
+                    </GridBox>
                     {col.sortable ? (
                       <SortIconButton
                         col={col}
@@ -307,6 +309,8 @@ export function TreeGrid(props: TreeGridProps) {
                         onClick={() => onSort(col, props.sortOrders)}
                       />
                     ) : null}
+                    {col.suffixElements}
+                    <GridBox />
                   </GridLayout>
                   {col.filterable ? (
                     <GridBox sx={{ px: 1, pb: 1 }}>
@@ -404,12 +408,9 @@ function renderChildren(
     const renderColumn = (
       column: number,
       value: TreeGridValue,
-      title: string
+      title: string,
+      columnCustomization?: ColumnCustomization
     ) => {
-      const columnCustomization = rowCustomization?.find(
-        (c) => c.column === column
-      );
-
       const textSx = {
         width: "100%",
         textAlign: "initial",
@@ -522,19 +523,28 @@ function renderChildren(
             title = value;
           }
 
+          const columnCustomization = rowCustomization?.find(
+            (c) => c.column === i
+          );
+
+          const sx: SxProps<Theme> | undefined =
+            columnCustomization?.backgroundSx;
           return (
-            <td
+            <TableCell
               key={i}
-              style={{
-                ...(col.width && {
-                  maxWidth: col.width,
-                  width: col.width,
-                  minWidth: col.width,
-                }),
-                boxShadow: !first
-                  ? `inset 0 1px 0 ${theme.palette.divider}`
-                  : undefined,
-              }}
+              sx={[
+                {
+                  ...(col.width && {
+                    maxWidth: col.width,
+                    width: col.width,
+                    minWidth: col.width,
+                  }),
+                  boxShadow: !first
+                    ? `inset 0 1px 0 ${theme.palette.divider}`
+                    : undefined,
+                },
+                ...(Array.isArray(sx) ? sx : [sx]),
+              ]}
             >
               <Stack
                 direction="row"
@@ -553,9 +563,9 @@ function renderChildren(
                   }),
                 }}
               >
-                {renderColumn(i, value, title)}
+                {renderColumn(i, value, title, columnCustomization)}
               </Stack>
-            </td>
+            </TableCell>
           );
         })}
       </tr>

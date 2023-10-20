@@ -6,9 +6,9 @@
     { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "is_clean", "dataType": "BOOLEAN", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "date", "dataType": "TIMESTAMP", "displayHintTypes": ["NONE"] },
-    { "type": "SIMPLE", "name": "value_numeric", "dataType": "DOUBLE", "displayHintTypes": ["NONE"] },
-    { "type": "KEY_AND_DISPLAY", "name": "value_enum", "dataType": "INT64", "displayHintTypes": ["NONE"] },
-    { "type": "KEY_AND_DISPLAY", "name": "unit", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "value_numeric", "dataType": "DOUBLE" },
+    { "type": "KEY_AND_DISPLAY", "name": "value_enum", "dataType": "INT64" },
+    { "type": "KEY_AND_DISPLAY", "name": "unit", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
     { "type": "KEY_AND_DISPLAY", "name": "visit_type", "dataType": "INT64" }
