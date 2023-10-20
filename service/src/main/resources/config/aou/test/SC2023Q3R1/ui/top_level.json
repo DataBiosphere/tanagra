@@ -393,8 +393,8 @@
         "direction": "ASC"
       },
       "modifiers": [
-      "age_at_occurrence",
-      "start_date_group_by_count"
+        "age_at_occurrence",
+        "start_date_group_by_count"
     ]
     },
     {
