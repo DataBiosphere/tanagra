@@ -391,7 +391,11 @@
       "defaultSort": {
         "attribute": "name",
         "direction": "ASC"
-      }
+      },
+      "modifiers": [
+        "age_at_occurrence",
+        "start_date_group_by_count"
+    ]
     },
     {
       "type": "classification",
@@ -409,7 +413,12 @@
         { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "occurrences": "device_occurrence",
-      "classifications": ["device"]
+      "classifications": ["device"],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
     },
     {
       "type": "attribute",

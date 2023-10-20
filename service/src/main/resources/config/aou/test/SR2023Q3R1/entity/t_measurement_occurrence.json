@@ -9,15 +9,17 @@
     { "type": "SIMPLE", "name": "value_numeric", "dataType": "DOUBLE" },
     { "type": "KEY_AND_DISPLAY", "name": "value_enum", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "unit", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "source_value", "dataType": "STRING" },
-    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] } ],
+    { "type": "SIMPLE", "name": "source_criteria_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "age_at_occurrence", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "visit_type", "dataType": "INT64" }
+  ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
-    "tablePointer": { "table": "measurement" },
+    "tablePointer": { "rawSqlFile": "t_measurement_occurrence_all.sql" },
     "attributeMappings": {
-      "id": { "value": { "column": "measurement_id" } },
       "measurement": {
         "value": { "column": "measurement_concept_id" },
         "display": {
@@ -26,7 +28,6 @@
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
       "date": { "value": { "column": "measurement_date" } },
-      "value_numeric": { "value": { "column": "value_as_number" } },
       "value_enum": {
         "value": { "column": "value_as_concept_id" },
         "display": {
@@ -41,8 +42,13 @@
           "foreignTable": "concept",
           "foreignKey": "concept_id",
           "foreignColumn": "concept_name" } },
-      "source_value": { "value": { "column": "measurement_source_value" } },
-      "source_criteria_id": { "value": { "column": "measurement_source_concept_id" } }
+      "visit_type": {
+        "value": { "column": "visit_concept_id" },
+        "display": {
+          "column": "visit_concept_id",
+          "foreignTable": "concept",
+          "foreignKey": "concept_id",
+          "foreignColumn": "concept_name" } }
     }
   },
 

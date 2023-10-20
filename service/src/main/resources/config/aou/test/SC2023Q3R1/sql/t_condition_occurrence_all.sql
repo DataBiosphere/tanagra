@@ -12,3 +12,9 @@ ON p.person_id = co.person_id
 
 LEFT JOIN `all-of-us-ehr-dev.SC2023Q3R1.visit_occurrence` AS vo
 ON vo.visit_occurrence_id = co.visit_occurrence_id
+
+JOIN `all-of-us-ehr-dev.SC2023Q3R1.concept` AS c
+ON vo.visit_concept_id = c.concept_id
+
+WHERE c.domain_id = 'Visit'
+  AND c.standard_concept = 'S'
