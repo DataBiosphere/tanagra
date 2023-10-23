@@ -39,7 +39,7 @@
           {
             "id": "icd10cm",
             "attribute": "source_criteria_id",
-            "entity": "icd10cm",
+            "entity": "t_icd10cm",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -102,7 +102,7 @@
           {
             "id": "icd10cm",
             "attribute": "source_criteria_id",
-            "entity": "icd10cm",
+            "entity": "t_icd10cm",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -113,7 +113,7 @@
           {
             "id": "icd10pcs",
             "attribute": "source_criteria_id",
-            "entity": "icd10pcs",
+            "entity": "t_icd10pcs",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -164,7 +164,7 @@
           {
             "id": "icd10cm",
             "attribute": "source_criteria_id",
-            "entity": "icd10cm",
+            "entity": "t_icd10cm",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -268,7 +268,7 @@
           {
             "id": "icd10cm",
             "attribute": "source_criteria_id",
-            "entity": "icd10cm",
+            "entity": "t_icd10cm",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -279,7 +279,7 @@
           {
             "id": "icd10pcs",
             "attribute": "source_criteria_id",
-            "entity": "icd10pcs",
+            "entity": "t_icd10pcs",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
