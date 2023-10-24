@@ -1,6 +1,5 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.api.schema.EntityLevelDisplayHints;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.query.*;
@@ -9,6 +8,7 @@ import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
+import bio.terra.tanagra.underlay2.indexschema.EntityLevelDisplayHints;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.Field;
@@ -55,8 +55,8 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
         Clustering.newBuilder()
             .setFields(
                 List.of(
-                    EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName(),
-                    EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName()))
+                    EntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
+                    EntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName()))
             .build(),
         isDryRun);
 
@@ -150,37 +150,37 @@ public class ComputeEntityLevelDisplayHints extends BigQueryIndexingJob {
     List<FieldVariable> eldhColFieldVars = new ArrayList<>();
     eldhColFieldVars.add(
         new FieldPointer.Builder()
-            .columnName(EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName())
+            .columnName(EntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName())
             .tablePointer(eldhTable)
             .build()
             .buildVariable(eldhTableVar, tableVars));
     eldhColFieldVars.add(
         new FieldPointer.Builder()
-            .columnName(EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName())
+            .columnName(EntityLevelDisplayHints.Column.MIN.getSchema().getColumnName())
             .tablePointer(eldhTable)
             .build()
             .buildVariable(eldhTableVar, tableVars));
     eldhColFieldVars.add(
         new FieldPointer.Builder()
-            .columnName(EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName())
+            .columnName(EntityLevelDisplayHints.Column.MAX.getSchema().getColumnName())
             .tablePointer(eldhTable)
             .build()
             .buildVariable(eldhTableVar, tableVars));
     eldhColFieldVars.add(
         new FieldPointer.Builder()
-            .columnName(EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName())
+            .columnName(EntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName())
             .tablePointer(eldhTable)
             .build()
             .buildVariable(eldhTableVar, tableVars));
     eldhColFieldVars.add(
         new FieldPointer.Builder()
-            .columnName(EntityLevelDisplayHints.Columns.ENUM_DISPLAY.getSchema().getColumnName())
+            .columnName(EntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName())
             .tablePointer(eldhTable)
             .build()
             .buildVariable(eldhTableVar, tableVars));
     eldhColFieldVars.add(
         new FieldPointer.Builder()
-            .columnName(EntityLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName())
+            .columnName(EntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName())
             .tablePointer(eldhTable)
             .build()
             .buildVariable(eldhTableVar, tableVars));

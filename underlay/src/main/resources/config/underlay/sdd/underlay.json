@@ -1,0 +1,13 @@
+{
+  "name": "sdd",
+  "primaryEntity": "person",
+  "entities": [ "person" ],
+  "entityGroups": [ ],
+  "metadata": {
+    "displayName": "Synthetic Derivative Discover Dataset",
+    "description": "Dataset Updated March 31, 2023",
+    "properties": {
+      "lastUpdated": "03/31/23"
+    }
+  }
+}

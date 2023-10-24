@@ -15,6 +15,7 @@ import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 import com.google.common.collect.ImmutableMap;
@@ -39,8 +40,8 @@ public final class BigQueryDataset extends DataPointer {
   private GoogleBigQuery bigQueryService;
   private BigQueryExecutor queryExecutor;
 
-  @SuppressWarnings("checkstyle:ParameterNumber")
-  private BigQueryDataset(
+  @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
+  public BigQueryDataset(
       String name,
       String projectId,
       String datasetId,
@@ -100,7 +101,17 @@ public final class BigQueryDataset extends DataPointer {
   @Override
   public QueryExecutor getQueryExecutor() {
     if (queryExecutor == null) {
-      queryExecutor = new BigQueryExecutor(projectId, datasetId, queryProjectId);
+      // Lookup the BQ dataset location.
+      String datasetLocation =
+          getBigQueryService()
+              .getDataset(
+                  projectId,
+                  datasetId,
+                  BigQuery.DatasetOption.fields(BigQuery.DatasetField.LOCATION))
+              .get()
+              .getLocation();
+
+      queryExecutor = new BigQueryExecutor(queryProjectId, datasetLocation);
     }
     return queryExecutor;
   }

@@ -69,6 +69,10 @@ public class Query implements SQLExpression {
 
     // render the FilterVariable
     if (where != null) {
+      // TODO: Check if the filter variable is a sub-query filter variable, with the same primary
+      // table as this query and no group bys.
+      //  If so, drop the nested sub-query filter variable, possibly replacing with a
+      // NotFilterVariable.
       template = "${sql} WHERE ${whereSQL}";
       params =
           ImmutableMap.<String, String>builder()

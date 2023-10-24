@@ -1,12 +1,12 @@
 package bio.terra.tanagra.api.query;
 
-import bio.terra.tanagra.api.schema.EntityLevelDisplayHints;
-import bio.terra.tanagra.api.schema.InstanceLevelDisplayHints;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay2.indexschema.EntityLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indexschema.InstanceLevelDisplayHints;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,9 +103,7 @@ public class EntityHintRequest {
                 fv ->
                     fv.getAlias()
                         .equals(
-                            InstanceLevelDisplayHints.Columns.ENTITY_ID
-                                .getSchema()
-                                .getColumnName()))
+                            InstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName()))
             .findFirst()
             .get();
     BinaryFilterVariable filterVar =

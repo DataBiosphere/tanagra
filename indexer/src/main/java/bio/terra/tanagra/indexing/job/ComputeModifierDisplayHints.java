@@ -1,6 +1,5 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.api.schema.InstanceLevelDisplayHints;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.BigQueryIndexingJob;
 import bio.terra.tanagra.indexing.job.beam.DisplayHintUtils;
@@ -12,6 +11,7 @@ import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.RelationshipMapping;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay2.indexschema.InstanceLevelDisplayHints;
 import com.google.api.services.bigquery.model.TableRow;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;

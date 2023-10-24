@@ -16,6 +16,12 @@ public class ColumnSchema {
     this.isRequired = isRequired;
   }
 
+  public ColumnSchema(FieldPointer fieldPointer, CellValue.SQLDataType sqlDataType) {
+    this.columnName = fieldPointer.getColumnName();
+    this.sqlDataType = sqlDataType;
+    this.isRequired = false;
+  }
+
   public String getColumnName() {
     return columnName;
   }

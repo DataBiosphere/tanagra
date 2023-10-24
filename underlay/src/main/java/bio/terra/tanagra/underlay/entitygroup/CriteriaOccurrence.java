@@ -1,6 +1,5 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
-import bio.terra.tanagra.api.schema.InstanceLevelDisplayHints;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
@@ -12,6 +11,7 @@ import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.indexschema.InstanceLevelDisplayHints;
 import java.util.*;
 import java.util.stream.Collectors;
 

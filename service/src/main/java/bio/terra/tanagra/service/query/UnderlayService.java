@@ -2,8 +2,6 @@ package bio.terra.tanagra.service.query;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.query.*;
-import bio.terra.tanagra.api.schema.EntityLevelDisplayHints;
-import bio.terra.tanagra.api.schema.InstanceLevelDisplayHints;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;
@@ -16,6 +14,8 @@ import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.displayhint.EnumVal;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;
+import bio.terra.tanagra.underlay2.indexschema.EntityLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indexschema.InstanceLevelDisplayHints;
 import bio.terra.tanagra.utils.FileIO;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -183,10 +183,8 @@ public class UnderlayService {
           rowResult
               .get(
                   entityHintRequest.isEntityLevelHints()
-                      ? EntityLevelDisplayHints.Columns.ATTRIBUTE_NAME.getSchema().getColumnName()
-                      : InstanceLevelDisplayHints.Columns.ATTRIBUTE_NAME
-                          .getSchema()
-                          .getColumnName())
+                      ? EntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName()
+                      : InstanceLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName())
               .getLiteral()
               .orElseThrow()
               .getStringVal();
@@ -196,8 +194,8 @@ public class UnderlayService {
           rowResult
               .get(
                   entityHintRequest.isEntityLevelHints()
-                      ? EntityLevelDisplayHints.Columns.MIN.getSchema().getColumnName()
-                      : InstanceLevelDisplayHints.Columns.MIN.getSchema().getColumnName())
+                      ? EntityLevelDisplayHints.Column.MIN.getSchema().getColumnName()
+                      : InstanceLevelDisplayHints.Column.MIN.getSchema().getColumnName())
               .getDouble();
       if (min.isPresent()) {
         // This is a numeric range hint, which is contained in a single row.
@@ -205,8 +203,8 @@ public class UnderlayService {
             rowResult
                 .get(
                     entityHintRequest.isEntityLevelHints()
-                        ? EntityLevelDisplayHints.Columns.MAX.getSchema().getColumnName()
-                        : InstanceLevelDisplayHints.Columns.MAX.getSchema().getColumnName())
+                        ? EntityLevelDisplayHints.Column.MAX.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Column.MAX.getSchema().getColumnName())
                 .getDouble();
         displayHints.put(attr, new NumericRange(min.getAsDouble(), max.getAsDouble()));
       } else {
@@ -217,26 +215,24 @@ public class UnderlayService {
             rowResult
                 .get(
                     entityHintRequest.isEntityLevelHints()
-                        ? EntityLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName()
-                        : InstanceLevelDisplayHints.Columns.ENUM_VALUE.getSchema().getColumnName())
+                        ? EntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName())
                 .getLiteral()
                 .orElse(new Literal(null));
         String display =
             rowResult
                 .get(
                     entityHintRequest.isEntityLevelHints()
-                        ? EntityLevelDisplayHints.Columns.ENUM_DISPLAY.getSchema().getColumnName()
-                        : InstanceLevelDisplayHints.Columns.ENUM_DISPLAY
-                            .getSchema()
-                            .getColumnName())
+                        ? EntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName())
                 .getString()
                 .orElse(null);
         OptionalLong count =
             rowResult
                 .get(
                     entityHintRequest.isEntityLevelHints()
-                        ? EntityLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName()
-                        : InstanceLevelDisplayHints.Columns.ENUM_COUNT.getSchema().getColumnName())
+                        ? EntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName()
+                        : InstanceLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName())
                 .getLong();
         List<EnumVal> runningEnumVals =
             runningEnumValsMap.containsKey(attr) ? runningEnumValsMap.get(attr) : new ArrayList<>();

@@ -119,13 +119,6 @@ public final class TablePointer implements SQLExpression {
     return dataPointer.getTablePathForIndexing(tableName);
   }
 
-  public FilterVariable getFilterVariable(TableVariable tableVariable, List<TableVariable> tables) {
-    if (!hasTableFilter()) {
-      return null;
-    }
-    return getTableFilter().buildVariable(tableVariable, tables);
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

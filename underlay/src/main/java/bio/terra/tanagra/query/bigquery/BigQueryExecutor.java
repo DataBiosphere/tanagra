@@ -7,7 +7,6 @@ import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
 import com.google.cloud.storage.Bucket;
@@ -23,16 +22,13 @@ import org.slf4j.LoggerFactory;
 public class BigQueryExecutor implements QueryExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BigQueryExecutor.class);
 
-  private final String projectId;
-  private final String datasetId;
-
   private final String queryProjectId;
+  private final String datasetLocation;
   private GoogleBigQuery bigQueryService;
 
-  public BigQueryExecutor(String projectId, String datasetId, String queryProjectId) {
-    this.projectId = projectId;
-    this.datasetId = datasetId;
+  public BigQueryExecutor(String queryProjectId, String datasetLocation) {
     this.queryProjectId = queryProjectId;
+    this.datasetLocation = datasetLocation;
   }
 
   @Override
@@ -97,14 +93,6 @@ public class BigQueryExecutor implements QueryExecutor {
 
   @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
   private String findCompatibleBucket(String gcsProjectId, List<String> gcsBucketNames) {
-    // Lookup the BQ dataset location.
-    String datasetLocation =
-        getBigQueryService()
-            .getDataset(
-                projectId, datasetId, BigQuery.DatasetOption.fields(BigQuery.DatasetField.LOCATION))
-            .get()
-            .getLocation();
-
     // Lookup the GCS bucket location. Return the first bucket with a compatible location for the
     // dataset.
     // https://cloud.google.com/bigquery/docs/exporting-data#data-locations
