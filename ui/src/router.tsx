@@ -12,6 +12,7 @@ import ConceptSetRoot from "conceptSetRoot";
 import { SourceContextRoot } from "data/sourceContext";
 import { Datasets } from "datasets";
 import Edit from "edit";
+import { Export } from "export";
 import { FeatureSet } from "featureSet/featureSet";
 import { FeatureSetEdit } from "featureSet/featureSetEdit";
 import FeatureSetRoot from "featureSet/featureSetRoot";
@@ -43,6 +44,10 @@ export function createAppRouter() {
         {
           index: true,
           element: <Datasets />,
+        },
+        {
+          path: "sets",
+          element: <Export />,
         },
         {
           element: <CohortRoot />,
@@ -322,6 +327,10 @@ export function absoluteFeatureSetURL(
 
 export function absoluteExportURL(params: BaseParams) {
   return absolutePrefix(params) + "export";
+}
+
+export function absoluteExportSetsURL(params: BaseParams) {
+  return absolutePrefix(params) + "sets";
 }
 
 export function absoluteConceptSetURL(

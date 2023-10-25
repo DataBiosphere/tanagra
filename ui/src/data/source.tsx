@@ -158,7 +158,7 @@ export type User = {
 
 export type FeatureSetOutput = {
   occurrence: string;
-  excludedColumns: string[];
+  excludedAttributes: string[];
 };
 
 export type FeatureSet = {

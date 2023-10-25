@@ -17,6 +17,7 @@ import React, { useCallback, useMemo } from "react";
 import {
   absoluteCohortURL,
   absoluteConceptSetURL,
+  absoluteExportSetsURL,
   absoluteExportURL,
   absoluteFeatureSetURL,
   absoluteNewConceptSetURL,
@@ -214,7 +215,7 @@ export function StudyOverview() {
       <GridLayout rows>
         <Header />
         <GridBox sx={{ px: 4, py: 2 }}>
-          <GridLayout cols={4} spacing={1}>
+          <GridLayout cols spacing={1}>
             <Button variant="contained" onClick={newCohort}>
               New cohort
             </Button>
@@ -234,6 +235,14 @@ export function StudyOverview() {
               onClick={() => navigate(absoluteExportURL(params).substring(1))}
             >
               Export
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() =>
+                navigate(absoluteExportSetsURL(params).substring(1))
+              }
+            >
+              Feature sets export
             </Button>
           </GridLayout>
         </GridBox>
