@@ -15,6 +15,11 @@ export type TabConfig = {
 export type TabsProps = {
   configs: TabConfig[];
   center?: boolean;
+  vertical?: boolean;
+  hideDivider?: boolean;
+
+  tabsPrefix?: ReactNode;
+  tabsSuffix?: ReactNode;
 
   currentTab?: string;
   setCurrentTab?: (tab: string) => void;
@@ -29,19 +34,37 @@ export function Tabs(props: TabsProps) {
 
   return (
     <TabContext value={props.currentTab ?? currentTab}>
-      <GridLayout rows>
-        <GridLayout cols colAlign={props.center ? "center" : undefined}>
-          <TabList onChange={onChange}>
+      <GridLayout
+        rows={!props.vertical || undefined}
+        cols={props.vertical || undefined}
+      >
+        <GridLayout
+          rows={props.vertical ? "auto 1fr auto" : undefined}
+          rowAlign={
+            !props.vertical || (props.vertical && props.center)
+              ? "middle"
+              : undefined
+          }
+          cols={!props.vertical ? "auto 1fr auto" : undefined}
+          colAlign={!props.vertical && props.center ? "center" : undefined}
+        >
+          {props.tabsPrefix ?? <GridBox />}
+          <TabList
+            onChange={onChange}
+            orientation={props.vertical ? "vertical" : "horizontal"}
+          >
             {props.configs.map((c) => (
               <Tab key={c.id} label={c.title} value={c.id} />
             ))}
           </TabList>
+          {props.tabsSuffix ?? <GridBox />}
         </GridLayout>
         <GridBox
           sx={{
-            borderTopStyle: "solid",
+            borderTopStyle: !props.vertical ? "solid" : undefined,
+            borderLeftStyle: props.vertical ? "solid" : undefined,
             borderColor: (theme) => theme.palette.divider,
-            borderWidth: "1px",
+            borderWidth: !props.hideDivider ? "1px" : "0px",
           }}
         >
           {props.configs.map((c) => (

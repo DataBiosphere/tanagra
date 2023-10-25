@@ -272,16 +272,12 @@ function Preview() {
   const navigate = useNavigate();
 
   const occurrenceList = useMemo(() => {
-    const selectedCriteria = new Set<string>();
-    underlay.uiConfiguration.prepackagedConceptSets?.forEach((conceptSet) => {
-      if (featureSet.predefinedCriteria.includes(conceptSet.id)) {
-        selectedCriteria.add(conceptSet.id);
-      }
-    });
-
-    featureSet.criteria.forEach((criteria) => {
-      selectedCriteria.add(criteria.id);
-    });
+    const selectedCriteria = new Set<string>(
+      [
+        featureSet.predefinedCriteria,
+        featureSet.criteria.map((c) => c.id),
+      ].flat()
+    );
 
     return getOccurrenceList(
       source,
@@ -408,7 +404,7 @@ function PreviewTable(props: PreviewTableProps) {
       .filter(
         (attribute) =>
           !globalSearchState.showSelectedColumnsOnly ||
-          !output?.excludedColumns?.includes(attribute)
+          !output?.excludedAttributes?.includes(attribute)
       )
       .map((attribute) => {
         return {
@@ -420,7 +416,7 @@ function PreviewTable(props: PreviewTableProps) {
               name={attribute}
               size="small"
               fontSize="small"
-              checked={!output?.excludedColumns?.includes(attribute)}
+              checked={!output?.excludedAttributes?.includes(attribute)}
               onChange={() =>
                 toggleFeatureSetColumn(context, props.occurrence.id, attribute)
               }
@@ -465,7 +461,7 @@ function PreviewTable(props: PreviewTableProps) {
                 <Switch
                   name={attribute}
                   size="small"
-                  checked={!output?.excludedColumns?.includes(attribute)}
+                  checked={!output?.excludedAttributes?.includes(attribute)}
                   onChange={() =>
                     toggleFeatureSetColumn(
                       context,
@@ -531,7 +527,7 @@ function PreviewTable(props: PreviewTableProps) {
         />
         <Typography variant="body1">Show included columns only</Typography>
       </GridLayout>
-      {output?.excludedColumns?.length !==
+      {output?.excludedAttributes?.length !==
       props.occurrence.attributes.length ? (
         <TreeGrid
           data={props.data?.data}
@@ -539,7 +535,7 @@ function PreviewTable(props: PreviewTableProps) {
           rowCustomization={() => {
             return columns.map((col, i) => ({
               column: i,
-              backgroundSx: output?.excludedColumns?.includes(col.key)
+              backgroundSx: output?.excludedAttributes?.includes(col.key)
                 ? {
                     backgroundColor: (theme) =>
                       theme.palette.background.default,
