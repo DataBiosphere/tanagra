@@ -118,6 +118,31 @@ public final class GoogleBigQuery {
     }
   }
 
+  public void pollForTableExistenceOrThrow(
+      String projectId, String datasetId, String tableId, int maxCalls, Duration sleepDuration) {
+    try {
+      boolean tableExists =
+          HttpUtils.pollWithRetries(
+              () -> getTable(projectId, datasetId, tableId).isPresent(),
+              checkTableExistsResult -> checkTableExistsResult,
+              ex -> false,
+              maxCalls,
+              sleepDuration);
+      if (!tableExists) {
+        throw new SystemException(
+            "Error finding table "
+                + tableId
+                + ". Polling timed out after "
+                + maxCalls
+                + " tries, sleeping "
+                + sleepDuration.toString()
+                + " between each try.");
+      }
+    } catch (InterruptedException intEx) {
+      throw new SystemException("Error polling for table existence", intEx);
+    }
+  }
+
   /**
    * Create a new empty table from a schema.
    *
@@ -254,8 +279,16 @@ public final class GoogleBigQuery {
   }
 
   public int getNumRows(String projectId, String datasetId, String tableId) {
+    return getNumRowsWhereFieldNotNull(projectId, datasetId, tableId, null);
+  }
+
+  public int getNumRowsWhereFieldNotNull(
+      String projectId, String datasetId, String tableId, @Nullable String field) {
     String queryRowCount =
         "SELECT COUNT(*) FROM `" + projectId + "." + datasetId + "." + tableId + "`";
+    if (field != null) {
+      queryRowCount += " WHERE " + field + " IS NOT NULL";
+    }
     QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(queryRowCount).build();
     TableResult results =
         callWithRetries(

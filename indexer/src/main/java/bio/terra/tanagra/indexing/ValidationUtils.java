@@ -2,7 +2,11 @@ package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.underlay.*;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Relationship;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -22,9 +26,9 @@ public final class ValidationUtils {
     //   - Indexing e.g. to generate tables with unique names. Currently, we use the entity names.
     Map<String, List<String>> errorsForRelationship = new HashMap<>();
     Map<Set<Entity>, Relationship> relationshipMap = new HashMap<>();
-    for (EntityGroup entityGroup : underlay.getEntityGroups().values()) {
+    for (EntityGroup entityGroup : underlay.getEntityGroups()) {
       for (Relationship relationship : entityGroup.getRelationships()) {
-        Set<Entity> relatedEntities = relationship.getEntities();
+        Set<Entity> relatedEntities = Set.of(relationship.getEntityA(), relationship.getEntityB());
 
         if (relationshipMap.containsKey(relatedEntities)) {
           String relatedEntitiesStr =
@@ -42,7 +46,6 @@ public final class ValidationUtils {
               errorMsgs = errorsForRelationship.get(relatedEntitiesStr);
             } else {
               errorMsgs = new ArrayList<>();
-              errorMsgs.add(relationshipMap.get(relatedEntities).getEntityGroup().getName());
               errorsForRelationship.put(relatedEntitiesStr, errorMsgs);
             }
             errorMsgs.add(entityGroup.getName());
@@ -78,7 +81,7 @@ public final class ValidationUtils {
   public static void validateAttributes(Underlay underlay) {
     // Check that the attribute data types are all defined and match the expected.
     Map<String, List<String>> errorsForEntity = new HashMap<>();
-    underlay.getEntities().values().stream()
+    underlay.getEntities().stream()
         .sorted(Comparator.comparing(Entity::getName))
         .forEach(
             entity -> {
@@ -92,7 +95,11 @@ public final class ValidationUtils {
                             entity.getName(),
                             attribute.getName());
                         Literal.DataType computedDataType =
-                            attribute.getMapping(Underlay.MappingType.SOURCE).computeDataType();
+                            attribute
+                                .getSourceValueField()
+                                .getTablePointer()
+                                .getDataPointer()
+                                .lookupDatatype(attribute.getSourceValueField());
                         if (attribute.getDataType() == null
                             || !attribute.getDataType().equals(computedDataType)) {
                           String msg =

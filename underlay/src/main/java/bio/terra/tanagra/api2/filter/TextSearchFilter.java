@@ -2,23 +2,26 @@ package bio.terra.tanagra.api2.filter;
 
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.underlay2.Attribute;
-import bio.terra.tanagra.underlay2.TextSearch;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 import java.util.List;
 import javax.annotation.Nullable;
 
 public class TextSearchFilter extends EntityFilter {
-  private final TextSearch textSearch;
+  private final ITEntityMain indexTable;
   private final FunctionFilterVariable.FunctionTemplate functionTemplate;
   private final String text;
   private final @Nullable Attribute attribute;
 
   public TextSearchFilter(
-      TextSearch textSearch,
+      Underlay underlay,
+      Entity entity,
       FunctionFilterVariable.FunctionTemplate functionTemplate,
       String text,
       @Nullable Attribute attribute) {
-    this.textSearch = textSearch;
+    this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.functionTemplate = functionTemplate;
     this.text = text;
     this.attribute = attribute;
@@ -31,10 +34,10 @@ public class TextSearchFilter extends EntityFilter {
     // Otherwise, search the combined text string field.
     FieldPointer searchField =
         attribute == null
-            ? textSearch.getIndexCombinedSearchField()
+            ? indexTable.getTextSearchField()
             : (attribute.isValueDisplay()
-                ? attribute.getIndexDisplayField()
-                : attribute.getIndexValueField());
+                ? indexTable.getAttributeDisplayField(attribute.getName())
+                : indexTable.getAttributeValueField(attribute.getName()));
     return new FunctionFilterVariable(
         functionTemplate, new FieldVariable(searchField, entityTableVar), new Literal(text));
   }

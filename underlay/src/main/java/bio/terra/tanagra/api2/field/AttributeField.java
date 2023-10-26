@@ -3,22 +3,31 @@ package bio.terra.tanagra.api2.field;
 import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.*;
-import bio.terra.tanagra.underlay2.Attribute;
-import bio.terra.tanagra.underlay2.Entity;
-import bio.terra.tanagra.underlay2.indexschema.EntityMain;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay2.sourcetable.STEntityAttributes;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class AttributeField extends EntityField {
+public class AttributeField extends ValueDisplayField {
+  private final STEntityAttributes sourceTable;
+  private final ITEntityMain indexTable;
   private final Attribute attribute;
   private final boolean excludeDisplay;
   private final boolean isSource;
 
   public AttributeField(
-      Entity entity, Attribute attribute, boolean excludeDisplay, boolean isSource) {
-    super(entity);
+      Underlay underlay,
+      Entity entity,
+      Attribute attribute,
+      boolean excludeDisplay,
+      boolean isSource) {
+    this.sourceTable = underlay.getSourceSchema().getEntityAttributes(entity.getName());
+    this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.attribute = attribute;
     this.excludeDisplay = excludeDisplay;
     this.isSource = isSource;
@@ -65,19 +74,23 @@ public class AttributeField extends EntityField {
   }
 
   private FieldPointer getValueField() {
-    return isSource ? attribute.getSourceValueField() : attribute.getIndexValueField();
+    return isSource
+        ? sourceTable.getValueField(attribute.getName())
+        : indexTable.getAttributeValueField(attribute.getName());
   }
 
   private FieldPointer getDisplayField() {
-    return isSource ? attribute.getSourceDisplayField() : attribute.getIndexDisplayField();
+    return isSource
+        ? sourceTable.getDisplayField(attribute.getName())
+        : indexTable.getAttributeDisplayField(attribute.getName());
   }
 
   private String getValueFieldAlias() {
-    return EntityMain.getAttributeValueFieldName(getEntity().getName(), attribute.getName());
+    return indexTable.getAttributeValueField(attribute.getName()).getColumnName();
   }
 
   private String getDisplayFieldAlias() {
-    return EntityMain.getAttributeDisplayFieldName(getEntity().getName(), attribute.getName());
+    return indexTable.getAttributeDisplayField(attribute.getName()).getColumnName();
   }
 
   private ColumnSchema getValueColumnSchema() {

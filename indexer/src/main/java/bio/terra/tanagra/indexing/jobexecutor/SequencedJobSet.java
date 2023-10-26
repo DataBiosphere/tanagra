@@ -1,6 +1,6 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
-import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

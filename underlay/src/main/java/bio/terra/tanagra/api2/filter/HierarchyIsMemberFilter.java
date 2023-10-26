@@ -2,13 +2,18 @@ package bio.terra.tanagra.api2.filter;
 
 import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.underlay2.Hierarchy;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 import java.util.List;
 
 public class HierarchyIsMemberFilter extends EntityFilter {
+  private final ITEntityMain indexTable;
   private final Hierarchy hierarchy;
 
-  public HierarchyIsMemberFilter(Hierarchy hierarchy) {
+  public HierarchyIsMemberFilter(Underlay underlay, Entity entity, Hierarchy hierarchy) {
+    this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.hierarchy = hierarchy;
   }
 
@@ -17,7 +22,9 @@ public class HierarchyIsMemberFilter extends EntityFilter {
       TableVariable entityTableVar, List<TableVariable> tableVars) {
     // IS_MEMBER means path IS NOT NULL.
     FieldVariable pathFieldVar =
-        hierarchy.getIndexPathField().buildVariable(entityTableVar, tableVars);
+        indexTable
+            .getHierarchyPathField(hierarchy.getName())
+            .buildVariable(entityTableVar, tableVars);
     return new BinaryFilterVariable(
         pathFieldVar, BinaryFilterVariable.BinaryOperator.IS_NOT, new Literal(null));
   }

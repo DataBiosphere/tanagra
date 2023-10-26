@@ -1,9 +1,10 @@
 package bio.terra.tanagra.api2.query.list;
 
 import bio.terra.tanagra.api.query.filter.EntityFilter;
-import bio.terra.tanagra.api2.field.EntityField;
+import bio.terra.tanagra.api2.field.ValueDisplayField;
 import bio.terra.tanagra.query.*;
-import bio.terra.tanagra.underlay2.Entity;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -11,8 +12,9 @@ import javax.annotation.Nullable;
 public class ListQueryRequest {
   private static final Integer DEFAULT_PAGE_SIZE = 250;
 
+  private final Underlay underlay;
   private final Entity entity;
-  private final ImmutableList<EntityField> selectFields;
+  private final ImmutableList<ValueDisplayField> selectFields;
   private final @Nullable EntityFilter filter;
   private final ImmutableList<OrderBy> orderBys;
   private final @Nullable Integer limit;
@@ -20,13 +22,15 @@ public class ListQueryRequest {
   private final Integer pageSize;
 
   public ListQueryRequest(
+      Underlay underlay,
       Entity entity,
-      List<EntityField> selectFields,
+      List<ValueDisplayField> selectFields,
       @Nullable EntityFilter filter,
       @Nullable List<OrderBy> orderBys,
       @Nullable Integer limit,
       @Nullable PageMarker pageMarker,
       @Nullable Integer pageSize) {
+    this.underlay = underlay;
     this.entity = entity;
     this.selectFields =
         selectFields == null ? ImmutableList.of() : ImmutableList.copyOf(selectFields);
@@ -37,11 +41,15 @@ public class ListQueryRequest {
     this.pageSize = (pageMarker == null && pageSize == null) ? DEFAULT_PAGE_SIZE : pageSize;
   }
 
+  public Underlay getUnderlay() {
+    return underlay;
+  }
+
   public Entity getEntity() {
     return entity;
   }
 
-  public ImmutableList<EntityField> getSelectFields() {
+  public ImmutableList<ValueDisplayField> getSelectFields() {
     return selectFields;
   }
 
@@ -66,16 +74,16 @@ public class ListQueryRequest {
   }
 
   public static class OrderBy {
-    private final EntityField entityField;
+    private final ValueDisplayField valueDisplayField;
     private final OrderByDirection direction;
 
-    public OrderBy(EntityField entityField, OrderByDirection direction) {
-      this.entityField = entityField;
+    public OrderBy(ValueDisplayField valueDisplayField, OrderByDirection direction) {
+      this.valueDisplayField = valueDisplayField;
       this.direction = direction;
     }
 
-    public EntityField getEntityField() {
-      return entityField;
+    public ValueDisplayField getEntityField() {
+      return valueDisplayField;
     }
 
     public OrderByDirection getDirection() {

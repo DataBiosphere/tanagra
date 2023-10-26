@@ -3,14 +3,16 @@ package bio.terra.tanagra.api2.filter;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.underlay2.Attribute;
-import bio.terra.tanagra.underlay2.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.CriteriaOccurrence;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
 public class PrimaryForCriteriaFilter extends EntityFilter {
+  private final Underlay underlay;
   private final CriteriaOccurrence criteriaOccurrence;
   private final EntityFilter criteriaEntitySubFilter;
   private final ImmutableMap<String, EntityFilter> occurrenceEntitySubFilters;
@@ -19,12 +21,14 @@ public class PrimaryForCriteriaFilter extends EntityFilter {
   private final @Nullable Integer countValue;
 
   public PrimaryForCriteriaFilter(
+      Underlay underlay,
       CriteriaOccurrence criteriaOccurrence,
       EntityFilter criteriaEntitySubFilter,
       @Nullable Map<String, EntityFilter> occurrenceEntitySubFilters,
       @Nullable Map<String, Attribute> occurrenceEntityAttributeCountDistincts,
       @Nullable BinaryFilterVariable.BinaryOperator countOperator,
       @Nullable Integer countValue) {
+    this.underlay = underlay;
     this.criteriaOccurrence = criteriaOccurrence;
     this.criteriaEntitySubFilter = criteriaEntitySubFilter;
     this.occurrenceEntitySubFilters =
@@ -45,6 +49,8 @@ public class PrimaryForCriteriaFilter extends EntityFilter {
     if (!includesModifiers()) {
       // Use a single relationship filter on primary-criteria relationship.
       return new RelationshipFilter(
+              underlay,
+              criteriaOccurrence,
               criteriaOccurrence.getPrimaryEntity(),
               criteriaOccurrence.getPrimaryCriteriaRelationship(),
               criteriaEntitySubFilter,

@@ -1,30 +1,27 @@
 package bio.terra.tanagra.api2.field;
 
 import bio.terra.tanagra.query.*;
-import bio.terra.tanagra.underlay2.Entity;
-import bio.terra.tanagra.underlay2.Hierarchy;
-import bio.terra.tanagra.underlay2.indexschema.EntityMain;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 
 public class HierarchyPathField extends SingleColumnField {
+  private final ITEntityMain indexTable;
   private final Hierarchy hierarchy;
 
-  protected HierarchyPathField(Entity entity, Hierarchy hierarchy) {
-    super(entity);
+  protected HierarchyPathField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
+    this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.hierarchy = hierarchy;
   }
 
   @Override
   protected FieldPointer getField() {
-    return hierarchy.getIndexPathField();
-  }
-
-  @Override
-  protected String getFieldAlias() {
-    return EntityMain.getHierarchyPathFieldName(getEntity().getName(), hierarchy.getName());
+    return indexTable.getHierarchyPathField(hierarchy.getName());
   }
 
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
-    return EntityMain.HIERARCHY_PATH_SQL_TYPE;
+    return CellValue.SQLDataType.STRING;
   }
 }

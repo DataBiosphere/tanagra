@@ -1,6 +1,6 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
-import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.util.concurrent.Callable;
 
 /** Thread that runs a single indexing job and outputs an instance of the result class. */

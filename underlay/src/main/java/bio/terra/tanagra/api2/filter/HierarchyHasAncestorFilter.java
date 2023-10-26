@@ -4,18 +4,28 @@ import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
-import bio.terra.tanagra.underlay2.Entity;
-import bio.terra.tanagra.underlay2.Hierarchy;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay2.indextable.ITHierarchyAncestorDescendant;
 import java.util.List;
 
 public class HierarchyHasAncestorFilter extends EntityFilter {
-  private final Entity entity;
-  private final Hierarchy hierarchy;
+  private final ITEntityMain indexEntityTable;
+  private final ITHierarchyAncestorDescendant indexAncestorDescendantTable;
+  private final Attribute idAttribute;
   private final Literal ancestorId;
 
-  public HierarchyHasAncestorFilter(Entity entity, Hierarchy hierarchy, Literal ancestorId) {
-    this.entity = entity;
-    this.hierarchy = hierarchy;
+  public HierarchyHasAncestorFilter(
+      Underlay underlay, Entity entity, Hierarchy hierarchy, Literal ancestorId) {
+    this.indexEntityTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.indexAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(entity.getName(), hierarchy.getName());
+    this.idAttribute = entity.getIdAttribute();
     this.ancestorId = ancestorId;
   }
 
@@ -24,23 +34,30 @@ public class HierarchyHasAncestorFilter extends EntityFilter {
       TableVariable entityTableVar, List<TableVariable> tableVars) {
     // Query to get a node's descendants.
     //   SELECT descendant FROM ancestorDescendantTable WHERE ancestor=ancestor id
-    TableVariable descendantTableVar =
-        TableVariable.forPrimary(hierarchy.getIndexDescendantField().getTablePointer());
+    TableVariable ancestorDescendantTableVar =
+        TableVariable.forPrimary(indexAncestorDescendantTable.getTablePointer());
     Query isDescendantQuery =
         new Query.Builder()
             .select(
-                List.of(new FieldVariable(hierarchy.getIndexDescendantField(), descendantTableVar)))
-            .tables(List.of(descendantTableVar))
+                List.of(
+                    new FieldVariable(
+                        indexAncestorDescendantTable.getDescendantField(),
+                        ancestorDescendantTableVar)))
+            .tables(List.of(ancestorDescendantTableVar))
             .where(
                 new BinaryFilterVariable(
-                    new FieldVariable(hierarchy.getIndexAncestorField(), descendantTableVar),
+                    new FieldVariable(
+                        indexAncestorDescendantTable.getAncestorField(),
+                        ancestorDescendantTableVar),
                     BinaryFilterVariable.BinaryOperator.EQUALS,
                     ancestorId))
             .build();
 
     // Filter for entity id IN descendant sub-query.
     FieldVariable entityIdFieldVar =
-        entity.getIdAttribute().getIndexValueField().buildVariable(entityTableVar, tableVars);
+        indexEntityTable
+            .getAttributeValueField(idAttribute.getName())
+            .buildVariable(entityTableVar, tableVars);
     SubQueryFilterVariable isDescendantFilterVar =
         new SubQueryFilterVariable(
             entityIdFieldVar, SubQueryFilterVariable.Operator.IN, isDescendantQuery);

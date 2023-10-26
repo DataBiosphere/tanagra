@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.serialization.UFEntityGroupMapping;
 import java.util.Map;
 

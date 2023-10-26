@@ -2,9 +2,9 @@ package bio.terra.tanagra.underlay.displayhint;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.serialization.UFDisplayHint;
 import bio.terra.tanagra.serialization.displayhint.UFNumericRange;
-import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.DisplayHint;
 import java.util.ArrayList;
 import java.util.List;

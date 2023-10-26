@@ -1,17 +1,16 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.serialization.entitygroup.UFCriteriaOccurrence;
 import bio.terra.tanagra.underlay.Attribute;
 import bio.terra.tanagra.underlay.AuxiliaryData;
-import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;
 import bio.terra.tanagra.underlay.Relationship;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay2.indexschema.InstanceLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indextable.ITInstanceLevelDisplayHints;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,8 +23,8 @@ public class CriteriaOccurrence extends EntityGroup {
   private static final AuxiliaryData MODIFIER_AUXILIARY_DATA =
       new AuxiliaryData(
           "modifiers",
-          InstanceLevelDisplayHints.getColumns().stream()
-              .map(ColumnSchema::getColumnName)
+          Arrays.stream(ITInstanceLevelDisplayHints.Column.values())
+              .map(c -> c.getSchema().getColumnName())
               .collect(Collectors.toList()));
 
   private final Entity criteriaEntity;

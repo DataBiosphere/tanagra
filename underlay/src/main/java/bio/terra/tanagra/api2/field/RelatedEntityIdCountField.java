@@ -2,38 +2,32 @@ package bio.terra.tanagra.api2.field;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.underlay2.Entity;
-import bio.terra.tanagra.underlay2.Hierarchy;
-import bio.terra.tanagra.underlay2.entitygroup.EntityGroup;
-import bio.terra.tanagra.underlay2.indexschema.EntityMain;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 
 public class RelatedEntityIdCountField extends SingleColumnField {
-  private final Entity countedEntity;
+  private final ITEntityMain indexTable;
   private final EntityGroup entityGroup;
   private final Hierarchy hierarchy;
 
   protected RelatedEntityIdCountField(
-      Entity countForEntity, Entity countedEntity, EntityGroup entityGroup, Hierarchy hierarchy) {
-    super(countForEntity);
-    this.countedEntity = countedEntity;
+      Underlay underlay, Entity countForEntity, EntityGroup entityGroup, Hierarchy hierarchy) {
+    this.indexTable = underlay.getIndexSchema().getEntityMain(countForEntity.getName());
     this.entityGroup = entityGroup;
     this.hierarchy = hierarchy;
   }
 
   @Override
   protected FieldPointer getField() {
-    return entityGroup.getCountField(
-        entity.getName(), countedEntity.getName(), hierarchy == null ? null : hierarchy.getName());
-  }
-
-  @Override
-  protected String getFieldAlias() {
-    return EntityMain.getEntityGroupCountFieldName(
-        entity.getName(), hierarchy == null ? null : hierarchy.getName(), entityGroup.getName());
+    return indexTable.getEntityGroupCountField(
+        entityGroup.getName(), hierarchy == null ? null : hierarchy.getName());
   }
 
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
-    return EntityMain.ENTITY_GROUP_COUNT_SQL_TYPE;
+    return CellValue.SQLDataType.INT64;
   }
 }

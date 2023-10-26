@@ -1,11 +1,11 @@
 package bio.terra.tanagra.indexing;
 
+import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
-import bio.terra.tanagra.underlay.*;
-import java.io.IOException;
+import bio.terra.tanagra.underlay2.Underlay;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -33,13 +33,8 @@ public final class Indexer {
 
   private final Underlay underlay;
 
-  private Indexer(Underlay underlay) {
+  public Indexer(Underlay underlay) {
     this.underlay = underlay;
-  }
-
-  /** Deserialize the POJOs to the internal objects and expand all defaults. */
-  public static Indexer deserializeUnderlay(String underlayFileName) throws IOException {
-    return new Indexer(Underlay.fromJSON(underlayFileName));
   }
 
   public void validateConfig() {
@@ -51,7 +46,7 @@ public final class Indexer {
       JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
     LOGGER.info("INDEXING all entities");
     List<SequencedJobSet> jobSets =
-        underlay.getEntities().values().stream()
+        underlay.getEntities().stream()
             .map(JobSequencer::getJobSetForEntity)
             .collect(Collectors.toList());
     return runJobs(jobExecutor, isDryRun, runType, jobSets);
@@ -69,7 +64,7 @@ public final class Indexer {
       JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
     LOGGER.info("INDEXING all entity groups");
     List<SequencedJobSet> jobSets =
-        underlay.getEntityGroups().values().stream()
+        underlay.getEntityGroups().stream()
             .map(JobSequencer::getJobSetForEntityGroup)
             .collect(Collectors.toList());
     return runJobs(jobExecutor, isDryRun, runType, jobSets);

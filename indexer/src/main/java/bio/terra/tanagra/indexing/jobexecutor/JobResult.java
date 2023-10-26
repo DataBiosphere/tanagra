@@ -4,7 +4,7 @@ import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ANS
 import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ANSI_RED;
 import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ESCAPE_RESET;
 
-import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.TimeUnit;

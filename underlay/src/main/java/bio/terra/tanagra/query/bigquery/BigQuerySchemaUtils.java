@@ -1,7 +1,6 @@
 package bio.terra.tanagra.query.bigquery;
 
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.underlay.datapointer.BigQueryDataset;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableSchema;
 import com.google.cloud.bigquery.Field;

@@ -1,10 +1,6 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
 import java.util.*;
 

@@ -1,8 +1,8 @@
 package bio.terra.tanagra.serialization.entitygroup;
 
+import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.serialization.UFEntityGroup;
 import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

@@ -3,15 +3,10 @@ package bio.terra.tanagra.api2.field;
 import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.*;
-import bio.terra.tanagra.underlay2.Entity;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-public abstract class SingleColumnField extends EntityField {
-  protected SingleColumnField(Entity entity) {
-    super(entity);
-  }
-
+public abstract class SingleColumnField extends ValueDisplayField {
   @Override
   public List<FieldVariable> buildFieldVariables(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
@@ -34,7 +29,9 @@ public abstract class SingleColumnField extends EntityField {
 
   protected abstract FieldPointer getField();
 
-  protected abstract String getFieldAlias();
+  protected String getFieldAlias() {
+    return getField().getColumnName();
+  }
 
   protected abstract CellValue.SQLDataType getFieldDataType();
 

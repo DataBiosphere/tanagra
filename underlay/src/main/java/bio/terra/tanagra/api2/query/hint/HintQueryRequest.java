@@ -1,22 +1,26 @@
 package bio.terra.tanagra.api2.query.hint;
 
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.underlay2.Entity;
-import bio.terra.tanagra.underlay2.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
 import javax.annotation.Nullable;
 
 public class HintQueryRequest {
-  private final Entity entity;
+  private final Underlay underlay;
+  private final Entity hintedEntity;
   private final @Nullable Entity relatedEntity;
   private final @Nullable Literal relatedEntityId;
   private final @Nullable EntityGroup entityGroup;
 
   public HintQueryRequest(
-      Entity entity,
+      Underlay underlay,
+      Entity hintedEntity,
       @Nullable Entity relatedEntity,
       @Nullable Literal relatedEntityId,
       @Nullable EntityGroup entityGroup) {
-    this.entity = entity;
+    this.underlay = underlay;
+    this.hintedEntity = hintedEntity;
     this.relatedEntity = relatedEntity;
     this.relatedEntityId = relatedEntityId;
     this.entityGroup = entityGroup;
@@ -26,8 +30,12 @@ public class HintQueryRequest {
     return relatedEntity == null || relatedEntityId == null || entityGroup == null;
   }
 
-  public Entity getEntity() {
-    return entity;
+  public Underlay getUnderlay() {
+    return underlay;
+  }
+
+  public Entity getHintedEntity() {
+    return hintedEntity;
   }
 
   public Entity getRelatedEntity() {

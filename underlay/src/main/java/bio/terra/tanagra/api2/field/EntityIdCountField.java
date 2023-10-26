@@ -2,21 +2,26 @@ package bio.terra.tanagra.api2.field;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.underlay2.Entity;
-import bio.terra.tanagra.underlay2.indexschema.SchemaUtils;
+import bio.terra.tanagra.underlay2.NameHelper;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 
 public class EntityIdCountField extends SingleColumnField {
   private static final String FIELD_ALIAS = "IDCT";
+  private final ITEntityMain indexTable;
+  private final Attribute idAttribute;
 
-  public EntityIdCountField(Entity entity) {
-    super(entity);
+  public EntityIdCountField(Underlay underlay, Entity entity) {
+    this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.idAttribute = entity.getIdAttribute();
   }
 
   @Override
   protected FieldPointer getField() {
-    return entity
-        .getIdAttribute()
-        .getIndexValueField()
+    return indexTable
+        .getAttributeValueField(idAttribute.getName())
         .toBuilder()
         .sqlFunctionWrapper("COUNT")
         .build();
@@ -24,7 +29,7 @@ public class EntityIdCountField extends SingleColumnField {
 
   @Override
   protected String getFieldAlias() {
-    return SchemaUtils.getReservedFieldName(FIELD_ALIAS);
+    return NameHelper.getReservedFieldName(FIELD_ALIAS);
   }
 
   @Override

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.indexing.IndexingJob;
+import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

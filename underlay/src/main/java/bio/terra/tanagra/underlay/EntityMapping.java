@@ -1,12 +1,9 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.serialization.UFEntityMapping;
-import bio.terra.tanagra.underlay2.indexschema.EntityLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +51,7 @@ public final class EntityMapping {
         serialized.getDisplayHintTablePointer() != null
             ? TablePointer.fromSerialized(serialized.getDisplayHintTablePointer(), dataPointer)
             : TablePointer.fromTableName(
-                EntityLevelDisplayHints.TABLE_NAME + "_" + entityName, dataPointer);
+                ITEntityLevelDisplayHints.TABLE_NAME + "_" + entityName, dataPointer);
 
     return new EntityMapping(tablePointer, displayHintTablePointer, mappingType);
   }

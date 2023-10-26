@@ -2,7 +2,6 @@ package bio.terra.tanagra.query;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.serialization.UFTablePointer;
-import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.utils.FileIO;
 import bio.terra.tanagra.utils.FileUtils;
 import com.google.common.base.Strings;

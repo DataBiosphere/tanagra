@@ -5,10 +5,11 @@ import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
-import bio.terra.tanagra.underlay2.indexschema.EntityLevelDisplayHints;
-import bio.terra.tanagra.underlay2.indexschema.InstanceLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indextable.ITInstanceLevelDisplayHints;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -61,7 +62,10 @@ public class EntityHintRequest {
 
     List<FieldVariable> selectFieldVars = new ArrayList<>();
     ColumnHeaderSchema columnHeaderSchema =
-        ColumnHeaderSchema.fromColumnSchemas(EntityLevelDisplayHints.getColumns());
+        ColumnHeaderSchema.fromColumnSchemas(
+            Arrays.stream(ITEntityLevelDisplayHints.Column.values())
+                .map(ITEntityLevelDisplayHints.Column::getSchema)
+                .collect(Collectors.toList()));
     columnHeaderSchema.getColumnSchemas().stream()
         .forEach(
             cs -> {
@@ -103,7 +107,9 @@ public class EntityHintRequest {
                 fv ->
                     fv.getAlias()
                         .equals(
-                            InstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName()))
+                            ITInstanceLevelDisplayHints.Column.ENTITY_ID
+                                .getSchema()
+                                .getColumnName()))
             .findFirst()
             .get();
     BinaryFilterVariable filterVar =
@@ -115,7 +121,10 @@ public class EntityHintRequest {
     LOGGER.info("Generated instance-level display hint query: {}", query.renderSQL());
     return new QueryRequest(
         query.renderSQL(),
-        ColumnHeaderSchema.fromColumnSchemas(InstanceLevelDisplayHints.getColumns()));
+        ColumnHeaderSchema.fromColumnSchemas(
+            Arrays.stream(ITInstanceLevelDisplayHints.Column.values())
+                .map(ITInstanceLevelDisplayHints.Column::getSchema)
+                .collect(Collectors.toList())));
   }
 
   public static class Builder {

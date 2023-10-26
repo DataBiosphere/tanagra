@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.entitygroup;
 
+import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.serialization.entitygroup.UFGroupItems;
-import bio.terra.tanagra.underlay.DataPointer;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.EntityGroup;
 import bio.terra.tanagra.underlay.EntityGroupMapping;

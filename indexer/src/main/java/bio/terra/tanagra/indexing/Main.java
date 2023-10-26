@@ -5,9 +5,12 @@ import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY;
 import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY_GROUP;
 
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
-import bio.terra.tanagra.utils.FileIO;
-import java.nio.file.Path;
+import bio.terra.tanagra.underlay2.ConfigReader;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 
 public final class Main {
   private Main() {}
@@ -22,18 +25,16 @@ public final class Main {
     CLEAN_ALL
   }
 
-  /** Main entrypoint for running indexing. */
   public static void main(String... args) throws Exception {
-    // TODO: Consider using the picocli library for command parsing and packaging this as an actual
-    // CLI.
+    // TODO: Use a library for command parsing and package this as a proper CLI.
     Command cmd = Command.valueOf(args[0]);
-    String underlayFilePath = args[1];
+    String indexerConfigName = args[1];
 
-    // TODO: Use singleton FileIO instance instead of setting a bunch of separate static properties.
-    FileIO.setToReadDiskFiles(); // This is the default, included here for clarity.
-    FileIO.setInputParentDir(Path.of(underlayFilePath).toAbsolutePath().getParent());
-    Indexer indexer =
-        Indexer.deserializeUnderlay(Path.of(underlayFilePath).getFileName().toString());
+    // Read in the config files, convert to the internal underlay object.
+    SZIndexer szIndexer = ConfigReader.deserializeIndexer(indexerConfigName);
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
+    Underlay underlay = new ConfigMapper(szIndexer.bigQuery, szUnderlay).run();
+    Indexer indexer = new Indexer(underlay);
 
     switch (cmd) {
       case VALIDATE_CONFIG:

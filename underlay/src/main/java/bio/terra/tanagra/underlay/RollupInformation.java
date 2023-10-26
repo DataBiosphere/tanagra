@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.serialization.UFRollupInformation;

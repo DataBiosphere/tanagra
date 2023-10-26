@@ -1,7 +1,7 @@
 package bio.terra.tanagra.serialization;
 
+import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
-import bio.terra.tanagra.underlay.DataPointer;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

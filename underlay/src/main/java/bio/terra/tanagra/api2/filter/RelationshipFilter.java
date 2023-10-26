@@ -4,9 +4,13 @@ import bio.terra.tanagra.query.*;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.HavingFilterVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
-import bio.terra.tanagra.underlay2.Attribute;
-import bio.terra.tanagra.underlay2.Entity;
-import bio.terra.tanagra.underlay2.Relationship;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Relationship;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay2.indextable.ITRelationshipIdPairs;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -24,8 +28,13 @@ public class RelationshipFilter extends EntityFilter {
   private final @Nullable Attribute groupByCountAttribute;
   private final @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator;
   private final @Nullable Integer groupByCountValue;
+  private final ITEntityMain selectEntityIndexTable;
+  private final ITEntityMain filterEntityIndexTable;
+  private @Nullable final ITRelationshipIdPairs relationshipIdPairsIndexTable;
 
   public RelationshipFilter(
+      Underlay underlay,
+      EntityGroup entityGroup,
       Entity selectEntity,
       Relationship relationship,
       EntityFilter subFilter,
@@ -42,6 +51,15 @@ public class RelationshipFilter extends EntityFilter {
     this.groupByCountAttribute = groupByCountAttribute;
     this.groupByCountOperator = groupByCountOperator;
     this.groupByCountValue = groupByCountValue;
+    this.selectEntityIndexTable = underlay.getIndexSchema().getEntityMain(selectEntity.getName());
+    this.filterEntityIndexTable = underlay.getIndexSchema().getEntityMain(filterEntity.getName());
+    this.relationshipIdPairsIndexTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                entityGroup.getName(),
+                relationship.getEntityA().getName(),
+                relationship.getEntityB().getName());
   }
 
   @Override
@@ -49,14 +67,13 @@ public class RelationshipFilter extends EntityFilter {
       TableVariable entityTableVar, List<TableVariable> tableVars) {
     // Build where field variable and filter entity sub-query.
     TableVariable filterEntityTableVar =
-        TableVariable.forPrimary(filterEntity.getIndexEntityTable());
+        TableVariable.forPrimary(filterEntityIndexTable.getTablePointer());
     List<TableVariable> filterEntityTableVars = Lists.newArrayList(filterEntityTableVar);
     FilterVariable filterEntitySubFilterVar =
         subFilter.getFilterVariable(filterEntityTableVar, filterEntityTableVars);
 
-    TablePointer idPairsTable = relationship.getIndexIdPairsTable();
-    boolean fkOnSelectTable = idPairsTable.equals(selectEntity.getIndexEntityTable());
-    boolean fkOnFilterTable = idPairsTable.equals(filterEntity.getIndexEntityTable());
+    boolean fkOnSelectTable = relationship.isForeignKeyAttribute(selectEntity);
+    boolean fkOnFilterTable = relationship.isForeignKeyAttribute(filterEntity);
 
     FieldVariable whereField;
     FieldVariable selectEntityIdInSubQuery;
@@ -65,9 +82,8 @@ public class RelationshipFilter extends EntityFilter {
       LOGGER.trace("Foreign key on select entity table: {}", selectEntity.getName());
       // SELECT id from filterEntity WHERE [subfilter]
       FieldVariable filterEntityIdFieldVar =
-          filterEntity
-              .getIdAttribute()
-              .getIndexValueField()
+          filterEntityIndexTable
+              .getAttributeValueField(filterEntity.getIdAttribute().getName())
               .buildVariable(filterEntityTableVar, filterEntityTableVars);
       filterEntitySubQuery =
           new Query.Builder()
@@ -78,8 +94,8 @@ public class RelationshipFilter extends EntityFilter {
       // WHERE selectEntity.foreignKey IN
       //    (SELECT id FROM filterEntity WHERE [subfilter]) --> from above
       FieldVariable selectEntityFKFieldVar =
-          relationship
-              .getIndexEntityIdField(filterEntity.getName())
+          selectEntityIndexTable
+              .getAttributeValueField(relationship.getForeignKeyAttribute(selectEntity).getName())
               .buildVariable(entityTableVar, tableVars);
       whereField = selectEntityFKFieldVar;
       selectEntityIdInSubQuery = filterEntityIdFieldVar;
@@ -87,8 +103,8 @@ public class RelationshipFilter extends EntityFilter {
       LOGGER.trace("Foreign key on filter entity table: {}", filterEntity.getName());
       // SELECT foreignKey from filterEntity WHERE [subfilter]
       FieldVariable filterEntityFKFieldVar =
-          relationship
-              .getIndexEntityIdField(selectEntity.getName())
+          filterEntityIndexTable
+              .getAttributeValueField(relationship.getForeignKeyAttribute(filterEntity).getName())
               .buildVariable(filterEntityTableVar, tableVars);
       filterEntitySubQuery =
           new Query.Builder()
@@ -99,9 +115,8 @@ public class RelationshipFilter extends EntityFilter {
       // WHERE selectEntity.id IN
       //    (SELECT foreignKey FROM filterEntity WHERE [subfilter]) --> from above
       FieldVariable selectEntityIdFieldVar =
-          selectEntity
-              .getIdAttribute()
-              .getIndexValueField()
+          selectEntityIndexTable
+              .getAttributeValueField(selectEntity.getIdAttribute().getName())
               .buildVariable(entityTableVar, tableVars);
       whereField = selectEntityIdFieldVar;
       selectEntityIdInSubQuery = filterEntityFKFieldVar;
@@ -112,9 +127,8 @@ public class RelationshipFilter extends EntityFilter {
           filterEntity.getName());
       // SELECT id from filterEntity WHERE [subfilter]
       FieldVariable filterEntityIdFieldVar =
-          filterEntity
-              .getIdAttribute()
-              .getIndexValueField()
+          filterEntityIndexTable
+              .getAttributeValueField(filterEntity.getIdAttribute().getName())
               .buildVariable(filterEntityTableVar, filterEntityTableVars);
       Query innerFilterEntitySubQuery =
           new Query.Builder()
@@ -126,15 +140,15 @@ public class RelationshipFilter extends EntityFilter {
       //    SELECT selectEntityId FROM intermediateTable WHERE filterEntityId IN
       //        (SELECT id FROM filterEntity WHERE [subfilter]) --> from above
       TableVariable intermediateTableVar =
-          TableVariable.forPrimary(relationship.getIndexIdPairsTable());
+          TableVariable.forPrimary(relationshipIdPairsIndexTable.getTablePointer());
       List<TableVariable> intermediateTableVars = Lists.newArrayList(intermediateTableVar);
       FieldVariable intermediateSelectEntityIdFieldVar =
-          relationship
-              .getIndexEntityIdField(selectEntity.getName())
+          relationshipIdPairsIndexTable
+              .getEntityIdField(selectEntity.getName())
               .buildVariable(intermediateTableVar, intermediateTableVars);
       FieldVariable intermediateFilterEntityIdFieldVar =
-          relationship
-              .getIndexEntityIdField(filterEntity.getName())
+          relationshipIdPairsIndexTable
+              .getEntityIdField(filterEntity.getName())
               .buildVariable(intermediateTableVar, intermediateTableVars);
       Query.Builder intermediateSubQuery =
           new Query.Builder()
@@ -151,9 +165,8 @@ public class RelationshipFilter extends EntityFilter {
       //        (SELECT id FROM filterEntity WHERE [subfilter]) --> from above
       //    )
       FieldVariable selectEntityIdFieldVar =
-          selectEntity
-              .getIdAttribute()
-              .getIndexValueField()
+          selectEntityIndexTable
+              .getAttributeValueField(selectEntity.getIdAttribute().getName())
               .buildVariable(entityTableVar, tableVars);
       whereField = selectEntityIdFieldVar;
       selectEntityIdInSubQuery = intermediateSelectEntityIdFieldVar;
@@ -187,18 +200,20 @@ public class RelationshipFilter extends EntityFilter {
         // GROUP BY selectEntityId, groupByAttribute
         innerQueryBuilder = filterEntitySubQuery;
         FieldVariable groupByCountAttrFieldVar =
-            groupByCountAttribute
-                .getIndexValueField()
+            filterEntityIndexTable
+                .getAttributeValueField(groupByCountAttribute.getName())
                 .buildVariable(filterEntityTableVar, filterEntityTableVars);
         innerQueryBuilder.addSelect(groupByCountAttrFieldVar);
       } else {
         // Since we're selecting from an intermediate table, we need to add a sub-select on the
         // filter entity to get the group by attribute.
-        if (relationship.getIndexEntityIdField(filterEntity.getName()).isForeignKey()) {
+        if (relationshipIdPairsIndexTable.getEntityIdField(filterEntity.getName()).isForeignKey()) {
           throw new NotImplementedException(
               "Group by attribute is only supported for intermediate id pairs tables where both ids are inline (i.e. no foreign key to another table)");
         }
-        if (groupByCountAttribute.getIndexValueField().isForeignKey()) {
+        if (filterEntityIndexTable
+            .getAttributeValueField(groupByCountAttribute.getName())
+            .isForeignKey()) {
           throw new NotImplementedException(
               "Group by attribute is only supported for inline attributes (i.e. no foreign key to another table).");
         }
@@ -211,15 +226,24 @@ public class RelationshipFilter extends EntityFilter {
         innerQueryBuilder = filterEntitySubQuery;
         FieldPointer groupByCountAttrValueField =
             new FieldPointer.Builder()
-                .tablePointer(relationship.getIndexIdPairsTable())
+                .tablePointer(relationshipIdPairsIndexTable.getTablePointer())
                 .columnName(
-                    relationship.getIndexEntityIdField(filterEntity.getName()).getColumnName())
-                .foreignTablePointer(filterEntity.getIndexEntityTable())
+                    relationshipIdPairsIndexTable
+                        .getEntityIdField(filterEntity.getName())
+                        .getColumnName())
+                .foreignTablePointer(filterEntityIndexTable.getTablePointer())
                 .foreignKeyColumnName(
-                    filterEntity.getIdAttribute().getIndexValueField().getColumnName())
-                .foreignColumnName(groupByCountAttribute.getIndexValueField().getColumnName())
+                    filterEntityIndexTable
+                        .getAttributeValueField(filterEntity.getIdAttribute().getName())
+                        .getColumnName())
+                .foreignColumnName(
+                    filterEntityIndexTable
+                        .getAttributeValueField(groupByCountAttribute.getName())
+                        .getColumnName())
                 .sqlFunctionWrapper(
-                    groupByCountAttribute.getIndexValueField().getSqlFunctionWrapper())
+                    filterEntityIndexTable
+                        .getAttributeValueField(groupByCountAttribute.getName())
+                        .getSqlFunctionWrapper())
                 .build();
         TableVariable intermediateTableVar = selectEntityIdInSubQuery.getTableVariable();
         FieldVariable groupByCountAttrValueFieldVar =
