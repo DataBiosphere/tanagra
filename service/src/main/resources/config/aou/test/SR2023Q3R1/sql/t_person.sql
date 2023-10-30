@@ -18,8 +18,8 @@ SELECT p.person_id,
        CASE
            WHEN sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_sleep_level,
        CASE
-           WHEN sl.person_id IS NULL AND sl.person_id IS NULL AND hrs.person_id IS NULL
-            AND si.person_id IS NULL AND sds.person_id IS NULL THEN 0 ELSE 1 END has_fitbit,
+           WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
+            AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit,
        CASE
            WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data
 FROM `all-of-us-ehr-dev.SR2023Q3R1.person` p

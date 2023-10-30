@@ -18,17 +18,17 @@ SELECT p.person_id,
        CASE
            WHEN sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_sleep_level,
        CASE
-           WHEN sl.person_id IS NULL AND sl.person_id IS NULL AND hrs.person_id IS NULL
-            AND si.person_id IS NULL AND sds.person_id IS NULL THEN 0 ELSE 1 END has_fitbit,
-    CASE
+           WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
+           AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit,
+       CASE
            WHEN wgv.sample_name IS NULL THEN 0 ELSE 1 END has_whole_genome_variant,
-    CASE
+       CASE
            WHEN mad.sample_name IS NULL THEN 0 ELSE 1 END has_array_data,
-    CASE
+       CASE
            WHEN lrwgv.sample_name IS NULL THEN 0 ELSE 1 END has_lr_whole_genome_variant,
-    CASE
+       CASE
            WHEN svd.sample_name IS NULL THEN 0 ELSE 1 END has_structural_variant_data,
-    CASE
+       CASE
            WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data
 FROM `all-of-us-ehr-dev.SC2023Q3R1.person` p
          LEFT JOIN
