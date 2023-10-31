@@ -752,6 +752,13 @@
     },
     {
       "type": "attribute",
+      "id": "tanagra-sex-at-birth",
+      "title": "Sex At Birth",
+      "category": "Program data",
+      "attribute": "sex_at_birth"
+    },
+    {
+      "type": "attribute",
       "id": "tanagra-race",
       "title": "Race",
       "category": "Program data",
