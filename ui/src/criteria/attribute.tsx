@@ -25,6 +25,7 @@ type Selection = {
 interface Config extends CriteriaConfig {
   attribute: string;
   multiRange?: boolean;
+  unit?: string;
 }
 
 interface Data {
@@ -131,6 +132,7 @@ type SliderProps = {
   criteriaId?: string;
   index: number;
   multiRange?: boolean;
+  unit?: string;
 };
 
 function AttributeSlider(props: SliderProps) {
@@ -170,6 +172,7 @@ function AttributeSlider(props: SliderProps) {
       range={props.range}
       index={props.index}
       multiRange={props.multiRange}
+      unit={props.unit}
       onUpdate={onUpdate}
       onDelete={onDelete}
     />
@@ -232,6 +235,7 @@ function AttributeInline(props: AttributeInlineProps) {
           minBound={hintDataState.data.integerHint.min}
           maxBound={hintDataState.data.integerHint.max}
           range={emptyRange}
+          unit={props.config.unit}
           data={props.data}
           groupId={props.groupId}
           criteriaId={props.criteriaId}
@@ -248,6 +252,7 @@ function AttributeInline(props: AttributeInlineProps) {
             minBound={hintDataState.data.integerHint.min}
             maxBound={hintDataState.data.integerHint.max}
             range={range}
+            unit={props.config.unit}
             data={props.data}
             groupId={props.groupId}
             criteriaId={props.criteriaId}

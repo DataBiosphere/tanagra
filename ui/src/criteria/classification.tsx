@@ -1,15 +1,9 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import Button from "@mui/material/Button";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
-import { HintDataSelect } from "components/hintDataSelect";
 import Loading from "components/loading";
-import { DataRange, RangeSlider } from "components/rangeSlider";
 import { Search } from "components/search";
 import {
   TreeGrid,
@@ -20,6 +14,13 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import {
+  ANY_VALUE_DATA,
+  generateValueDataFilter,
+  ValueConfig,
+  ValueData,
+  ValueDataEdit,
+} from "criteria/valueData";
+import {
   ROLLUP_COUNT_ATTRIBUTE,
   SortDirection,
   SortOrder,
@@ -27,7 +28,7 @@ import {
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { ClassificationNode, MergedItem, Source } from "data/source";
 import { useSource } from "data/sourceContext";
-import { DataEntry, DataKey, DataValue } from "data/types";
+import { DataEntry, DataKey } from "data/types";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
@@ -51,11 +52,6 @@ type ClassificationNodeItem = TreeGridItem & {
   classification: string;
 };
 
-type ValueConfig = {
-  attribute: string;
-  title: string;
-};
-
 export interface Config extends CriteriaConfig {
   columns: TreeGridColumn[];
   nameColumnIndex?: number;
@@ -70,31 +66,6 @@ export interface Config extends CriteriaConfig {
   defaultSort?: SortOrder;
   limit?: number;
 }
-
-type ValueSelection = {
-  value: DataValue;
-  name: string;
-};
-
-const ANY_VALUE = "t_any";
-
-type ValueData = {
-  attribute: string;
-  numeric: boolean;
-  selected: ValueSelection[];
-  range: DataRange;
-};
-
-const DEFAULT_VALUE_DATA = {
-  attribute: ANY_VALUE,
-  numeric: false,
-  selected: [],
-  range: {
-    id: "",
-    min: 0,
-    max: 0,
-  },
-};
 
 // Exported for testing purposes.
 export interface Data {
@@ -111,7 +82,7 @@ export interface Data {
 
     const data: Data = {
       selected: [],
-      valueData: { ...DEFAULT_VALUE_DATA },
+      valueData: { ...ANY_VALUE_DATA },
     };
 
     if (dataEntry) {
@@ -198,16 +169,9 @@ class _ implements CriteriaPlugin<Data> {
       },
     ];
 
-    if (this.data.valueData.attribute !== ANY_VALUE) {
-      const numeric = this.data.valueData.numeric;
-      filters.push({
-        type: FilterType.Attribute,
-        attribute: this.data.valueData.attribute,
-        values: !numeric
-          ? this.data.valueData.selected.map((s) => s.value)
-          : undefined,
-        ranges: numeric ? [this.data.valueData.range] : undefined,
-      });
+    const valueDataFilter = generateValueDataFilter([this.data.valueData]);
+    if (valueDataFilter) {
+      filters.push(valueDataFilter);
     }
 
     return makeArrayFilter({}, filters);
@@ -520,7 +484,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       updateCriteria(
                         produce(props.data, (data) => {
                           data.selected = [newItem];
-                          data.valueData = DEFAULT_VALUE_DATA;
+                          data.valueData = ANY_VALUE_DATA;
                         })
                       );
                       props.doneAction();
@@ -581,7 +545,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                                 } else {
                                   data.selected.push(newItem);
                                 }
-                                data.valueData = DEFAULT_VALUE_DATA;
+                                data.valueData = ANY_VALUE_DATA;
                               })
                             );
                           }}
@@ -682,140 +646,26 @@ function ClassificationInline(props: ClassificationInlineProps) {
   );
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
 
-  const hintDataState = useSWRImmutable(
-    {
-      type: "hintData",
-      occurrence: firstOf(props.config.occurrences),
-      entity: props.data.selected[0].entity ?? classification.entity,
-      key: props.data.selected[0].key,
-    },
-    async (key) => {
-      const hintData = props.config.valueConfigs
-        ? await source.getAllHintData(key.occurrence, key.entity, key.key)
-        : undefined;
-      return {
-        hintData,
-      };
-    }
-  );
-
   if (!props.config.valueConfigs) {
     return null;
   }
 
-  const onSelect = (event: SelectChangeEvent<string>) => {
-    const {
-      target: { value: sel },
-    } = event;
-    updateCriteria(
-      produce(props.data, (data) => {
-        const config = props.config.valueConfigs?.find(
-          (c) => c.attribute === sel
-        );
-        let attribute = ANY_VALUE;
-        if (config) {
-          attribute = config.attribute;
-        }
-
-        if (attribute === data.valueData.attribute) {
-          return;
-        }
-
-        const newHintData = hintDataState.data?.hintData?.find(
-          (hint) => hint.attribute === attribute
-        );
-
-        data.valueData = {
-          ...data.valueData,
-          attribute,
-          numeric: !!newHintData?.integerHint,
-        };
-
-        if (data.valueData.range.min === 0 && data.valueData.range.max === 0) {
-          data.valueData.range = {
-            id: "",
-            min: newHintData?.integerHint?.min ?? 0,
-            max: newHintData?.integerHint?.max ?? 1000,
-          };
-        }
-      })
-    );
-  };
-
-  const onValueSelect = (sel: ValueSelection[]) => {
-    updateCriteria(
-      produce(props.data, (data) => {
-        data.valueData.selected = sel;
-      })
-    );
-  };
-
-  const onUpdateRange = (
-    range: DataRange,
-    index: number,
-    min: number,
-    max: number
-  ) => {
-    updateCriteria(
-      produce(props.data, (data) => {
-        data.valueData.range.min = min;
-        data.valueData.range.max = max;
-      })
-    );
-  };
-
-  const selectedHintData = hintDataState.data?.hintData?.find(
-    (hint) => hint.attribute === props.data.valueData.attribute
-  );
-
   return (
-    <Loading status={hintDataState}>
-      <GridLayout cols spacing={2} height="auto">
-        <FormControl
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <Select
-            value={props.data.valueData.attribute}
-            input={<OutlinedInput />}
-            disabled={!hintDataState.data?.hintData?.length}
-            onChange={onSelect}
-          >
-            <MenuItem key={ANY_VALUE} value={ANY_VALUE}>
-              Any value
-            </MenuItem>
-            {props.config.valueConfigs?.map((c) =>
-              hintDataState.data?.hintData?.find(
-                (hint) => hint.attribute === c.attribute
-              ) ? (
-                <MenuItem key={c.attribute} value={c.attribute}>
-                  {c.title}
-                </MenuItem>
-              ) : null
-            )}
-          </Select>
-        </FormControl>
-        {selectedHintData && selectedHintData.enumHintOptions ? (
-          <HintDataSelect
-            hintData={selectedHintData}
-            selected={props.data.valueData.selected}
-            onSelect={onValueSelect}
-          />
-        ) : null}
-        {selectedHintData && selectedHintData.integerHint ? (
-          <RangeSlider
-            index={0}
-            minBound={selectedHintData.integerHint.min}
-            maxBound={selectedHintData.integerHint.max}
-            range={props.data.valueData.range}
-            onUpdate={onUpdateRange}
-          />
-        ) : null}
-        <GridBox />
-      </GridLayout>
-    </Loading>
+    <ValueDataEdit
+      occurrence={firstOf(props.config.occurrences)}
+      entity={props.data.selected[0].entity ?? classification.entity}
+      hintKey={props.data.selected[0].key}
+      singleValue
+      valueConfigs={props.config.valueConfigs}
+      valueData={[props.data.valueData]}
+      update={(valueData) =>
+        updateCriteria(
+          produce(props.data, (data) => {
+            data.valueData = valueData[0];
+          })
+        )
+      }
+    />
   );
 }
 

@@ -1560,9 +1560,6 @@ export function generateFilter(
   if (isRelationshipFilter(filter)) {
     const entity = findEntity(filter.entityId, source.config);
     const subfilter = generateFilter(source, filter.subfilter);
-    if (!subfilter) {
-      return null;
-    }
 
     return {
       filterType: tanagra.FilterFilterTypeEnum.Relationship,
@@ -1636,6 +1633,9 @@ export function generateFilter(
     };
   }
   if (isAttributeFilter(filter)) {
+    if (filter.nonNull) {
+      return null;
+    }
     if (filter.ranges?.length) {
       return makeBooleanLogicFilter(
         tanagra.BooleanLogicFilterOperatorEnum.Or,

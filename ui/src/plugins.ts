@@ -2,6 +2,7 @@
 
 // Core plugins
 import "criteria/attribute";
+import "criteria/multiAttribute";
 import "criteria/classification";
 import "criteria/textSearch";
 import "criteria/unhintedValue";
