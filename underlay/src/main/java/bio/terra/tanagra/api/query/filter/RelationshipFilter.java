@@ -18,7 +18,7 @@ public class RelationshipFilter extends EntityFilter {
   private final Entity selectEntity;
   private final Entity filterEntity;
   private final Relationship relationship;
-  private final EntityFilter subFilter;
+  private final @Nullable EntityFilter subFilter;
   private final @Nullable Attribute groupByCountAttribute;
   private final @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator;
   private final @Nullable Integer groupByCountValue;
@@ -26,7 +26,7 @@ public class RelationshipFilter extends EntityFilter {
   public RelationshipFilter(
       Entity selectEntity,
       Relationship relationship,
-      EntityFilter subFilter,
+      @Nullable EntityFilter subFilter,
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
@@ -53,7 +53,9 @@ public class RelationshipFilter extends EntityFilter {
             filterEntity.getMapping(Underlay.MappingType.INDEX).getTablePointer());
     List<TableVariable> filterEntityTableVars = Lists.newArrayList(filterEntityTableVar);
     FilterVariable filterEntitySubFilterVar =
-        subFilter.getFilterVariable(filterEntityTableVar, filterEntityTableVars);
+        subFilter == null
+            ? null
+            : subFilter.getFilterVariable(filterEntityTableVar, filterEntityTableVars);
 
     TablePointer idPairsTable = indexMapping.getIdPairsTable();
     boolean fkOnSelectTable =
