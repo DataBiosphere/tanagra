@@ -370,6 +370,42 @@
             }
           }
         ]
+      },
+      {
+        "id": "blood_pressure_occurrence",
+        "displayName": "Blood pressure",
+        "entity": "bloodPressure",
+        "key": "id"
+      },
+      {
+        "id": "bmi_occurrence",
+        "displayName": "BMI",
+        "entity": "bmi",
+        "key": "id"
+      },
+      {
+        "id": "weight_occurrence",
+        "displayName": "Weight",
+        "entity": "weight",
+        "key": "id"
+      },
+      {
+        "id": "height_occurrence",
+        "displayName": "Height",
+        "entity": "height",
+        "key": "id"
+      },
+      {
+        "id": "pulse_occurrence",
+        "displayName": "Pulse",
+        "entity": "pulse",
+        "key": "id"
+      },
+      {
+        "id": "resp_rate_occurrence",
+        "displayName": "Resp rate",
+        "entity": "respiratoryRate",
+        "key": "id"
       }
     ]
   },
@@ -801,6 +837,109 @@
         "age_at_occurrence",
         "visit_type",
         "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-bmi",
+      "title": "BMI",
+      "category": "Vitals",
+      "occurrence": "bmi_occurrence",
+      "valueConfigs": [
+        {
+          "title": "Cleanliness",
+          "attribute": "is_clean"
+        },
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg/m^2"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-blood-pressure",
+      "title": "Blood pressure",
+      "category": "Vitals",
+      "occurrence": "blood_pressure_occurrence",
+      "valueConfigs": [
+        {
+          "title": "Category",
+          "attribute": "status_code"
+        },
+        {
+          "title": "Systolic",
+          "attribute": "systolic"
+        },
+        {
+          "title": "Diastolic",
+          "attribute": "diastolic"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-height",
+      "title": "Height",
+      "category": "Vitals",
+      "occurrence": "height_occurrence",
+      "valueConfigs": [
+        {
+          "title": "Cleanliness",
+          "attribute": "is_clean"
+        },
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-weight",
+      "title": "Weight",
+      "category": "Vitals",
+      "occurrence": "weight_occurrence",
+      "valueConfigs": [
+        {
+          "title": "Cleanliness",
+          "attribute": "is_clean"
+        },
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-pulse",
+      "title": "Pulse",
+      "category": "Vitals",
+      "occurrence": "pulse_occurrence",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "bpm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-resp-rate",
+      "title": "Resp Rate",
+      "category": "Vitals",
+      "occurrence": "resp_rate_occurrence",
+      "valueConfigs": [
+        {
+          "title": "Resp rate in br/min",
+          "attribute": "value_numeric",
+          "unit": "br/min"
+        }
       ]
     }
   ],
