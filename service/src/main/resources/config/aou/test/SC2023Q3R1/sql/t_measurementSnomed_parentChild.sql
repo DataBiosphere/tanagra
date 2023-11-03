@@ -7,7 +7,6 @@ JOIN `all-of-us-ehr-dev.SC2023Q3R1.concept` c2  ON c2.concept_id = cr.concept_id
 WHERE
   cr.relationship_id = 'Subsumes'
   AND c1.vocabulary_id = c2.vocabulary_id
-  AND ((c1.vocabulary_id = 'SNOMED' AND c1.domain_id = c2.domain_id AND c1.domain_id = 'Measurement')
-      OR (c1.vocabulary_id = 'LOINC'
-          AND c1.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')
-          AND c2.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')))
+  AND c1.vocabulary_id = 'SNOMED'
+  AND c1.domain_id = c2.domain_id
+  AND c1.domain_id = 'Measurement'

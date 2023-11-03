@@ -20,5 +20,4 @@ SELECT textsearch.id, textsearch.text FROM (
 JOIN `all-of-us-ehr-dev.SC2023Q3R1.concept` c
 ON c.concept_id = textsearch.id
 
-WHERE ((c.domain_id = 'Measurement' AND c.vocabulary_id = 'SNOMED')
-        OR (c.vocabulary_id = 'LOINC' AND c.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')))
+WHERE c.domain_id = 'Measurement' AND c.vocabulary_id = 'SNOMED'

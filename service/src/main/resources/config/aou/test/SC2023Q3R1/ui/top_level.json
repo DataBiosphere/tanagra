@@ -222,9 +222,9 @@
         "key": "id",
         "classifications": [
           {
-            "id": "measurement",
+            "id": "snomed",
             "attribute": "measurement",
-            "entity": "t_measurement",
+            "entity": "t_measurementSnomed",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -493,7 +493,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "measurement_occurrence",
-      "classifications": ["measurement"],
+      "classifications": ["snomed"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {
