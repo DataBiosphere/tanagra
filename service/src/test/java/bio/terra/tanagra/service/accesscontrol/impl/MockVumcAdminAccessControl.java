@@ -8,8 +8,14 @@ import org.vumc.vda.tanagra.admin.model.ResourceList;
 import org.vumc.vda.tanagra.admin.model.ResourceType;
 
 public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
+  private final List<String> admins = new ArrayList<>(); // user emails
   private final Map<String, Set<Resource>> permissions =
       new HashMap<>(); // user email -> set of permissions
+
+  @Override
+  protected boolean apiIsAuthorizedUser(String userEmail) {
+    return admins.contains(userEmail);
+  }
 
   @Override
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
@@ -37,6 +43,10 @@ public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
           .forEach(r -> resourceList.add(r));
     }
     return resourceList;
+  }
+
+  public void addAdminUser(UserId user) {
+    admins.add(user.getEmail());
   }
 
   public void addPermission(
