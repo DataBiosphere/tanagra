@@ -7,13 +7,15 @@
     "conditionOccurrence",
     "brand",
     "ingredient",
-    "measurementLoinc"
+    "measurementLoinc",
+    "measurementOccurrence"
   ],
   "groupItemsEntityGroups": [
     "brandIngredient"
   ],
   "criteriaOccurrenceEntityGroups": [
-    "conditionPerson"
+    "conditionPerson",
+    "measurementLoincPerson"
   ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",

@@ -1,7 +1,11 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.DataPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFEntityMapping;
 import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
 import java.util.ArrayList;

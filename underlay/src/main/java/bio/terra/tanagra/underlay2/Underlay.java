@@ -11,13 +11,27 @@ import bio.terra.tanagra.underlay2.entitymodel.Relationship;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.GroupItems;
-import bio.terra.tanagra.underlay2.serialization.*;
+import bio.terra.tanagra.underlay2.serialization.SZBigQuery;
+import bio.terra.tanagra.underlay2.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay2.serialization.SZEntity;
+import bio.terra.tanagra.underlay2.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.*;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
+@SuppressFBWarnings(
+    value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+    justification =
+        "Jackson object mapper writes the POJO fields during deserialization. Need to put this at the class level, because method-level does not handle internal lambdas.")
 public final class Underlay {
   private final String name;
   private final String displayName;
@@ -29,6 +43,7 @@ public final class Underlay {
   private final SourceSchema sourceSchema;
   private final IndexSchema indexSchema;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private Underlay(
       String name,
       String displayName,
@@ -158,7 +173,8 @@ public final class Underlay {
         indexSchema);
   }
 
-  private static Entity fromConfigEntity(SZEntity szEntity, String primaryEntityName) {
+  @VisibleForTesting
+  public static Entity fromConfigEntity(SZEntity szEntity, String primaryEntityName) {
     // Build the attributes.
     List<Attribute> attributes =
         szEntity.attributes.stream()

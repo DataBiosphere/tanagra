@@ -37,10 +37,13 @@ public class WriteRelationshipIntermediateTable extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    Query sourceIdPairsQuery = sourceTable.getQueryAll(Map.of(
-            sourceTable.getEntityAIdColumnSchema(), ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema().getColumnName(),
-            sourceTable.getEntityBIdColumnSchema(), ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName()
-    ));
+    Query sourceIdPairsQuery =
+        sourceTable.getQueryAll(
+            Map.of(
+                sourceTable.getEntityAIdColumnSchema(),
+                    ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema().getColumnName(),
+                sourceTable.getEntityBIdColumnSchema(),
+                    ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName()));
     LOGGER.info("source relationship id-pairs query: {}", sourceIdPairsQuery.renderSQL());
 
     // Create a new table directly from the select query.

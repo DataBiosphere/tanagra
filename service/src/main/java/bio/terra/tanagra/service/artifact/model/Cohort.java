@@ -2,7 +2,11 @@ package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 

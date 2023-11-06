@@ -3,7 +3,11 @@ package bio.terra.tanagra.query.bigquery;
 import static com.google.cloud.storage.Storage.BucketField.LOCATION;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.PageMarker;
+import bio.terra.tanagra.query.QueryExecutor;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.QueryResult;
+import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.auth.oauth2.GoogleCredentials;

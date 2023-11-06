@@ -2,14 +2,28 @@ package bio.terra.tanagra.underlay2;
 
 import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.query.bigquery.BigQueryDataset;
-import bio.terra.tanagra.underlay2.indextable.*;
-import bio.terra.tanagra.underlay2.serialization.*;
+import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay2.indextable.ITHierarchyAncestorDescendant;
+import bio.terra.tanagra.underlay2.indextable.ITHierarchyChildParent;
+import bio.terra.tanagra.underlay2.indextable.ITInstanceLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indextable.ITRelationshipIdPairs;
+import bio.terra.tanagra.underlay2.serialization.SZBigQuery;
+import bio.terra.tanagra.underlay2.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay2.serialization.SZEntity;
+import bio.terra.tanagra.underlay2.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 import com.google.common.collect.ImmutableList;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@SuppressFBWarnings(
+    value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+    justification =
+        "Jackson object mapper writes the POJO fields during deserialization. Need to put this at the class level, because method-level does not handle internal lambdas.")
 public final class IndexSchema {
   private final ImmutableList<ITEntityMain> entityMainTables;
   private final ImmutableList<ITEntityLevelDisplayHints> entityLevelDisplayHintTables;
@@ -161,6 +175,7 @@ public final class IndexSchema {
         instanceLevelDisplayHintTables);
   }
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private static void fromConfigEntity(
       String entityName,
       SZUnderlay szUnderlay,
@@ -240,7 +255,7 @@ public final class IndexSchema {
     }
   }
 
-  private static void fromConfigCriteriaOccurrence(
+  public static void fromConfigCriteriaOccurrence(
       String criteriaOccurrenceName,
       String primaryEntityName,
       ConfigReader configReader,

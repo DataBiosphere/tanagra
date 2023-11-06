@@ -1,7 +1,11 @@
 package bio.terra.tanagra.service.artifact.model;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public class ActivityLog {
   public enum Type {

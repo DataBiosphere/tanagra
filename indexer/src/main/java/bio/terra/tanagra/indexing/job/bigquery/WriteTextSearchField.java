@@ -1,7 +1,14 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.UnionQuery;
+import bio.terra.tanagra.query.UpdateFromSelect;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay2.serialization.SZIndexer;

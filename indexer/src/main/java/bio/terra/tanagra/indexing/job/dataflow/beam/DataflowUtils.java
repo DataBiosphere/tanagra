@@ -8,14 +8,8 @@ import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.text.StringSubstitutor;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 public final class DataflowUtils {
-  private static final DateTimeFormatter FORMATTER =
-      DateTimeFormat.forPattern("MMddHHmm").withZone(DateTimeZone.UTC);
-
   private DataflowUtils() {}
 
   public static BigQueryOptions getPipelineOptions(SZIndexer indexerConfig, String jobName) {
@@ -46,19 +40,22 @@ public final class DataflowUtils {
    * 40 job, 6 user, 3 dashes
    */
   private static String getJobName(String underlay, String job) {
+    final int underlaySubstrLen = 15;
+    final int jobSubstrLen = 40;
+    final int userSubstrLen = 6;
     String cleanUnderlay = underlay.toLowerCase().replaceAll("[^a-z0-9]", "");
-    if (cleanUnderlay.length() > 15) {
-      cleanUnderlay = cleanUnderlay.substring(0, 15);
+    if (cleanUnderlay.length() > underlaySubstrLen) {
+      cleanUnderlay = cleanUnderlay.substring(0, underlaySubstrLen);
     }
     String cleanJob = job.toLowerCase().replaceAll("[^a-z0-9-]", "");
-    if (cleanJob.length() > 40) {
-      cleanJob = cleanJob.substring(0, 40);
+    if (cleanJob.length() > jobSubstrLen) {
+      cleanJob = cleanJob.substring(0, jobSubstrLen);
     }
     String systemUserName = System.getProperty("user.name");
     String cleanUser =
         (systemUserName == null ? "" : systemUserName).toLowerCase().replaceAll("[^a-z0-9]", "");
-    if (cleanUser.length() > 6) {
-      cleanUser = cleanUser.substring(0, 6);
+    if (cleanUser.length() > userSubstrLen) {
+      cleanUser = cleanUser.substring(0, userSubstrLen);
     }
 
     return String.format("%s-%s-%s", cleanUnderlay, cleanJob, cleanUser);

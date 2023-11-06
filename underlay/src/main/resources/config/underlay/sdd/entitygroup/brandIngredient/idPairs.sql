@@ -13,7 +13,7 @@ SELECT
     cr.concept_id_1 AS brand_concept_id,
     cr.concept_id_2 AS ingredient_concept_id
 FROM
-    `sd-vumc-tanagra-test.sd_20230331.concept_relationship` cr,
-    `sd-vumc-tanagra-test.sd_20230331.concept` c2
+    `${omopDataset}.concept_relationship` cr,
+    `${omopDataset}.concept` c2
 WHERE
     cr.concept_id_2 = c2.concept_id AND c2.concept_class_id = 'Ingredient'

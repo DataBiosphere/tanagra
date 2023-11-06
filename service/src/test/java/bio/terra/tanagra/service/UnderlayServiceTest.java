@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;

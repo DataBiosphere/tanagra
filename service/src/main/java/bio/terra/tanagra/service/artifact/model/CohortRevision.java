@@ -3,7 +3,10 @@ package bio.terra.tanagra.service.artifact.model;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 

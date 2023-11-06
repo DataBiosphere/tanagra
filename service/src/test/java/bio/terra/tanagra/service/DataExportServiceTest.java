@@ -1,14 +1,20 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
 import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.query.EntityQueryRequest;
 import bio.terra.tanagra.api.query.filter.AttributeFilter;
 import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -22,7 +28,10 @@ import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.query.*;
+import bio.terra.tanagra.service.query.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.query.ReviewQueryRequest;
+import bio.terra.tanagra.service.query.ReviewQueryResult;
+import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;

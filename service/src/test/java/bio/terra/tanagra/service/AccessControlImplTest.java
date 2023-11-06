@@ -1,10 +1,16 @@
 package bio.terra.tanagra.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
-import bio.terra.tanagra.service.accesscontrol.*;
+import bio.terra.tanagra.service.accesscontrol.Action;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;

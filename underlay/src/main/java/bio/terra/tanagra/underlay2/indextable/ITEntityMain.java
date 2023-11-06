@@ -8,7 +8,9 @@ import bio.terra.tanagra.underlay2.NameHelper;
 import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import bio.terra.tanagra.underlay2.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 public final class ITEntityMain extends IndexTable {

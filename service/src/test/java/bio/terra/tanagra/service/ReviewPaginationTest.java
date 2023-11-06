@@ -1,11 +1,14 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.query.filter.AttributeFilter;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -13,7 +16,10 @@ import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
-import bio.terra.tanagra.service.query.*;
+import bio.terra.tanagra.service.query.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.query.ReviewQueryRequest;
+import bio.terra.tanagra.service.query.ReviewQueryResult;
+import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay.Entity;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;

@@ -1,6 +1,7 @@
 package bio.terra.tanagra.api2.field;
 
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;

@@ -1,8 +1,14 @@
 package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.indexing.job.IndexingJob;
-import bio.terra.tanagra.indexing.job.bigquery.*;
+import bio.terra.tanagra.indexing.job.bigquery.CreateEntityMain;
+import bio.terra.tanagra.indexing.job.bigquery.WriteChildParent;
+import bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes;
+import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
+import bio.terra.tanagra.indexing.job.bigquery.WriteRelationshipIntermediateTable;
+import bio.terra.tanagra.indexing.job.bigquery.WriteTextSearchField;
 import bio.terra.tanagra.indexing.job.dataflow.WriteAncestorDescendant;
+import bio.terra.tanagra.indexing.job.dataflow.WriteInstanceLevelDisplayHints;
 import bio.terra.tanagra.indexing.job.dataflow.WriteNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.dataflow.WriteRollupCounts;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
@@ -15,9 +21,17 @@ import bio.terra.tanagra.underlay2.entitymodel.Relationship;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.GroupItems;
-import bio.terra.tanagra.underlay2.indextable.*;
+import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay2.indextable.ITHierarchyAncestorDescendant;
+import bio.terra.tanagra.underlay2.indextable.ITHierarchyChildParent;
+import bio.terra.tanagra.underlay2.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay2.serialization.SZIndexer;
-import bio.terra.tanagra.underlay2.sourcetable.*;
+import bio.terra.tanagra.underlay2.sourcetable.STEntityAttributes;
+import bio.terra.tanagra.underlay2.sourcetable.STHierarchyChildParent;
+import bio.terra.tanagra.underlay2.sourcetable.STHierarchyRootFilter;
+import bio.terra.tanagra.underlay2.sourcetable.STRelationshipIdPairs;
+import bio.terra.tanagra.underlay2.sourcetable.STTextSearchTerms;
 import java.util.List;
 
 public final class JobSequencer {
@@ -132,6 +146,7 @@ public final class JobSequencer {
       jobSet.addJob(
           new WriteRelationshipIntermediateTable(
               indexerConfig, sourceIdPairsTable, indexIdPairsTable));
+      jobSet.startNewStage();
     }
 
     // Compute the criteria rollup counts for the group-items relationship.
@@ -245,27 +260,28 @@ public final class JobSequencer {
               }
             });
 
-    // Write the relationship id-pairs for the primary-criteria relationship if it's not a direct foreign-key mapping.
+    // Write the relationship id-pairs for the primary-criteria relationship if it's not a direct
+    // foreign-key mapping.
     // e.g. To allow joins between person-condition.
     Relationship primaryCriteriaRelationship = criteriaOccurrence.getPrimaryCriteriaRelationship();
     if (primaryCriteriaRelationship.isIntermediateTable()) {
       STRelationshipIdPairs sourceIdPairsTable =
-              underlay
-                      .getSourceSchema()
-                      .getRelationshipIdPairs(
-                              criteriaOccurrence.getName(),
-                              criteriaOccurrence.getPrimaryEntity().getName(),
-                              criteriaOccurrence.getCriteriaEntity().getName());
+          underlay
+              .getSourceSchema()
+              .getRelationshipIdPairs(
+                  criteriaOccurrence.getName(),
+                  criteriaOccurrence.getPrimaryEntity().getName(),
+                  criteriaOccurrence.getCriteriaEntity().getName());
       ITRelationshipIdPairs indexIdPairsTable =
-              underlay
-                      .getIndexSchema()
-                      .getRelationshipIdPairs(
-                              criteriaOccurrence.getName(),
-                              criteriaOccurrence.getPrimaryEntity().getName(),
-                              criteriaOccurrence.getCriteriaEntity().getName());
+          underlay
+              .getIndexSchema()
+              .getRelationshipIdPairs(
+                  criteriaOccurrence.getName(),
+                  criteriaOccurrence.getPrimaryEntity().getName(),
+                  criteriaOccurrence.getCriteriaEntity().getName());
       jobSet.addJob(
-              new WriteRelationshipIntermediateTable(
-                      indexerConfig, sourceIdPairsTable, indexIdPairsTable));
+          new WriteRelationshipIntermediateTable(
+              indexerConfig, sourceIdPairsTable, indexIdPairsTable));
     }
 
     jobSet.startNewStage();
@@ -323,15 +339,51 @@ public final class JobSequencer {
                                   hierarchy.getName()))));
     }
 
-    //      // Compute display hints for the occurrence entity attributes that are flagged as
-    // modifiers.
-    //      // e.g. To show display hints for a specific measurement entity instance, such as blood
-    //      // pressure.
-    //      if (criteriaOccurrence.hasInstanceLevelDisplayHints()) {
-    //        jobSet.addJob(
-    //            new ComputeModifierDisplayHints(
-    //                criteriaOccurrence, criteriaOccurrence.getOccurrenceEntities().get(0)));
-    //      }
+    // Compute instance-level display hints for the occurrence entity attributes that are flagged as
+    // such.
+    // e.g. To show display hints for a specific measurement entity instance, such as glucose test.
+    // TODO: Handle >1 occurrence entity.
+    Entity occurrenceEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
+    if (criteriaOccurrence.hasInstanceLevelDisplayHints(occurrenceEntity)) {
+      Relationship occurrenceCriteriaRelationship =
+          criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity.getName());
+      Relationship occurrencePrimaryRelationship =
+          criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName());
+      jobSet.addJob(
+          new WriteInstanceLevelDisplayHints(
+              indexerConfig,
+              criteriaOccurrence,
+              criteriaOccurrence.getOccurrenceEntities().get(0),
+              underlay
+                  .getIndexSchema()
+                  .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName()),
+              underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()),
+              underlay
+                  .getIndexSchema()
+                  .getEntityMain(criteriaOccurrence.getPrimaryEntity().getName()),
+              occurrenceCriteriaRelationship.isIntermediateTable()
+                  ? underlay
+                      .getIndexSchema()
+                      .getRelationshipIdPairs(
+                          criteriaOccurrence.getName(),
+                          occurrenceEntity.getName(),
+                          criteriaOccurrence.getCriteriaEntity().getName())
+                  : null,
+              occurrencePrimaryRelationship.isIntermediateTable()
+                  ? underlay
+                      .getIndexSchema()
+                      .getRelationshipIdPairs(
+                          criteriaOccurrence.getName(),
+                          occurrenceEntity.getName(),
+                          criteriaOccurrence.getPrimaryEntity().getName())
+                  : null,
+              underlay
+                  .getIndexSchema()
+                  .getInstanceLevelDisplayHints(
+                      criteriaOccurrence.getName(),
+                      occurrenceEntity.getName(),
+                      criteriaOccurrence.getCriteriaEntity().getName())));
+    }
 
     return jobSet;
   }

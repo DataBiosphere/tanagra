@@ -1,6 +1,9 @@
 package bio.terra.tanagra.api2.query;
 
-import bio.terra.tanagra.api2.field.*;
+import bio.terra.tanagra.api2.field.EntityIdCountField;
+import bio.terra.tanagra.api2.field.EntityLevelHintField;
+import bio.terra.tanagra.api2.field.HintField;
+import bio.terra.tanagra.api2.field.InstanceLevelHintField;
 import bio.terra.tanagra.api2.query.count.CountInstance;
 import bio.terra.tanagra.api2.query.count.CountQueryRequest;
 import bio.terra.tanagra.api2.query.count.CountQueryResult;
@@ -11,13 +14,28 @@ import bio.terra.tanagra.api2.query.hint.HintQueryResult;
 import bio.terra.tanagra.api2.query.list.ListInstance;
 import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.api2.query.list.ListQueryResult;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.OrderByVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.QueryExecutor;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.QueryResult;
+import bio.terra.tanagra.query.RowResult;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay2.indextable.ITInstanceLevelDisplayHints;
 import com.google.common.collect.Lists;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public final class EntityQueryRunner {
   private EntityQueryRunner() {}

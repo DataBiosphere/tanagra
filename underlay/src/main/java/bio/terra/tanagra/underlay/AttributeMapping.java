@@ -1,7 +1,14 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.DataPointer;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFAttributeMapping;
 import bio.terra.tanagra.underlay.displayhint.EnumVals;
 import bio.terra.tanagra.underlay.displayhint.NumericRange;

@@ -1,7 +1,11 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.accesscontrol.*;
+import bio.terra.tanagra.service.accesscontrol.AccessControl;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.authentication.AppDefaultUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
 import bio.terra.tanagra.service.authentication.UserId;
@@ -12,7 +16,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;

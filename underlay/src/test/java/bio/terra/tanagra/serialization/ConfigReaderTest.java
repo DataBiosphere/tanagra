@@ -3,7 +3,9 @@ package bio.terra.tanagra.serialization;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.tanagra.underlay2.ConfigReader;
-import bio.terra.tanagra.underlay2.serialization.*;
+import bio.terra.tanagra.underlay2.serialization.SZEntity;
+import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 import org.junit.jupiter.api.Test;
 
 public class ConfigReaderTest {

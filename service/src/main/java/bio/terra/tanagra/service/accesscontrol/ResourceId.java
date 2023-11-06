@@ -1,6 +1,11 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.ANNOTATION_KEY;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.util.List;

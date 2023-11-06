@@ -1,7 +1,12 @@
 package bio.terra.tanagra.underlay2;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.underlay2.serialization.*;
+import bio.terra.tanagra.underlay2.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay2.serialization.SZEntity;
+import bio.terra.tanagra.underlay2.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay2.serialization.SZService;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.annotations.VisibleForTesting;

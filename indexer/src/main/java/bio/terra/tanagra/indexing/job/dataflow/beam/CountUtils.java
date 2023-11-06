@@ -1,8 +1,16 @@
 package bio.terra.tanagra.indexing.job.dataflow.beam;
 
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
-import org.apache.beam.sdk.transforms.*;
-import org.apache.beam.sdk.values.*;
+import org.apache.beam.sdk.transforms.Count;
+import org.apache.beam.sdk.transforms.Distinct;
+import org.apache.beam.sdk.transforms.Flatten;
+import org.apache.beam.sdk.transforms.MapElements;
+import org.apache.beam.sdk.transforms.SimpleFunction;
+import org.apache.beam.sdk.transforms.Values;
+import org.apache.beam.sdk.values.KV;
+import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollectionList;
+import org.apache.beam.sdk.values.TypeDescriptors;
 
 public final class CountUtils {
   private CountUtils() {}

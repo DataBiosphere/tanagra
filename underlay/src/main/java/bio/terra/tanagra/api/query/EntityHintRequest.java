@@ -1,9 +1,19 @@
 package bio.terra.tanagra.api.query;
 
 import bio.terra.tanagra.exception.InvalidQueryException;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.underlay.*;
+import bio.terra.tanagra.underlay.AuxiliaryDataMapping;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.EntityGroup;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay2.indextable.ITInstanceLevelDisplayHints;

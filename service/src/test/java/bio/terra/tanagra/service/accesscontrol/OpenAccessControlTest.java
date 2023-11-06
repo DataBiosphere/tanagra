@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.service.accesscontrol.impl.OpenAccessControl;
 import java.util.List;

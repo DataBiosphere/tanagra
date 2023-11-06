@@ -1,21 +1,31 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.query.EntityQueryRequest;
 import bio.terra.tanagra.api.query.filter.AttributeFilter;
 import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
-import bio.terra.tanagra.service.artifact.model.*;
+import bio.terra.tanagra.service.artifact.model.ActivityLog;
+import bio.terra.tanagra.service.artifact.model.ActivityLogResource;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.Review;
+import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;

@@ -1,6 +1,11 @@
 package bio.terra.tanagra.api2.filter;
 
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.HavingFilterVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
@@ -32,6 +37,7 @@ public class RelationshipFilter extends EntityFilter {
   private final ITEntityMain filterEntityIndexTable;
   private @Nullable final ITRelationshipIdPairs relationshipIdPairsIndexTable;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   public RelationshipFilter(
       Underlay underlay,
       EntityGroup entityGroup,

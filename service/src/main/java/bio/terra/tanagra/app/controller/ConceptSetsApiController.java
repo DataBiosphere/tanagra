@@ -1,13 +1,20 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.*;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_CONCEPT_SET;
+import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.ConceptSetsApi;
-import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.generated.model.ApiConceptSet;
+import bio.terra.tanagra.generated.model.ApiConceptSetCreateInfo;
+import bio.terra.tanagra.generated.model.ApiConceptSetList;
+import bio.terra.tanagra.generated.model.ApiConceptSetUpdateInfo;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;

@@ -5,7 +5,7 @@ import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.underlay2.NameHelper;
 import com.google.common.collect.ImmutableList;
-import java.util.*;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public final class ITEntityLevelDisplayHints extends IndexTable {

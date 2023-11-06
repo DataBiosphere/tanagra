@@ -1,11 +1,17 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.InsertFromSelect;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay2.serialization.SZIndexer;
 import bio.terra.tanagra.underlay2.sourcetable.STEntityAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

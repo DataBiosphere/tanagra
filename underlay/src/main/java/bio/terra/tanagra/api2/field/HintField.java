@@ -2,7 +2,12 @@ package bio.terra.tanagra.api2.field;
 
 import bio.terra.tanagra.api2.query.hint.Hint;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.RowResult;
+import bio.terra.tanagra.query.TableVariable;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.underlay2.entitymodel.entitygroup;
 
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.entitymodel.Relationship;
 import com.google.common.collect.ImmutableList;
@@ -94,11 +95,17 @@ public class CriteriaOccurrence extends EntityGroup {
     return primaryCriteriaRelationship;
   }
 
-  public boolean hasInstanceLevelDisplayHints() {
-    return !occurrenceAttributesWithInstanceLevelDisplayHints.isEmpty();
+  public boolean hasInstanceLevelDisplayHints(Entity occurrenceEntity) {
+    return !occurrenceAttributesWithInstanceLevelDisplayHints
+        .get(occurrenceEntity.getName())
+        .isEmpty();
   }
 
-  public ImmutableSet<String> getAttributesWithInstanceLevelDisplayHints(String occurrenceEntity) {
-    return occurrenceAttributesWithInstanceLevelDisplayHints.get(occurrenceEntity);
+  public ImmutableSet<Attribute> getAttributesWithInstanceLevelDisplayHints(
+      Entity occurrenceEntity) {
+    return ImmutableSet.copyOf(
+        occurrenceAttributesWithInstanceLevelDisplayHints.get(occurrenceEntity.getName()).stream()
+            .map(attrName -> occurrenceEntity.getAttribute(attrName))
+            .collect(Collectors.toSet()));
   }
 }

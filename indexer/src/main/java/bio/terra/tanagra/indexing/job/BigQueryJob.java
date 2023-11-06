@@ -1,6 +1,15 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.QueryRequest;
+import bio.terra.tanagra.query.QueryResult;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay2.serialization.SZIndexer;

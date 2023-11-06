@@ -3,7 +3,7 @@ package bio.terra.tanagra.api2.query.hint;
 import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import com.google.common.collect.ImmutableMap;
-import java.util.*;
+import java.util.Map;
 
 public final class HintInstance {
   private final Attribute attribute;
@@ -34,6 +34,10 @@ public final class HintInstance {
 
   public Attribute getAttribute() {
     return attribute;
+  }
+
+  public boolean isRangeHint() {
+    return isRangeHint;
   }
 
   public double getMin() {

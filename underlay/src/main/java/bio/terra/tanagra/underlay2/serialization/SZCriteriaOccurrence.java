@@ -9,7 +9,9 @@ public class SZCriteriaOccurrence {
   public PrimaryCriteriaRelationship primaryCriteriaRelationship;
 
   public static class OccurrenceEntity {
+    @SuppressWarnings("PMD.AvoidFieldNameMatchingTypeName")
     public String occurrenceEntity;
+
     public CriteriaRelationship criteriaRelationship;
     public PrimaryRelationship primaryRelationship;
     public Set<String> attributesWithInstanceLevelHints;

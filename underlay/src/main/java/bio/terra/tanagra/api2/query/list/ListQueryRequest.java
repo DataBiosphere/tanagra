@@ -2,7 +2,8 @@ package bio.terra.tanagra.api2.query.list;
 
 import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.api2.field.ValueDisplayField;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +22,7 @@ public class ListQueryRequest {
   private final @Nullable PageMarker pageMarker;
   private final Integer pageSize;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   public ListQueryRequest(
       Underlay underlay,
       Entity entity,

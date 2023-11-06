@@ -7,7 +7,7 @@ import bio.terra.tanagra.underlay2.ConfigReader;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.serialization.SZIndexer;
 import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

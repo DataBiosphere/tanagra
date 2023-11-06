@@ -3,12 +3,25 @@ package bio.terra.tanagra.underlay2;
 import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.bigquery.BigQueryDataset;
-import bio.terra.tanagra.underlay2.serialization.*;
-import bio.terra.tanagra.underlay2.sourcetable.*;
+import bio.terra.tanagra.underlay2.serialization.SZBigQuery;
+import bio.terra.tanagra.underlay2.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay2.serialization.SZEntity;
+import bio.terra.tanagra.underlay2.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay2.sourcetable.STEntityAttributes;
+import bio.terra.tanagra.underlay2.sourcetable.STHierarchyChildParent;
+import bio.terra.tanagra.underlay2.sourcetable.STHierarchyRootFilter;
+import bio.terra.tanagra.underlay2.sourcetable.STRelationshipIdPairs;
+import bio.terra.tanagra.underlay2.sourcetable.STTextSearchTerms;
 import com.google.common.collect.ImmutableList;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressFBWarnings(
+    value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+    justification =
+        "Jackson object mapper writes the POJO fields during deserialization. Need to put this at the class level, because method-level does not handle internal lambdas.")
 public final class SourceSchema {
   private final ImmutableList<STEntityAttributes> entityAttributesTables;
   private final ImmutableList<STTextSearchTerms> textSearchTermsTables;

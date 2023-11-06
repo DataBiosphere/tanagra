@@ -1,6 +1,11 @@
 package bio.terra.tanagra.underlay2.sourcetable;
 
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;

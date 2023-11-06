@@ -2,7 +2,8 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.api.query.EntityQueryRequest;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;

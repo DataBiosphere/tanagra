@@ -1,15 +1,16 @@
 package bio.terra.tanagra.indexing.job.dataflow;
 
-import static bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils.ID_COLUMN_NAME;
-import static bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils.ROLLUP_COUNT_COLUMN_NAME;
-import static bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils.ROLLUP_DISPLAY_HINTS_COLUMN_NAME;
-
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.CountUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query.UpdateFromSelect;
 import bio.terra.tanagra.query.bigquery.BigQueryDataset;
 import bio.terra.tanagra.underlay2.NameHelper;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
@@ -83,24 +84,7 @@ public class WriteRollupCounts extends BigQueryJob {
   private final @Nullable Hierarchy hierarchy;
   private final @Nullable ITHierarchyAncestorDescendant ancestorDescendantTable;
 
-//  // The default table schema for the id-rollupCount-rollupDisplayHints output table.
-//  private static final TableSchema ROLLUP_COUNT_TABLE_SCHEMA =
-//      new TableSchema()
-//          .setFields(
-//              List.of(
-//                  new TableFieldSchema()
-//                      .setName(ID_COLUMN_NAME)
-//                      .setType("INTEGER")
-//                      .setMode("REQUIRED"),
-//                  new TableFieldSchema()
-//                      .setName(ROLLUP_COUNT_COLUMN_NAME)
-//                      .setType("INTEGER")
-//                      .setMode("REQUIRED"),
-//                  new TableFieldSchema()
-//                      .setName(ROLLUP_DISPLAY_HINTS_COLUMN_NAME)
-//                      .setType("STRING")
-//                      .setMode("NULLABLE")));
-
+  @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
   public WriteRollupCounts(
       SZIndexer indexerConfig,
       EntityGroup entityGroup,
@@ -126,7 +110,11 @@ public class WriteRollupCounts extends BigQueryJob {
 
   @Override
   public String getName() {
-    return String.format("%s-%s-%s", this.getClass().getSimpleName(), getOutputTableName(), hierarchy == null ? ITEntityMain.NO_HIERARCHY_NAME : hierarchy.getName());
+    return String.format(
+        "%s-%s-%s",
+        this.getClass().getSimpleName(),
+        getOutputTableName(),
+        hierarchy == null ? ITEntityMain.NO_HIERARCHY_NAME : hierarchy.getName());
   }
 
   @Override
@@ -138,7 +126,8 @@ public class WriteRollupCounts extends BigQueryJob {
   public JobStatus checkStatus() {
     return getOutputTable().isPresent()
             && outputTableHasAtLeastOneRowWithNotNullField(
-                indexTable.getEntityGroupCountField(entityGroup.getName(), hierarchy == null ? null : hierarchy.getName()),
+                indexTable.getEntityGroupCountField(
+                    entityGroup.getName(), hierarchy == null ? null : hierarchy.getName()),
                 indexTable.getEntityGroupCountColumnSchema(
                     entityGroup.getName(), hierarchy == null ? null : hierarchy.getName()))
         ? JobStatus.COMPLETE
@@ -227,12 +216,6 @@ public class WriteRollupCounts extends BigQueryJob {
     PCollection<Long> allNodesPC =
         BigQueryBeamUtils.readNodesFromBQ(
             pipeline, allIdsQuery.renderSQL(), entity.getIdAttribute().getName(), "allNodes");
-    //    // Read in the rollup entity ids from BQ.
-    //    Query rollupIds =
-    //        getRollupEntity().getMapping(Underlay.MappingType.SOURCE).queryIds(ID_COLUMN_NAME);
-    //    LOGGER.info("select all rollup entity ids SQL: {}", rollupIds.renderSQL());
-    //    PCollection<Long> rollupIdsPC =
-    //        BigQueryBeamUtils.readNodesFromBQ(pipeline, rollupIds.renderSQL(), "rollupIds");
 
     // Build a query to select all entity-countedEntity id pairs from the index table, and the
     // pipeline step to read the results.
@@ -289,18 +272,6 @@ public class WriteRollupCounts extends BigQueryJob {
     PCollection<KV<Long, Long>> idPairsPC =
         BigQueryBeamUtils.readOccurrencesFromBQ(
             pipeline, idPairsQuery.renderSQL(), entityIdColumnName, countedEntityIdColumnName);
-    //      // Read in the rollup-counted entity id pairs from BQ.
-    //    boolean rollupEntityIsA = relationship.getEntityA().equals(getEntity());
-    //    String rollupEntityIdAlias = rollupEntityIsA ? ID_COLUMN_NAME : COUNT_ID_COLUMN_NAME;
-    //    String countedEntityIdAlias = rollupEntityIsA ? COUNT_ID_COLUMN_NAME : ID_COLUMN_NAME;
-    //    Query rollupCountedIdPairs =
-    //        relationship
-    //            .getMapping(Underlay.MappingType.SOURCE)
-    //            .queryIdPairs(rollupEntityIdAlias, countedEntityIdAlias);
-    //    LOGGER.info("select all rollup-counted id pairs SQL: {}",
-    // rollupCountedIdPairs.renderSQL());
-    //    PCollection<KV<Long, Long>> rollupCountedIdPairsPC =
-    //        BigQueryBeamUtils.readOccurrencesFromBQ(pipeline, rollupCountedIdPairs.renderSQL());
 
     // Optionally handle a hierarchy for the rollup entity.
     if (hierarchy != null) {
@@ -314,35 +285,14 @@ public class WriteRollupCounts extends BigQueryJob {
               ancestorDescendantQuery.renderSQL(),
               ITHierarchyAncestorDescendant.Column.ANCESTOR.getSchema().getColumnName(),
               ITHierarchyAncestorDescendant.Column.DESCENDANT.getSchema().getColumnName());
-      //      SQLExpression rollupAncestorDescendantPairs =
-      //          hierarchy
-      //              .getMapping(Underlay.MappingType.INDEX)
-      //              .queryAncestorDescendantPairs(ANCESTOR_COLUMN_NAME, DESCENDANT_COLUMN_NAME);
-      //      LOGGER.info(
-      //          "select all rollup entity ancestor-descendant id pairs SQL: {}",
-      //          rollupAncestorDescendantPairs.renderSQL());
-      //
-      //      // Read in the ancestor-descendant relationships from BQ and build (descendant,
-      // ancestor) KV
-      //      // pairs.
-      //      PCollection<KV<Long, Long>> rollupAncestorDescendantKVsPC =
-      //          BigQueryBeamUtils.readAncestorDescendantRelationshipsFromBQ(
-      //              pipeline, rollupAncestorDescendantPairs.renderSQL());
 
       // Expand the set of occurrences to include a repeat for each ancestor.
       idPairsPC =
           CountUtils.repeatOccurrencesForHierarchy(idPairsPC, ancestorDescendantRelationshipsPC);
-      //      rollupCountedIdPairsPC =
-      //          CountUtils.repeatOccurrencesForHierarchy(
-      //              rollupCountedIdPairsPC, rollupAncestorDescendantKVsPC);
-
     }
 
     // Count the number of distinct occurrences per entity id.
     PCollection<KV<Long, Long>> nodeCountKVsPC = CountUtils.countDistinct(allNodesPC, idPairsPC);
-    //    // Count the number of distinct occurrences per primary node.
-    //    PCollection<KV<Long, Long>> nodeCountKVsPC =
-    //        CountUtils.countDistinct(rollupIdsPC, rollupCountedIdPairsPC);
 
     // Build the pipeline steps to write the node-count pairs to the temp table.
     ColumnSchema idColumnSchema = indexTable.getAttributeValueColumnSchema(entity.getIdAttribute());
@@ -353,8 +303,6 @@ public class WriteRollupCounts extends BigQueryJob {
         TablePointer.fromTableName(
             getTempTableName(), indexTable.getTablePointer().getDataPointer());
     writeCountsToBQ(idColumnSchema, countColumnSchema, tempTablePointer, nodeCountKVsPC);
-    //    // Write the (id, count) rows to BQ.
-    //    writeCountsToBQ(nodeCountKVsPC, getTempTable());
 
     // Kick off the pipeline.
     if (!isDryRun) {
@@ -520,35 +468,4 @@ public class WriteRollupCounts extends BigQueryJob {
     //    updateEntityTableFromSelect(idCountDisplayHintsTuples, updateFields, ID_COLUMN_NAME,
     // isDryRun);
   }
-
-  //  public static Query queryIdRollupTuples(TablePointer tablePointer) {
-  //    TableVariable tempTableVar = TableVariable.forPrimary(tablePointer);
-  //    List<TableVariable> inputTables = Lists.newArrayList(tempTableVar);
-  //    FieldVariable selectIdFieldVar =
-  //        new FieldPointer.Builder()
-  //            .tablePointer(tablePointer)
-  //            .columnName(ID_COLUMN_NAME)
-  //            .build()
-  //            .buildVariable(tempTableVar, inputTables);
-  //    FieldVariable selectCountFieldVar =
-  //        new FieldPointer.Builder()
-  //            .tablePointer(tablePointer)
-  //            .columnName(ROLLUP_COUNT_COLUMN_NAME)
-  //            .build()
-  //            .buildVariable(tempTableVar, inputTables);
-  //    FieldVariable selectDisplayHintsFieldVar =
-  //        new FieldPointer.Builder()
-  //            .tablePointer(tablePointer)
-  //            .columnName(ROLLUP_DISPLAY_HINTS_COLUMN_NAME)
-  //            .build()
-  //            .buildVariable(tempTableVar, inputTables);
-  //    return new Query.Builder()
-  //        .select(List.of(selectIdFieldVar, selectCountFieldVar, selectDisplayHintsFieldVar))
-  //        .tables(inputTables)
-  //        .build();
-  //  }
-  //
-  //  private Entity getRollupEntity() {
-  //    return getEntity();
-  //  }
 }

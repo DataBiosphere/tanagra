@@ -1,10 +1,19 @@
 package bio.terra.tanagra.api.query.filter;
 
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.HavingFilterVariable;
 import bio.terra.tanagra.query.filtervariable.SubQueryFilterVariable;
-import bio.terra.tanagra.underlay.*;
+import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay.Relationship;
+import bio.terra.tanagra.underlay.RelationshipMapping;
+import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.annotation.Nullable;

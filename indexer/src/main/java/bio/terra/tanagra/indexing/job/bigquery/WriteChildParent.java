@@ -39,10 +39,13 @@ public class WriteChildParent extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    Query sourceChildParentQuery = sourceTable.getQueryAll(Map.of(
-            sourceTable.getChildColumnSchema(), ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName(),
-            sourceTable.getParentColumnSchema(), ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()
-    ));
+    Query sourceChildParentQuery =
+        sourceTable.getQueryAll(
+            Map.of(
+                sourceTable.getChildColumnSchema(),
+                    ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName(),
+                sourceTable.getParentColumnSchema(),
+                    ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()));
     LOGGER.info("source child-parent query: {}", sourceChildParentQuery.renderSQL());
 
     // Create a new table directly from the select query.

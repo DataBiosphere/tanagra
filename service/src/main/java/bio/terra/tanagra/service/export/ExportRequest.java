@@ -5,7 +5,11 @@ import bio.terra.tanagra.generated.model.ApiStudy;
 import bio.terra.tanagra.generated.model.ApiUnderlay;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 

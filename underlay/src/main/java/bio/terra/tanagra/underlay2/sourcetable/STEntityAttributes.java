@@ -7,7 +7,11 @@ import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.underlay2.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class STEntityAttributes extends SourceTable {
   private final String entity;

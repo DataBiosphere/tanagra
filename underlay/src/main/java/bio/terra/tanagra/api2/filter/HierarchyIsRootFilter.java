@@ -1,6 +1,9 @@
 package bio.terra.tanagra.api2.filter;
 
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;

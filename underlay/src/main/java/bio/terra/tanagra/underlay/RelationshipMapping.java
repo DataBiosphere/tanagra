@@ -1,8 +1,17 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.DataPointer;
+import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.serialization.UFRelationshipMapping;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public final class RelationshipMapping {
   public static final String COUNT_FIELD_PREFIX = "count_";
