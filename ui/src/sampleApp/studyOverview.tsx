@@ -26,6 +26,7 @@ import {
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
 import { useNavigate } from "util/searchState";
+import emptyImage from "../images/empty.svg";
 
 enum ArtifactType {
   Cohort = "Cohort",
@@ -275,7 +276,7 @@ export function StudyOverview() {
           ) : (
             <Empty
               minHeight="300px"
-              image="/empty.svg"
+              image={emptyImage}
               title="Create cohorts and data features using the buttons above"
             />
           )}

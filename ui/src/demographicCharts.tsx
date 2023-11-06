@@ -8,6 +8,7 @@ import Loading from "components/loading";
 import { FilterCountValue } from "data/source";
 import { useSource } from "data/sourceContext";
 import { useUnderlay } from "hooks";
+import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback } from "react";
@@ -298,7 +299,7 @@ export function DemographicCharts({
             ) : (
               <Empty
                 minHeight="300px"
-                image="/empty.svg"
+                image={emptyImage}
                 title="No participants match the selected cohort"
                 subtitle="You can broaden the cohort by removing criteria or selecting different requirement types"
               />

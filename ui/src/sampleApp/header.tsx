@@ -5,6 +5,7 @@ import GridLayout from "layout/gridLayout";
 import { useBaseParams } from "router";
 import { StudyName } from "studyName";
 import { RouterLink } from "util/searchState";
+import verilyLogo from "../images/verily.png";
 
 export function Header() {
   const params = useBaseParams();
@@ -25,7 +26,7 @@ export function Header() {
     >
       <GridBox sx={{ height: (theme) => theme.spacing(4), my: 1 }}>
         <Link component={RouterLink} to="/">
-          <Box component="img" src="verily.png" sx={{ height: "100%" }} />
+          <Box component="img" src={verilyLogo} sx={{ height: "100%" }} />
         </Link>
       </GridBox>
       <GridLayout rows>

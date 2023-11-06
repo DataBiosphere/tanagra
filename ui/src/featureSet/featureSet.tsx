@@ -54,6 +54,7 @@ import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import UndoRedoToolbar from "undoRedoToolbar";
 import { useGlobalSearchState, useNavigate } from "util/searchState";
+import emptyImage from "../images/empty.svg";
 
 export function FeatureSet() {
   const context = useFeatureSetContext();
@@ -346,7 +347,7 @@ function Preview() {
                     <GridLayout cols rowAlign="middle">
                       <Empty
                         maxWidth="90%"
-                        image="/empty.svg"
+                        image={emptyImage}
                         title="No data matched"
                         subtitle="No data in this table matched the specified cohorts and data features"
                       />
@@ -360,7 +361,7 @@ function Preview() {
         <GridLayout cols rowAlign="middle">
           <Empty
             maxWidth="90%"
-            image="/empty.svg"
+            image={emptyImage}
             title="Set up columns for each data feature here. You’ll see a preview of your table."
             subtitle={
               <>
