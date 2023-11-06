@@ -33,6 +33,7 @@ import { Filter, makeArrayFilter } from "data/filter";
 import { ExportModel, FeatureSet } from "data/source";
 import { useSource } from "data/sourceContext";
 import { useStudyId, useUnderlay } from "hooks";
+import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { OccurrenceFiltersSummary } from "occurrenceFiltersSummary";
@@ -589,7 +590,7 @@ function PreviewTable(props: PreviewTableProps) {
                   <Empty
                     maxWidth="60%"
                     minHeight="200px"
-                    image="/empty.svg"
+                    image={emptyImage}
                     title="No data matched"
                     subtitle="No data in this table matched the specified cohorts and data features"
                   />
@@ -602,7 +603,7 @@ function PreviewTable(props: PreviewTableProps) {
         <Empty
           maxWidth="60%"
           minHeight="200px"
-          image="/empty.svg"
+          image={emptyImage}
           subtitle="Select at least one cohort & data feature to preview your dataset"
         />
       )}
@@ -659,7 +660,7 @@ function PreviewSummary(props: PreviewSummaryProps) {
         <Empty
           maxWidth="60%"
           minHeight="200px"
-          image="/empty.svg"
+          image={emptyImage}
           subtitle="Select at least one cohort & data feature to preview your dataset"
         />
       )}

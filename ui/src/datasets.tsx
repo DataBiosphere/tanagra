@@ -36,6 +36,7 @@ import { Filter, makeArrayFilter } from "data/filter";
 import { ExportModel } from "data/source";
 import { useSource } from "data/sourceContext";
 import { useStudyId, useUnderlay } from "hooks";
+import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import React, {
@@ -667,7 +668,7 @@ function Preview(props: PreviewProps) {
                   <Empty
                     maxWidth="60%"
                     minHeight="200px"
-                    image="/empty.svg"
+                    image={emptyImage}
                     title="No data matched"
                     subtitle="No data in this table matched the specified cohorts and data features"
                   />
@@ -679,7 +680,7 @@ function Preview(props: PreviewProps) {
           <Empty
             maxWidth="60%"
             minHeight="200px"
-            image="/empty.svg"
+            image={emptyImage}
             subtitle="Select at least one cohort & data feature to preview your dataset"
           />
         )}

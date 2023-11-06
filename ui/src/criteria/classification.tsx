@@ -36,6 +36,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
 import { useLocalSearchState } from "util/searchState";
+import emptyImage from "../images/empty.svg";
 
 type Selection = {
   key: DataKey;
@@ -459,7 +460,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           {!classificationState.data?.root?.children?.length ? (
             <Empty
               minHeight="300px"
-              image="/empty.svg"
+              image={emptyImage}
               title="No matches found"
             />
           ) : (
