@@ -172,7 +172,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
     Query sourceChildParentQuery = sourceChildParentTable.getQueryAll(Map.of());
     LOGGER.info("source child-parent query: {}", sourceChildParentQuery.renderSQL());
     PCollection<KV<Long, Long>> childParentRelationshipsPC =
-        BigQueryBeamUtils.readChildParentRelationshipsFromBQ(
+        BigQueryBeamUtils.readTwoFieldRowsFromBQ(
             pipeline,
             sourceChildParentQuery.renderSQL(),
             sourceChildParentTable.getChildColumnSchema().getColumnName(),

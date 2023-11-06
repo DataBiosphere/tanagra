@@ -270,7 +270,7 @@ public class WriteRollupCounts extends BigQueryJob {
     }
     LOGGER.info("index entity-countedEntity id pairs query: {}", idPairsQuery.renderSQL());
     PCollection<KV<Long, Long>> idPairsPC =
-        BigQueryBeamUtils.readOccurrencesFromBQ(
+        BigQueryBeamUtils.readTwoFieldRowsFromBQ(
             pipeline, idPairsQuery.renderSQL(), entityIdColumnName, countedEntityIdColumnName);
 
     // Optionally handle a hierarchy for the rollup entity.
@@ -280,11 +280,11 @@ public class WriteRollupCounts extends BigQueryJob {
       Query ancestorDescendantQuery = ancestorDescendantTable.getQueryAll(Map.of());
       LOGGER.info("ancestor-descendant query: {}", ancestorDescendantQuery.renderSQL());
       PCollection<KV<Long, Long>> ancestorDescendantRelationshipsPC =
-          BigQueryBeamUtils.readAncestorDescendantRelationshipsFromBQ(
+          BigQueryBeamUtils.readTwoFieldRowsFromBQ(
               pipeline,
               ancestorDescendantQuery.renderSQL(),
-              ITHierarchyAncestorDescendant.Column.ANCESTOR.getSchema().getColumnName(),
-              ITHierarchyAncestorDescendant.Column.DESCENDANT.getSchema().getColumnName());
+              ITHierarchyAncestorDescendant.Column.DESCENDANT.getSchema().getColumnName(),
+              ITHierarchyAncestorDescendant.Column.ANCESTOR.getSchema().getColumnName());
 
       // Expand the set of occurrences to include a repeat for each ancestor.
       idPairsPC =

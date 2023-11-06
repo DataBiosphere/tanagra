@@ -98,7 +98,6 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
             pipeline,
             allOccInstancesQuery.renderSQL(),
             occurrenceEntity.getIdAttribute().getName());
-    //    PCollection<KV<Long, TableRow>> occAllAttrs = readInOccRows(pipeline);
 
     // Build a query to select all occurrence-criteria id pairs, and the pipeline steps to read the
     // results and build a (occurrence id, criteria id) KV PCollection.
@@ -116,13 +115,6 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
     PCollection<KV<Long, Long>> occCriIdPairKVs =
         readInRelationshipIdPairs(
             pipeline, occCriIdPairsQuery.renderSQL(), entityAIdColumnName, entityBIdColumnName);
-    //         // Read in the criteria-occurrence id pairs.
-    //         PCollection<KV<Long, Long>> occCriIdPairs =
-    //                 readInIdPairs(
-    //                         criteriaOccurrence
-    //                                 .getOccurrenceCriteriaRelationship(occurrenceEntity)
-    //                                 .getMapping(Underlay.MappingType.SOURCE),
-    //                         pipeline);
 
     // Build a query to select all occurrence-criteria id pairs, and the pipeline steps to read the
     // results and build a (occurrence id, criteria id) KV PCollection.
@@ -138,13 +130,6 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
     PCollection<KV<Long, Long>> occPriIdPairKVs =
         readInRelationshipIdPairs(
             pipeline, occPriIdPairsQuery.renderSQL(), entityAIdColumnName, entityBIdColumnName);
-    //         // Read in the primary-occurrence id pairs.
-    //    PCollection<KV<Long, Long>> occPriIdPairs =
-    //        readInIdPairs(
-    //            criteriaOccurrence
-    //                .getOccurrencePrimaryRelationship(occurrenceEntity)
-    //                .getMapping(Underlay.MappingType.SOURCE),
-    //            pipeline);
 
     criteriaOccurrence.getAttributesWithInstanceLevelDisplayHints(occurrenceEntity).stream()
         .forEach(
@@ -158,23 +143,6 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                 numericRangeHint(occCriIdPairKVs, occIdRowKVs, attribute);
               } // TODO: Calculate display hints for other data types.
             });
-    //    for (Attribute attr : criteriaOccurrence.getModifierAttributes()) {
-    //      if (Attribute.Type.KEY_AND_DISPLAY.equals(attr.getType())) {
-    //        enumValHint(occCriIdPairs, occPriIdPairs, occAllAttrs, attr);
-    //      } else {
-    //        switch (attr.getDataType()) {
-    //          case INT64:
-    //          case DOUBLE:
-    //            numericRangeHint(occCriIdPairs, occAllAttrs, attr);
-    //            break;
-    //            case BOOLEAN:
-    //            case STRING:
-    //            case DATE:
-    //            default:
-    //                // TODO: Calculate display hints for other data types.
-    //        }
-    //      }
-    //    }
 
     // Kick off the pipeline.
     if (!isDryRun) {
@@ -272,54 +240,6 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
     return idPairs;
   }
 
-  //  public TablePointer getAuxiliaryTable() {
-  //    return criteriaOccurrence
-  //        .getModifierAuxiliaryData()
-  //        .getMapping(Underlay.MappingType.INDEX)
-  //        .getTablePointer();
-  //  }
-
-  //  private PCollection<KV<Long, TableRow>> readInOccRows(Pipeline pipeline) {
-  //    Query allOccInstancesQuery =
-  //        occurrenceEntity.getMapping(Underlay.MappingType.INDEX).queryAllAttributes();
-  //    LOGGER.info("occAllAttrsQ: {}", occAllAttrsQ.renderSQL());
-  //    String occIdName = occurrenceEntity.getIdAttribute().getName();
-  //    LOGGER.info("occIdName: {}", occIdName);
-  //    return pipeline
-  //        .apply(
-  //            BigQueryIO.readTableRows()
-  //                .fromQuery(occAllAttrsQ.renderSQL())
-  //                .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
-  //                .usingStandardSql())
-  //        .apply(
-  //            MapElements.into(
-  //                    TypeDescriptors.kvs(TypeDescriptors.longs(),
-  // TypeDescriptor.of(TableRow.class)))
-  //                .via(
-  //                    tableRow -> KV.of(Long.parseLong((String) tableRow.get(occIdName)),
-  // tableRow)));
-  //  }
-
-  //  private PCollection<KV<Long, Long>> readInIdPairs(
-  //      RelationshipMapping relationshipMapping, Pipeline pipeline) {
-  //    Query idPairsQ = relationshipMapping.queryIdPairs("idA", "idB");
-  //    LOGGER.info("idPairsQ: {}", idPairsQ.renderSQL());
-  //    return pipeline
-  //        .apply(
-  //            BigQueryIO.readTableRows()
-  //                .fromQuery(idPairsQ.renderSQL())
-  //                .withMethod(BigQueryIO.TypedRead.Method.EXPORT)
-  //                .usingStandardSql())
-  //        .apply(
-  //            MapElements.into(TypeDescriptors.kvs(TypeDescriptors.longs(),
-  // TypeDescriptors.longs()))
-  //                .via(
-  //                    tableRow ->
-  //                        KV.of(
-  //                            Long.parseLong((String) tableRow.get("idA")),
-  //                            Long.parseLong((String) tableRow.get("idB")))));
-  //  }
-
   /** Compute the numeric range for each criteriaId and write it to BQ. */
   private void numericRangeHint(
       PCollection<KV<Long, Long>> occCriIdPairs,
@@ -401,10 +321,6 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                             .set(
                                 ITInstanceLevelDisplayHints.Column.MAX.getSchema().getColumnName(),
                                 idNumericRange.getMax())))
-        //                            .set("entity_id", idNumericRange.getId())
-        //                            .set("attribute_name", numValColName)
-        //                            .set("min", idNumericRange.getMin())
-        //                            .set("max", idNumericRange.getMax())))
         .apply(
             BigQueryIO.writeTableRows()
                 .to(indexTable.getTablePointer().getPathForIndexing())
@@ -501,11 +417,6 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                                     .getSchema()
                                     .getColumnName(),
                                 idEnumValue.getCount())))
-        //                            .set("entity_id", idEnumValue.getId())
-        //                            .set("attribute_name", enumValColName)
-        //                            .set("enum_value", Long.parseLong(idEnumValue.getEnumValue()))
-        //                            .set("enum_display", idEnumValue.getEnumDisplay())
-        //                            .set("enum_count", idEnumValue.getCount())))
         .apply(
             BigQueryIO.writeTableRows()
                 .to(indexTable.getTablePointer().getPathForIndexing())

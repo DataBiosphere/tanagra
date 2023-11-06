@@ -10,20 +10,6 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 public final class BigQueryBeamUtils {
-  // TODO: Pull these default column names from the underlay HierarchyMapping class, instead of
-  // using static names here. Currently these are defined in this utils class because different Beam
-  // workflows read the results of previous ones, and make assumptions about what the column names
-  // are.
-  public static final String ID_COLUMN_NAME = "id";
-  public static final String PARENT_COLUMN_NAME = "parent";
-  public static final String CHILD_COLUMN_NAME = "child";
-  public static final String ANCESTOR_COLUMN_NAME = "ancestor";
-  public static final String DESCENDANT_COLUMN_NAME = "descendant";
-  public static final String PATH_COLUMN_NAME = "path";
-  public static final String NUMCHILDREN_COLUMN_NAME = "num_children";
-  public static final String COUNT_ID_COLUMN_NAME = "count_id";
-  public static final String ROLLUP_COUNT_COLUMN_NAME = "rollup_count";
-  public static final String ROLLUP_DISPLAY_HINTS_COLUMN_NAME = "rollup_displayhints";
 
   private BigQueryBeamUtils() {}
 
@@ -44,37 +30,10 @@ public final class BigQueryBeamUtils {
   }
 
   /**
-   * Read all the child-parent relationships from BQ and build a {@link PCollection} of {@link KV}
-   * pairs (child, parent).
-   */
-  public static PCollection<KV<Long, Long>> readChildParentRelationshipsFromBQ(
-      Pipeline pipeline, String sqlQuery, String childColumnName, String parentColumnName) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, childColumnName, parentColumnName);
-  }
-
-  /**
-   * Read all the occurrence rows from BQ and build a {@link PCollection} of {@link KV} pairs (id,
-   * count_id).
-   */
-  public static PCollection<KV<Long, Long>> readOccurrencesFromBQ(
-      Pipeline pipeline, String sqlQuery, String idColumnName, String countedIdColumnName) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, idColumnName, countedIdColumnName);
-  }
-
-  /**
-   * Read all the ancestor-descendant relationships from BQ and build a {@link PCollection} of
-   * {@link KV} pairs (descendant, ancestor).
-   */
-  public static PCollection<KV<Long, Long>> readAncestorDescendantRelationshipsFromBQ(
-      Pipeline pipeline, String sqlQuery, String ancestorColumnName, String descendantColumnName) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, descendantColumnName, ancestorColumnName);
-  }
-
-  /**
    * Read all the two-field rows from BQ and build a {@link PCollection} of {@link KV} pairs
    * (field1, field2).
    */
-  private static PCollection<KV<Long, Long>> readTwoFieldRowsFromBQ(
+  public static PCollection<KV<Long, Long>> readTwoFieldRowsFromBQ(
       Pipeline pipeline, String sqlQuery, String field1Name, String field2Name) {
     PCollection<TableRow> bqRows =
         pipeline.apply(
