@@ -97,9 +97,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             attribute -> {
               if (!attribute.isComputeDisplayHint()) {
                 LOGGER.info("Skip computing the hint for attribute {}", attribute.getName());
-                return;
               } else if (isRangeHint(attribute)) {
-                Pair<Double, Double> minMax = computeRangeHint(attribute);
+                Pair<Double, Double> minMax = computeRangeHint(attribute, isDryRun);
                 List<Literal> insertRow = new ArrayList<>();
                 insertRow.add(new Literal(attribute.getName()));
                 insertRow.add(new Literal(minMax.getKey()));
@@ -114,7 +113,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                     minMax.getKey(),
                     minMax.getValue());
               } else if (isEnumHint(attribute)) {
-                List<Pair<ValueDisplay, Long>> enumCounts = computeEnumHint(attribute);
+                List<Pair<ValueDisplay, Long>> enumCounts = computeEnumHint(attribute, isDryRun);
                 enumCounts.stream()
                     .forEach(
                         enumCount -> {
@@ -138,7 +137,6 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                     "Attribute {} data type {} not yet supported for computing hint",
                     attribute.getName(),
                     attribute.getDataType());
-                return;
               }
             });
 
@@ -147,24 +145,27 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       return;
     }
 
-    // Poll for table existence before we try to insert the hint rows. Maximum 18 x 10 sec = 3 min.
-    bigQueryExecutor
-        .getBigQueryService()
-        .pollForTableExistenceOrThrow(
-            indexerConfig.bigQuery.indexData.projectId,
-            indexerConfig.bigQuery.indexData.datasetId,
-            getOutputTableName(),
-            18,
-            Duration.ofSeconds(10));
+    if (!isDryRun) {
+      // Poll for table existence before we try to insert the hint rows. Maximum 18 x 10 sec = 3
+      // min.
+      bigQueryExecutor
+          .getBigQueryService()
+          .pollForTableExistenceOrThrow(
+              indexerConfig.bigQuery.indexData.projectId,
+              indexerConfig.bigQuery.indexData.datasetId,
+              getOutputTableName(),
+              18,
+              Duration.ofSeconds(10));
 
-    // Sleep before inserting.
-    // Sometimes even though the table is found in the existence check above, it still fails the
-    // insert below.
-    try {
-      TimeUnit.SECONDS.sleep(30);
-    } catch (InterruptedException intEx) {
-      throw new SystemException(
-          "Interrupted during sleep after creating entity-level hints table", intEx);
+      // Sleep before inserting.
+      // Sometimes even though the table is found in the existence check above, it still fails the
+      // insert below.
+      try {
+        TimeUnit.SECONDS.sleep(30);
+      } catch (InterruptedException intEx) {
+        throw new SystemException(
+            "Interrupted during sleep after creating entity-level hints table", intEx);
+      }
     }
 
     // Do a single insert to BQ for all the hint rows.
@@ -236,7 +237,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     }
   }
 
-  private Pair<Double, Double> computeRangeHint(Attribute attribute) {
+  private Pair<Double, Double> computeRangeHint(Attribute attribute, boolean isDryRun) {
     // Select the attribute values from the index entity main table.
     List<TableVariable> tableVars = new ArrayList<>();
     TableVariable primaryTable = TableVariable.forPrimary(indexAttributesTable.getTablePointer());
@@ -269,17 +270,21 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
     // Build the query for the max/min of the attribute field.
     Query query = new Query.Builder().select(selectFieldVars).tables(tableVars).build();
-    QueryResult queryResult =
-        bigQueryExecutor.execute(
-            new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas)));
+    QueryRequest queryRequest =
+        new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
 
+    // Run the query.
+    if (isDryRun) {
+      return Pair.of(0.0, 0.0);
+    }
+    QueryResult queryResult = bigQueryExecutor.execute(queryRequest);
     RowResult rowResult = queryResult.getSingleRowResult();
     return Pair.of(
         rowResult.get(minValAlias).getDouble().getAsDouble(),
         rowResult.get(maxValAlias).getDouble().getAsDouble());
   }
 
-  private List<Pair<ValueDisplay, Long>> computeEnumHint(Attribute attribute) {
+  private List<Pair<ValueDisplay, Long>> computeEnumHint(Attribute attribute, boolean isDryRun) {
     // Select the attribute values and displays from the index entity main table.
     List<TableVariable> tableVars = new ArrayList<>();
     TableVariable primaryTable = TableVariable.forPrimary(indexAttributesTable.getTablePointer());
@@ -322,29 +327,35 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             .tables(tableVars)
             .groupBy(groupByFieldVars)
             .build();
-    QueryResult queryResult =
-        bigQueryExecutor.execute(
-            new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas)));
+    QueryRequest queryRequest =
+        new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas));
 
-    // Iterate through the results, building a list of enum value, display, and counts.
+    // Run the query.
     List<Pair<ValueDisplay, Long>> enumCounts = new ArrayList<>();
-    Iterator<RowResult> rowResultIter = queryResult.getRowResults().iterator();
-    while (rowResultIter.hasNext()) {
-      RowResult rowResult = rowResultIter.next();
-      ValueDisplay enumValDisplay =
-          new ValueDisplay(
-              rowResult.get(enumValAlias).getLiteral().get(),
-              rowResult.get(enumDisplayAlias).getString().get());
-      long count = rowResult.get(countValAlias).getLong().getAsLong();
-      enumCounts.add(Pair.of(enumValDisplay, count));
+    if (isDryRun) {
+      enumCounts.add(Pair.of(new ValueDisplay(new Literal(0L), "ZERO"), 0L));
+    } else {
+      QueryResult queryResult = bigQueryExecutor.execute(queryRequest);
 
-      if (enumCounts.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
-        // if there are more than the max number of values, then skip the display hint
-        LOGGER.info(
-            "Skipping enum values display hint because there are >{} possible values: {}",
-            MAX_ENUM_VALS_FOR_DISPLAY_HINT,
-            attribute.getName());
-        return List.of();
+      // Iterate through the results, building a list of enum value, display, and counts.
+      Iterator<RowResult> rowResultIter = queryResult.getRowResults().iterator();
+      while (rowResultIter.hasNext()) {
+        RowResult rowResult = rowResultIter.next();
+        ValueDisplay enumValDisplay =
+            new ValueDisplay(
+                rowResult.get(enumValAlias).getLiteral().get(),
+                rowResult.get(enumDisplayAlias).getString().get());
+        long count = rowResult.get(countValAlias).getLong().getAsLong();
+        enumCounts.add(Pair.of(enumValDisplay, count));
+
+        if (enumCounts.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
+          // if there are more than the max number of values, then skip the display hint
+          LOGGER.info(
+              "Skipping enum values display hint because there are >{} possible values: {}",
+              MAX_ENUM_VALS_FOR_DISPLAY_HINT,
+              attribute.getName());
+          return List.of();
+        }
       }
     }
 

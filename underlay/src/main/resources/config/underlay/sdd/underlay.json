@@ -3,19 +3,61 @@
   "primaryEntity": "person",
   "entities": [
     "person",
+
     "condition",
     "conditionOccurrence",
+    "procedure",
+    "procedureOccurrence",
+
     "brand",
     "ingredient",
+    "ingredientOccurrence",
+
     "measurementLoinc",
-    "measurementOccurrence"
+    "measurementSnomed",
+    "measurementOccurrence",
+
+    "observation",
+    "observationOccurrence",
+    "device",
+    "deviceOccurrence",
+    "visit",
+    "visitOccurrence",
+
+    "note",
+    "noteOccurrence",
+
+    "cpt4",
+    "icd9cm",
+    "icd9proc",
+    "icd10cm",
+    "icd10pcs",
+    "phewas"
   ],
   "groupItemsEntityGroups": [
     "brandIngredient"
   ],
   "criteriaOccurrenceEntityGroups": [
     "conditionPerson",
-    "measurementLoincPerson"
+    "procedurePerson",
+
+    "ingredientPerson",
+
+    "measurementLoincPerson",
+    "measurementSnomedPerson",
+
+    "observationPerson",
+    "devicePerson",
+    "visitPerson",
+
+    "notePerson",
+
+    "cpt4Person",
+    "icd9cmPerson",
+    "icd9procPerson",
+    "icd10cmPerson",
+    "icd10pcsPerson",
+    "phewasPerson"
   ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",

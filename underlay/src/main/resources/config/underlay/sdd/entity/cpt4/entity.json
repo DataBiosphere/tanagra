@@ -1,0 +1,28 @@
+{
+  "name": "cpt4",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64" },
+    { "name": "concept_id", "dataType": "INT64" },
+    { "name": "name", "dataType": "STRING" },
+    { "name": "is_standard", "dataType": "STRING" },
+    { "name": "code", "dataType": "STRING" },
+    { "name": "label", "dataType": "STRING" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "code" ]
+  },
+  "hierarchies": [
+    {
+      "name": "default",
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "rootNodeIdsSqlFile": "rootNode.sql",
+      "rootIdFieldName": "id",
+      "maxDepth": 10,
+      "keepOrphanNodes": false
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "observation",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
+    { "name": "name", "dataType": "STRING", "valueFieldName": "concept_name" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "vocabulary_id" },
+    { "name": "standard_concept", "dataType": "STRING" },
+    { "name": "concept_code", "dataType": "STRING" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "concept_code" ]
+  }
+}

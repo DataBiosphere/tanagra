@@ -1,0 +1,27 @@
+{
+  "name": "icd10cm",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
+    { "name": "name", "dataType": "STRING", "valueFieldName": "concept_name" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "vocabulary_id" },
+    { "name": "standard_concept", "dataType": "STRING" },
+    { "name": "concept_code", "dataType": "STRING" },
+    { "name": "label", "dataType": "STRING" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "concept_code" ]
+  },
+  "hierarchies": [
+    {
+      "name": "default",
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "rootNodeIds": [ 2500000000 ],
+      "maxDepth": 10,
+      "keepOrphanNodes": false
+    }
+  ]
+}

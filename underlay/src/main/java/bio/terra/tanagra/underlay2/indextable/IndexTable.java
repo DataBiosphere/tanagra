@@ -25,7 +25,7 @@ public abstract class IndexTable {
   public abstract String getTableBaseName();
 
   public TablePointer getTablePointer() {
-    return TablePointer.fromTableName(getTableBaseName(), dataPointer);
+    return TablePointer.fromTableName(namer.getReservedTableName(getTableBaseName()), dataPointer);
   }
 
   public abstract ImmutableList<ColumnSchema> getColumnSchemas();

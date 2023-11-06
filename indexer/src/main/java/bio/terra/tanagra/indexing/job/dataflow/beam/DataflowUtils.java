@@ -3,6 +3,7 @@ package bio.terra.tanagra.indexing.job.dataflow.beam;
 import bio.terra.tanagra.underlay2.serialization.SZIndexer;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Random;
 import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
@@ -40,9 +41,9 @@ public final class DataflowUtils {
    * 40 job, 6 user, 3 dashes
    */
   private static String getJobName(String underlay, String job) {
-    final int underlaySubstrLen = 15;
-    final int jobSubstrLen = 40;
-    final int userSubstrLen = 6;
+    final int underlaySubstrLen = 12;
+    final int jobSubstrLen = 38;
+    final int userSubstrLen = 5;
     String cleanUnderlay = underlay.toLowerCase().replaceAll("[^a-z0-9]", "");
     if (cleanUnderlay.length() > underlaySubstrLen) {
       cleanUnderlay = cleanUnderlay.substring(0, underlaySubstrLen);
@@ -57,8 +58,9 @@ public final class DataflowUtils {
     if (cleanUser.length() > userSubstrLen) {
       cleanUser = cleanUser.substring(0, userSubstrLen);
     }
+    String randNum = String.valueOf(new Random().nextInt(1000));
 
-    return String.format("%s-%s-%s", cleanUnderlay, cleanJob, cleanUser);
+    return String.format("%s-%s-%s-%s", cleanUnderlay, cleanJob, cleanUser, randNum);
   }
 
   /**

@@ -11,8 +11,7 @@ public class NameHelper {
   }
 
   public String getReservedTableName(String baseName) {
-    // TODO: add "_"
-    return (generatedTablePrefix == null ? "" : generatedTablePrefix) + baseName;
+    return (generatedTablePrefix == null ? "" : generatedTablePrefix + "_") + baseName;
   }
 
   public static String getReservedFieldName(String baseName) {
