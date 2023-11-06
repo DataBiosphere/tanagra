@@ -1,8 +1,20 @@
 {
   "name": "sdd",
   "primaryEntity": "person",
-  "entities": [ "person" ],
-  "entityGroups": [ ],
+  "entities": [
+    "person",
+    "condition",
+    "conditionOccurrence",
+    "brand",
+    "ingredient",
+    "measurementLoinc"
+  ],
+  "groupItemsEntityGroups": [
+    "brandIngredient"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "conditionPerson"
+  ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",
     "description": "Dataset Updated March 31, 2023",

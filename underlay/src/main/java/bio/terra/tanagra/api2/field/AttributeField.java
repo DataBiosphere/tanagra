@@ -63,7 +63,7 @@ public class AttributeField extends ValueDisplayField {
       return null;
     } else if (attribute.isSimple()) {
       return new ValueDisplay(valueOpt.get());
-    } else { // attribute.isValueDisplay()
+    } else { // isValueDisplay
       String display =
           rowResult
               .get(getDisplayFieldAlias())
@@ -74,9 +74,19 @@ public class AttributeField extends ValueDisplayField {
   }
 
   private FieldPointer getValueField() {
-    return isSource
-        ? sourceTable.getValueField(attribute.getName())
-        : indexTable.getAttributeValueField(attribute.getName());
+    FieldPointer valueField =
+        isSource
+            ? sourceTable.getValueField(attribute.getName())
+            : indexTable.getAttributeValueField(attribute.getName());
+    if (attribute.hasRuntimeSqlFunctionWrapper()) {
+      return valueField
+          .toBuilder()
+          .runtimeCalculated(true)
+          .sqlFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper())
+          .build();
+    } else {
+      return valueField;
+    }
   }
 
   private FieldPointer getDisplayField() {
@@ -95,7 +105,8 @@ public class AttributeField extends ValueDisplayField {
 
   private ColumnSchema getValueColumnSchema() {
     return new ColumnSchema(
-        getValueFieldAlias(), CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType()));
+        getValueFieldAlias(),
+        CellValue.SQLDataType.fromUnderlayDataType(attribute.getRuntimeDataType()));
   }
 
   private ColumnSchema getDisplayColumnSchema() {

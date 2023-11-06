@@ -21,14 +21,15 @@ public class STEntityAttributes extends SourceTable {
 
     Map<String, ColumnSchema> attributeValueColumnSchemasBuilder = new HashMap<>();
     Map<String, ColumnSchema> attributeDisplayColumnSchemasBuilder = new HashMap<>();
-    List<ColumnSchema> columnSchemas = new ArrayList<>();
     szAttributes.stream()
         .forEach(
             szAttribute -> {
               attributeValueColumnSchemasBuilder.put(
                   szAttribute.name,
                   new ColumnSchema(
-                      szAttribute.valueFieldName,
+                      szAttribute.valueFieldName == null
+                          ? szAttribute.name
+                          : szAttribute.valueFieldName,
                       CellValue.SQLDataType.fromUnderlayDataType(szAttribute.dataType)));
               if (szAttribute.displayFieldName != null) {
                 attributeDisplayColumnSchemasBuilder.put(
@@ -64,5 +65,13 @@ public class STEntityAttributes extends SourceTable {
         .tablePointer(getTablePointer())
         .columnName(attributeDisplayColumnSchemas.get(attribute).getColumnName())
         .build();
+  }
+
+  public ImmutableMap<String, ColumnSchema> getAttributeValueColumnSchemas() {
+    return attributeValueColumnSchemas;
+  }
+
+  public ImmutableMap<String, ColumnSchema> getAttributeDisplayColumnSchemas() {
+    return attributeDisplayColumnSchemas;
   }
 }

@@ -43,6 +43,13 @@ public final class SourceSchema {
         .get();
   }
 
+  public boolean hasTextSearchTerms(String entity) {
+    return textSearchTermsTables.stream()
+        .filter(textSearchTerms -> textSearchTerms.getEntity().equals(entity))
+        .findFirst()
+        .isPresent();
+  }
+
   public STHierarchyChildParent getHierarchyChildParent(String entity, String hierarchy) {
     return hierarchyChildParentTables.stream()
         .filter(
@@ -61,6 +68,16 @@ public final class SourceSchema {
                     && rootFilter.getHierarchy().equals(hierarchy))
         .findFirst()
         .get();
+  }
+
+  public boolean hasHierarchyRootFilter(String entity, String hierarchy) {
+    return hierarchyRootFilterTables.stream()
+        .filter(
+            rootFilter ->
+                rootFilter.getEntity().equals(entity)
+                    && rootFilter.getHierarchy().equals(hierarchy))
+        .findFirst()
+        .isPresent();
   }
 
   public STRelationshipIdPairs getRelationshipIdPairs(

@@ -7,6 +7,8 @@ public final class Attribute {
   private final Literal.DataType dataType;
   private final boolean isValueDisplay;
   private final boolean isId;
+  private final String runtimeSqlFunctionWrapper;
+  private final Literal.DataType runtimeDataType;
   private final boolean isComputeDisplayHint;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -15,12 +17,16 @@ public final class Attribute {
       Literal.DataType dataType,
       boolean isValueDisplay,
       boolean isId,
+      String runtimeSqlFunctionWrapper,
+      Literal.DataType runtimeDataType,
       boolean isComputeDisplayHint) {
     this.name = name;
     this.dataType = dataType;
     this.isValueDisplay = isValueDisplay;
     this.isId = isId;
-    this.isComputeDisplayHint = isComputeDisplayHint;
+    this.runtimeSqlFunctionWrapper = runtimeSqlFunctionWrapper;
+    this.runtimeDataType = runtimeDataType;
+    this.isComputeDisplayHint = isComputeDisplayHint && !isId;
   }
 
   public String getName() {
@@ -41,6 +47,18 @@ public final class Attribute {
 
   public boolean isId() {
     return isId;
+  }
+
+  public String getRuntimeSqlFunctionWrapper() {
+    return runtimeSqlFunctionWrapper;
+  }
+
+  public boolean hasRuntimeSqlFunctionWrapper() {
+    return runtimeSqlFunctionWrapper != null;
+  }
+
+  public Literal.DataType getRuntimeDataType() {
+    return runtimeDataType == null ? dataType : runtimeDataType;
   }
 
   public boolean isComputeDisplayHint() {

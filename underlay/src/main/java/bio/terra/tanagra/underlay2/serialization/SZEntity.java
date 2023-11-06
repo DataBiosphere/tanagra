@@ -20,6 +20,7 @@ public class SZEntity {
     public String valueFieldName;
     public String displayFieldName;
     public String runtimeSqlFunctionWrapper;
+    public Literal.DataType runtimeDataType;
     public boolean isComputeDisplayHint;
   }
 
@@ -28,6 +29,7 @@ public class SZEntity {
     public String childParentIdPairsSqlFile;
     public String childIdFieldName;
     public String parentIdFieldName;
+    public Set<Long> rootNodeIds;
     public String rootNodeIdsSqlFile;
     public String rootIdFieldName;
     public int maxDepth;

@@ -2,10 +2,11 @@ package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
-import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
-import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
+import bio.terra.tanagra.underlay2.ConfigReader;
 import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -13,82 +14,80 @@ import org.slf4j.LoggerFactory;
 
 public final class Indexer {
   private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
-
-  enum JobExecutor {
-    PARALLEL,
-    SERIAL;
-
-    public JobRunner getRunner(
-        List<SequencedJobSet> jobSets, boolean isDryRun, IndexingJob.RunType runType) {
-      switch (this) {
-        case SERIAL:
-          return new SerialRunner(jobSets, isDryRun, runType);
-        case PARALLEL:
-          return new ParallelRunner(jobSets, isDryRun, runType);
-        default:
-          throw new IllegalArgumentException("Unknown JobExecution enum type: " + this);
-      }
-    }
-  }
-
+  private final SZIndexer szIndexer;
   private final Underlay underlay;
 
-  public Indexer(Underlay underlay) {
+  private Indexer(SZIndexer szIndexer, Underlay underlay) {
+    this.szIndexer = szIndexer;
     this.underlay = underlay;
   }
 
-  public void validateConfig() {
-    ValidationUtils.validateRelationships(underlay);
-    ValidationUtils.validateAttributes(underlay);
+  public static Indexer fromConfig(SZIndexer szIndexer) {
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
+    return new Indexer(szIndexer, underlay);
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
   }
 
   public JobRunner runJobsForAllEntities(
-      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
+      JobSequencer.JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
     LOGGER.info("INDEXING all entities");
     List<SequencedJobSet> jobSets =
         underlay.getEntities().stream()
-            .map(JobSequencer::getJobSetForEntity)
+            .map(
+                entity ->
+                    JobSequencer.getJobSetForEntity(
+                        szIndexer, underlay, underlay.getEntity(entity.getName())))
             .collect(Collectors.toList());
     return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
   public JobRunner runJobsForSingleEntity(
-      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType, String name) {
+      JobSequencer.JobExecutor jobExecutor,
+      boolean isDryRun,
+      IndexingJob.RunType runType,
+      String name) {
     LOGGER.info("INDEXING entity: {}", name);
     List<SequencedJobSet> jobSets =
-        List.of(JobSequencer.getJobSetForEntity(underlay.getEntity(name)));
+        List.of(JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity(name)));
     return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
   public JobRunner runJobsForAllEntityGroups(
-      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
+      JobSequencer.JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType) {
     LOGGER.info("INDEXING all entity groups");
     List<SequencedJobSet> jobSets =
         underlay.getEntityGroups().stream()
-            .map(JobSequencer::getJobSetForEntityGroup)
+            .map(
+                entityGroup ->
+                    JobSequencer.getJobSetForEntityGroup(szIndexer, underlay, entityGroup))
             .collect(Collectors.toList());
     return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
   public JobRunner runJobsForSingleEntityGroup(
-      JobExecutor jobExecutor, boolean isDryRun, IndexingJob.RunType runType, String name) {
+      JobSequencer.JobExecutor jobExecutor,
+      boolean isDryRun,
+      IndexingJob.RunType runType,
+      String name) {
     LOGGER.info("INDEXING entity group: {}", name);
     List<SequencedJobSet> jobSets =
-        List.of(JobSequencer.getJobSetForEntityGroup(underlay.getEntityGroup(name)));
+        List.of(
+            JobSequencer.getJobSetForEntityGroup(
+                szIndexer, underlay, underlay.getEntityGroup(name)));
     return runJobs(jobExecutor, isDryRun, runType, jobSets);
   }
 
   private JobRunner runJobs(
-      JobExecutor jobExecutor,
+      JobSequencer.JobExecutor jobExecutor,
       boolean isDryRun,
       IndexingJob.RunType runType,
       List<SequencedJobSet> jobSets) {
     JobRunner jobRunner = jobExecutor.getRunner(jobSets, isDryRun, runType);
     jobRunner.runJobSets();
     return jobRunner;
-  }
-
-  public Underlay getUnderlay() {
-    return underlay;
   }
 }

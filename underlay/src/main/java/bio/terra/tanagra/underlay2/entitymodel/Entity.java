@@ -14,7 +14,8 @@ public final class Entity {
   private final ImmutableList<Attribute> attributes;
   private final ImmutableList<Hierarchy> hierarchies;
   private final ImmutableList<Attribute> optimizeGroupByAttributes;
-  private @Nullable final ImmutableList<Attribute> optimizeTextSearchAttributes;
+  private final boolean hasTextSearch;
+  private final ImmutableList<Attribute> optimizeTextSearchAttributes;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   public Entity(
@@ -25,6 +26,7 @@ public final class Entity {
       List<Attribute> attributes,
       List<Hierarchy> hierarchies,
       List<Attribute> optimizeGroupByAttributes,
+      boolean hasTextSearch,
       List<Attribute> optimizeTextSearchAttributes) {
     this.name = name;
     this.displayName = displayName;
@@ -33,6 +35,7 @@ public final class Entity {
     this.attributes = ImmutableList.copyOf(attributes);
     this.hierarchies = ImmutableList.copyOf(hierarchies);
     this.optimizeGroupByAttributes = ImmutableList.copyOf(optimizeGroupByAttributes);
+    this.hasTextSearch = hasTextSearch;
     this.optimizeTextSearchAttributes = ImmutableList.copyOf(optimizeTextSearchAttributes);
   }
 
@@ -93,6 +96,10 @@ public final class Entity {
 
   public ImmutableList<Attribute> getOptimizeGroupByAttributes() {
     return optimizeGroupByAttributes;
+  }
+
+  public boolean hasTextSearch() {
+    return hasTextSearch;
   }
 
   public ImmutableList<Attribute> getOptimizeTextSearchAttributes() {

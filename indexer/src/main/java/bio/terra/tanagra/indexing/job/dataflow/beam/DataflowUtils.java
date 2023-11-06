@@ -7,9 +7,7 @@ import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.MoreObjects;
 import org.apache.commons.text.StringSubstitutor;
-import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -45,19 +43,25 @@ public final class DataflowUtils {
   /**
    * Dataflow job name should be a valid cloud resource label.
    * https://cloud.google.com/compute/docs/labeling-resources#requirements 64 chars = 15 underlay,
-   * 32 job, 5 user, 8 date, 4 dashes
+   * 40 job, 6 user, 3 dashes
    */
   private static String getJobName(String underlay, String job) {
-    String cleanUnderlay = underlay.toLowerCase().replaceAll("[^a-z0-9]", "").substring(0, 15);
-    String cleanJob = job.toLowerCase().replaceAll("[^a-z0-9]", "").substring(0, 32);
+    String cleanUnderlay = underlay.toLowerCase().replaceAll("[^a-z0-9]", "");
+    if (cleanUnderlay.length() > 15) {
+      cleanUnderlay = cleanUnderlay.substring(0, 15);
+    }
+    String cleanJob = job.toLowerCase().replaceAll("[^a-z0-9-]", "");
+    if (cleanJob.length() > 40) {
+      cleanJob = cleanJob.substring(0, 40);
+    }
+    String systemUserName = System.getProperty("user.name");
     String cleanUser =
-        MoreObjects.firstNonNull(System.getProperty("user.name"), "")
-            .toLowerCase()
-            .replaceAll("[^a-z0-9]", "")
-            .substring(0, 5);
-    String datePart = FORMATTER.print(DateTimeUtils.currentTimeMillis());
+        (systemUserName == null ? "" : systemUserName).toLowerCase().replaceAll("[^a-z0-9]", "");
+    if (cleanUser.length() > 6) {
+      cleanUser = cleanUser.substring(0, 6);
+    }
 
-    return String.format("%s-%s-%s-%s-%s", cleanUnderlay, cleanJob, cleanUser, datePart);
+    return String.format("%s-%s-%s", cleanUnderlay, cleanJob, cleanUser);
   }
 
   /**

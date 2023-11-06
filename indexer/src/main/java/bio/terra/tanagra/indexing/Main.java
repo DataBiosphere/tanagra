@@ -8,15 +8,12 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.underlay2.ConfigReader;
-import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.serialization.SZIndexer;
-import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 
 public final class Main {
   private Main() {}
 
   enum Command {
-    VALIDATE_CONFIG,
     INDEX_ENTITY,
     INDEX_ENTITY_GROUP,
     INDEX_ALL,
@@ -32,14 +29,9 @@ public final class Main {
 
     // Read in the config files, convert to the internal underlay object.
     SZIndexer szIndexer = ConfigReader.deserializeIndexer(indexerConfigName);
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
-    Underlay underlay = new ConfigMapper(szIndexer.bigQuery, szUnderlay).run();
-    Indexer indexer = new Indexer(underlay);
+    Indexer indexer = Indexer.fromConfig(szIndexer);
 
     switch (cmd) {
-      case VALIDATE_CONFIG:
-        indexer.validateConfig();
-        break;
       case INDEX_ENTITY:
       case CLEAN_ENTITY:
         IndexingJob.RunType runTypeEntity =
@@ -47,7 +39,7 @@ public final class Main {
         String nameEntity = args[2];
         boolean isAllEntities = "*".equals(nameEntity);
         boolean isDryRunEntity = isDryRun(3, args);
-        Indexer.JobExecutor jobExecEntity = getJobExec(4, args);
+        JobSequencer.JobExecutor jobExecEntity = getJobExec(4, args);
 
         // Index/clean all the entities (*) or just one (entityName).
         JobRunner entityJobRunner;
@@ -69,7 +61,7 @@ public final class Main {
         String nameEntityGroup = args[2];
         boolean isAllEntityGroups = "*".equals(nameEntityGroup);
         boolean isDryRunEntityGroup = isDryRun(3, args);
-        Indexer.JobExecutor jobExecEntityGroup = getJobExec(4, args);
+        JobSequencer.JobExecutor jobExecEntityGroup = getJobExec(4, args);
 
         // Index/clean all the entity groups (*) or just one (entityGroupName).
         JobRunner entityGroupJobRunner;
@@ -90,7 +82,7 @@ public final class Main {
         IndexingJob.RunType runTypeAll =
             INDEX_ALL.equals(cmd) ? IndexingJob.RunType.RUN : IndexingJob.RunType.CLEAN;
         boolean isDryRunAll = isDryRun(2, args);
-        Indexer.JobExecutor jobExecAll = getJobExec(3, args);
+        JobSequencer.JobExecutor jobExecAll = getJobExec(3, args);
 
         // Index/clean all the entities and entity groups.
         JobRunner entityJobRunnerAll =
@@ -117,9 +109,9 @@ public final class Main {
     return args.length > index && "DRY_RUN".equals(args[index]);
   }
 
-  private static Indexer.JobExecutor getJobExec(int index, String... args) {
+  private static JobSequencer.JobExecutor getJobExec(int index, String... args) {
     return args.length > index && "SERIAL".equals(args[index])
-        ? Indexer.JobExecutor.SERIAL
-        : Indexer.JobExecutor.PARALLEL;
+        ? JobSequencer.JobExecutor.SERIAL
+        : JobSequencer.JobExecutor.PARALLEL;
   }
 }

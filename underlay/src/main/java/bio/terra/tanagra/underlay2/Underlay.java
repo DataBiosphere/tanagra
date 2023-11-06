@@ -113,7 +113,8 @@ public final class Underlay {
 
   public static Underlay fromConfig(SZBigQuery szBigQuery, SZUnderlay szUnderlay) {
     // Build the source and index table schemas.
-    ConfigReader configReader = new ConfigReader(szUnderlay.name);
+    ConfigReader configReader =
+        new ConfigReader(szUnderlay.name, szBigQuery.sourceData.sqlSubstitutions);
     SourceSchema sourceSchema = SourceSchema.fromConfig(szBigQuery, szUnderlay, configReader);
     IndexSchema indexSchema = IndexSchema.fromConfig(szBigQuery, szUnderlay, configReader);
 
@@ -166,15 +167,20 @@ public final class Underlay {
                     new Attribute(
                         szAttribute.name,
                         szAttribute.dataType,
-                        szAttribute.valueFieldName != null,
+                        szAttribute.displayFieldName != null,
                         szAttribute.name.equals(szEntity.idAttribute),
+                        szAttribute.runtimeSqlFunctionWrapper,
+                        szAttribute.runtimeDataType,
                         szAttribute.isComputeDisplayHint))
             .collect(Collectors.toList());
 
-    List<Attribute> optimizeGroupByAttributes =
-        attributes.stream()
-            .filter(attribute -> szEntity.optimizeGroupByAttributes.contains(attribute.getName()))
-            .collect(Collectors.toList());
+    List<Attribute> optimizeGroupByAttributes = new ArrayList<>();
+    if (szEntity.optimizeGroupByAttributes != null) {
+      optimizeGroupByAttributes =
+          attributes.stream()
+              .filter(attribute -> szEntity.optimizeGroupByAttributes.contains(attribute.getName()))
+              .collect(Collectors.toList());
+    }
     List<Attribute> optimizeTextSearchAttributes = new ArrayList<>();
     if (szEntity.textSearch != null && szEntity.textSearch.attributes != null) {
       optimizeTextSearchAttributes =
@@ -191,7 +197,10 @@ public final class Underlay {
               .map(
                   szHierarchy ->
                       new Hierarchy(
-                          szHierarchy.name, szHierarchy.maxDepth, szHierarchy.keepOrphanNodes))
+                          szHierarchy.name,
+                          szHierarchy.maxDepth,
+                          szHierarchy.keepOrphanNodes,
+                          szHierarchy.rootNodeIds))
               .collect(Collectors.toList());
     }
     return new Entity(
@@ -202,6 +211,7 @@ public final class Underlay {
         attributes,
         hierarchies,
         optimizeGroupByAttributes,
+        szEntity.textSearch != null,
         optimizeTextSearchAttributes);
   }
 
@@ -299,7 +309,7 @@ public final class Underlay {
 
     // Build the primary-criteria relationship.
     Relationship primaryCriteriaRelationship =
-        new Relationship(criteriaEntity, primaryEntity, null, null);
+        new Relationship(primaryEntity, criteriaEntity, null, null);
 
     return new CriteriaOccurrence(
         szCriteriaOccurrence.name,

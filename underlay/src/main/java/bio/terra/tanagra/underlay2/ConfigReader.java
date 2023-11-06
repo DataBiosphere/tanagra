@@ -5,12 +5,15 @@ import bio.terra.tanagra.underlay2.serialization.*;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.text.StringSubstitutor;
 
 @SuppressFBWarnings(
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
@@ -25,6 +28,7 @@ public final class ConfigReader {
   private static final String FILE_EXTENSION = ".json";
   private static final String UNDERLAY_FILE_NAME = "underlay";
   private static final String ENTITY_FILE_NAME = "entity";
+  private static final String ENTITY_GROUP_FILE_NAME = "entityGroup";
 
   private final Map<String, SZEntity> szEntityCache = new HashMap<>();
   private final Map<String, SZGroupItems> szGroupItemsCache = new HashMap<>();
@@ -32,9 +36,12 @@ public final class ConfigReader {
   private final Map<Pair<String, String>, String> entitySqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
   private final String underlay;
+  private final ImmutableMap<String, String> sqlSubstitutions;
 
-  public ConfigReader(String underlay) {
+  public ConfigReader(String underlay, Map<String, String> sqlSubstitutions) {
     this.underlay = underlay;
+    this.sqlSubstitutions =
+        sqlSubstitutions == null ? ImmutableMap.of() : ImmutableMap.copyOf(sqlSubstitutions);
   }
 
   public SZEntity readEntity(String entityName) {
@@ -63,18 +70,18 @@ public final class ConfigReader {
 
   public String readEntitySql(String entityName, String fileName) {
     if (!entitySqlCache.containsKey(Pair.of(entityName, fileName))) {
+      String sql = ConfigReader.readEntitySql(underlay, entityName, fileName);
       entitySqlCache.put(
-          Pair.of(entityName, fileName),
-          ConfigReader.readEntitySql(underlay, entityName, fileName));
+          Pair.of(entityName, fileName), StringSubstitutor.replace(sql, sqlSubstitutions));
     }
     return entitySqlCache.get(Pair.of(entityName, fileName));
   }
 
   public String readEntityGroupSql(String entityGroupName, String fileName) {
     if (!entityGroupSqlCache.containsKey(Pair.of(entityGroupName, fileName))) {
+      String sql = ConfigReader.readEntityGroupSql(underlay, entityGroupName, fileName);
       entityGroupSqlCache.put(
-          Pair.of(entityGroupName, fileName),
-          ConfigReader.readEntityGroupSql(underlay, entityGroupName, fileName));
+          Pair.of(entityGroupName, fileName), StringSubstitutor.replace(sql, sqlSubstitutions));
     }
     return entityGroupSqlCache.get(Pair.of(entityGroupName, fileName));
   }
@@ -108,10 +115,25 @@ public final class ConfigReader {
   @VisibleForTesting
   public static SZUnderlay deserializeUnderlay(String underlay) {
     try {
-      return JacksonMapper.readFileIntoJavaObject(
-          FileUtils.getResourceFileStream(
-              resolveUnderlayDir(underlay).resolve(UNDERLAY_FILE_NAME + FILE_EXTENSION)),
-          SZUnderlay.class);
+      SZUnderlay szUnderlay =
+          JacksonMapper.readFileIntoJavaObject(
+              FileUtils.getResourceFileStream(
+                  resolveUnderlayDir(underlay).resolve(UNDERLAY_FILE_NAME + FILE_EXTENSION)),
+              SZUnderlay.class);
+
+      // Initialize null collections to empty collections.
+      szUnderlay.entities = szUnderlay.entities == null ? new HashSet<>() : szUnderlay.entities;
+      szUnderlay.groupItemsEntityGroups =
+          szUnderlay.groupItemsEntityGroups == null
+              ? new HashSet<>()
+              : szUnderlay.groupItemsEntityGroups;
+      szUnderlay.criteriaOccurrenceEntityGroups =
+          szUnderlay.criteriaOccurrenceEntityGroups == null
+              ? new HashSet<>()
+              : szUnderlay.criteriaOccurrenceEntityGroups;
+      szUnderlay.metadata.properties =
+          szUnderlay.metadata.properties == null ? new HashMap<>() : szUnderlay.metadata.properties;
+      return szUnderlay;
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing underlay config file", ioEx);
     }
@@ -120,22 +142,64 @@ public final class ConfigReader {
   @VisibleForTesting
   public static SZEntity deserializeEntity(String underlay, String entity) {
     try {
-      return JacksonMapper.readFileIntoJavaObject(
-          FileUtils.getResourceFileStream(
-              resolveEntityDir(underlay, entity).resolve(ENTITY_FILE_NAME + FILE_EXTENSION)),
-          SZEntity.class);
+      SZEntity szEntity =
+          JacksonMapper.readFileIntoJavaObject(
+              FileUtils.getResourceFileStream(
+                  resolveEntityDir(underlay, entity).resolve(ENTITY_FILE_NAME + FILE_EXTENSION)),
+              SZEntity.class);
+
+      // Initialize null collections to empty collections.
+      szEntity.attributes = szEntity.attributes == null ? new HashSet<>() : szEntity.attributes;
+      szEntity.hierarchies = szEntity.hierarchies == null ? new HashSet<>() : szEntity.hierarchies;
+
+      return szEntity;
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing entity config file", ioEx);
     }
   }
 
   private static SZGroupItems deserializeGroupItems(String underlay, String groupItems) {
-    return null;
+    try {
+      return JacksonMapper.readFileIntoJavaObject(
+          FileUtils.getResourceFileStream(
+              resolveEntityGroupDir(underlay, groupItems)
+                  .resolve(ENTITY_GROUP_FILE_NAME + FILE_EXTENSION)),
+          SZGroupItems.class);
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException(
+          "Error deserializing group items entity group config file", ioEx);
+    }
   }
 
-  private static SZCriteriaOccurrence deserializeCriteriaOccurrence(
+  @VisibleForTesting
+  public static SZCriteriaOccurrence deserializeCriteriaOccurrence(
       String underlay, String criteriaOccurrence) {
-    return null;
+    try {
+      SZCriteriaOccurrence szCriteriaOccurrence =
+          JacksonMapper.readFileIntoJavaObject(
+              FileUtils.getResourceFileStream(
+                  resolveEntityGroupDir(underlay, criteriaOccurrence)
+                      .resolve(ENTITY_GROUP_FILE_NAME + FILE_EXTENSION)),
+              SZCriteriaOccurrence.class);
+
+      // Initialize null collections to empty collections.
+      szCriteriaOccurrence.occurrenceEntities =
+          szCriteriaOccurrence.occurrenceEntities == null
+              ? new HashSet<>()
+              : szCriteriaOccurrence.occurrenceEntities;
+      szCriteriaOccurrence.occurrenceEntities.stream()
+          .forEach(
+              szOccurrenceEntity ->
+                  szOccurrenceEntity.attributesWithInstanceLevelHints =
+                      szOccurrenceEntity.attributesWithInstanceLevelHints == null
+                          ? new HashSet<>()
+                          : szOccurrenceEntity.attributesWithInstanceLevelHints);
+
+      return szCriteriaOccurrence;
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException(
+          "Error deserializing criteria occurrence entity group config file", ioEx);
+    }
   }
 
   private static String readEntitySql(String underlay, String entity, String fileName) {

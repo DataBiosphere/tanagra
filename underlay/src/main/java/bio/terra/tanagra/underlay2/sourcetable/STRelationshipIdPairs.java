@@ -52,10 +52,18 @@ public class STRelationshipIdPairs extends SourceTable {
         .build();
   }
 
+  public ColumnSchema getEntityAIdColumnSchema() {
+    return entityAIdColumnSchema;
+  }
+
   public FieldPointer getEntityBIdField() {
     return new FieldPointer.Builder()
         .tablePointer(getTablePointer())
         .columnName(entityBIdColumnSchema.getColumnName())
         .build();
+  }
+
+  public ColumnSchema getEntityBIdColumnSchema() {
+    return entityBIdColumnSchema;
   }
 }

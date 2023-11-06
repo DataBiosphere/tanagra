@@ -203,12 +203,23 @@ public final class GoogleBigQuery {
 
   private TableResult runUpdateQuery(QueryJobConfiguration queryConfig, boolean isDryRun) {
     if (isDryRun) {
-      Job job = bigQuery.create(JobInfo.of(queryConfig));
-      JobStatistics.QueryStatistics statistics = job.getStatistics();
-      LOGGER.info(
-          "BigQuery dry run performed successfully: {} bytes processed",
-          statistics.getTotalBytesProcessed());
-      return null;
+      try {
+        Job job = bigQuery.create(JobInfo.of(queryConfig));
+        JobStatistics.QueryStatistics statistics = job.getStatistics();
+        LOGGER.info(
+            "BigQuery dry run performed successfully: {} bytes processed",
+            statistics.getTotalBytesProcessed());
+        return null;
+      } catch (BigQueryException bqEx) {
+        if (bqEx.getCode() == HttpStatus.SC_NOT_FOUND) {
+          LOGGER.info(
+              "Query dry run failed because table has not been created yet: {}",
+              bqEx.getError().getMessage());
+          return null;
+        } else {
+          throw bqEx;
+        }
+      }
     } else {
       return callWithRetries(() -> bigQuery.query(queryConfig), "Retryable error running query");
     }
@@ -279,6 +290,7 @@ public final class GoogleBigQuery {
   }
 
   public int getNumRows(String projectId, String datasetId, String tableId) {
+
     return getNumRowsWhereFieldNotNull(projectId, datasetId, tableId, null);
   }
 

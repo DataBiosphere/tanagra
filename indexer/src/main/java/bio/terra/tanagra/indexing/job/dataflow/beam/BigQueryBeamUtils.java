@@ -29,7 +29,7 @@ public final class BigQueryBeamUtils {
 
   /** Read the set of nodes from BQ and build a {@link PCollection} of just the node identifiers. */
   public static PCollection<Long> readNodesFromBQ(
-      Pipeline pipeline, String sqlQuery, String description) {
+      Pipeline pipeline, String sqlQuery, String idColumnName, String description) {
     PCollection<TableRow> allNodesBqRows =
         pipeline.apply(
             "read (id) rows: " + description,
@@ -40,7 +40,7 @@ public final class BigQueryBeamUtils {
     return allNodesBqRows.apply(
         "build (id) pcollection: " + description,
         MapElements.into(TypeDescriptors.longs())
-            .via(tableRow -> Long.parseLong((String) tableRow.get(ID_COLUMN_NAME))));
+            .via(tableRow -> Long.parseLong((String) tableRow.get(idColumnName))));
   }
 
   /**
@@ -48,8 +48,8 @@ public final class BigQueryBeamUtils {
    * pairs (child, parent).
    */
   public static PCollection<KV<Long, Long>> readChildParentRelationshipsFromBQ(
-      Pipeline pipeline, String sqlQuery) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, CHILD_COLUMN_NAME, PARENT_COLUMN_NAME);
+      Pipeline pipeline, String sqlQuery, String childColumnName, String parentColumnName) {
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, childColumnName, parentColumnName);
   }
 
   /**
@@ -57,8 +57,8 @@ public final class BigQueryBeamUtils {
    * count_id).
    */
   public static PCollection<KV<Long, Long>> readOccurrencesFromBQ(
-      Pipeline pipeline, String sqlQuery) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, ID_COLUMN_NAME, COUNT_ID_COLUMN_NAME);
+      Pipeline pipeline, String sqlQuery, String idColumnName, String countedIdColumnName) {
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, idColumnName, countedIdColumnName);
   }
 
   /**
@@ -66,15 +66,15 @@ public final class BigQueryBeamUtils {
    * {@link KV} pairs (descendant, ancestor).
    */
   public static PCollection<KV<Long, Long>> readAncestorDescendantRelationshipsFromBQ(
-      Pipeline pipeline, String sqlQuery) {
-    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, DESCENDANT_COLUMN_NAME, ANCESTOR_COLUMN_NAME);
+      Pipeline pipeline, String sqlQuery, String ancestorColumnName, String descendantColumnName) {
+    return readTwoFieldRowsFromBQ(pipeline, sqlQuery, descendantColumnName, ancestorColumnName);
   }
 
   /**
    * Read all the two-field rows from BQ and build a {@link PCollection} of {@link KV} pairs
    * (field1, field2).
    */
-  public static PCollection<KV<Long, Long>> readTwoFieldRowsFromBQ(
+  private static PCollection<KV<Long, Long>> readTwoFieldRowsFromBQ(
       Pipeline pipeline, String sqlQuery, String field1Name, String field2Name) {
     PCollection<TableRow> bqRows =
         pipeline.apply(

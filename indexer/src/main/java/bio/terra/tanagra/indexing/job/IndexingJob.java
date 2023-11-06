@@ -20,11 +20,11 @@ public interface IndexingJob {
 
   String getName();
 
+  JobStatus checkStatus();
+
   void run(boolean isDryRun);
 
   void clean(boolean isDryRun);
-
-  JobStatus checkStatus();
 
   default JobStatus execute(RunType runType, boolean isDryRun) {
     LOGGER.info("Executing indexing job: {}, {}", runType, getName());

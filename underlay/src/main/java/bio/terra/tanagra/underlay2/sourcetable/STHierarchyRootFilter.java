@@ -40,4 +40,8 @@ public class STHierarchyRootFilter extends SourceTable {
         .columnName(idColumnSchema.getColumnName())
         .build();
   }
+
+  public ColumnSchema getIdColumnSchema() {
+    return idColumnSchema;
+  }
 }

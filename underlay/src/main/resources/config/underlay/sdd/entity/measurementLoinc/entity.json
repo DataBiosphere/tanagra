@@ -1,0 +1,26 @@
+{
+  "name": "measurementLoinc",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
+    { "name": "name", "dataType": "STRING", "valueFieldName": "concept_name" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "vocabulary_id" },
+    { "name": "standard_concept", "dataType": "STRING" },
+    { "name": "concept_code", "dataType": "STRING" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "concept_code" ]
+  },
+  "hierarchies": [
+    {
+      "name": "default",
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "rootNodeIds": [ 36206173 ],
+      "maxDepth": 11,
+      "keepOrphanNodes": false
+    }
+  ]
+}

@@ -50,4 +50,12 @@ public class STHierarchyChildParent extends SourceTable {
         .columnName(parentColumnSchema.getColumnName())
         .build();
   }
+
+  public ColumnSchema getChildColumnSchema() {
+    return childColumnSchema;
+  }
+
+  public ColumnSchema getParentColumnSchema() {
+    return parentColumnSchema;
+  }
 }
