@@ -26,16 +26,39 @@
 
     "note",
     "noteOccurrence",
+    "familyHistory",
 
     "cpt4",
     "icd9cm",
     "icd9proc",
     "icd10cm",
     "icd10pcs",
-    "phewas"
+    "phewas",
+
+    "genotyping",
+    "snp",
+
+    "bloodPressure",
+    "bmi",
+    "height",
+    "weight",
+    "pulse",
+    "respiratoryRate"
   ],
   "groupItemsEntityGroups": [
-    "brandIngredient"
+    "brandIngredient",
+
+    "familyHistoryPerson",
+
+    "genotypingPerson",
+    "snpPerson",
+
+    "bloodPressurePerson",
+    "bmiPerson",
+    "heightPerson",
+    "weightPerson",
+    "pulsePerson",
+    "respiratoryRatePerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "conditionPerson",

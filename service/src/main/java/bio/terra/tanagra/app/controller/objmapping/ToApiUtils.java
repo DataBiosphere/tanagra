@@ -1,6 +1,7 @@
 package bio.terra.tanagra.app.controller.objmapping;
 
 import bio.terra.tanagra.api.query.EntityInstanceCount;
+import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAnnotationValue;
 import bio.terra.tanagra.generated.model.ApiAttribute;
@@ -24,9 +25,9 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.artifact.model.Study;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public final class ToApiUtils {
   public static ApiAttribute toApiObject(Attribute attribute) {
     return new ApiAttribute()
         .name(attribute.getName())
-        .type(ApiAttribute.TypeEnum.fromValue(attribute.getType().name()))
+        .type(attribute.isSimple() ?  ApiAttribute.TypeEnum.SIMPLE : ApiAttribute.TypeEnum.KEY_AND_DISPLAY)
         .dataType(ApiDataType.fromValue(attribute.getDataType().name()));
   }
 

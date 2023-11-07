@@ -1,0 +1,8 @@
+{
+  "name": "weightPerson",
+  "groupEntity": "person",
+  "itemsEntity": "weight",
+  "idPairsSqlFile":  "idPairs.sql",
+  "groupEntityIdFieldName": "person_id",
+  "itemsEntityIdFieldName": "measurement_id"
+}

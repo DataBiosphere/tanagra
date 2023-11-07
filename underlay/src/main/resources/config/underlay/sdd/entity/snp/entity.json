@@ -1,0 +1,12 @@
+{
+  "name": "snp",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_num" },
+    { "name": "name", "dataType": "STRING", "valueFieldName": "snp_id" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name" ]
+  }
+}

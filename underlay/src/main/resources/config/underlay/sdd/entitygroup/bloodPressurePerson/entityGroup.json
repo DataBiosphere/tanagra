@@ -1,0 +1,8 @@
+{
+  "name": "bloodPressurePerson",
+  "groupEntity": "person",
+  "itemsEntity": "bloodPressure",
+  "idPairsSqlFile":  "idPairs.sql",
+  "groupEntityIdFieldName": "person_id",
+  "itemsEntityIdFieldName": "id"
+}

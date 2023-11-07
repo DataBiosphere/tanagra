@@ -18,19 +18,14 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.DisplayHint;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.ValueDisplay;
-import bio.terra.tanagra.underlay.displayhint.EnumVal;
-import bio.terra.tanagra.underlay.displayhint.EnumVals;
-import bio.terra.tanagra.underlay.displayhint.NumericRange;
+import bio.terra.tanagra.underlay2.ConfigReader;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay2.indextable.ITInstanceLevelDisplayHints;
+import bio.terra.tanagra.underlay2.serialization.SZService;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 import bio.terra.tanagra.utils.FileIO;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,16 +50,11 @@ public class UnderlayService {
     // Read in underlays from resource files.
     Map<String, Underlay> underlaysMapBuilder = new HashMap<>();
     FileIO.setToReadResourceFiles();
-    for (String underlayFile : underlayConfiguration.getFiles()) {
-      Path resourceConfigPath = Path.of("config").resolve(underlayFile);
-      FileIO.setInputParentDir(resourceConfigPath.getParent());
-      try {
-        Underlay underlay = Underlay.fromJSON(resourceConfigPath.getFileName().toString());
-        underlaysMapBuilder.put(underlay.getName(), underlay);
-      } catch (IOException ioEx) {
-        throw new SystemException(
-            "Error reading underlay file from resources: " + resourceConfigPath, ioEx);
-      }
+    for (String serviceConfig : underlayConfiguration.getFiles()) {
+      SZService szService = ConfigReader.deserializeService(serviceConfig);
+      SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
+      Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
+      underlaysMapBuilder.put(underlay.getName(), underlay);
     }
     this.underlaysMap = underlaysMapBuilder;
 
@@ -99,15 +89,11 @@ public class UnderlayService {
   }
 
   public List<Entity> listEntities(String underlayName) {
-    return getUnderlay(underlayName).getEntities().values().stream().collect(Collectors.toList());
+    return getUnderlay(underlayName).getEntities().stream().collect(Collectors.toList());
   }
 
   public Entity getEntity(String underlayName, String entityName) {
-    Underlay underlay = getUnderlay(underlayName);
-    if (!underlay.getEntities().containsKey(entityName)) {
-      throw new NotFoundException("Entity not found: " + underlayName + ", " + entityName);
-    }
-    return underlay.getEntity(entityName);
+    return getUnderlay(underlayName).getEntity(entityName);
   }
 
   public static EntityQueryResult listEntityInstances(EntityQueryRequest entityQueryRequest) {

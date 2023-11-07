@@ -1,0 +1,8 @@
+{
+  "name": "snpPerson",
+  "groupEntity": "snp",
+  "itemsEntity": "person",
+  "idPairsSqlFile":  "idPairs.sql",
+  "groupEntityIdFieldName": "row_num",
+  "itemsEntityIdFieldName": "person_id"
+}
