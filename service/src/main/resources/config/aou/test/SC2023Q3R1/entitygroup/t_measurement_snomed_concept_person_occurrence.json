@@ -1,7 +1,7 @@
 {
-  "name": "t_measurementSnomed_person_occurrence",
+  "name": "t_measurement_snomed_concept_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
-  "criteriaEntity": "t_measurementSnomed",
+  "criteriaEntity": "t_measurement_snomed_concept",
   "occurrenceEntities": [ "t_measurement_occurrence" ],
   "modifierAttributes": [ "value_numeric", "value_enum" ],
   "sourceDataMapping": {

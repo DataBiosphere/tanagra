@@ -1,5 +1,5 @@
 {
-  "name": "t_measurementSnomed",
+  "name": "t_measurement_snomed_concept",
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
@@ -11,19 +11,8 @@
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "tablePointer": {
-      "table": "concept",
-      "filter": {
-        "type": "BOOLEAN_AND_OR",
-        "operator": "AND",
-        "subfilters": [
-          { "type": "BINARY",
-            "field": { "column": "domain_id" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "Measurement" } },
-          { "type": "BINARY",
-            "field": { "column": "vocabulary_id" },
-            "operator": "EQUALS",
-            "value": { "stringVal": "SNOMED" } } ] } },
+      "rawSqlFile": "t_measurement_snomed_concept.sql"
+    },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },
       "name": { "value": { "column": "concept_name" } },
@@ -33,27 +22,31 @@
         "display": {
           "column": "standard_concept",
           "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
-    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "t_measurementSnomed_textSearch.sql" } } },
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "t_measurement_snomed_text_search.sql" } } },
     "hierarchyMappings": {
       "standard": {
         "childParent": {
-          "tablePointer": { "rawSqlFile": "t_measurementSnomed_parentChild.sql" }
+          "tablePointer": { "rawSqlFile": "t_measurement_snomed_parent_child.sql" }
         },
         "rootNodesFilter": {
           "tablePointer": {
             "table": "concept",
             "filter": {
               "type": "BOOLEAN_AND_OR",
-                  "operator": "AND",
-                  "subfilters": [
-                    { "type": "BINARY",
-                      "field": { "column": "domain_id" },
-                      "operator": "EQUALS",
-                      "value": { "stringVal": "Measurement" } },
-                    { "type": "BINARY",
-                      "field": { "column": "vocabulary_id" },
-                      "operator": "EQUALS",
-                      "value": { "stringVal": "SNOMED" } } ] } },
+              "operator": "AND",
+              "subfilters": [
+                { "type": "BINARY",
+                  "field": { "column": "domain_id" },
+                  "operator": "EQUALS",
+                  "value": { "stringVal": "Measurement" } },
+                { "type": "BINARY",
+                  "field": { "column": "vocabulary_id" },
+                  "operator": "EQUALS",
+                  "value": { "stringVal": "SNOMED" }
+                }
+              ]
+            }
+          },
           "fieldPointers": {
             "id": { "column": "concept_id" }
           }
@@ -62,7 +55,6 @@
       }
     }
   },
-
   "indexDataMapping": {
     "dataPointer": "index_dataset"
   }

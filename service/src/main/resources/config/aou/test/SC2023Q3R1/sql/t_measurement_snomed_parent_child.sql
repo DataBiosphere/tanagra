@@ -10,3 +10,4 @@ WHERE
   AND c1.vocabulary_id = 'SNOMED'
   AND c1.domain_id = c2.domain_id
   AND c1.domain_id = 'Measurement'
+  AND c1.standard_concept = 'S'
