@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class ConfigReaderTest {
   @Test
   void deserializeEntity() {
-    SZEntity person = ConfigReader.deserializeEntity("sdd", "person");
+    SZEntity person = ConfigReader.deserializeEntity("sdd/person");
     assertNotNull(person);
   }
 

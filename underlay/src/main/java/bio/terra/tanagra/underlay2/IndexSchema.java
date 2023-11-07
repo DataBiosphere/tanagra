@@ -133,9 +133,9 @@ public final class IndexSchema {
     // Build source tables for each entity.
     szUnderlay.entities.stream()
         .forEach(
-            entityName ->
+            entityPath ->
                 fromConfigEntity(
-                    entityName,
+                    entityPath,
                     szUnderlay,
                     configReader,
                     nameHelper,
@@ -148,18 +148,18 @@ public final class IndexSchema {
     // Build source tables for each entity group.
     szUnderlay.groupItemsEntityGroups.stream()
         .forEach(
-            groupItemsName ->
+            groupItemsPath ->
                 fromConfigGroupItems(
-                    groupItemsName,
+                    groupItemsPath,
                     configReader,
                     nameHelper,
                     indexDataPointer,
                     relationshipIdPairTables));
     szUnderlay.criteriaOccurrenceEntityGroups.stream()
         .forEach(
-            criteriaOccurrenceName ->
+            criteriaOccurrencePath ->
                 fromConfigCriteriaOccurrence(
-                    criteriaOccurrenceName,
+                    criteriaOccurrencePath,
                     szUnderlay.primaryEntity,
                     configReader,
                     nameHelper,
@@ -177,7 +177,7 @@ public final class IndexSchema {
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   private static void fromConfigEntity(
-      String entityName,
+      String entityPath,
       SZUnderlay szUnderlay,
       ConfigReader configReader,
       NameHelper nameHelper,
@@ -186,16 +186,16 @@ public final class IndexSchema {
       List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables,
       List<ITHierarchyChildParent> hierarchyChildParentTables,
       List<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables) {
-    SZEntity szEntity = configReader.readEntity(entityName);
+    SZEntity szEntity = configReader.readEntity(entityPath);
 
     // EntityMain table.
     Set<String> entityGroupsWithCount = new HashSet<>();
     szUnderlay.groupItemsEntityGroups.stream()
         .forEach(
-            groupItemsName -> {
-              SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsName);
-              if (szGroupItems.groupEntity.equals(entityName)) {
-                entityGroupsWithCount.add(groupItemsName);
+            groupItemsPath -> {
+              SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
+              if (szGroupItems.groupEntity.equals(szEntity.name)) {
+                entityGroupsWithCount.add(groupItemsPath);
               }
             });
     szUnderlay.criteriaOccurrenceEntityGroups.stream()
@@ -203,7 +203,7 @@ public final class IndexSchema {
             criteriaOccurrenceName -> {
               SZCriteriaOccurrence szCriteriaOccurrence =
                   configReader.readCriteriaOccurrence(criteriaOccurrenceName);
-              if (szCriteriaOccurrence.criteriaEntity.equals(entityName)) {
+              if (szCriteriaOccurrence.criteriaEntity.equals(szEntity.name)) {
                 entityGroupsWithCount.add(criteriaOccurrenceName);
               }
             });
@@ -211,7 +211,7 @@ public final class IndexSchema {
         new ITEntityMain(
             nameHelper,
             indexDataPointer,
-            entityName,
+            szEntity.name,
             szEntity.attributes,
             szEntity.hierarchies,
             szEntity.textSearch != null,
@@ -219,7 +219,7 @@ public final class IndexSchema {
 
     // EntityLevelDisplayHints table.
     entityLevelDisplayHintTables.add(
-        new ITEntityLevelDisplayHints(nameHelper, indexDataPointer, entityName));
+        new ITEntityLevelDisplayHints(nameHelper, indexDataPointer, szEntity.name));
 
     szEntity.hierarchies.stream()
         .forEach(
@@ -227,36 +227,36 @@ public final class IndexSchema {
               // HierarchyChildParent table.
               hierarchyChildParentTables.add(
                   new ITHierarchyChildParent(
-                      nameHelper, indexDataPointer, entityName, szHierarchy.name));
+                      nameHelper, indexDataPointer, szEntity.name, szHierarchy.name));
 
               // HierarchyAncestorDescendant table.
               hierarchyAncestorDescendantTables.add(
                   new ITHierarchyAncestorDescendant(
-                      nameHelper, indexDataPointer, entityName, szHierarchy.name));
+                      nameHelper, indexDataPointer, szEntity.name, szHierarchy.name));
             });
   }
 
   private static void fromConfigGroupItems(
-      String groupItemsName,
+      String groupItemsPath,
       ConfigReader configReader,
       NameHelper nameHelper,
       DataPointer indexDataPointer,
       List<ITRelationshipIdPairs> relationshipIdPairTables) {
-    SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsName);
+    SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
     if (szGroupItems.idPairsSqlFile != null) {
       // RelationshipIdPairs table.
       relationshipIdPairTables.add(
           new ITRelationshipIdPairs(
               nameHelper,
               indexDataPointer,
-              groupItemsName,
+              szGroupItems.name,
               szGroupItems.groupEntity,
               szGroupItems.itemsEntity));
     }
   }
 
   public static void fromConfigCriteriaOccurrence(
-      String criteriaOccurrenceName,
+      String criteriaOccurrencePath,
       String primaryEntityName,
       ConfigReader configReader,
       NameHelper nameHelper,
@@ -264,15 +264,15 @@ public final class IndexSchema {
       List<ITRelationshipIdPairs> relationshipIdPairTables,
       List<ITInstanceLevelDisplayHints> instanceLevelDisplayHintTables) {
     SZCriteriaOccurrence szCriteriaOccurrence =
-        configReader.readCriteriaOccurrence(criteriaOccurrenceName);
+        configReader.readCriteriaOccurrence(criteriaOccurrencePath);
     if (szCriteriaOccurrence.primaryCriteriaRelationship.idPairsSqlFile != null) {
       // RelationshipIdPairs table.
       relationshipIdPairTables.add(
           new ITRelationshipIdPairs(
               nameHelper,
               indexDataPointer,
-              criteriaOccurrenceName,
-              primaryEntityName,
+              szCriteriaOccurrence.name,
+                  primaryEntityName,
               szCriteriaOccurrence.criteriaEntity));
     }
     szCriteriaOccurrence.occurrenceEntities.stream()
@@ -284,7 +284,7 @@ public final class IndexSchema {
                     new ITRelationshipIdPairs(
                         nameHelper,
                         indexDataPointer,
-                        criteriaOccurrenceName,
+                            szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         szCriteriaOccurrence.criteriaEntity));
               }
@@ -294,9 +294,9 @@ public final class IndexSchema {
                     new ITRelationshipIdPairs(
                         nameHelper,
                         indexDataPointer,
-                        criteriaOccurrenceName,
+                            szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
-                        primaryEntityName));
+                            primaryEntityName));
               }
               if (szOccurrenceEntity.attributesWithInstanceLevelHints != null) {
                 // InstanceLevelDisplayHints table.
@@ -304,7 +304,7 @@ public final class IndexSchema {
                     new ITInstanceLevelDisplayHints(
                         nameHelper,
                         indexDataPointer,
-                        criteriaOccurrenceName,
+                        szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         szCriteriaOccurrence.criteriaEntity));
               }

@@ -10,6 +10,7 @@ public class SZUnderlay {
   public Set<String> groupItemsEntityGroups;
   public Set<String> criteriaOccurrenceEntityGroups;
   public Metadata metadata;
+  public String uiConfigFile; // TODO: Merge UI config into backend config.
 
   public static class Metadata {
     public String displayName;

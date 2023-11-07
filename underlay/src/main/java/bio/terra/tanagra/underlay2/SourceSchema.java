@@ -129,9 +129,9 @@ public final class SourceSchema {
     // Build source tables for each entity.
     szUnderlay.entities.stream()
         .forEach(
-            entityName ->
+            entityPath ->
                 fromConfigEntity(
-                    entityName,
+                    entityPath,
                     configReader,
                     sourceDataPointer,
                     entityAttributesTables,
@@ -142,14 +142,14 @@ public final class SourceSchema {
     // Build source tables for each entity group.
     szUnderlay.groupItemsEntityGroups.stream()
         .forEach(
-            groupItemsName ->
+            groupItemsPath ->
                 fromConfigGroupItems(
-                    groupItemsName, configReader, sourceDataPointer, relationshipIdPairTables));
+                    groupItemsPath, configReader, sourceDataPointer, relationshipIdPairTables));
     szUnderlay.criteriaOccurrenceEntityGroups.stream()
         .forEach(
-            criteriaOccurrenceName ->
+            criteriaOccurrencePath ->
                 fromConfigCriteriaOccurrence(
-                    criteriaOccurrenceName,
+                    criteriaOccurrencePath,
                     szUnderlay.primaryEntity,
                     configReader,
                     sourceDataPointer,
@@ -163,28 +163,28 @@ public final class SourceSchema {
   }
 
   private static void fromConfigEntity(
-      String entityName,
+      String entityPath,
       ConfigReader configReader,
       DataPointer sourceDataPointer,
       List<STEntityAttributes> entityAttributesTables,
       List<STTextSearchTerms> textSearchTermsTables,
       List<STHierarchyChildParent> hierarchyChildParentTables,
       List<STHierarchyRootFilter> hierarchyRootFilterTables) {
-    SZEntity szEntity = configReader.readEntity(entityName);
+    SZEntity szEntity = configReader.readEntity(entityPath);
 
     // EntityAttributes table.
-    String allInstancesSql = configReader.readEntitySql(entityName, szEntity.allInstancesSqlFile);
+    String allInstancesSql = configReader.readEntitySql(entityPath, szEntity.allInstancesSqlFile);
     TablePointer allInstancesTable = TablePointer.fromRawSql(allInstancesSql, sourceDataPointer);
     entityAttributesTables.add(
-        new STEntityAttributes(allInstancesTable, entityName, szEntity.attributes));
+        new STEntityAttributes(allInstancesTable, szEntity.name, szEntity.attributes));
 
     if (szEntity.textSearch != null && szEntity.textSearch.idTextPairsSqlFile != null) {
       // TextSearchTerms table.
       String idTextPairsSql =
-          configReader.readEntitySql(entityName, szEntity.textSearch.idTextPairsSqlFile);
+          configReader.readEntitySql(entityPath, szEntity.textSearch.idTextPairsSqlFile);
       TablePointer idTextPairsTable = TablePointer.fromRawSql(idTextPairsSql, sourceDataPointer);
       textSearchTermsTables.add(
-          new STTextSearchTerms(idTextPairsTable, entityName, szEntity.textSearch));
+          new STTextSearchTerms(idTextPairsTable, szEntity.name, szEntity.textSearch));
     }
 
     szEntity.hierarchies.stream()
@@ -192,39 +192,39 @@ public final class SourceSchema {
             szHierarchy -> {
               // HierarchyChildParent table.
               String childParentSql =
-                  configReader.readEntitySql(entityName, szHierarchy.childParentIdPairsSqlFile);
+                  configReader.readEntitySql(entityPath, szHierarchy.childParentIdPairsSqlFile);
               TablePointer childParentTable =
                   TablePointer.fromRawSql(childParentSql, sourceDataPointer);
               hierarchyChildParentTables.add(
-                  new STHierarchyChildParent(childParentTable, entityName, szHierarchy));
+                  new STHierarchyChildParent(childParentTable, szEntity.name, szHierarchy));
 
               if (szHierarchy.rootNodeIdsSqlFile != null) {
                 // HierarchyRootFilter table.
                 String rootNodeSql =
-                    configReader.readEntitySql(entityName, szHierarchy.rootNodeIdsSqlFile);
+                    configReader.readEntitySql(entityPath, szHierarchy.rootNodeIdsSqlFile);
                 TablePointer rootNodeTable =
                     TablePointer.fromRawSql(rootNodeSql, sourceDataPointer);
                 hierarchyRootFilterTables.add(
-                    new STHierarchyRootFilter(rootNodeTable, entityName, szHierarchy));
+                    new STHierarchyRootFilter(rootNodeTable, szEntity.name, szHierarchy));
               }
             });
   }
 
   private static void fromConfigGroupItems(
-      String groupItemsName,
+      String groupItemsPath,
       ConfigReader configReader,
       DataPointer sourceDataPointer,
       List<STRelationshipIdPairs> relationshipIdPairTables) {
-    SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsName);
+    SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
     if (szGroupItems.idPairsSqlFile != null) {
       // RelationshipIdPairs table.
       String idPairsSql =
-          configReader.readEntityGroupSql(groupItemsName, szGroupItems.idPairsSqlFile);
+          configReader.readEntityGroupSql(groupItemsPath, szGroupItems.idPairsSqlFile);
       TablePointer idPairsTable = TablePointer.fromRawSql(idPairsSql, sourceDataPointer);
       relationshipIdPairTables.add(
           new STRelationshipIdPairs(
               idPairsTable,
-              groupItemsName,
+              szGroupItems.name,
               szGroupItems.groupEntity,
               szGroupItems.itemsEntity,
               szGroupItems.groupEntityIdFieldName,
@@ -233,25 +233,25 @@ public final class SourceSchema {
   }
 
   private static void fromConfigCriteriaOccurrence(
-      String criteriaOccurrenceName,
+      String criteriaOccurrencePath,
       String primaryEntityName,
       ConfigReader configReader,
       DataPointer sourceDataPointer,
       List<STRelationshipIdPairs> relationshipIdPairTables) {
     SZCriteriaOccurrence szCriteriaOccurrence =
-        configReader.readCriteriaOccurrence(criteriaOccurrenceName);
+        configReader.readCriteriaOccurrence(criteriaOccurrencePath);
     if (szCriteriaOccurrence.primaryCriteriaRelationship.idPairsSqlFile != null) {
       // RelationshipIdPairs table.
       String idPairsSql =
           configReader.readEntityGroupSql(
-              criteriaOccurrenceName,
+              criteriaOccurrencePath,
               szCriteriaOccurrence.primaryCriteriaRelationship.idPairsSqlFile);
       TablePointer idPairsTable = TablePointer.fromRawSql(idPairsSql, sourceDataPointer);
       relationshipIdPairTables.add(
           new STRelationshipIdPairs(
               idPairsTable,
-              criteriaOccurrenceName,
-              primaryEntityName,
+              szCriteriaOccurrence.name,
+                  primaryEntityName,
               szCriteriaOccurrence.criteriaEntity,
               szCriteriaOccurrence.primaryCriteriaRelationship.primaryEntityIdFieldName,
               szCriteriaOccurrence.primaryCriteriaRelationship.criteriaEntityIdFieldName));
@@ -263,13 +263,13 @@ public final class SourceSchema {
                 // RelationshipIdPairs table.
                 String idPairsSql =
                     configReader.readEntityGroupSql(
-                        criteriaOccurrenceName,
+                        criteriaOccurrencePath,
                         szOccurrenceEntity.criteriaRelationship.idPairsSqlFile);
                 TablePointer idPairsTable = TablePointer.fromRawSql(idPairsSql, sourceDataPointer);
                 relationshipIdPairTables.add(
                     new STRelationshipIdPairs(
                         idPairsTable,
-                        criteriaOccurrenceName,
+                            szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         szCriteriaOccurrence.criteriaEntity,
                         szOccurrenceEntity.criteriaRelationship.occurrenceEntityIdFieldName,
@@ -279,15 +279,15 @@ public final class SourceSchema {
                 // RelationshipIdPairs table.
                 String idPairsSql =
                     configReader.readEntityGroupSql(
-                        criteriaOccurrenceName,
+                        criteriaOccurrencePath,
                         szOccurrenceEntity.primaryRelationship.idPairsSqlFile);
                 TablePointer idPairsTable = TablePointer.fromRawSql(idPairsSql, sourceDataPointer);
                 relationshipIdPairTables.add(
                     new STRelationshipIdPairs(
                         idPairsTable,
-                        criteriaOccurrenceName,
+                            szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
-                        primaryEntityName,
+                            primaryEntityName,
                         szOccurrenceEntity.primaryRelationship.occurrenceEntityIdFieldName,
                         szOccurrenceEntity.primaryRelationship.primaryEntityIdFieldName));
               }

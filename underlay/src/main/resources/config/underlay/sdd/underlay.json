@@ -2,85 +2,85 @@
   "name": "sdd",
   "primaryEntity": "person",
   "entities": [
-    "person",
+    "sdd/person",
 
-    "condition",
-    "conditionOccurrence",
-    "procedure",
-    "procedureOccurrence",
+    "omop/condition",
+    "omop/conditionOccurrence",
+    "omop/procedure",
+    "omop/procedureOccurrence",
 
-    "brand",
-    "ingredient",
-    "ingredientOccurrence",
+    "omop/brand",
+    "omop/ingredient",
+    "omop/ingredientOccurrence",
 
-    "measurementLoinc",
-    "measurementSnomed",
-    "measurementOccurrence",
+    "omop/measurementLoinc",
+    "omop/measurementSnomed",
+    "omop/measurementOccurrence",
 
-    "observation",
-    "observationOccurrence",
-    "device",
-    "deviceOccurrence",
-    "visit",
-    "visitOccurrence",
+    "omop/observation",
+    "omop/observationOccurrence",
+    "omop/device",
+    "omop/deviceOccurrence",
+    "omop/visit",
+    "omop/visitOccurrence",
 
-    "note",
-    "noteOccurrence",
-    "familyHistory",
+    "omop/note",
+    "omop/noteOccurrence",
+    "sdd/familyHistory",
 
-    "cpt4",
-    "icd9cm",
-    "icd9proc",
-    "icd10cm",
-    "icd10pcs",
-    "phewas",
+    "omop/cpt4",
+    "omop/icd9cm",
+    "omop/icd9proc",
+    "omop/icd10cm",
+    "omop/icd10pcs",
+    "sdd/phewas",
 
-    "genotyping",
-    "snp",
+    "sdd/genotyping",
+    "sdd/snp",
 
-    "bloodPressure",
-    "bmi",
-    "height",
-    "weight",
-    "pulse",
-    "respiratoryRate"
+    "sdd/bloodPressure",
+    "sdd/bmi",
+    "sdd/height",
+    "sdd/weight",
+    "sdd/pulse",
+    "sdd/respiratoryRate"
   ],
   "groupItemsEntityGroups": [
-    "brandIngredient",
+    "omop/brandIngredient",
 
-    "familyHistoryPerson",
+    "sdd/familyHistoryPerson",
 
-    "genotypingPerson",
-    "snpPerson",
+    "sdd/genotypingPerson",
+    "sdd/snpPerson",
 
-    "bloodPressurePerson",
-    "bmiPerson",
-    "heightPerson",
-    "weightPerson",
-    "pulsePerson",
-    "respiratoryRatePerson"
+    "sdd/bloodPressurePerson",
+    "sdd/bmiPerson",
+    "sdd/heightPerson",
+    "sdd/weightPerson",
+    "sdd/pulsePerson",
+    "sdd/respiratoryRatePerson"
   ],
   "criteriaOccurrenceEntityGroups": [
-    "conditionPerson",
-    "procedurePerson",
+    "omop/conditionPerson",
+    "omop/procedurePerson",
 
-    "ingredientPerson",
+    "omop/ingredientPerson",
 
-    "measurementLoincPerson",
-    "measurementSnomedPerson",
+    "omop/measurementLoincPerson",
+    "omop/measurementSnomedPerson",
 
-    "observationPerson",
-    "devicePerson",
-    "visitPerson",
+    "omop/observationPerson",
+    "omop/devicePerson",
+    "omop/visitPerson",
 
-    "notePerson",
+    "omop/notePerson",
 
-    "cpt4Person",
-    "icd9cmPerson",
-    "icd9procPerson",
-    "icd10cmPerson",
-    "icd10pcsPerson",
-    "phewasPerson"
+    "omop/cpt4Person",
+    "omop/icd9cmPerson",
+    "omop/icd9procPerson",
+    "omop/icd10cmPerson",
+    "omop/icd10pcsPerson",
+    "sdd/phewasPerson"
   ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",
@@ -88,5 +88,6 @@
     "properties": {
       "lastUpdated": "03/31/23"
     }
-  }
+  },
+  "uiConfigFile": "ui.json"
 }

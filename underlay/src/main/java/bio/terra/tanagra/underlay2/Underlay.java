@@ -42,6 +42,7 @@ public final class Underlay {
   private final ImmutableList<EntityGroup> entityGroups;
   private final SourceSchema sourceSchema;
   private final IndexSchema indexSchema;
+  private final String uiConfig;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   private Underlay(
@@ -53,7 +54,8 @@ public final class Underlay {
       List<Entity> entities,
       List<EntityGroup> entityGroups,
       SourceSchema sourceSchema,
-      IndexSchema indexSchema) {
+      IndexSchema indexSchema,
+      String uiConfig) {
     this.name = name;
     this.displayName = displayName;
     this.description = description;
@@ -63,6 +65,7 @@ public final class Underlay {
     this.entityGroups = ImmutableList.copyOf(entityGroups);
     this.sourceSchema = sourceSchema;
     this.indexSchema = indexSchema;
+    this.uiConfig = uiConfig;
   }
 
   public String getName() {
@@ -137,29 +140,32 @@ public final class Underlay {
     List<Entity> entities =
         szUnderlay.entities.stream()
             .map(
-                entityName ->
-                    fromConfigEntity(configReader.readEntity(entityName), szUnderlay.primaryEntity))
+                entityPath ->
+                    fromConfigEntity(configReader.readEntity(entityPath), szUnderlay.primaryEntity))
             .collect(Collectors.toList());
 
     // Build the entity groups.
     List<EntityGroup> entityGroups = new ArrayList<>();
     szUnderlay.groupItemsEntityGroups.stream()
         .forEach(
-            groupItemsName ->
+            groupItemsPath ->
                 entityGroups.add(
-                    fromConfigGroupItems(configReader.readGroupItems(groupItemsName), entities)));
+                    fromConfigGroupItems(configReader.readGroupItems(groupItemsPath), entities)));
     szUnderlay.criteriaOccurrenceEntityGroups.stream()
         .forEach(
-            criteriaOccurrenceName ->
+            criteriaOccurrencePath ->
                 entityGroups.add(
                     fromConfigCriteriaOccurrence(
-                        configReader.readCriteriaOccurrence(criteriaOccurrenceName),
+                        configReader.readCriteriaOccurrence(criteriaOccurrencePath),
                         entities,
                         szUnderlay.primaryEntity)));
 
     // Build the query executor.
     BigQueryExecutor queryExecutor =
         new BigQueryExecutor(szBigQuery.queryProjectId, szBigQuery.dataLocation);
+
+    // Read the UI config.
+    String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
 
     return new Underlay(
         szUnderlay.name,
@@ -170,7 +176,8 @@ public final class Underlay {
         entities,
         entityGroups,
         sourceSchema,
-        indexSchema);
+        indexSchema,
+            uiConfig);
   }
 
   @VisibleForTesting
