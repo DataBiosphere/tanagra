@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -8,32 +8,32 @@ import bio.terra.tanagra.api2.field.AttributeField;
 import bio.terra.tanagra.api2.query.EntityQueryRunner;
 import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.api2.query.list.ListQueryResult;
-import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.underlay2.ConfigReader;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.List;
+
+import bio.terra.tanagra.underlay2.serialization.SZService;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = Main.class)
-@SpringBootTest
-@ActiveProfiles("test")
 @Tag("requires-cloud-access")
-public class InstancesPaginationTest {
+public class ListQueryPaginationTest {
   private static final String UNDERLAY_NAME = "cmssynpuf";
-  @Autowired private UnderlayService underlayService;
+  private Underlay underlay;
+
+  @BeforeEach
+  void setup() {
+    SZService szService = ConfigReader.deserializeService(UNDERLAY_NAME + "_verily");
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
+    underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
+  }
 
   @Test
   void noPagination() {
-    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
     Entity primaryEntity = underlay.getPrimaryEntity();
 
     // Select and order by the id attribute.
@@ -59,7 +59,6 @@ public class InstancesPaginationTest {
 
   @Test
   void withPagination() {
-    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
     Entity primaryEntity = underlay.getPrimaryEntity();
 
     // Select and order by the id attribute.

@@ -1,7 +1,6 @@
 
     SELECT
         t.T_DISP_procedure AS T_DISP_procedure,
-        t.T_DISP_visit_type AS T_DISP_visit_type,
         t.age_at_occurrence AS age_at_occurrence,
         t.date AS date,
         t.id AS id,
@@ -9,8 +8,7 @@
         t.procedure AS procedure,
         t.source_criteria_id AS source_criteria_id,
         t.source_value AS source_value,
-        t.visit_occurrence_id AS visit_occurrence_id,
-        t.visit_type AS visit_type 
+        t.visit_occurrence_id AS visit_occurrence_id 
     FROM
         `verily-tanagra-dev.aouSR2019q4r4_index_110623`.T_ENT_procedureOccurrence AS t 
     WHERE

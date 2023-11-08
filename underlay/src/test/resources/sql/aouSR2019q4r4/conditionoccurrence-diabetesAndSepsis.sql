@@ -1,7 +1,6 @@
 
     SELECT
         t.T_DISP_condition AS T_DISP_condition,
-        t.T_DISP_visit_type AS T_DISP_visit_type,
         t.age_at_occurrence AS age_at_occurrence,
         t.condition AS condition,
         t.end_date AS end_date,
@@ -11,8 +10,7 @@
         t.source_value AS source_value,
         t.start_date AS start_date,
         t.stop_reason AS stop_reason,
-        t.visit_occurrence_id AS visit_occurrence_id,
-        t.visit_type AS visit_type 
+        t.visit_occurrence_id AS visit_occurrence_id 
     FROM
         `verily-tanagra-dev.aouSR2019q4r4_index_110623`.T_ENT_conditionOccurrence AS t 
     WHERE

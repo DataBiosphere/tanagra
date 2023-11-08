@@ -3,7 +3,6 @@
         t.T_DISP_observation AS T_DISP_observation,
         t.T_DISP_unit AS T_DISP_unit,
         t.T_DISP_value AS T_DISP_value,
-        t.T_DISP_visit_type AS T_DISP_visit_type,
         t.age_at_occurrence AS age_at_occurrence,
         t.date AS date,
         t.id AS id,
@@ -14,8 +13,7 @@
         t.unit AS unit,
         t.value AS value,
         t.value_as_string AS value_as_string,
-        t.visit_occurrence_id AS visit_occurrence_id,
-        t.visit_type AS visit_type 
+        t.visit_occurrence_id AS visit_occurrence_id 
     FROM
         `verily-tanagra-dev.aouSR2019q4r4_index_110623`.T_ENT_observationOccurrence AS t 
     WHERE
