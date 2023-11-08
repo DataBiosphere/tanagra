@@ -10,7 +10,6 @@ import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
-import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.entitymodel.Relationship;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.GroupItems;
@@ -57,9 +56,9 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
 
   @Test
   void relationshipFilter() throws IOException {
-    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
-    Entity brandEntity = underlay.getEntity("brand");
-    GroupItems brandIngredientEntityGroup = (GroupItems) underlay.getEntityGroup("brandIngredient");
+    Entity brandEntity = getUnderlay().getEntity("brand");
+    GroupItems brandIngredientEntityGroup =
+        (GroupItems) getUnderlay().getEntityGroup("brandIngredient");
     Relationship brandIngredientRelationship =
         brandIngredientEntityGroup.getGroupItemsRelationship();
 
@@ -67,7 +66,7 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
     // i.e. give me the brand "Tylenol Chest Congestion"
     AttributeFilter tylenolChestCongestion =
         new AttributeFilter(
-            underlay,
+            getUnderlay(),
             brandEntity,
             brandEntity.getAttribute("id"),
             BinaryFilterVariable.BinaryOperator.EQUALS,
@@ -78,7 +77,7 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
     // i.e. give me all the ingredients in "Tylenol Chest Congestion"
     RelationshipFilter ingredientsInTylenolChestCongestion =
         new RelationshipFilter(
-            underlay,
+            getUnderlay(),
             brandIngredientEntityGroup,
             getEntity(),
             brandIngredientRelationship,
@@ -90,11 +89,13 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
     // Select all attributes.
     List<ValueDisplayField> selectFields =
         getEntity().getAttributes().stream()
-            .map(attribute -> new AttributeField(underlay, getEntity(), attribute, false, false))
+            .map(
+                attribute ->
+                    new AttributeField(getUnderlay(), getEntity(), attribute, false, false))
             .collect(Collectors.toList());
     ListQueryRequest listQueryRequest =
         new ListQueryRequest(
-            underlay,
+            getUnderlay(),
             getEntity(),
             selectFields,
             ingredientsInTylenolChestCongestion,

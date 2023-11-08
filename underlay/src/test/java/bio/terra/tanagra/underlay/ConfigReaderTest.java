@@ -1,4 +1,4 @@
-package bio.terra.tanagra.serialization;
+package bio.terra.tanagra.underlay;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

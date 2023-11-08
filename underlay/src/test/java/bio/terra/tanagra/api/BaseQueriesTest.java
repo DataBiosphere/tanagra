@@ -24,15 +24,16 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.UnderlayService;
-import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
+import bio.terra.tanagra.underlay2.ConfigReader;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.GroupItems;
+import bio.terra.tanagra.underlay2.serialization.SZService;
+import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,18 +41,17 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class BaseQueriesTest extends BaseSpringUnitTest {
+public abstract class BaseQueriesTest {
   protected static final int DEFAULT_LIMIT = 30;
-
-  @Autowired protected UnderlayService underlayService;
   private Underlay underlay;
   private Entity entity;
 
   @BeforeEach
   void setup() {
-    underlay = underlayService.getUnderlay(getUnderlayName());
+    SZService szService = ConfigReader.deserializeService(getUnderlayName() + "_verily");
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
+    underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
     entity = underlay.getEntity(getEntityName());
   }
 
@@ -404,7 +404,6 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   // singleCriteriaCohort().
   protected void relationshipCohort(String filterAttributeName, String text) throws IOException {
     // Build select attribute: person id
-    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     String selectEntityName = "person";
     Entity selectEntity = underlay.getEntity(selectEntityName);
 
@@ -465,7 +464,6 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   // countSingleCriteriaCohort().
   protected void countRelationshipCohort(
       List<String> groupByAttributes, String filterAttributeName, String text) throws IOException {
-    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     Entity countEntity = underlay.getEntity("person");
     EntityFilter cohortFilter =
         buildCohortFilterNoOccurrence(countEntity, filterAttributeName, text);
@@ -513,7 +511,6 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     // Find the CRITERIA_OCCURRENCE entity group for this entity. We need to lookup the entity group
     // with the criteria entity, not the primary entity, because the primary entity will be a member
     // of many groups.
-    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     return (CriteriaOccurrence)
         underlay.getEntityGroups().stream()
             .filter(
@@ -529,7 +526,6 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   }
 
   private GroupItems getGroupItemsEntityGroup(Entity groupEntity) {
-    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     return (GroupItems)
         underlay.getEntityGroups().stream()
             .filter(
