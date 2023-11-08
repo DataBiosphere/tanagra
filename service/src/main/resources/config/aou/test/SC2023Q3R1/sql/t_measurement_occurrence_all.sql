@@ -2,7 +2,7 @@ SELECT
   mo.measurement_id,
   mo.person_id,
   CASE WHEN mo.measurement_concept_id IS NULL THEN 0 ELSE mo.measurement_concept_id END AS measurement_concept_id,
-  mo.measurement_datetime AS measurement_date,
+  mo.measurement_datetime,
   mo.value_as_number AS value_numeric,
   mo.value_as_concept_id,
   mo.unit_concept_id,
