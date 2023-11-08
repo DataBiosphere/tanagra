@@ -246,9 +246,10 @@ public class DataExportServiceTest {
     String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
     assertFalse(fileContents.isEmpty());
     LOGGER.info("Entity instances fileContents: {}", fileContents);
-    assertTrue(
-        fileContents.startsWith(
-            "age,ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race"));
+    String fileContentsFirstLine = fileContents.split(System.lineSeparator())[0];
+    assertEquals(
+        fileContentsFirstLine,
+        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
     // Validate the annotations file.
@@ -322,9 +323,10 @@ public class DataExportServiceTest {
     String entityInstancesFileContents =
         annotationsFileContents.equals(fileContents1) ? fileContents2 : fileContents1;
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
-    assertTrue(
-        entityInstancesFileContents.startsWith(
-            "age,ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race"));
+    String fileContentsFirstLine = entityInstancesFileContents.split(System.lineSeparator())[0];
+    assertEquals(
+        fileContentsFirstLine,
+        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
   }
 

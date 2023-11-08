@@ -1,6 +1,7 @@
 
     SELECT
         t.T_DISP_device AS T_DISP_device,
+        t.T_DISP_visit_type AS T_DISP_visit_type,
         t.age_at_occurrence AS age_at_occurrence,
         t.device AS device,
         t.end_date AS end_date,
@@ -9,7 +10,8 @@
         t.source_criteria_id AS source_criteria_id,
         t.source_value AS source_value,
         t.start_date AS start_date,
-        t.visit_occurrence_id AS visit_occurrence_id 
+        t.visit_occurrence_id AS visit_occurrence_id,
+        t.visit_type AS visit_type 
     FROM
         `verily-tanagra-dev.aouSR2019q4r4_index_110623`.T_ENT_deviceOccurrence AS t 
     WHERE

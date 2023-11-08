@@ -21,8 +21,8 @@ tanagra:
 
   export:
     shared:
-      gcs-bucket-project-id: broad-tanagra-dev
-      gcs-bucket-names: broad-tanagra-dev-bq-export
+      gcs-bucket-project-id: verily-tanagra-dev # broad-tanagra-dev
+      gcs-bucket-names: verily-tanagra-dev-export-bucket # broad-tanagra-dev-bq-export
     models:
       -
         type: INDIVIDUAL_FILE_DOWNLOAD

@@ -115,7 +115,7 @@ public final class GoogleCloudStorage {
                 new URL(signedUrl).openConnection().getInputStream(), Charset.forName("UTF-8")))) {
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
-        fileContents.append(inputLine).append('\n');
+        fileContents.append(inputLine).append(System.lineSeparator());
       }
     }
     return fileContents.toString();

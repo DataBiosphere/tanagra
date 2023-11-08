@@ -1,5 +1,6 @@
 package bio.terra.tanagra.api;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api2.query.EntityQueryRunner;
@@ -63,10 +64,7 @@ public abstract class BaseHintsTest {
     for (HintInstance expected : expectedHints) {
       Optional<HintInstance> actual = hintQueryResult.getHintInstance(expected.getAttribute());
       assertTrue(actual.isPresent());
-      if (!expected.equals(actual.get())) {
-        System.out.println("does not match: " + expected.getAttribute().getName());
-      }
-      //      assertEquals(expected, actual.get());
+      assertEquals(expected, actual.get());
     }
   }
 }

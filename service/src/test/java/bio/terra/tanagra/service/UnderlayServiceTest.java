@@ -48,7 +48,7 @@ public class UnderlayServiceTest {
 
     // List entities.
     List<Entity> allEntities = underlayService.getUnderlay(underlayName).getEntities();
-    assertEquals(17, allEntities.size());
+    assertEquals(16, allEntities.size());
   }
 
   @Test
