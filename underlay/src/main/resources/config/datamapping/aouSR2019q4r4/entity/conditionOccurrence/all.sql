@@ -9,7 +9,9 @@ SELECT
   co.condition_source_value,
   co.condition_source_concept_id,
   CAST(FLOOR(TIMESTAMP_DIFF(co.condition_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
-  co.visit_occurrence_id
+  co.visit_occurrence_id,
+  vo.visit_concept_id,
+  vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.condition_occurrence` AS co
 
@@ -18,3 +20,9 @@ JOIN `${omopDataset}.person` AS p
 
 JOIN `${omopDataset}.concept` AS cc
     ON cc.concept_id = co.condition_concept_id
+
+LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
+    ON vo.visit_occurrence_id = co.visit_occurrence_id
+
+LEFT JOIN `${omopDataset}.concept` AS vc
+    ON vc.concept_id = vo.visit_concept_id

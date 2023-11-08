@@ -1,10 +1,10 @@
-package bio.terra.tanagra.underlayspecific.broad;
+package bio.terra.tanagra.api.cmssynpuf;
 
+import bio.terra.tanagra.api.BaseHintsTest;
 import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.api2.query.hint.HintInstance;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
-import bio.terra.tanagra.underlayspecific.BaseHintsTest;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
@@ -20,7 +20,7 @@ public class CmsSynpufHintsTest extends BaseHintsTest {
 
   @Test
   void personEntityLevel() {
-    Entity entity = underlayService.getUnderlay(getUnderlayName()).getEntity("person");
+    Entity entity = underlay.getEntity("person");
     List<HintInstance> expectedHints =
         List.of(
             new HintInstance(
@@ -53,7 +53,7 @@ public class CmsSynpufHintsTest extends BaseHintsTest {
 
   @Test
   void conditionOccurrenceEntityLevel() {
-    Entity entity = underlayService.getUnderlay(getUnderlayName()).getEntity("conditionOccurrence");
+    Entity entity = underlay.getEntity("conditionOccurrence");
     List<HintInstance> expectedHints =
         List.of(
             new HintInstance(entity.getAttribute("age_at_occurrence"), 24.0, 101.0),

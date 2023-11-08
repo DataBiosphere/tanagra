@@ -6,7 +6,7 @@ SELECT
   po.procedure_dat,
   po.procedure_source_value,
   po.procedure_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(po.procedure_dat, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(TIMESTAMP(po.procedure_dat), TIMESTAMP(CONCAT(p.year_of_birth,'-',p.month_of_birth,'-',p.day_of_birth)), DAY) / 365.25) AS INT64) AS age_at_occurrence,
   po.visit_occurrence_id
 
 FROM `${omopDataset}.procedure_occurrence` AS po

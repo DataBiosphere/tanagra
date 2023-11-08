@@ -3,7 +3,9 @@ package bio.terra.tanagra.api2.query.hint;
 import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class HintInstance {
   private final Attribute attribute;
@@ -25,7 +27,7 @@ public final class HintInstance {
     this.isRangeHint = false;
     this.min = -1;
     this.max = -1;
-    this.enumValueCounts = Map.copyOf(enumValueCounts);
+    this.enumValueCounts = new HashMap<>(enumValueCounts);
   }
 
   public void addEnumValueCount(ValueDisplay enumValue, Long count) {
@@ -54,5 +56,26 @@ public final class HintInstance {
 
   public ImmutableMap<ValueDisplay, Long> getEnumValueCounts() {
     return ImmutableMap.copyOf(enumValueCounts);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    HintInstance that = (HintInstance) o;
+    return isRangeHint == that.isRangeHint
+        && Double.compare(that.min, min) == 0
+        && Double.compare(that.max, max) == 0
+        && attribute.equals(that.attribute)
+        && enumValueCounts.equals(that.enumValueCounts);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(attribute, isRangeHint, min, max, enumValueCounts);
   }
 }

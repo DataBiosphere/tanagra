@@ -12,10 +12,9 @@ import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.underlay2.ConfigReader;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
-import java.util.List;
-
 import bio.terra.tanagra.underlay2.serialization.SZService;
 import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

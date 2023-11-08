@@ -2,7 +2,7 @@
   "name": "cmssynpuf",
   "primaryEntity": "person",
   "entities": [
-    "omop/person",
+    "cmssynpuf/person",
 
     "omop/condition",
     "cmssynpuf/conditionOccurrence",

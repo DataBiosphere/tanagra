@@ -4,14 +4,14 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "note_id" },
     { "name": "person_id", "dataType": "INT64" },
-    { "name": "note", "dataType": "INT64", "valueFieldName": "note_type_concept_id", "displayFieldName": "note_type_concept_name" },
+    { "name": "note", "dataType": "INT64", "valueFieldName": "note_type_concept_id", "displayFieldName": "note_type_concept_name", "isComputeDisplayHint": true },
     { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "note_date" },
     { "name": "title", "dataType": "STRING", "valueFieldName": "note_title" },
     { "name": "note_text", "dataType": "STRING" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "note_source_value" },
-    { "name": "age_at_occurrence", "dataType": "INT64" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name" }
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
   ],
   "idAttribute": "id",
   "textSearch": {

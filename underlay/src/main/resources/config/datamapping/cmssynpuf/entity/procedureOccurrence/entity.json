@@ -8,7 +8,7 @@
     { "name": "date", "dataType": "DATE", "valueFieldName": "procedure_dat" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "procedure_source_value" },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id" },
-    { "name": "age_at_occurrence", "dataType": "INT64" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "visit_occurrence_id", "dataType": "INT64" }
   ],
   "idAttribute": "id"

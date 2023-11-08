@@ -4,8 +4,8 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
     { "name": "name", "dataType": "STRING", "valueFieldName": "concept_name" },
-    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "vocabulary_id" },
-    { "name": "standard_concept", "dataType": "STRING" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "vocabulary_id", "isComputeDisplayHint": true },
+    { "name": "standard_concept", "dataType": "STRING", "isComputeDisplayHint": true },
     { "name": "concept_code", "dataType": "STRING" },
     { "name": "label", "dataType": "STRING" }
   ],

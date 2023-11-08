@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay2.entitymodel;
 
 import bio.terra.tanagra.query.Literal;
+import java.util.Objects;
 
 public final class Attribute {
   private final String name;
@@ -63,5 +64,35 @@ public final class Attribute {
 
   public boolean isComputeDisplayHint() {
     return isComputeDisplayHint;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Attribute attribute = (Attribute) o;
+    return isValueDisplay == attribute.isValueDisplay
+        && isId == attribute.isId
+        && isComputeDisplayHint == attribute.isComputeDisplayHint
+        && name.equals(attribute.name)
+        && dataType == attribute.dataType
+        && Objects.equals(runtimeSqlFunctionWrapper, attribute.runtimeSqlFunctionWrapper)
+        && runtimeDataType == attribute.runtimeDataType;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        name,
+        dataType,
+        isValueDisplay,
+        isId,
+        runtimeSqlFunctionWrapper,
+        runtimeDataType,
+        isComputeDisplayHint);
   }
 }

@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,11 +100,11 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
               if (!attribute.isComputeDisplayHint()) {
                 LOGGER.info("Skip computing the hint for attribute {}", attribute.getName());
               } else if (isRangeHint(attribute)) {
-                Pair<Double, Double> minMax = computeRangeHint(attribute, isDryRun);
+                Pair<Literal, Literal> minMax = computeRangeHint(attribute, isDryRun);
                 List<Literal> insertRow = new ArrayList<>();
                 insertRow.add(new Literal(attribute.getName()));
-                insertRow.add(new Literal(minMax.getKey()));
-                insertRow.add(new Literal(minMax.getValue()));
+                insertRow.add(minMax.getKey());
+                insertRow.add(minMax.getValue());
                 insertRow.add(new Literal(null));
                 insertRow.add(new Literal(null));
                 insertRow.add(new Literal(null));
@@ -221,14 +223,14 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
   }
 
   private static boolean isEnumHint(Attribute attribute) {
-    return attribute.isValueDisplay() && Literal.DataType.INT64.equals(attribute.getDataType());
+    return attribute.isValueDisplay() && Literal.DataType.INT64.equals(attribute.getRuntimeDataType());
   }
 
   private static boolean isRangeHint(Attribute attribute) {
     if (attribute.isValueDisplay()) {
       return false;
     }
-    switch (attribute.getDataType()) {
+    switch (attribute.getRuntimeDataType()) {
       case DOUBLE:
       case INT64:
         return true;
@@ -237,7 +239,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     }
   }
 
-  private Pair<Double, Double> computeRangeHint(Attribute attribute, boolean isDryRun) {
+  private Pair<Literal, Literal> computeRangeHint(Attribute attribute, boolean isDryRun) {
     // Select the attribute values from the index entity main table.
     List<TableVariable> tableVars = new ArrayList<>();
     TableVariable primaryTable = TableVariable.forPrimary(indexAttributesTable.getTablePointer());
@@ -251,22 +253,22 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
         indexAttributesTable
             .getAttributeValueField(attribute.getName())
             .toBuilder()
-            .sqlFunctionWrapper("MIN")
+            .sqlFunctionWrapper(attribute.hasRuntimeSqlFunctionWrapper() ? "MIN("+attribute.getRuntimeSqlFunctionWrapper()+")" : "MIN")
             .build();
     selectFieldVars.add(minVal.buildVariable(primaryTable, tableVars, minValAlias));
     FieldPointer maxVal =
         indexAttributesTable
             .getAttributeValueField(attribute.getName())
             .toBuilder()
-            .sqlFunctionWrapper("MAX")
+                .sqlFunctionWrapper(attribute.hasRuntimeSqlFunctionWrapper() ? "MAX("+attribute.getRuntimeSqlFunctionWrapper()+")" : "MAX")
             .build();
     selectFieldVars.add(maxVal.buildVariable(primaryTable, tableVars, maxValAlias));
     List<ColumnSchema> columnSchemas =
         List.of(
             new ColumnSchema(
-                minValAlias, CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType())),
+                minValAlias, CellValue.SQLDataType.fromUnderlayDataType(attribute.getRuntimeDataType())),
             new ColumnSchema(
-                maxValAlias, CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType())));
+                maxValAlias, CellValue.SQLDataType.fromUnderlayDataType(attribute.getRuntimeDataType())));
 
     // Build the query for the max/min of the attribute field.
     Query query = new Query.Builder().select(selectFieldVars).tables(tableVars).build();
@@ -275,13 +277,15 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
     // Run the query.
     if (isDryRun) {
-      return Pair.of(0.0, 0.0);
+      return Pair.of(new Literal(0.0), new Literal(0.0));
     }
     QueryResult queryResult = bigQueryExecutor.execute(queryRequest);
     RowResult rowResult = queryResult.getSingleRowResult();
+    Optional<Literal> minValLiteral = rowResult.get(minValAlias).getLiteral();
+    Optional<Literal> maxValLiteral = rowResult.get(maxValAlias).getLiteral();
     return Pair.of(
-        rowResult.get(minValAlias).getDouble().getAsDouble(),
-        rowResult.get(maxValAlias).getDouble().getAsDouble());
+            minValLiteral.orElse(new Literal(null)),
+        maxValLiteral.orElse(new Literal(null)));
   }
 
   private List<Pair<ValueDisplay, Long>> computeEnumHint(Attribute attribute, boolean isDryRun) {
@@ -298,10 +302,11 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
         indexAttributesTable
             .getAttributeValueField(attribute.getName())
             .buildVariable(primaryTable, tableVars, enumValAlias);
-    FieldVariable enumDisplayVar =
+    FieldVariable enumDisplayVar = attribute.isValueDisplay() ?
         indexAttributesTable
             .getAttributeDisplayField(attribute.getName())
-            .buildVariable(primaryTable, tableVars, enumDisplayAlias);
+            .buildVariable(primaryTable, tableVars, enumDisplayAlias)
+            : null;
     FieldPointer countVal =
         indexAttributesTable
             .getAttributeValueField(entity.getIdAttribute().getName())
@@ -311,14 +316,17 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     FieldVariable countVar = countVal.buildVariable(primaryTable, tableVars, countValAlias);
 
     // Build the group by, select fields and column schemas.
-    List<FieldVariable> groupByFieldVars = List.of(enumValueVar, enumDisplayVar);
-    List<FieldVariable> selectFieldVars = List.of(enumValueVar, enumDisplayVar, countVar);
+    List<FieldVariable> groupByFieldVars = attribute.isValueDisplay() ? List.of(enumValueVar, enumDisplayVar) : List.of(enumValueVar);
+    List<FieldVariable> selectFieldVars = attribute.isValueDisplay() ? List.of(enumValueVar, enumDisplayVar, countVar) : List.of(enumValueVar, countVar);
+
+    ColumnSchema enumValColumnSchema = new ColumnSchema(
+            enumValAlias, CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType()));
+    ColumnSchema enumDisplayColumnSchema = new ColumnSchema(enumDisplayAlias, CellValue.SQLDataType.STRING);
+    ColumnSchema countColumnSchema= new ColumnSchema(countValAlias, CellValue.SQLDataType.INT64);
     List<ColumnSchema> columnSchemas =
-        List.of(
-            new ColumnSchema(
-                enumValAlias, CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType())),
-            new ColumnSchema(enumDisplayAlias, CellValue.SQLDataType.STRING),
-            new ColumnSchema(countValAlias, CellValue.SQLDataType.INT64));
+            attribute.isValueDisplay() ?
+        List.of(enumValColumnSchema, enumDisplayColumnSchema, countColumnSchema) :
+            List.of(enumValColumnSchema, countColumnSchema);
 
     // Build the query for the enum val/display of the attribute field and the count.
     Query query =
@@ -337,14 +345,23 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     } else {
       QueryResult queryResult = bigQueryExecutor.execute(queryRequest);
 
-      // Iterate through the results, building a list of enum value, display, and counts.
+      // Iterate through the results, building a list of enum value/display and count.
       Iterator<RowResult> rowResultIter = queryResult.getRowResults().iterator();
       while (rowResultIter.hasNext()) {
         RowResult rowResult = rowResultIter.next();
-        ValueDisplay enumValDisplay =
-            new ValueDisplay(
-                rowResult.get(enumValAlias).getLiteral().get(),
-                rowResult.get(enumDisplayAlias).getString().get());
+        Optional<Literal> enumValLiteral = rowResult.get(enumValAlias).getLiteral();
+        ValueDisplay enumValDisplay;
+        if (attribute.isValueDisplay()) {
+          Optional<String> enumDisplayStr = rowResult.get(enumDisplayAlias).getString();
+          enumValDisplay =
+                  new ValueDisplay(
+                          enumValLiteral.orElse(new Literal(null)),
+                          enumDisplayStr.orElse(null));
+        } else {
+          enumValDisplay =
+                  new ValueDisplay(
+                          enumValLiteral.orElse(new Literal(null)));
+        }
         long count = rowResult.get(countValAlias).getLong().getAsLong();
         enumCounts.add(Pair.of(enumValDisplay, count));
 

@@ -11,7 +11,7 @@ SELECT
   ouc.concept_name AS unit_concept_name,
   o.observation_source_value,
   o.observation_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(o.observation_date, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(TIMESTAMP(o.observation_date), TIMESTAMP(CONCAT(p.year_of_birth,'-',p.month_of_birth,'-',p.day_of_birth)), DAY) / 365.25) AS INT64) AS age_at_occurrence,
   o.visit_occurrence_id
 
 FROM `${omopDataset}.observation` AS o

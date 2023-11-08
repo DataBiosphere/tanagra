@@ -8,7 +8,7 @@ SELECT
   co.stop_reason,
   co.condition_source_value,
   co.condition_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(co.condition_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(TIMESTAMP(co.condition_start_date), TIMESTAMP(CONCAT(p.year_of_birth,'-',p.month_of_birth,'-',p.day_of_birth)), DAY) / 365.25) AS INT64) AS age_at_occurrence,
   co.visit_occurrence_id
 
 FROM `${omopDataset}.condition_occurrence` AS co
