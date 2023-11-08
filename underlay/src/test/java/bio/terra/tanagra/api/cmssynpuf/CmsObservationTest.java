@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.omop.OmopObservationTest;
 
 public class CmsObservationTest extends OmopObservationTest {
   @Override
-  protected String getUnderlayName() {
-    return "cmssynpuf";
+  protected String getServiceConfigName() {
+    return "cmssynpuf_broad";
   }
 }

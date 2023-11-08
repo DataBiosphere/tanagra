@@ -20,13 +20,14 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("requires-cloud-access")
+@Tag("broad-underlays")
 public class ListQueryPaginationTest {
-  private static final String UNDERLAY_NAME = "cmssynpuf";
+  private static final String SERVICE_CONFIG_NAME = "cmssynpuf_broad";
   private Underlay underlay;
 
   @BeforeEach
   void setup() {
-    SZService szService = ConfigReader.deserializeService(UNDERLAY_NAME + "_verily");
+    SZService szService = ConfigReader.deserializeService(SERVICE_CONFIG_NAME);
     SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
   }

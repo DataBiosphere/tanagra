@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.omop.OmopMeasurementTest;
 
 public class AouMeasurementTest extends OmopMeasurementTest {
   @Override
-  protected String getUnderlayName() {
-    return "aouSR2019q4r4";
+  protected String getServiceConfigName() {
+    return "aouSR2019q4r4_broad";
   }
 }

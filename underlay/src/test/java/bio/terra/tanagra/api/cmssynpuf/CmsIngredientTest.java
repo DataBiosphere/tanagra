@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.omop.OmopIngredientTest;
 
 public class CmsIngredientTest extends OmopIngredientTest {
   @Override
-  protected String getUnderlayName() {
-    return "cmssynpuf";
+  protected String getServiceConfigName() {
+    return "cmssynpuf_broad";
   }
 }

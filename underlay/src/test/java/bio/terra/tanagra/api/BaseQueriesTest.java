@@ -49,16 +49,16 @@ public abstract class BaseQueriesTest {
 
   @BeforeEach
   void setup() {
-    SZService szService = ConfigReader.deserializeService(getUnderlayName() + "_verily");
+    SZService szService = ConfigReader.deserializeService(getServiceConfigName());
     SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
     entity = underlay.getEntity(getEntityName());
   }
 
-  protected abstract String getUnderlayName();
+  protected abstract String getServiceConfigName();
 
   protected String getSqlDirectoryName() {
-    return getUnderlayName().replace("_", "");
+    return underlay.getName().replace("_", "");
   }
 
   protected abstract String getEntityName();

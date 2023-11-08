@@ -29,12 +29,12 @@ public abstract class BaseHintsTest {
 
   @BeforeEach
   void setup() {
-    SZService szService = ConfigReader.deserializeService(getUnderlayName() + "_verily");
+    SZService szService = ConfigReader.deserializeService(getServiceConfigName());
     SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
   }
 
-  protected abstract String getUnderlayName();
+  protected abstract String getServiceConfigName();
 
   protected void assertEntityLevelHintsMatch(String entityName, List<HintInstance> expectedHints) {
     Entity entity = underlay.getEntity(entityName);

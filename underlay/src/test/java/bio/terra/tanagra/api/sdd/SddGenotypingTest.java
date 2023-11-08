@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 public class SddGenotypingTest extends BaseQueriesTest {
   @Override
-  protected String getUnderlayName() {
-    return "sdd";
+  protected String getServiceConfigName() {
+    return "sdd_verily";
   }
 
   @Override

@@ -1,6 +1,6 @@
 tanagra:
   underlay:
-    files: [ "cmssynpuf_verily", "aouSR2019q4r4_verily", "sdd_verily" ]
+    files: [ "cmssynpuf_broad", "aouSR2019q4r4_broad" ]
 
   feature:
     artifact-storage-enabled: true
