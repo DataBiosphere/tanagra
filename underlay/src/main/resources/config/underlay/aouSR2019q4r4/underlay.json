@@ -5,24 +5,24 @@
     "omop/person",
 
     "omop/condition",
-    "omop/conditionOccurrence",
+    "aouSR2019q4r4/conditionOccurrence",
     "omop/procedure",
-    "omop/procedureOccurrence",
+    "aouSR2019q4r4/procedureOccurrence",
 
     "omop/brand",
     "omop/ingredient",
-    "omop/ingredientOccurrence",
+    "aouSR2019q4r4/ingredientOccurrence",
 
     "omop/measurementLoinc",
     "omop/measurementSnomed",
-    "omop/measurementOccurrence",
+    "aouSR2019q4r4/measurementOccurrence",
 
     "omop/observation",
-    "omop/observationOccurrence",
+    "aouSR2019q4r4/observationOccurrence",
     "omop/device",
-    "omop/deviceOccurrence",
+    "aouSR2019q4r4/deviceOccurrence",
     "omop/visit",
-    "omop/visitOccurrence",
+    "aouSR2019q4r4/visitOccurrence",
 
     "omop/cpt4",
     "omop/icd9cm",
