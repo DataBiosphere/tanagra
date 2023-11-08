@@ -33,6 +33,6 @@
   <!-- Spotless is canonical for whitespace. -->
   <suppress checks="WhitespaceAround"/>
 
-  <suppress files="underlay/src/main/java/bio/terra/tanagra/underlay2/serialization/SZ*" checks="VisibilityModifier"/>
+  <suppress files="underlay/src/main/java/bio/terra/tanagra/underlay/serialization/SZ*" checks="VisibilityModifier"/>
 
 </suppressions>
