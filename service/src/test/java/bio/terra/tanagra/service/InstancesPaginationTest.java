@@ -10,7 +10,6 @@ import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.api2.query.list.ListQueryResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.List;

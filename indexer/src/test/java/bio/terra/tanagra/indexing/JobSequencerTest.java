@@ -7,6 +7,7 @@ import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.job.bigquery.CreateEntityMain;
 import bio.terra.tanagra.indexing.job.bigquery.WriteChildParent;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes;
+import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
 import bio.terra.tanagra.indexing.job.bigquery.WriteRelationshipIntermediateTable;
 import bio.terra.tanagra.indexing.job.bigquery.WriteTextSearchField;
 import bio.terra.tanagra.indexing.job.dataflow.WriteAncestorDescendant;
@@ -33,7 +34,7 @@ public class JobSequencerTest {
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"));
 
-    assertEquals(2, jobs.getNumStages());
+    assertEquals(3, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
     IndexingJob job = jobStageItr.next().get(0);
     assertEquals(CreateEntityMain.class, job.getClass());
@@ -50,7 +51,7 @@ public class JobSequencerTest {
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("condition"));
 
-    assertEquals(3, jobs.getNumStages());
+    assertEquals(4, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
     IndexingJob job = jobStageItr.next().get(0);
     assertEquals(CreateEntityMain.class, job.getClass());
@@ -59,6 +60,13 @@ public class JobSequencerTest {
     assertEquals(WriteEntityAttributes.class, job.getClass());
 
     List<IndexingJob> jobStage = jobStageItr.next();
+    Optional<IndexingJob> writeEntityLevelDisplayHints =
+        jobStage.stream()
+            .filter(jobInStage -> jobInStage.getClass().equals(WriteEntityLevelDisplayHints.class))
+            .findFirst();
+    assertTrue(writeEntityLevelDisplayHints.isPresent());
+
+    jobStage = jobStageItr.next();
     Optional<IndexingJob> buildTextSearchStrings =
         jobStage.stream()
             .filter(jobInStage -> jobInStage.getClass().equals(WriteTextSearchField.class))
@@ -103,7 +111,7 @@ public class JobSequencerTest {
   }
 
   @Test
-  public void criteriaOccurrenceWithHierarchy() {
+  public void conditionPerson() {
     SZIndexer szIndexer = ConfigReader.deserializeIndexer("sdd_verily");
     SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay("sdd");
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
@@ -111,7 +119,7 @@ public class JobSequencerTest {
         JobSequencer.getJobSetForCriteriaOccurrence(
             szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));
 
-    assertEquals(1, jobs.getNumStages());
+    assertEquals(2, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
     IndexingJob job = jobStageItr.next().get(0);
     assertEquals(WriteRelationshipIntermediateTable.class, job.getClass());

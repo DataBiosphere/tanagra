@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.query;
+package bio.terra.tanagra.service;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UnderlayService {
   private final Map<String, Underlay> underlaysMap;
-  //  private final Map<Entity, HintQueryResult> entityLevelHintsCache;
 
   @Autowired
   public UnderlayService(UnderlayConfiguration underlayConfiguration) {
@@ -35,9 +34,6 @@ public class UnderlayService {
       underlaysMapBuilder.put(underlay.getName(), underlay);
     }
     this.underlaysMap = underlaysMapBuilder;
-
-    // Start with an empty entity-level hints cache.
-    // this.entityLevelHintsCache = new HashMap<>();
   }
 
   public List<Underlay> listUnderlays(ResourceCollection authorizedIds) {

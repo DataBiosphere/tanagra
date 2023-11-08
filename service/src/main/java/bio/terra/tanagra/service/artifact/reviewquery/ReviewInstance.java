@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.query;
+package bio.terra.tanagra.service.artifact.reviewquery;
 
 import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;

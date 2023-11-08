@@ -24,7 +24,7 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
-import bio.terra.tanagra.service.query.UnderlayService;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay2.Underlay;

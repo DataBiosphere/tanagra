@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.query;
+package bio.terra.tanagra.service.artifact.reviewquery;
 
 import bio.terra.tanagra.query.PageMarker;
 import java.util.List;

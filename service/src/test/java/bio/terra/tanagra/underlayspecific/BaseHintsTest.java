@@ -9,7 +9,7 @@ import bio.terra.tanagra.api2.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api2.query.hint.HintQueryResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.query.UnderlayService;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;

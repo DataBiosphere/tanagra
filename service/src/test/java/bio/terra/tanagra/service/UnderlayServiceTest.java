@@ -9,7 +9,6 @@ import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.List;

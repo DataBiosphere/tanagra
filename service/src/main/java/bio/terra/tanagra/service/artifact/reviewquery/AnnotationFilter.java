@@ -1,4 +1,4 @@
-package bio.terra.tanagra.service.query.filter;
+package bio.terra.tanagra.service.artifact.reviewquery;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.Literal;

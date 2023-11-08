@@ -31,7 +31,6 @@ import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.ArrayList;
