@@ -5,7 +5,7 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "procedure_occurrence_id" },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "procedure", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "procedure_concept_name" },
-    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "procedure_date" },
+    { "name": "date", "dataType": "DATE", "valueFieldName": "procedure_dat" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "procedure_source_value" },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id" },
     { "name": "age_at_occurrence", "dataType": "INT64" },

@@ -7,6 +7,7 @@ public class SZIndexer {
 
   public static class Dataflow {
     public String serviceAccountEmail;
+    public String dataflowLocation;
     public String gcsTempDirectory;
     public String workerMachineType;
     public boolean usePublicIps;

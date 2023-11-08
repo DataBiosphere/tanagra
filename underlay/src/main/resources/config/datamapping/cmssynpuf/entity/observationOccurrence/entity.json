@@ -5,7 +5,7 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "observation_id" },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "observation", "dataType": "INT64", "valueFieldName": "observation_concept_id", "displayFieldName": "observation_concept_name" },
-    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "observation_date" },
+    { "name": "date", "dataType": "DATE", "valueFieldName": "observation_date" },
     { "name": "value_as_string", "dataType": "STRING" },
     { "name": "value", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name" },
     { "name": "unit", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name" },

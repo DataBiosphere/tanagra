@@ -15,7 +15,7 @@
       "tablePrefix": "T"
     },
     "queryProjectId": "verily-tanagra-dev",
-    "dataLocation": "us-central1"
+    "dataLocation": "us"
   },
   "dataflow": {
     "serviceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",

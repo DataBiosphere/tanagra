@@ -195,16 +195,16 @@ public final class IndexSchema {
             groupItemsPath -> {
               SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
               if (szGroupItems.groupEntity.equals(szEntity.name)) {
-                entityGroupsWithCount.add(groupItemsPath);
+                entityGroupsWithCount.add(szGroupItems.name);
               }
             });
     szUnderlay.criteriaOccurrenceEntityGroups.stream()
         .forEach(
-            criteriaOccurrenceName -> {
+            criteriaOccurrencePath -> {
               SZCriteriaOccurrence szCriteriaOccurrence =
-                  configReader.readCriteriaOccurrence(criteriaOccurrenceName);
+                  configReader.readCriteriaOccurrence(criteriaOccurrencePath);
               if (szCriteriaOccurrence.criteriaEntity.equals(szEntity.name)) {
-                entityGroupsWithCount.add(criteriaOccurrenceName);
+                entityGroupsWithCount.add(szCriteriaOccurrence.name);
               }
             });
     entityMainTables.add(

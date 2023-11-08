@@ -14,11 +14,15 @@ public final class DataflowUtils {
   private DataflowUtils() {}
 
   public static BigQueryOptions getPipelineOptions(SZIndexer indexerConfig, String jobName) {
+    String dataflowLocation =
+        indexerConfig.dataflow.dataflowLocation != null
+            ? indexerConfig.dataflow.dataflowLocation
+            : indexerConfig.bigQuery.dataLocation;
     DataflowPipelineOptions dataflowOptions =
         PipelineOptionsFactory.create().as(DataflowPipelineOptions.class);
     dataflowOptions.setRunner(DataflowRunner.class);
     dataflowOptions.setProject(indexerConfig.bigQuery.queryProjectId);
-    dataflowOptions.setRegion(indexerConfig.bigQuery.dataLocation);
+    dataflowOptions.setRegion(dataflowLocation);
     dataflowOptions.setServiceAccount(indexerConfig.dataflow.serviceAccountEmail);
     dataflowOptions.setJobName(getJobName(indexerConfig.underlay, jobName));
     dataflowOptions.setUsePublicIps(indexerConfig.dataflow.usePublicIps);
@@ -29,7 +33,7 @@ public final class DataflowUtils {
       dataflowOptions.setSubnetwork(
           getSubnetworkName(
               indexerConfig.bigQuery.queryProjectId,
-              indexerConfig.bigQuery.dataLocation,
+              dataflowLocation,
               indexerConfig.dataflow.vpcSubnetworkName));
     }
     return dataflowOptions;
