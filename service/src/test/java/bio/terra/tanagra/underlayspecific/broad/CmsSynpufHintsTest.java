@@ -15,7 +15,7 @@ public class CmsSynpufHintsTest extends BaseHintsTest {
 
   @Override
   protected String getUnderlayName() {
-    return "cms_synpuf";
+    return "cmssynpuf";
   }
 
   @Test

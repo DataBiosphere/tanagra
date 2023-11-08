@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class SddGenotypingTest extends BaseQueriesTest {
   @Override
   protected String getUnderlayName() {
-    return "sdd_refresh0323";
+    return "sdd";
   }
 
   @Override
@@ -24,14 +24,14 @@ public class SddGenotypingTest extends BaseQueriesTest {
 
   @Test
   void hierarchyRootFilter() throws IOException {
-    // filter for "genotyping" entity instances that are root nodes in the "standard" hierarchy
-    hierarchyRootFilter("standard");
+    // filter for "genotyping" entity instances that are root nodes in the "default" hierarchy
+    hierarchyRootFilter("default");
   }
 
   @Test
   void hierarchyMemberFilter() throws IOException {
-    // filter for "genotyping" entity instances that are members of the "standard" hierarchy
-    hierarchyMemberFilter("standard");
+    // filter for "genotyping" entity instances that are members of the "default" hierarchy
+    hierarchyMemberFilter("default");
   }
 
   @Test
@@ -39,7 +39,7 @@ public class SddGenotypingTest extends BaseQueriesTest {
     // filter for "genotyping" entity instances that are children of the "genotyping" entity
     // instance with id=101
     // i.e. give me all the genotyping platforms that are "GWAS Platforms"
-    hierarchyParentFilter("standard", 101L, "gwasPlatforms");
+    hierarchyParentFilter("default", 101L, "gwasPlatforms");
   }
 
   @Test

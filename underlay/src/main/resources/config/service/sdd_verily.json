@@ -17,5 +17,5 @@
     "queryProjectId": "verily-tanagra-dev",
     "dataLocation": "us-central1"
   },
-  "uiConfigFile": "top_level.json"
+  "uiConfigFile": "ui.json"
 }

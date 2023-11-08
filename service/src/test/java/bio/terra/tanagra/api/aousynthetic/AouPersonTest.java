@@ -5,6 +5,6 @@ import bio.terra.tanagra.api.omop.OmopPersonTest;
 public class AouPersonTest extends OmopPersonTest {
   @Override
   protected String getUnderlayName() {
-    return "aou_synthetic";
+    return "aouSR2019q4r4";
   }
 }

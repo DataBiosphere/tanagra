@@ -1,5 +1,6 @@
 package bio.terra.tanagra.testing;
 
+import bio.terra.tanagra.utils.SqlFormatter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,11 +48,11 @@ public final class GeneratedSqlUtils {
       String expectedSql = readSqlFromFile(fileName);
       Assertions.assertEquals(
           expectedSql,
-          generatedSql,
+          SqlFormatter.format(generatedSql),
           "Generated SQL does not match the expected. To regenerate the golden files that contain the expected SQL, you can run `./gradlew cleanTest test --info -PgenerateSqlFiles=true`");
     } else {
       LOG.info("writing generated sql to file because generateSqlFiles flag is set");
-      writeSqlToFile(generatedSql, fileName);
+      writeSqlToFile(SqlFormatter.format(generatedSql), fileName);
     }
   }
 
@@ -65,7 +66,12 @@ public final class GeneratedSqlUtils {
     BufferedReader reader = new BufferedReader(streamReader);
     StringBuilder fileContents = new StringBuilder();
     String line;
+    boolean isFirstLine = true;
     while ((line = reader.readLine()) != null) {
+      if (!isFirstLine) {
+        fileContents.append(System.lineSeparator());
+      }
+      isFirstLine = false;
       fileContents.append(line);
     }
     reader.close();

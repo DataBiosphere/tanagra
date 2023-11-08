@@ -5,6 +5,6 @@ import bio.terra.tanagra.api.omop.OmopIngredientTest;
 public class AouIngredientTest extends OmopIngredientTest {
   @Override
   protected String getUnderlayName() {
-    return "aou_synthetic";
+    return "aouSR2019q4r4";
   }
 }

@@ -1,1 +1,11 @@
-SELECT p.concept_code AS concept_code, p.id AS id, p.name AS name, p.standard_concept AS standard_concept, p.t_display_standard_concept AS t_display_standard_concept, p.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_082523`.procedure AS p WHERE REGEXP_CONTAINS(UPPER(p.text), UPPER('mammogram')) LIMIT 30
+
+    SELECT
+        t.concept_code AS concept_code,
+        t.id AS id,
+        t.name AS name,
+        t.standard_concept AS standard_concept,
+        t.vocabulary AS vocabulary 
+    FROM
+        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_procedure AS t 
+    WHERE
+        REGEXP_CONTAINS(UPPER(t.T_TXT), UPPER('mammogram')) LIMIT 30

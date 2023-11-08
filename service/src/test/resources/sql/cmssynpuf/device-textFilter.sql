@@ -1,1 +1,11 @@
-SELECT d.concept_code AS concept_code, d.id AS id, d.name AS name, d.standard_concept AS standard_concept, d.t_display_standard_concept AS t_display_standard_concept, d.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_082523`.device AS d WHERE REGEXP_CONTAINS(UPPER(d.text), UPPER('hearing aid')) LIMIT 30
+
+    SELECT
+        t.concept_code AS concept_code,
+        t.id AS id,
+        t.name AS name,
+        t.standard_concept AS standard_concept,
+        t.vocabulary AS vocabulary 
+    FROM
+        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_device AS t 
+    WHERE
+        REGEXP_CONTAINS(UPPER(t.T_TXT), UPPER('hearing aid')) LIMIT 30

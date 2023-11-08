@@ -5,6 +5,6 @@ import bio.terra.tanagra.api.omop.OmopConditionTest;
 public class AouConditionTest extends OmopConditionTest {
   @Override
   protected String getUnderlayName() {
-    return "aou_synthetic";
+    return "aouSR2019q4r4";
   }
 }

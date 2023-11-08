@@ -1,1 +1,26 @@
-SELECT p.gender AS gender, p.race AS race, COUNT(p.id) AS t_count, p.t_display_gender AS t_display_gender, p.t_display_race AS t_display_race FROM `broad-tanagra-dev.cmssynpuf_index_082523`.person AS p WHERE p.id IN (SELECT c.person_id FROM `broad-tanagra-dev.cmssynpuf_index_082523`.condition_occurrence AS c WHERE c.condition IN (SELECT c.id FROM `broad-tanagra-dev.cmssynpuf_index_082523`.condition AS c WHERE c.id = 201826)) GROUP BY gender, t_display_gender, race, t_display_race ORDER BY gender ASC, t_display_gender ASC, race ASC, t_display_race ASC
+
+    SELECT
+        COUNT(t.id) AS T_IDCT,
+        t.gender AS gender,
+        t.race AS race 
+    FROM
+        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_person AS t 
+    WHERE
+        t.id IN (
+            SELECT
+                t.person_id 
+            FROM
+                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_conditionOccurrence AS t 
+            WHERE
+                t.condition IN (
+                    SELECT
+                        t.id 
+                    FROM
+                        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_condition AS t 
+                    WHERE
+                        t.id = 201826
+                )
+            ) 
+        GROUP BY
+            gender,
+            race

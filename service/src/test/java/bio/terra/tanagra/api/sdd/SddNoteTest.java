@@ -5,6 +5,6 @@ import bio.terra.tanagra.api.omop.OmopNoteTest;
 public class SddNoteTest extends OmopNoteTest {
   @Override
   protected String getUnderlayName() {
-    return "sdd_refresh0323";
+    return "sdd";
   }
 }

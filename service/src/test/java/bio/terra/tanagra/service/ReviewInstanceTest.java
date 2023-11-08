@@ -58,7 +58,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("requires-cloud-access")
 public class ReviewInstanceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewInstanceTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;

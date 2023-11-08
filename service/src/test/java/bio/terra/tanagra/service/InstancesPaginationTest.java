@@ -28,7 +28,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 @Tag("requires-cloud-access")
 public class InstancesPaginationTest {
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
   @Autowired private UnderlayService underlayService;
 
   @Test

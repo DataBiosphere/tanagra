@@ -5,6 +5,6 @@ import bio.terra.tanagra.api.omop.OmopBrandTest;
 public class CmsBrandTest extends OmopBrandTest {
   @Override
   protected String getUnderlayName() {
-    return "cms_synpuf";
+    return "cmssynpuf";
   }
 }

@@ -1,1 +1,11 @@
-SELECT o.concept_code AS concept_code, o.id AS id, o.name AS name, o.standard_concept AS standard_concept, o.t_display_standard_concept AS t_display_standard_concept, o.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_082523`.observation AS o WHERE REGEXP_CONTAINS(UPPER(o.text), UPPER('smoke')) LIMIT 30
+
+    SELECT
+        t.concept_code AS concept_code,
+        t.id AS id,
+        t.name AS name,
+        t.standard_concept AS standard_concept,
+        t.vocabulary AS vocabulary 
+    FROM
+        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_observation AS t 
+    WHERE
+        REGEXP_CONTAINS(UPPER(t.T_TXT), UPPER('smoke')) LIMIT 30

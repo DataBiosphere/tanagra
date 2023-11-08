@@ -60,12 +60,14 @@ public class RelationshipFilter extends EntityFilter {
     this.selectEntityIndexTable = underlay.getIndexSchema().getEntityMain(selectEntity.getName());
     this.filterEntityIndexTable = underlay.getIndexSchema().getEntityMain(filterEntity.getName());
     this.relationshipIdPairsIndexTable =
-        underlay
-            .getIndexSchema()
-            .getRelationshipIdPairs(
-                entityGroup.getName(),
-                relationship.getEntityA().getName(),
-                relationship.getEntityB().getName());
+        relationship.isIntermediateTable()
+            ? underlay
+                .getIndexSchema()
+                .getRelationshipIdPairs(
+                    entityGroup.getName(),
+                    relationship.getEntityA().getName(),
+                    relationship.getEntityB().getName())
+            : null;
   }
 
   @Override

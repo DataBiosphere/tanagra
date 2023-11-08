@@ -5,6 +5,6 @@ import bio.terra.tanagra.api.omop.OmopObservationTest;
 public class AouObservationTest extends OmopObservationTest {
   @Override
   protected String getUnderlayName() {
-    return "aou_synthetic";
+    return "aouSR2019q4r4";
   }
 }

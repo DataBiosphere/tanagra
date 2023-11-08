@@ -1,1 +1,11 @@
-SELECT b.concept_code AS concept_code, b.id AS id, b.name AS name, b.standard_concept AS standard_concept, b.t_display_standard_concept AS t_display_standard_concept FROM `broad-tanagra-dev.cmssynpuf_index_082523`.brand AS b WHERE REGEXP_CONTAINS(UPPER(b.text), UPPER('paracetamol')) LIMIT 30
+
+    SELECT
+        t.concept_code AS concept_code,
+        t.id AS id,
+        t.name AS name,
+        t.standard_concept AS standard_concept,
+        t.vocabulary AS vocabulary 
+    FROM
+        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_brand AS t 
+    WHERE
+        REGEXP_CONTAINS(UPPER(t.T_TXT), UPPER('paracetamol')) LIMIT 30

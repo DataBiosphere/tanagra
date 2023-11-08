@@ -68,7 +68,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("requires-cloud-access")
 public class DataExportServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportServiceTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
   @Autowired private UnderlayService underlayService;
 
   @Autowired private StudyService studyService;

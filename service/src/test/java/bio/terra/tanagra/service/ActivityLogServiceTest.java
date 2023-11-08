@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class ActivityLogServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ActivityLogServiceTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
 
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
@@ -86,6 +87,7 @@ public class ActivityLogServiceTest {
   }
 
   @Test
+  @Tag("requires-cloud-access")
   void createLogs() throws InterruptedException {
     // CREATE_STUDY
     study1 =

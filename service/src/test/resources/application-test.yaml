@@ -1,6 +1,6 @@
 tanagra:
   underlay:
-    files: [ "broad/cms_synpuf/cms_synpuf.json", "broad/aou_synthetic/aou_synthetic.json", "verily/sdd_refresh0323/sdd_refresh0323.json" ]
+    files: [ "cmssynpuf_verily", "aouSR2019q4r4_verily", "sdd_verily" ]
 
   feature:
     artifact-storage-enabled: true

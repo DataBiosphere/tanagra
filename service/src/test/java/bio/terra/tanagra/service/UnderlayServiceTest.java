@@ -30,7 +30,7 @@ public class UnderlayServiceTest {
 
   @Test
   void listAllOrSelected() {
-    String underlayName = "cms_synpuf";
+    String underlayName = "cmssynpuf";
 
     // List underlays.
     List<Underlay> allUnderlays =
@@ -48,7 +48,7 @@ public class UnderlayServiceTest {
 
     // List entities.
     List<Entity> allEntities = underlayService.getUnderlay(underlayName).getEntities();
-    assertEquals(12, allEntities.size());
+    assertEquals(17, allEntities.size());
   }
 
   @Test
@@ -59,6 +59,6 @@ public class UnderlayServiceTest {
     // Get an invalid entity.
     assertThrows(
         NotFoundException.class,
-        () -> underlayService.getUnderlay("cms_synpuf").getEntity("invalid entity"));
+        () -> underlayService.getUnderlay("cmssynpuf").getEntity("invalid entity"));
   }
 }

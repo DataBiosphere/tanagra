@@ -41,7 +41,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class CohortServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(CohortServiceTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;

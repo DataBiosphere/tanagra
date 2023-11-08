@@ -161,6 +161,6 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
 
   @Override
   protected String getEntityName() {
-    return "measurement";
+    return "measurementLoinc";
   }
 }

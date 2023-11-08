@@ -1,1 +1,41 @@
-SELECT o.age_at_occurrence AS age_at_occurrence, o.date AS date, o.id AS id, o.observation AS observation, o.person_id AS person_id, o.source_criteria_id AS source_criteria_id, o.source_value AS source_value, o.t_display_observation AS t_display_observation, o.t_display_unit AS t_display_unit, o.t_display_value AS t_display_value, o.unit AS unit, o.value AS value, o.value_as_string AS value_as_string FROM `broad-tanagra-dev.cmssynpuf_index_082523`.observation_occurrence AS o WHERE o.person_id IN (SELECT p.id FROM `broad-tanagra-dev.cmssynpuf_index_082523`.person AS p WHERE p.id IN (SELECT o.person_id FROM `broad-tanagra-dev.cmssynpuf_index_082523`.observation_occurrence AS o WHERE o.observation IN (SELECT o.id FROM `broad-tanagra-dev.cmssynpuf_index_082523`.observation AS o WHERE o.id = 43531662))) LIMIT 30
+
+    SELECT
+        t.T_DISP_observation AS T_DISP_observation,
+        t.T_DISP_unit AS T_DISP_unit,
+        t.T_DISP_value AS T_DISP_value,
+        t.age_at_occurrence AS age_at_occurrence,
+        t.date AS date,
+        t.id AS id,
+        t.observation AS observation,
+        t.person_id AS person_id,
+        t.source_criteria_id AS source_criteria_id,
+        t.source_value AS source_value,
+        t.unit AS unit,
+        t.value AS value,
+        t.value_as_string AS value_as_string,
+        t.visit_occurrence_id AS visit_occurrence_id 
+    FROM
+        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_observationOccurrence AS t 
+    WHERE
+        t.person_id IN (
+            SELECT
+                t.id 
+            FROM
+                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_person AS t 
+            WHERE
+                t.id IN (
+                    SELECT
+                        t.person_id 
+                    FROM
+                        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_observationOccurrence AS t 
+                    WHERE
+                        t.observation IN (
+                            SELECT
+                                t.id 
+                            FROM
+                                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_observation AS t 
+                            WHERE
+                                t.id = 43531662
+                        )
+                    )
+            ) LIMIT 30

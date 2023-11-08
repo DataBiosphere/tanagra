@@ -1,1 +1,25 @@
-SELECT i.concept_code AS concept_code, i.id AS id, i.name AS name, i.standard_concept AS standard_concept, i.t_display_standard_concept AS t_display_standard_concept, i.vocabulary AS vocabulary FROM `broad-tanagra-dev.cmssynpuf_index_082523`.ingredient AS i WHERE i.id IN (SELECT b.id_ingredient FROM `broad-tanagra-dev.cmssynpuf_index_082523`.brand_ingredient_brand_ingredient_idpairs AS b WHERE b.id_brand IN (SELECT b.id FROM `broad-tanagra-dev.cmssynpuf_index_082523`.brand AS b WHERE b.id = 19082059)) LIMIT 30
+
+    SELECT
+        t.concept_code AS concept_code,
+        t.id AS id,
+        t.name AS name,
+        t.standard_concept AS standard_concept,
+        t.vocabulary AS vocabulary 
+    FROM
+        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_ingredient AS t 
+    WHERE
+        t.id IN (
+            SELECT
+                t.entity_B_id 
+            FROM
+                `verily-tanagra-dev.cmssynpuf_index_110623`.T_RIDS_brandIngredient_brand_ingredient AS t 
+            WHERE
+                t.entity_A_id IN (
+                    SELECT
+                        t.id 
+                    FROM
+                        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_brand AS t 
+                    WHERE
+                        t.id = 19082059
+                )
+            ) LIMIT 30

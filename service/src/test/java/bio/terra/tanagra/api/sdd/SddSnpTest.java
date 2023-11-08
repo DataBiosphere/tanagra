@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class SddSnpTest extends BaseQueriesTest {
   @Override
   protected String getUnderlayName() {
-    return "sdd_refresh0323";
+    return "sdd";
   }
 
   @Override
