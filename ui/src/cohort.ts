@@ -219,6 +219,7 @@ export function upgradeCriteria(
 
 export interface PredefinedCriteria {
   id: string;
+  name: string;
   occurrence: string;
   filter?: Filter;
 }
@@ -228,6 +229,7 @@ export type OccurrenceFilters = {
   name: string;
   attributes: string[];
   filters: Filter[];
+  sourceCriteria: string[];
 };
 
 export function getOccurrenceList(
@@ -237,6 +239,7 @@ export function getOccurrenceList(
   predefinedCriteria?: PredefinedCriteria[]
 ): OccurrenceFilters[] {
   const occurrences = new Map<string, Filter[]>();
+  const sourceCriteria: string[] = [];
   const addFilter = (occurrence: string, filter?: Filter | null) => {
     if (!occurrences.has(occurrence)) {
       occurrences.set(occurrence, []);
@@ -249,6 +252,7 @@ export function getOccurrenceList(
   predefinedCriteria
     ?.filter((c) => selectedCriteria.has(c.id))
     ?.forEach((c) => {
+      sourceCriteria.push(c.name);
       addFilter(c.occurrence, c.filter);
     });
 
@@ -256,6 +260,8 @@ export function getOccurrenceList(
     ?.filter((criteria) => selectedCriteria.has(criteria.id))
     ?.forEach((criteria) => {
       const plugin = getCriteriaPlugin(criteria);
+      sourceCriteria.push(getCriteriaTitle(criteria, plugin));
+
       const occurrenceIds =
         plugin.outputOccurrenceIds?.() ?? plugin.filterOccurrenceIds();
       occurrenceIds.forEach((o) => {
@@ -271,6 +277,7 @@ export function getOccurrenceList(
         name: findEntity(id, source.config).entity,
         attributes: source.listAttributes(id),
         filters,
+        sourceCriteria,
       };
     });
 }

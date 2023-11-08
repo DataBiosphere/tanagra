@@ -1,8 +1,10 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
 import bio.terra.tanagra.service.authentication.UserId;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.vumc.vda.tanagra.admin.model.Resource;
@@ -11,8 +13,14 @@ import org.vumc.vda.tanagra.admin.model.ResourceList;
 import org.vumc.vda.tanagra.admin.model.ResourceType;
 
 public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
+  private final List<String> admins = new ArrayList<>(); // user emails
   private final Map<String, Set<Resource>> permissions =
       new HashMap<>(); // user email -> set of permissions
+
+  @Override
+  protected boolean apiIsAuthorizedUser(String userEmail) {
+    return admins.contains(userEmail);
+  }
 
   @Override
   @SuppressWarnings("PMD.UseObjectForClearerAPI")
@@ -40,6 +48,10 @@ public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
           .forEach(r -> resourceList.add(r));
     }
     return resourceList;
+  }
+
+  public void addAdminUser(UserId user) {
+    admins.add(user.getEmail());
   }
 
   public void addPermission(

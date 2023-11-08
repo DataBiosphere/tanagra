@@ -83,12 +83,14 @@ public class VumcAdminAccessControl implements AccessControl {
           ResourceType.UNDERLAY,
           resource == null ? null : resource.getUnderlay());
     } else if (ResourceType.STUDY.equals(permissions.getType())) {
-      // For studies, check authorization with the study id.
-      return isAuthorized(
-          user,
-          permissions.getActions(),
-          ResourceType.STUDY,
-          resource == null ? null : resource.getStudy());
+      if (resource == null) {
+        // If the resource id is null, then check if the user is an admin.
+        return apiIsAuthorizedUser(user.getEmail());
+      } else {
+        // Otherwise, check authorization with the study id.
+        return isAuthorized(
+            user, permissions.getActions(), ResourceType.STUDY, resource.getStudy());
+      }
     } else {
       // For artifacts that are children of a study (e.g. cohort):
       //   - Map the action type to the action on the study (e.g. create cohort -> update study).
@@ -330,6 +332,20 @@ public class VumcAdminAccessControl implements AccessControl {
             apiAction,
             descendantType);
         return Set.of();
+    }
+  }
+
+  protected boolean apiIsAuthorizedUser(String userEmail) {
+    AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
+    try {
+      authorizationApi.isAuthorizedUser(userEmail);
+      return true;
+    } catch (ApiException apiEx) {
+      if (apiEx.getCode() == HttpStatus.SC_UNAUTHORIZED) {
+        return false;
+      }
+      throw new SystemException(
+          "Error calling VUMC admin service isAuthorizedUser endpoint", apiEx);
     }
   }
 

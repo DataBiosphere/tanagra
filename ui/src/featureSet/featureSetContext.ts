@@ -256,11 +256,11 @@ export function setExcludedFeatureSetColumns(
   context.updatePresent((present) => {
     const output = present.output.find((o) => o.occurrence === occurrence);
     if (output) {
-      output.excludedColumns = columns;
+      output.excludedAttributes = columns;
     } else {
       present.output.push({
         occurrence,
-        excludedColumns: columns,
+        excludedAttributes: columns,
       });
     }
   });
@@ -274,16 +274,16 @@ export function toggleFeatureSetColumn(
   context.updatePresent((present) => {
     const output = present.output.find((o) => o.occurrence === occurrence);
     if (output) {
-      const index = output.excludedColumns.findIndex((c) => c === column);
+      const index = output.excludedAttributes.findIndex((c) => c === column);
       if (index >= 0) {
-        output.excludedColumns.splice(index, 1);
+        output.excludedAttributes.splice(index, 1);
       } else {
-        output.excludedColumns.push(column);
+        output.excludedAttributes.push(column);
       }
     } else {
       present.output.push({
         occurrence,
-        excludedColumns: [column],
+        excludedAttributes: [column],
       });
     }
   });

@@ -17,6 +17,7 @@ import React, { useCallback, useMemo } from "react";
 import {
   absoluteCohortURL,
   absoluteConceptSetURL,
+  absoluteExportSetsURL,
   absoluteExportURL,
   absoluteFeatureSetURL,
   absoluteNewConceptSetURL,
@@ -25,6 +26,7 @@ import {
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
 import { useNavigate } from "util/searchState";
+import emptyImage from "../images/empty.svg";
 
 enum ArtifactType {
   Cohort = "Cohort",
@@ -214,7 +216,7 @@ export function StudyOverview() {
       <GridLayout rows>
         <Header />
         <GridBox sx={{ px: 4, py: 2 }}>
-          <GridLayout cols={4} spacing={1}>
+          <GridLayout cols spacing={1}>
             <Button variant="contained" onClick={newCohort}>
               New cohort
             </Button>
@@ -234,6 +236,14 @@ export function StudyOverview() {
               onClick={() => navigate(absoluteExportURL(params).substring(1))}
             >
               Export
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() =>
+                navigate(absoluteExportSetsURL(params).substring(1))
+              }
+            >
+              Feature sets export
             </Button>
           </GridLayout>
         </GridBox>
@@ -266,7 +276,7 @@ export function StudyOverview() {
           ) : (
             <Empty
               minHeight="300px"
-              image="/empty.svg"
+              image={emptyImage}
               title="Create cohorts and data features using the buttons above"
             />
           )}

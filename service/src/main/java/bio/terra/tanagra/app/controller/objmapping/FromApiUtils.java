@@ -109,7 +109,9 @@ public final class FromApiUtils {
         Pair<EntityGroup, Relationship> entityGroupAndRelationship =
             getRelationship(underlay.getEntityGroups(), entity, relatedEntity);
         EntityFilter subFilter =
-            fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlay);
+            apiRelationshipFilter.getSubfilter() == null
+                ? null
+                : fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlay);
 
         Attribute groupByCountAttribute = null;
         BinaryFilterVariable.BinaryOperator groupByCountOperator = null;

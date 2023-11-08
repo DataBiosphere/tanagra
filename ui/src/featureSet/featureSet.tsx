@@ -54,6 +54,7 @@ import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import UndoRedoToolbar from "undoRedoToolbar";
 import { useGlobalSearchState, useNavigate } from "util/searchState";
+import emptyImage from "../images/empty.svg";
 
 export function FeatureSet() {
   const context = useFeatureSetContext();
@@ -272,16 +273,12 @@ function Preview() {
   const navigate = useNavigate();
 
   const occurrenceList = useMemo(() => {
-    const selectedCriteria = new Set<string>();
-    underlay.uiConfiguration.prepackagedConceptSets?.forEach((conceptSet) => {
-      if (featureSet.predefinedCriteria.includes(conceptSet.id)) {
-        selectedCriteria.add(conceptSet.id);
-      }
-    });
-
-    featureSet.criteria.forEach((criteria) => {
-      selectedCriteria.add(criteria.id);
-    });
+    const selectedCriteria = new Set<string>(
+      [
+        featureSet.predefinedCriteria,
+        featureSet.criteria.map((c) => c.id),
+      ].flat()
+    );
 
     return getOccurrenceList(
       source,
@@ -350,7 +347,7 @@ function Preview() {
                     <GridLayout cols rowAlign="middle">
                       <Empty
                         maxWidth="90%"
-                        image="/empty.svg"
+                        image={emptyImage}
                         title="No data matched"
                         subtitle="No data in this table matched the specified cohorts and data features"
                       />
@@ -364,7 +361,7 @@ function Preview() {
         <GridLayout cols rowAlign="middle">
           <Empty
             maxWidth="90%"
-            image="/empty.svg"
+            image={emptyImage}
             title="Set up columns for each data feature here. You’ll see a preview of your table."
             subtitle={
               <>
@@ -408,7 +405,7 @@ function PreviewTable(props: PreviewTableProps) {
       .filter(
         (attribute) =>
           !globalSearchState.showSelectedColumnsOnly ||
-          !output?.excludedColumns?.includes(attribute)
+          !output?.excludedAttributes?.includes(attribute)
       )
       .map((attribute) => {
         return {
@@ -420,7 +417,7 @@ function PreviewTable(props: PreviewTableProps) {
               name={attribute}
               size="small"
               fontSize="small"
-              checked={!output?.excludedColumns?.includes(attribute)}
+              checked={!output?.excludedAttributes?.includes(attribute)}
               onChange={() =>
                 toggleFeatureSetColumn(context, props.occurrence.id, attribute)
               }
@@ -465,7 +462,7 @@ function PreviewTable(props: PreviewTableProps) {
                 <Switch
                   name={attribute}
                   size="small"
-                  checked={!output?.excludedColumns?.includes(attribute)}
+                  checked={!output?.excludedAttributes?.includes(attribute)}
                   onChange={() =>
                     toggleFeatureSetColumn(
                       context,
@@ -531,7 +528,7 @@ function PreviewTable(props: PreviewTableProps) {
         />
         <Typography variant="body1">Show included columns only</Typography>
       </GridLayout>
-      {output?.excludedColumns?.length !==
+      {output?.excludedAttributes?.length !==
       props.occurrence.attributes.length ? (
         <TreeGrid
           data={props.data?.data}
@@ -539,7 +536,7 @@ function PreviewTable(props: PreviewTableProps) {
           rowCustomization={() => {
             return columns.map((col, i) => ({
               column: i,
-              backgroundSx: output?.excludedColumns?.includes(col.key)
+              backgroundSx: output?.excludedAttributes?.includes(col.key)
                 ? {
                     backgroundColor: (theme) =>
                       theme.palette.background.default,

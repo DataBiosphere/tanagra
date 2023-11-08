@@ -35,6 +35,7 @@ import {
   useFeatureSet,
   useUnderlay,
 } from "hooks";
+import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
@@ -471,7 +472,7 @@ function AddCriteria(props: AddCriteriaProps) {
               {!searchState.data?.root?.children?.length ? (
                 <Empty
                   minHeight="300px"
-                  image="/empty.svg"
+                  image={emptyImage}
                   title="No matches found"
                 />
               ) : (

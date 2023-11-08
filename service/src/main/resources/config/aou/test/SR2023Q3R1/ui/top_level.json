@@ -24,6 +24,28 @@
               "attribute": "t_rollup_count",
               "direction": "DESC"
             }
+          },
+          {
+            "id":"icd9cm",
+            "attribute":"source_criteria_id",
+            "entity":"t_icd9cm",
+            "entityAttribute":"id",
+            "hierarchy":"standard",
+            "defaultSort":{
+              "attribute":"label",
+              "direction":"ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd10cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -54,6 +76,50 @@
               "attribute": "label",
               "direction": "ASC"
             }
+          },
+          {
+            "id":"icd9cm",
+            "attribute":"source_criteria_id",
+            "entity":"t_icd9cm",
+            "entityAttribute":"id",
+            "hierarchy":"standard",
+            "defaultSort":{
+              "attribute":"label",
+              "direction":"ASC"
+            }
+          },
+          {
+            "id": "icd9proc",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd9proc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd10cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10pcs",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd10pcs",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
           }
         ]
       },
@@ -77,6 +143,28 @@
             "id": "cpt4",
             "attribute": "source_criteria_id",
             "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id":"icd9cm",
+            "attribute":"source_criteria_id",
+            "entity":"t_icd9cm",
+            "entityAttribute":"id",
+            "hierarchy":"standard",
+            "defaultSort":{
+              "attribute":"label",
+              "direction":"ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd10cm",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -148,6 +236,50 @@
             "id": "cpt4",
             "attribute": "source_criteria_id",
             "entity": "t_cpt4",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id":"icd9cm",
+            "attribute":"source_criteria_id",
+            "entity":"t_icd9cm",
+            "entityAttribute":"id",
+            "hierarchy":"standard",
+            "defaultSort":{
+              "attribute":"label",
+              "direction":"ASC"
+            }
+          },
+          {
+            "id": "icd9proc",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd9proc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10cm",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd10cm",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "label",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "icd10pcs",
+            "attribute": "source_criteria_id",
+            "entity": "t_icd10pcs",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -415,13 +547,6 @@
       ]
     },
     {
-      "type": "attribute",
-      "id": "tanagra-has-ehr-data",
-      "title": "Has EHR Data",
-      "category": "Program data",
-      "attribute": "has_ehr_data"
-    },
-    {
       "type": "classification",
       "id": "tanagra-cpt4",
       "title": "CPT-4",
@@ -461,6 +586,151 @@
       ]
     },
     {
+      "type": "classification",
+      "id": "tanagra-icd9cm",
+      "title": "ICD-9-CM",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrences": [
+        "condition_occurrence",
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence"
+      ],
+      "classifications": ["icd9cm"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd9proc",
+      "title": "ICD-9-Proc",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrences": ["procedure_occurrence"],
+      "classifications": ["icd9proc"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd10cm",
+      "title": "ICD-10-CM",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrences": [
+        "condition_occurrence",
+        "measurement_occurrence",
+        "observation_occurrence",
+        "procedure_occurrence"
+      ],
+      "classifications": ["icd10cm"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "classification",
+      "id": "tanagra-icd10pcs",
+      "title": "ICD-10-PCS",
+      "conceptSet": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "occurrences": ["procedure_occurrence", "ingredient_occurrence"],
+      "classifications": ["icd10pcs"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-has-ehr-data",
+      "title": "Has EHR Data",
+      "category": "Program data",
+      "attribute": "has_ehr_data"
+    },
+    {
       "type": "attribute",
       "id": "tanagra-ethnicity",
       "title": "Ethnicity",
@@ -473,6 +743,13 @@
       "title": "Gender identity",
       "category": "Program data",
       "attribute": "gender"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-sex-at-birth",
+      "title": "Sex At Birth",
+      "category": "Program data",
+      "attribute": "sex_at_birth"
     },
     {
       "type": "attribute",

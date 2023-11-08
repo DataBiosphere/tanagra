@@ -1,6 +1,7 @@
 import ActionBar from "actionBar";
 import { CriteriaPlugin } from "cohort";
 import Empty from "components/empty";
+import emptyImage from "images/empty.svg";
 import GridLayout from "layout/gridLayout";
 import { useState } from "react";
 import { useNavigate } from "util/searchState";
@@ -31,7 +32,7 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
         <Empty
           maxWidth="60%"
           minHeight="400px"
-          image="/empty.svg"
+          image={emptyImage}
           subtitle="There are no editable properties for this criteria."
         />
       )}

@@ -66,12 +66,11 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
     vaImpl.addPermission(
         USER_4, ResourceAction.READ, org.vumc.vda.tanagra.admin.model.ResourceType.UNDERLAY, SDD);
     // studies
-    //   user1: CREATE, study1 (UPDATE, DELETE)
-    //   user2: CREATE, study1 (ALL), study2 (READ, UPDATE, DELETE)
+    //   user1: CREATE (=isAdmin), study1 (UPDATE, DELETE)
+    //   user2: CREATE (=isAdmin), study1 (ALL), study2 (READ, UPDATE, DELETE)
     //   user3:
     //   user4: study2 (READ)
-    vaImpl.addPermission(
-        USER_1, ResourceAction.CREATE, org.vumc.vda.tanagra.admin.model.ResourceType.STUDY, null);
+    vaImpl.addAdminUser(USER_1);
     vaImpl.addPermission(
         USER_1,
         ResourceAction.UPDATE,
@@ -82,6 +81,7 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
         ResourceAction.DELETE,
         org.vumc.vda.tanagra.admin.model.ResourceType.STUDY,
         study1.getId());
+    vaImpl.addAdminUser(USER_2);
     vaImpl.addPermission(
         USER_2,
         ResourceAction.ALL,

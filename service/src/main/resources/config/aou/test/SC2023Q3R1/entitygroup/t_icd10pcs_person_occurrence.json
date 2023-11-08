@@ -1,0 +1,31 @@
+{
+  "name": "t_icd10pcs_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "criteriaEntity": "t_icd10pcs",
+  "occurrenceEntities": [ "t_procedure_occurrence", "t_ingredient_occurrence" ],
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria:t_ingredient_occurrence": {
+        "foreignKeyAttribute": "source_criteria_id"
+      },
+      "occurrenceToPrimary:t_ingredient_occurrence": {
+        "foreignKeyAttribute": "person_id"
+      },
+      "occurrenceToCriteria:t_procedure_occurrence": {
+        "foreignKeyAttribute": "source_criteria_id"
+      },
+      "occurrenceToPrimary:t_procedure_occurrence": {
+        "foreignKeyAttribute": "person_id"
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "rawSqlFile": "t_icd10pcs_person.sql" },
+        "idPairsIdA": { "column": "concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
