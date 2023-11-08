@@ -59,4 +59,9 @@ public class Relationship {
   public boolean isIntermediateTable() {
     return !isForeignKeyAttributeEntityA() && !isForeignKeyAttributeEntityB();
   }
+
+  public boolean matchesEntities(Entity entity1, Entity entity2) {
+    return (entity1.equals(entityA) && entity2.equals(entityB))
+        || (entity2.equals(entityA) && entity1.equals(entityB));
+  }
 }

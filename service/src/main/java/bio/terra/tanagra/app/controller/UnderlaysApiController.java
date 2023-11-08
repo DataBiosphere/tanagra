@@ -5,10 +5,27 @@ import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.api2.field.AttributeField;
+import bio.terra.tanagra.api2.field.HierarchyIsMemberField;
+import bio.terra.tanagra.api2.field.HierarchyIsRootField;
+import bio.terra.tanagra.api2.field.HierarchyNumChildrenField;
+import bio.terra.tanagra.api2.field.HierarchyPathField;
+import bio.terra.tanagra.api2.field.RelatedEntityIdCountField;
+import bio.terra.tanagra.api2.field.ValueDisplayField;
+import bio.terra.tanagra.api2.filter.EntityFilter;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.ValueDisplay;
+import bio.terra.tanagra.api2.query.count.CountQueryRequest;
+import bio.terra.tanagra.api2.query.count.CountQueryResult;
+import bio.terra.tanagra.api2.query.hint.HintInstance;
+import bio.terra.tanagra.api2.query.hint.HintQueryRequest;
+import bio.terra.tanagra.api2.query.hint.HintQueryResult;
+import bio.terra.tanagra.api2.query.list.ListInstance;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
+import bio.terra.tanagra.api2.query.list.ListQueryResult;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.controller.UnderlaysApi;
 import bio.terra.tanagra.generated.model.ApiCountQuery;
 import bio.terra.tanagra.generated.model.ApiDisplayHint;
@@ -35,6 +52,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,8 +103,8 @@ public class UnderlaysApiController implements UnderlaysApi {
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     ApiEntityList apiEntities = new ApiEntityList();
-    List<Entity> entities = underlayService.listEntities(underlayName);
-    entities.stream().forEach(entity -> apiEntities.addEntitiesItem(toApiObject(entity)));
+    underlayService.getUnderlay(underlayName).getEntities().stream()
+        .forEach(entity -> apiEntities.addEntitiesItem(toApiObject(entity)));
     return ResponseEntity.ok(apiEntities);
   }
 
@@ -96,7 +114,7 @@ public class UnderlaysApiController implements UnderlaysApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    Entity entity = underlayService.getEntity(underlayName, entityName);
+    Entity entity = underlayService.getUnderlay(underlayName).getEntity(entityName);
     return ResponseEntity.ok(toApiObject(entity));
   }
 
@@ -107,20 +125,24 @@ public class UnderlaysApiController implements UnderlaysApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
         ResourceId.forUnderlay(underlayName));
-    EntityQueryRequest entityQueryRequest =
-        FromApiUtils.fromApiObject(body, underlayService.getEntity(underlayName, entityName));
-    EntityQueryResult entityQueryResult = UnderlayService.listEntityInstances(entityQueryRequest);
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    ListQueryRequest listQueryRequest =
+        FromApiUtils.fromApiObject(body, underlay.getEntity(entityName), underlay);
+
+    // Run the list query and map the results back to API objects.
+    ListQueryResult listQueryResult =
+        EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
     return ResponseEntity.ok(
         new ApiInstanceListResult()
             .instances(
-                entityQueryResult.getEntityInstances().stream()
-                    .map(entityInstance -> toApiObject(entityInstance))
+                listQueryResult.getListInstances().stream()
+                    .map(listInstance -> toApiObject(listInstance))
                     .collect(Collectors.toList()))
-            .sql(SqlFormatter.format(entityQueryResult.getSql()))
+            .sql(SqlFormatter.format(listQueryResult.getSql()))
             .pageMarker(
-                entityQueryResult.getPageMarker() == null
+                listQueryResult.getPageMarker() == null
                     ? null
-                    : entityQueryResult.getPageMarker().serialize()));
+                    : listQueryResult.getPageMarker().serialize()));
   }
 
   @Override
@@ -130,36 +152,38 @@ public class UnderlaysApiController implements UnderlaysApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_COUNTS),
         ResourceId.forUnderlay(underlayName));
-    Entity entity = underlayService.getEntity(underlayName, entityName);
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    Entity entity = underlay.getEntity(entityName);
 
-    List<Attribute> attributes = new ArrayList<>();
+    // Build the attribute fields for select and group by.
+    List<ValueDisplayField> attributeFields = new ArrayList<>();
     if (body.getAttributes() != null) {
-      attributes =
-          body.getAttributes().stream()
-              .map(attrName -> FromApiUtils.getAttribute(entity, attrName))
-              .collect(Collectors.toList());
+      body.getAttributes().stream()
+          .forEach(
+              attributeName ->
+                  attributeFields.add(
+                      FromApiUtils.buildAttributeField(underlay, entity, attributeName, true)));
     }
 
-    EntityFilter entityFilter = null;
-    if (body.getFilter() != null) {
-      entityFilter = FromApiUtils.fromApiObject(body.getFilter(), entity, underlayName);
-    }
+    // Build the entity filter.
+    EntityFilter filter =
+        body.getFilter() == null
+            ? null
+            : FromApiUtils.fromApiObject(body.getFilter(), entity, underlay);
 
-    EntityCountResult entityCountResult =
-        underlayService.countEntityInstances(
-            new EntityCountRequest.Builder()
-                .entity(entity)
-                .mappingType(Underlay.MappingType.INDEX)
-                .attributes(attributes)
-                .filter(entityFilter)
-                .build());
+    CountQueryRequest countQueryRequest =
+        new CountQueryRequest(underlay, entity, attributeFields, filter, null, null);
+
+    // Run the count query and map the results back to API objects.
+    CountQueryResult countQueryResult =
+        EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
     return ResponseEntity.ok(
         new ApiInstanceCountList()
             .instanceCounts(
-                entityCountResult.getEntityCounts().stream()
+                countQueryResult.getCountInstances().stream()
                     .map(ToApiUtils::toApiObject)
                     .collect(Collectors.toList()))
-            .sql(SqlFormatter.format(entityCountResult.getSql())));
+            .sql(SqlFormatter.format(countQueryResult.getSql())));
   }
 
   @Override
@@ -169,26 +193,33 @@ public class UnderlaysApiController implements UnderlaysApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_COUNTS),
         ResourceId.forUnderlay(underlayName));
-    Entity entity = underlayService.getEntity(underlayName, entityName);
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    Entity entity = underlay.getEntity(entityName);
 
-    EntityHintRequest.Builder entityHintRequest = new EntityHintRequest.Builder().entity(entity);
-    if (body != null && body.getRelatedEntity() != null) {
-      // Return display hints for entity instances that are related to an instance of another entity
-      // (e.g. numeric range for measurement_occurrence.value_numeric, computed across
-      // measurement_occurrence instances that are related to measurement=BodyHeight).
-      Entity relatedEntity =
-          underlayService.getEntity(underlayName, body.getRelatedEntity().getName());
-      entityHintRequest
-          .relatedEntity(relatedEntity)
-          .relatedEntityId(FromApiUtils.fromApiObject(body.getRelatedEntity().getId()))
-          .entityGroup(
-              FromApiUtils.getRelationship(
-                      entity.getUnderlay().getEntityGroups().values(), entity, relatedEntity)
-                  .getEntityGroup());
-    } // else {} Return display hints computed across all entity instances (e.g. enum values for
-    // person.gender).
-    EntityHintResult entityHintResult = underlayService.listEntityHints(entityHintRequest.build());
-    return ResponseEntity.ok(toApiObject(entityHintResult));
+    boolean isEntityLevelHints = body == null || body.getRelatedEntity() == null;
+    HintQueryRequest hintQueryRequest;
+    if (isEntityLevelHints) {
+      hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null);
+    } else { // isInstanceLevelHints
+      Entity relatedEntity = underlay.getEntity(body.getRelatedEntity().getName());
+      hintQueryRequest =
+          new HintQueryRequest(
+              underlay,
+              entity,
+              relatedEntity,
+              FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
+              FromApiUtils.getRelationship(underlay.getEntityGroups(), entity, relatedEntity)
+                  .getLeft());
+    }
+    HintQueryResult hintQueryResult =
+        EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());
+    return ResponseEntity.ok(
+        new ApiDisplayHintList()
+            .sql(SqlFormatter.format(hintQueryResult.getSql()))
+            .displayHints(
+                hintQueryResult.getHintInstances().stream()
+                    .map(hintInstance -> toApiObject(hintInstance))
+                    .collect(Collectors.toList())));
   }
 
   private ApiEntity toApiObject(Entity entity) {
@@ -201,131 +232,92 @@ public class UnderlaysApiController implements UnderlaysApi {
                 .collect(Collectors.toList()));
   }
 
-  private ApiInstance toApiObject(EntityInstance entityInstance) {
-    ApiInstance instance = new ApiInstance();
+  private static ApiInstance toApiObject(ListInstance listInstance) {
     Map<String, ApiValueDisplay> attributes = new HashMap<>();
-    for (Map.Entry<Attribute, ValueDisplay> attributeValue :
-        entityInstance.getAttributeValues().entrySet()) {
-      attributes.put(
-          attributeValue.getKey().getName(), ToApiUtils.toApiObject(attributeValue.getValue()));
-    }
-
     Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets = new HashMap<>();
-    for (Map.Entry<HierarchyField, ValueDisplay> hierarchyFieldValue :
-        entityInstance.getHierarchyFieldValues().entrySet()) {
-      HierarchyField hierarchyField = hierarchyFieldValue.getKey();
-      ValueDisplay valueDisplay = hierarchyFieldValue.getValue();
+    List<ApiInstanceRelationshipFields> relationshipFieldSets = new ArrayList<>();
+    listInstance.getEntityFieldValues().entrySet().stream()
+        .forEach(
+            fieldValuePair -> {
+              ValueDisplayField field = fieldValuePair.getKey();
+              ValueDisplay value = fieldValuePair.getValue();
 
-      ApiInstanceHierarchyFields hierarchyFieldSet =
-          hierarchyFieldSets.get(hierarchyField.getHierarchy().getName());
-      if (hierarchyFieldSet == null) {
-        hierarchyFieldSet =
-            new ApiInstanceHierarchyFields().hierarchy(hierarchyField.getHierarchy().getName());
-        hierarchyFieldSets.put(hierarchyField.getHierarchy().getName(), hierarchyFieldSet);
-      }
-      switch (hierarchyField.getType()) {
-        case IS_MEMBER:
-          hierarchyFieldSet.isMember(valueDisplay.getValue().getBooleanVal());
-          break;
-        case IS_ROOT:
-          hierarchyFieldSet.isRoot(valueDisplay.getValue().getBooleanVal());
-          break;
-        case PATH:
-          if (valueDisplay != null) {
-            hierarchyFieldSet.path(valueDisplay.getValue().getStringVal());
-          }
-          break;
-        case NUM_CHILDREN:
-          hierarchyFieldSet.numChildren(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
-          break;
-        default:
-          throw new SystemException("Unknown hierarchy field type: " + hierarchyField.getType());
-      }
-    }
-
-    Map<String, ApiInstanceRelationshipFields> relationshipFieldSets = new HashMap<>();
-    for (Map.Entry<RelationshipField, ValueDisplay> relationshipFieldValue :
-        entityInstance.getRelationshipFieldValues().entrySet()) {
-      RelationshipField relationshipField = relationshipFieldValue.getKey();
-      ValueDisplay valueDisplay = relationshipFieldValue.getValue();
-
-      ApiInstanceRelationshipFields relationshipFieldSet =
-          relationshipFieldSets.get(relationshipField.getName());
-      if (relationshipFieldSet == null) {
-        relationshipFieldSet =
-            new ApiInstanceRelationshipFields()
-                .relatedEntity(
-                    relationshipField
-                        .getRelationship()
-                        .getRelatedEntity(relationshipField.getEntity())
-                        .getName())
-                .hierarchy(
-                    relationshipField.getHierarchy() == null
-                        ? null
-                        : relationshipField.getHierarchy().getName());
-        relationshipFieldSets.put(relationshipField.getName(), relationshipFieldSet);
-      }
-      switch (relationshipField.getType()) {
-        case COUNT:
-          if (valueDisplay != null) {
-            relationshipFieldSet.count(Math.toIntExact(valueDisplay.getValue().getInt64Val()));
-          }
-          break;
-        case DISPLAY_HINTS:
-          relationshipFieldSet.displayHints(valueDisplay.getValue().getStringVal());
-          break;
-        default:
-          throw new SystemException(
-              "Unknown relationship field type: " + relationshipField.getType());
-      }
-    }
-
-    return instance
+              if (field instanceof AttributeField) {
+                attributes.put(
+                    ((AttributeField) field).getAttribute().getName(),
+                    ToApiUtils.toApiObject(value));
+              } else if (field instanceof HierarchyPathField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets, ((HierarchyPathField) field).getHierarchy().getName())
+                    .setPath(value.getValue().getStringVal());
+              } else if (field instanceof HierarchyNumChildrenField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets,
+                        ((HierarchyNumChildrenField) field).getHierarchy().getName())
+                    .setNumChildren(Math.toIntExact(value.getValue().getInt64Val()));
+              } else if (field instanceof HierarchyIsRootField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets, ((HierarchyIsRootField) field).getHierarchy().getName())
+                    .setIsRoot(value.getValue().getBooleanVal());
+              } else if (field instanceof HierarchyIsMemberField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets,
+                        ((HierarchyIsMemberField) field).getHierarchy().getName())
+                    .setIsMember(value.getValue().getBooleanVal());
+              } else if (field instanceof RelatedEntityIdCountField) {
+                RelatedEntityIdCountField countField = (RelatedEntityIdCountField) field;
+                relationshipFieldSets.add(
+                    new ApiInstanceRelationshipFields()
+                        .relatedEntity(countField.getCountedEntity().getName())
+                        .hierarchy(
+                            countField.getHierarchy() == null
+                                ? null
+                                : countField.getHierarchy().getName())
+                        .count(Math.toIntExact(value.getValue().getInt64Val())));
+              }
+            });
+    return new ApiInstance()
         .attributes(attributes)
         .hierarchyFields(hierarchyFieldSets.values().stream().collect(Collectors.toList()))
-        .relationshipFields(relationshipFieldSets.values().stream().collect(Collectors.toList()));
+        .relationshipFields(relationshipFieldSets);
   }
 
-  private ApiDisplayHintList toApiObject(EntityHintResult entityHintResult) {
-    return new ApiDisplayHintList()
-        .sql(SqlFormatter.format(entityHintResult.getSql()))
-        .displayHints(
-            entityHintResult.getHintMap().entrySet().stream()
-                .map(
-                    attrHint -> {
-                      Attribute attr = attrHint.getKey();
-                      DisplayHint hint = attrHint.getValue();
-                      return new ApiDisplayHint()
-                          .attribute(ToApiUtils.toApiObject(attr))
-                          .displayHint(hint == null ? null : toApiObject(hint));
-                    })
-                .collect(Collectors.toList()));
-  }
-
-  private ApiDisplayHintDisplayHint toApiObject(DisplayHint displayHint) {
-    switch (displayHint.getType()) {
-      case ENUM:
-        EnumVals enumVals = (EnumVals) displayHint;
-        return new ApiDisplayHintDisplayHint()
-            .enumHint(
-                new ApiDisplayHintEnum()
-                    .enumHintValues(
-                        enumVals.getEnumValsList().stream()
-                            .map(
-                                ev ->
-                                    new ApiDisplayHintEnumEnumHintValues()
-                                        .enumVal(ToApiUtils.toApiObject(ev.getValueDisplay()))
-                                        .count(Math.toIntExact(ev.getCount())))
-                            .collect(Collectors.toList())));
-      case RANGE:
-        NumericRange numericRange = (NumericRange) displayHint;
-        return new ApiDisplayHintDisplayHint()
-            .numericRangeHint(
-                new ApiDisplayHintNumericRange()
-                    .min(numericRange.getMinVal())
-                    .max(numericRange.getMaxVal()));
-      default:
-        throw new SystemException("Unknown display hint type: " + displayHint.getType());
+  private static ApiInstanceHierarchyFields getHierarchyFieldSet(
+      Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets, String hierarchyName) {
+    if (!hierarchyFieldSets.containsKey(hierarchyName)) {
+      hierarchyFieldSets.put(hierarchyName, new ApiInstanceHierarchyFields());
     }
+    return hierarchyFieldSets.get(hierarchyName);
+  }
+
+  private ApiDisplayHint toApiObject(HintInstance hintInstance) {
+    ApiDisplayHintDisplayHint apiHint = null;
+    if (hintInstance.isRangeHint()) {
+      apiHint =
+          new ApiDisplayHintDisplayHint()
+              .enumHint(
+                  new ApiDisplayHintEnum()
+                      .enumHintValues(
+                          hintInstance.getEnumValueCounts().entrySet().stream()
+                              .map(
+                                  entry -> {
+                                    ValueDisplay attributeValueDisplay = entry.getKey();
+                                    Long count = entry.getValue();
+                                    return new ApiDisplayHintEnumEnumHintValues()
+                                        .enumVal(ToApiUtils.toApiObject(attributeValueDisplay))
+                                        .count(Math.toIntExact(count));
+                                  })
+                              .collect(Collectors.toList())));
+    } else if (hintInstance.isEnumHint()) {
+      apiHint =
+          new ApiDisplayHintDisplayHint()
+              .numericRangeHint(
+                  new ApiDisplayHintNumericRange()
+                      .min(hintInstance.getMin())
+                      .max(hintInstance.getMax()));
+    }
+    return new ApiDisplayHint()
+        .attribute(ToApiUtils.toApiObject(hintInstance.getAttribute()))
+        .displayHint(apiHint);
   }
 }

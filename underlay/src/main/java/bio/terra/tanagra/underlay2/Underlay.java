@@ -129,6 +129,10 @@ public final class Underlay {
     return indexSchema;
   }
 
+  public String getUiConfig() {
+    return uiConfig;
+  }
+
   public static Underlay fromConfig(SZBigQuery szBigQuery, SZUnderlay szUnderlay) {
     // Build the source and index table schemas.
     ConfigReader configReader =
@@ -177,7 +181,7 @@ public final class Underlay {
         entityGroups,
         sourceSchema,
         indexSchema,
-            uiConfig);
+        uiConfig);
   }
 
   @VisibleForTesting

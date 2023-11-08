@@ -11,7 +11,7 @@ public class HierarchyNumChildrenField extends SingleColumnField {
   private final ITEntityMain indexTable;
   private final Hierarchy hierarchy;
 
-  protected HierarchyNumChildrenField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
+  public HierarchyNumChildrenField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.hierarchy = hierarchy;
   }
@@ -24,5 +24,9 @@ public class HierarchyNumChildrenField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.INT64;
+  }
+
+  public Hierarchy getHierarchy() {
+    return hierarchy;
   }
 }

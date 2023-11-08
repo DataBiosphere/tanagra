@@ -3,7 +3,7 @@ package bio.terra.tanagra.api.omop;
 import bio.terra.tanagra.api.BaseQueriesTest;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -18,14 +18,14 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
 
   @Test
   void hierarchyRootFilter() throws IOException {
-    // filter for "condition" entity instances that are root nodes in the "standard" hierarchy
-    hierarchyRootFilter("standard");
+    // filter for "condition" entity instances that are root nodes in the "default" hierarchy
+    hierarchyRootFilter("default");
   }
 
   @Test
   void hierarchyMemberFilter() throws IOException {
-    // filter for "condition" entity instances that are members of the "standard" hierarchy
-    hierarchyMemberFilter("standard");
+    // filter for "condition" entity instances that are members of the "default" hierarchy
+    hierarchyMemberFilter("default");
   }
 
   @Test
@@ -33,7 +33,7 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
     // filter for "condition" entity instances that are children of the "condition" entity
     // instance with concept_id=201826
     // i.e. give me all the children of "Type 2 diabetes mellitus"
-    hierarchyParentFilter("standard", 201_826L, "diabetes");
+    hierarchyParentFilter("default", 201_826L, "diabetes");
   }
 
   @Test
@@ -41,7 +41,7 @@ public abstract class OmopConditionTest extends BaseQueriesTest {
     // filter for "condition" entity instances that are descendants of the "condition" entity
     // instance with concept_id=201826
     // i.e. give me all the descendants of "Type 2 diabetes mellitus"
-    hierarchyAncestorFilter("standard", 201_826L, "diabetes");
+    hierarchyAncestorFilter("default", 201_826L, "diabetes");
   }
 
   @Test

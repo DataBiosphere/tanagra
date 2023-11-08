@@ -36,11 +36,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class EntityQueryRunner {
   private EntityQueryRunner() {}
 
   public static ListQueryResult run(ListQueryRequest apiQueryRequest, QueryExecutor queryExecutor) {
+    // ==================================================================
+    // Execute the SQL query.
+    QueryRequest queryRequest = buildQueryRequest(apiQueryRequest);
+    QueryResult queryResult = queryExecutor.execute(queryRequest);
+
+    // ==================================================================
+    // Convert the SQL query results into entity query results. (SQL-> API)
+    List<ListInstance> listInstances = new ArrayList<>();
+    Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
+    while (rowResultsItr.hasNext()) {
+      listInstances.add(
+          ListInstance.fromRowResult(rowResultsItr.next(), apiQueryRequest.getSelectFields()));
+    }
+    return new ListQueryResult(
+        queryRequest.getSql(), listInstances, queryResult.getNextPageMarker());
+  }
+
+  public static QueryRequest buildQueryRequest(ListQueryRequest apiQueryRequest) {
     // ==================================================================
     // Convert the entity query into a SQL query. (API -> SQL)
     ITEntityMain indexTable =
@@ -87,30 +106,45 @@ public final class EntityQueryRunner {
             .orderBy(orderByVars)
             .limit(apiQueryRequest.getLimit())
             .build();
-
-    // ==================================================================
-    // Execute the SQL query.
-    QueryResult queryResult =
-        queryExecutor.execute(
-            new QueryRequest(
-                query.renderSQL(),
-                new ColumnHeaderSchema(columnSchemas),
-                apiQueryRequest.getPageMarker(),
-                apiQueryRequest.getPageSize()));
-
-    // ==================================================================
-    // Convert the SQL query results into entity query results. (SQL-> API)
-    List<ListInstance> listInstances = new ArrayList<>();
-    Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
-    while (rowResultsItr.hasNext()) {
-      listInstances.add(
-          ListInstance.fromRowResult(rowResultsItr.next(), apiQueryRequest.getSelectFields()));
-    }
-    return new ListQueryResult(query.renderSQL(), listInstances, queryResult.getNextPageMarker());
+    return new QueryRequest(
+        query.renderSQL(),
+        new ColumnHeaderSchema(columnSchemas),
+        apiQueryRequest.getPageMarker(),
+        apiQueryRequest.getPageSize());
   }
 
   public static CountQueryResult run(
       CountQueryRequest apiQueryRequest, QueryExecutor queryExecutor) {
+    // ==================================================================
+    // Execute the SQL query.
+    Pair<QueryRequest, EntityIdCountField> queryRequestAndCountField =
+        buildQueryRequestAndCountField(apiQueryRequest);
+    QueryRequest queryRequest = queryRequestAndCountField.getLeft();
+    QueryResult queryResult = queryExecutor.execute(queryRequest);
+
+    // ==================================================================
+    // Convert the SQL query results into entity query results. (SQL-> API)
+    List<CountInstance> countInstances = new ArrayList<>();
+    Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
+    while (rowResultsItr.hasNext()) {
+      countInstances.add(
+          CountInstance.fromRowResult(
+              rowResultsItr.next(),
+              apiQueryRequest.getGroupByFields(),
+              queryRequestAndCountField.getRight()));
+    }
+    // TODO: If there are any attribute fields with excludeDisplay=true, query the entity-level
+    // hints to set the displays.
+    return new CountQueryResult(
+        queryRequest.getSql(), countInstances, queryResult.getNextPageMarker());
+  }
+
+  public static QueryRequest buildQueryRequest(CountQueryRequest apiQueryRequest) {
+    return buildQueryRequestAndCountField(apiQueryRequest).getLeft();
+  }
+
+  private static Pair<QueryRequest, EntityIdCountField> buildQueryRequestAndCountField(
+      CountQueryRequest apiQueryRequest) {
     // ==================================================================
     // Convert the entity query into a SQL query. (API -> SQL)
     ITEntityMain indexTable =
@@ -160,29 +194,13 @@ public final class EntityQueryRunner {
             .where(filterVar)
             .groupBy(groupByFieldVars)
             .build();
-
-    // ==================================================================
-    // Execute the SQL query.
-    QueryResult queryResult =
-        queryExecutor.execute(
-            new QueryRequest(
-                query.renderSQL(),
-                new ColumnHeaderSchema(selectColumnSchemas),
-                apiQueryRequest.getPageMarker(),
-                apiQueryRequest.getPageSize()));
-
-    // ==================================================================
-    // Convert the SQL query results into entity query results. (SQL-> API)
-    List<CountInstance> countInstances = new ArrayList<>();
-    Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
-    while (rowResultsItr.hasNext()) {
-      countInstances.add(
-          CountInstance.fromRowResult(
-              rowResultsItr.next(), apiQueryRequest.getGroupByFields(), countIdEntityField));
-    }
-    // TODO: If there are any attribute fields with excludeDisplay=true, query the entity-level
-    // hints to set the displays.
-    return new CountQueryResult(query.renderSQL(), countInstances, queryResult.getNextPageMarker());
+    return Pair.of(
+        new QueryRequest(
+            query.renderSQL(),
+            new ColumnHeaderSchema(selectColumnSchemas),
+            apiQueryRequest.getPageMarker(),
+            apiQueryRequest.getPageSize()),
+        countIdEntityField);
   }
 
   public static HintQueryResult run(HintQueryRequest apiQueryRequest, QueryExecutor queryExecutor) {

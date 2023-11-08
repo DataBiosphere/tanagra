@@ -40,6 +40,10 @@ public final class HintInstance {
     return isRangeHint;
   }
 
+  public boolean isEnumHint() {
+    return !isRangeHint;
+  }
+
   public double getMin() {
     return min;
   }

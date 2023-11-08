@@ -1,16 +1,24 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.query.filter.HierarchyRootFilter;
+import bio.terra.tanagra.api2.field.AttributeField;
+import bio.terra.tanagra.api2.field.HierarchyIsMemberField;
+import bio.terra.tanagra.api2.field.HierarchyIsRootField;
+import bio.terra.tanagra.api2.field.HierarchyNumChildrenField;
+import bio.terra.tanagra.api2.field.HierarchyPathField;
+import bio.terra.tanagra.api2.field.ValueDisplayField;
+import bio.terra.tanagra.api2.filter.AttributeFilter;
+import bio.terra.tanagra.api2.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api2.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -24,13 +32,28 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
 
   @Test
   void hierarchyRootFilterLoinc() throws IOException {
-    // filter for "measurement" entity instances that are root nodes in the "standard" hierarchy
-    HierarchyRootFilter hierarchyRootFilter =
-        new HierarchyRootFilter(getEntity().getHierarchy("standard"));
+    // Select all attributes and hierarchy fields.
+    Hierarchy hierarchy = getEntity().getHierarchy("default");
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    getEntity().getAttributes().stream()
+        .forEach(
+            attribute ->
+                selectFields.add(
+                    new AttributeField(getUnderlay(), getEntity(), attribute, false, false)));
+    selectFields.add(new HierarchyPathField(getUnderlay(), getEntity(), hierarchy));
+    selectFields.add(new HierarchyNumChildrenField(getUnderlay(), getEntity(), hierarchy));
+    selectFields.add(new HierarchyIsRootField(getUnderlay(), getEntity(), hierarchy));
+    selectFields.add(new HierarchyIsMemberField(getUnderlay(), getEntity(), hierarchy));
+
+    // filter for "measurement" entity instances that are root nodes in the "default" hierarchy
+    HierarchyIsRootFilter hierarchyIsRootFilter =
+        new HierarchyIsRootFilter(getUnderlay(), getEntity(), hierarchy);
 
     // filter for "measurement" entity instances that have the "LOINC" vocabulary
     AttributeFilter vocabularyFilter =
         new AttributeFilter(
+            getUnderlay(),
+            getEntity(),
             getEntity().getAttribute("vocabulary"),
             BinaryFilterVariable.BinaryOperator.EQUALS,
             new Literal("LOINC"));
@@ -39,31 +62,47 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
     BooleanAndOrFilter rootAndLoinc =
         new BooleanAndOrFilter(
             BooleanAndOrFilterVariable.LogicalOperator.AND,
-            List.of(hierarchyRootFilter, vocabularyFilter));
+            List.of(hierarchyIsRootFilter, vocabularyFilter));
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy("standard").getFields())
-            .filter(rootAndLoinc)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            getUnderlay(),
+            getEntity(),
+            selectFields,
+            rootAndLoinc,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/measurement-hierarchyRootFilterLOINC.sql");
   }
 
   @Test
   void hierarchyRootFilterSnomed() throws IOException {
-    // filter for "measurement" entity instances that are root nodes in the "standard" hierarchy
-    HierarchyRootFilter hierarchyRootFilter =
-        new HierarchyRootFilter(getEntity().getHierarchy("standard"));
+    // Select all attributes and hierarchy fields.
+    Hierarchy hierarchy = getEntity().getHierarchy("default");
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    getEntity().getAttributes().stream()
+        .forEach(
+            attribute ->
+                selectFields.add(
+                    new AttributeField(getUnderlay(), getEntity(), attribute, false, false)));
+    selectFields.add(new HierarchyPathField(getUnderlay(), getEntity(), hierarchy));
+    selectFields.add(new HierarchyNumChildrenField(getUnderlay(), getEntity(), hierarchy));
+    selectFields.add(new HierarchyIsRootField(getUnderlay(), getEntity(), hierarchy));
+    selectFields.add(new HierarchyIsMemberField(getUnderlay(), getEntity(), hierarchy));
+
+    // filter for "measurement" entity instances that are root nodes in the "default" hierarchy
+    HierarchyIsRootFilter hierarchyIsRootFilter =
+        new HierarchyIsRootFilter(getUnderlay(), getEntity(), hierarchy);
 
     // filter for "measurement" entity instances that have the "SNOMED" vocabulary
     AttributeFilter vocabularyFilter =
         new AttributeFilter(
+            getUnderlay(),
+            getEntity(),
             getEntity().getAttribute("vocabulary"),
             BinaryFilterVariable.BinaryOperator.EQUALS,
             new Literal("SNOMED"));
@@ -72,19 +111,20 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
     BooleanAndOrFilter rootAndLoinc =
         new BooleanAndOrFilter(
             BooleanAndOrFilterVariable.LogicalOperator.AND,
-            List.of(hierarchyRootFilter, vocabularyFilter));
+            List.of(hierarchyIsRootFilter, vocabularyFilter));
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy("standard").getFields())
-            .filter(rootAndLoinc)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            getUnderlay(),
+            getEntity(),
+            selectFields,
+            rootAndLoinc,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/measurement-hierarchyRootFilterSNOMED.sql");
   }
 
@@ -94,7 +134,7 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
     // instance with concept_id=37072239
     // i.e. give me all the children of "Glucose tolerance 2 hours panel | Serum or Plasma |
     // Challenge Bank Panels"
-    hierarchyParentFilter("standard", 37_072_239L, "glucoseTolerance");
+    hierarchyParentFilter("default", 37_072_239L, "glucoseTolerance");
   }
 
   @Test
@@ -102,7 +142,7 @@ public abstract class OmopMeasurementTest extends BaseQueriesTest {
     // filter for "measurement" entity instances that are descendants of the "measurement" entity
     // instance with concept_id=37048668
     // i.e. give me all the descendants of "Glucose tolerance 2 hours panel"
-    hierarchyAncestorFilter("standard", 37_048_668L, "glucoseTolerance");
+    hierarchyAncestorFilter("default", 37_048_668L, "glucoseTolerance");
   }
 
   @Test

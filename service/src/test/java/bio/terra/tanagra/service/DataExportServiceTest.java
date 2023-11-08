@@ -9,9 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api2.field.AttributeField;
+import bio.terra.tanagra.api2.field.ValueDisplayField;
+import bio.terra.tanagra.api2.filter.AttributeFilter;
+import bio.terra.tanagra.api2.filter.EntityFilter;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
@@ -32,8 +34,8 @@ import bio.terra.tanagra.service.query.ReviewQueryOrderBy;
 import bio.terra.tanagra.service.query.ReviewQueryRequest;
 import bio.terra.tanagra.service.query.ReviewQueryResult;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -43,6 +45,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -107,7 +110,8 @@ public class DataExportServiceTest {
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotation key {}", annotationKey1.getId());
 
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
     Review review1 =
         reviewService.createReview(
             study1.getId(),
@@ -115,6 +119,8 @@ public class DataExportServiceTest {
             Review.builder().size(10),
             userEmail,
             new AttributeFilter(
+                underlay,
+                primaryEntity,
                 primaryEntity.getAttribute("gender"),
                 BinaryFilterVariable.BinaryOperator.EQUALS,
                 new Literal(8532)));
@@ -223,7 +229,7 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()),
+            List.of(buildListQueryRequest()),
             buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
@@ -270,7 +276,7 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()),
+            List.of(buildListQueryRequest()),
             buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
@@ -331,7 +337,7 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()),
+            List.of(buildListQueryRequest()),
             buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
@@ -352,19 +358,24 @@ public class DataExportServiceTest {
         () -> new ObjectMapper().readTree(fileContents)); // Notebook file is valid json.
   }
 
-  private EntityQueryRequest buildEntityQueryRequest() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
-    return new EntityQueryRequest.Builder()
-        .entity(primaryEntity)
-        .mappingType(Underlay.MappingType.INDEX)
-        .selectAttributes(primaryEntity.getAttributes())
-        .limit(5)
-        .build();
+  private ListQueryRequest buildListQueryRequest() {
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
+
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        primaryEntity.getAttributes().stream()
+            .map(attribute -> new AttributeField(underlay, primaryEntity, attribute, false, false))
+            .collect(Collectors.toList());
+    return new ListQueryRequest(underlay, primaryEntity, selectFields, null, null, 5, null, null);
   }
 
   private EntityFilter buildPrimaryEntityFilter() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
     return new AttributeFilter(
+        underlay,
+        primaryEntity,
         primaryEntity.getAttribute("year_of_birth"),
         BinaryFilterVariable.BinaryOperator.EQUALS,
         new Literal(11L));

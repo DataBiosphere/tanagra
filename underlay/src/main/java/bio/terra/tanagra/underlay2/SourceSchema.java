@@ -251,7 +251,7 @@ public final class SourceSchema {
           new STRelationshipIdPairs(
               idPairsTable,
               szCriteriaOccurrence.name,
-                  primaryEntityName,
+              primaryEntityName,
               szCriteriaOccurrence.criteriaEntity,
               szCriteriaOccurrence.primaryCriteriaRelationship.primaryEntityIdFieldName,
               szCriteriaOccurrence.primaryCriteriaRelationship.criteriaEntityIdFieldName));
@@ -269,7 +269,7 @@ public final class SourceSchema {
                 relationshipIdPairTables.add(
                     new STRelationshipIdPairs(
                         idPairsTable,
-                            szCriteriaOccurrence.name,
+                        szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         szCriteriaOccurrence.criteriaEntity,
                         szOccurrenceEntity.criteriaRelationship.occurrenceEntityIdFieldName,
@@ -285,9 +285,9 @@ public final class SourceSchema {
                 relationshipIdPairTables.add(
                     new STRelationshipIdPairs(
                         idPairsTable,
-                            szCriteriaOccurrence.name,
+                        szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
-                            primaryEntityName,
+                        primaryEntityName,
                         szOccurrenceEntity.primaryRelationship.occurrenceEntityIdFieldName,
                         szOccurrenceEntity.primaryRelationship.primaryEntityIdFieldName));
               }

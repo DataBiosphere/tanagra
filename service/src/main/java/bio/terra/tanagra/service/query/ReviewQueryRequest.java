@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.query;
 
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api2.filter.EntityFilter;
 import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.service.query.filter.AnnotationFilter;
-import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

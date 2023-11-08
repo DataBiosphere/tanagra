@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api2.filter.AttributeFilter;
+import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
@@ -30,9 +31,9 @@ import bio.terra.tanagra.service.query.ReviewQueryOrderBy;
 import bio.terra.tanagra.service.query.ReviewQueryRequest;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.service.query.filter.AnnotationFilter;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -873,7 +874,8 @@ public class ReviewInstanceTest {
 
   @Test
   void filters() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
 
     // Filter by an entity attribute.
     List<ReviewInstance> reviewInstancesByAttr =
@@ -885,6 +887,8 @@ public class ReviewInstanceTest {
                 ReviewQueryRequest.builder()
                     .entityFilter(
                         new AttributeFilter(
+                            underlay,
+                            primaryEntity,
                             primaryEntity.getAttribute("gender"),
                             BinaryFilterVariable.BinaryOperator.EQUALS,
                             new Literal(8_532L)))
@@ -937,6 +941,8 @@ public class ReviewInstanceTest {
                 ReviewQueryRequest.builder()
                     .entityFilter(
                         new AttributeFilter(
+                            underlay,
+                            primaryEntity,
                             primaryEntity.getAttribute("gender"),
                             BinaryFilterVariable.BinaryOperator.EQUALS,
                             new Literal(8_507L)))

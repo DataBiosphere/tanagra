@@ -7,15 +7,22 @@ import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
+import javax.annotation.Nullable;
 
 public class RelatedEntityIdCountField extends SingleColumnField {
   private final ITEntityMain indexTable;
+  private final Entity countedEntity;
   private final EntityGroup entityGroup;
-  private final Hierarchy hierarchy;
+  private final @Nullable Hierarchy hierarchy;
 
-  protected RelatedEntityIdCountField(
-      Underlay underlay, Entity countForEntity, EntityGroup entityGroup, Hierarchy hierarchy) {
+  public RelatedEntityIdCountField(
+      Underlay underlay,
+      Entity countForEntity,
+      Entity countedEntity,
+      EntityGroup entityGroup,
+      @Nullable Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(countForEntity.getName());
+    this.countedEntity = countedEntity;
     this.entityGroup = entityGroup;
     this.hierarchy = hierarchy;
   }
@@ -29,5 +36,13 @@ public class RelatedEntityIdCountField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.INT64;
+  }
+
+  public Entity getCountedEntity() {
+    return countedEntity;
+  }
+
+  public Hierarchy getHierarchy() {
+    return hierarchy;
   }
 }

@@ -1,16 +1,22 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.filter.RelationshipFilter;
+import bio.terra.tanagra.api2.field.AttributeField;
+import bio.terra.tanagra.api2.field.ValueDisplayField;
+import bio.terra.tanagra.api2.filter.AttributeFilter;
+import bio.terra.tanagra.api2.filter.RelationshipFilter;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Relationship;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Relationship;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.GroupItems;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 public abstract class OmopIngredientTest extends BaseQueriesTest {
@@ -23,14 +29,14 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
 
   @Test
   void hierarchyRootFilter() throws IOException {
-    // filter for "ingredient" entity instances that are root nodes in the "standard" hierarchy
-    hierarchyRootFilter("standard");
+    // filter for "ingredient" entity instances that are root nodes in the "default" hierarchy
+    hierarchyRootFilter("default");
   }
 
   @Test
   void hierarchyMemberFilter() throws IOException {
-    // filter for "ingredient" entity instances that are members of the "standard" hierarchy
-    hierarchyMemberFilter("standard");
+    // filter for "ingredient" entity instances that are members of the "default" hierarchy
+    hierarchyMemberFilter("default");
   }
 
   @Test
@@ -38,7 +44,7 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
     // filter for "ingredient" entity instances that are children of the "ingredient" entity
     // instance with concept_id=21603396
     // i.e. give me all the children of "Opium alkaloids and derivatives"
-    hierarchyParentFilter("standard", 21_603_396L, "opioids");
+    hierarchyParentFilter("default", 21_603_396L, "opioids");
   }
 
   @Test
@@ -46,18 +52,23 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
     // filter for "ingredient" entity instances that are descendants of the "ingredient" entity
     // instance with concept_id=21600360
     // i.e. give me all the descendants of "Other cardiac preparations"
-    hierarchyAncestorFilter("standard", 21_600_360L, "cardiacPreparations");
+    hierarchyAncestorFilter("default", 21_600_360L, "cardiacPreparations");
   }
 
   @Test
   void relationshipFilter() throws IOException {
-    Entity brandEntity = underlayService.getEntity(getUnderlayName(), "brand");
-    Relationship brandIngredientRelationship = getEntity().getRelationship(brandEntity);
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
+    Entity brandEntity = underlay.getEntity("brand");
+    GroupItems brandIngredientEntityGroup = (GroupItems) underlay.getEntityGroup("brandIngredient");
+    Relationship brandIngredientRelationship =
+        brandIngredientEntityGroup.getGroupItemsRelationship();
 
     // filter for "brand" entity instances that have concept_id=19082059
     // i.e. give me the brand "Tylenol Chest Congestion"
     AttributeFilter tylenolChestCongestion =
         new AttributeFilter(
+            underlay,
+            brandEntity,
             brandEntity.getAttribute("id"),
             BinaryFilterVariable.BinaryOperator.EQUALS,
             new Literal(19_082_059L));
@@ -67,6 +78,8 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
     // i.e. give me all the ingredients in "Tylenol Chest Congestion"
     RelationshipFilter ingredientsInTylenolChestCongestion =
         new RelationshipFilter(
+            underlay,
+            brandIngredientEntityGroup,
             getEntity(),
             brandIngredientRelationship,
             tylenolChestCongestion,
@@ -74,16 +87,23 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
             /*groupByCountOperator=*/ null,
             /*groupByCountValue=*/ null);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .filter(ingredientsInTylenolChestCongestion)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        getEntity().getAttributes().stream()
+            .map(attribute -> new AttributeField(underlay, getEntity(), attribute, false, false))
+            .collect(Collectors.toList());
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            getEntity(),
+            selectFields,
+            ingredientsInTylenolChestCongestion,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/ingredient-relationshipFilter.sql");
   }
 

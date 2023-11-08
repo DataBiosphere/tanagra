@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.query;
 
+import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

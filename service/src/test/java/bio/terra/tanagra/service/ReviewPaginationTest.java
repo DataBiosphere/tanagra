@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api2.filter.AttributeFilter;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
@@ -20,7 +20,8 @@ import bio.terra.tanagra.service.query.ReviewQueryOrderBy;
 import bio.terra.tanagra.service.query.ReviewQueryRequest;
 import bio.terra.tanagra.service.query.ReviewQueryResult;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,7 +71,8 @@ public class ReviewPaginationTest {
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
     review1 =
         reviewService.createReview(
             study1.getId(),
@@ -78,6 +80,8 @@ public class ReviewPaginationTest {
             Review.builder().size(10),
             userEmail,
             new AttributeFilter(
+                underlay,
+                primaryEntity,
                 primaryEntity.getAttribute("gender"),
                 BinaryFilterVariable.BinaryOperator.EQUALS,
                 new Literal(8532)));

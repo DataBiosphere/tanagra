@@ -14,7 +14,7 @@ public class HierarchyIsRootField extends SingleColumnField {
   private final ITEntityMain indexTable;
   private final Hierarchy hierarchy;
 
-  protected HierarchyIsRootField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
+  public HierarchyIsRootField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.hierarchy = hierarchy;
   }
@@ -37,5 +37,9 @@ public class HierarchyIsRootField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.BOOLEAN;
+  }
+
+  public Hierarchy getHierarchy() {
+    return hierarchy;
   }
 }

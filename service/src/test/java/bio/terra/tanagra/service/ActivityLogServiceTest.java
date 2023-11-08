@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api2.field.AttributeField;
+import bio.terra.tanagra.api2.field.ValueDisplayField;
+import bio.terra.tanagra.api2.filter.AttributeFilter;
+import bio.terra.tanagra.api2.filter.EntityFilter;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.query.CellValue;
@@ -30,8 +32,9 @@ import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -198,16 +201,21 @@ public class ActivityLogServiceTest {
     cohort1 =
         cohortService.getCohort(
             study1.getId(), cohort1.getId()); // Get the current cohort revision, post-review.
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(primaryEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(primaryEntity.getAttributes())
-            .limit(5)
-            .build();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
+    // Select all attributes.
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    primaryEntity.getAttributes().stream()
+        .forEach(
+            attribute ->
+                selectFields.add(
+                    new AttributeField(underlay, primaryEntity, attribute, false, false)));
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(underlay, primaryEntity, selectFields, null, null, 5, null, null);
     EntityFilter primaryEntityFilter =
         new AttributeFilter(
+            underlay,
+            primaryEntity,
             primaryEntity.getAttribute("year_of_birth"),
             BinaryFilterVariable.BinaryOperator.GREATER_THAN_OR_EQUAL,
             new Literal(1980L));
@@ -218,7 +226,7 @@ public class ActivityLogServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(entityQueryRequest),
+            List.of(listQueryRequest),
             primaryEntityFilter,
             USER_EMAIL_2);
     assertNotNull(exportResult);

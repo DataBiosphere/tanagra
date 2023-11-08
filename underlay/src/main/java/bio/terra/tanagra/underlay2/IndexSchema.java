@@ -272,7 +272,7 @@ public final class IndexSchema {
               nameHelper,
               indexDataPointer,
               szCriteriaOccurrence.name,
-                  primaryEntityName,
+              primaryEntityName,
               szCriteriaOccurrence.criteriaEntity));
     }
     szCriteriaOccurrence.occurrenceEntities.stream()
@@ -284,7 +284,7 @@ public final class IndexSchema {
                     new ITRelationshipIdPairs(
                         nameHelper,
                         indexDataPointer,
-                            szCriteriaOccurrence.name,
+                        szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         szCriteriaOccurrence.criteriaEntity));
               }
@@ -294,9 +294,9 @@ public final class IndexSchema {
                     new ITRelationshipIdPairs(
                         nameHelper,
                         indexDataPointer,
-                            szCriteriaOccurrence.name,
+                        szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
-                            primaryEntityName));
+                        primaryEntityName));
               }
               if (szOccurrenceEntity.attributesWithInstanceLevelHints != null) {
                 // InstanceLevelDisplayHints table.

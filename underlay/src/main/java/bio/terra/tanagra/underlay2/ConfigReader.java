@@ -59,8 +59,7 @@ public final class ConfigReader {
 
   public SZGroupItems readGroupItems(String groupItemsPath) {
     if (!szGroupItemsCache.containsKey(groupItemsPath)) {
-      szGroupItemsCache.put(
-          groupItemsPath, ConfigReader.deserializeGroupItems(groupItemsPath));
+      szGroupItemsCache.put(groupItemsPath, ConfigReader.deserializeGroupItems(groupItemsPath));
     }
     return szGroupItemsCache.get(groupItemsPath);
   }
@@ -93,6 +92,7 @@ public final class ConfigReader {
     }
     return entityGroupSqlCache.get(Pair.of(entityGroupPath, fileName));
   }
+
   public String readUIConfig(String fileName) {
     Path uiConfigFile = resolveUnderlayDir(underlay).resolve(fileName);
     return FileUtils.readStringFromFile(FileUtils.getResourceFileStream(uiConfigFile));
@@ -219,18 +219,27 @@ public final class ConfigReader {
 
   private static Path resolveEntityDir(String entityPath) {
     Pair<String, String> underlayEntity = parseEntityOrGroupPath(entityPath);
-    return Path.of(RESOURCES_CONFIG_PATH).resolve(DATA_MAPPING_CONFIG_SUBDIR).resolve(underlayEntity.getLeft()).resolve(ENTITY_CONFIG_SUBDIR).resolve(underlayEntity.getRight());
+    return Path.of(RESOURCES_CONFIG_PATH)
+        .resolve(DATA_MAPPING_CONFIG_SUBDIR)
+        .resolve(underlayEntity.getLeft())
+        .resolve(ENTITY_CONFIG_SUBDIR)
+        .resolve(underlayEntity.getRight());
   }
 
   private static Path resolveEntityGroupDir(String entityGroupPath) {
     Pair<String, String> underlayEntityGroup = parseEntityOrGroupPath(entityGroupPath);
-    return Path.of(RESOURCES_CONFIG_PATH).resolve(DATA_MAPPING_CONFIG_SUBDIR).resolve(underlayEntityGroup.getLeft()).resolve(ENTITY_GROUP_CONFIG_SUBDIR).resolve(underlayEntityGroup.getRight());
+    return Path.of(RESOURCES_CONFIG_PATH)
+        .resolve(DATA_MAPPING_CONFIG_SUBDIR)
+        .resolve(underlayEntityGroup.getLeft())
+        .resolve(ENTITY_GROUP_CONFIG_SUBDIR)
+        .resolve(underlayEntityGroup.getRight());
   }
 
   private static Pair<String, String> parseEntityOrGroupPath(String path) {
     String[] underlayEntityPathSplit = path.split("/");
-    if (underlayEntityPathSplit.length != 2) {
-      throw new InvalidConfigException("Invalid underlay/entity or underlay/entityGroup path: " + path);
+    if (underlayEntityPathSplit.length <= 1) {
+      throw new InvalidConfigException(
+          "Invalid underlay/entity or underlay/entityGroup path: " + path);
     }
     String underlay = underlayEntityPathSplit[0];
     String entityOrGroup = underlayEntityPathSplit[1];

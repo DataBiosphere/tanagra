@@ -1,10 +1,10 @@
 package bio.terra.tanagra.service.query;
 
+import bio.terra.tanagra.api2.query.ValueDisplay;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -49,7 +49,7 @@ public class ReviewQueryOrderBy implements Comparator<ReviewInstance> {
       ValueDisplay valueDisplay1 = o1.getAttributeValues().get(getAttribute());
       ValueDisplay valueDisplay2 = o2.getAttributeValues().get(getAttribute());
 
-      if (getAttribute().getType().equals(Attribute.Type.KEY_AND_DISPLAY)) {
+      if (getAttribute().isValueDisplay()) {
         returnVal = valueDisplay1.getDisplay().compareTo(valueDisplay2.getDisplay());
       } else {
         returnVal = valueDisplay1.getValue().compareTo(valueDisplay2.getValue());

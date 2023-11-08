@@ -13,7 +13,7 @@ public class HierarchyIsMemberField extends SingleColumnField {
   private final ITEntityMain indexTable;
   private final Hierarchy hierarchy;
 
-  protected HierarchyIsMemberField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
+  public HierarchyIsMemberField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.hierarchy = hierarchy;
   }
@@ -36,5 +36,9 @@ public class HierarchyIsMemberField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.BOOLEAN;
+  }
+
+  public Hierarchy getHierarchy() {
+    return hierarchy;
   }
 }

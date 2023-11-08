@@ -11,7 +11,7 @@ public class HierarchyPathField extends SingleColumnField {
   private final ITEntityMain indexTable;
   private final Hierarchy hierarchy;
 
-  protected HierarchyPathField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
+  public HierarchyPathField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.hierarchy = hierarchy;
   }
@@ -24,5 +24,9 @@ public class HierarchyPathField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.STRING;
+  }
+
+  public Hierarchy getHierarchy() {
+    return hierarchy;
   }
 }

@@ -10,8 +10,8 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ public class UnderlayServiceTest {
     assertEquals(underlayName, oneUnderlay.get(0).getName());
 
     // List entities.
-    List<Entity> allEntities = underlayService.listEntities(underlayName);
+    List<Entity> allEntities = underlayService.getUnderlay(underlayName).getEntities();
     assertEquals(12, allEntities.size());
   }
 
@@ -59,6 +59,7 @@ public class UnderlayServiceTest {
 
     // Get an invalid entity.
     assertThrows(
-        NotFoundException.class, () -> underlayService.getEntity("cms_synpuf", "invalid entity"));
+        NotFoundException.class,
+        () -> underlayService.getUnderlay("cms_synpuf").getEntity("invalid entity"));
   }
 }

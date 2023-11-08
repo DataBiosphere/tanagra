@@ -1,12 +1,13 @@
 package bio.terra.tanagra.service.artifact;
 
-import bio.terra.tanagra.api.query.EntityCountRequest;
-import bio.terra.tanagra.api.query.EntityCountResult;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api2.filter.EntityFilter;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.count.CountQueryRequest;
+import bio.terra.tanagra.api2.query.count.CountQueryResult;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.DataPointer;
+import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.OrderByVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryRequest;
@@ -18,8 +19,8 @@ import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.AttributeMapping;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
@@ -152,37 +153,40 @@ public class CohortService {
   /** Build a count query of all primary entity instance ids in the cohort. */
   public long getRecordsCount(String underlayName, EntityFilter entityFilter) {
     Underlay underlay = underlayService.getUnderlay(underlayName);
-    EntityCountResult entityCountResult =
-        underlayService.countEntityInstances(
-            new EntityCountRequest.Builder()
-                .entity(underlay.getPrimaryEntity())
-                .mappingType(Underlay.MappingType.INDEX)
-                .attributes(List.of())
-                .filter(entityFilter)
-                .build());
-    LOGGER.debug("getRecordsCount SQL: {}", entityCountResult.getSql());
-    if (entityCountResult.getEntityCounts().size() > 1) {
+    CountQueryRequest countQueryRequest =
+        new CountQueryRequest(
+            underlay, underlay.getPrimaryEntity(), List.of(), entityFilter, null, null);
+    CountQueryResult countQueryResult =
+        EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
+    LOGGER.debug("getRecordsCount SQL: {}", countQueryResult.getSql());
+    if (countQueryResult.getCountInstances().size() > 1) {
       LOGGER.warn(
-          "getRecordsCount returned >1 count: {}", entityCountResult.getEntityCounts().size());
+          "getRecordsCount returned >1 count: {}", countQueryResult.getCountInstances().size());
     }
-    return entityCountResult.getEntityCounts().get(0).getCount();
+    return countQueryResult.getCountInstances().get(0).getCount();
   }
 
   /** Build a query of a random sample of primary entity instance ids in the cohort. */
   public QueryResult getRandomSample(
       String studyId, String cohortId, EntityFilter entityFilter, int sampleSize) {
-    // Build a query of a random sample of primary entity instance ids in the cohort.
     Cohort cohort = getCohort(studyId, cohortId);
     Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+
+    // Build a query of a random sample of primary entity instance ids in the cohort.
+    // TODO: Make a random sample query part of the underlay/api, so we're not building Query
+    // objects outside the underlay sub-project.
+    ITEntityMain primaryEntityIndexTable =
+        underlay.getIndexSchema().getEntityMain(underlay.getPrimaryEntity().getName());
     TableVariable entityTableVar =
-        TableVariable.forPrimary(
-            underlay.getPrimaryEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer());
+        TableVariable.forPrimary(primaryEntityIndexTable.getTablePointer());
     List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
-    AttributeMapping idAttributeMapping =
-        underlay.getPrimaryEntity().getIdAttribute().getMapping(Underlay.MappingType.INDEX);
+    FieldVariable idFieldVar =
+        primaryEntityIndexTable
+            .getAttributeValueField(underlay.getPrimaryEntity().getIdAttribute().getName())
+            .buildVariable(entityTableVar, tableVars);
     Query query =
         new Query.Builder()
-            .select(idAttributeMapping.buildFieldVariables(entityTableVar, tableVars))
+            .select(List.of(idFieldVar))
             .tables(tableVars)
             .where(entityFilter.getFilterVariable(entityTableVar, tableVars))
             .orderBy(List.of(OrderByVariable.forRandom()))
@@ -190,16 +194,14 @@ public class CohortService {
             .build();
     QueryRequest queryRequest =
         new QueryRequest(
-            query.renderSQL(), new ColumnHeaderSchema(idAttributeMapping.buildColumnSchemas()));
+            query.renderSQL(),
+            new ColumnHeaderSchema(
+                List.of(
+                    primaryEntityIndexTable.getAttributeValueColumnSchema(
+                        underlay.getPrimaryEntity().getIdAttribute()))));
     LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", queryRequest.getSql());
 
     // Run the query and get an iterator to its results.
-    DataPointer dataPointer =
-        underlay
-            .getPrimaryEntity()
-            .getMapping(Underlay.MappingType.INDEX)
-            .getTablePointer()
-            .getDataPointer();
-    return dataPointer.getQueryExecutor().execute(queryRequest);
+    return underlay.getQueryExecutor().execute(queryRequest);
   }
 }

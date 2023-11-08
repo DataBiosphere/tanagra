@@ -1,20 +1,20 @@
 package bio.terra.tanagra.underlayspecific;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.EntityHintRequest;
-import bio.terra.tanagra.api.query.EntityHintResult;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.hint.HintInstance;
+import bio.terra.tanagra.api2.query.hint.HintQueryRequest;
+import bio.terra.tanagra.api2.query.hint.HintQueryResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.DisplayHint;
-import bio.terra.tanagra.underlay.displayhint.EnumVal;
-import bio.terra.tanagra.underlay.displayhint.EnumVals;
-import java.util.ArrayList;
-import java.util.Comparator;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,44 +37,38 @@ public abstract class BaseHintsTest {
 
   protected abstract String getUnderlayName();
 
-  protected void assertEntityLevelHintsMatch(
-      String entityName, Map<String, DisplayHint> expectedHints) {
-    EntityHintRequest entityHintRequest =
-        new EntityHintRequest.Builder()
-            .entity(underlayService.getEntity(getUnderlayName(), entityName))
-            .build();
-    assertHintsMatch(entityHintRequest, expectedHints);
+  protected void assertEntityLevelHintsMatch(String entityName, List<HintInstance> expectedHints) {
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
+    Entity entity = underlay.getEntity(entityName);
+    HintQueryRequest hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null);
+    assertHintsMatch(hintQueryRequest, expectedHints);
   }
 
   protected void assertInstanceLevelHintsMatch(
       String entityName,
       String relatedEntityName,
+      String entityGroupName,
       Literal relatedEntityId,
-      Map<String, DisplayHint> expectedHints) {
-    EntityHintRequest entityHintRequest =
-        new EntityHintRequest.Builder()
-            .entity(underlayService.getEntity(getUnderlayName(), entityName))
-            .relatedEntity(underlayService.getEntity(getUnderlayName(), relatedEntityName))
-            .relatedEntityId(relatedEntityId)
-            .build();
-    assertHintsMatch(entityHintRequest, expectedHints);
+      List<HintInstance> expectedHints) {
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
+    Entity entity = underlay.getEntity(entityName);
+    Entity relatedEntity = underlay.getEntity(relatedEntityName);
+    EntityGroup entityGroup = underlay.getEntityGroup(entityGroupName);
+    HintQueryRequest hintQueryRequest =
+        new HintQueryRequest(underlay, entity, relatedEntity, relatedEntityId, entityGroup);
+    assertHintsMatch(hintQueryRequest, expectedHints);
   }
 
   private void assertHintsMatch(
-      EntityHintRequest entityHintRequest, Map<String, DisplayHint> expectedHints) {
-    EntityHintResult entityHintResult = underlayService.listEntityHints(entityHintRequest);
+      HintQueryRequest hintQueryRequest, List<HintInstance> expectedHints) {
+    Underlay underlay = underlayService.getUnderlay(getUnderlayName());
+    HintQueryResult hintQueryResult =
+        EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());
 
-    for (Map.Entry<String, DisplayHint> expected : expectedHints.entrySet()) {
-      Attribute attr = entityHintRequest.getEntity().getAttribute(expected.getKey());
-      DisplayHint actual = entityHintResult.getHintMap().get(attr);
-      assertEquals(expected.getValue(), actual);
+    for (HintInstance expected : expectedHints) {
+      Optional<HintInstance> actual = hintQueryResult.getHintInstance(expected.getAttribute());
+      assertTrue(actual.isPresent());
+      assertEquals(expected, actual.get());
     }
-  }
-
-  protected static EnumVals buildEnumVals(List<EnumVal> enumVals) {
-    List<EnumVal> modifiableList = new ArrayList<>(enumVals);
-    modifiableList.sort(
-        Comparator.comparing(ev -> String.valueOf(ev.getValueDisplay().getDisplay())));
-    return new EnumVals(modifiableList);
   }
 }

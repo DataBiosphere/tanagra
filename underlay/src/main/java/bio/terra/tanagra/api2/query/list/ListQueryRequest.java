@@ -1,7 +1,7 @@
 package bio.terra.tanagra.api2.query.list;
 
-import bio.terra.tanagra.api.query.filter.EntityFilter;
 import bio.terra.tanagra.api2.field.ValueDisplayField;
+import bio.terra.tanagra.api2.filter.EntityFilter;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.underlay2.Underlay;

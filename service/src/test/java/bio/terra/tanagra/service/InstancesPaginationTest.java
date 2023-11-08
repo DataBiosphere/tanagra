@@ -4,14 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import bio.terra.tanagra.api.query.EntityQueryOrderBy;
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.EntityQueryResult;
+import bio.terra.tanagra.api2.field.AttributeField;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
+import bio.terra.tanagra.api2.query.list.ListQueryResult;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -33,69 +34,74 @@ public class InstancesPaginationTest {
 
   @Test
   void noPagination() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(primaryEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(List.of(primaryEntity.getIdAttribute()))
-            .orderBys(
-                List.of(
-                    new EntityQueryOrderBy(
-                        primaryEntity.getIdAttribute(), OrderByDirection.DESCENDING)))
-            .limit(10)
-            .build();
+    // Select and order by the id attribute.
+    AttributeField idAttributeField =
+        new AttributeField(underlay, primaryEntity, primaryEntity.getIdAttribute(), false, false);
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            primaryEntity,
+            List.of(idAttributeField),
+            null,
+            List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
+            10,
+            null,
+            null);
+    ListQueryResult listQueryResult =
+        EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
 
-    EntityQueryResult entityQueryResult = UnderlayService.listEntityInstances(entityQueryRequest);
-
-    assertNotNull(entityQueryResult.getSql());
-    assertEquals(10, entityQueryResult.getEntityInstances().size());
-    assertNull(entityQueryResult.getPageMarker());
+    assertNotNull(listQueryResult.getSql());
+    assertEquals(10, listQueryResult.getListInstances().size());
+    assertNull(listQueryResult.getPageMarker());
   }
 
   @Test
   void withPagination() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
+
+    // Select and order by the id attribute.
+    AttributeField idAttributeField =
+        new AttributeField(underlay, primaryEntity, primaryEntity.getIdAttribute(), false, false);
+    ListQueryRequest listQueryRequest1 =
+        new ListQueryRequest(
+            underlay,
+            primaryEntity,
+            List.of(idAttributeField),
+            null,
+            List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
+            10,
+            null,
+            3);
 
     // First query request gets the first page of results.
-    EntityQueryRequest entityQueryRequest1 =
-        new EntityQueryRequest.Builder()
-            .entity(primaryEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(List.of(primaryEntity.getIdAttribute()))
-            .orderBys(
-                List.of(
-                    new EntityQueryOrderBy(
-                        primaryEntity.getIdAttribute(), OrderByDirection.DESCENDING)))
-            .limit(10)
-            .pageSize(3)
-            .build();
-    EntityQueryResult entityQueryResult1 = UnderlayService.listEntityInstances(entityQueryRequest1);
+    ListQueryResult listQueryResult1 =
+        EntityQueryRunner.run(listQueryRequest1, underlay.getQueryExecutor());
 
-    assertNotNull(entityQueryResult1.getSql());
-    assertEquals(3, entityQueryResult1.getEntityInstances().size());
-    assertNotNull(entityQueryResult1.getPageMarker());
-    assertNotNull(entityQueryResult1.getPageMarker().getPageToken());
+    assertNotNull(listQueryResult1.getSql());
+    assertEquals(3, listQueryResult1.getListInstances().size());
+    assertNotNull(listQueryResult1.getPageMarker());
+    assertNotNull(listQueryResult1.getPageMarker().getPageToken());
 
     // Second query request gets the second and final page of results.
-    EntityQueryRequest entityQueryRequest2 =
-        new EntityQueryRequest.Builder()
-            .entity(primaryEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(List.of(primaryEntity.getIdAttribute()))
-            .orderBys(
-                List.of(
-                    new EntityQueryOrderBy(
-                        primaryEntity.getIdAttribute(), OrderByDirection.DESCENDING)))
-            .limit(10)
-            .pageMarker(entityQueryResult1.getPageMarker())
-            .pageSize(7)
-            .build();
-    EntityQueryResult entityQueryResult2 = UnderlayService.listEntityInstances(entityQueryRequest2);
+    ListQueryRequest listQueryRequest2 =
+        new ListQueryRequest(
+            underlay,
+            primaryEntity,
+            List.of(idAttributeField),
+            null,
+            List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
+            10,
+            listQueryResult1.getPageMarker(),
+            7);
+    ListQueryResult listQueryResult2 =
+        EntityQueryRunner.run(listQueryRequest2, underlay.getQueryExecutor());
 
-    assertNotNull(entityQueryResult2.getSql());
-    assertEquals(7, entityQueryResult2.getEntityInstances().size());
-    assertNull(entityQueryResult2.getPageMarker());
+    assertNotNull(listQueryResult2.getSql());
+    assertEquals(7, listQueryResult2.getListInstances().size());
+    assertNull(listQueryResult2.getPageMarker());
   }
 }

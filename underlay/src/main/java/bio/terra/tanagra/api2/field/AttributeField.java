@@ -118,4 +118,8 @@ public class AttributeField extends ValueDisplayField {
   private ColumnSchema getDisplayColumnSchema() {
     return new ColumnSchema(getDisplayFieldAlias(), CellValue.SQLDataType.STRING);
   }
+
+  public Attribute getAttribute() {
+    return attribute;
+  }
 }

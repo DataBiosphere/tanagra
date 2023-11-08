@@ -6,9 +6,9 @@ import bio.terra.tanagra.query.filtervariable.NotFilterVariable;
 import java.util.List;
 
 public class BooleanNotFilter extends EntityFilter {
-  private final bio.terra.tanagra.api.query.filter.EntityFilter subFilter;
+  private final EntityFilter subFilter;
 
-  public BooleanNotFilter(bio.terra.tanagra.api.query.filter.EntityFilter subFilter) {
+  public BooleanNotFilter(EntityFilter subFilter) {
     this.subFilter = subFilter;
   }
 

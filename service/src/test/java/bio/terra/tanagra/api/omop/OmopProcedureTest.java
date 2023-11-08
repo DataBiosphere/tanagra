@@ -14,14 +14,14 @@ public abstract class OmopProcedureTest extends BaseQueriesTest {
 
   @Test
   void hierarchyRootFilter() throws IOException {
-    // filter for "procedure" entity instances that are root nodes in the "standard" hierarchy
-    hierarchyRootFilter("standard");
+    // filter for "procedure" entity instances that are root nodes in the "default" hierarchy
+    hierarchyRootFilter("default");
   }
 
   @Test
   void hierarchyMemberFilter() throws IOException {
-    // filter for "procedure" entity instances that are members of the "standard" hierarchy
-    hierarchyMemberFilter("standard");
+    // filter for "procedure" entity instances that are members of the "default" hierarchy
+    hierarchyMemberFilter("default");
   }
 
   @Test
@@ -29,7 +29,7 @@ public abstract class OmopProcedureTest extends BaseQueriesTest {
     // filter for "procedure" entity instances that are children of the "procedure" entity
     // instance with concept_id=4179181
     // i.e. give me all the children of "Mumps vaccination"
-    hierarchyParentFilter("standard", 4_179_181L, "mumpsVaccination");
+    hierarchyParentFilter("default", 4_179_181L, "mumpsVaccination");
   }
 
   @Test
@@ -37,7 +37,7 @@ public abstract class OmopProcedureTest extends BaseQueriesTest {
     // filter for "procedure" entity instances that are descendants of the "procedure" entity
     // instance with concept_id=4176720
     // i.e. give me all the descendants of "Viral immunization"
-    hierarchyAncestorFilter("standard", 4_176_720L, "viralImmunization");
+    hierarchyAncestorFilter("default", 4_176_720L, "viralImmunization");
   }
 
   @Test

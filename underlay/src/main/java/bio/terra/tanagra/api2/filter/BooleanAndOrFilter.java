@@ -8,11 +8,10 @@ import java.util.stream.Collectors;
 
 public class BooleanAndOrFilter extends EntityFilter {
   private final BooleanAndOrFilterVariable.LogicalOperator operator;
-  private final List<bio.terra.tanagra.api.query.filter.EntityFilter> subFilters;
+  private final List<EntityFilter> subFilters;
 
   public BooleanAndOrFilter(
-      BooleanAndOrFilterVariable.LogicalOperator operator,
-      List<bio.terra.tanagra.api.query.filter.EntityFilter> subFilters) {
+      BooleanAndOrFilterVariable.LogicalOperator operator, List<EntityFilter> subFilters) {
     this.operator = operator;
     this.subFilters = subFilters;
   }

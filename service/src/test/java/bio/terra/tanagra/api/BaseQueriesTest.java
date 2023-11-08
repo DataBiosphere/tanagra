@@ -1,17 +1,24 @@
 package bio.terra.tanagra.api;
 
-import bio.terra.tanagra.api.query.EntityCountRequest;
-import bio.terra.tanagra.api.query.EntityHintResult;
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
-import bio.terra.tanagra.api.query.filter.HierarchyAncestorFilter;
-import bio.terra.tanagra.api.query.filter.HierarchyMemberFilter;
-import bio.terra.tanagra.api.query.filter.HierarchyParentFilter;
-import bio.terra.tanagra.api.query.filter.HierarchyRootFilter;
-import bio.terra.tanagra.api.query.filter.RelationshipFilter;
-import bio.terra.tanagra.api.query.filter.TextFilter;
+import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api2.field.AttributeField;
+import bio.terra.tanagra.api2.field.HierarchyIsMemberField;
+import bio.terra.tanagra.api2.field.HierarchyIsRootField;
+import bio.terra.tanagra.api2.field.HierarchyNumChildrenField;
+import bio.terra.tanagra.api2.field.HierarchyPathField;
+import bio.terra.tanagra.api2.field.ValueDisplayField;
+import bio.terra.tanagra.api2.filter.AttributeFilter;
+import bio.terra.tanagra.api2.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api2.filter.EntityFilter;
+import bio.terra.tanagra.api2.filter.HierarchyHasAncestorFilter;
+import bio.terra.tanagra.api2.filter.HierarchyHasParentFilter;
+import bio.terra.tanagra.api2.filter.HierarchyIsMemberFilter;
+import bio.terra.tanagra.api2.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api2.filter.RelationshipFilter;
+import bio.terra.tanagra.api2.filter.TextSearchFilter;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.count.CountQueryRequest;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
@@ -20,16 +27,14 @@ import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.query.UnderlayService;
 import bio.terra.tanagra.testing.BaseSpringUnitTest;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.EntityGroup;
-import bio.terra.tanagra.underlay.Relationship;
-import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitygroup.CriteriaOccurrence;
-import bio.terra.tanagra.underlay.entitygroup.GroupItems;
-import com.google.common.collect.ImmutableList;
+import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay2.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay2.entitymodel.entitygroup.GroupItems;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -41,11 +46,13 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   protected static final int DEFAULT_LIMIT = 30;
 
   @Autowired protected UnderlayService underlayService;
+  private Underlay underlay;
   private Entity entity;
 
   @BeforeEach
   void setup() {
-    entity = underlayService.getEntity(getUnderlayName(), getEntityName());
+    underlay = underlayService.getUnderlay(getUnderlayName());
+    entity = underlay.getEntity(getEntityName());
   }
 
   protected abstract String getUnderlayName();
@@ -56,21 +63,25 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
 
   protected abstract String getEntityName();
 
+  protected Underlay getUnderlay() {
+    return underlay;
+  }
+
   protected Entity getEntity() {
     return entity;
   }
 
   @Test
   void baseNoFilter() throws IOException {
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        entity.getAttributes().stream()
+            .map(attribute -> new AttributeField(underlay, entity, attribute, false, false))
+            .collect(Collectors.toList());
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(underlay, entity, selectFields, null, null, DEFAULT_LIMIT, null, null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/" + getEntity().getName() + "-noFilter.sql");
   }
 
@@ -79,44 +90,59 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   }
 
   protected void textFilter(@Nullable String attributeName, String text) throws IOException {
-    TextFilter.Builder textFilterBuilder =
-        new TextFilter.Builder()
-            .textSearch(getEntity().getTextSearch())
-            .functionTemplate(FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH)
-            .text(text);
-    if (attributeName != null) {
-      textFilterBuilder.attribute(entity.getAttribute("id"));
+    TextSearchFilter textSearchFilter;
+    if (attributeName == null) {
+      textSearchFilter =
+          new TextSearchFilter(
+              underlay,
+              entity,
+              FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH,
+              text,
+              null);
+    } else {
+      textSearchFilter =
+          new TextSearchFilter(
+              underlay,
+              entity,
+              FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH,
+              text,
+              entity.getAttribute(attributeName));
     }
-    TextFilter textFilter = textFilterBuilder.build();
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .filter(textFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        entity.getAttributes().stream()
+            .map(attribute -> new AttributeField(underlay, entity, attribute, false, false))
+            .collect(Collectors.toList());
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay, entity, selectFields, textSearchFilter, null, DEFAULT_LIMIT, null, null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/" + getEntity().getName() + "-textFilter.sql");
   }
 
   protected void hierarchyRootFilter(String hierarchyName) throws IOException {
-    HierarchyRootFilter hierarchyRootFilter =
-        new HierarchyRootFilter(getEntity().getHierarchy(hierarchyName));
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy(hierarchyName).getFields())
-            .filter(hierarchyRootFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes and hierarchy fields.
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    entity.getAttributes().stream()
+        .forEach(
+            attribute ->
+                selectFields.add(new AttributeField(underlay, entity, attribute, false, false)));
+    selectFields.add(new HierarchyPathField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyNumChildrenField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsRootField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsMemberField(underlay, entity, hierarchy));
+
+    HierarchyIsRootFilter hierarchyIsRootFilter =
+        new HierarchyIsRootFilter(underlay, entity, hierarchy);
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay, entity, selectFields, hierarchyIsRootFilter, null, DEFAULT_LIMIT, null, null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -127,20 +153,33 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
   }
 
   protected void hierarchyMemberFilter(String hierarchyName) throws IOException {
-    HierarchyMemberFilter hierarchyMemberFilter =
-        new HierarchyMemberFilter(getEntity().getHierarchy(hierarchyName));
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy(hierarchyName).getFields())
-            .filter(hierarchyMemberFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes and hierarchy fields.
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    entity.getAttributes().stream()
+        .forEach(
+            attribute ->
+                selectFields.add(new AttributeField(underlay, entity, attribute, false, false)));
+    selectFields.add(new HierarchyPathField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyNumChildrenField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsRootField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsMemberField(underlay, entity, hierarchy));
+
+    HierarchyIsMemberFilter hierarchyIsMemberFilter =
+        new HierarchyIsMemberFilter(underlay, entity, hierarchy);
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            entity,
+            selectFields,
+            hierarchyIsMemberFilter,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -152,20 +191,33 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
 
   protected void hierarchyParentFilter(String hierarchyName, long parentId, String parentName)
       throws IOException {
-    HierarchyParentFilter hierarchyParentFilter =
-        new HierarchyParentFilter(getEntity().getHierarchy(hierarchyName), new Literal(parentId));
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy(hierarchyName).getFields())
-            .filter(hierarchyParentFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes and hierarchy fields.
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    entity.getAttributes().stream()
+        .forEach(
+            attribute ->
+                selectFields.add(new AttributeField(underlay, entity, attribute, false, false)));
+    selectFields.add(new HierarchyPathField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyNumChildrenField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsRootField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsMemberField(underlay, entity, hierarchy));
+
+    HierarchyHasParentFilter hierarchyHasParentFilter =
+        new HierarchyHasParentFilter(underlay, entity, hierarchy, new Literal(parentId));
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            entity,
+            selectFields,
+            hierarchyHasParentFilter,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -179,21 +231,33 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
 
   protected void hierarchyAncestorFilter(String hierarchyName, long ancestorId, String ancestorName)
       throws IOException {
-    HierarchyAncestorFilter hierarchyAncestorFilter =
-        new HierarchyAncestorFilter(
-            getEntity().getHierarchy(hierarchyName), new Literal(ancestorId));
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(getEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(getEntity().getAttributes())
-            .selectHierarchyFields(getEntity().getHierarchy(hierarchyName).getFields())
-            .filter(hierarchyAncestorFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes and hierarchy fields.
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    entity.getAttributes().stream()
+        .forEach(
+            attribute ->
+                selectFields.add(new AttributeField(underlay, entity, attribute, false, false)));
+    selectFields.add(new HierarchyPathField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyNumChildrenField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsRootField(underlay, entity, hierarchy));
+    selectFields.add(new HierarchyIsMemberField(underlay, entity, hierarchy));
+
+    HierarchyHasAncestorFilter hierarchyHasAncestorFilter =
+        new HierarchyHasAncestorFilter(underlay, entity, hierarchy, new Literal(ancestorId));
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            entity,
+            selectFields,
+            hierarchyHasAncestorFilter,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -239,23 +303,34 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     Entity occurrenceEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
     RelationshipFilter allOccurrencesForCohort =
         new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
             occurrenceEntity,
-            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             cohortFilter,
             /*groupByCountAttribute=*/ null,
             /*groupByCountOperator=*/ null,
             /*groupByCountValue=*/ null);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(occurrenceEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(occurrenceEntity.getAttributes())
-            .filter(allOccurrencesForCohort)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        occurrenceEntity.getAttributes().stream()
+            .map(
+                attribute ->
+                    new AttributeField(underlay, occurrenceEntity, attribute, false, false))
+            .collect(Collectors.toList());
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            occurrenceEntity,
+            selectFields,
+            allOccurrencesForCohort,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -296,16 +371,26 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
             groupByCountOperator,
             groupByCountValue);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(criteriaOccurrence.getPrimaryEntity())
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(criteriaOccurrence.getPrimaryEntity().getAttributes())
-            .filter(cohortFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        criteriaOccurrence.getPrimaryEntity().getAttributes().stream()
+            .map(
+                attribute ->
+                    new AttributeField(
+                        underlay, criteriaOccurrence.getPrimaryEntity(), attribute, false, false))
+            .collect(Collectors.toList());
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            criteriaOccurrence.getPrimaryEntity(),
+            selectFields,
+            cohortFilter,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -322,21 +407,18 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     String selectEntityName = "person";
     Entity selectEntity = underlay.getEntity(selectEntityName);
-    Attribute selectAttribute = entity.getAttribute("id");
 
     EntityFilter cohortFilter =
         buildCohortFilterNoOccurrence(selectEntity, filterAttributeName, text);
 
-    EntityQueryRequest entityQueryRequest =
-        new EntityQueryRequest.Builder()
-            .entity(selectEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .selectAttributes(ImmutableList.of(selectAttribute))
-            .filter(cohortFilter)
-            .limit(DEFAULT_LIMIT)
-            .build();
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        List.of(new AttributeField(underlay, selectEntity, entity.getIdAttribute(), false, false));
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay, selectEntity, selectFields, cohortFilter, null, DEFAULT_LIMIT, null, null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityQueryRequest.buildInstancesQuery().getSql(),
+        EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -402,21 +484,21 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
       List<String> groupByAttributes,
       @Nullable EntityFilter cohortFilter)
       throws IOException {
-    List<Attribute> groupBy =
+    List<ValueDisplayField> groupByFields =
         groupByAttributes.stream()
-            .map(attributeName -> countEntity.getAttribute(attributeName))
+            .map(
+                groupByAttributeName ->
+                    new AttributeField(
+                        underlay,
+                        countEntity,
+                        countEntity.getAttribute(groupByAttributeName),
+                        true,
+                        false))
             .collect(Collectors.toList());
-    EntityCountRequest entityCountRequest =
-        new EntityCountRequest.Builder()
-            .entity(countEntity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .attributes(groupBy)
-            .filter(cohortFilter)
-            .build();
+    CountQueryRequest countQueryRequest =
+        new CountQueryRequest(underlay, countEntity, groupByFields, cohortFilter, null, null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        entityCountRequest
-            .buildCountsQuery(new EntityHintResult("placeholder sql", new HashMap<>()))
-            .getSql(),
+        EntityQueryRunner.buildQueryRequest(countQueryRequest).getSql(),
         "sql/"
             + getSqlDirectoryName()
             + "/"
@@ -433,12 +515,33 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
     // of many groups.
     Underlay underlay = underlayService.getUnderlay(getUnderlayName());
     return (CriteriaOccurrence)
-        underlay.getEntityGroup(EntityGroup.Type.CRITERIA_OCCURRENCE, criteriaEntity);
+        underlay.getEntityGroups().stream()
+            .filter(
+                eg ->
+                    (eg instanceof CriteriaOccurrence)
+                        && ((CriteriaOccurrence) eg).getCriteriaEntity().equals(criteriaEntity))
+            .findAny()
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "CriteriaOccurrence entity group not found for criteriaEntity="
+                            + criteriaEntity.getName()));
   }
 
   private GroupItems getGroupItemsEntityGroup(Entity groupEntity) {
     Underlay underlay = underlayService.getUnderlay(getUnderlayName());
-    return (GroupItems) underlay.getEntityGroup(EntityGroup.Type.GROUP_ITEMS, groupEntity);
+    return (GroupItems)
+        underlay.getEntityGroups().stream()
+            .filter(
+                eg ->
+                    (eg instanceof GroupItems)
+                        && ((GroupItems) eg).getGroupEntity().equals(groupEntity))
+            .findAny()
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "GroupItems entity group not found for groupEntity="
+                            + groupEntity.getName()));
   }
 
   /** Build a RelationshipFilter for a cohort when there's an occurrence entity. */
@@ -458,6 +561,8 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                   // e.g. Condition "Type 2 diabetes mellitus".
                   AttributeFilter criteria =
                       new AttributeFilter(
+                          underlay,
+                          criteriaOccurrence.getCriteriaEntity(),
                           criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                           BinaryOperator.EQUALS,
                           new Literal(criteriaEntityId));
@@ -469,8 +574,11 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                   Entity occurrenceEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
                   RelationshipFilter occurrencesOfCriteria =
                       new RelationshipFilter(
+                          underlay,
+                          criteriaOccurrence,
                           occurrenceEntity,
-                          criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity),
+                          criteriaOccurrence.getOccurrenceCriteriaRelationship(
+                              occurrenceEntity.getName()),
                           criteria,
                           /*groupByCountAttribute=*/ null,
                           /*groupByCountOperator=*/ null,
@@ -481,8 +589,11 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
                   // related to criteria entity instances that have id=criteriaEntityId.
                   // e.g. People with occurrences of "Type 2 diabetes mellitus".
                   return new RelationshipFilter(
+                      underlay,
+                      criteriaOccurrence,
                       criteriaOccurrence.getPrimaryEntity(),
-                      criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity),
+                      criteriaOccurrence.getOccurrencePrimaryRelationship(
+                          occurrenceEntity.getName()),
                       occurrencesOfCriteria,
                       groupByCountAttribute,
                       groupByCountOperator,
@@ -503,14 +614,19 @@ public abstract class BaseQueriesTest extends BaseSpringUnitTest {
    */
   private EntityFilter buildCohortFilterNoOccurrence(
       Entity selectEntity, String filterAttributeName, String text) {
-    Relationship relationship =
-        getGroupItemsEntityGroup(entity).getRelationship(entity, selectEntity).orElseThrow();
+    GroupItems groupItems = getGroupItemsEntityGroup(entity);
     EntityFilter subfilter =
         new AttributeFilter(
-            entity.getAttribute(filterAttributeName), BinaryOperator.EQUALS, new Literal(text));
+            underlay,
+            entity,
+            entity.getAttribute(filterAttributeName),
+            BinaryOperator.EQUALS,
+            new Literal(text));
     return new RelationshipFilter(
+        underlay,
+        groupItems,
         selectEntity,
-        relationship,
+        groupItems.getGroupItemsRelationship(),
         subfilter,
         /*groupByCountAttribute=*/ null,
         /*groupByCountOperator=*/ null,

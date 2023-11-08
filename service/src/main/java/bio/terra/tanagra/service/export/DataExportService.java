@@ -1,7 +1,8 @@
 package bio.terra.tanagra.service.export;
 
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api2.filter.EntityFilter;
+import bio.terra.tanagra.api2.query.EntityQueryRunner;
+import bio.terra.tanagra.api2.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -13,7 +14,7 @@ import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay2.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
 import com.google.cloud.storage.BlobId;
@@ -93,7 +94,7 @@ public class DataExportService {
       String studyId,
       List<String> cohortIds,
       ExportRequest.Builder request,
-      List<EntityQueryRequest> entityQueryRequests,
+      List<ListQueryRequest> listQueryRequests,
       EntityFilter allCohortsEntityFilter,
       String userEmail) {
     // Make the current cohort revision un-editable, and create the next version.
@@ -127,10 +128,10 @@ public class DataExportService {
     // all.
     // e.g. To export an ipynb file with the SQL queries embedded in it, there's no need to write
     // anything to GCS.
-    if (!entityQueryRequests.isEmpty()) {
-      request.generateSqlQueriesFn(() -> generateSqlQueries(entityQueryRequests));
+    if (!listQueryRequests.isEmpty()) {
+      request.generateSqlQueriesFn(() -> generateSqlQueries(listQueryRequests));
       request.writeEntityDataToGcsFn(
-          fileNameTemplate -> writeEntityDataToGcs(fileNameTemplate, entityQueryRequests));
+          fileNameTemplate -> writeEntityDataToGcs(fileNameTemplate, listQueryRequests));
     }
     if (request.isIncludeAnnotations()) {
       request.writeAnnotationDataToGcsFn(
@@ -159,12 +160,12 @@ public class DataExportService {
   }
 
   /** Generate the entity instance SQL queries. */
-  private static Map<String, String> generateSqlQueries(
-      List<EntityQueryRequest> entityQueryRequests) {
-    return entityQueryRequests.stream()
+  private static Map<String, String> generateSqlQueries(List<ListQueryRequest> listQueryRequests) {
+    return listQueryRequests.stream()
         .collect(
             Collectors.toMap(
-                eqr -> eqr.getEntity().getName(), eqr -> eqr.buildInstancesQuery().getSql()));
+                qr -> qr.getEntity().getName(),
+                qr -> EntityQueryRunner.buildQueryRequest(qr).getSql()));
   }
 
   /**
@@ -175,22 +176,19 @@ public class DataExportService {
    * @return map of entity name -> GCS full path (e.g. gs://bucket/filename.csv)
    */
   private Map<String, String> writeEntityDataToGcs(
-      String fileNameTemplate, List<EntityQueryRequest> entityQueryRequests) {
-    return entityQueryRequests.stream()
+      String fileNameTemplate, List<ListQueryRequest> listQueryRequests) {
+    return listQueryRequests.stream()
         .collect(
             Collectors.toMap(
-                eqr -> eqr.getEntity().getName(),
-                eqr -> {
-                  QueryExecutor queryExecutor =
-                      eqr.getEntity()
-                          .getMapping(eqr.getMappingType())
-                          .getTablePointer()
-                          .getDataPointer()
-                          .getQueryExecutor();
+                qr -> qr.getEntity().getName(),
+                qr -> {
+                  // TODO: Make an export to GCS query part of the underlay/api, so we're not
+                  // building Query objects outside the underlay sub-project.
+                  QueryExecutor queryExecutor = qr.getUnderlay().getQueryExecutor();
                   String wildcardFilename =
-                      getFileName(fileNameTemplate, "entity", eqr.getEntity().getName());
+                      getFileName(fileNameTemplate, "entity", qr.getEntity().getName());
                   return queryExecutor.executeAndExportResultsToGcs(
-                      eqr.buildInstancesQuery(),
+                      EntityQueryRunner.buildQueryRequest(qr),
                       wildcardFilename,
                       shared.getGcsProjectId(),
                       shared.getGcsBucketNames());

@@ -25,7 +25,6 @@ public final class Indexer {
   public static Indexer fromConfig(SZIndexer szIndexer) {
     SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
-    System.out.println("underlay numentities" + underlay.getEntities().size());
     return new Indexer(szIndexer, underlay);
   }
 
