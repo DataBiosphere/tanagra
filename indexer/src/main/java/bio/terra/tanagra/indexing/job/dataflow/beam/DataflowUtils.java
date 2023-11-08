@@ -1,6 +1,6 @@
 package bio.terra.tanagra.indexing.job.dataflow.beam;
 
-import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Random;

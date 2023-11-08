@@ -1,6 +1,6 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
-import bio.terra.tanagra.api2.query.ValueDisplay;
+import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
@@ -18,11 +18,11 @@ import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.bigquery.BigQueryDataset;
-import bio.terra.tanagra.underlay2.entitymodel.Attribute;
-import bio.terra.tanagra.underlay2.entitymodel.Entity;
-import bio.terra.tanagra.underlay2.indextable.ITEntityLevelDisplayHints;
-import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
-import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
+import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;

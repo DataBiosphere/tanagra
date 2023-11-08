@@ -7,8 +7,8 @@ import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY_GROUP;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
-import bio.terra.tanagra.underlay2.ConfigReader;
-import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.ConfigReader;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
 
 public final class Main {
   private Main() {}

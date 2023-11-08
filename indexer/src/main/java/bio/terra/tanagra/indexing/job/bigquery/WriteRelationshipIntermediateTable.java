@@ -2,9 +2,9 @@ package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.underlay2.indextable.ITRelationshipIdPairs;
-import bio.terra.tanagra.underlay2.serialization.SZIndexer;
-import bio.terra.tanagra.underlay2.sourcetable.STRelationshipIdPairs;
+import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.sourcetable.STRelationshipIdPairs;
 import com.google.cloud.bigquery.TableId;
 import java.util.Map;
 import org.slf4j.Logger;

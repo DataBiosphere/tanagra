@@ -2,9 +2,9 @@ package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.query.bigquery.BigQueryDataset;
-import bio.terra.tanagra.underlay2.entitymodel.Entity;
-import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
-import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.Schema;

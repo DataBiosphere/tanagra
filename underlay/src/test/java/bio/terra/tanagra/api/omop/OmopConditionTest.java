@@ -3,7 +3,7 @@ package bio.terra.tanagra.api.omop;
 import bio.terra.tanagra.api.BaseQueriesTest;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;

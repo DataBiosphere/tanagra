@@ -12,7 +12,7 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.underlay2.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Table;
 import java.math.BigInteger;
 import java.util.List;

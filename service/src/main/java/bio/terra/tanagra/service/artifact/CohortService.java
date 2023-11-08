@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.artifact;
 
-import bio.terra.tanagra.api2.filter.EntityFilter;
-import bio.terra.tanagra.api2.query.EntityQueryRunner;
-import bio.terra.tanagra.api2.query.count.CountQueryRequest;
-import bio.terra.tanagra.api2.query.count.CountQueryResult;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.EntityQueryRunner;
+import bio.terra.tanagra.api.query.count.CountQueryRequest;
+import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
@@ -19,8 +19,8 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
-import bio.terra.tanagra.underlay2.Underlay;
-import bio.terra.tanagra.underlay2.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;

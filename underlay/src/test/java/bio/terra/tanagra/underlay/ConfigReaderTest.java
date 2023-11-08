@@ -2,10 +2,9 @@ package bio.terra.tanagra.underlay;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import bio.terra.tanagra.underlay2.ConfigReader;
-import bio.terra.tanagra.underlay2.serialization.SZEntity;
-import bio.terra.tanagra.underlay2.serialization.SZIndexer;
-import bio.terra.tanagra.underlay2.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.SZEntity;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import org.junit.jupiter.api.Test;
 
 public class ConfigReaderTest {

@@ -5,7 +5,7 @@ import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.api2.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.generated.controller.ExportApi;
@@ -21,7 +21,7 @@ import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

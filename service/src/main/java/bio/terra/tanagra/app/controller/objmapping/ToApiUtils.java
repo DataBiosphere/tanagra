@@ -1,9 +1,9 @@
 package bio.terra.tanagra.app.controller.objmapping;
 
-import bio.terra.tanagra.api2.field.AttributeField;
-import bio.terra.tanagra.api2.field.ValueDisplayField;
-import bio.terra.tanagra.api2.query.ValueDisplay;
-import bio.terra.tanagra.api2.query.count.CountInstance;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAnnotationValue;
 import bio.terra.tanagra.generated.model.ApiAttribute;
@@ -27,8 +27,8 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.artifact.model.Study;
-import bio.terra.tanagra.underlay2.Underlay;
-import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

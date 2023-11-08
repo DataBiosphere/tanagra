@@ -1,10 +1,10 @@
 package bio.terra.tanagra.service.artifact.reviewquery;
 
-import bio.terra.tanagra.api2.query.ValueDisplay;
+import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
-import bio.terra.tanagra.underlay2.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.Comparator;
 import java.util.Optional;
 

@@ -1,10 +1,10 @@
 package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.underlay2.Underlay;
-import bio.terra.tanagra.underlay2.entitymodel.Entity;
-import bio.terra.tanagra.underlay2.entitymodel.Relationship;
-import bio.terra.tanagra.underlay2.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

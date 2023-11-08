@@ -1,18 +1,18 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
-import bio.terra.tanagra.api2.field.AttributeField;
-import bio.terra.tanagra.api2.field.ValueDisplayField;
-import bio.terra.tanagra.api2.filter.AttributeFilter;
-import bio.terra.tanagra.api2.filter.RelationshipFilter;
-import bio.terra.tanagra.api2.query.EntityQueryRunner;
-import bio.terra.tanagra.api2.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.api.query.EntityQueryRunner;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
-import bio.terra.tanagra.underlay2.entitymodel.Entity;
-import bio.terra.tanagra.underlay2.entitymodel.Relationship;
-import bio.terra.tanagra.underlay2.entitymodel.entitygroup.GroupItems;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;

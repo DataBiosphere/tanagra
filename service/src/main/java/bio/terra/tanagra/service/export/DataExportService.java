@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.export;
 
-import bio.terra.tanagra.api2.filter.EntityFilter;
-import bio.terra.tanagra.api2.query.EntityQueryRunner;
-import bio.terra.tanagra.api2.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.EntityQueryRunner;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -14,7 +14,7 @@ import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Study;
-import bio.terra.tanagra.underlay2.Underlay;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
 import com.google.cloud.storage.BlobId;

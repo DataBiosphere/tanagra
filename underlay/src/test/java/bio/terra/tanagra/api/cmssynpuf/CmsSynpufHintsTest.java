@@ -1,10 +1,10 @@
 package bio.terra.tanagra.api.cmssynpuf;
 
 import bio.terra.tanagra.api.BaseHintsTest;
-import bio.terra.tanagra.api2.query.ValueDisplay;
-import bio.terra.tanagra.api2.query.hint.HintInstance;
+import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.underlay2.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
