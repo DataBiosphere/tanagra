@@ -4,7 +4,7 @@
   "attributes": [
     { "type": "SIMPLE", "name": "measurement_id", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "person_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
-    { "type": "KEY_AND_DISPLAY", "name": "measurement", "dataType": "INT64", "displayHintTypes": ["NONE"] },
+    { "type": "KEY_AND_DISPLAY", "name": "measurement_concept_id", "dataType": "INT64", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "date", "dataType": "TIMESTAMP", "displayHintTypes": ["NONE"] },
     { "type": "SIMPLE", "name": "value_numeric", "dataType": "DOUBLE", "displayHintTypes": ["NONE"] },
     { "type": "KEY_AND_DISPLAY", "name": "value_enum", "dataType": "INT64", "displayHintTypes": ["NONE"] },
@@ -20,7 +20,7 @@
     "dataPointer": "omop_dataset",
     "tablePointer": { "rawSqlFile": "t_measurement_occurrence_all.sql" },
     "attributeMappings": {
-      "measurement": {
+      "measurement_concept_id": {
         "value": { "column": "measurement_concept_id" },
         "display": {
           "column": "measurement_concept_id",

@@ -8,7 +8,7 @@
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "foreignKeyAttribute": "measurement"
+        "foreignKeyAttribute": "measurement_concept_id"
       },
       "occurrenceToPrimary": {
         "foreignKeyAttribute": "person_id"
