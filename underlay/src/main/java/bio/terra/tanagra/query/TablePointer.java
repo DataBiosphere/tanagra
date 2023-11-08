@@ -1,17 +1,9 @@
 package bio.terra.tanagra.query;
 
-import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.serialization.UFTablePointer;
-import bio.terra.tanagra.utils.FileIO;
-import bio.terra.tanagra.utils.FileUtils;
-import com.google.common.base.Strings;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
 public final class TablePointer implements SQLExpression {
-  private static final String SQL_DIRECTORY_NAME = "sql";
-
   private final DataPointer dataPointer;
   private final String tableName;
   private final Filter filter;
@@ -30,41 +22,6 @@ public final class TablePointer implements SQLExpression {
 
   public static TablePointer fromRawSql(String sql, DataPointer dataPointer) {
     return new Builder().dataPointer(dataPointer).sql(sql).build();
-  }
-
-  public static TablePointer fromSerialized(UFTablePointer serialized, DataPointer dataPointer) {
-    if (!Strings.isNullOrEmpty(serialized.getRawSql())) {
-      // Table is defined by a raw SQL string, which is specified directly in the JSON.
-      return TablePointer.fromRawSql(serialized.getRawSql(), dataPointer);
-    } else if (!Strings.isNullOrEmpty(serialized.getRawSqlFile())) {
-      // Table is defined by a raw SQL string, which is in a file path that is specified in the
-      // JSON.
-      Path rawSqlFile =
-          FileIO.getInputParentDir()
-              .resolve(SQL_DIRECTORY_NAME)
-              .resolve(Path.of(serialized.getRawSqlFile()));
-      String rawSqlString =
-          FileUtils.readStringFromFileNoLineBreaks(
-              FileIO.getGetFileInputStreamFunction().apply(rawSqlFile));
-      return TablePointer.fromRawSql(rawSqlString, dataPointer);
-    }
-    // Table is defined by a table name and optional filter.
-
-    if (Strings.isNullOrEmpty(serialized.getTable())) {
-      throw new InvalidConfigException("Table name not defined");
-    }
-
-    TablePointer tablePointer = TablePointer.fromTableName(serialized.getTable(), dataPointer);
-    if (serialized.getFilter() == null) {
-      return tablePointer;
-    } else {
-      Filter filter = serialized.getFilter().deserializeToInternal(tablePointer);
-      return new Builder()
-          .dataPointer(dataPointer)
-          .tableName(serialized.getTable())
-          .tableFilter(filter)
-          .build();
-    }
   }
 
   public DataPointer getDataPointer() {

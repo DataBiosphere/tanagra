@@ -1,6 +1,5 @@
 package bio.terra.tanagra.query.bigquery;
 
-import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.DataPointer;
@@ -11,7 +10,6 @@ import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.serialization.datapointer.UFBigQueryDataset;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
@@ -61,35 +59,6 @@ public final class BigQueryDataset extends DataPointer {
     this.dataflowWorkerMachineType = dataflowWorkerMachineType;
     this.dataflowUsePublicIps = dataflowUsePublicIps;
     this.dataflowSubnetworkName = dataflowSubnetworkName;
-  }
-
-  public static BigQueryDataset fromSerialized(UFBigQueryDataset serialized) {
-    if (serialized.getProjectId() == null || serialized.getProjectId().isEmpty()) {
-      throw new InvalidConfigException("No BigQuery project ID defined");
-    }
-    if (serialized.getDatasetId() == null || serialized.getDatasetId().isEmpty()) {
-      throw new InvalidConfigException("No BigQuery dataset ID defined");
-    }
-    // Default query project id is the same project where the data lives.
-    // This property lets users specify a different project to run the queries in.
-    // This is useful for e.g. public datasets, where you don't have permission to run queries
-    // there.
-    String queryProjectId = serialized.getQueryProjectId();
-    if (queryProjectId == null || queryProjectId.isEmpty()) {
-      queryProjectId = serialized.getProjectId();
-    }
-
-    return new BigQueryDataset(
-        serialized.getName(),
-        serialized.getProjectId(),
-        serialized.getDatasetId(),
-        queryProjectId,
-        serialized.getDataflowServiceAccountEmail(),
-        serialized.getDataflowTempLocation(),
-        serialized.getDataflowRegion(),
-        serialized.getDataflowWorkerMachineType(),
-        serialized.isDataflowUsePublicIps(),
-        serialized.getDataflowSubnetworkName());
   }
 
   @Override

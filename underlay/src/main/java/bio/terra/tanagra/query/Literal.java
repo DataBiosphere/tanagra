@@ -1,13 +1,9 @@
 package bio.terra.tanagra.query;
 
-import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.serialization.UFLiteral;
-import com.google.common.base.Strings;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class Literal implements SQLExpression {
   /** Enum for the data types supported by Tanagra. */
@@ -74,46 +70,6 @@ public class Literal implements SQLExpression {
     this.dateVal = builder.dateVal;
     this.doubleVal = builder.doubleVal;
     this.timestampVal = builder.timestampVal;
-  }
-
-  public static Literal fromSerialized(UFLiteral serialized) {
-    boolean stringValDefined = !Strings.isNullOrEmpty(serialized.getStringVal());
-    boolean int64ValDefined = serialized.getInt64Val() != null;
-    boolean booleanValDefined = serialized.getBooleanVal() != null;
-    boolean dateValDefiend = serialized.getDateVal() != null;
-    boolean doubleValDefined = serialized.getDoubleVal() != null;
-    boolean timestampValDefined = serialized.getTimestampVal() != null;
-
-    long numDefined =
-        Stream.of(
-                stringValDefined,
-                int64ValDefined,
-                booleanValDefined,
-                dateValDefiend,
-                doubleValDefined,
-                timestampValDefined)
-            .filter(b -> b)
-            .count();
-    if (numDefined == 0) {
-      // TODO: Make a static NULL Literal instance, instead of overloading the String value.
-      return new Literal((String) null);
-    } else if (numDefined > 1) {
-      throw new InvalidConfigException("More than one literal value defined");
-    }
-
-    if (stringValDefined) {
-      return new Literal(serialized.getStringVal());
-    } else if (int64ValDefined) {
-      return new Literal(serialized.getInt64Val());
-    } else if (booleanValDefined) {
-      return new Literal(serialized.getBooleanVal());
-    } else if (dateValDefiend) {
-      return Literal.forDate(serialized.getDateVal());
-    } else if (timestampValDefined) {
-      return new Literal(serialized.getTimestampVal());
-    } else {
-      return new Literal(serialized.getDoubleVal());
-    }
   }
 
   @Override
