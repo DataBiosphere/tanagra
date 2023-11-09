@@ -155,7 +155,7 @@ public class CohortService {
     Underlay underlay = underlayService.getUnderlay(underlayName);
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
-            underlay, underlay.getPrimaryEntity(), List.of(), entityFilter, null, null);
+            underlay, underlay.getPrimaryEntity(), List.of(), entityFilter, null, null, null);
     CountQueryResult countQueryResult =
         EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
     LOGGER.debug("getRecordsCount SQL: {}", countQueryResult.getSql());

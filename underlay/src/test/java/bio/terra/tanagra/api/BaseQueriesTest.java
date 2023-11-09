@@ -494,7 +494,7 @@ public abstract class BaseQueriesTest {
                         false))
             .collect(Collectors.toList());
     CountQueryRequest countQueryRequest =
-        new CountQueryRequest(underlay, countEntity, groupByFields, cohortFilter, null, null);
+        new CountQueryRequest(underlay, countEntity, groupByFields, cohortFilter, null, null, null);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(countQueryRequest).getSql(),
         "sql/"

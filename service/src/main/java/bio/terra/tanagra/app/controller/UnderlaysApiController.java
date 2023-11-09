@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -155,6 +156,18 @@ public class UnderlaysApiController implements UnderlaysApi {
     Underlay underlay = underlayService.getUnderlay(underlayName);
     Entity entity = underlay.getEntity(entityName);
 
+    // Get the entity level hints, either via query or from the cache.
+    Optional<HintQueryResult> entityLevelHintsCached =
+        underlayService.getEntityLevelHints(underlayName, entityName);
+    HintQueryResult entityLevelHints;
+    if (entityLevelHintsCached.isPresent()) {
+      entityLevelHints = entityLevelHintsCached.get();
+    } else {
+      HintQueryRequest hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null);
+      entityLevelHints = EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());
+      underlayService.cacheEntityLevelHints(underlayName, entityName, entityLevelHints);
+    }
+
     // Build the attribute fields for select and group by.
     List<ValueDisplayField> attributeFields = new ArrayList<>();
     if (body.getAttributes() != null) {
@@ -162,9 +175,13 @@ public class UnderlaysApiController implements UnderlaysApi {
           .forEach(
               attributeName ->
                   attributeFields.add(
-                      FromApiUtils.buildAttributeField(underlay, entity, attributeName, false)));
-      // TODO: Exclude display from count queries, fill in with cached entity-level hints
-      // afterwards.
+                      FromApiUtils.buildAttributeField(
+                          underlay,
+                          entity,
+                          attributeName,
+                          entityLevelHints
+                              .getHintInstance(entity.getAttribute(attributeName))
+                              .isPresent())));
     }
 
     // Build the entity filter.
@@ -174,7 +191,8 @@ public class UnderlaysApiController implements UnderlaysApi {
             : FromApiUtils.fromApiObject(body.getFilter(), entity, underlay);
 
     CountQueryRequest countQueryRequest =
-        new CountQueryRequest(underlay, entity, attributeFields, filter, null, null);
+        new CountQueryRequest(
+            underlay, entity, attributeFields, filter, null, null, entityLevelHints);
 
     // Run the count query and map the results back to API objects.
     CountQueryResult countQueryResult =

@@ -137,10 +137,9 @@ public final class EntityQueryRunner {
           CountInstance.fromRowResult(
               rowResultsItr.next(),
               apiQueryRequest.getGroupByFields(),
-              queryRequestAndCountField.getRight()));
+              queryRequestAndCountField.getRight(),
+              apiQueryRequest.getEntityLevelHints()));
     }
-    // TODO: If there are any attribute fields with excludeDisplay=true, query the entity-level
-    // hints to set the displays.
     return new CountQueryResult(
         queryRequest.getSql(), countInstances, queryResult.getNextPageMarker());
   }

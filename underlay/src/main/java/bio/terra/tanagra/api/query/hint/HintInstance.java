@@ -1,11 +1,13 @@
 package bio.terra.tanagra.api.query.hint;
 
 import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class HintInstance {
   private final Attribute attribute;
@@ -56,6 +58,13 @@ public final class HintInstance {
 
   public ImmutableMap<ValueDisplay, Long> getEnumValueCounts() {
     return ImmutableMap.copyOf(enumValueCounts);
+  }
+
+  public Optional<String> getEnumDisplay(Literal enumValue) {
+    return enumValueCounts.keySet().stream()
+        .filter(valueDisplay -> valueDisplay.getValue().equals(enumValue))
+        .map(ValueDisplay::getDisplay)
+        .findAny();
   }
 
   @Override

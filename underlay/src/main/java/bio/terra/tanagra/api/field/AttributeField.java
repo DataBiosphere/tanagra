@@ -122,4 +122,8 @@ public class AttributeField extends ValueDisplayField {
   public Attribute getAttribute() {
     return attribute;
   }
+
+  public boolean isExcludeDisplay() {
+    return excludeDisplay;
+  }
 }

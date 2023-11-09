@@ -406,7 +406,8 @@ public class ReviewService {
             reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
                 .collect(Collectors.toList()));
     CountQueryRequest countQueryRequest =
-        new CountQueryRequest(underlay, entity, groupByAttributeFields, entityFilter, null, null);
+        new CountQueryRequest(
+            underlay, entity, groupByAttributeFields, entityFilter, null, null, null);
     return EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
   }
 
