@@ -222,9 +222,9 @@
         "key": "id",
         "classifications": [
           {
-            "id": "measurement",
+            "id": "snomed",
             "attribute": "measurement",
-            "entity": "t_measurement",
+            "entity": "t_measurement_snomed",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -469,7 +469,7 @@
     {
       "type": "classification",
       "id": "tanagra-measurement",
-      "title": "Labs and measurements",
+      "title": "Labs and Measurements",
       "conceptSet": true,
       "category": "Domains",
       "tags": ["Standard Codes"],
@@ -479,15 +479,17 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
-        { "key": "name", "width": "100%", "title": "Condition" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "name", "width": "100%", "title": "Labs and Measurements" },
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "measurement_occurrence",
-      "classifications": ["measurement"],
+      "classifications": ["snomed"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {

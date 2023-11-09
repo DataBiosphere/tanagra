@@ -1,17 +1,17 @@
 {
-  "name": "t_measurement_snomed_concept",
+  "name": "t_measurement_snomed",
   "idAttribute": "id",
   "attributes": [
     { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "name", "dataType": "STRING", "displayHintTypes": ["NONE"] },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING" },
     { "type": "SIMPLE", "name": "vocabulary", "dataType": "STRING" },
     { "type": "KEY_AND_DISPLAY", "name": "standard_concept", "dataType": "STRING" },
-    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING", "displayHintTypes": ["NONE"] } ],
+    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING" } ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "tablePointer": {
-      "rawSqlFile": "t_measurement_snomed_concept.sql"
+      "rawSqlFile": "t_measurement_snomed.sql"
     },
     "attributeMappings": {
       "id": { "value": { "column": "concept_id" } },

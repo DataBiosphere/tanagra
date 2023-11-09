@@ -224,7 +224,7 @@
           {
             "id": "snomed",
             "attribute": "measurement",
-            "entity": "t_measurement_snomed_concept",
+            "entity": "t_measurement_snomed",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
@@ -529,7 +529,7 @@
       "modifiers": [
         "age_at_occurrence",
         "start_date_group_by_count"
-    ]
+      ]
     },
     {
       "type": "classification",
