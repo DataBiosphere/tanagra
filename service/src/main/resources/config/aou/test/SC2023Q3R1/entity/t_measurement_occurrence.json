@@ -1,8 +1,8 @@
 {
   "name": "t_measurement_occurrence",
-  "idAttribute": "measurement_id",
+  "idAttribute": "id",
   "attributes": [
-    { "type": "SIMPLE", "name": "measurement_id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "measurement_concept_id", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "date", "dataType": "TIMESTAMP" },

@@ -1,5 +1,5 @@
 SELECT
-  mo.measurement_id,
+  mo.measurement_id AS id,
   mo.person_id,
   CASE WHEN mo.measurement_concept_id IS NULL THEN 0 ELSE mo.measurement_concept_id END AS measurement_concept_id,
   mo.measurement_datetime AS date,
