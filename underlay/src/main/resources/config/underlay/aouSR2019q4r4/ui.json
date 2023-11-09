@@ -9,7 +9,7 @@
       {
         "id": "condition_occurrence",
         "displayName": "Condition Occurrences",
-        "entity": "condition_occurrence",
+        "entity": "conditionOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -28,7 +28,7 @@
       {
         "id": "procedure_occurrence",
         "displayName": "Procedure Occurrences",
-        "entity": "procedure_occurrence",
+        "entity": "procedureOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -47,7 +47,7 @@
       {
         "id": "observation_occurrence",
         "displayName": "Observation Occurrence",
-        "entity": "observation_occurrence",
+        "entity": "observationOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -65,7 +65,7 @@
       {
         "id": "ingredient_occurrence",
         "displayName": "Drug Occurrence",
-        "entity": "ingredient_occurrence",
+        "entity": "ingredientOccurrence",
         "key": "id",
         "classifications": [
           {
