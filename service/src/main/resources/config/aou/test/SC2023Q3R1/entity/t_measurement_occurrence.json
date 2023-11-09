@@ -5,7 +5,7 @@
     { "type": "SIMPLE", "name": "measurement_id", "dataType": "INT64" },
     { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "measurement_concept_id", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "measurement_datetime", "dataType": "TIMESTAMP" },
+    { "type": "SIMPLE", "name": "date", "dataType": "TIMESTAMP" },
     { "type": "SIMPLE", "name": "value_numeric", "dataType": "DOUBLE" },
     { "type": "KEY_AND_DISPLAY", "name": "value_enum", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "unit", "dataType": "INT64" },
@@ -15,13 +15,13 @@
     { "type": "SIMPLE", "name": "visit_occurrence_id", "dataType": "INT64" },
     { "type": "KEY_AND_DISPLAY", "name": "visit_type", "dataType": "INT64" }
   ],
+  "frequentFilterAttributes": [ "measurement_concept_id" ],
 
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "tablePointer": { "rawSqlFile": "t_measurement_occurrence_all.sql" },
     "attributeMappings": {
       "measurement_concept_id": {
-        "value": { "column": "measurement_concept_id" },
         "display": {
           "column": "measurement_concept_id",
           "foreignTable": "concept",
