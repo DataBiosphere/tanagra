@@ -16,7 +16,6 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
-import bio.terra.tanagra.utils.NameUtils;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
@@ -34,6 +33,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataExportService {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportService.class);
+  private static final String SIMPLIFY_TO_NAME_REGEX = "[^a-zA-Z0-9_]";
+
   private final ExportConfiguration.Shared shared;
   private final Map<String, DataExport> modelToImpl = new HashMap<>();
   private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
@@ -212,8 +213,7 @@ public class DataExportService {
                 Function.identity(),
                 cohort -> {
                   String cohortIdAndName =
-                      NameUtils.simplifyStringForName(
-                          cohort.getDisplayName() + "_" + cohort.getId());
+                      simplifyStringForName(cohort.getDisplayName() + "_" + cohort.getId());
                   String fileName = getFileName(fileNameTemplate, "cohort", cohortIdAndName);
                   String fileContents =
                       reviewService.buildTsvStringForAnnotationValues(study, cohort);
@@ -242,5 +242,9 @@ public class DataExportService {
           GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcsProjectId());
     }
     return storageService;
+  }
+
+  public static String simplifyStringForName(String str) {
+    return str.replaceAll(SIMPLIFY_TO_NAME_REGEX, "");
   }
 }

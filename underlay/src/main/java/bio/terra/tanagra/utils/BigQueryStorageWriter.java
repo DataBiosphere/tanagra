@@ -35,13 +35,13 @@ import org.threeten.bp.Duration;
  * Utility class for using the BigQuery Storage Write API. Example code from:
  * https://cloud.google.com/bigquery/docs/write-api-streaming#at-least-once
  */
-public final class BigQueryStorageWriteApi {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BigQueryStorageWriteApi.class);
+public final class BigQueryStorageWriter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BigQueryStorageWriter.class);
 
   private static final int BATCH_SIZE = 1000;
   private static final int MAX_BATCHES = 100;
 
-  private BigQueryStorageWriteApi() {}
+  private BigQueryStorageWriter() {}
 
   public static void insertWithStorageWriteApi(
       CredentialsProvider credentialsProvider,

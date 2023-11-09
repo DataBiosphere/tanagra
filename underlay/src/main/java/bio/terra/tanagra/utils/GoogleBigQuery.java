@@ -137,7 +137,7 @@ public final class GoogleBigQuery {
       String projectId, String datasetId, String tableId, int maxCalls, Duration sleepDuration) {
     try {
       boolean tableExists =
-          HttpUtils.pollWithRetries(
+          RetryUtils.pollWithRetries(
               () -> getTable(projectId, datasetId, tableId).isPresent(),
               checkTableExistsResult -> checkTableExistsResult,
               ex -> false,
@@ -295,7 +295,7 @@ public final class GoogleBigQuery {
   public void insertWithStorageWriteApi(
       String projectId, String datasetId, String tableId, List<JSONObject> records) {
     try {
-      BigQueryStorageWriteApi.insertWithStorageWriteApi(
+      BigQueryStorageWriter.insertWithStorageWriteApi(
           FixedCredentialsProvider.create(credentials),
           TableName.of(projectId, datasetId, tableId),
           records);
@@ -359,14 +359,14 @@ public final class GoogleBigQuery {
    *     thrown by the BQ client or the retries
    */
   private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     return handleClientExceptions(
         () ->
-            HttpUtils.callWithRetries(
+            RetryUtils.callWithRetries(
                 makeRequest,
                 GoogleBigQuery::isRetryable,
                 BQ_MAXIMUM_RETRIES,
-                HttpUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
+                RetryUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
         errorMsg);
   }
 
@@ -379,7 +379,7 @@ public final class GoogleBigQuery {
    *     thrown by the BQ client or the retries
    */
   private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     try {
       return makeRequest.makeRequest();
     } catch (IOException | InterruptedException ex) {

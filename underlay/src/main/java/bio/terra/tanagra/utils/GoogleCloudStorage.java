@@ -157,14 +157,14 @@ public final class GoogleCloudStorage {
    *     by the GCS client or the retries
    */
   private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     return handleClientExceptions(
         () ->
-            HttpUtils.callWithRetries(
+            RetryUtils.callWithRetries(
                 makeRequest,
                 GoogleCloudStorage::isRetryable,
                 GCS_MAXIMUM_RETRIES,
-                HttpUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
+                RetryUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
         errorMsg);
   }
 
@@ -177,7 +177,7 @@ public final class GoogleCloudStorage {
    *     thrown by the GCS client or the retries
    */
   private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     try {
       return makeRequest.makeRequest();
     } catch (IOException | InterruptedException ex) {

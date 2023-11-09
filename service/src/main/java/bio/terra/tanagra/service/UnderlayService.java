@@ -8,7 +8,6 @@ import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.utils.FileIO;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,6 @@ public class UnderlayService {
   public UnderlayService(UnderlayConfiguration underlayConfiguration) {
     // Read in underlays from resource files.
     Map<String, Underlay> underlaysMapBuilder = new HashMap<>();
-    FileIO.setToReadResourceFiles();
     for (String serviceConfig : underlayConfiguration.getFiles()) {
       SZService szService = ConfigReader.deserializeService(serviceConfig);
       SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);

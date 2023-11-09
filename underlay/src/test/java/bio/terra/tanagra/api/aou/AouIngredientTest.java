@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.aousynthetic;
+package bio.terra.tanagra.api.aou;
 
 import bio.terra.tanagra.api.omop.OmopIngredientTest;
 

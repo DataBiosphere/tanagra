@@ -1,14 +1,14 @@
-package bio.terra.tanagra.api.sdd;
+package bio.terra.tanagra.api.sd;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class SddSnpTest extends BaseQueriesTest {
+public class SdSnpTest extends BaseQueriesTest {
   @Override
   protected String getServiceConfigName() {
-    return "sdd_verily";
+    return "sd020230331_verily";
   }
 
   @Override

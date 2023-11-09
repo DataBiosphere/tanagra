@@ -1,11 +1,11 @@
 package bio.terra.tanagra.service.export.impl;
 
 import bio.terra.tanagra.service.export.DataExport;
+import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.utils.FileUtils;
-import bio.terra.tanagra.utils.NameUtils;
 import bio.terra.tanagra.utils.SqlFormatter;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
@@ -62,7 +62,7 @@ public class IpynbFileDownload implements DataExport {
 
     // Make substitutions in the template file contents.
     String studyIdAndName =
-        NameUtils.simplifyStringForName(
+        DataExportService.simplifyStringForName(
             new StringBuilder(
                     request.getStudy().getDisplayName() + "_" + request.getStudy().getId())
                 .toString());

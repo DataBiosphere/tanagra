@@ -28,8 +28,8 @@ import org.junit.Test;
 public class JobSequencerTest {
   @Test
   public void person() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sdd_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay("sdd");
+    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"));
@@ -45,8 +45,8 @@ public class JobSequencerTest {
 
   @Test
   public void condition() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sdd_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay("sdd");
+    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("condition"));
@@ -94,8 +94,8 @@ public class JobSequencerTest {
 
   @Test
   public void brandIngredient() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sdd_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay("sdd");
+    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForGroupItems(
@@ -112,8 +112,8 @@ public class JobSequencerTest {
 
   @Test
   public void conditionPerson() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sdd_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay("sdd");
+    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForCriteriaOccurrence(

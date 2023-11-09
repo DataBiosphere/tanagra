@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.authentication;
 
 import bio.terra.common.iam.BearerToken;
-import bio.terra.tanagra.utils.HttpUtils;
+import bio.terra.tanagra.utils.RetryUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -21,7 +21,7 @@ public final class BearerTokenUtils {
             .setApplicationName("tanagra")
             .build();
     Userinfo userInfo =
-        HttpUtils.callWithRetries(
+        RetryUtils.callWithRetries(
             () -> oauth2.userinfo().get().execute(), ex -> ex instanceof IOException);
     return UserId.fromToken(userInfo.getId(), userInfo.getEmail(), bearerToken.getToken());
   }

@@ -6,15 +6,15 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Utility methods for making HTTP requests. */
-public class HttpUtils {
-  // default value for the maximum number of times to retry HTTP requests
+/** Utility methods for retrying and polling. */
+public class RetryUtils {
+  // Default value for the maximum number of times to retry calls.
   public static final int DEFAULT_MAXIMUM_RETRIES = 15;
-  // default value for the time to sleep between retries
+  // Default value for the time to sleep between retries.
   public static final Duration DEFAULT_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
-  private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RetryUtils.class);
 
-  private HttpUtils() {}
+  private RetryUtils() {}
 
   /**
    * Helper method to call a function with retries. Uses {@link #DEFAULT_MAXIMUM_RETRIES} for
