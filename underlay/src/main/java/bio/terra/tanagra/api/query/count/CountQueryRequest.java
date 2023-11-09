@@ -9,7 +9,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public class CountQueryRequest {
-  private static final Integer DEFAULT_PAGE_SIZE = 250;
+  // TODO: Lower this once the UI can paginate through count results.
+  private static final Integer DEFAULT_PAGE_SIZE = 2000;
 
   private final Underlay underlay;
   private final Entity entity;

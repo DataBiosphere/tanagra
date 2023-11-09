@@ -58,7 +58,7 @@ public class InstanceLevelHintField extends HintField {
             .orElseThrow(
                 () ->
                     new SystemException(
-                        "Null attribute name in entity-level display hints table: "
+                        "Null attribute name in instance-level display hints table: "
                             + indexTable.getHintedEntity()))
             .getStringVal();
     Optional<Literal> min =

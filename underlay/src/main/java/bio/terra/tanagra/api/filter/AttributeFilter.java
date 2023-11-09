@@ -1,5 +1,6 @@
 package bio.terra.tanagra.api.filter;
 
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.Literal;
@@ -49,10 +50,16 @@ public class AttributeFilter extends EntityFilter {
   @Override
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
-    FieldVariable valueFieldVar =
-        indexTable
-            .getAttributeValueField(attribute.getName())
-            .buildVariable(entityTableVar, tableVars);
+    FieldPointer valueField = indexTable.getAttributeValueField(attribute.getName());
+    if (attribute.hasRuntimeSqlFunctionWrapper()) {
+      valueField =
+          valueField
+              .toBuilder()
+              .runtimeCalculated(true)
+              .sqlFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper())
+              .build();
+    }
+    FieldVariable valueFieldVar = valueField.buildVariable(entityTableVar, tableVars);
     return functionTemplate == null
         ? new BinaryFilterVariable(valueFieldVar, operator, values.get(0))
         : new FunctionFilterVariable(

@@ -9,6 +9,7 @@ public class Hint {
   private final double max;
   private @Nullable final ValueDisplay enumVal;
   private final long enumCount;
+  private final boolean isRangeHint;
 
   public Hint(String attribute, double min, double max) {
     this.attribute = attribute;
@@ -16,6 +17,7 @@ public class Hint {
     this.max = max;
     this.enumVal = null;
     this.enumCount = -1;
+    this.isRangeHint = true;
   }
 
   public Hint(String attribute, ValueDisplay enumVal, long enumCount) {
@@ -24,10 +26,11 @@ public class Hint {
     this.max = -1;
     this.enumVal = enumVal;
     this.enumCount = enumCount;
+    this.isRangeHint = false;
   }
 
   public boolean isRangeHint() {
-    return enumVal == null;
+    return isRangeHint;
   }
 
   public String getAttribute() {

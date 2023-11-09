@@ -17,7 +17,7 @@
             "attribute": "condition",
             "entity": "condition",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -36,7 +36,7 @@
             "attribute": "procedure",
             "entity": "procedure",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -73,7 +73,7 @@
             "attribute": "id",
             "entity": "ingredient",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"

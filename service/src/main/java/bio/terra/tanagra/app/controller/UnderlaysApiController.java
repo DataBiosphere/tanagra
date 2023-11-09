@@ -162,7 +162,9 @@ public class UnderlaysApiController implements UnderlaysApi {
           .forEach(
               attributeName ->
                   attributeFields.add(
-                      FromApiUtils.buildAttributeField(underlay, entity, attributeName, true)));
+                      FromApiUtils.buildAttributeField(underlay, entity, attributeName, false)));
+      // TODO: Exclude display from count queries, fill in with cached entity-level hints
+      // afterwards.
     }
 
     // Build the entity filter.
@@ -292,7 +294,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
   private ApiDisplayHint toApiObject(HintInstance hintInstance) {
     ApiDisplayHintDisplayHint apiHint = null;
-    if (hintInstance.isRangeHint()) {
+    if (hintInstance.isEnumHint()) {
       apiHint =
           new ApiDisplayHintDisplayHint()
               .enumHint(
@@ -308,7 +310,7 @@ public class UnderlaysApiController implements UnderlaysApi {
                                         .count(Math.toIntExact(count));
                                   })
                               .collect(Collectors.toList())));
-    } else if (hintInstance.isEnumHint()) {
+    } else if (hintInstance.isRangeHint()) {
       apiHint =
           new ApiDisplayHintDisplayHint()
               .numericRangeHint(

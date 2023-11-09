@@ -20,7 +20,7 @@
           "attribute": "id",
           "entity": "genotyping",
           "entityAttribute": "id",
-          "hierarchy": "standard",
+          "hierarchy": "default",
           "defaultSort": {
             "attribute": "name",
             "direction": "ASC"
@@ -32,7 +32,7 @@
       {
         "id": "condition_occurrence",
         "displayName": "Condition Occurrences",
-        "entity": "condition_occurrence",
+        "entity": "conditionOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -40,7 +40,7 @@
             "attribute": "condition",
             "entity": "condition",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -51,7 +51,7 @@
             "attribute": "source_criteria_id",
             "entity": "phewas",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "numeric_code",
               "direction": "ASC"
@@ -62,7 +62,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -73,7 +73,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -84,7 +84,7 @@
       {
         "id": "procedure_occurrence",
         "displayName": "Procedure Occurrences",
-        "entity": "procedure_occurrence",
+        "entity": "procedureOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -92,7 +92,7 @@
             "attribute": "procedure",
             "entity": "procedure",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -103,7 +103,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -114,7 +114,7 @@
             "attribute": "source_criteria_id",
             "entity": "phewas",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "numeric_code",
               "direction": "ASC"
@@ -125,7 +125,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -136,7 +136,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9proc",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -147,7 +147,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -158,7 +158,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10pcs",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -169,7 +169,7 @@
       {
         "id": "observation_occurrence",
         "displayName": "Observation Occurrence",
-        "entity": "observation_occurrence",
+        "entity": "observationOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -187,7 +187,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -198,7 +198,7 @@
             "attribute": "source_criteria_id",
             "entity": "phewas",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "numeric_code",
               "direction": "ASC"
@@ -209,7 +209,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -220,7 +220,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -231,7 +231,7 @@
       {
         "id": "ingredient_occurrence",
         "displayName": "Drug Occurrence",
-        "entity": "ingredient_occurrence",
+        "entity": "ingredientOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -239,7 +239,7 @@
             "attribute": "id",
             "entity": "ingredient",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -261,7 +261,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -272,13 +272,13 @@
       {
         "id": "note_occurrence",
         "displayName": "Documents",
-        "entity": "note_occurrence",
+        "entity": "noteOccurrence",
         "key": "id"
       },
       {
         "id": "measurement_occurrence",
         "displayName": "Measurement Occurrence",
-        "entity": "measurement_occurrence",
+        "entity": "measurementOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -286,7 +286,7 @@
             "attribute": "measurement",
             "entity": "measurementLoinc",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_item_count",
               "direction": "DESC"
@@ -297,7 +297,7 @@
             "attribute": "measurement",
             "entity": "measurementSnomed",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_item_count",
               "direction": "DESC"
@@ -308,7 +308,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -319,7 +319,7 @@
             "attribute": "source_criteria_id",
             "entity": "phewas",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "numeric_code",
               "direction": "ASC"
@@ -330,7 +330,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -341,7 +341,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9proc",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -352,7 +352,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -363,7 +363,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10pcs",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"

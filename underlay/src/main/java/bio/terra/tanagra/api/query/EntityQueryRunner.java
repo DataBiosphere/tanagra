@@ -37,8 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class EntityQueryRunner {
+  private static final Logger LOGGER = LoggerFactory.getLogger(EntityQueryRunner.class);
+
   private EntityQueryRunner() {}
 
   public static ListQueryResult run(ListQueryRequest apiQueryRequest, QueryExecutor queryExecutor) {
@@ -46,6 +50,7 @@ public final class EntityQueryRunner {
     // Execute the SQL query.
     QueryRequest queryRequest = buildQueryRequest(apiQueryRequest);
     QueryResult queryResult = queryExecutor.execute(queryRequest);
+    LOGGER.debug("ListQuery returned {} total rows", queryResult.getTotalNumRows());
 
     // ==================================================================
     // Convert the SQL query results into entity query results. (SQL-> API)
@@ -121,6 +126,7 @@ public final class EntityQueryRunner {
         buildQueryRequestAndCountField(apiQueryRequest);
     QueryRequest queryRequest = queryRequestAndCountField.getLeft();
     QueryResult queryResult = queryExecutor.execute(queryRequest);
+    LOGGER.debug("CountQuery returned {} total rows", queryResult.getTotalNumRows());
 
     // ==================================================================
     // Convert the SQL query results into entity query results. (SQL-> API)
@@ -244,7 +250,7 @@ public final class EntityQueryRunner {
           fieldVars.stream()
               .filter(
                   fv ->
-                      fv.getAlias()
+                      fv.getAliasOrColumnName()
                           .equals(
                               ITInstanceLevelDisplayHints.Column.ENTITY_ID
                                   .getSchema()
@@ -265,6 +271,7 @@ public final class EntityQueryRunner {
     QueryResult queryResult =
         queryExecutor.execute(
             new QueryRequest(query.renderSQL(), new ColumnHeaderSchema(columnSchemas)));
+    LOGGER.debug("HintQuery returned {} total rows", queryResult.getTotalNumRows());
 
     // ==================================================================
     // Convert the SQL query results into entity query results. (SQL-> API)

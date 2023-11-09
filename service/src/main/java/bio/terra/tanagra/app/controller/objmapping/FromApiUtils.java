@@ -226,8 +226,10 @@ public final class FromApiUtils {
                             entity,
                             underlay.getEntity(
                                 orderByField.getRelationshipField().getRelatedEntity()),
-                            entity.getHierarchy(
-                                orderByField.getRelationshipField().getHierarchy()));
+                            orderByField.getRelationshipField().getHierarchy() == null
+                                ? null
+                                : entity.getHierarchy(
+                                    orderByField.getRelationshipField().getHierarchy()));
                 OrderByDirection direction =
                     OrderByDirection.valueOf(orderByField.getDirection().name());
                 orderByFields.add(new ListQueryRequest.OrderBy(valueDisplayField, direction));

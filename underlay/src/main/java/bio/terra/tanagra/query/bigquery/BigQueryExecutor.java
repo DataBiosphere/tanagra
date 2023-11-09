@@ -56,7 +56,11 @@ public class BigQueryExecutor implements QueryExecutor {
                 new BigQueryRowResult(fieldValueList, queryRequest.getColumnHeaderSchema()));
     PageMarker nextPageMarker =
         tableResult.hasNextPage() ? PageMarker.forToken(tableResult.getNextPageToken()) : null;
-    return new QueryResult(rowResults, queryRequest.getColumnHeaderSchema(), nextPageMarker);
+    return new QueryResult(
+        rowResults,
+        queryRequest.getColumnHeaderSchema(),
+        nextPageMarker,
+        tableResult.getTotalRows());
   }
 
   @Override

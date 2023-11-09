@@ -77,7 +77,9 @@ public class EntityLevelHintField extends HintField {
               rowResult, ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName());
       return new Hint(
           attributeName,
-          new ValueDisplay(enumVal.get(), enumDisplay.get().getStringVal()),
+          new ValueDisplay(
+              enumVal.orElse(new Literal(null)),
+              enumDisplay.isPresent() ? enumDisplay.get().getStringVal() : null),
           enumCount.get().getInt64Val());
     }
   }

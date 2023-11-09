@@ -66,8 +66,8 @@ public class AttributeField extends ValueDisplayField {
     Optional<Literal> valueOpt = cellValue.getLiteral();
 
     if (valueOpt.isEmpty()) {
-      return null;
-    } else if (attribute.isSimple()) {
+      return new ValueDisplay(new Literal(null));
+    } else if (attribute.isSimple() || excludeDisplay) {
       return new ValueDisplay(valueOpt.get());
     } else { // isValueDisplay
       String display =

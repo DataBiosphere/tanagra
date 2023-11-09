@@ -9,7 +9,7 @@
       {
         "id": "condition_occurrence",
         "displayName": "Condition Occurrences",
-        "entity": "condition_occurrence",
+        "entity": "conditionOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -17,7 +17,7 @@
             "attribute": "condition",
             "entity": "condition",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -28,7 +28,7 @@
       {
         "id": "procedure_occurrence",
         "displayName": "Procedure Occurrences",
-        "entity": "procedure_occurrence",
+        "entity": "procedureOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -36,7 +36,7 @@
             "attribute": "procedure",
             "entity": "procedure",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -47,7 +47,7 @@
       {
         "id": "observation_occurrence",
         "displayName": "Observation Occurrence",
-        "entity": "observation_occurrence",
+        "entity": "observationOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -65,7 +65,7 @@
       {
         "id": "ingredient_occurrence",
         "displayName": "Drug Occurrence",
-        "entity": "ingredient_occurrence",
+        "entity": "ingredientOccurrence",
         "key": "id",
         "classifications": [
           {
@@ -73,7 +73,7 @@
             "attribute": "id",
             "entity": "ingredient",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
