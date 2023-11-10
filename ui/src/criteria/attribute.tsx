@@ -16,6 +16,7 @@ import produce from "immer";
 import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
+import { safeRegExp } from "util/safeRegExp";
 
 type Selection = {
   value: DataValue;
@@ -319,7 +320,7 @@ async function search(
     return [];
   }
 
-  const re = new RegExp(query, "i");
+  const [re] = safeRegExp(query);
   const results: DataEntry[] = [];
   hintData.enumHintOptions.forEach((hint) => {
     const key = hint.value;
