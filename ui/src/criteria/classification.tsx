@@ -42,7 +42,10 @@ import emptyImage from "../images/empty.svg";
 type Selection = {
   key: DataKey;
   name: string;
-  entity: string;
+  classification?: string;
+
+  // Deprecated
+  entity?: string;
 };
 
 // A custom TreeGridItem allows us to store the ClassificationNode along with
@@ -86,19 +89,12 @@ export interface Data {
     };
 
     if (dataEntry) {
-      // TODO(tjennison): Pass in the appropriate classification for dataEntry.
-      // This impacts prepackaged criteria for occurences with multiple
-      // classifications.
-      const classification = source.lookupClassification(
-        firstOf(config.occurrences),
-        config.classifications[0]
-      );
-
       const column = config.columns[config.nameColumnIndex ?? 0];
       data.selected.push({
         key: dataEntry.key,
         name: String(dataEntry[column.key]) ?? "",
-        entity: classification.entity,
+        classification:
+          String(dataEntry.classification) ?? config.classifications[0],
       });
     }
 
@@ -164,7 +160,9 @@ class _ implements CriteriaPlugin<Data> {
       {
         type: FilterType.Classification,
         occurrenceId: occurrenceId,
-        classificationId: this.config.classifications[0],
+        classificationId:
+          this.data.selected[0].classification ??
+          this.config.classifications[0],
         keys: this.data.selected.map(({ key }) => key),
       },
     ];
@@ -457,7 +455,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 const newItem = {
                   key: item.node.data.key,
                   name: !!name ? String(name) : "",
-                  entity: classification.entity,
+                  classification: classification.id,
                 };
 
                 const hierarchyButton = (
@@ -642,7 +640,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
   const source = useSource();
   const classification = source.lookupClassification(
     firstOf(props.config.occurrences),
-    props.config.classifications[0]
+    props.data.selected[0].classification ?? props.config.classifications[0]
   );
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
 
@@ -669,23 +667,34 @@ function ClassificationInline(props: ClassificationInlineProps) {
   );
 }
 
-function search(
+async function search(
   source: Source,
   c: CriteriaConfig,
   query: string
 ): Promise<DataEntry[]> {
   const config = c as Config;
-  return source
-    .searchClassification(
-      config.columns.map(({ key }) => key),
-      firstOf(config.occurrences),
-      config.classifications[0],
-      {
-        query,
-        sortOrder: config.defaultSort,
-      }
+  const results = await Promise.all(
+    config.classifications.map((classification) =>
+      source
+        .searchClassification(
+          config.columns.map(({ key }) => key),
+          firstOf(config.occurrences),
+          classification,
+          {
+            query,
+            sortOrder: config.defaultSort,
+          }
+        )
+        .then((res) =>
+          res.nodes.map((node) => ({
+            ...node.data,
+            classification: classification,
+          }))
+        )
     )
-    .then((res) => res.nodes.map((node) => node.data));
+  );
+
+  return results.flat();
 }
 
 function firstOf(value: string | string[]) {
