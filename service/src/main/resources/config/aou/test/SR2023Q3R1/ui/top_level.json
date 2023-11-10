@@ -223,7 +223,7 @@
         "classifications": [
           {
             "id": "snomed",
-            "attribute": "measurement",
+            "attribute": "measurement_concept_id",
             "entity": "t_measurement_snomed",
             "entityAttribute": "id",
             "hierarchy": "standard",
