@@ -12,6 +12,7 @@ import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { CriteriaConfig } from "underlaysSlice";
+import { safeRegExp } from "util/safeRegExp";
 import { isValid } from "util/valid";
 
 export interface Config extends CriteriaConfig {
@@ -183,7 +184,7 @@ async function search(
 
   const allHintData = await source.getAllHintData(config.occurrence);
 
-  const re = new RegExp(query, "i");
+  const [re] = safeRegExp(query);
   const results: DataEntry[] = [];
   allHintData.forEach((hintData) => {
     if (!hintData?.enumHintOptions) {
