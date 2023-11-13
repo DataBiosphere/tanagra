@@ -11,8 +11,7 @@
     },
     "indexData": {
       "projectId": "verily-tanagra-dev",
-      "datasetId": "cmssynpuf_index_110623",
-      "tablePrefix": "T"
+      "datasetId": "cmssynpuf_index_110623"
     },
     "queryProjectId": "broad-tanagra-dev",
     "dataLocation": "us"

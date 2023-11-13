@@ -3,7 +3,7 @@ SELECT
   o.person_id,
   o.observation_concept_id,
   oc.concept_name AS observation_concept_name,
-  o.observation_date,
+  o.observation_datetime,
   o.value_as_string,
   o.value_as_concept_id,
   ovc.concept_name AS value_as_concept_name,
@@ -11,7 +11,7 @@ SELECT
   ouc.concept_name AS unit_concept_name,
   o.observation_source_value,
   o.observation_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(o.observation_date, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(o.observation_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   o.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name

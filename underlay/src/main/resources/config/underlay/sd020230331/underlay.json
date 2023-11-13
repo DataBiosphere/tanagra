@@ -5,27 +5,27 @@
     "sd/person",
 
     "omop/condition",
-    "omop/conditionOccurrence",
+    "sd/conditionOccurrence",
     "omop/procedure",
-    "omop/procedureOccurrence",
+    "sd/procedureOccurrence",
 
     "omop/brand",
     "omop/ingredient",
-    "omop/ingredientOccurrence",
+    "sd/ingredientOccurrence",
 
     "omop/measurementLoinc",
     "omop/measurementSnomed",
-    "omop/measurementOccurrence",
+    "sd/measurementOccurrence",
 
     "omop/observation",
-    "omop/observationOccurrence",
+    "sd/observationOccurrence",
     "omop/device",
-    "omop/deviceOccurrence",
+    "sd/deviceOccurrence",
     "omop/visit",
-    "omop/visitOccurrence",
+    "sd/visitOccurrence",
 
     "omop/note",
-    "omop/noteOccurrence",
+    "sd/noteOccurrence",
     "sd/familyHistory",
 
     "omop/cpt4",

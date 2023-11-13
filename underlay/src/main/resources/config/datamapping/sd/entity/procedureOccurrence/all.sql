@@ -3,10 +3,10 @@ SELECT
   po.person_id,
   po.procedure_concept_id,
   pc.concept_name AS procedure_concept_name,
-  po.procedure_datetime,
+  po.procedure_date,
   po.procedure_source_value,
   po.procedure_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(po.procedure_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(po.procedure_date, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   po.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name

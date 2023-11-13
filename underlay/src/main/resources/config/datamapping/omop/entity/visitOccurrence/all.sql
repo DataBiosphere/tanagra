@@ -3,8 +3,8 @@ SELECT
   vo.person_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name,
-  vo.visit_start_date,
-  vo.visit_end_date,
+  vo.visit_start_datetime,
+  vo.visit_end_datetime,
   vo.visit_source_value,
   vo.visit_source_concept_id,
   CAST(FLOOR(TIMESTAMP_DIFF(vo.visit_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence

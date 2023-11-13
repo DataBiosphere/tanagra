@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
 public class Query implements SQLExpression {
-  public static final String TANAGRA_FIELD_PREFIX = "t_";
-
   private final List<FieldVariable> select;
   private final List<TableVariable> tables;
   private final FilterVariable where;

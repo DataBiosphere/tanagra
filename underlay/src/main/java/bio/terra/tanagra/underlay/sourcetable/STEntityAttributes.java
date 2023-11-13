@@ -4,6 +4,7 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -73,8 +74,11 @@ public class STEntityAttributes extends SourceTable {
   public ImmutableMap<String, ColumnSchema> getAttributeValueColumnSchemas() {
     return attributeValueColumnSchemas;
   }
+  public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {return attributeValueColumnSchemas.get(attribute.getName());}
 
   public ImmutableMap<String, ColumnSchema> getAttributeDisplayColumnSchemas() {
     return attributeDisplayColumnSchemas;
   }
+
+  public ColumnSchema getAttributeDisplayColumnSchema(Attribute attribute) {return attributeDisplayColumnSchemas.get(attribute.getName());}
 }

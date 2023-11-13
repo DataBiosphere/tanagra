@@ -7,7 +7,7 @@
     { "name": "device", "dataType": "INT64", "valueFieldName": "device_concept_id", "displayFieldName": "device_concept_name" },
     { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "device_exposure_start_datetime" },
     { "name": "end_date", "dataType": "TIMESTAMP", "valueFieldName": "device_exposure_end_datetime" },
-    { "name": "source_value", "dataType": "STRING", "valueFieldName": "device_source_value" },
+    { "name": "source_value", "dataType": "INT64", "valueFieldName": "device_source_value" },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "device_source_concept_id" },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "visit_occurrence_id", "dataType": "INT64" },

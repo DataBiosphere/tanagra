@@ -1,17 +1,17 @@
 {
-  "name": "aouSR2019q4r4",
+  "name": "pilotsynthea2022q3",
   "primaryEntity": "person",
   "entities": [
     "omop/person",
 
     "omop/condition",
-    "omop/conditionOccurrence",
+    "pilotsynthea2022q3/conditionOccurrence",
     "omop/procedure",
-    "omop/procedureOccurrence",
+    "pilotsynthea2022q3/procedureOccurrence",
 
     "omop/brand",
     "omop/ingredient",
-    "omop/ingredientOccurrence",
+    "pilotsynthea2022q3/ingredientOccurrence",
 
     "omop/measurementLoinc",
     "omop/measurementSnomed",
@@ -20,7 +20,7 @@
     "omop/observation",
     "omop/observationOccurrence",
     "omop/device",
-    "omop/deviceOccurrence",
+    "pilotsynthea2022q3/deviceOccurrence",
     "omop/visit",
     "omop/visitOccurrence",
 
@@ -53,10 +53,10 @@
     "omop/icd10pcsPerson"
   ],
   "metadata": {
-    "displayName": "All Of Us Synthetic Dataset SR2019q4r4",
-    "description": "Dataset From 2019",
+    "displayName": "Pilot Synthetic Dataset 2022q3",
+    "description": "Dataset For Pilot",
     "properties": {
-      "lastUpdated": "10/25/21"
+      "lastUpdated": "5/22/23"
     }
   },
   "uiConfigFile": "ui.json"
