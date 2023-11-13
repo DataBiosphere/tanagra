@@ -21,7 +21,7 @@
         "value": { "column": "standard_concept" },
         "display": {
           "column": "standard_concept",
-          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} = 'S' THEN 'Standard' ELSE 'Unknown' END)" } } },
+          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Source' WHEN ${fieldSql} IN ('S', 'C') THEN 'Standard' ELSE 'Unknown' END)" } } },
     "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "t_measurement_loinc_text_search.sql" } } },
     "hierarchyMappings": {
       "standard": {
