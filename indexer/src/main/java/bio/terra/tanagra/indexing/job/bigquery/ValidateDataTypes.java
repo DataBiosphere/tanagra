@@ -42,8 +42,7 @@ public class ValidateDataTypes extends BigQueryJob {
 
   @Override
   public JobStatus checkStatus() {
-    // Always run this job.
-    return JobStatus.NOT_STARTED;
+    return outputTableHasAtLeastOneRow() ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
   }
 
   @Override

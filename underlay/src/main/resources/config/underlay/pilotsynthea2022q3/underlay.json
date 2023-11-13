@@ -27,8 +27,7 @@
     "omop/cpt4",
     "omop/icd9cm",
     "omop/icd9proc",
-    "omop/icd10cm",
-    "omop/icd10pcs"
+    "omop/icd10cm"
   ],
   "groupItemsEntityGroups": [
     "omop/brandIngredient"
@@ -49,8 +48,7 @@
     "omop/cpt4Person",
     "omop/icd9cmPerson",
     "omop/icd9procPerson",
-    "omop/icd10cmPerson",
-    "omop/icd10pcsPerson"
+    "omop/icd10cmPerson"
   ],
   "metadata": {
     "displayName": "Pilot Synthetic Dataset 2022q3",

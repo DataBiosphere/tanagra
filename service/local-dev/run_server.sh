@@ -44,7 +44,7 @@ fi
 
 if [[ ${useVerilyUnderlays} ]]; then
   echo "Using Verily underlays."
-  export TANAGRA_UNDERLAY_FILES=cmssynpuf_verily,aouSR2019q4r4_verily,sd020230331_verily
+  export TANAGRA_UNDERLAY_FILES=cmssynpuf_verily,aouSR2019q4r4_verily,sd020230331_verily,pilotsynthea2022q3_verily
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=verily-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-dev-export-bucket
 elif [[ ${useAouUnderlays} ]]; then
