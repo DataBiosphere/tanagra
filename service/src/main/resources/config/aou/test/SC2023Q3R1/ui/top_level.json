@@ -492,7 +492,7 @@
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 150, "title": "Concept ID" },
-        { "key": "t_display_standard_concept", "width": 220, "title": "Source/standard" },
+        { "key": "standard_concept", "width": 220, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_rollup_count", "width": 220, "title": "Roll-up count" },
