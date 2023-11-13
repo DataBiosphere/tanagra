@@ -1,24 +1,20 @@
 {
-  "name": "t_measurement_person_occurrence",
+  "name": "t_measurement_snomed_person_occurrence",
   "type": "CRITERIA_OCCURRENCE",
-  "criteriaEntity": "t_measurement",
+  "criteriaEntity": "t_measurement_snomed",
   "occurrenceEntities": [ "t_measurement_occurrence" ],
   "modifierAttributes": [ "value_numeric", "value_enum" ],
   "sourceDataMapping": {
     "dataPointer": "omop_dataset",
     "relationshipMappings": {
       "occurrenceToCriteria": {
-        "idPairsTable": { "table": "measurement" },
-        "idPairsIdA": { "column": "measurement_id" },
-        "idPairsIdB":  { "column": "measurement_concept_id" }
+        "foreignKeyAttribute": "measurement_concept_id"
       },
       "occurrenceToPrimary": {
-        "idPairsTable": { "table": "measurement" },
-        "idPairsIdA": { "column": "measurement_id" },
-        "idPairsIdB":  { "column": "person_id" }
+        "foreignKeyAttribute": "person_id"
       },
       "criteriaToPrimary": {
-        "idPairsTable": { "table": "measurement" },
+        "idPairsTable": { "rawSqlFile": "t_measurement_occurrence_all.sql" },
         "idPairsIdA": { "column": "measurement_concept_id" },
         "idPairsIdB":  { "column": "person_id" }
       }
