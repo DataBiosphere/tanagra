@@ -71,10 +71,6 @@ public final class TablePointer implements SQLExpression {
     }
   }
 
-  public String getPathForIndexing() {
-    return dataPointer.getTablePathForIndexing(tableName);
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

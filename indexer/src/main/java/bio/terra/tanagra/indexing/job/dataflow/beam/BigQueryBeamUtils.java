@@ -1,13 +1,27 @@
 package bio.terra.tanagra.indexing.job.dataflow.beam;
 
+import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnSchema;
+import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
+import com.google.api.services.bigquery.model.TableSchema;
+import com.google.cloud.bigquery.Field;
+import com.google.cloud.bigquery.LegacySQLTypeName;
+import com.google.common.collect.ImmutableMap;
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
+import org.apache.commons.text.StringSubstitutor;
 
 public final class BigQueryBeamUtils {
 
@@ -53,6 +67,66 @@ public final class BigQueryBeamUtils {
                 }));
   }
 
+  public static String getTableSqlPath(String projectId, String datasetId, String tableName) {
+    final String template = "${projectId}:${datasetId}.${tableName}";
+    Map<String, String> params =
+        ImmutableMap.<String, String>builder()
+            .put("projectId", projectId)
+            .put("datasetId", datasetId)
+            .put("tableName", tableName)
+            .build();
+    return StringSubstitutor.replace(template, params);
+  }
+
+  public static List<Field> getBigQueryFieldList(List<ColumnSchema> columns) {
+    return sortedStream(columns)
+        .map(
+            c -> {
+              LegacySQLTypeName columnDataType = fromSqlDataType(c.getSqlDataType());
+              return Field.newBuilder(c.getColumnName(), columnDataType)
+                  .setMode(c.isRequired() ? Field.Mode.REQUIRED : Field.Mode.NULLABLE)
+                  .build();
+            })
+        .collect(Collectors.toList());
+  }
+
+  public static TableSchema getBigQueryTableSchema(List<ColumnSchema> columns) {
+    List<TableFieldSchema> fieldSchemas =
+        sortedStream(columns)
+            .map(
+                c -> {
+                  LegacySQLTypeName columnDataType = fromSqlDataType(c.getSqlDataType());
+                  return new TableFieldSchema()
+                      .setName(c.getColumnName())
+                      .setType(columnDataType.name())
+                      .setMode(c.isRequired() ? "REQUIRED" : "NULLABLE");
+                })
+            .collect(Collectors.toList());
+    return new TableSchema().setFields(fieldSchemas);
+  }
+
+  public static LegacySQLTypeName fromSqlDataType(CellValue.SQLDataType sqlDataType) {
+    switch (sqlDataType) {
+      case STRING:
+        return LegacySQLTypeName.STRING;
+      case INT64:
+        return LegacySQLTypeName.INTEGER;
+      case BOOLEAN:
+        return LegacySQLTypeName.BOOLEAN;
+      case DATE:
+        return LegacySQLTypeName.DATE;
+      case FLOAT:
+        return LegacySQLTypeName.FLOAT;
+      case TIMESTAMP:
+        return LegacySQLTypeName.TIMESTAMP;
+      default:
+        throw new SystemException("SQL data type not supported for BigQuery: " + sqlDataType);
+    }
+  }
+
+  private static Stream<ColumnSchema> sortedStream(List<ColumnSchema> columns) {
+    return columns.stream().sorted(Comparator.comparing(c -> c.getColumnName()));
+  }
   /** Apache Beam returns DATE/TIMESTAMP columns as string. Convert to LocalDate. */
   public static LocalDate toLocalDate(String date) {
     // For DATE column, date looks like "2017-09-13".

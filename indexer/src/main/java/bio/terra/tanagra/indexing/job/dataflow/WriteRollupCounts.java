@@ -11,7 +11,6 @@ import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.UpdateFromSelect;
-import bio.terra.tanagra.query.bigquery.BigQueryDataset;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -302,7 +301,13 @@ public class WriteRollupCounts extends BigQueryJob {
     TablePointer tempTablePointer =
         TablePointer.fromTableName(
             getTempTableName(), indexTable.getTablePointer().getDataPointer());
-    writeCountsToBQ(idColumnSchema, countColumnSchema, tempTablePointer, nodeCountKVsPC);
+    writeCountsToBQ(
+        idColumnSchema,
+        countColumnSchema,
+        indexerConfig.bigQuery.indexData.projectId,
+        indexerConfig.bigQuery.indexData.datasetId,
+        tempTablePointer,
+        nodeCountKVsPC);
 
     // Kick off the pipeline.
     if (!isDryRun) {
@@ -314,6 +319,8 @@ public class WriteRollupCounts extends BigQueryJob {
   private static void writeCountsToBQ(
       ColumnSchema idColumnSchema,
       ColumnSchema countColumnSchema,
+      String indexProjectId,
+      String indexDatasetId,
       TablePointer tempTablePointer,
       PCollection<KV<Long, Long>> nodeCountKVs) {
     // Build the schema for the temp table.
@@ -324,7 +331,7 @@ public class WriteRollupCounts extends BigQueryJob {
                     new TableFieldSchema()
                         .setName(columnSchema.getColumnName())
                         .setType(
-                            BigQueryDataset.fromSqlDataType(columnSchema.getSqlDataType()).name())
+                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
             .collect(Collectors.toList());
     TableSchema outputTableSchema = new TableSchema().setFields(tempTableFieldSchemas);
@@ -347,7 +354,9 @@ public class WriteRollupCounts extends BigQueryJob {
     nodeCountBQRows.apply(
         "insert the (id, rollup_count, rollup_displayHints) rows into BQ",
         BigQueryIO.writeTableRows()
-            .to(tempTablePointer.getPathForIndexing())
+            .to(
+                BigQueryBeamUtils.getTableSqlPath(
+                    indexProjectId, indexDatasetId, tempTablePointer.getTableName()))
             .withSchema(outputTableSchema)
             .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
             .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)

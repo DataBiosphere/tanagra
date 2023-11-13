@@ -4,6 +4,7 @@ import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
+import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
@@ -17,7 +18,6 @@ import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.bigquery.BigQueryDataset;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
@@ -77,7 +77,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                 columnSchema ->
                     Field.newBuilder(
                             columnSchema.getColumnName(),
-                            BigQueryDataset.fromSqlDataType(columnSchema.getSqlDataType()))
+                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()))
                         .build())
             .collect(Collectors.toList());
 

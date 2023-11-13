@@ -11,7 +11,6 @@ import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.UpdateFromSelect;
-import bio.terra.tanagra.query.bigquery.BigQueryDataset;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -233,6 +232,8 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
         idColumnSchema,
         pathColumnSchema,
         numChildrenColumnSchema,
+        indexerConfig.bigQuery.indexData.projectId,
+        indexerConfig.bigQuery.indexData.datasetId,
         tempTablePointer,
         outputNodePathKVsPC,
         nodeNumChildrenKVsPC);
@@ -244,10 +245,13 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
   }
 
   /** Write the {@link KV} pairs (id, path, num_children) to BQ. */
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private static void writePathAndNumChildrenToBQ(
       ColumnSchema idColumnSchema,
       ColumnSchema pathColumnSchema,
       ColumnSchema numChildrenColumnSchema,
+      String indexProjectId,
+      String indexDatasetId,
       TablePointer tempTablePointer,
       PCollection<KV<Long, String>> nodePathKVs,
       PCollection<KV<Long, Long>> nodeNumChildrenKVs) {
@@ -272,7 +276,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
                     new TableFieldSchema()
                         .setName(columnSchema.getColumnName())
                         .setType(
-                            BigQueryDataset.fromSqlDataType(columnSchema.getSqlDataType()).name())
+                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
             .collect(Collectors.toList());
     TableSchema outputTableSchema = new TableSchema().setFields(tempTableFieldSchemas);
@@ -305,7 +309,9 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
     idPathAndNumChildrenBQRows.apply(
         "insert the (id, path, numChildren) rows into BQ",
         BigQueryIO.writeTableRows()
-            .to(tempTablePointer.getPathForIndexing())
+            .to(
+                BigQueryBeamUtils.getTableSqlPath(
+                    indexProjectId, indexDatasetId, tempTablePointer.getTableName()))
             .withSchema(outputTableSchema)
             .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
             .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)

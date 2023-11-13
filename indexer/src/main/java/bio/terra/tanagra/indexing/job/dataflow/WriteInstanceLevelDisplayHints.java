@@ -1,13 +1,13 @@
 package bio.terra.tanagra.indexing.job.dataflow;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
+import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DisplayHintUtils;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.bigquery.BigQuerySchemaUtils;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
@@ -323,9 +323,12 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                                 idNumericRange.getMax())))
         .apply(
             BigQueryIO.writeTableRows()
-                .to(indexTable.getTablePointer().getPathForIndexing())
-                .withSchema(
-                    BigQuerySchemaUtils.getBigQueryTableSchema(indexTable.getColumnSchemas()))
+                .to(
+                    BigQueryBeamUtils.getTableSqlPath(
+                        indexerConfig.bigQuery.indexData.projectId,
+                        indexerConfig.bigQuery.indexData.datasetId,
+                        indexTable.getTablePointer().getTableName()))
+                .withSchema(BigQueryBeamUtils.getBigQueryTableSchema(indexTable.getColumnSchemas()))
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
                 .withMethod(BigQueryIO.Write.Method.FILE_LOADS));
@@ -419,9 +422,12 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                                 idEnumValue.getCount())))
         .apply(
             BigQueryIO.writeTableRows()
-                .to(indexTable.getTablePointer().getPathForIndexing())
-                .withSchema(
-                    BigQuerySchemaUtils.getBigQueryTableSchema(indexTable.getColumnSchemas()))
+                .to(
+                    BigQueryBeamUtils.getTableSqlPath(
+                        indexerConfig.bigQuery.indexData.projectId,
+                        indexerConfig.bigQuery.indexData.datasetId,
+                        indexTable.getTablePointer().getTableName()))
+                .withSchema(BigQueryBeamUtils.getBigQueryTableSchema(indexTable.getColumnSchemas()))
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
                 .withMethod(BigQueryIO.Write.Method.FILE_LOADS));

@@ -109,16 +109,7 @@ public final class SourceSchema {
       SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
     DataPointer sourceDataPointer =
         new BigQueryDataset(
-            "source_datapointer",
-            szBigQuery.sourceData.projectId,
-            szBigQuery.sourceData.datasetId,
-            szBigQuery.queryProjectId,
-            null,
-            null,
-            null,
-            null,
-            false,
-            null);
+            "source_datapointer", szBigQuery.sourceData.projectId, szBigQuery.sourceData.datasetId);
 
     List<STEntityAttributes> entityAttributesTables = new ArrayList<>();
     List<STTextSearchTerms> textSearchTermsTables = new ArrayList<>();

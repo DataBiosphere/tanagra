@@ -111,16 +111,7 @@ public final class IndexSchema {
       SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
     DataPointer indexDataPointer =
         new BigQueryDataset(
-            "index_datapointer",
-            szBigQuery.indexData.projectId,
-            szBigQuery.indexData.datasetId,
-            szBigQuery.queryProjectId,
-            null,
-            null,
-            null,
-            null,
-            false,
-            null);
+            "index_datapointer", szBigQuery.indexData.projectId, szBigQuery.indexData.datasetId);
     NameHelper nameHelper = new NameHelper(szBigQuery.indexData.tablePrefix);
 
     List<ITEntityMain> entityMainTables = new ArrayList<>();

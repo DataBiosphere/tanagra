@@ -1,10 +1,10 @@
 package bio.terra.tanagra.indexing.job.dataflow;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
+import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.GraphUtils;
 import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.bigquery.BigQueryDataset;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -100,7 +100,7 @@ public class WriteAncestorDescendant extends BigQueryJob {
                     new TableFieldSchema()
                         .setName(columnSchema.getColumnName())
                         .setType(
-                            BigQueryDataset.fromSqlDataType(columnSchema.getSqlDataType()).name())
+                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
             .collect(Collectors.toList());
     TableSchema outputTableSchema = new TableSchema().setFields(outputFieldSchemas);
@@ -112,7 +112,11 @@ public class WriteAncestorDescendant extends BigQueryJob {
         .apply(ParDo.of(new KVToTableRow()))
         .apply(
             BigQueryIO.writeTableRows()
-                .to(indexTable.getTablePointer().getPathForIndexing())
+                .to(
+                    BigQueryBeamUtils.getTableSqlPath(
+                        indexerConfig.bigQuery.indexData.projectId,
+                        indexerConfig.bigQuery.indexData.datasetId,
+                        indexTable.getTablePointer().getTableName()))
                 .withSchema(outputTableSchema)
                 .withClustering(clustering)
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)

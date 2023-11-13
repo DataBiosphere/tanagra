@@ -1,7 +1,7 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.bigquery.BigQueryDataset;
+import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -41,7 +41,7 @@ public class CreateEntityMain extends BigQueryJob {
                 columnSchema ->
                     Field.newBuilder(
                             columnSchema.getColumnName(),
-                            BigQueryDataset.fromSqlDataType(columnSchema.getSqlDataType()))
+                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()))
                         .build())
             .collect(Collectors.toList());
 
