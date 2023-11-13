@@ -26,35 +26,8 @@ public interface IndexingJob {
 
   void clean(boolean isDryRun);
 
-  default JobStatus execute(RunType runType, boolean isDryRun) {
-    LOGGER.info("Executing indexing job: {}, {}", runType, getName());
-    JobStatus status = checkStatus();
-    LOGGER.info("Job status: {}", status);
-
-    switch (runType) {
-      case RUN:
-        if (!JobStatus.NOT_STARTED.equals(status)) {
-          LOGGER.info("Skipping because job is either in progress or complete");
-          return status;
-        }
-        run(isDryRun);
-        return checkStatus();
-      case CLEAN:
-        if (JobStatus.IN_PROGRESS.equals(status)) {
-          LOGGER.info("Skipping because job is in progress");
-          return status;
-        }
-        clean(isDryRun);
-        return checkStatus();
-      case STATUS:
-        return status;
-      default:
-        throw new IllegalArgumentException("Unknown execution type: " + runType);
-    }
-  }
-
   /** Check if the job completed what it was supposed to. */
-  static boolean checkStatusAfterRunMatchesExpected(
+  default boolean checkStatusAfterRunMatchesExpected(
       RunType runType, boolean isDryRun, JobStatus status) {
     return isDryRun
         || RunType.STATUS.equals(runType)

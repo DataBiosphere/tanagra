@@ -42,7 +42,7 @@ public class ValidateDataTypes extends BigQueryJob {
 
   @Override
   public JobStatus checkStatus() {
-    return outputTableHasAtLeastOneRow() ? JobStatus.COMPLETE : JobStatus.NOT_STARTED;
+    return JobStatus.NOT_STARTED;
   }
 
   @Override
@@ -85,5 +85,11 @@ public class ValidateDataTypes extends BigQueryJob {
   public void clean(boolean isDryRun) {
     LOGGER.info(
         "Nothing to clean. This job only validates the entity table schema. It does not write any index data.");
+  }
+
+  @Override
+  public boolean checkStatusAfterRunMatchesExpected(
+      RunType runType, boolean isDryRun, JobStatus status) {
+    return JobStatus.NOT_STARTED.equals(status);
   }
 }
