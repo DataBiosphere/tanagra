@@ -2,27 +2,27 @@
   "name": "aouSC2023Q3R1",
   "primaryEntity": "person",
   "entities": [
-    "omop/person",
+    "aou/person",
 
     "omop/condition",
     "omop/conditionOccurrence",
     "omop/procedure",
-    "omop/procedureOccurrence",
+    "aou/procedureOccurrence",
 
     "omop/brand",
     "omop/ingredient",
-    "omop/ingredientOccurrence",
+    "aou/ingredientOccurrence",
 
     "omop/measurementLoinc",
     "omop/measurementSnomed",
-    "omop/measurementOccurrence",
+    "aou/measurementOccurrence",
 
     "omop/observation",
-    "omop/observationOccurrence",
+    "aou/observationOccurrence",
     "aou/device",
-    "omop/deviceOccurrence",
-    "omop/visit",
-    "omop/visitOccurrence",
+    "aou/deviceOccurrence",
+    "aou/visit",
+    "aou/visitOccurrence",
 
     "omop/cpt4",
     "omop/icd9cm",
@@ -30,7 +30,13 @@
     "omop/icd10cm",
     "omop/icd10pcs",
 
-    "aou/activitySummary"
+    "aou/activitySummary",
+    "aou/heartRateLevel",
+    "aou/heartRateSummary",
+    "aou/sleepDailySummary",
+    "aou/sleepLevel",
+    "aou/stepsIntraday",
+    "aou/zipcodeSocioeconomic"
   ],
   "groupItemsEntityGroups": [
     "omop/brandIngredient"
@@ -52,7 +58,9 @@
     "omop/icd9cmPerson",
     "omop/icd9procPerson",
     "omop/icd10cmPerson",
-    "omop/icd10pcsPerson"
+    "omop/icd10pcsPerson",
+
+    "aou/activitySummaryPerson"
   ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset SC2023Q3R1",

@@ -1,0 +1,12 @@
+{
+  "name": "heartRateLevel",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
+    { "name": "datetime_utc", "dataType": "TIMESTAMP" },
+    { "name": "datetime_str", "dataType": "STRING" },
+    { "name": "heart_rate_value", "dataType": "INT64" },
+    { "name": "person_id", "dataType": "INT64" }
+  ],
+  "idAttribute": "id"
+}

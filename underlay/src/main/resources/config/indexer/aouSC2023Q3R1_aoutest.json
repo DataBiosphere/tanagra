@@ -11,7 +11,7 @@
     },
     "indexData": {
       "projectId": "all-of-us-ehr-dev",
-      "datasetId": "SC2023Q3R1",
+      "datasetId": "SC2023Q3R1_index_110623",
       "tablePrefix": "T"
     },
     "queryProjectId": "all-of-us-ehr-dev",

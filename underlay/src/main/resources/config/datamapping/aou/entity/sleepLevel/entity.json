@@ -1,0 +1,18 @@
+{
+  "name": "sleepLevel",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
+    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "sleep_date", "dataType": "DATE" },
+    { "type": "SIMPLE", "name": "is_main_sleep", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "level", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "start_datetime_utc", "dataType": "TIMESTAMP" },
+    { "type": "SIMPLE", "name": "start_datetime_str", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "duration_in_min", "dataType": "DOUBLE" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "concept_code" ]
+  }
+}
