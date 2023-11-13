@@ -26,7 +26,8 @@ import {
   SortOrder,
 } from "data/configuration";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
-import { ClassificationNode, MergedItem, Source } from "data/source";
+import { MergedItem, mergeLists } from "data/mergeLists";
+import { ClassificationNode, Source } from "data/source";
 import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
@@ -342,7 +343,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       ])
     );
 
-    const merged = source.mergeLists(
+    const merged = mergeLists(
       raw,
       props.config.limit ?? 100,
       sortOrder.direction,
